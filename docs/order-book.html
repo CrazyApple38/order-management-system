@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>受注簿</title>
+    <link rel="stylesheet" href="mockup/order-book.css">
+</head>
+<body>
+
+    <!-- ヘッダー -->
+    <header class="ob-header">
+        <h1>受注簿</h1>
+        <div class="ob-month-nav">
+            <button class="ob-month-btn" onclick="changeMonth(-1)">◀ 前月</button>
+            <span class="ob-month-label" id="monthLabel">2026年2月</span>
+            <button class="ob-month-btn" onclick="changeMonth(1)">次月 ▶</button>
+        </div>
+    </header>
+
+    <!-- ツールバー -->
+    <div class="ob-toolbar">
+        <div class="ob-toolbar-left">
+            <button class="ob-tb-btn" onclick="openSortModal()">⇅ ソート</button>
+            <button class="ob-tb-btn" onclick="toggleFilterRow()">🔍 フィルタ</button>
+            <button class="ob-tb-btn" onclick="toggleHiddenRows()">👁 表示/非表示</button>
+            <button class="ob-tb-btn" onclick="toggleWeekendColors()">🎨 土日祝色</button>
+        </div>
+        <div class="ob-toolbar-right">
+            <span class="ob-summary" id="summaryText">全 12 件</span>
+        </div>
+    </div>
+
+    <!-- フィルタ行（トグル表示） -->
+    <div class="ob-filter-bar" id="filterBar" style="display:none;">
+        <label>本社/支店:
+            <select id="filterBranch" onchange="applyFilters()">
+                <option value="">すべて</option>
+                <option>本社</option>
+                <option>支店</option>
+            </select>
+        </label>
+        <label>区分:
+            <select id="filterCategory" onchange="applyFilters()">
+                <option value="">すべて</option>
+                <option>高速SA</option>
+                <option>高速</option>
+                <option>一般道</option>
+                <option>施設</option>
+            </select>
+        </label>
+        <label>昼/夜:
+            <select id="filterShift" onchange="applyFilters()">
+                <option value="">すべて</option>
+                <option>昼</option>
+                <option>夜</option>
+            </select>
+        </label>
+        <label>契約先:
+            <input type="text" id="filterCompany" placeholder="契約先名で絞込" oninput="applyFilters()">
+        </label>
+        <button class="ob-filter-clear" onclick="clearFilters()">✕ クリア</button>
+    </div>
+
+    <!-- グリッドコンテナ -->
+    <div class="ob-grid-wrapper">
+        <div class="ob-grid-scroll" id="gridScroll">
+            <table class="ob-grid" id="orderBookGrid">
+                <thead id="gridHead"></thead>
+                <tbody id="gridBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ツールチップ -->
+    <div class="ob-tooltip" id="cellTooltip" style="display:none;"></div>
+
+    <!-- セル編集モーダル -->
+    <div class="ob-modal-overlay" id="editModalOverlay" style="display:none;" onclick="closeEditModal(event)">
+        <div class="ob-modal" onclick="event.stopPropagation()">
+            <div class="ob-modal-header">
+                <h3 id="editModalTitle">セル編集</h3>
+                <button class="ob-modal-close" onclick="closeEditModal()">✕</button>
+            </div>
+            <div class="ob-modal-body">
+                <div class="ob-modal-info" id="editModalInfo"></div>
+                <div class="ob-edit-form">
+                    <div class="ob-form-row">
+                        <label>人数</label>
+                        <input type="number" id="editCount" min="0" max="99">
+                    </div>
+                    <div class="ob-form-row">
+                        <label>現場名</label>
+                        <input type="text" id="editSiteName">
+                    </div>
+                    <div class="ob-form-row ob-form-row-half">
+                        <div>
+                            <label>開始時間</label>
+                            <input type="time" id="editStartTime">
+                        </div>
+                        <div>
+                            <label>終了時間</label>
+                            <input type="time" id="editEndTime">
+                        </div>
+                    </div>
+                    <div class="ob-form-row ob-form-row-half">
+                        <div>
+                            <label>集合場所</label>
+                            <input type="text" id="editMeetingPlace">
+                        </div>
+                        <div>
+                            <label>集合時間</label>
+                            <input type="time" id="editMeetingTime">
+                        </div>
+                    </div>
+                    <div class="ob-form-row">
+                        <label>配置</label>
+                        <textarea id="editAssignment" rows="2" placeholder="社員名をカンマ区切り"></textarea>
+                    </div>
+                    <div class="ob-form-row">
+                        <label>連絡</label>
+                        <input type="text" id="editContact">
+                    </div>
+                    <div class="ob-form-row">
+                        <label>備考</label>
+                        <textarea id="editRemarks" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="ob-modal-footer">
+                <button class="ob-btn ob-btn-secondary" onclick="closeEditModal()">キャンセル</button>
+                <button class="ob-btn ob-btn-primary" onclick="saveEdit()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ソート設定モーダル -->
+    <div class="ob-modal-overlay" id="sortModalOverlay" style="display:none;" onclick="closeSortModal(event)">
+        <div class="ob-modal ob-modal-sm" onclick="event.stopPropagation()">
+            <div class="ob-modal-header">
+                <h3>ソート設定</h3>
+                <button class="ob-modal-close" onclick="closeSortModal()">✕</button>
+            </div>
+            <div class="ob-modal-body">
+                <p class="ob-sort-desc">ドラッグで優先順位を変更できます</p>
+                <ul class="ob-sort-list" id="sortList">
+                    <li draggable="true" data-key="branch"><span class="ob-sort-grip">☰</span> 本社/支店 <button class="ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
+                    <li draggable="true" data-key="category"><span class="ob-sort-grip">☰</span> 区分カテゴリ <button class="ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
+                    <li draggable="true" data-key="company"><span class="ob-sort-grip">☰</span> 契約先名 <button class="ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
+                    <li draggable="true" data-key="task"><span class="ob-sort-grip">☰</span> 業務名 <button class="ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
+                    <li draggable="true" data-key="shift"><span class="ob-sort-grip">☰</span> 昼/夜 <button class="ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
+                </ul>
+            </div>
+            <div class="ob-modal-footer">
+                <button class="ob-btn ob-btn-secondary" onclick="closeSortModal()">キャンセル</button>
+                <button class="ob-btn ob-btn-primary" onclick="applySort()">適用</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="mockup/order-book.js"></script>
+</body>
+</html>

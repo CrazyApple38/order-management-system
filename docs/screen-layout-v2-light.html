@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>業務管理計画書 - 画面レイアウト設計（Light Theme (Coastal)）</title>
+    <link rel="stylesheet" href="mockup/screen-layout-v2-light.css">
+</head>
+<body>
+    <div class="container">
+        <h1>業務管理計画書 - 画面レイアウト設計</h1>
+
+        <div class="description">
+            <h2>5.1.1 画面構成</h2>
+            <p>既存のExcel業務管理計画書と同様のレイアウトを採用し、受注一覧・受注詳細・編集・人員配置を1つの画面で操作可能にする。<br>
+            左側に現場情報（固定列）、中央に配置ゾーン、右側に社員リスト（サイドパネル）を配置。<br>
+            社員は右サイドパネルから配置ゾーンへドラッグ&ドロップで配置する。<br>
+            現場情報セルをクリックすると、時間・会社・現場名・区分・昼夜の入力ポップアップが開く。</p>
+        </div>
+
+        <!-- メインレイアウト -->
+        <div class="main-layout">
+            <!-- 画面モックアップ -->
+            <div class="screen-mockup">
+                <!-- ヘッダー部 -->
+                <div class="header-section">
+                    <div class="header-left">
+                        <div class="date-picker">
+                            <button>◀</button>
+                            <span class="date-display">2026年1月27日 <span class="weekday">火曜日</span></span>
+                            <button>▶</button>
+                            <button>📅</button>
+                        </div>
+                        <div class="company-filter">
+                            <label>グループ会社:</label>
+                            <select>
+                                <option selected>全て</option>
+                                <option>東央警備</option>
+                                <option>Nikkeiホールディングス</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <a href="screen-layout-v2.html" class="theme-toggle-btn">
+                            <span class="theme-toggle-label">Dark Mode</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ツールバー -->
+                <div class="toolbar">
+                    <button class="primary" onclick="openDiffModal('import')">📥 受注簿データ取得</button>
+                    <button class="primary" onclick="openDiffModal('export')">📤 受注簿へ転記</button>
+                    <div class="toolbar-separator"></div>
+                    <button>➕ 行挿入</button>
+                    <button class="danger">🗑 行削除</button>
+                    <button>🧹 消去</button>
+                    <div class="toolbar-separator"></div>
+                    <button onclick="moveRowUp()">⬆ 上へ</button>
+                    <button onclick="moveRowDown()">⬇ 下へ</button>
+                    <button onclick="openSortModal()">📊 ソート設定</button>
+                    <div class="toolbar-separator"></div>
+                    <button>🔍 フィルタ</button>
+                    <div class="toolbar-separator"></div>
+                    <button onclick="toggleColorSettingsPanel()">🎨 カラー設定</button>
+                </div>
+
+                <!-- グリッドテーブル -->
+                <div class="grid-container">
+                    <table class="grid-table">
+                        <thead>
+                            <tr>
+                                <th class="col-no">No.</th>
+                                <th class="col-site-info">時間 / 会社 / 現場名</th>
+                                <th class="col-map">地図</th>
+                                <th class="col-time">集合</th>
+                                <th class="col-count">人数</th>
+                                <th>配置（右からドラッグ&ドロップ）</th>
+                                <th class="col-notes">備考</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 行1: 施設警備 昼 -->
+                            <tr onclick="selectRow(this, event)">
+                                <td class="col-no">1</td>
+                                <td class="col-site-info clickable-cell gc-border-touo" data-group-company="touo" data-gc-name="東央警備" onclick="openSiteModal(this)">
+                                    <div class="site-info">
+                                        <div class="site-badges">
+                                            <span class="shift-badge shift-day">昼</span>
+                                            <span class="category-badge category-facility">施設</span>
+                                        </div>
+                                        <div class="site-details">
+                                            <div class="time">09:00 - 18:00</div>
+                                            <div class="company">〇〇株式会社</div>
+                                            <div class="site-name">〇〇ビル 巡回警備</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="col-map clickable-cell" onclick="openMapModal(this, 1)" data-map-url="https://maps.google.com/?q=33.8,130.8"><span class="map-link">MAP</span></td>
+                                <td><span class="time-display">08:45</span><span class="contact-badge contact-direct">直</span></td>
+                                <td><span class="count-display count-ok">2/2</span></td>
+                                <td>
+                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                                        <span class="assigned-employee">
+                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
+                                                <span class="employee-with-continuous">
+                                                    <span>田中</span>
+                                                    <span class="continuous-badge continuous-badge-below" title="連続勤務（昼→夜）">▼</span>
+                                                </span>
+                                                <span class="contact-badge contact-direct">直</span>
+                                            </span>
+                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
+                                        </span>
+                                        <span class="assigned-employee">
+                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
+                                                <span>佐藤</span>
+                                                <span class="contact-badge contact-company">会社</span>
+                                            </span>
+                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
+                                        </span>
+                                    </div>
+                                    <div class="vehicle-transport-box" onclick="openVtModal(this)"></div>
+                                    <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
+                                </td>
+                                <td class="col-notes"></td>
+                            </tr>
+
+                            <!-- 行2: 交通誘導 昼 -->
+                            <tr onclick="selectRow(this, event)">
+                                <td class="col-no">2</td>
+                                <td class="col-site-info clickable-cell gc-border-touo" data-group-company="touo" data-gc-name="東央警備" onclick="openSiteModal(this)">
+                                    <div class="site-info">
+                                        <div class="site-badges">
+                                            <span class="shift-badge shift-day">昼</span>
+                                            <span class="category-badge category-traffic">交通</span>
+                                        </div>
+                                        <div class="site-details">
+                                            <div class="time">08:00 - 17:00</div>
+                                            <div class="company">△△建設</div>
+                                            <div class="site-name">国道〇号線 舗装工事</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="col-map clickable-cell" onclick="openMapModal(this, 2)" data-map-url="https://maps.google.com/?q=33.9,130.9"><span class="map-link">MAP</span></td>
+                                <td><span class="time-display">07:30</span><span class="contact-badge contact-company">会社</span></td>
+                                <td><span class="count-display count-ok">3/3</span></td>
+                                <td>
+                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                                        <span class="assigned-employee">
+                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
+                                                <span>鈴木</span>
+                                                <span class="contact-badge contact-company">会社</span>
+                                            </span>
+                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
+                                        </span>
+                                        <span class="assigned-employee">
+                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
+                                                <span>高橋</span>
+                                                <span class="contact-badge contact-direct">直</span>
+                                            </span>
+                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
+                                        </span>
+                                        <span class="assigned-employee">
+                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
+                                                <span>伊藤</span>
+                                                <span class="contact-badge contact-pickup" style="background:rgba(214,158,46,0.1); color:#975A16;">迎え</span>
+                                            </span>
+                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
+                                        </span>
+                                    </div>
+                                    <div class="vehicle-transport-box has-items" onclick="openVtModal(this)">
+                                        <div class="box-section">
+                                            <span class="box-label" style="color:#2A6B7A;">車両:</span>
+                                            <span class="box-value" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">標識A</span>
+                                        </div>
+                                        <div class="box-section">
+                                            <span class="box-label" style="color:#975A16;">送迎:</span>
+                                            <span class="box-value" style="background:rgba(214,158,46,0.1); color:#975A16;">鈴木→高橋</span>
+                                        </div>
+                                    </div>
+                                    <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
+                                </td>
+                                <td class="col-notes">雨天中止の場合連絡</td>
+                            </tr>
+
+                            <!-- 行3: イベント 昼 -->
+                            <tr onclick="selectRow(this, event)">
+                                <td class="col-no">3</td>
+                                <td class="col-site-info clickable-cell gc-border-nikkei" data-group-company="nikkei" data-gc-name="Nikkeiホールディングス" onclick="openSiteModal(this)">
+                                    <div class="site-info">
+                                        <div class="site-badges">
+                                            <span class="shift-badge shift-day">昼</span>
+                                            <span class="category-badge category-event">イベント</span>
+                                        </div>
+                                        <div class="site-details">
+                                            <div class="time">10:00 - 20:00</div>
+                                            <div class="company">□□イベント</div>
+                                            <div class="site-name">〇〇会館 展示会</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="col-map clickable-cell" onclick="openMapModal(this, 3)" data-map-url=""><span class="map-empty">＋</span></td>
+                                <td><span class="time-display">09:30</span><span class="contact-badge contact-line">LINE</span></td>
+                                <td><span class="count-display count-shortage">1/2</span></td>
+                                <td>
+                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                                        <span class="assigned-employee">
+                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
+                                                <span>山本</span>
+                                                <span class="contact-badge contact-line">LINE</span>
+                                            </span>
+                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
+                                        </span>
+                                    </div>
+                                    <div class="vehicle-transport-box" onclick="openVtModal(this)"></div>
+                                    <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
+                                </td>
+                                <td class="col-notes">要1名追加</td>
+                            </tr>
+
+                            <!-- 行4: 高速 昼 -->
+                            <tr onclick="selectRow(this, event)">
+                                <td class="col-no">4</td>
+                                <td class="col-site-info clickable-cell gc-border-touo" data-group-company="touo" data-gc-name="東央警備" onclick="openSiteModal(this)">
+                                    <div class="site-info">
+                                        <div class="site-badges">
+                                            <span class="shift-badge shift-day">昼</span>
+                                            <span class="category-badge category-highway">高速</span>
+                                        </div>
+                                        <div class="site-details">
+                                            <div class="time">08:30 - 17:30</div>
+                                            <div class="company">西日本高速道路</div>
+                                            <div class="site-name">24-1234 〇〇橋補修 点検</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="col-map clickable-cell" onclick="openMapModal(this, 4)" data-map-url=""><span class="map-empty">＋</span></td>
+                                <td><span class="time-display">08:00</span><span class="contact-badge contact-company">会社</span></td>
+                                <td><span class="count-display count-ok">2/2</span></td>
+                                <td>
+                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                                        <span class="assigned-employee">
+                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
+                                                <span>中村</span>
+                                                <span class="contact-badge contact-op" style="background:rgba(128,90,213,0.1); color:#6B46C1;">OP</span>
+                                            </span>
+                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
+                                        </span>
+                                        <span class="assigned-employee">
+                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
+                                                <span>小林</span>
+                                                <span class="contact-badge contact-direct">直</span>
+                                            </span>
+                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
+                                        </span>
+                                    </div>
+                                    <div class="vehicle-transport-box has-items" onclick="openVtModal(this)">
+                                        <div class="box-section">
+                                            <span class="box-label" style="color:#2A6B7A;">車両:</span>
+                                            <span class="box-value" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">2t車</span>
+                                        </div>
+                                    </div>
+                                    <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
+                                </td>
+                                <td class="col-notes"></td>
+                            </tr>
+
+                            <!-- 行5: 施設警備 夜 -->
+                            <tr class="row-night" onclick="selectRow(this, event)">
+                                <td class="col-no">5</td>
+                                <td class="col-site-info clickable-cell gc-border-touo" data-group-company="touo" data-gc-name="東央警備" onclick="openSiteModal(this)">
+                                    <div class="site-info">
+                                        <div class="site-badges">
+                                            <span class="shift-badge shift-night">夜</span>
+                                            <span class="category-badge category-facility">施設</span>
+                                        </div>
+                                        <div class="site-details">
+                                            <div class="time">18:00 - 09:00</div>
+                                            <div class="company">〇〇株式会社</div>
+                                            <div class="site-name">〇〇ビル 夜間警備</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="col-map clickable-cell" onclick="openMapModal(this, 5)" data-map-url="https://maps.google.com/?q=33.8,130.8"><span class="map-link">MAP</span></td>
+                                <td><span class="time-display">17:45</span><span class="contact-badge contact-direct">直</span></td>
+                                <td><span class="count-display count-ok">1/1</span></td>
+                                <td>
+                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                                        <span class="assigned-employee">
+                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
+                                                <span class="employee-with-continuous">
+                                                    <span class="continuous-badge continuous-badge-above" title="連続勤務（昼→夜）">▼</span>
+                                                    <span>田中</span>
+                                                </span>
+                                                <span class="contact-badge contact-direct">直</span>
+                                            </span>
+                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
+                                        </span>
+                                    </div>
+                                    <div class="vehicle-transport-box" onclick="openVtModal(this)"></div>
+                                    <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
+                                </td>
+                                <td class="col-notes">田中さん連続勤務</td>
+                            </tr>
+
+                            <!-- 行6: 交通誘導 夜 -->
+                            <tr class="row-night" onclick="selectRow(this, event)">
+                                <td class="col-no">6</td>
+                                <td class="col-site-info clickable-cell gc-border-nikkei" data-group-company="nikkei" data-gc-name="Nikkeiホールディングス" onclick="openSiteModal(this)">
+                                    <div class="site-info">
+                                        <div class="site-badges">
+                                            <span class="shift-badge shift-night">夜</span>
+                                            <span class="category-badge category-traffic">交通</span>
+                                        </div>
+                                        <div class="site-details">
+                                            <div class="time">20:00 - 06:00</div>
+                                            <div class="company">◇◇工業</div>
+                                            <div class="site-name">県道〇号 夜間規制</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="col-map clickable-cell" onclick="openMapModal(this, 6)" data-map-url=""><span class="map-empty">＋</span></td>
+                                <td><span class="time-display">19:30</span><span class="contact-badge contact-company">会社</span></td>
+                                <td><span class="count-display count-ok">2/2</span></td>
+                                <td>
+                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                                        <span class="assigned-employee">
+                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
+                                                <span>渡辺</span>
+                                                <span class="contact-badge contact-company">会社</span>
+                                            </span>
+                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
+                                            <span class="indicator indicator-conflict" title="配置制約あり">⚠</span>
+                                        </span>
+                                        <span class="assigned-employee">
+                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
+                                                <span>加藤</span>
+                                            </span>
+                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
+                                            <span class="indicator indicator-conflict" title="配置制約あり">⚠</span>
+                                        </span>
+                                    </div>
+                                    <div class="vehicle-transport-box has-items" onclick="openVtModal(this)">
+                                        <div class="box-section">
+                                            <span class="box-label" style="color:#2A6B7A;">車両:</span>
+                                            <span class="box-value" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">標識B</span>
+                                        </div>
+                                    </div>
+                                    <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
+                                </td>
+                                <td class="col-notes">渡辺・加藤 相性注意</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 右サイドパネル（社員リスト） -->
+            <div class="side-panel">
+                <div class="side-panel-header">
+                    <span>社員リスト</span>
+                    <span style="font-size: 0.8rem; opacity: 0.8;">全25名</span>
+                </div>
+                <div class="side-panel-search">
+                    <input type="text" placeholder="🔍 社員検索...">
+                </div>
+                <div class="side-panel-content">
+                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">田中</span>
+                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">佐藤</span>
+                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">鈴木</span>
+                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">高橋</span>
+                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">伊藤</span>
+                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">山本</span>
+                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">中村</span>
+                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">小林</span>
+                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">渡辺</span>
+                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">加藤</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">吉田</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">山田</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">松本</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">井上</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">木村</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">林</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">斎藤</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">清水</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">山口</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">森</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">池田</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">橋本</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">阿部</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">石川</span>
+                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">前田</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- カラー設定サイドパネル -->
+        <div class="color-settings-panel" id="colorSettingsPanel">
+            <div class="color-settings-header">
+                <span>カラー設定</span>
+                <button class="color-settings-close" onclick="toggleColorSettingsPanel()">&times;</button>
+            </div>
+
+            <!-- パターン選択 -->
+            <div class="color-settings-section">
+                <label class="color-settings-label">カラーパターン</label>
+                <div class="color-preset-selector">
+                    <select id="colorPresetSelect" onchange="loadColorPreset(this.value)">
+                        <option value="default">デフォルト</option>
+                    </select>
+                    <button class="color-preset-btn" onclick="saveColorPreset()" title="現在の設定を保存">💾</button>
+                    <button class="color-preset-btn" onclick="deleteColorPreset()" title="選択中のパターンを削除">🗑</button>
+                </div>
+            </div>
+
+            <hr class="color-settings-divider">
+
+            <!-- グループ会社ボーダー -->
+            <div class="color-settings-section">
+                <label class="color-settings-label">グループ会社（左ボーダー）</label>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker" data-css-var="--gc-color-touo" value="#3B8BC5">
+                    <span class="color-setting-name">東央警備</span>
+                    <span class="color-setting-hex" data-css-var="--gc-color-touo">#3B8BC5</span>
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker" data-css-var="--gc-color-nikkei" value="#D05050">
+                    <span class="color-setting-name">Nikkeiホールディングス</span>
+                    <span class="color-setting-hex" data-css-var="--gc-color-nikkei">#D05050</span>
+                </div>
+            </div>
+
+            <hr class="color-settings-divider">
+
+            <!-- 区分カラー -->
+            <div class="color-settings-section">
+                <label class="color-settings-label">区分カラー（背景）</label>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker" data-css-var="--cat-bg-facility" value="#38A169">
+                    <span class="color-setting-name">施設警備</span>
+                    <span class="color-setting-hex" data-css-var="--cat-bg-facility">rgba(...)</span>
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker" data-css-var="--cat-bg-event" value="#DD6B20">
+                    <span class="color-setting-name">イベント</span>
+                    <span class="color-setting-hex" data-css-var="--cat-bg-event">rgba(...)</span>
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker" data-css-var="--cat-bg-traffic" value="#3182CE">
+                    <span class="color-setting-name">交通誘導</span>
+                    <span class="color-setting-hex" data-css-var="--cat-bg-traffic">rgba(...)</span>
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker" data-css-var="--cat-bg-highway" value="#805AD5">
+                    <span class="color-setting-name">高速道路</span>
+                    <span class="color-setting-hex" data-css-var="--cat-bg-highway">rgba(...)</span>
+                </div>
+            </div>
+
+            <hr class="color-settings-divider">
+
+            <!-- 区分カラー（文字） -->
+            <div class="color-settings-section">
+                <label class="color-settings-label">区分カラー（文字）</label>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker" data-css-var="--cat-text-facility" value="#276749">
+                    <span class="color-setting-name">施設警備</span>
+                    <span class="color-setting-hex" data-css-var="--cat-text-facility">#276749</span>
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker" data-css-var="--cat-text-event" value="#9C4221">
+                    <span class="color-setting-name">イベント</span>
+                    <span class="color-setting-hex" data-css-var="--cat-text-event">#9C4221</span>
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker" data-css-var="--cat-text-traffic" value="#2B6CB0">
+                    <span class="color-setting-name">交通誘導</span>
+                    <span class="color-setting-hex" data-css-var="--cat-text-traffic">#2B6CB0</span>
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker" data-css-var="--cat-text-highway" value="#6B46C1">
+                    <span class="color-setting-name">高速道路</span>
+                    <span class="color-setting-hex" data-css-var="--cat-text-highway">#6B46C1</span>
+                </div>
+            </div>
+
+            <hr class="color-settings-divider">
+
+            <!-- シフト区分 -->
+            <div class="color-settings-section">
+                <label class="color-settings-label">シフト区分（背景）</label>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker" data-css-var="--shift-bg-day" value="#D69E2E">
+                    <span class="color-setting-name">昼勤務</span>
+                    <span class="color-setting-hex" data-css-var="--shift-bg-day">rgba(...)</span>
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker" data-css-var="--shift-bg-night" value="#2B6CB0">
+                    <span class="color-setting-name">夜勤務</span>
+                    <span class="color-setting-hex" data-css-var="--shift-bg-night">rgba(...)</span>
+                </div>
+            </div>
+
+            <hr class="color-settings-divider">
+
+            <div class="color-settings-section">
+                <label class="color-settings-label">シフト区分（文字）</label>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker" data-css-var="--shift-text-day" value="#975A16">
+                    <span class="color-setting-name">昼勤務</span>
+                    <span class="color-setting-hex" data-css-var="--shift-text-day">#975A16</span>
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker" data-css-var="--shift-text-night" value="#2C5282">
+                    <span class="color-setting-name">夜勤務</span>
+                    <span class="color-setting-hex" data-css-var="--shift-text-night">#2C5282</span>
+                </div>
+            </div>
+
+            <hr class="color-settings-divider">
+
+            <!-- デフォルトに戻す -->
+            <div class="color-settings-section">
+                <button class="color-reset-btn" onclick="resetColorsToDefault()">デフォルトに戻す</button>
+            </div>
+        </div>
+
+        <!-- 現場詳細入力モーダル -->
+        <div class="modal-overlay" id="siteModal">
+            <div class="modal-content modal-site-detail">
+                <div class="modal-site-header">
+                    <h3>現場詳細入力</h3>
+                </div>
+                <div class="modal-site-body">
+                    <!-- 左カラム: 基本情報 -->
+                    <div class="modal-site-col">
+                        <div class="modal-col-title">基本情報</div>
+
+                        <div class="modal-section">
+                            <label>グループ会社</label>
+                            <select id="groupCompanySelect">
+                                <option value="">選択してください...</option>
+                                <option value="touo">東央警備</option>
+                                <option value="nikkei">Nikkeiホールディングス</option>
+                            </select>
+                        </div>
+
+                        <div class="modal-row">
+                            <div class="modal-section half">
+                                <label>区分</label>
+                                <select id="categorySelect">
+                                    <option value="facility">施設</option>
+                                    <option value="event">イベント</option>
+                                    <option value="traffic">交通</option>
+                                    <option value="highway">高速</option>
+                                    <option value="support_event">応援イベント</option>
+                                    <option value="support_traffic">応援交通</option>
+                                    <option value="support_highway">応援高速</option>
+                                    <option value="training">研修</option>
+                                    <option value="company">会社</option>
+                                </select>
+                            </div>
+                            <div class="modal-section half">
+                                <label>昼夜</label>
+                                <select id="shiftSelect">
+                                    <option value="day">昼</option>
+                                    <option value="night">夜</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="modal-row">
+                            <div class="modal-section half">
+                                <label>開始時間</label>
+                                <input type="time" id="startTimeInput" value="09:00">
+                            </div>
+                            <div class="modal-section half">
+                                <label>終了時間</label>
+                                <input type="time" id="endTimeInput" value="18:00">
+                            </div>
+                        </div>
+
+                        <div class="modal-row">
+                            <div class="modal-section half">
+                                <label>集合時間</label>
+                                <input type="time" id="meetingTimeInput" value="08:30">
+                            </div>
+                            <div class="modal-section half">
+                                <label>連絡</label>
+                                <div class="combobox-container" id="contactCombobox">
+                                    <input type="text" class="combobox-input" id="contactInput"
+                                           placeholder="選択または入力..."
+                                           autocomplete="off">
+                                    <button type="button" class="combobox-toggle" id="contactToggle">▼</button>
+                                    <div class="combobox-dropdown" id="contactDropdown"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-section">
+                            <label>必要人数</label>
+                            <div style="display: flex; align-items: center;">
+                                <input type="number" id="requiredCountInput" min="1" max="99" value="1" style="width: 80px;">
+                                <span style="color: var(--text-tertiary); font-size: 0.85rem; margin-left: 5px;">名</span>
+                            </div>
+                        </div>
+
+                        <div class="modal-section">
+                            <label>備考</label>
+                            <textarea id="notesInput" rows="2" placeholder="備考を入力..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 右カラム: 現場情報 -->
+                    <div class="modal-site-col">
+                        <div class="modal-col-title">現場情報</div>
+
+                        <div class="modal-section">
+                            <label>契約先（元請け）</label>
+                            <div class="combobox-container" id="companyCombobox">
+                                <input type="text" class="combobox-input" id="companyInput"
+                                       placeholder="入力して検索、またはリストから選択..."
+                                       autocomplete="off">
+                                <button type="button" class="combobox-clear" id="companyClear">✕</button>
+                                <button type="button" class="combobox-toggle" id="companyToggle">▼</button>
+                                <div class="combobox-dropdown" id="companyDropdown"></div>
+                            </div>
+                        </div>
+
+                        <div class="modal-section">
+                            <label>現場名</label>
+                            <div class="combobox-container" id="siteNameCombobox">
+                                <input type="text" class="combobox-input"
+                                       placeholder="契約先を選択してから入力..."
+                                       autocomplete="off" disabled>
+                                <button type="button" class="combobox-clear">✕</button>
+                                <button type="button" class="combobox-toggle">▼</button>
+                                <div class="combobox-dropdown"></div>
+                            </div>
+                        </div>
+
+                        <!-- 動的追加項目コンテナ -->
+                        <div id="subItemsContainer">
+                            <!-- 追加項目は動的に生成される -->
+                            <button type="button" class="add-sub-item-btn" id="addSubItemBtn" onclick="addSubItemLevel()">＋ 追加項目を追加</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-site-footer">
+                    <button class="btn-cancel" onclick="closeSiteModal()">キャンセル</button>
+                    <button class="btn-save" onclick="saveSiteModal()">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 地図URLモーダル -->
+        <div class="modal-overlay" id="mapModal">
+            <div class="modal-content" style="min-width: 500px;">
+                <h3>地図URL設定</h3>
+
+                <div class="modal-section">
+                    <label>Google Maps URL</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="url" id="mapUrlInput" placeholder="https://maps.google.com/..." style="flex: 1;" oninput="updateMapPreview()">
+                        <button type="button" onclick="updateMapPreview()" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; white-space: nowrap;">表示</button>
+                    </div>
+                    <p style="color: var(--text-tertiary); font-size: 0.8rem; margin-top: 5px;">Google Mapsで場所を開き、URLをコピーして貼り付けてください</p>
+                </div>
+
+                <div class="modal-section" id="mapPreviewSection" style="display: none;">
+                    <label>プレビュー</label>
+                    <div style="border: 1px solid var(--divider); border-radius: 6px; overflow: hidden; background: var(--bg-surface-2);">
+                        <iframe id="mapPreviewFrame" src="" style="width: 100%; height: 300px; border: none;"></iframe>
+                    </div>
+                </div>
+
+                <div class="modal-buttons">
+                    <button class="btn-cancel" onclick="clearMapUrl()" style="margin-right: auto; background: rgba(229,62,62,0.15); color: #fc8181;">削除</button>
+                    <button class="btn-cancel" onclick="closeMapModal()">キャンセル</button>
+                    <button class="btn-save" onclick="saveMapModal()">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 車両・送迎編集モーダル -->
+        <div class="modal-overlay" id="vtModal">
+            <div class="modal-content modal-wide">
+                <h3>車両・送迎設定</h3>
+
+                <div class="vt-preset-section">
+                    <div class="vt-preset-label">プリセットから追加</div>
+                    <div class="vt-preset-btns">
+                        <button class="vt-preset-btn" onclick="addVtPresetItem('車両', 'rgba(68,166,181,0.12)', '#2A6B7A')">＋ 車両</button>
+                        <button class="vt-preset-btn" onclick="addVtPresetItem('送迎', 'rgba(214,158,46,0.1)', '#975A16')">＋ 送迎</button>
+                    </div>
+                </div>
+
+                <div class="vt-modal-items" id="vtModalItems">
+                    <!-- 動的に生成 -->
+                </div>
+
+                <button class="vt-add-item-btn" onclick="addVtEmptyItem()">＋ 項目を追加</button>
+
+                <div class="modal-buttons">
+                    <button class="btn-cancel" onclick="closeVtModal()">キャンセル</button>
+                    <button class="btn-save" onclick="saveVtModal()">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 個別連絡選択ポップアップ -->
+        <div class="contact-popup" id="employeeContactPopup">
+            <div class="contact-popup-title">連絡方法を選択</div>
+            <div class="contact-popup-options" id="contactPopupOptions">
+                <!-- 動的に生成 -->
+            </div>
+            <div class="contact-popup-add">
+                <input type="text" id="newContactItemInput" placeholder="新しい項目名..." maxlength="10">
+                <button onclick="addContactItem()">追加</button>
+            </div>
+        </div>
+
+        <!-- ソート設定モーダル -->
+        <div class="modal-overlay" id="sortModal">
+            <div class="sort-modal">
+                <div class="sort-modal-header">
+                    <h3>ソート設定</h3>
+                    <button class="sort-modal-close" onclick="closeSortModal()">✕</button>
+                </div>
+                <div class="sort-modal-body">
+                    <div class="sort-column">
+                        <div class="sort-column-header">区分</div>
+                        <div class="sort-column-list" id="sortListCategory"></div>
+                        <div class="sort-column-buttons">
+                            <button onclick="sortMoveUp('category')">▲</button>
+                            <button onclick="sortMoveDown('category')">▼</button>
+                        </div>
+                    </div>
+                    <div class="sort-column">
+                        <div class="sort-column-header">昼夜</div>
+                        <div class="sort-column-list" id="sortListShift"></div>
+                        <div class="sort-column-buttons">
+                            <button onclick="sortMoveUp('shift')">▲</button>
+                            <button onclick="sortMoveDown('shift')">▼</button>
+                        </div>
+                    </div>
+                    <div class="sort-column">
+                        <div class="sort-column-header">
+                            契約先
+                            <span class="sort-column-filter" id="sortContractorFilter"></span>
+                        </div>
+                        <div class="sort-column-list" id="sortListContractor"></div>
+                        <div class="sort-column-buttons">
+                            <button onclick="sortMoveUp('contractor')">▲</button>
+                            <button onclick="sortMoveDown('contractor')">▼</button>
+                        </div>
+                    </div>
+                    <div class="sort-column">
+                        <div class="sort-column-header">
+                            現場名
+                            <span class="sort-column-filter" id="sortSiteFilter"></span>
+                        </div>
+                        <div class="sort-column-list" id="sortListSite"></div>
+                        <div class="sort-column-buttons">
+                            <button onclick="sortMoveUp('site')">▲</button>
+                            <button onclick="sortMoveDown('site')">▼</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="sort-modal-footer">
+                    <button class="sort-btn sort-btn-reset" onclick="resetSortSettings()">リセット</button>
+                    <div class="sort-footer-right">
+                        <button class="sort-btn sort-btn-cancel" onclick="closeSortModal()">キャンセル</button>
+                        <button class="sort-btn sort-btn-apply" onclick="applySortSettings()">ソート実行</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 差分処理モーダル -->
+        <div class="modal-overlay" id="diffModal">
+            <div class="diff-modal">
+                <!-- ヘッダー -->
+                <div class="diff-modal-header">
+                    <h3 id="diffModalTitle">差分確認 - 受注簿データ取得</h3>
+                    <div class="diff-modal-header-right">
+                        <span class="diff-progress" id="diffProgress">0 / 6 確認済み</span>
+                        <button class="diff-modal-close" onclick="closeDiffModal()">✕</button>
+                    </div>
+                </div>
+
+                <!-- サマリバー -->
+                <div class="diff-summary-bar">
+                    <div class="diff-summary-item s-match">
+                        <span class="s-count">3</span>一致
+                    </div>
+                    <div class="diff-summary-item s-diff">
+                        <span class="s-count">4</span>差分あり
+                    </div>
+                    <div class="diff-summary-item s-new">
+                        <span class="s-count">1</span><span id="diffNewLabel">受注簿のみ</span>
+                    </div>
+                    <div class="diff-summary-item s-dbonly">
+                        <span class="s-count">1</span>システムのみ
+                    </div>
+                </div>
+
+                <!-- メインボディ（サイドバー＋詳細） -->
+                <div class="diff-modal-body">
+                    <!-- 左サイドバー -->
+                    <div class="diff-sidebar">
+                        <div class="diff-sidebar-item active" data-diff-id="fuzzy1" onclick="selectDiffItem('fuzzy1')">
+                            <span class="diff-sidebar-badge diff-type-fuzzy">あいまい</span>
+                            <div class="diff-sidebar-info">
+                                <div class="diff-sidebar-company">〇〇株式会社</div>
+                                <div class="diff-sidebar-site">〇〇ビル 巡回警備</div>
+                            </div>
+                            <span class="diff-status-icon status-pending" id="diffStatus_fuzzy1" onclick="event.stopPropagation(); toggleDiffDone('fuzzy1')">○</span>
+                        </div>
+                        <div class="diff-sidebar-item" data-diff-id="fuzzy2" onclick="selectDiffItem('fuzzy2')">
+                            <span class="diff-sidebar-badge diff-type-fuzzy">あいまい</span>
+                            <div class="diff-sidebar-info">
+                                <div class="diff-sidebar-company">（株）△△建設</div>
+                                <div class="diff-sidebar-site">新規道路整備工事 <span class="diff-sidebar-new-tag">新規</span></div>
+                            </div>
+                            <span class="diff-status-icon status-pending" id="diffStatus_fuzzy2" onclick="event.stopPropagation(); toggleDiffDone('fuzzy2')">○</span>
+                        </div>
+                        <div class="diff-sidebar-item" data-diff-id="fuzzy3" onclick="selectDiffItem('fuzzy3')">
+                            <span class="diff-sidebar-badge diff-type-fuzzy">あいまい</span>
+                            <div class="diff-sidebar-info">
+                                <div class="diff-sidebar-company">丸山建設（株）</div>
+                                <div class="diff-sidebar-site">〇〇ビル巡回</div>
+                            </div>
+                            <span class="diff-status-icon status-pending" id="diffStatus_fuzzy3" onclick="event.stopPropagation(); toggleDiffDone('fuzzy3')">○</span>
+                        </div>
+                        <div class="diff-sidebar-item" data-diff-id="value1" onclick="selectDiffItem('value1')">
+                            <span class="diff-sidebar-badge diff-type-value">値の差分</span>
+                            <div class="diff-sidebar-info">
+                                <div class="diff-sidebar-company">△△建設</div>
+                                <div class="diff-sidebar-site">国道〇号線 舗装工事（昼）</div>
+                            </div>
+                            <span class="diff-status-icon status-pending" id="diffStatus_value1" onclick="event.stopPropagation(); toggleDiffDone('value1')">○</span>
+                        </div>
+                        <div class="diff-sidebar-item" data-diff-id="new1" onclick="selectDiffItem('new1')">
+                            <span class="diff-sidebar-badge diff-type-new" id="diffNewSidebarBadge">受注簿のみ</span>
+                            <div class="diff-sidebar-info">
+                                <div class="diff-sidebar-company">□□工業</div>
+                                <div class="diff-sidebar-site">新規工事現場（昼）</div>
+                            </div>
+                            <span class="diff-status-icon status-pending" id="diffStatus_new1" onclick="event.stopPropagation(); toggleDiffDone('new1')">○</span>
+                        </div>
+                        <div class="diff-sidebar-item" data-diff-id="dbonly1" onclick="selectDiffItem('dbonly1')">
+                            <span class="diff-sidebar-badge diff-type-dbonly">システムのみ</span>
+                            <div class="diff-sidebar-info">
+                                <div class="diff-sidebar-company">◇◇工業</div>
+                                <div class="diff-sidebar-site">県道〇号 夜間規制（夜）</div>
+                            </div>
+                            <span class="diff-status-icon status-pending" id="diffStatus_dbonly1" onclick="event.stopPropagation(); toggleDiffDone('dbonly1')">○</span>
+                        </div>
+                    </div>
+
+                    <!-- 右詳細パネル -->
+                    <div class="diff-detail">
+                        <!-- パネル1: あいまい一致 -->
+                        <div class="diff-detail-panel active" id="diffPanel_fuzzy1">
+                            <div class="diff-row type-fuzzy">
+                                <div class="diff-row-header">
+                                    <span class="diff-type-badge diff-type-fuzzy">あいまい一致</span>
+                                    <span class="diff-row-site">〇〇株式会社 / 〇〇ビル 巡回警備</span>
+                                </div>
+                                <div class="diff-fuzzy-select">
+                                    <span>契約先名の表記:</span>
+                                    <label><input type="radio" name="fuzzy1" checked onchange="onDiffRadioChange('fuzzy1')"> 業務管理計画書「<b>(株)〇〇</b>」</label>
+                                    <span class="fuzzy-equal">≒</span>
+                                    <label><input type="radio" name="fuzzy1" onchange="onDiffRadioChange('fuzzy1')"> システム「<b>株式会社〇〇</b>」</label>
+                                </div>
+                                <table class="diff-items-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-item">項目</th>
+                                            <th class="col-excel">業務管理計画書側</th>
+                                            <th class="col-db">システム側</th>
+                                            <th class="col-action"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="col-item">人数</td>
+                                            <td class="col-excel">
+                                                <label class="diff-radio-label"><input type="radio" name="d1_count" checked onchange="onDiffRadioChange('fuzzy1')"> 3</label>
+                                            </td>
+                                            <td class="col-db">
+                                                <label class="diff-radio-label"><input type="radio" name="d1_count" onchange="onDiffRadioChange('fuzzy1')"> 2</label>
+                                            </td>
+                                            <td class="col-action"><button class="diff-edit-btn" onclick="toggleDiffEdit(this)">編集</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="col-item">開始時間</td>
+                                            <td class="col-excel">
+                                                <label class="diff-radio-label"><input type="radio" name="d1_start" onchange="onDiffRadioChange('fuzzy1')"> 08:00</label>
+                                            </td>
+                                            <td class="col-db">
+                                                <label class="diff-radio-label"><input type="radio" name="d1_start" checked onchange="onDiffRadioChange('fuzzy1')"> 08:30</label>
+                                            </td>
+                                            <td class="col-action"><button class="diff-edit-btn" onclick="toggleDiffEdit(this)">編集</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="col-item">集合時間</td>
+                                            <td colspan="2" style="text-align: center;">
+                                                <span class="diff-match-text">一致（08:45）</span>
+                                            </td>
+                                            <td class="col-action"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="col-item">備考</td>
+                                            <td class="col-excel">
+                                                <label class="diff-radio-label"><input type="radio" name="d1_notes" checked onchange="onDiffRadioChange('fuzzy1')"> 警備員証携帯</label>
+                                            </td>
+                                            <td class="col-db">
+                                                <label class="diff-radio-label"><input type="radio" name="d1_notes" onchange="onDiffRadioChange('fuzzy1')"> <span style="color:var(--text-disabled);">(空)</span></label>
+                                            </td>
+                                            <td class="col-action"><button class="diff-edit-btn" onclick="toggleDiffEdit(this)">編集</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="diff-detail-actions">
+                                <button class="diff-btn diff-btn-done" id="diffDoneBtn_fuzzy1" onclick="toggleDiffDone('fuzzy1')">確認済みにする</button>
+                                <button class="diff-btn diff-btn-next" onclick="selectNextDiffItem()">次へ →</button>
+                            </div>
+                        </div>
+
+                        <!-- パネル2: あいまい一致（契約先あいまい＋新規工事） -->
+                        <div class="diff-detail-panel" id="diffPanel_fuzzy2">
+                            <div class="diff-row type-fuzzy">
+                                <div class="diff-row-header">
+                                    <span class="diff-type-badge diff-type-fuzzy">あいまい一致</span>
+                                    <span class="diff-type-badge diff-type-new">新規工事</span>
+                                    <span class="diff-row-site">（株）△△建設 / 新規道路整備工事</span>
+                                </div>
+                                <div class="diff-fuzzy-select">
+                                    <span>契約先名の表記:</span>
+                                    <label><input type="radio" name="fuzzy2_company" checked onchange="onDiffRadioChange('fuzzy2')"> 業務管理計画書「<b>（株）△△建設</b>」</label>
+                                    <span class="fuzzy-equal">≒</span>
+                                    <label><input type="radio" name="fuzzy2_company" onchange="onDiffRadioChange('fuzzy2')"> システム「<b>△△建設</b>」</label>
+                                </div>
+                                <div class="diff-new-site-notice">
+                                    <span class="diff-new-site-icon">⚠</span>
+                                    <span>この工事名はシステムに未登録です。既存の契約先「△△建設」に新規工事として紐付けます。</span>
+                                </div>
+                                <div class="diff-row-action">
+                                    <label><input type="checkbox" checked onchange="onDiffRadioChange('fuzzy2')"> システムに新規工事として登録する</label>
+                                </div>
+                                <table class="diff-items-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-item">項目</th>
+                                            <th colspan="2">業務管理計画書データ（登録内容）</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td class="col-item">工事名</td><td colspan="2">新規道路整備工事</td></tr>
+                                        <tr><td class="col-item">区分</td><td colspan="2">交通（昼）</td></tr>
+                                        <tr><td class="col-item">時間</td><td colspan="2">08:00 - 17:00</td></tr>
+                                        <tr><td class="col-item">人数</td><td colspan="2">4名</td></tr>
+                                        <tr><td class="col-item">集合時間</td><td colspan="2">07:30</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="diff-detail-actions">
+                                <button class="diff-btn diff-btn-done" id="diffDoneBtn_fuzzy2" onclick="toggleDiffDone('fuzzy2')">確認済みにする</button>
+                                <button class="diff-btn diff-btn-next" onclick="selectNextDiffItem()">次へ →</button>
+                            </div>
+                        </div>
+
+                        <!-- パネル3: あいまい一致（契約先＋工事名の両方あいまい） -->
+                        <div class="diff-detail-panel" id="diffPanel_fuzzy3">
+                            <div class="diff-row type-fuzzy">
+                                <div class="diff-row-header">
+                                    <span class="diff-type-badge diff-type-fuzzy">あいまい一致</span>
+                                    <span class="diff-row-site">丸山建設（株） / 〇〇ビル巡回</span>
+                                </div>
+                                <div class="diff-fuzzy-select">
+                                    <span>契約先名の表記:</span>
+                                    <label><input type="radio" name="fuzzy3_company" checked onchange="onDiffRadioChange('fuzzy3')"> 業務管理計画書「<b>丸山建設（株）</b>」</label>
+                                    <span class="fuzzy-equal">≒</span>
+                                    <label><input type="radio" name="fuzzy3_company" onchange="onDiffRadioChange('fuzzy3')"> システム「<b>（株）丸山建設</b>」</label>
+                                </div>
+                                <div class="diff-fuzzy-select">
+                                    <span>工事名の表記:</span>
+                                    <label><input type="radio" name="fuzzy3_site" checked onchange="onDiffRadioChange('fuzzy3')"> 業務管理計画書「<b>〇〇ビル巡回</b>」</label>
+                                    <span class="fuzzy-equal">≒</span>
+                                    <label><input type="radio" name="fuzzy3_site" onchange="onDiffRadioChange('fuzzy3')"> システム「<b>〇〇ビル 巡回警備</b>」</label>
+                                </div>
+                                <table class="diff-items-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-item">項目</th>
+                                            <th class="col-excel">業務管理計画書側</th>
+                                            <th class="col-db">システム側</th>
+                                            <th class="col-action"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="col-item">人数</td>
+                                            <td class="col-excel"><label class="diff-radio-label"><input type="radio" name="d5_count" checked onchange="onDiffRadioChange('fuzzy3')"> 3</label></td>
+                                            <td class="col-db"><label class="diff-radio-label"><input type="radio" name="d5_count" onchange="onDiffRadioChange('fuzzy3')"> 2</label></td>
+                                            <td class="col-action"><button class="diff-edit-btn" onclick="toggleDiffEdit(this)">編集</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="col-item">集合時間</td>
+                                            <td colspan="2" style="text-align: center;"><span class="diff-match-text">一致（08:00）</span></td>
+                                            <td class="col-action"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="col-item">備考</td>
+                                            <td class="col-excel"><label class="diff-radio-label"><input type="radio" name="d5_notes" onchange="onDiffRadioChange('fuzzy3')"> <span style="color:var(--text-disabled);">(空)</span></label></td>
+                                            <td class="col-db"><label class="diff-radio-label"><input type="radio" name="d5_notes" checked onchange="onDiffRadioChange('fuzzy3')"> 正門前集合</label></td>
+                                            <td class="col-action"><button class="diff-edit-btn" onclick="toggleDiffEdit(this)">編集</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="diff-detail-actions">
+                                <button class="diff-btn diff-btn-done" id="diffDoneBtn_fuzzy3" onclick="toggleDiffDone('fuzzy3')">確認済みにする</button>
+                                <button class="diff-btn diff-btn-next" onclick="selectNextDiffItem()">次へ →</button>
+                            </div>
+                        </div>
+
+                        <!-- パネル4: 値の差分 -->
+                        <div class="diff-detail-panel" id="diffPanel_value1">
+                            <div class="diff-row type-value">
+                                <div class="diff-row-header">
+                                    <span class="diff-type-badge diff-type-value">値の差分</span>
+                                    <span class="diff-row-site">△△建設 / 国道〇号線 舗装工事（昼）</span>
+                                </div>
+                                <table class="diff-items-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-item">項目</th>
+                                            <th class="col-excel">業務管理計画書側</th>
+                                            <th class="col-db">システム側</th>
+                                            <th class="col-action"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="col-item">終了時間</td>
+                                            <td class="col-excel"><label class="diff-radio-label"><input type="radio" name="d2_end" checked onchange="onDiffRadioChange('value1')"> 17:30</label></td>
+                                            <td class="col-db"><label class="diff-radio-label"><input type="radio" name="d2_end" onchange="onDiffRadioChange('value1')"> 17:00</label></td>
+                                            <td class="col-action"><button class="diff-edit-btn" onclick="toggleDiffEdit(this)">編集</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="col-item">備考</td>
+                                            <td class="col-excel"><label class="diff-radio-label"><input type="radio" name="d2_notes" checked onchange="onDiffRadioChange('value1')"> 雨天中止</label></td>
+                                            <td class="col-db"><label class="diff-radio-label"><input type="radio" name="d2_notes" onchange="onDiffRadioChange('value1')"> 雨天中止の場合連絡</label></td>
+                                            <td class="col-action"><button class="diff-edit-btn" onclick="toggleDiffEdit(this)">編集</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="diff-detail-actions">
+                                <button class="diff-btn diff-btn-done" id="diffDoneBtn_value1" onclick="toggleDiffDone('value1')">確認済みにする</button>
+                                <button class="diff-btn diff-btn-next" onclick="selectNextDiffItem()">次へ →</button>
+                            </div>
+                        </div>
+
+                        <!-- パネル5: 受注簿のみ -->
+                        <div class="diff-detail-panel" id="diffPanel_new1">
+                            <div class="diff-row type-new">
+                                <div class="diff-row-header">
+                                    <span class="diff-type-badge diff-type-new" id="diffNewBadge">受注簿のみ</span>
+                                    <span class="diff-row-site">□□工業 / 新規工事現場（昼）</span>
+                                </div>
+                                <div class="diff-row-action">
+                                    <label><input type="checkbox" checked onchange="onDiffRadioChange('new1')"> システムに登録する</label>
+                                </div>
+                                <table class="diff-items-table">
+                                    <tbody>
+                                        <tr><td class="col-item">区分</td><td>交通（昼）</td><td class="col-action"></td></tr>
+                                        <tr><td class="col-item">時間</td><td>08:00 - 17:00</td><td class="col-action"></td></tr>
+                                        <tr><td class="col-item">人数</td><td>2名</td><td class="col-action"></td></tr>
+                                        <tr><td class="col-item">集合時間</td><td>07:30</td><td class="col-action"></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="diff-detail-actions">
+                                <button class="diff-btn diff-btn-done" id="diffDoneBtn_new1" onclick="toggleDiffDone('new1')">確認済みにする</button>
+                                <button class="diff-btn diff-btn-next" onclick="selectNextDiffItem()">次へ →</button>
+                            </div>
+                        </div>
+
+                        <!-- パネル6: システムのみ -->
+                        <div class="diff-detail-panel" id="diffPanel_dbonly1">
+                            <div class="diff-row type-dbonly">
+                                <div class="diff-row-header">
+                                    <span class="diff-type-badge diff-type-dbonly">システムのみ</span>
+                                    <span class="diff-row-site">◇◇工業 / 県道〇号 夜間規制（夜）</span>
+                                </div>
+                                <div class="diff-row-action">
+                                    <label><input type="radio" name="dbonly1" onchange="onDiffRadioChange('dbonly1')"> そのまま保持</label>
+                                    <label><input type="radio" name="dbonly1" checked onchange="onDiffRadioChange('dbonly1')"> 削除する</label>
+                                </div>
+                                <table class="diff-items-table">
+                                    <tbody>
+                                        <tr><td class="col-item">区分</td><td>交通（夜）</td><td class="col-action"></td></tr>
+                                        <tr><td class="col-item">時間</td><td>20:00 - 06:00</td><td class="col-action"></td></tr>
+                                        <tr><td class="col-item">人数</td><td>2名</td><td class="col-action"></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="diff-detail-actions">
+                                <button class="diff-btn diff-btn-done" id="diffDoneBtn_dbonly1" onclick="toggleDiffDone('dbonly1')">確認済みにする</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- フッター -->
+                <div class="diff-modal-footer">
+                    <div class="diff-bulk-left">
+                        <button class="diff-btn diff-btn-ghost-excel" onclick="selectAllFile()">すべて業務管理計画書側</button>
+                        <button class="diff-btn diff-btn-ghost-db" onclick="selectAllSys()">すべてシステム側</button>
+                    </div>
+                    <div class="diff-bulk-right">
+                        <button class="diff-btn diff-btn-cancel" onclick="closeDiffModal()">キャンセル</button>
+                        <button class="diff-btn diff-btn-apply" onclick="applyDiff()">反映実行</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 凡例 -->
+        <div class="legend">
+            <h3>凡例</h3>
+            <div class="legend-grid">
+                <div class="legend-section">
+                    <h4>グループ会社（左ボーダー）</h4>
+                    <div class="legend-item">
+                        <span class="gc-legend-color gc-legend-color-touo"></span>
+                        <span>東央警備</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="gc-legend-color gc-legend-color-nikkei"></span>
+                        <span>Nikkeiホールディングス</span>
+                    </div>
+                </div>
+                <div class="legend-section">
+                    <h4>区分カラー</h4>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--cat-bg-facility);"></div>
+                        <span>施設警備</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--cat-bg-event);"></div>
+                        <span>イベント</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--cat-bg-traffic);"></div>
+                        <span>交通誘導</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--cat-bg-highway);"></div>
+                        <span>高速道路</span>
+                    </div>
+                </div>
+                <div class="legend-section">
+                    <h4>シフト区分</h4>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--shift-bg-day);"></div>
+                        <span>昼勤務</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--shift-bg-night);"></div>
+                        <span>夜勤務</span>
+                    </div>
+                </div>
+                <div class="legend-section">
+                    <h4>社員タグ</h4>
+                    <div class="legend-item">
+                        <span class="employee-tag" style="margin: 0;">未配置</span>
+                        <span>ドラッグ可能</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="employee-tag assigned" style="margin: 0;">配置済</span>
+                        <span>当日配置あり</span>
+                    </div>
+                </div>
+                <div class="legend-section">
+                    <h4>インジケーター</h4>
+                    <div class="legend-item">
+                        <span class="continuous-badge" style="font-size: 0.8rem;">▼</span>
+                        <span>連勤（上=前シフトから、下=次シフトへ）</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="indicator indicator-conflict">⚠</span>
+                        <span>配置制約（相性の警告）</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- レイアウト説明 -->
+        <div class="layout-explanation">
+            <h3>5.1.2 レイアウト詳細</h3>
+            <div class="layout-areas">
+                <div class="layout-area">
+                    <h4>ヘッダー部</h4>
+                    <ul>
+                        <li>日付選択（日付ピッカー）</li>
+                        <li>前日/翌日ボタン</li>
+                        <li>グループ会社フィルタ（ドロップダウン）</li>
+                    </ul>
+                </div>
+                <div class="layout-area">
+                    <h4>ツールバー</h4>
+                    <ul>
+                        <li>受注簿データ取得</li>
+                        <li>受注簿へ転記</li>
+                        <li>行挿入/削除/消去</li>
+                        <li>行の並べ替え（↑↓）</li>
+                        <li>フィルタ/空行非表示</li>
+                    </ul>
+                </div>
+                <div class="layout-area">
+                    <h4>左側固定列</h4>
+                    <ul>
+                        <li>No.（行番号）</li>
+                        <li>時間/会社/現場名（クリックで編集ポップアップ）</li>
+                        <li>　※区分・昼夜も同じポップアップで編集</li>
+                        <li>地図（クリックでURL入力ポップアップ）</li>
+                        <li>集合時間</li>
+                        <li>人数（必要/配置済み）</li>
+                        <li>配置（車両・送迎は下部に表示）</li>
+                    </ul>
+                </div>
+                <div class="layout-area">
+                    <h4>配置ゾーン</h4>
+                    <ul>
+                        <li>ドロップ可能なエリア</li>
+                        <li>配置された社員をタグ表示</li>
+                        <li>×ボタンで配置解除</li>
+                        <li>インジケーター表示</li>
+                    </ul>
+                </div>
+                <div class="layout-area">
+                    <h4>右サイドパネル（社員リスト）</h4>
+                    <ul>
+                        <li>全社員の略称を表示</li>
+                        <li>検索機能</li>
+                        <li>ドラッグ&ドロップで配置</li>
+                        <li>配置済みは緑色タグ</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- アクション説明 -->
+        <div class="actions-explanation">
+            <h3>5.1.6 セル操作</h3>
+            <div class="action-list">
+                <div class="action-item">
+                    <strong>社員タグをドラッグ</strong>
+                    <span>右サイドパネルから社員タグを配置ゾーンへドラッグ&ドロップ</span>
+                </div>
+                <div class="action-item">
+                    <strong>×ボタンクリック</strong>
+                    <span>配置済み社員の×ボタンで配置を解除</span>
+                </div>
+                <div class="action-item">
+                    <strong>現場セルクリック</strong>
+                    <span>時間/会社/現場名/区分/昼夜の入力ポップアップを開く</span>
+                </div>
+                <div class="action-item">
+                    <strong>地図セルクリック</strong>
+                    <span>Google MapsのURL入力ポップアップを開く（MAPで表示）</span>
+                </div>
+                <div class="action-item">
+                    <strong>行ダブルクリック</strong>
+                    <span>配置詳細ダイアログを開く（移動手段、備品等）</span>
+                </div>
+                <div class="action-item">
+                    <strong>右クリック</strong>
+                    <span>コンテキストメニュー（編集、削除、コピー等）</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="mockup/screen-layout-v2-light.js"></script>
+</body>
+</html>

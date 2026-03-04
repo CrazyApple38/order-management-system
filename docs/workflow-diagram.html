@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>受注管理システム - 業務フロー図</title>
+    <style>
+        @page {
+            size: A3 landscape;
+            margin: 15mm;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', 'Yu Gothic', sans-serif;
+            background: #fff;
+            color: #1a202c;
+            padding: 20px 30px;
+        }
+
+        /* ヘッダー */
+        .doc-header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid #2b6cb0;
+        }
+        .doc-header h1 {
+            font-size: 22px;
+            color: #2b6cb0;
+            margin-bottom: 4px;
+        }
+        .doc-header .subtitle {
+            font-size: 13px;
+            color: #718096;
+        }
+
+        /* セクション */
+        .section {
+            margin-bottom: 28px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2b6cb0;
+            padding: 6px 14px;
+            background: #ebf8ff;
+            border-left: 4px solid #2b6cb0;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 16px;
+        }
+
+        /* フロー図 */
+        .flow-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+        .flow-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 150px;
+            position: relative;
+        }
+        .flow-box {
+            width: 140px;
+            padding: 12px 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.5;
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .flow-box.sales {
+            background: #c6f6d5;
+            border: 2px solid #38a169;
+            color: #22543d;
+        }
+        .flow-box.system {
+            background: #bee3f8;
+            border: 2px solid #3182ce;
+            color: #1a365d;
+        }
+        .flow-box.placement {
+            background: #feebc8;
+            border: 2px solid #dd6b20;
+            color: #7b341e;
+        }
+        .flow-box.error {
+            background: #fed7d7;
+            border: 2px solid #e53e3e;
+            color: #742a2a;
+        }
+        .flow-box.history {
+            background: #e9d8fd;
+            border: 2px solid #805ad5;
+            color: #44337a;
+        }
+        .flow-role {
+            font-size: 10px;
+            color: #718096;
+            margin-top: 4px;
+        }
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+            color: #a0aec0;
+            font-size: 24px;
+            padding-top: 10px;
+        }
+        .flow-arrow-label {
+            font-size: 9px;
+            color: #718096;
+            text-align: center;
+            position: absolute;
+            top: -14px;
+            width: 100%;
+        }
+
+        /* テーブル構造図 */
+        .table-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .table-entity {
+            background: #fff;
+            border: 2px solid #4a5568;
+            border-radius: 8px;
+            min-width: 180px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .table-entity.primary {
+            border-color: #2b6cb0;
+        }
+        .table-entity.secondary {
+            border-color: #dd6b20;
+        }
+        .table-entity.log {
+            border-color: #805ad5;
+        }
+        .table-entity-header {
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+            text-align: center;
+        }
+        .table-entity.primary .table-entity-header { background: #2b6cb0; }
+        .table-entity.secondary .table-entity-header { background: #dd6b20; }
+        .table-entity.log .table-entity-header { background: #805ad5; }
+        .table-entity-body {
+            padding: 8px 12px;
+        }
+        .table-entity-body .field {
+            font-size: 11px;
+            padding: 2px 0;
+            color: #4a5568;
+            display: flex;
+            gap: 6px;
+        }
+        .table-entity-body .field .key {
+            color: #e53e3e;
+            font-weight: 700;
+            font-size: 10px;
+        }
+        .table-entity-body .field .fk {
+            color: #3182ce;
+            font-weight: 700;
+            font-size: 10px;
+        }
+        .table-arrow {
+            font-size: 22px;
+            color: #a0aec0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .table-arrow .label {
+            font-size: 10px;
+            color: #718096;
+        }
+
+        /* 問題パターン図 */
+        .problem-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .problem-card {
+            flex: 1;
+            min-width: 280px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+        .problem-card-header {
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .problem-card-header.danger { background: #e53e3e; }
+        .problem-card-header.warning { background: #dd6b20; }
+        .problem-card-header.success { background: #38a169; }
+        .problem-card-body {
+            padding: 12px 14px;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 4px;
+            bottom: 4px;
+            width: 2px;
+            background: #e2e8f0;
+        }
+        .timeline-item {
+            position: relative;
+            padding: 4px 0 8px 0;
+            font-size: 11px;
+            color: #4a5568;
+            line-height: 1.5;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -18px;
+            top: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4299e1;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #4299e1;
+        }
+        .timeline-item.error::before { background: #e53e3e; box-shadow: 0 0 0 2px #e53e3e; }
+        .timeline-item.success::before { background: #38a169; box-shadow: 0 0 0 2px #38a169; }
+
+        /* 解決策 */
+        .solution-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+        .solution-item {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 14px;
+        }
+        .solution-item h4 {
+            font-size: 12px;
+            color: #2b6cb0;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .solution-item p {
+            font-size: 11px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+        .solution-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .solution-icon.blue { background: #bee3f8; }
+        .solution-icon.purple { background: #e9d8fd; }
+        .solution-icon.green { background: #c6f6d5; }
+
+        /* 凡例 */
+        .legend {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding: 10px 14px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #4a5568;
+        }
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            border: 1.5px solid;
+        }
+
+        /* フッター */
+        .doc-footer {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #a0aec0;
+        }
+
+        /* 改ページ */
+        .page-break {
+            page-break-before: always;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ヘッダー -->
+    <div class="doc-header">
+        <h1>受注管理システム 業務フロー図</h1>
+        <div class="subtitle">受注入力から配置完了までのワークフロー / 変更履歴・ロールバック設計</div>
+    </div>
+
+    <!-- 凡例 -->
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: #c6f6d5; border-color: #38a169;"></div>
+            <span>営業担当者</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #bee3f8; border-color: #3182ce;"></div>
+            <span>システム処理</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #feebc8; border-color: #dd6b20;"></div>
+            <span>配置担当者</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #fed7d7; border-color: #e53e3e;"></div>
+            <span>エラー/問題</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #e9d8fd; border-color: #805ad5;"></div>
+            <span>変更履歴</span>
+        </div>
+    </div>
+
+    <!-- セクション1: 正常フロー -->
+    <div class="section">
+        <div class="section-title">1. 正常業務フロー（受注入力 → 配置完了）</div>
+        <div class="flow-container">
+            <div class="flow-step">
+                <div class="flow-box sales">
+                    契約先から<br>受注連絡
+                </div>
+                <div class="flow-role">営業担当者</div>
+            </div>
+            <div class="flow-arrow">
+                <div style="position:relative">
+                    <div class="flow-arrow-label">連絡受領</div>
+                    &#10132;
+                </div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-box sales">
+                    受注情報を<br>システム入力
+                </div>
+                <div class="flow-role">営業担当者</div>
+            </div>
+            <div class="flow-arrow">
+                <div style="position:relative">
+                    <div class="flow-arrow-label">保存</div>
+                    &#10132;
+                </div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-box system">
+                    daily_site_orders<br>に記録
+                </div>
+                <div class="flow-role">システム</div>
+            </div>
+            <div class="flow-arrow">
+                <div style="position:relative">
+                    <div class="flow-arrow-label">version=1</div>
+                    &#10132;
+                </div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-box history">
+                    変更履歴<br>自動記録
+                </div>
+                <div class="flow-role">order_change_history</div>
+            </div>
+            <div class="flow-arrow">
+                <div style="position:relative">
+                    <div class="flow-arrow-label">通知</div>
+                    &#10132;
+                </div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-box placement">
+                    配置計画<br>作成
+                </div>
+                <div class="flow-role">配置担当者</div>
+            </div>
+            <div class="flow-arrow">
+                <div style="position:relative">
+                    <div class="flow-arrow-label">社員配置</div>
+                    &#10132;
+                </div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-box placement">
+                    社員を<br>現場に配置
+                </div>
+                <div class="flow-role">配置担当者</div>
+            </div>
+        </div>
+
+        <div style="margin-top:12px; padding:10px 14px; background:#fffaf0; border-radius:8px; border:1px solid #feebc8; font-size:11px; color:#744210;">
+            <strong>代理入力パターン:</strong> 営業担当者が端末で入力できない場合 → 配置担当者に電話で連絡 → 配置担当者が代わりにシステム入力（created_by に営業担当者IDを記録）
+        </div>
+    </div>
+
+    <!-- セクション2: 問題パターン -->
+    <div class="section">
+        <div class="section-title">2. 問題が発生するパターン</div>
+        <div class="problem-container">
+            <!-- パターン1: 誤上書き -->
+            <div class="problem-card">
+                <div class="problem-card-header danger">パターン1: 別の営業担当者による誤上書き</div>
+                <div class="problem-card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <strong>営業A</strong>が契約先Xから「現場α 5/10 <strong>3名</strong>」の連絡を受け入力
+                        </div>
+                        <div class="timeline-item">
+                            契約先Xが<strong>営業B</strong>（現場β担当）に「現場αは5/10 <strong>2名に変更</strong>で」と伝える
+                        </div>
+                        <div class="timeline-item error">
+                            <strong>営業B</strong>がそのままシステムに入力 → 3名が<strong>2名に上書き</strong>される
+                        </div>
+                        <div class="timeline-item error">
+                            実は契約先Xの伝言が<strong>間違い</strong>で、本当は3名のままだった
+                        </div>
+                        <div class="timeline-item">
+                            営業Aが「<strong>誰がいつ変えた？</strong>」 → 変更ログで確認
+                        </div>
+                        <div class="timeline-item success">
+                            元の3名に<strong>ロールバック</strong>して復元
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- パターン2: 誤キャンセル -->
+            <div class="problem-card">
+                <div class="problem-card-header warning">パターン2: 聞き間違いによる誤キャンセル</div>
+                <div class="problem-card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            営業担当者が契約先から連絡を受ける
+                        </div>
+                        <div class="timeline-item error">
+                            「5/10の現場αは<strong>キャンセル</strong>で」と聞き間違える
+                        </div>
+                        <div class="timeline-item error">
+                            配置担当者にキャンセルを伝え、<strong>status → cancelled</strong> に変更
+                        </div>
+                        <div class="timeline-item">
+                            実際はキャンセルではなく、<strong>人数変更</strong>だった
+                        </div>
+                        <div class="timeline-item success">
+                            変更履歴から<strong>キャンセル前の状態にロールバック</strong>
+                        </div>
+                        <div class="timeline-item success">
+                            正しい人数に修正して保存
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- パターン3: 同時編集 -->
+            <div class="problem-card">
+                <div class="problem-card-header danger">パターン3: 同時編集による競合 → スマートマージ</div>
+                <div class="problem-card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <strong>営業A</strong>が画面を開く（version=2）
+                        </div>
+                        <div class="timeline-item">
+                            <strong>営業B</strong>も同じ画面を開く（version=2）
+                        </div>
+                        <div class="timeline-item">
+                            営業Aが<strong>時間</strong>を変更して保存 → 成功（version=3）
+                        </div>
+                        <div class="timeline-item error">
+                            営業Bが<strong>人数</strong>を変更して保存 → <strong>version不一致を検知</strong>
+                        </div>
+                        <div class="timeline-item success">
+                            変更項目を比較 → <strong>重複なし</strong>（時間 vs 人数）
+                        </div>
+                        <div class="timeline-item success">
+                            <strong>マージダイアログ</strong>：両方の変更を統合して保存
+                        </div>
+                    </div>
+                    <div style="margin-top:10px; padding:8px 10px; background:#fff5f5; border-radius:6px; border:1px solid #fed7d7; font-size:10px; color:#742a2a;">
+                        <strong>重複がある場合</strong>: 両者が同じ項目（例: 人数）を変更 → 項目ごとにどちらの値を採用するか<strong>選択ダイアログ</strong>を表示
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ページ区切り -->
+    <div class="page-break"></div>
+
+    <!-- ヘッダー（2ページ目） -->
+    <div class="doc-header" style="margin-top:0;">
+        <h1>受注管理システム 業務フロー図</h1>
+        <div class="subtitle">テーブル構造 / 変更履歴の仕組み</div>
+    </div>
+
+    <!-- セクション3: テーブル構造 -->
+    <div class="section">
+        <div class="section-title">3. テーブル構造（受注 → 配置 → 変更履歴）</div>
+        <div class="table-flow">
+            <div class="table-entity primary">
+                <div class="table-entity-header">daily_site_orders（日毎受注）</div>
+                <div class="table-entity-body">
+                    <div class="field"><span class="key">PK</span> id</div>
+                    <div class="field"><span class="fk">FK</span> site_id → sites</div>
+                    <div class="field">order_date（受注対象日）</div>
+                    <div class="field">shift_type（day/night）</div>
+                    <div class="field">required_count（必要人数）</div>
+                    <div class="field">start_time / end_time</div>
+                    <div class="field">contact / contact_info</div>
+                    <div class="field"><strong>status</strong>（active/cancelled）</div>
+                    <div class="field"><strong>version</strong>（楽観的ロック）</div>
+                    <div class="field"><span class="fk">FK</span> created_by → employees</div>
+                    <div class="field"><span class="fk">FK</span> updated_by → employees</div>
+                </div>
+            </div>
+
+            <div class="table-arrow">
+                <span class="label">1:1</span>
+                &#10132;
+            </div>
+
+            <div class="table-entity secondary">
+                <div class="table-entity-header">daily_assignments（日毎配置）</div>
+                <div class="table-entity-body">
+                    <div class="field"><span class="key">PK</span> id</div>
+                    <div class="field"><span class="fk">FK</span> daily_site_order_id</div>
+                    <div class="field">map_url（地図URL）</div>
+                    <div class="field">vehicle_ids（配置車両）</div>
+                </div>
+            </div>
+
+            <div class="table-arrow">
+                <span class="label">1:N</span>
+                &#10132;
+            </div>
+
+            <div class="table-entity secondary">
+                <div class="table-entity-header">assignment_details（配置詳細）</div>
+                <div class="table-entity-body">
+                    <div class="field"><span class="key">PK</span> id</div>
+                    <div class="field"><span class="fk">FK</span> daily_assignment_id</div>
+                    <div class="field"><span class="fk">FK</span> employee_id → employees</div>
+                    <div class="field">position_order</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin: 8px 0;">
+            <span style="font-size:20px; color:#805ad5;">&#10515;</span>
+            <span style="font-size:11px; color:#805ad5; margin-left:4px;">変更のたびに自動記録</span>
+        </div>
+
+        <div class="table-flow">
+            <div class="table-entity log">
+                <div class="table-entity-header">order_change_history（受注変更履歴）</div>
+                <div class="table-entity-body">
+                    <div class="field"><span class="key">PK</span> id</div>
+                    <div class="field"><span class="fk">FK</span> order_id → daily_site_orders</div>
+                    <div class="field">version（バージョン番号）</div>
+                    <div class="field">operation_type（create/update/cancel/restore/rollback/merge）</div>
+                    <div class="field"><strong>changed_fields</strong>（JSONB: [{field, old_value, new_value}]）</div>
+                    <div class="field">change_reason（変更理由・任意）</div>
+                    <div class="field"><span class="fk">FK</span> changed_by → employees</div>
+                    <div class="field">changed_at（変更日時）</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:14px; padding:10px 14px; background:#f0fff4; border-radius:8px; border:1px solid #c6f6d5;">
+            <div style="font-size:12px; font-weight:700; color:#22543d; margin-bottom:6px;">営業担当者が入力する情報（daily_site_orders）</div>
+            <div style="font-size:11px; color:#4a5568;">
+                日付・現場・シフト（昼/夜）・必要人数・開始/終了時間・集合時間・連絡事項 → 契約先から受けた受注情報
+            </div>
+        </div>
+        <div style="margin-top:8px; padding:10px 14px; background:#fffaf0; border-radius:8px; border:1px solid #feebc8;">
+            <div style="font-size:12px; font-weight:700; color:#7b341e; margin-bottom:6px;">配置担当者が管理する情報（daily_assignments + assignment_details）</div>
+            <div style="font-size:11px; color:#4a5568;">
+                現場地図URL・配置車両 + 各社員の配置・移動手段 → 配置業務に必要な情報
+            </div>
+        </div>
+    </div>
+
+    <!-- セクション4: 解決策 -->
+    <div class="section">
+        <div class="section-title">4. システムによる解決策</div>
+        <div class="solution-grid">
+            <div class="solution-item">
+                <h4><span class="solution-icon blue">1</span>変更履歴の自動記録</h4>
+                <p>受注情報の変更時に、変更カラム名・変更前の値・変更後の値・変更者・変更日時を自動記録。「誰がいつ何を変えたか」が即座に分かる。</p>
+            </div>
+            <div class="solution-item">
+                <h4><span class="solution-icon purple">2</span>任意バージョンへのロールバック</h4>
+                <p>変更履歴一覧から任意の過去バージョンを選択して復元可能。誤った上書きや誤キャンセルからの迅速な復旧を実現。</p>
+            </div>
+            <div class="solution-item">
+                <h4><span class="solution-icon green">3</span>楽観的ロック + スマートマージ</h4>
+                <p>保存時にバージョン番号を照合。競合検知時、変更項目が重複しなければ両方の変更をマージ。重複する場合は項目ごとにどちらの値を採用するか選択ダイアログで確認。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- セクション5: 変更履歴の具体例 -->
+    <div class="section">
+        <div class="section-title">5. 変更履歴の記録例</div>
+        <table style="width:100%; border-collapse:collapse; font-size:11px;">
+            <thead>
+                <tr style="background:#2b6cb0; color:#fff;">
+                    <th style="padding:8px 10px; text-align:left; border:1px solid #2b6cb0;">Ver</th>
+                    <th style="padding:8px 10px; text-align:left; border:1px solid #2b6cb0;">操作</th>
+                    <th style="padding:8px 10px; text-align:left; border:1px solid #2b6cb0;">変更内容</th>
+                    <th style="padding:8px 10px; text-align:left; border:1px solid #2b6cb0;">変更理由</th>
+                    <th style="padding:8px 10px; text-align:left; border:1px solid #2b6cb0;">変更者</th>
+                    <th style="padding:8px 10px; text-align:left; border:1px solid #2b6cb0;">日時</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="background:#f7fafc;">
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">1</td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;"><span style="color:#38a169; font-weight:600;">create</span></td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">required_count: null → <strong>3</strong>, start_time: null → 08:00</td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">契約先Xより受注</td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">営業A</td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">5/1 09:30</td>
+                </tr>
+                <tr>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">2</td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;"><span style="color:#dd6b20; font-weight:600;">update</span></td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">required_count: 3 → <strong>2</strong></td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">-</td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">営業B</td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">5/3 14:15</td>
+                </tr>
+                <tr style="background:#fff5f5;">
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">3</td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;"><span style="color:#805ad5; font-weight:600;">rollback</span></td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">required_count: 2 → <strong>3</strong>（Ver.1に復元）</td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">営業Bの入力は誤り</td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">営業A</td>
+                    <td style="padding:6px 10px; border:1px solid #e2e8f0;">5/4 10:00</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- フッター -->
+    <div class="doc-footer">
+        <span>受注管理システム - 業務フロー図</span>
+        <span>作成日: 2026-02-27</span>
+    </div>
+
+</body>
+</html>

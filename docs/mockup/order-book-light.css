@@ -1,0 +1,968 @@
+/* ===========================
+   受注簿モックアップ CSS (Coastal Light)
+   CSS Grid Layout
+   =========================== */
+
+:root {
+    --bg-page: #E9F1F6;
+    --bg-surface: #FFFFFF;
+    --bg-surface-2: #F0EDE9;
+    --bg-surface-3: #D3D0C8;
+    --bg-sidebar: #004554;
+    --text-primary: #004554;
+    --text-secondary: #2A6B7A;
+    --text-tertiary: #6B9AA8;
+    --text-disabled: #A0BCC5;
+    --accent: #44A6B5;
+    --accent-light: #5AB8C6;
+    --accent-dim: rgba(68, 166, 181, 0.12);
+    --secondary: #B2D5E2;
+    --divider: #B2D5E2;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', 'Yu Gothic UI', 'Meiryo', sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-size: 13px;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ヘッダー */
+.ob-header {
+    background: var(--bg-sidebar);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    flex-shrink: 0;
+}
+.ob-header h1 { font-size: 18px; font-weight: 700; }
+.ob-header-left { display: flex; align-items: center; gap: 12px; }
+.ob-today-label {
+    font-size: 11px; font-weight: 500; opacity: 0.7;
+    padding: 3px 10px; border-radius: 10px;
+    background: rgba(255,255,255,0.12); white-space: nowrap;
+}
+.ob-header-center, .ob-month-nav { display: flex; align-items: center; gap: 12px; }
+.ob-header-right { display: flex; align-items: center; }
+
+/* テーマ切替ボタン */
+.theme-toggle-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px; color: white;
+    text-decoration: none; font-size: 0.85rem;
+    font-weight: 500; cursor: pointer; transition: all 0.2s;
+}
+.theme-toggle-btn:hover {
+    background: rgba(255,255,255,0.22);
+    border-color: rgba(255,255,255,0.35);
+}
+.theme-toggle-label { letter-spacing: 0.3px; }
+
+/* 月ナビ */
+.ob-month-btn {
+    background: rgba(255,255,255,0.15); color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 5px 14px; border-radius: 6px;
+    cursor: pointer; font-size: 12px; transition: background 0.15s;
+}
+.ob-month-btn:hover { background: rgba(255,255,255,0.3); }
+.ob-month-label { font-size: 16px; font-weight: 600; min-width: 120px; text-align: center; color: white; }
+
+/* ツールバー */
+.ob-toolbar {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--divider);
+    padding: 8px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,69,84,0.06);
+}
+.ob-toolbar-left { display: flex; gap: 8px; }
+.ob-tb-btn {
+    background: var(--bg-surface); border: 1px solid var(--divider);
+    padding: 6px 14px; border-radius: 6px; cursor: pointer;
+    font-size: 12px; color: var(--text-secondary);
+    transition: all 0.15s; font-weight: 500;
+}
+.ob-tb-btn:hover {
+    background: var(--accent-dim); border-color: var(--accent); color: var(--accent);
+}
+.ob-tb-btn.active {
+    background: var(--accent); color: white; border-color: var(--accent);
+}
+.ob-tb-btn:disabled {
+    opacity: 0.35; cursor: default; pointer-events: none;
+}
+.ob-tb-btn-add {
+    background: var(--accent-dim); color: var(--accent); border-color: var(--accent);
+    font-weight: 600;
+}
+.ob-tb-btn-add:hover {
+    background: var(--accent); color: white;
+}
+.ob-toolbar-sep {
+    width: 1px; height: 20px; background: var(--divider); align-self: center;
+}
+.ob-summary { font-size: 12px; color: var(--text-tertiary); }
+
+/* フィルタバー */
+.ob-filter-bar {
+    background: rgba(68,166,181,0.08);
+    border-bottom: 1px solid var(--secondary);
+    padding: 8px 20px;
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0; flex-wrap: wrap;
+}
+.ob-filter-bar label {
+    font-size: 12px; color: var(--text-secondary);
+    display: flex; align-items: center; gap: 4px;
+}
+.ob-filter-bar select,
+.ob-filter-bar input[type="text"] {
+    padding: 4px 8px; border: 1px solid var(--divider);
+    border-radius: 4px; font-size: 12px;
+    background: var(--bg-surface); color: var(--text-primary);
+}
+.ob-filter-bar select:focus,
+.ob-filter-bar input[type="text"]:focus {
+    border-color: var(--accent); outline: none;
+    box-shadow: 0 0 0 2px var(--accent-dim);
+}
+.ob-filter-bar input[type="text"] { width: 140px; }
+.ob-filter-clear {
+    background: none; border: none; color: var(--accent);
+    cursor: pointer; font-size: 12px;
+}
+.ob-filter-clear:hover { text-decoration: underline; }
+
+/* ========== CSS Grid グリッド ========== */
+.ob-grid-wrapper {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.ob-grid-scroll {
+    overflow: auto;
+    height: 100%;
+    width: 100%;
+}
+
+.ob-grid {
+    display: grid;
+    /* grid-template-columns is set dynamically by JS */
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* 全セル共通 */
+.ob-cell {
+    padding: 4px 6px;
+    text-align: center;
+    border-bottom: 1px solid rgba(178,213,226,0.4);
+    border-right: 1px solid rgba(178,213,226,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+}
+
+/* ヘッダー行 */
+.ob-cell.ob-header {
+    background: #334155;
+    color: #fff;
+    font-weight: 600;
+    font-size: 11px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    border-bottom: 2px solid var(--accent);
+    border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+/* 固定列 */
+.ob-frozen-0 { position: sticky; left: 0; z-index: 10; background: var(--bg-page); }
+.ob-frozen-1 { position: sticky; left: 140px; z-index: 10; background: var(--bg-page); }
+.ob-frozen-2 { position: sticky; left: 204px; z-index: 10; background: var(--bg-page); }
+.ob-frozen-3 { position: sticky; left: 240px; z-index: 10; background: var(--bg-page); text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
+.ob-frozen-4 { position: sticky; left: 370px; z-index: 10; background: var(--bg-page); text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; border-right: 2px solid var(--secondary); }
+
+/* ヘッダー + 固定列（最高優先） */
+.ob-cell.ob-header.ob-frozen-0,
+.ob-cell.ob-header.ob-frozen-1,
+.ob-cell.ob-header.ob-frozen-2,
+.ob-cell.ob-header.ob-frozen-3,
+.ob-cell.ob-header.ob-frozen-4 {
+    z-index: 30;
+    background: #334155;
+}
+
+/* 日付ヘッダー */
+.ob-date-header {
+    flex-direction: column;
+    line-height: 1.2;
+    padding: 3px 2px;
+}
+.ob-day-num { font-size: 13px; font-weight: 700; }
+.ob-day-name { font-size: 9px; font-weight: 400; opacity: 0.7; }
+
+/* 日付セル */
+.ob-date-cell {
+    cursor: pointer;
+    transition: background 0.1s;
+    font-size: 13px;
+    font-weight: 500;
+    flex-direction: column;
+    line-height: 1.1;
+    padding: 1px 2px;
+}
+.ob-cell-count {
+    font-size: 13px; font-weight: 500;
+}
+.ob-cell-badge-text {
+    font-size: 7px; font-weight: 500;
+    color: var(--accent);
+    white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+    max-width: 100%;
+    line-height: 1;
+}
+.ob-date-cell:hover {
+    background: var(--accent-dim) !important;
+    box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+/* 土日祝 */
+.ob-sat { background-color: rgba(68,166,181,0.08) !important; }
+.ob-sun { background-color: rgba(220,120,120,0.1) !important; }
+.ob-holiday { background-color: rgba(214,158,46,0.1) !important; }
+.ob-sat-head { background-color: #2A6B7A !important; }
+.ob-sun-head { background-color: #8B4545 !important; }
+.ob-holiday-head { background-color: #92400e !important; }
+
+/* 夜勤 */
+.ob-cell.ob-night {
+    color: #B5524D;
+}
+.ob-night.ob-frozen-2 { font-weight: 700; }
+
+/* 非表示行 */
+.ob-row-hidden { display: none; }
+.ob-row-dimmed { opacity: 0.35; }
+
+/* 合計セル */
+.ob-total-cell {
+    font-weight: 700;
+    background: rgba(68,166,181,0.06);
+    font-size: 11px;
+    white-space: nowrap;
+}
+.ob-grand-total {
+    background: rgba(68,166,181,0.12) !important;
+}
+.ob-total-max {
+    opacity: 0.6;
+    font-weight: 400;
+}
+
+/* 合計行 */
+.ob-total-row {
+    font-weight: 700; font-size: 11px;
+    background: rgba(68,166,181,0.08);
+    border-top: 2px solid var(--secondary);
+    white-space: nowrap;
+}
+.ob-total-row.ob-frozen-0,
+.ob-total-row.ob-frozen-1,
+.ob-total-row.ob-frozen-2,
+.ob-total-row.ob-frozen-3,
+.ob-total-row.ob-frozen-4 {
+    background: rgba(68,166,181,0.12);
+}
+
+/* データ行ホバー — JS側で.ob-data-rowクラスを付与した行グループにホバー効果 */
+/* (CSS Gridでは行グループが無いため、JSでhover処理) */
+
+/* 偶数行 */
+.ob-even-row {
+    background: rgba(233,241,246,0.5);
+}
+.ob-even-row.ob-frozen-0,
+.ob-even-row.ob-frozen-1,
+.ob-even-row.ob-frozen-2,
+.ob-even-row.ob-frozen-3,
+.ob-even-row.ob-frozen-4 {
+    background: rgba(225,237,243,0.8);
+}
+
+/* ========== ツールチップ ========== */
+.ob-tooltip {
+    position: fixed;
+    background: #004554; color: #E9F1F6;
+    padding: 12px 16px; border-radius: 10px;
+    font-size: 12px; line-height: 1.6;
+    max-width: 320px;
+    box-shadow: 0 8px 24px rgba(0,69,84,0.25);
+    z-index: 1000; pointer-events: none;
+    border: 1px solid rgba(178,213,226,0.3);
+}
+.ob-tooltip .ob-tt-title {
+    font-weight: 700; font-size: 13px; margin-bottom: 6px;
+    color: var(--secondary);
+    border-bottom: 1px solid rgba(178,213,226,0.3); padding-bottom: 4px;
+}
+.ob-tooltip .ob-tt-row { display: flex; gap: 8px; }
+.ob-tooltip .ob-tt-label { color: rgba(178,213,226,0.7); min-width: 48px; flex-shrink: 0; }
+.ob-tooltip .ob-tt-value { color: #E9F1F6; }
+/* タイトル内の階層区切り矢印 */
+.ob-tooltip .ob-tt-arrow {
+    color: rgba(178,213,226,0.5);
+    margin: 0 2px;
+    font-weight: 400;
+}
+
+/* ========== モーダル ========== */
+.ob-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,69,84,0.35);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500;
+}
+.ob-modal {
+    background: var(--bg-surface); border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,69,84,0.15);
+    width: 480px; max-height: 90vh;
+    display: flex; flex-direction: column;
+    overflow: hidden; border: 1px solid var(--divider);
+}
+.ob-modal.ob-modal-sm { width: 380px; }
+.ob-modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+    background: var(--accent); color: white;
+    border-radius: 12px 12px 0 0;
+}
+.ob-modal-header h3 { font-size: 15px; font-weight: 600; }
+.ob-modal-close {
+    background: none; border: none;
+    color: rgba(255,255,255,0.8); font-size: 18px;
+    cursor: pointer; padding: 2px 6px; border-radius: 4px;
+}
+.ob-modal-close:hover { background: rgba(255,255,255,0.2); color: white; }
+.ob-modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+.ob-modal-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px; border-top: 1px solid var(--divider);
+}
+.ob-modal-footer-right {
+    display: flex; gap: 10px;
+}
+
+/* モーダル情報ヘッダー */
+.ob-modal-info {
+    background: var(--accent-dim); border: 1px solid var(--secondary);
+    border-radius: 8px; padding: 10px 14px; margin-bottom: 16px;
+    font-size: 12px; line-height: 1.6; color: var(--text-secondary);
+}
+
+/* 編集フォーム */
+.ob-edit-form { display: flex; flex-direction: column; gap: 14px; }
+.ob-form-row { display: flex; flex-direction: column; gap: 5px; }
+.ob-form-row label {
+    font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.ob-form-row input,
+.ob-form-row textarea {
+    padding: 8px 12px; border: 1px solid var(--divider);
+    border-radius: 6px; font-size: 13px; font-family: inherit;
+    transition: border-color 0.15s;
+    background: var(--bg-surface); color: var(--text-primary);
+}
+.ob-form-row input:focus,
+.ob-form-row textarea:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.ob-form-row input[type="number"] { width: 80px; text-align: center; font-size: 18px; font-weight: 700; }
+
+/* 人数＋信頼度 横並び */
+.ob-count-confidence-row {
+    display: flex; gap: 16px; align-items: flex-start;
+}
+.ob-count-confidence-row > .ob-form-row { flex-shrink: 0; }
+.ob-confidence-field {
+    flex: 1; display: flex; flex-direction: column; gap: 5px;
+}
+.ob-confidence-field > label {
+    font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.ob-confidence-chips {
+    display: flex; flex-wrap: wrap; gap: 5px;
+}
+.ob-confidence-chip {
+    display: inline-flex; align-items: center;
+    padding: 5px 12px; border-radius: 14px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface); color: var(--text-secondary);
+    font-size: 11px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    user-select: none;
+}
+.ob-confidence-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.ob-confidence-chip.ob-conf-active-confirmed {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+}
+.ob-confidence-chip.ob-conf-active-tentative_high {
+    background: #f59e0b; color: #fff; border-color: #f59e0b;
+}
+.ob-confidence-chip.ob-conf-active-tentative_low {
+    background: #94a3b8; color: #fff; border-color: #94a3b8;
+}
+
+/* グリッド信頼度による文字色 */
+.ob-date-cell.ob-conf-tentative_high .ob-cell-count { opacity: 0.5; }
+.ob-date-cell.ob-conf-tentative_low .ob-cell-count { opacity: 0.25; }
+
+/* 業務詳細フィールド */
+.ob-sub-task-fields {
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 12px 14px;
+    background: rgba(68,166,181,0.05);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+}
+.ob-sub-task-header {
+    display: flex; align-items: center; justify-content: space-between;
+}
+.ob-sub-task-title {
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    letter-spacing: 0.5px;
+}
+.ob-btn-add-sub {
+    background: var(--accent-dim); border: 1px solid var(--accent);
+    color: var(--accent); padding: 3px 12px; border-radius: 4px;
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s;
+}
+.ob-btn-add-sub:hover {
+    background: var(--accent); color: white;
+}
+
+/* サブタスクエントリ */
+.ob-sub-task-entry {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 6px;
+}
+.ob-sub-label-input {
+    width: 80px; flex-shrink: 0;
+    padding: 5px 8px; border: 1px dashed var(--divider);
+    border-radius: 4px; font-size: 11px;
+    background: rgba(68,166,181,0.04); color: var(--accent);
+    font-weight: 600; text-align: center;
+    transition: border-color 0.15s;
+}
+.ob-sub-label-input:focus {
+    outline: none; border-color: var(--accent); border-style: solid;
+    box-shadow: 0 0 0 2px var(--accent-dim);
+}
+.ob-sub-value-input {
+    flex: 1;
+    padding: 6px 10px; border: 1px solid var(--divider);
+    border-radius: 5px; font-size: 13px;
+    background: var(--bg-surface); color: var(--text-primary);
+    transition: border-color 0.15s;
+}
+.ob-sub-value-input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim);
+}
+.ob-btn-remove-sub {
+    background: none; border: 1px solid transparent;
+    color: var(--text-disabled); font-size: 16px;
+    cursor: pointer; padding: 2px 6px; border-radius: 4px;
+    transition: all 0.15s; flex-shrink: 0;
+    line-height: 1;
+}
+.ob-btn-remove-sub:hover {
+    color: #dc2626; border-color: rgba(220,38,38,0.3);
+    background: rgba(220,38,38,0.06);
+}
+
+/* 計画書業務名行（読み取り専用） */
+.ob-plan-name-row {
+    padding: 10px 14px;
+    background: rgba(68,166,181,0.06);
+    border: 1px solid var(--secondary);
+    border-radius: 6px;
+}
+.ob-plan-name-label {
+    font-size: 10px; font-weight: 600; color: var(--accent);
+    letter-spacing: 0.5px; margin-bottom: 4px;
+}
+.ob-plan-name-value {
+    font-size: 13px; font-weight: 600; color: var(--text-primary);
+    min-height: 20px; line-height: 1.4;
+}
+.ob-plan-name-value .ob-plan-arrow {
+    color: var(--text-disabled); margin: 0 4px; font-weight: 400;
+}
+.ob-plan-name-value.ob-plan-empty {
+    color: var(--text-disabled); font-style: italic; font-weight: 400;
+}
+
+/* バッジセクション */
+.ob-badge-section {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 10px 14px;
+    background: var(--bg-secondary); border: 1px solid var(--divider);
+    border-radius: 6px;
+}
+.ob-badge-group {
+    display: flex; flex-direction: column; gap: 6px;
+}
+.ob-badge-child-group {
+    padding-top: 8px; border-top: 1px dashed var(--divider);
+}
+.ob-badge-group-header {
+    display: flex; align-items: center; gap: 6px;
+}
+.ob-badge-group-title {
+    font-size: 12px; font-weight: 600; color: var(--text-secondary);
+}
+.ob-badge-parent-display {
+    display: inline-flex; align-items: center;
+    padding: 3px 12px; border-radius: 14px;
+    background: var(--accent); color: #fff;
+    font-size: 12px; font-weight: 600;
+}
+.ob-badge-parent-display.ob-badge-parent-unknown {
+    background: var(--divider); color: var(--text-secondary);
+}
+.ob-badge-group-subtitle {
+    font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+}
+.ob-badge-chips {
+    display: flex; flex-wrap: wrap; gap: 6px;
+}
+.ob-badge-chip {
+    display: inline-flex; align-items: center;
+    padding: 4px 12px; border-radius: 14px;
+    border: 1px solid var(--divider);
+    background: var(--bg-primary); color: var(--text-secondary);
+    font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    user-select: none;
+}
+.ob-badge-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.ob-badge-chip.ob-badge-selected {
+    background: var(--accent); color: #fff;
+    border-color: var(--accent);
+}
+.ob-badge-chip.ob-badge-child {
+    font-size: 11px; padding: 3px 10px; border-radius: 12px;
+}
+.ob-badge-chip.ob-badge-child.ob-badge-selected {
+    background: var(--secondary); color: var(--primary);
+    border-color: var(--secondary);
+}
+.ob-badge-empty {
+    font-size: 11px; color: var(--text-disabled); font-style: italic;
+}
+.ob-btn-add-badge {
+    align-self: flex-start;
+    padding: 2px 10px; border: 1px dashed var(--divider);
+    border-radius: 12px; background: transparent;
+    color: var(--text-tertiary); font-size: 11px;
+    cursor: pointer; transition: all 0.15s;
+}
+.ob-btn-add-badge:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+
+/* タッチドラッグ共通 */
+.ob-touch-dragging { opacity: 0.4; transform: scale(0.95); }
+.ob-touch-drag-over { box-shadow: 0 0 0 2px var(--accent); }
+
+/* バッジ ドラッグ＆ドロップ */
+.ob-badge-drag-item {
+    display: inline-flex; align-items: center; gap: 2px;
+    border-radius: 14px;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.ob-badge-drag-item[draggable="true"] { cursor: grab; }
+.ob-badge-drag-item.ob-badge-dragging {
+    opacity: 0.4; transform: scale(0.95);
+}
+.ob-badge-drag-item.ob-badge-drag-over {
+    box-shadow: 0 0 0 2px var(--accent);
+    border-radius: 14px;
+}
+.ob-badge-drag-grip {
+    font-size: 10px; color: var(--text-disabled);
+    cursor: grab; padding: 0 2px;
+    user-select: none;
+}
+.ob-badge-delete-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    border: none; background: transparent;
+    color: var(--text-disabled); font-size: 9px;
+    cursor: pointer; transition: all 0.15s;
+    padding: 0; line-height: 1;
+}
+.ob-badge-delete-btn:hover {
+    background: #fee2e2; color: #dc2626;
+}
+
+/* バッジ削除復元バー */
+.ob-badge-undo-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border-radius: 6px;
+    background: #fef3c7; border: 1px solid #fcd34d;
+    font-size: 11px; color: #92400e;
+    animation: badgeUndoFadeIn 0.2s ease;
+}
+.ob-badge-undo-btn {
+    padding: 2px 10px; border-radius: 10px;
+    border: 1px solid #f59e0b; background: #fff;
+    color: #d97706; font-size: 11px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+}
+.ob-badge-undo-btn:hover {
+    background: #f59e0b; color: #fff;
+}
+@keyframes badgeUndoFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 孫バッジセクション */
+.ob-grandchild-section {
+    width: 100%;
+    margin: 4px 0 6px 0;
+    padding: 8px 10px 6px 14px;
+    border-left: 2px solid var(--secondary);
+    background: rgba(68,166,181,0.04);
+    border-radius: 0 6px 6px 0;
+}
+.ob-grandchild-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px;
+}
+.ob-grandchild-label {
+    font-size: 10px; font-weight: 600; color: var(--text-tertiary);
+    letter-spacing: 0.5px;
+    display: inline-flex; align-items: center; gap: 2px;
+}
+.ob-grandchild-arrow {
+    color: var(--text-disabled); font-size: 12px;
+}
+.ob-grandchild-chips {
+    display: flex; flex-wrap: wrap; gap: 5px;
+}
+.ob-badge-grandchild {
+    font-size: 11px; padding: 3px 10px; border-radius: 12px;
+}
+.ob-badge-grandchild.ob-badge-selected {
+    background: var(--secondary); color: var(--text-primary);
+    border-color: var(--secondary);
+}
+.ob-gc-drag-item {
+    border-radius: 12px;
+}
+.ob-gc-undo-bar {
+    margin-top: 6px;
+}
+.ob-btn-add-gc {
+    font-size: 10px; padding: 1px 8px; border-radius: 10px;
+}
+
+/* ツールチップ内バッジ */
+.ob-tt-badge {
+    display: inline-block;
+    padding: 2px 8px; border-radius: 10px;
+    background: rgba(68,166,181,0.15); color: var(--accent);
+    font-size: 10px; font-weight: 600;
+}
+
+/* 個別業務ラベル */
+.ob-individual-task {
+    color: var(--text-disabled); font-style: italic; font-size: 11px;
+}
+
+/* 現場地図セクション */
+.ob-map-section {
+    display: flex; flex-direction: column; gap: 6px;
+}
+.ob-map-section > label {
+    font-size: 12px; font-weight: 600; color: var(--text-secondary);
+}
+.ob-map-url-row {
+    display: flex; gap: 6px;
+}
+.ob-map-url-row input {
+    flex: 1; padding: 6px 10px;
+    border: 1px solid var(--divider); border-radius: 6px;
+    font-size: 13px; background: var(--bg-primary); color: var(--text-primary);
+}
+.ob-map-url-row input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(68,166,181,0.15);
+}
+.ob-btn-map-preview {
+    padding: 6px 12px; border: 1px solid var(--accent);
+    border-radius: 6px; background: var(--accent-dim);
+    color: var(--accent); font-size: 12px; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+    transition: all 0.15s;
+}
+.ob-btn-map-preview:hover {
+    background: var(--accent); color: #fff;
+}
+.ob-map-preview {
+    position: relative;
+    border: 1px solid var(--divider); border-radius: 6px;
+    overflow: hidden; background: var(--bg-secondary);
+}
+.ob-map-preview iframe {
+    width: 100%; height: 180px; border: none; display: block;
+}
+.ob-btn-map-clear {
+    position: absolute; top: 4px; right: 4px;
+    width: 22px; height: 22px;
+    border: 1px solid var(--divider); border-radius: 4px;
+    background: rgba(255,255,255,0.9); color: var(--text-tertiary);
+    font-size: 11px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    transition: all 0.15s;
+}
+.ob-btn-map-clear:hover {
+    background: #fee2e2; color: #dc2626; border-color: rgba(220,38,38,0.3);
+}
+
+.ob-form-row-half { flex-direction: row; gap: 12px; }
+.ob-form-row-half > div { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+
+/* カスタム時間ピッカー */
+.ob-time-picker-wrap {
+    position: relative; display: flex; align-items: center; cursor: pointer;
+}
+.ob-time-input {
+    width: 100%; padding: 7px 30px 7px 10px; border: 1px solid var(--divider);
+    border-radius: 6px; font-size: 13px; font-weight: 500;
+    text-align: center; cursor: pointer;
+    background: var(--bg-surface); color: var(--text-primary);
+    font-family: inherit; transition: border-color 0.15s;
+}
+.ob-time-input:hover { border-color: var(--accent); }
+.ob-time-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.ob-time-picker-icon {
+    position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; line-height: 1; pointer-events: none; opacity: 0.6;
+}
+.ob-time-dropdown {
+    position: fixed; display: flex;
+    background: var(--bg-surface); border: 1px solid var(--divider);
+    border-radius: 10px; box-shadow: 0 8px 24px rgba(0,69,84,0.18);
+    z-index: 600; overflow: hidden;
+}
+.ob-time-col-wrap {
+    display: flex; flex-direction: column;
+}
+.ob-time-col-header {
+    text-align: center; font-size: 11px; font-weight: 600;
+    color: var(--text-tertiary); padding: 8px 0 4px;
+    border-bottom: 1px solid var(--divider);
+    letter-spacing: 1px;
+}
+.ob-time-col {
+    max-height: 200px; overflow-y: auto; padding: 4px;
+    scrollbar-width: thin;
+}
+.ob-time-col:first-of-type { border-right: 1px solid var(--divider); }
+.ob-time-option {
+    padding: 6px 18px; text-align: center; cursor: pointer;
+    border-radius: 6px; font-size: 13px; font-weight: 500;
+    color: var(--text-secondary); transition: all 0.1s;
+    min-width: 50px;
+}
+.ob-time-option:hover {
+    background: var(--accent-dim); color: var(--accent);
+}
+.ob-time-option.ob-time-selected {
+    background: var(--accent); color: #fff;
+}
+
+/* ボタン */
+.ob-btn {
+    padding: 9px 22px; border: none; border-radius: 6px;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.ob-btn-primary { background: var(--accent); color: white; }
+.ob-btn-primary:hover { background: var(--accent-light); box-shadow: 0 2px 8px rgba(68,166,181,0.3); }
+.ob-btn-secondary { background: var(--bg-surface-2); color: var(--text-secondary); border: none; }
+.ob-btn-secondary:hover { background: var(--bg-surface-3); }
+.ob-btn-danger { background: #dc2626; color: white; }
+.ob-btn-danger:hover { background: #b91c1c; box-shadow: 0 2px 8px rgba(220,38,38,0.3); }
+
+/* ソート設定 */
+.ob-sort-desc { font-size: 12px; color: var(--text-tertiary); margin-bottom: 10px; }
+.ob-sort-list { list-style: none; }
+.ob-sort-list li {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 12px; background: var(--bg-page);
+    border: 1px solid var(--divider); border-radius: 6px;
+    margin-bottom: 6px; font-size: 13px;
+    cursor: grab; user-select: none; transition: all 0.15s;
+}
+.ob-sort-list li:active { cursor: grabbing; background: var(--accent-dim); }
+.ob-sort-list li.drag-over { border-color: var(--accent); background: var(--accent-dim); }
+.ob-sort-grip { color: var(--text-tertiary); font-size: 14px; }
+.ob-sort-dir {
+    margin-left: auto; background: none;
+    border: 1px solid var(--divider); border-radius: 4px;
+    padding: 2px 8px; cursor: pointer;
+    font-size: 11px; color: var(--text-tertiary);
+}
+.ob-sort-dir:hover {
+    background: var(--accent-dim); border-color: var(--accent); color: var(--accent);
+}
+
+/* 行編集モーダル：セレクト・固定列カーソル */
+.ob-form-row select {
+    padding: 8px 12px; border: 1px solid var(--divider);
+    border-radius: 6px; font-size: 13px; font-family: inherit;
+    background: var(--bg-surface); color: var(--text-primary);
+    transition: border-color 0.15s; appearance: auto;
+}
+.ob-form-row select:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+/* 行編集モーダル：チップフィールド */
+.ob-chip-field {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 10px 14px;
+    border: 1px solid var(--divider); border-radius: 6px;
+    background: rgba(68,166,181,0.03);
+    margin-bottom: 10px;
+}
+.ob-chip-field-header {
+    display: flex; align-items: center; justify-content: space-between;
+}
+.ob-chip-field-title {
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    letter-spacing: 0.5px;
+}
+
+/* 行編集モーダル：チップ選択 */
+.ob-row-chips {
+    display: flex; flex-wrap: wrap; gap: 6px;
+}
+.ob-row-chip {
+    display: inline-flex; align-items: center;
+    padding: 5px 14px; border-radius: 16px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface); color: var(--text-secondary);
+    font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    user-select: none;
+}
+.ob-row-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.ob-row-chip.ob-chip-active {
+    background: var(--accent); color: #fff;
+    border-color: var(--accent);
+}
+/* 現場監督・連絡先 候補チップ */
+.ob-supervisor-candidates {
+    display: flex; align-items: baseline; gap: 8px;
+    flex-wrap: wrap; padding: 2px 0 0;
+}
+.ob-candidates-label {
+    font-size: 11px; color: var(--text-tertiary);
+    white-space: nowrap; flex-shrink: 0;
+}
+.ob-candidates-chips {
+    display: flex; flex-wrap: wrap; gap: 6px;
+}
+.ob-sv-drag-item {
+    display: inline-flex; align-items: center; gap: 2px;
+    border-radius: 14px;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.ob-sv-drag-item[draggable="true"] { cursor: grab; }
+.ob-sv-drag-item.ob-sv-dragging { opacity: 0.4; transform: scale(0.95); }
+.ob-sv-drag-item.ob-sv-drag-over { box-shadow: 0 0 0 2px var(--accent); border-radius: 14px; }
+.ob-sv-drag-grip {
+    font-size: 10px; color: var(--text-disabled);
+    cursor: grab; padding: 0 2px; user-select: none;
+}
+.ob-supervisor-chip {
+    padding: 4px 10px; border: 1px solid var(--divider);
+    border-radius: 14px; background: var(--bg-surface);
+    color: var(--text-secondary); font-size: 11px;
+    cursor: pointer; transition: all 0.15s;
+    white-space: nowrap;
+}
+.ob-supervisor-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.ob-sv-delete-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    border: none; background: transparent;
+    color: var(--text-disabled); font-size: 9px;
+    cursor: pointer; transition: all 0.15s;
+    padding: 0; line-height: 1;
+}
+.ob-sv-delete-btn:hover { background: #fee2e2; color: #dc2626; }
+.ob-sv-undo-bar {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; padding: 4px 10px;
+    background: #fef9c3; border-radius: 6px;
+    font-size: 11px; color: #92400e;
+    margin-top: 4px;
+}
+.ob-btn-add-chip {
+    align-self: flex-start;
+    padding: 3px 12px; border: 1px dashed var(--divider);
+    border-radius: 14px; background: transparent;
+    color: var(--text-tertiary); font-size: 11px;
+    cursor: pointer; transition: all 0.15s;
+}
+.ob-btn-add-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+
+.ob-frozen-clickable {
+    cursor: pointer; transition: background 0.1s;
+}
+.ob-frozen-clickable:hover {
+    background: var(--accent-dim) !important;
+    color: var(--accent);
+}

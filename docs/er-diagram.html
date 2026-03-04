@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>受注管理システム - ER図</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Meiryo', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .header {
+            background: rgba(255,255,255,0.95);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        h1 {
+            font-size: 1.5em;
+            color: #2c3e50;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .controls button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .controls button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        .controls button.reset {
+            background: #95a5a6;
+        }
+        .controls button.reset:hover {
+            background: #7f8c8d;
+        }
+        .zoom-info {
+            background: #ecf0f1;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        .legend {
+            background: rgba(255,255,255,0.95);
+            padding: 15px 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            border-bottom: 3px solid #667eea;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #444;
+            font-weight: 500;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        .diagram-wrapper {
+            width: 100%;
+            height: calc(100vh - 130px);
+            overflow: hidden;
+            position: relative;
+            cursor: grab;
+            background: #fff;
+        }
+        .diagram-wrapper:active {
+            cursor: grabbing;
+        }
+        .diagram-container {
+            position: absolute;
+            transform-origin: 0 0;
+            padding: 40px;
+        }
+        .mermaid {
+            background: #fff;
+        }
+
+        /* Mermaidのスタイルカスタマイズ */
+        .mermaid .entityBox {
+            fill: #fff;
+            stroke: #333;
+        }
+        .mermaid .relationshipLabelBox {
+            fill: #fff;
+        }
+
+        /* 注釈パネル */
+        .annotations-panel {
+            position: fixed;
+            top: 140px;
+            right: 20px;
+            width: 320px;
+            max-height: calc(100vh - 180px);
+            overflow-y: auto;
+            background: rgba(255,255,255,0.98);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 50;
+            padding: 20px;
+        }
+        .annotations-panel h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            font-size: 16px;
+        }
+        .annotation-item {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        .annotation-item.master {
+            border-left-color: #27ae60;
+        }
+        .annotation-item.transaction {
+            border-left-color: #3498db;
+        }
+        .annotation-item.relation {
+            border-left-color: #e67e22;
+        }
+        .annotation-item.log {
+            border-left-color: #9b59b6;
+        }
+        .annotation-item strong {
+            color: #2c3e50;
+            font-size: 13px;
+        }
+        .annotation-item p {
+            color: #666;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .toggle-panel {
+            position: fixed;
+            top: 140px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 60;
+            font-weight: bold;
+            display: none;
+        }
+        .annotations-panel.hidden {
+            display: none;
+        }
+        .annotations-panel.hidden + .toggle-panel {
+            display: block;
+        }
+
+        /* 自動検知ボックス */
+        .auto-detect-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);
+            border-radius: 10px;
+            color: white;
+        }
+        .auto-detect-info h4 {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .auto-detect-info ul {
+            margin-left: 20px;
+            font-size: 12px;
+        }
+        .auto-detect-info li {
+            margin: 5px 0;
+        }
+
+        /* スクロールバー */
+        .annotations-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        .annotations-panel::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        .annotations-panel::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>受注管理システム ER図（テーブル相関図）</h1>
+        <div class="controls">
+            <button onclick="zoomIn()">+ 拡大</button>
+            <button onclick="zoomOut()">- 縮小</button>
+            <button class="reset" onclick="resetView()">リセット</button>
+            <span class="zoom-info">倍率: <span id="zoomLevel">100</span>%</span>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: #27ae60;"></div>
+            <span>マスタテーブル</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #3498db;"></div>
+            <span>トランザクション</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #e67e22;"></div>
+            <span>関連テーブル</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #9b59b6;"></div>
+            <span>ログテーブル</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #607D8B;"></div>
+            <span>自動検知（テーブルなし）</span>
+        </div>
+        <div class="legend-item" style="margin-left: 30px;">
+            <span style="color: #c0392b; font-weight: bold;">PK</span> = 主キー
+        </div>
+        <div class="legend-item">
+            <span style="color: #2980b9; font-weight: bold;">FK</span> = 外部キー
+        </div>
+    </div>
+
+    <div class="diagram-wrapper" id="diagramWrapper">
+        <div class="diagram-container" id="diagramContainer">
+            <div class="mermaid" id="mermaidDiagram">
+erDiagram
+    %% ==================== マスタテーブル ====================
+    group_companies {
+        uuid id PK "主キー"
+        string code "グループ会社コード"
+        string name "グループ会社名"
+        string badge_color "ボーダー色"
+        string badge_text_color "バッジ文字色"
+        boolean is_active "有効フラグ"
+    }
+
+    companies {
+        uuid id PK "主キー"
+        string code "取引先コード"
+        string name "取引先名(元請け先)"
+        boolean is_active "有効フラグ"
+    }
+
+    site_categories {
+        uuid id PK "主キー"
+        string code "区分コード"
+        string name "区分名"
+        int sort_order "表示順"
+    }
+
+    sites {
+        uuid id PK "主キー"
+        uuid group_company_id FK "グループ会社ID"
+        uuid company_id FK "取引先ID"
+        uuid category_id FK "区分ID"
+        string name "現場名"
+        string short_name "略称"
+        int hierarchy_depth "階層深さ1-3"
+        time default_start_time "開始時間"
+        boolean is_active "有効フラグ"
+    }
+
+    site_sub_items {
+        uuid id PK "主キー"
+        uuid site_id FK "現場ID"
+        uuid parent_id FK "親項目ID"
+        string name "項目名"
+        int level "階層レベル1-2"
+    }
+
+    employees {
+        uuid id PK "主キー"
+        string employee_code "社員コード"
+        string name "氏名"
+        string short_name "略称"
+        string department "所属"
+        boolean is_active "有効フラグ"
+    }
+
+    employee_conflicts {
+        uuid id PK "主キー"
+        uuid employee_id_1 FK "社員1"
+        uuid employee_id_2 FK "社員2"
+        boolean is_active "有効フラグ"
+    }
+
+    license_types {
+        uuid id PK "主キー"
+        string code "資格コード"
+        string name "資格名"
+        string category "検定/免許/スキル"
+        boolean requires_renewal "更新必要"
+    }
+
+    vehicles {
+        uuid id PK "主キー"
+        string vehicle_code "車両コード"
+        string license_plate "ナンバー"
+        string short_name "略称"
+        string model "車種名"
+        string owner "所有者"
+        int oil_change_distance "オイル交換距離"
+        date inspection_date "車検満了日"
+        boolean is_active "使用可能"
+    }
+
+    penalty_codes {
+        uuid id PK "主キー"
+        string code "コード"
+        string name "コード名"
+        int sort_order "表示順"
+    }
+
+    %% ==================== 関連テーブル ====================
+    employee_licenses {
+        uuid id PK "主キー"
+        uuid employee_id FK "社員ID"
+        uuid license_type_id FK "資格種別ID"
+        string license_number "資格番号"
+        date expiry_date "有効期限"
+    }
+
+    transport_relations {
+        uuid id PK "主キー"
+        date assignment_date "配置日"
+        uuid driver_employee_id FK "運転者"
+        uuid passenger_employee_id FK "同乗者"
+        string pickup_location "迎え場所"
+    }
+
+    %% ==================== トランザクションテーブル ====================
+    daily_site_orders {
+        uuid id PK "主キー"
+        date order_date "受注対象日"
+        uuid site_id FK "現場ID"
+        string shift_type "day/night"
+        int required_count "必要人数"
+        time start_time "開始時間"
+        time end_time "終了時間"
+        string contact "連絡"
+        string contact_info "連絡事項"
+        string status "active/cancelled"
+        int version "楽観的ロック用"
+        uuid created_by FK "作成者"
+        uuid updated_by FK "最終更新者"
+    }
+
+    daily_assignments {
+        uuid id PK "主キー"
+        uuid daily_site_order_id FK "日毎受注ID"
+        string map_url "現場地図URL"
+        uuid[] vehicle_ids "配置車両ID"
+    }
+
+    assignment_details {
+        uuid id PK "主キー"
+        uuid daily_assignment_id FK "日毎配置ID"
+        uuid employee_id FK "社員ID"
+        string transport_method "移動手段"
+        string equipment "備品装備"
+    }
+
+    penalty_records {
+        uuid id PK "主キー"
+        uuid employee_id FK "社員ID"
+        uuid penalty_code_id FK "コードID"
+        date incident_date "発生日"
+        uuid daily_assignment_id FK "配置ID"
+        string description "詳細説明"
+    }
+
+    maintenance_schedules {
+        uuid id PK "主キー"
+        uuid vehicle_id FK "車両ID"
+        string maintenance_type "種別"
+        date scheduled_date "予定日"
+        string google_calendar_event_id "カレンダーID"
+        string status "ステータス"
+    }
+
+    %% ==================== 受注変更履歴 ====================
+    order_change_history {
+        uuid id PK "主キー"
+        uuid order_id FK "日毎受注ID"
+        int version "バージョン番号"
+        string operation_type "create/update/cancel/restore/rollback/merge"
+        json changed_fields "変更内容JSON"
+        string change_reason "変更理由(任意)"
+        uuid changed_by FK "変更者(社員ID)"
+        timestamp changed_at "変更日時"
+    }
+
+    %% ==================== ログテーブル ====================
+    change_history {
+        uuid id PK "主キー"
+        string table_name "テーブル名"
+        uuid record_id "レコードID"
+        string action "insert/update/delete"
+        json old_values "変更前JSON"
+        json new_values "変更後JSON"
+        timestamp changed_at "変更日時"
+    }
+
+    notification_logs {
+        uuid id PK "主キー"
+        string notification_type "line/email/screen"
+        string trigger_type "トリガー"
+        string message "メッセージ"
+        string status "pending/sent/failed"
+        timestamp sent_at "送信日時"
+    }
+
+    %% ==================== ユーザー設定テーブル ====================
+    user_color_presets {
+        uuid id PK "主キー"
+        uuid user_id FK "ユーザーID"
+        string name "プリセット名"
+        json colors "カラー設定JSON"
+        int sort_order "表示順0-4"
+    }
+
+    %% ==================== リレーションシップ ====================
+    group_companies ||--o{ sites : "所属"
+    companies ||--o{ sites : "契約先"
+    site_categories ||--o{ sites : "分類"
+    sites ||--o{ site_sub_items : "子項目"
+    sites ||--o{ daily_site_orders : "受注先"
+
+    daily_site_orders ||--|| daily_assignments : "配置計画"
+    daily_site_orders ||--o{ order_change_history : "変更履歴"
+    employees ||--o{ order_change_history : "変更者"
+    employees ||--o{ daily_site_orders : "作成/更新者"
+
+    employees ||--o{ employee_licenses : "保有資格"
+    license_types ||--o{ employee_licenses : "資格種別"
+    employees ||--o{ employee_conflicts : "配置制約"
+
+    employees ||--o{ assignment_details : "配置される"
+    employees ||--o{ transport_relations : "運転者として"
+    employees ||--o{ transport_relations : "同乗者として"
+    employees ||--o{ penalty_records : "ペナルティ"
+
+    vehicles ||--o{ daily_assignments : "配置車両"
+    vehicles ||--o{ maintenance_schedules : "整備予定"
+
+    daily_assignments ||--o{ assignment_details : "配置詳細"
+    daily_assignments ||--o{ penalty_records : "関連配置"
+
+    penalty_codes ||--o{ penalty_records : "コード適用"
+            </div>
+        </div>
+    </div>
+
+    <!-- 注釈パネル -->
+    <div class="annotations-panel" id="annotationsPanel">
+        <h3>テーブル説明</h3>
+
+        <div class="annotation-item master">
+            <strong>group_companies（グループ会社マスタ）</strong>
+            <p>東央警備、Nikkeiホールディングス等の自社グループ会社。略称・バッジ色を管理</p>
+        </div>
+
+        <div class="annotation-item master">
+            <strong>companies（取引先マスタ）</strong>
+            <p>グループ会社が契約している元請け先を管理</p>
+        </div>
+
+        <div class="annotation-item master">
+            <strong>site_categories（区分マスタ）</strong>
+            <p>施設、イベント、高速などの現場カテゴリ</p>
+        </div>
+
+        <div class="annotation-item master">
+            <strong>sites（現場マスタ）</strong>
+            <p>警備を行う現場の詳細情報</p>
+        </div>
+
+        <div class="annotation-item master">
+            <strong>site_sub_items（現場子項目）</strong>
+            <p>工事名・作業内容など現場の階層構造</p>
+        </div>
+
+        <div class="annotation-item master">
+            <strong>employees（社員マスタ）</strong>
+            <p>警備員の情報（氏名、略称、所属など）</p>
+        </div>
+
+        <div class="annotation-item relation">
+            <strong>employee_conflicts（配置制約）</strong>
+            <p>同じ現場に配置すべきでない社員の組み合わせ</p>
+        </div>
+
+        <div class="annotation-item master">
+            <strong>license_types（資格種別）</strong>
+            <p>検定・運転免許・スキルの種類を定義</p>
+        </div>
+
+        <div class="annotation-item master">
+            <strong>vehicles（車両マスタ）</strong>
+            <p>社有車の情報と車検期限を管理</p>
+        </div>
+
+        <div class="annotation-item master">
+            <strong>penalty_codes（ペナルティコード）</strong>
+            <p>欠勤・遅刻などのペナルティ種別</p>
+        </div>
+
+        <div class="annotation-item relation">
+            <strong>employee_licenses（社員資格）</strong>
+            <p>社員が持っている資格・スキルの一覧</p>
+        </div>
+
+        <div class="annotation-item relation">
+            <strong>transport_relations（送迎関係）</strong>
+            <p>誰が誰を迎えに行くかの送迎関係</p>
+        </div>
+
+        <div class="annotation-item transaction">
+            <strong>daily_site_orders（日毎受注）</strong>
+            <p>営業担当者が契約先から受けた受注情報（日付・現場・人数・時間）。status/versionで楽観的ロック</p>
+        </div>
+
+        <div class="annotation-item transaction">
+            <strong>daily_assignments（日毎配置）</strong>
+            <p>配置担当者が管理する配置計画（地図URL・車両配置）。日毎受注に1:1で紐づく</p>
+        </div>
+
+        <div class="annotation-item log">
+            <strong>order_change_history（受注変更履歴）</strong>
+            <p>日毎受注の全変更を記録。変更カラム・変更前後の値・変更者・変更理由を保持し、任意バージョンへのロールバックが可能</p>
+        </div>
+
+        <div class="annotation-item transaction">
+            <strong>assignment_details（配置詳細）</strong>
+            <p>配置された各社員の詳細（移動手段、備品など）</p>
+        </div>
+
+        <div class="annotation-item transaction">
+            <strong>penalty_records（ペナルティ記録）</strong>
+            <p>社員のペナルティ発生履歴を記録</p>
+        </div>
+
+        <div class="annotation-item transaction">
+            <strong>maintenance_schedules（メンテナンス）</strong>
+            <p>車検・点検・オイル交換などの予定</p>
+        </div>
+
+        <div class="annotation-item log">
+            <strong>change_history（変更履歴）</strong>
+            <p>全テーブルの変更履歴を自動記録</p>
+        </div>
+
+        <div class="annotation-item log">
+            <strong>notification_logs（通知ログ）</strong>
+            <p>LINE通知などの送信履歴を記録</p>
+        </div>
+
+        <div class="annotation-item log">
+            <strong>user_color_presets（ユーザーカラープリセット）</strong>
+            <p>ユーザーごとの画面カラー設定。最大5パターン保存可能</p>
+        </div>
+
+        <div class="auto-detect-info">
+            <h4>連続勤務（自動検知機能）</h4>
+            <p style="margin-bottom: 8px; font-size: 12px;">テーブル不要。配置データから自動検知：</p>
+            <ul>
+                <li>昼→夜：同日の昼勤務後に夜勤務</li>
+                <li>夜→昼：前日夜→翌日昼</li>
+                <li>昼→夜→昼：昼→夜→翌日昼</li>
+                <li>夜→昼→夜：前日夜→昼→夜</li>
+            </ul>
+        </div>
+    </div>
+
+    <button class="toggle-panel" onclick="togglePanel()">説明を表示</button>
+
+    <script>
+        // Mermaid初期化
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            er: {
+                diagramPadding: 40,
+                layoutDirection: 'TB',
+                minEntityWidth: 200,
+                minEntityHeight: 100,
+                entityPadding: 20,
+                useMaxWidth: false
+            },
+            themeVariables: {
+                primaryColor: '#3498db',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#2980b9',
+                lineColor: '#95a5a6',
+                secondaryColor: '#ecf0f1',
+                tertiaryColor: '#fff'
+            }
+        });
+
+        // ズーム・パン機能
+        let scale = 0.7;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX, startY;
+
+        const wrapper = document.getElementById('diagramWrapper');
+        const container = document.getElementById('diagramContainer');
+        const zoomLevelSpan = document.getElementById('zoomLevel');
+
+        function updateTransform() {
+            container.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            zoomLevelSpan.textContent = Math.round(scale * 100);
+        }
+
+        function zoomIn() {
+            scale = Math.min(scale * 1.2, 3);
+            updateTransform();
+        }
+
+        function zoomOut() {
+            scale = Math.max(scale / 1.2, 0.2);
+            updateTransform();
+        }
+
+        function resetView() {
+            scale = 0.7;
+            translateX = 0;
+            translateY = 0;
+            updateTransform();
+        }
+
+        // マウスホイールでズーム
+        wrapper.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const rect = wrapper.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const oldScale = scale;
+            if (e.deltaY < 0) {
+                scale = Math.min(scale * 1.1, 3);
+            } else {
+                scale = Math.max(scale / 1.1, 0.2);
+            }
+
+            const scaleChange = scale / oldScale;
+            translateX = mouseX - (mouseX - translateX) * scaleChange;
+            translateY = mouseY - (mouseY - translateY) * scaleChange;
+
+            updateTransform();
+        });
+
+        // ドラッグでパン
+        wrapper.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX - translateX;
+            startY = e.clientY - translateY;
+            wrapper.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            updateTransform();
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            wrapper.style.cursor = 'grab';
+        });
+
+        // タッチ対応
+        wrapper.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                startX = e.touches[0].clientX - translateX;
+                startY = e.touches[0].clientY - translateY;
+            }
+        });
+
+        wrapper.addEventListener('touchmove', (e) => {
+            if (!isDragging || e.touches.length !== 1) return;
+            e.preventDefault();
+            translateX = e.touches[0].clientX - startX;
+            translateY = e.touches[0].clientY - startY;
+            updateTransform();
+        });
+
+        wrapper.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        // 注釈パネルのトグル
+        function togglePanel() {
+            const panel = document.getElementById('annotationsPanel');
+            panel.classList.toggle('hidden');
+        }
+
+        // 初期表示
+        updateTransform();
+    </script>
+</body>
+</html>

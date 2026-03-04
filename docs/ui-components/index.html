@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plaster UI Components - Dark Theme</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Plaster</h2>
+            <span class="sidebar-sub">UI Components</span>
+        </div>
+        <div class="sidebar-section">
+            <h3>Foundation</h3>
+            <ul>
+                <li><a href="#color-palette" class="active">Color Palette</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <h3>Android</h3>
+            <ul>
+                <li><a href="#android-appbar">App Bar</a></li>
+                <li><a href="#android-bottomnav">Bottom Nav</a></li>
+                <li><a href="#android-button">Button</a></li>
+                <li><a href="#android-card">Card</a></li>
+                <li><a href="#android-chip">Chip</a></li>
+                <li><a href="#android-grid">Grid</a></li>
+                <li><a href="#android-list">List</a></li>
+                <li><a href="#android-menu">Menu</a></li>
+                <li><a href="#android-notification">Notifications</a></li>
+                <li><a href="#android-picker">Picker</a></li>
+                <li><a href="#android-progress">Progress</a></li>
+                <li><a href="#android-slider">Slider</a></li>
+                <li><a href="#android-snackbar">Snackbar</a></li>
+                <li><a href="#android-tab">Tab</a></li>
+                <li><a href="#android-textfield">Text Field</a></li>
+                <li><a href="#android-toggle">Toggle</a></li>
+                <li><a href="#android-tooltip">Tooltip</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <h3>iOS</h3>
+            <ul>
+                <li><a href="#ios-alert">Alert</a></li>
+                <li><a href="#ios-bar">Bar</a></li>
+                <li><a href="#ios-button">Button</a></li>
+                <li><a href="#ios-card">Card</a></li>
+                <li><a href="#ios-modal">Modal</a></li>
+                <li><a href="#ios-picker">Picker</a></li>
+                <li><a href="#ios-progress">Progress</a></li>
+                <li><a href="#ios-segmented">Segmented</a></li>
+                <li><a href="#ios-slider">Slider</a></li>
+                <li><a href="#ios-tab">Tab</a></li>
+                <li><a href="#ios-tableview">Table View</a></li>
+                <li><a href="#ios-textfield">Text Field</a></li>
+                <li><a href="#ios-toggle">Toggle</a></li>
+                <li><a href="#ios-widget">Widget</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main" id="main">
+
+        <!-- ========== COLOR PALETTE ========== -->
+        <div class="platform-header">Foundation</div>
+
+        <section class="comp-section" id="color-palette">
+            <div class="comp-title-bar"><h2>Color Palette</h2></div>
+            <div class="comp-body">
+                <p class="palette-credit">Based on Color Palette by <em>Luca Davincci</em></p>
+
+                <!-- Primary -->
+                <h4>Primary</h4>
+                <div class="comp-row palette-row">
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#098698;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Teal Blue</span>
+                            <span class="palette-role">Primary / Accent</span>
+                            <span class="palette-hex">#098698</span>
+                            <span class="palette-use">ボタン、リンク、アクティブ状態、FAB</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#0a9db0;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Light Teal</span>
+                            <span class="palette-role">Primary Light</span>
+                            <span class="palette-hex">#0a9db0</span>
+                            <span class="palette-use">ホバー、ハイライト</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#076a78;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Dark Teal</span>
+                            <span class="palette-role">Primary Dark</span>
+                            <span class="palette-hex">#076a78</span>
+                            <span class="palette-use">プレス状態、アクティブ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary -->
+                <h4>Secondary / Subtle</h4>
+                <div class="comp-row palette-row">
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#AEC0C2;">
+                            <span class="swatch-label dark">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Blue Gray</span>
+                            <span class="palette-role">Secondary</span>
+                            <span class="palette-hex">#AEC0C2</span>
+                            <span class="palette-use">セカンダリアクション、ボーダー、アイコン</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text -->
+                <h4>Text</h4>
+                <div class="comp-row palette-row">
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#D9D4D1;">
+                            <span class="swatch-label dark">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Warm Gray Light</span>
+                            <span class="palette-role">Text Primary</span>
+                            <span class="palette-hex">#D9D4D1</span>
+                            <span class="palette-use">見出し、本文テキスト</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#BAB1AD;">
+                            <span class="swatch-label dark">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Warm Gray Medium</span>
+                            <span class="palette-role">Text Secondary</span>
+                            <span class="palette-hex">#BAB1AD</span>
+                            <span class="palette-use">サブテキスト、キャプション、ラベル</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Surface / Background -->
+                <h4>Surface / Background</h4>
+                <div class="comp-row palette-row">
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#1a1e22;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Near Black</span>
+                            <span class="palette-role">Page Background</span>
+                            <span class="palette-hex">#1a1e22</span>
+                            <span class="palette-use">ページ背景</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#3D444B;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Dark Gray</span>
+                            <span class="palette-role">Surface</span>
+                            <span class="palette-hex">#3D444B</span>
+                            <span class="palette-use">カード、パネル、セクション背景</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#505A63;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Medium Dark Gray</span>
+                            <span class="palette-role">Surface Variant</span>
+                            <span class="palette-hex">#505A63</span>
+                            <span class="palette-use">ヘッダー、入力フィールド背景</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <h4>Divider / Border</h4>
+                <div class="comp-row palette-row">
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#4a5259;">
+                            <span class="swatch-label light">─</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Border Gray</span>
+                            <span class="palette-role">Divider</span>
+                            <span class="palette-hex">#4a5259</span>
+                            <span class="palette-use">ボーダー、区切り線</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Usage Map -->
+                <h4>Usage Map</h4>
+                <div class="palette-usage-map">
+                    <div class="usage-example">
+                        <div class="usage-mock">
+                            <div class="usage-mock-header">
+                                <span class="usage-mock-nav">&#9776;</span>
+                                <span>App Title</span>
+                                <span class="usage-mock-actions">&#9733; &#8942;</span>
+                            </div>
+                            <div class="usage-mock-body">
+                                <div class="usage-mock-card">
+                                    <h5>Card Title</h5>
+                                    <p>Secondary text content</p>
+                                    <div class="usage-mock-btns">
+                                        <span class="usage-btn-primary">Button</span>
+                                        <span class="usage-btn-flat">Button</span>
+                                    </div>
+                                </div>
+                                <div class="usage-mock-field">
+                                    <label>Input Label</label>
+                                    <div class="usage-mock-input">Text value</div>
+                                </div>
+                            </div>
+                            <div class="usage-mock-bar">
+                                <span class="usage-bar-item active">&#9733;<br><small>Home</small></span>
+                                <span class="usage-bar-item">&#9733;<br><small>Search</small></span>
+                                <span class="usage-bar-item">&#9733;<br><small>Settings</small></span>
+                            </div>
+                        </div>
+                        <div class="usage-legend">
+                            <div class="legend-item"><span class="legend-dot" style="background:#098698;"></span> Primary (#098698)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#D9D4D1;"></span> Text Primary (#D9D4D1)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#BAB1AD;"></span> Text Secondary (#BAB1AD)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#3D444B;"></span> Surface (#3D444B)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#505A63;"></span> Surface Variant (#505A63)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#AEC0C2;"></span> Secondary (#AEC0C2)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== ANDROID ========== -->
+        <div class="platform-header">Android Dark</div>
+
+        <!-- App Bar -->
+        <section class="comp-section" id="android-appbar">
+            <div class="comp-title-bar"><h2>App Bar</h2></div>
+            <div class="comp-body">
+                <h4>App bar</h4>
+                <div class="comp-row">
+                    <div class="phone-bar"><span class="bar-time">16:40</span><span class="bar-icons">&#9679;&#9679;&#9679;</span><div class="appbar"><span class="appbar-menu">&#9776;</span><span class="appbar-title">Title</span><span class="appbar-action">&#9733;</span></div></div>
+                    <div class="phone-bar"><span class="bar-time">16:40</span><span class="bar-icons">&#9679;&#9679;&#9679;</span><div class="appbar"><span class="appbar-menu">&#9776;</span><span class="appbar-title">Title</span><span class="appbar-actions">&#9733; &#9733; &#9733; &#8942;</span></div></div>
+                    <div class="phone-bar"><span class="bar-time">16:40</span><span class="bar-icons">&#9679;&#9679;&#9679;</span><div class="appbar"><span class="appbar-menu">&#9776;</span><span class="appbar-title">Title</span><span class="appbar-actions">&#9733; &#9733; &#9733; &#8942;</span></div></div>
+                    <div class="phone-bar"><span class="bar-time">16:40</span><span class="bar-icons">&#9679;&#9679;&#9679;</span><div class="appbar"><span class="appbar-menu">&#9776;</span><span class="appbar-title">Title</span><span class="appbar-actions">&#9733; &#9733; &#9733; &#8942;</span></div></div>
+                </div>
+                <h4>Extended app bar</h4>
+                <div class="comp-row">
+                    <div class="phone-bar"><span class="bar-time">16:40</span><span class="bar-icons">&#9679;&#9679;&#9679;</span><div class="appbar"><span class="appbar-menu">&#9776;</span><span class="appbar-actions">&#9733; &#9733; &#9733; &#9733;</span></div><div class="appbar-extended-title">Title</div></div>
+                    <div class="phone-bar"><span class="bar-time">16:40</span><span class="bar-icons">&#9679;&#9679;&#9679;</span><div class="appbar"><span class="appbar-menu">&#9776;</span><span class="appbar-actions">&#9733; &#9733; &#9733; &#8942;</span></div><div class="appbar-extended-title">Title</div></div>
+                    <div class="phone-bar"><span class="bar-time">16:40</span><span class="bar-icons">&#9679;&#9679;&#9679;</span><div class="appbar"><span class="appbar-title">Title</span><span class="appbar-actions">&#9733; &#9733; &#9733; &#8942;</span></div><div class="appbar-breadcrumb">First &gt; Second &gt; Third</div></div>
+                    <div class="phone-bar"><span class="bar-time">16:40</span><span class="bar-icons">&#9679;&#9679;&#9679;</span><div class="appbar"><span class="appbar-title">Title</span><span class="appbar-actions">&#9733; &#9733; &#9733; &#8942;</span></div><div class="appbar-breadcrumb">First &gt; Second &gt; Third</div></div>
+                </div>
+                <h4>Search bar</h4>
+                <div class="comp-row">
+                    <div class="phone-bar compact"><span class="bar-time">16:40</span><span class="bar-icons">&#9679;&#9679;&#9679;</span><div class="search-bar"><span class="search-icon">&#128269;</span><span class="search-placeholder">Search...</span></div></div>
+                    <div class="phone-bar compact"><span class="bar-time">16:40</span><span class="bar-icons">&#9679;&#9679;&#9679;</span><div class="search-bar full"><span class="search-icon">&#128269;</span><span class="search-placeholder">Search...</span></div></div>
+                </div>
+                <h4>Bottom app bar</h4>
+                <div class="comp-row">
+                    <div class="bottom-appbar"><span class="appbar-menu">&#9776;</span><div class="fab-notch">&#9733;</div><span class="appbar-actions">&#9733; &#9733; &#8942;</span></div>
+                    <div class="bottom-appbar"><span class="appbar-menu">&#9776;</span><div class="fab-center">&#9733;</div><span class="appbar-actions">&#9733; &#9733; &#9733;</span></div>
+                    <div class="bottom-appbar"><span class="appbar-menu">&#9776;</span><span class="appbar-actions">&#9733; &#9733; &#8942;</span><div class="fab-end">&#9733;</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom Nav -->
+        <section class="comp-section" id="android-bottomnav">
+            <div class="comp-title-bar"><h2>Bottom Navigation</h2></div>
+            <div class="comp-body">
+                <h4>3 Items</h4>
+                <div class="comp-row">
+                    <div class="bottom-nav"><div class="bnav-item active"><span class="bnav-icon">&#9733;</span><span class="bnav-label">Label</span></div><div class="bnav-item"><span class="bnav-icon">&#9733;</span><span class="bnav-label">Label</span></div><div class="bnav-item"><span class="bnav-icon">&#9733;</span><span class="bnav-label">Label</span></div></div>
+                </div>
+                <h4>4 Items</h4>
+                <div class="comp-row">
+                    <div class="bottom-nav"><div class="bnav-item active"><span class="bnav-icon">&#9733;</span><span class="bnav-label">Label</span></div><div class="bnav-item"><span class="bnav-icon">&#9733;</span><span class="bnav-label">Label</span></div><div class="bnav-item"><span class="bnav-icon">&#9733;</span><span class="bnav-label">Label</span></div><div class="bnav-item"><span class="bnav-icon">&#9733;</span><span class="bnav-label">Label</span></div></div>
+                </div>
+                <h4>5 Items</h4>
+                <div class="comp-row">
+                    <div class="bottom-nav"><div class="bnav-item active"><span class="bnav-icon">&#9733;</span><span class="bnav-label">Label</span></div><div class="bnav-item"><span class="bnav-icon">&#9733;</span></div><div class="bnav-item"><span class="bnav-icon">&#9733;</span></div><div class="bnav-item"><span class="bnav-icon">&#9733;</span></div><div class="bnav-item"><span class="bnav-icon">&#9733;</span></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Button -->
+        <section class="comp-section" id="android-button">
+            <div class="comp-title-bar"><h2>Button</h2></div>
+            <div class="comp-body">
+                <h4>Flat</h4>
+                <div class="comp-row">
+                    <button class="md-btn flat">Normal</button>
+                    <button class="md-btn flat hover">Hover</button>
+                    <button class="md-btn flat pressed">Pressed</button>
+                    <button class="md-btn flat" disabled>Disabled</button>
+                </div>
+                <h4>Raised</h4>
+                <div class="comp-row">
+                    <button class="md-btn raised">Normal</button>
+                    <button class="md-btn raised hover">Hover</button>
+                    <button class="md-btn raised pressed">Pressed</button>
+                    <button class="md-btn raised" disabled>Disabled</button>
+                </div>
+                <h4>Icon + Button</h4>
+                <div class="comp-row">
+                    <button class="md-btn raised icon-btn"><span class="btn-icon">&#9733;</span> Normal</button>
+                    <button class="md-btn raised icon-btn hover"><span class="btn-icon">&#9733;</span> Hover</button>
+                    <button class="md-btn raised icon-btn pressed"><span class="btn-icon">&#9733;</span> Pressed</button>
+                    <button class="md-btn raised icon-btn" disabled><span class="btn-icon">&#9733;</span> Disabled</button>
+                </div>
+                <h4>FAB</h4>
+                <div class="comp-row">
+                    <button class="md-fab sm">&#9733;</button>
+                    <button class="md-fab">&#9733;</button>
+                    <button class="md-fab lg">&#9733;</button>
+                </div>
+                <h4>FAB + Caption</h4>
+                <div class="comp-row">
+                    <div class="fab-caption-wrap"><button class="md-fab sm">&#9733;</button><span class="fab-cap">FAB</span></div>
+                    <div class="fab-caption-wrap"><button class="md-fab">&#9733;</button><span class="fab-cap">FAB</span></div>
+                    <div class="fab-caption-wrap"><button class="md-fab lg">&#9733;</button><span class="fab-cap">FAB</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Card -->
+        <section class="comp-section" id="android-card">
+            <div class="comp-title-bar"><h2>Card</h2></div>
+            <div class="comp-body">
+                <h4>Large</h4>
+                <div class="comp-row cards">
+                    <div class="md-card lg"><div class="md-card-media"></div><div class="md-card-content"><h5>Title</h5><p>This is a really long two-line secondary text example</p></div><div class="md-card-actions"><button class="md-btn flat">Button</button><button class="md-btn flat">Button</button></div></div>
+                    <div class="md-card lg"><div class="md-card-media"></div><div class="md-card-content"><h5>Title</h5><p>This is a really long two-line secondary text example</p></div></div>
+                    <div class="md-card lg"><div class="md-card-media overlay"><div class="md-card-overlay"><h5>This is a really long</h5><p>Two-line title text example</p></div></div></div>
+                    <div class="md-card lg"><div class="md-card-media overlay-full"><p>This is a really long two-line secondary text example</p></div></div>
+                </div>
+                <h4>Medium</h4>
+                <div class="comp-row cards">
+                    <div class="md-card md horiz"><div class="md-card-content"><h5>Title</h5><p>This is a really long three-line secondary text example</p><div class="md-card-actions"><button class="md-btn flat">Button</button><button class="md-btn flat">Button</button></div></div><div class="md-card-media-sm"></div></div>
+                    <div class="md-card md horiz"><div class="md-card-content"><h5>Title</h5><p>This is a really long two-line secondary text example</p></div><div class="md-card-media-sm"></div></div>
+                    <div class="md-card md horiz"><div class="md-card-content"><h5>Title</h5><p>This is a really long two-line secondary example</p><div class="md-card-actions"><button class="md-btn flat">Button</button><button class="md-btn flat">Button</button></div></div><div class="md-card-media-sm"></div></div>
+                </div>
+                <h4>Small</h4>
+                <div class="comp-row cards">
+                    <div class="md-card sm"><div class="md-card-media"></div><div class="md-card-content"><h5>Title</h5></div></div>
+                    <div class="md-card sm"><div class="md-card-media"></div><div class="md-card-content"><h5>Title</h5><p>Secondary text</p></div></div>
+                    <div class="md-card sm"><div class="md-card-media"></div><div class="md-card-content"><h5>Title</h5></div><div class="md-card-actions icons">&#9733; &#9733; &#9733;</div></div>
+                    <div class="md-card sm"><div class="md-card-media"></div><div class="md-card-content"><h5>Title</h5></div><div class="md-card-actions icons">&#9733; &#9733; &#9733;</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chip -->
+        <section class="comp-section" id="android-chip">
+            <div class="comp-title-bar"><h2>Chip</h2></div>
+            <div class="comp-body">
+                <h4>Text</h4>
+                <div class="comp-row">
+                    <span class="md-chip">Chip text</span>
+                    <span class="md-chip closable">Chip text <span class="chip-close">&times;</span></span>
+                </div>
+                <h4>Contact</h4>
+                <div class="comp-row">
+                    <span class="md-chip contact"><span class="chip-avatar"></span>Chip text</span>
+                    <span class="md-chip contact closable"><span class="chip-avatar"></span>Chip text <span class="chip-close">&times;</span></span>
+                </div>
+                <h4>Activated</h4>
+                <div class="comp-row">
+                    <div class="chip-activated"><div class="chip-activated-header"><span class="chip-avatar lg"></span><div><strong>Username</strong><br><small>example@gmail.com</small></div><span class="chip-close">&times;</span></div><div class="chip-dropdown"><div class="chip-dropdown-item"><span class="chip-avatar sm"></span> Username</div><div class="chip-dropdown-item"><span class="chip-avatar sm"></span> Username</div></div></div>
+                    <span class="md-chip contact activated"><span class="chip-avatar"></span><div><strong>Username</strong><br><small>example@gmail.com</small></div><span class="chip-close">&times;</span></span>
+                    <span class="md-chip contact"><span class="chip-avatar"></span>Username</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Grid -->
+        <section class="comp-section" id="android-grid">
+            <div class="comp-title-bar"><h2>Grid</h2></div>
+            <div class="comp-body">
+                <h4>Image Grid</h4>
+                <div class="md-grid g3"><div class="md-grid-item"></div><div class="md-grid-item"></div><div class="md-grid-item"></div><div class="md-grid-item"></div><div class="md-grid-item"></div><div class="md-grid-item"></div></div>
+                <h4>Single Column</h4>
+                <div class="md-grid g1"><div class="md-grid-item wide"></div><div class="md-grid-item wide"></div></div>
+            </div>
+        </section>
+
+        <!-- List -->
+        <section class="comp-section" id="android-list">
+            <div class="comp-title-bar"><h2>List</h2></div>
+            <div class="comp-body">
+                <h4>Single line</h4>
+                <div class="md-list"><div class="md-list-item"><span class="list-avatar"></span><span class="list-text">Single-line item</span></div><div class="md-list-item"><span class="list-avatar"></span><span class="list-text">Single-line item</span></div><div class="md-list-item"><span class="list-avatar"></span><span class="list-text">Single-line item</span></div></div>
+                <h4>Two line</h4>
+                <div class="md-list"><div class="md-list-item two"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Two-line item</span><span class="list-secondary">Secondary text</span></div></div><div class="md-list-item two"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Two-line item</span><span class="list-secondary">Secondary text</span></div></div><div class="md-list-item two"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Two-line item</span><span class="list-secondary">Secondary text</span></div></div></div>
+                <h4>Three line</h4>
+                <div class="md-list"><div class="md-list-item three"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Three-line item</span><span class="list-secondary">Secondary text that is long enough to span two lines</span></div></div><div class="md-list-item three"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Three-line item</span><span class="list-secondary">Secondary text that is long enough to span two lines</span></div></div></div>
+            </div>
+        </section>
+
+        <!-- Menu -->
+        <section class="comp-section" id="android-menu">
+            <div class="comp-title-bar"><h2>Menu</h2></div>
+            <div class="comp-body">
+                <div class="comp-row menus">
+                    <div class="md-menu"><div class="md-menu-item">Menu item 1</div><div class="md-menu-item">Menu item 2</div><div class="md-menu-item">Menu item 3</div><div class="md-menu-item disabled">Menu item 4</div></div>
+                    <div class="md-menu icons"><div class="md-menu-item"><span class="menu-icon">&#9733;</span>Menu item 1</div><div class="md-menu-item"><span class="menu-icon">&#9733;</span>Menu item 2</div><div class="md-menu-item"><span class="menu-icon">&#9733;</span>Menu item 3</div></div>
+                    <div class="md-menu checkmarks"><div class="md-menu-item"><span class="menu-check">&#10003;</span>Menu item 1</div><div class="md-menu-item">Menu item 2</div><div class="md-menu-item"><span class="menu-check">&#10003;</span>Menu item 3</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notifications -->
+        <section class="comp-section" id="android-notification">
+            <div class="comp-title-bar"><h2>Notifications</h2></div>
+            <div class="comp-body">
+                <div class="comp-row notifs">
+                    <div class="md-notif"><div class="notif-header"><span class="notif-icon">&#9733;</span><span class="notif-app">App name</span><span class="notif-time">10m ago</span></div><div class="notif-body"><strong>Title</strong><p>Notification text that can span multiple lines</p></div></div>
+                    <div class="md-notif expanded"><div class="notif-header"><span class="notif-icon">&#9733;</span><span class="notif-app">App name</span><span class="notif-time">10m ago</span></div><div class="notif-body"><strong>Title</strong><p>Expanded notification with more detail text here</p></div><div class="notif-actions"><button class="md-btn flat">Action 1</button><button class="md-btn flat">Action 2</button></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Picker -->
+        <section class="comp-section" id="android-picker">
+            <div class="comp-title-bar"><h2>Picker</h2></div>
+            <div class="comp-body">
+                <div class="comp-row pickers">
+                    <div class="md-picker date"><div class="picker-header"><span class="picker-label">SELECT DATE</span><span class="picker-value">Mon, Jun 15</span></div><div class="picker-calendar"><div class="picker-month">&lt; June 2026 &gt;</div><div class="picker-grid"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span></span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span class="selected">15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span></div><div class="picker-actions"><button class="md-btn flat">Cancel</button><button class="md-btn flat">OK</button></div></div></div>
+                    <div class="md-picker time"><div class="picker-header"><span class="picker-label">SELECT TIME</span><span class="picker-value time-val"><span class="time-active">12</span>:<span>00</span></span></div><div class="picker-clock"><div class="clock-face"><span class="clock-num t12">12</span><span class="clock-num t1">1</span><span class="clock-num t2">2</span><span class="clock-num t3">3</span><span class="clock-num t4">4</span><span class="clock-num t5">5</span><span class="clock-num t6">6</span><span class="clock-num t7">7</span><span class="clock-num t8">8</span><span class="clock-num t9">9</span><span class="clock-num t10">10</span><span class="clock-num t11">11</span></div><div class="picker-actions"><button class="md-btn flat">Cancel</button><button class="md-btn flat">OK</button></div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress -->
+        <section class="comp-section" id="android-progress">
+            <div class="comp-title-bar"><h2>Progress & Activity</h2></div>
+            <div class="comp-body">
+                <h4>Progress Bar</h4>
+                <div class="comp-row progress-row">
+                    <div class="md-progress"><div class="md-progress-fill" style="width:0%"></div></div>
+                    <div class="md-progress"><div class="md-progress-fill" style="width:30%"></div></div>
+                    <div class="md-progress"><div class="md-progress-fill" style="width:60%"></div></div>
+                    <div class="md-progress"><div class="md-progress-fill" style="width:100%"></div></div>
+                </div>
+                <h4>Stepper</h4>
+                <div class="comp-row">
+                    <div class="md-stepper"><span class="step-arrow">&lt;</span><span class="step-dots">&#9679; &#9679; &#9675; &#9675;</span><span class="step-arrow">&gt;</span></div>
+                    <div class="md-stepper"><span class="step-label">Back</span><span class="step-dots">&#9679; &#9675;</span><span class="step-label">Next</span></div>
+                </div>
+                <h4>Dots</h4>
+                <div class="comp-row dots-row">
+                    <span class="md-dots">&#9679; &#9675; &#9675; &#9675; &#9675;</span>
+                    <span class="md-dots">&#9675; &#9679; &#9675; &#9675; &#9675;</span>
+                    <span class="md-dots">&#9679; &#9675; &#9675;</span>
+                    <span class="md-dots">&#9679; &#9675;</span>
+                </div>
+                <h4>Loader</h4>
+                <div class="comp-row">
+                    <div class="md-loader"><div class="loader-ring"></div></div>
+                    <div class="md-loader sm"><div class="loader-ring"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slider -->
+        <section class="comp-section" id="android-slider">
+            <div class="comp-title-bar"><h2>Slider</h2></div>
+            <div class="comp-body">
+                <h4>Regular</h4>
+                <div class="comp-col sliders">
+                    <input type="range" class="md-slider" min="0" max="100" value="0">
+                    <input type="range" class="md-slider" min="0" max="100" value="30">
+                    <input type="range" class="md-slider" min="0" max="100" value="60">
+                    <input type="range" class="md-slider" min="0" max="100" value="100">
+                </div>
+                <h4>Disabled</h4>
+                <div class="comp-col sliders">
+                    <input type="range" class="md-slider" min="0" max="100" value="0" disabled>
+                    <input type="range" class="md-slider" min="0" max="100" value="30" disabled>
+                    <input type="range" class="md-slider" min="0" max="100" value="60" disabled>
+                    <input type="range" class="md-slider" min="0" max="100" value="100" disabled>
+                </div>
+            </div>
+        </section>
+
+        <!-- Snackbar -->
+        <section class="comp-section" id="android-snackbar">
+            <div class="comp-title-bar"><h2>Snackbar</h2></div>
+            <div class="comp-body">
+                <div class="comp-col snackbars">
+                    <div class="md-snackbar">Single-line snackbar message</div>
+                    <div class="md-snackbar action">Single-line snackbar message<button class="md-btn flat accent">Action</button></div>
+                    <div class="md-snackbar multiline">Two-line snackbar message that spans across multiple lines<button class="md-btn flat accent">Action</button></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab -->
+        <section class="comp-section" id="android-tab">
+            <div class="comp-title-bar"><h2>Tab</h2></div>
+            <div class="comp-body">
+                <h4>Text tabs</h4>
+                <div class="comp-row tabs-row">
+                    <div class="md-tabs"><span class="md-tab active">Tab 1</span><span class="md-tab">Tab 2</span><span class="md-tab">Tab 3</span></div>
+                </div>
+                <h4>Icon tabs</h4>
+                <div class="comp-row tabs-row">
+                    <div class="md-tabs icon"><span class="md-tab active">&#9733;<br>Tab 1</span><span class="md-tab">&#9733;<br>Tab 2</span><span class="md-tab">&#9733;<br>Tab 3</span></div>
+                </div>
+                <h4>Scrollable</h4>
+                <div class="comp-row tabs-row">
+                    <div class="md-tabs scrollable"><span class="md-tab active">Tab 1</span><span class="md-tab">Tab 2</span><span class="md-tab">Tab 3</span><span class="md-tab">Tab 4</span><span class="md-tab">Tab 5</span><span class="md-tab">Tab 6</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Text Field -->
+        <section class="comp-section" id="android-textfield">
+            <div class="comp-title-bar"><h2>Text Field</h2></div>
+            <div class="comp-body">
+                <h4>Lined</h4>
+                <div class="comp-row fields">
+                    <div class="md-field lined"><label>Label</label><input type="text" placeholder="Normal"><span class="field-caption">Caption</span></div>
+                    <div class="md-field lined hover"><label>Label</label><input type="text" value="Hover"><span class="field-caption">Caption</span></div>
+                    <div class="md-field lined focus"><label>Label</label><input type="text" value="Typing"><span class="field-caption">Caption</span></div>
+                    <div class="md-field lined pressed"><label>Label</label><input type="text" value="Pressed"><span class="field-caption">Caption</span></div>
+                    <div class="md-field lined disabled"><label>Label</label><input type="text" value="Disabled" disabled><span class="field-caption"></span></div>
+                </div>
+                <h4>Filled</h4>
+                <div class="comp-row fields">
+                    <div class="md-field filled"><input type="text" placeholder="Normal"><span class="field-caption">Caption</span></div>
+                    <div class="md-field filled hover"><input type="text" value="Hover"><span class="field-caption">Caption</span></div>
+                    <div class="md-field filled focus"><label>Label</label><input type="text" value="Typing"><span class="field-caption">Caption</span></div>
+                    <div class="md-field filled pressed"><label>Label</label><input type="text" value="Pressed"><span class="field-caption">Caption</span></div>
+                    <div class="md-field filled disabled"><input type="text" value="Disabled" disabled></div>
+                </div>
+                <h4>Outlined</h4>
+                <div class="comp-row fields">
+                    <div class="md-field outlined"><input type="text" placeholder="Normal"><span class="field-caption">Caption</span></div>
+                    <div class="md-field outlined hover"><input type="text" value="Hover"><span class="field-caption">Caption</span></div>
+                    <div class="md-field outlined focus"><label>Label</label><input type="text" value="Typing"><span class="field-caption">Caption</span></div>
+                    <div class="md-field outlined pressed"><label>Label</label><input type="text" value="Pressed"><span class="field-caption">Caption</span></div>
+                    <div class="md-field outlined disabled"><input type="text" value="Disabled" disabled></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Toggle -->
+        <section class="comp-section" id="android-toggle">
+            <div class="comp-title-bar"><h2>Toggle</h2></div>
+            <div class="comp-body">
+                <h4>Checkbox</h4>
+                <div class="comp-row toggles">
+                    <label class="md-checkbox"><input type="checkbox" checked><span class="check-box"></span></label>
+                    <label class="md-checkbox hover"><input type="checkbox" checked><span class="check-box"></span></label>
+                    <label class="md-checkbox"><input type="checkbox" checked disabled><span class="check-box"></span></label>
+                    <label class="md-checkbox"><input type="checkbox"><span class="check-box"></span></label>
+                    <label class="md-checkbox"><input type="checkbox" disabled><span class="check-box"></span></label>
+                </div>
+                <h4>Radio</h4>
+                <div class="comp-row toggles">
+                    <label class="md-radio"><input type="radio" name="r1" checked><span class="radio-dot"></span></label>
+                    <label class="md-radio hover"><input type="radio" name="r2" checked><span class="radio-dot"></span></label>
+                    <label class="md-radio"><input type="radio" checked disabled><span class="radio-dot"></span></label>
+                    <label class="md-radio"><input type="radio" name="r3"><span class="radio-dot"></span></label>
+                    <label class="md-radio"><input type="radio" disabled><span class="radio-dot"></span></label>
+                </div>
+                <h4>Switch</h4>
+                <div class="comp-row toggles">
+                    <label class="md-switch"><input type="checkbox" checked><span class="switch-track"><span class="switch-thumb"></span></span></label>
+                    <label class="md-switch hover"><input type="checkbox" checked><span class="switch-track"><span class="switch-thumb"></span></span></label>
+                    <label class="md-switch"><input type="checkbox" checked disabled><span class="switch-track"><span class="switch-thumb"></span></span></label>
+                    <label class="md-switch"><input type="checkbox"><span class="switch-track"><span class="switch-thumb"></span></span></label>
+                    <label class="md-switch"><input type="checkbox" disabled><span class="switch-track"><span class="switch-thumb"></span></span></label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tooltip -->
+        <section class="comp-section" id="android-tooltip">
+            <div class="comp-title-bar"><h2>Tooltip</h2></div>
+            <div class="comp-body">
+                <div class="comp-row tooltips-demo">
+                    <div class="md-tooltip top">Tooltip text<span class="tooltip-arrow bottom"></span></div>
+                    <div class="md-tooltip bottom">Tooltip text<span class="tooltip-arrow top"></span></div>
+                    <div class="md-tooltip left">Tooltip text<span class="tooltip-arrow right"></span></div>
+                    <div class="md-tooltip right">Tooltip text<span class="tooltip-arrow left"></span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== iOS ========== -->
+        <div class="platform-header">iOS Dark</div>
+
+        <!-- iOS Alert -->
+        <section class="comp-section" id="ios-alert">
+            <div class="comp-title-bar"><h2>Alert</h2></div>
+            <div class="comp-body">
+                <h4>Alert Dialog</h4>
+                <div class="comp-row alerts">
+                    <div class="ios-alert"><h5>Alert Title</h5><p>Alert message goes here with a description.</p><div class="ios-alert-actions"><button class="ios-alert-btn">Cancel</button><button class="ios-alert-btn primary">OK</button></div></div>
+                    <div class="ios-alert"><h5>Alert Title</h5><p>A longer description message.</p><div class="ios-alert-actions stacked"><button class="ios-alert-btn">Default Action</button><button class="ios-alert-btn primary">Confirm</button><button class="ios-alert-btn destructive">Delete</button></div></div>
+                </div>
+                <h4>Action Sheet</h4>
+                <div class="comp-row alerts">
+                    <div class="ios-action-sheet"><div class="action-group"><button class="action-item">Action 1</button><button class="action-item">Action 2</button><button class="action-item destructive">Delete</button></div><button class="action-cancel">Cancel</button></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- iOS Bar -->
+        <section class="comp-section" id="ios-bar">
+            <div class="comp-title-bar"><h2>Bar</h2></div>
+            <div class="comp-body">
+                <h4>Navigation Bar</h4>
+                <div class="comp-row">
+                    <div class="ios-navbar"><span class="ios-nav-back">&lt; Back</span><span class="ios-nav-title">Title</span><span class="ios-nav-action">Edit</span></div>
+                    <div class="ios-navbar large"><span class="ios-nav-back">&lt; Back</span><span class="ios-nav-action">Edit</span><div class="ios-nav-large-title">Large Title</div></div>
+                </div>
+                <h4>Search Bar</h4>
+                <div class="comp-row">
+                    <div class="ios-search"><span class="search-icon">&#128269;</span><input type="text" placeholder="Search"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- iOS Button -->
+        <section class="comp-section" id="ios-button">
+            <div class="comp-title-bar"><h2>Button</h2></div>
+            <div class="comp-body">
+                <h4>System</h4>
+                <div class="comp-row">
+                    <button class="ios-btn system">Button</button>
+                    <button class="ios-btn system pressed">Pressed</button>
+                    <button class="ios-btn system" disabled>Disabled</button>
+                </div>
+                <h4>Filled</h4>
+                <div class="comp-row">
+                    <button class="ios-btn filled">Button</button>
+                    <button class="ios-btn filled pressed">Pressed</button>
+                    <button class="ios-btn filled" disabled>Disabled</button>
+                </div>
+                <h4>Gray</h4>
+                <div class="comp-row">
+                    <button class="ios-btn gray">Button</button>
+                    <button class="ios-btn gray pressed">Pressed</button>
+                    <button class="ios-btn gray" disabled>Disabled</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- iOS Card -->
+        <section class="comp-section" id="ios-card">
+            <div class="comp-title-bar"><h2>Card</h2></div>
+            <div class="comp-body">
+                <div class="comp-row cards">
+                    <div class="ios-card"><div class="ios-card-media"></div><div class="ios-card-content"><h5>Card Title</h5><p>Card description text goes here</p></div></div>
+                    <div class="ios-card"><div class="ios-card-media"></div><div class="ios-card-content"><span class="ios-card-tag">FEATURED</span><h5>Card Title</h5><p>Description text</p></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- iOS Modal -->
+        <section class="comp-section" id="ios-modal">
+            <div class="comp-title-bar"><h2>Modal</h2></div>
+            <div class="comp-body">
+                <div class="comp-row modals">
+                    <div class="ios-modal"><div class="ios-modal-handle"></div><div class="ios-modal-header"><span>Cancel</span><strong>Modal Title</strong><span class="ios-modal-done">Done</span></div><div class="ios-modal-body"><p>Modal content area</p></div></div>
+                    <div class="ios-modal fullscreen"><div class="ios-modal-header"><span>Cancel</span><strong>Full Screen</strong><span class="ios-modal-done">Done</span></div><div class="ios-modal-body"><p>Full screen modal content</p></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- iOS Picker -->
+        <section class="comp-section" id="ios-picker">
+            <div class="comp-title-bar"><h2>Picker</h2></div>
+            <div class="comp-body">
+                <div class="comp-row pickers">
+                    <div class="ios-picker"><div class="ios-picker-header"><span>Cancel</span><span>Done</span></div><div class="ios-picker-wheel"><div class="picker-item dim">Option 1</div><div class="picker-item dim">Option 2</div><div class="picker-item selected">Option 3</div><div class="picker-item dim">Option 4</div><div class="picker-item dim">Option 5</div><div class="picker-highlight"></div></div></div>
+                    <div class="ios-picker date"><div class="ios-picker-header"><span>Cancel</span><span>Done</span></div><div class="ios-picker-wheel three"><div class="picker-col"><div class="picker-item dim">Jan</div><div class="picker-item selected">Feb</div><div class="picker-item dim">Mar</div></div><div class="picker-col"><div class="picker-item dim">14</div><div class="picker-item selected">15</div><div class="picker-item dim">16</div></div><div class="picker-col"><div class="picker-item dim">2025</div><div class="picker-item selected">2026</div><div class="picker-item dim">2027</div></div><div class="picker-highlight"></div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- iOS Progress -->
+        <section class="comp-section" id="ios-progress">
+            <div class="comp-title-bar"><h2>Progress</h2></div>
+            <div class="comp-body">
+                <h4>Progress Bar</h4>
+                <div class="comp-col sliders">
+                    <div class="ios-progress"><div class="ios-progress-fill" style="width:30%"></div></div>
+                    <div class="ios-progress"><div class="ios-progress-fill" style="width:70%"></div></div>
+                </div>
+                <h4>Activity Indicator</h4>
+                <div class="comp-row">
+                    <div class="ios-spinner"></div>
+                    <div class="ios-spinner sm"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- iOS Segmented -->
+        <section class="comp-section" id="ios-segmented">
+            <div class="comp-title-bar"><h2>Segmented Control</h2></div>
+            <div class="comp-body">
+                <div class="comp-col" style="gap:16px;">
+                    <div class="ios-segmented"><span class="seg-item active">First</span><span class="seg-item">Second</span></div>
+                    <div class="ios-segmented"><span class="seg-item active">First</span><span class="seg-item">Second</span><span class="seg-item">Third</span></div>
+                    <div class="ios-segmented"><span class="seg-item">First</span><span class="seg-item active">Second</span><span class="seg-item">Third</span><span class="seg-item">Fourth</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- iOS Slider -->
+        <section class="comp-section" id="ios-slider">
+            <div class="comp-title-bar"><h2>Slider</h2></div>
+            <div class="comp-body">
+                <div class="comp-col sliders">
+                    <input type="range" class="ios-slider" min="0" max="100" value="30">
+                    <input type="range" class="ios-slider" min="0" max="100" value="70">
+                    <input type="range" class="ios-slider" min="0" max="100" value="0" disabled>
+                </div>
+            </div>
+        </section>
+
+        <!-- iOS Tab -->
+        <section class="comp-section" id="ios-tab">
+            <div class="comp-title-bar"><h2>Tab Bar</h2></div>
+            <div class="comp-body">
+                <div class="comp-row">
+                    <div class="ios-tabbar"><div class="ios-tab active"><span class="ios-tab-icon">&#9733;</span><span class="ios-tab-label">Tab 1</span></div><div class="ios-tab"><span class="ios-tab-icon">&#9733;</span><span class="ios-tab-label">Tab 2</span></div><div class="ios-tab"><span class="ios-tab-icon">&#9733;</span><span class="ios-tab-label">Tab 3</span></div><div class="ios-tab"><span class="ios-tab-icon">&#9733;</span><span class="ios-tab-label">Tab 4</span></div><div class="ios-tab"><span class="ios-tab-icon">&#9733;</span><span class="ios-tab-label">Tab 5</span></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- iOS Table View -->
+        <section class="comp-section" id="ios-tableview">
+            <div class="comp-title-bar"><h2>Table View</h2></div>
+            <div class="comp-body">
+                <h4>Grouped</h4>
+                <div class="ios-table grouped"><div class="ios-table-section"><div class="ios-table-header">SECTION HEADER</div><div class="ios-table-row"><span>Label</span><span class="ios-row-detail">Detail &gt;</span></div><div class="ios-table-row"><span>Label</span><span class="ios-row-detail">Detail &gt;</span></div><div class="ios-table-row"><span>Label</span><span class="ios-row-detail">Detail &gt;</span></div></div></div>
+                <h4>Plain</h4>
+                <div class="ios-table plain"><div class="ios-table-row"><span class="ios-row-icon">&#9733;</span><span>Label</span><span class="ios-row-chevron">&gt;</span></div><div class="ios-table-row"><span class="ios-row-icon">&#9733;</span><span>Label</span><span class="ios-row-chevron">&gt;</span></div><div class="ios-table-row"><span class="ios-row-icon">&#9733;</span><span>Label</span><span class="ios-row-chevron">&gt;</span></div></div>
+            </div>
+        </section>
+
+        <!-- iOS Text Field -->
+        <section class="comp-section" id="ios-textfield">
+            <div class="comp-title-bar"><h2>Text Field</h2></div>
+            <div class="comp-body">
+                <h4>Default</h4>
+                <div class="comp-row fields">
+                    <div class="ios-field"><input type="text" placeholder="Placeholder"></div>
+                    <div class="ios-field focus"><input type="text" value="Typing"></div>
+                    <div class="ios-field"><input type="text" value="Filled value"></div>
+                </div>
+                <h4>With Label</h4>
+                <div class="comp-row fields">
+                    <div class="ios-field labeled"><label>Label</label><input type="text" placeholder="Placeholder"></div>
+                    <div class="ios-field labeled focus"><label>Label</label><input type="text" value="Typing"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- iOS Toggle -->
+        <section class="comp-section" id="ios-toggle">
+            <div class="comp-title-bar"><h2>Toggle</h2></div>
+            <div class="comp-body">
+                <h4>Switch</h4>
+                <div class="comp-row toggles">
+                    <label class="ios-switch"><input type="checkbox" checked><span class="ios-switch-track"></span></label>
+                    <label class="ios-switch"><input type="checkbox"><span class="ios-switch-track"></span></label>
+                    <label class="ios-switch disabled"><input type="checkbox" checked disabled><span class="ios-switch-track"></span></label>
+                    <label class="ios-switch disabled"><input type="checkbox" disabled><span class="ios-switch-track"></span></label>
+                </div>
+                <h4>Checkmark</h4>
+                <div class="ios-table plain"><div class="ios-table-row"><span>Option 1</span><span class="ios-checkmark">&#10003;</span></div><div class="ios-table-row"><span>Option 2</span></div><div class="ios-table-row"><span>Option 3</span><span class="ios-checkmark">&#10003;</span></div></div>
+            </div>
+        </section>
+
+        <!-- iOS Widget -->
+        <section class="comp-section" id="ios-widget">
+            <div class="comp-title-bar"><h2>Widget</h2></div>
+            <div class="comp-body">
+                <div class="comp-row widgets">
+                    <div class="ios-widget small"><span class="widget-icon">&#9728;</span><div class="widget-info"><span class="widget-label">Weather</span><span class="widget-value">24&deg;</span></div></div>
+                    <div class="ios-widget medium"><span class="widget-icon">&#127925;</span><div class="widget-info"><span class="widget-label">Now Playing</span><span class="widget-value">Song Title</span><span class="widget-sub">Artist Name</span></div></div>
+                    <div class="ios-widget large"><div class="widget-header"><span class="widget-icon sm">&#128197;</span><span class="widget-label">Calendar</span></div><div class="widget-rows"><div class="widget-row"><span class="widget-dot blue"></span>Team Meeting <small>10:00</small></div><div class="widget-row"><span class="widget-dot green"></span>Lunch <small>12:00</small></div><div class="widget-row"><span class="widget-dot red"></span>Review <small>15:00</small></div></div></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
