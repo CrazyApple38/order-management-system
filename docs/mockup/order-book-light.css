@@ -760,7 +760,7 @@ body {
     background: #fee2e2; color: #dc2626; border-color: rgba(220,38,38,0.3);
 }
 
-.ob-form-row-half { flex-direction: row; gap: 12px; }
+.ob-form-row-half { display: flex; flex-direction: row; gap: 12px; }
 .ob-form-row-half > div { flex: 1; display: flex; flex-direction: column; gap: 5px; }
 
 /* カスタム時間ピッカー */

@@ -189,14 +189,17 @@
                             <button type="button" class="ob-badge-undo-btn" onclick="undoDeleteSupervisor()">戻す</button>
                         </div>
                     </div>
-                    <div class="ob-form-row-half">
-                        <div class="ob-form-col">
+                    <div class="ob-form-row ob-form-row-half">
+                        <div>
                             <label>集合場所</label>
                             <input type="text" id="editMeetingPlace" placeholder="集合場所を入力">
                         </div>
-                        <div class="ob-form-col">
+                        <div>
                             <label>集合時間</label>
-                            <input type="text" id="editMeetingTime" placeholder="例: 07:30" readonly onclick="openTimePicker(this)">
+                            <div class="ob-time-picker-wrap" onclick="openTimePicker('editMeetingTime', this)">
+                                <input type="text" id="editMeetingTime" class="ob-time-input" readonly placeholder="--:--">
+                                <span class="ob-time-picker-icon">🕐</span>
+                            </div>
                         </div>
                     </div>
                     <div class="ob-map-section">
