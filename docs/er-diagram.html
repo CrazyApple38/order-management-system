@@ -279,8 +279,8 @@ erDiagram
 
     companies {
         uuid id PK "主キー"
-        string code "取引先コード"
-        string name "取引先名(元請け先)"
+        string code "契約先コード"
+        string name "契約先名(元請け先)"
         boolean is_active "有効フラグ"
     }
 
@@ -294,7 +294,7 @@ erDiagram
     sites {
         uuid id PK "主キー"
         uuid group_company_id FK "グループ会社ID"
-        uuid company_id FK "取引先ID"
+        uuid company_id FK "契約先ID"
         uuid category_id FK "区分ID"
         string name "現場名"
         string short_name "略称"
@@ -504,7 +504,7 @@ erDiagram
         </div>
 
         <div class="annotation-item master">
-            <strong>companies（取引先マスタ）</strong>
+            <strong>companies（契約先マスタ）</strong>
             <p>グループ会社が契約している元請け先を管理</p>
         </div>
 

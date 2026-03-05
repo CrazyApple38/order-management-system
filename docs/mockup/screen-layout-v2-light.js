@@ -1,7 +1,8 @@
         // グループ会社データ
         const groupCompaniesData = [
             { id: 1, code: 'touo', name: '東央警備', borderClass: 'gc-border-touo' },
-            { id: 2, code: 'nikkei', name: 'Nikkeiホールディングス', borderClass: 'gc-border-nikkei' }
+            { id: 2, code: 'nikkei', name: 'Nikkeiホールディングス', borderClass: 'gc-border-nikkei' },
+            { id: 3, code: 'zennihon', name: '全日本エンタープライズ', borderClass: 'gc-border-zennihon' }
         ];
 
         // サンプルデータ（契約先/元請け先）

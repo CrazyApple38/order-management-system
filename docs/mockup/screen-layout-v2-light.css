@@ -25,6 +25,7 @@
     /* グループ会社ボーダー */
     --gc-color-touo: #3B8BC5;
     --gc-color-nikkei: #D05050;
+    --gc-color-zennihon: #2E8B57;
     /* 区分カラー（背景: 半透明） */
     --cat-bg-facility: rgba(56, 161, 105, 0.12);
     --cat-bg-event: rgba(221, 107, 32, 0.12);
@@ -700,6 +701,9 @@ h1 {
 .gc-border-nikkei {
     border-left: 4px solid var(--gc-color-nikkei) !important;
 }
+.gc-border-zennihon {
+    border-left: 4px solid var(--gc-color-zennihon) !important;
+}
 
 /* 凡例グループ会社カラー表示 */
 .gc-legend-color {
@@ -711,6 +715,7 @@ h1 {
 }
 .gc-legend-color-touo { background: var(--gc-color-touo); }
 .gc-legend-color-nikkei { background: var(--gc-color-nikkei); }
+.gc-legend-color-zennihon { background: var(--gc-color-zennihon); }
 
 /* ホバー時にグループ会社名をツールチップ表示 */
 .col-site-info[data-group-company] {

@@ -255,6 +255,10 @@ let sampleRows = [
     { branch: 'Nikkeiホールディングス', category: '交通', shift: '昼', company: '(株)丸山建設', task: '□□公園整備', hidden: false },
     { branch: 'Nikkeiホールディングス', category: '交通', shift: '夜', company: '□□警備(株)',  task: '県道12号線', hidden: false },
     { branch: 'Nikkeiホールディングス', category: '施設',   shift: '昼', company: '全日本エンタープライズ', task: '商業施設B', hidden: false },
+    { branch: '全日本エンタープライズ', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '新東名SA巡回', hidden: false },
+    { branch: '全日本エンタープライズ', category: '交通', shift: '昼', company: '(株)丸山建設', task: '〇〇交差点', hidden: false },
+    { branch: '全日本エンタープライズ', category: '交通', shift: '夜', company: '□□警備(株)',  task: '国道246号線', hidden: false },
+    { branch: '全日本エンタープライズ', category: '施設', shift: '昼', company: '全日本エンタープライズ', task: '商業施設C', hidden: false },
 ];
 
 // --- 計画書業務名の自動生成（親業務名 > 子 > 孫 の階層表示） ---
@@ -1486,7 +1490,7 @@ let rowEditSelected = { branch: null, category: null, shift: null };
 
 // 会社リスト（グローバル）
 // 【モックアップ専用】本番環境ではDBのcompaniesテーブルから取得
-const branchList = ['東央警備', 'Nikkeiホールディングス'];
+const branchList = ['東央警備', 'Nikkeiホールディングス', '全日本エンタープライズ'];
 // 昼夜リスト
 // 【モックアップ専用】本番環境ではDBのshift_typesマスタから取得
 const shiftList = ['昼', '夜'];
