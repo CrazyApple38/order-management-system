@@ -73,6 +73,76 @@
             { id: 3, name: 'LINE' }
         ];
 
+        // --- Undo/Redo ---
+        const undoStack = [];
+        const redoStack = [];
+        const MAX_HISTORY = 50;
+
+        function cloneGridState() {
+            const tbody = document.querySelector('.grid-table tbody');
+            return {
+                tbodyHTML: tbody ? tbody.innerHTML : '',
+                companiesData: JSON.parse(JSON.stringify(companiesData)),
+                sitesData: JSON.parse(JSON.stringify(sitesData)),
+                employeeContactItems: typeof employeeContactItems !== 'undefined'
+                    ? JSON.parse(JSON.stringify(employeeContactItems)) : [],
+                vehicleList: typeof vehicleList !== 'undefined'
+                    ? JSON.parse(JSON.stringify(vehicleList)) : [],
+            };
+        }
+
+        function restoreGridState(snapshot) {
+            const tbody = document.querySelector('.grid-table tbody');
+            if (tbody) tbody.innerHTML = snapshot.tbodyHTML;
+            companiesData.length = 0;
+            snapshot.companiesData.forEach(c => companiesData.push(c));
+            Object.keys(sitesData).forEach(k => delete sitesData[k]);
+            Object.assign(sitesData, JSON.parse(JSON.stringify(snapshot.sitesData)));
+            if (typeof employeeContactItems !== 'undefined') {
+                employeeContactItems.length = 0;
+                snapshot.employeeContactItems.forEach(i => employeeContactItems.push(i));
+            }
+            if (typeof vehicleList !== 'undefined') {
+                vehicleList.length = 0;
+                snapshot.vehicleList.forEach(v => vehicleList.push(v));
+            }
+            selectedGridRow = null;
+            updateEmployeeListStatus();
+        }
+
+        function pushUndo() {
+            undoStack.push(cloneGridState());
+            if (undoStack.length > MAX_HISTORY) undoStack.shift();
+            redoStack.length = 0;
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            if (undoStack.length === 0) return;
+            redoStack.push(cloneGridState());
+            restoreGridState(undoStack.pop());
+            updateUndoRedoButtons();
+        }
+
+        function redo() {
+            if (redoStack.length === 0) return;
+            undoStack.push(cloneGridState());
+            restoreGridState(redoStack.pop());
+            updateUndoRedoButtons();
+        }
+
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById('undoBtn');
+            const redoBtn = document.getElementById('redoBtn');
+            if (undoBtn) undoBtn.disabled = undoStack.length === 0;
+            if (redoBtn) redoBtn.disabled = redoStack.length === 0;
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
+            if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
+        });
+
         // Combobox管理
         class Combobox {
             constructor(containerId, options = {}) {
@@ -468,9 +538,11 @@
 
         function closeSiteModal() {
             document.getElementById('siteModal').classList.remove('active');
+            closeTimePicker();
         }
 
         function saveSiteModal() {
+            pushUndo();
             const groupCompany = document.getElementById('groupCompanySelect').value;
             const category = document.getElementById('categorySelect').value;
             const shift = document.getElementById('shiftSelect').value;
@@ -598,6 +670,7 @@
 
         function setEmployeeContact(contactType) {
             if (!currentEmployeeNameBlock) return;
+            pushUndo();
 
             const existingBadge = currentEmployeeNameBlock.querySelector('.contact-badge');
             if (existingBadge) existingBadge.remove();
@@ -881,6 +954,7 @@
 
         function saveVtModal() {
             if (!currentVtBox) return;
+            pushUndo();
             syncVtItemsFromDom();
 
             const validItems = vtItems.filter(item => item.label && item.value);
@@ -969,6 +1043,7 @@
 
         function removeEmployee(btn, event) {
             event.stopPropagation();
+            pushUndo();
             const employeeTag = btn.closest('.assigned-employee');
             if (employeeTag) {
                 employeeTag.remove();
@@ -993,6 +1068,7 @@
         function drop(ev) {
             ev.preventDefault();
             ev.target.classList.remove('drag-over');
+            pushUndo();
             var data = ev.dataTransfer.getData("text");
             var newTag = document.createElement('span');
             newTag.className = 'assigned-employee';
@@ -1031,6 +1107,7 @@
             if (!selectedGridRow) { alert('移動する行を選択してください'); return; }
             const prev = selectedGridRow.previousElementSibling;
             if (prev) {
+                pushUndo();
                 selectedGridRow.parentNode.insertBefore(selectedGridRow, prev);
                 renumberRows();
             }
@@ -1040,6 +1117,7 @@
             if (!selectedGridRow) { alert('移動する行を選択してください'); return; }
             const next = selectedGridRow.nextElementSibling;
             if (next) {
+                pushUndo();
                 selectedGridRow.parentNode.insertBefore(next, selectedGridRow);
                 renumberRows();
             }
@@ -1215,6 +1293,7 @@
         }
 
         function applySortSettings() {
+            pushUndo();
             const tbody = document.querySelector('.grid-table tbody');
             const rows = Array.from(tbody.querySelectorAll('tr'));
 
@@ -1570,3 +1649,84 @@
             updatePresetSelect(presets, 'default');
             resetColorsToDefault();
         }
+
+        // --- カスタム時間ピッカー（10分刻み） ---
+        let timePickerTargetId = null;
+        let timePickerSelectedHour = null;
+
+        function openTimePicker(inputId, anchorEl) {
+            const dropdown = document.getElementById('timePickerDropdown');
+            if (timePickerTargetId === inputId && dropdown.style.display !== 'none') {
+                closeTimePicker();
+                return;
+            }
+            const input = document.getElementById(inputId);
+            const currentVal = input.value || '';
+            const parts = currentVal.split(':');
+            const currentHour = parts.length >= 2 ? parseInt(parts[0]) : null;
+            const currentMin = parts.length >= 2 ? parseInt(parts[1]) : null;
+
+            timePickerTargetId = inputId;
+            timePickerSelectedHour = currentHour;
+
+            const hoursEl = document.getElementById('timePickerHours');
+            let hhtml = '';
+            for (let h = 0; h < 24; h++) {
+                const sel = h === currentHour ? ' ob-time-selected' : '';
+                hhtml += `<div class="ob-time-option${sel}" data-value="${h}" onclick="selectTimeHour(${h})">${String(h).padStart(2, '0')}</div>`;
+            }
+            hoursEl.innerHTML = hhtml;
+
+            const minsEl = document.getElementById('timePickerMinutes');
+            let mhtml = '';
+            for (let m = 0; m < 60; m += 10) {
+                const sel = m === currentMin ? ' ob-time-selected' : '';
+                mhtml += `<div class="ob-time-option${sel}" data-value="${m}" onclick="selectTimeMinute(${m})">${String(m).padStart(2, '0')}</div>`;
+            }
+            minsEl.innerHTML = mhtml;
+
+            const el = anchorEl || input;
+            const rect = el.getBoundingClientRect();
+            dropdown.style.display = 'flex';
+            const ddRect = dropdown.getBoundingClientRect();
+            let left = rect.left;
+            let top = rect.bottom + 4;
+            if (left + ddRect.width > window.innerWidth) left = window.innerWidth - ddRect.width - 8;
+            if (top + ddRect.height > window.innerHeight) top = rect.top - ddRect.height - 4;
+            dropdown.style.left = left + 'px';
+            dropdown.style.top = top + 'px';
+
+            if (currentHour !== null) {
+                const hourOpt = hoursEl.children[currentHour];
+                if (hourOpt) hourOpt.scrollIntoView({ block: 'center', behavior: 'instant' });
+            }
+        }
+
+        function selectTimeHour(h) {
+            timePickerSelectedHour = h;
+            document.querySelectorAll('#timePickerHours .ob-time-option').forEach(el => {
+                el.classList.toggle('ob-time-selected', parseInt(el.dataset.value) === h);
+            });
+        }
+
+        function selectTimeMinute(m) {
+            if (timePickerSelectedHour === null) timePickerSelectedHour = 0;
+            const input = document.getElementById(timePickerTargetId);
+            input.value = `${String(timePickerSelectedHour).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+            closeTimePicker();
+        }
+
+        function closeTimePicker() {
+            const dropdown = document.getElementById('timePickerDropdown');
+            if (dropdown) dropdown.style.display = 'none';
+            timePickerTargetId = null;
+            timePickerSelectedHour = null;
+        }
+
+        document.addEventListener('mousedown', function (e) {
+            const dropdown = document.getElementById('timePickerDropdown');
+            if (!dropdown || dropdown.style.display === 'none') return;
+            if (dropdown.contains(e.target)) return;
+            if (e.target.classList.contains('ob-time-input') || e.target.classList.contains('ob-time-picker-icon')) return;
+            closeTimePicker();
+        });

@@ -52,6 +52,9 @@
                     <button class="primary" onclick="openDiffModal('import')">📥 受注簿データ取得</button>
                     <button class="primary" onclick="openDiffModal('export')">📤 受注簿へ転記</button>
                     <div class="toolbar-separator"></div>
+                    <button id="undoBtn" onclick="undo()" disabled>↩ 戻す</button>
+                    <button id="redoBtn" onclick="redo()" disabled>↪ やり直す</button>
+                    <div class="toolbar-separator"></div>
                     <button>➕ 行挿入</button>
                     <button class="danger">🗑 行削除</button>
                     <button>🧹 消去</button>
@@ -572,18 +575,27 @@
                         <div class="modal-row">
                             <div class="modal-section half">
                                 <label>開始時間</label>
-                                <input type="time" id="startTimeInput" value="09:00">
+                                <div class="ob-time-picker-wrap" onclick="openTimePicker('startTimeInput', this)">
+                                    <input type="text" id="startTimeInput" class="ob-time-input" readonly placeholder="--:--" value="09:00">
+                                    <span class="ob-time-picker-icon">🕐</span>
+                                </div>
                             </div>
                             <div class="modal-section half">
                                 <label>終了時間</label>
-                                <input type="time" id="endTimeInput" value="18:00">
+                                <div class="ob-time-picker-wrap" onclick="openTimePicker('endTimeInput', this)">
+                                    <input type="text" id="endTimeInput" class="ob-time-input" readonly placeholder="--:--" value="18:00">
+                                    <span class="ob-time-picker-icon">🕐</span>
+                                </div>
                             </div>
                         </div>
 
                         <div class="modal-row">
                             <div class="modal-section half">
                                 <label>集合時間</label>
-                                <input type="time" id="meetingTimeInput" value="08:30">
+                                <div class="ob-time-picker-wrap" onclick="openTimePicker('meetingTimeInput', this)">
+                                    <input type="text" id="meetingTimeInput" class="ob-time-input" readonly placeholder="--:--" value="08:30">
+                                    <span class="ob-time-picker-icon">🕐</span>
+                                </div>
                             </div>
                             <div class="modal-section half">
                                 <label>連絡</label>
@@ -1285,6 +1297,18 @@
                     <span>コンテキストメニュー（編集、削除、コピー等）</span>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- カスタム時間ピッカー -->
+    <div class="ob-time-dropdown" id="timePickerDropdown" style="display:none;">
+        <div class="ob-time-col-wrap">
+            <div class="ob-time-col-header">時</div>
+            <div class="ob-time-col" id="timePickerHours"></div>
+        </div>
+        <div class="ob-time-col-wrap">
+            <div class="ob-time-col-header">分</div>
+            <div class="ob-time-col" id="timePickerMinutes"></div>
         </div>
     </div>
 
