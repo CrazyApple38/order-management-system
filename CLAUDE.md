@@ -56,6 +56,24 @@ MCP設定: `docs/mcp-servers.md` を参照
 - **Naming Consistency Rule**: 用語・名付けについて、整合性が取れないものや判断が必要なものがある場合、ユーザーにステップバイステップで確認すること。自己判断で用語を統一しない。
 - **No Playwright**: User tests in browser themselves. Playwrightを使ったブラウザ確認は不要。
 
+## Context Optimization Rules（厳守）
+
+コンテキストウィンドウの消費を最小化するため、以下を厳守すること。
+
+1. **TodoWriteは最小限に使用**
+   - 3ステップ以上のタスクでのみ使用
+   - 初回作成 + 完了マーク更新のみ。`in_progress`への切替だけの呼び出しは禁止
+   - タスク説明は簡潔に（1行以内）
+2. **計画の単一情報源（Single Source of Truth）**
+   - 計画はプランファイルのみに記述。TodoWriteとの二重管理禁止
+   - 承認後のテキスト要約出力は不要（即座に実装開始）
+3. **完了報告は簡潔に**
+   - 変更ファイル名 + 1行要約のみ
+   - 変更内容の詳細列挙は不要（diffで確認可能）
+4. **探索エージェントの結果は必要部分だけ抽出**
+   - 全文転記しない。行番号・関数名など必要情報のみ参照
+   - 直接Read/Grepで確認できるものはエージェントを使わない
+
 ## Mockup Conventions
 
 - CSS Grid layout for spreadsheet-like order book

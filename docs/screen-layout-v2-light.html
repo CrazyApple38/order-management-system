@@ -63,8 +63,6 @@
                     <button onclick="moveRowDown()">⬇ 下へ</button>
                     <button onclick="openSortModal()">📊 ソート設定</button>
                     <div class="toolbar-separator"></div>
-                    <button>🔍 フィルタ</button>
-                    <div class="toolbar-separator"></div>
                     <button onclick="toggleColorSettingsPanel()">🎨 カラー設定</button>
                 </div>
 
@@ -87,7 +85,10 @@
                             <!-- 行1: 施設警備 昼 -->
                             <tr onclick="selectRow(this, event)">
                                 <td class="col-no">1</td>
-                                <td class="col-site-info clickable-cell gc-border-touo" data-group-company="touo" data-gc-name="東央警備" onclick="openSiteModal(this)">
+                                <td class="col-site-info clickable-cell gc-border-touo" data-group-company="touo" data-gc-name="東央警備"
+                                    data-company-id="1" data-site-id="101"
+                                    data-meeting-place="〇〇ビル正面玄関" data-supervisor="山田太郎" data-supervisor-tel="090-1234-5678"
+                                    onclick="openSiteModal(this)">
                                     <div class="site-info">
                                         <div class="site-badges">
                                             <span class="shift-badge shift-day">昼</span>
@@ -133,7 +134,12 @@
                             <!-- 行2: 交通誘導 昼 -->
                             <tr onclick="selectRow(this, event)">
                                 <td class="col-no">2</td>
-                                <td class="col-site-info clickable-cell gc-border-touo" data-group-company="touo" data-gc-name="東央警備" onclick="openSiteModal(this)">
+                                <td class="col-site-info clickable-cell gc-border-touo" data-group-company="touo" data-gc-name="東央警備"
+                                    data-company-id="2"
+                                    data-meeting-place="△△建設 現場事務所前" data-supervisor="佐藤次郎" data-supervisor-tel="080-9876-5432"
+                                    data-sub-tasks='[{"label":"工事名①","value":"舗装工事"}]'
+                                    data-badge-data='{"parentId":"traffic","childIds":["tr-alternate"],"grandchildMap":{}}'
+                                    onclick="openSiteModal(this)">
                                     <div class="site-info">
                                         <div class="site-badges">
                                             <span class="shift-badge shift-day">昼</span>
@@ -196,7 +202,10 @@
                             <!-- 行3: イベント 昼 -->
                             <tr onclick="selectRow(this, event)">
                                 <td class="col-no">3</td>
-                                <td class="col-site-info clickable-cell gc-border-nikkei" data-group-company="nikkei" data-gc-name="Nikkeiホールディングス" onclick="openSiteModal(this)">
+                                <td class="col-site-info clickable-cell gc-border-nikkei" data-group-company="nikkei" data-gc-name="Nikkeiホールディングス"
+                                    data-company-id="3"
+                                    data-meeting-place="〇〇会館 搬入口"
+                                    onclick="openSiteModal(this)">
                                     <div class="site-info">
                                         <div class="site-badges">
                                             <span class="shift-badge shift-day">昼</span>
@@ -232,7 +241,12 @@
                             <!-- 行4: 高速 昼 -->
                             <tr onclick="selectRow(this, event)">
                                 <td class="col-no">4</td>
-                                <td class="col-site-info clickable-cell gc-border-touo" data-group-company="touo" data-gc-name="東央警備" onclick="openSiteModal(this)">
+                                <td class="col-site-info clickable-cell gc-border-touo" data-group-company="touo" data-gc-name="東央警備"
+                                    data-company-id="4"
+                                    data-meeting-place="高速SA集合" data-supervisor="田中三郎" data-supervisor-tel="070-5555-1234"
+                                    data-sub-tasks='[{"label":"工事名①","value":"〇〇橋補修"},{"label":"工事名②","value":"点検"}]'
+                                    data-badge-data='{"parentId":"highway","childIds":["hw-lane"],"grandchildMap":{"hw-lane":["hw-lane-sign","hw-lane-mat"]}}'
+                                    onclick="openSiteModal(this)">
                                     <div class="site-info">
                                         <div class="site-badges">
                                             <span class="shift-badge shift-day">昼</span>
@@ -287,7 +301,10 @@
                             <!-- 行5: 施設警備 夜 -->
                             <tr class="row-night" onclick="selectRow(this, event)">
                                 <td class="col-no">5</td>
-                                <td class="col-site-info clickable-cell gc-border-touo" data-group-company="touo" data-gc-name="東央警備" onclick="openSiteModal(this)">
+                                <td class="col-site-info clickable-cell gc-border-touo" data-group-company="touo" data-gc-name="東央警備"
+                                    data-company-id="1" data-site-id="101"
+                                    data-meeting-place="〇〇ビル正面玄関" data-supervisor="山田太郎" data-supervisor-tel="090-1234-5678"
+                                    onclick="openSiteModal(this)">
                                     <div class="site-info">
                                         <div class="site-badges">
                                             <span class="shift-badge shift-night">夜</span>
@@ -323,14 +340,18 @@
                                 <td class="col-notes">田中さん連続勤務</td>
                             </tr>
 
-                            <!-- 行6: 交通誘導 夜 -->
+                            <!-- 行6: 高速 夜 -->
                             <tr class="row-night" onclick="selectRow(this, event)">
                                 <td class="col-no">6</td>
-                                <td class="col-site-info clickable-cell gc-border-nikkei" data-group-company="nikkei" data-gc-name="Nikkeiホールディングス" onclick="openSiteModal(this)">
+                                <td class="col-site-info clickable-cell gc-border-nikkei" data-group-company="nikkei" data-gc-name="Nikkeiホールディングス"
+                                    data-company-id="5"
+                                    data-meeting-place="◇◇工業 本社前" data-supervisor="佐藤次郎" data-supervisor-tel="080-9876-5432"
+                                    data-badge-data='{"parentId":"highway","childIds":["hw-lane"],"grandchildMap":{"hw-lane":["hw-lane-light"]}}'
+                                    onclick="openSiteModal(this)">
                                     <div class="site-info">
                                         <div class="site-badges">
                                             <span class="shift-badge shift-night">夜</span>
-                                            <span class="category-badge category-traffic">交通</span>
+                                            <span class="category-badge category-highway">高速</span>
                                         </div>
                                         <div class="site-details">
                                             <div class="time">20:00 - 06:00</div>
@@ -557,101 +578,40 @@
             <div class="modal-content modal-site-detail">
                 <div class="modal-site-header">
                     <h3>現場詳細入力</h3>
+                    <button class="ob-modal-close" onclick="closeSiteModal()">✕</button>
                 </div>
                 <div class="modal-site-body">
-                    <!-- 左カラム: 基本情報 -->
-                    <div class="modal-site-col">
-                        <div class="modal-col-title">基本情報</div>
 
-                        <div class="modal-section">
-                            <label>グループ会社</label>
-                            <select id="groupCompanySelect">
-                                <option value="">選択してください...</option>
-                                <option value="touo">東央警備</option>
-                                <option value="nikkei">Nikkeiホールディングス</option>
-                            </select>
+                    <!-- 会社（チップ） -->
+                    <div class="ob-chip-field">
+                        <div class="ob-chip-field-header">
+                            <span class="ob-chip-field-title">会社</span>
                         </div>
+                        <div class="ob-row-chips" id="smBranchChips"></div>
+                    </div>
 
-                        <div class="modal-row">
-                            <div class="modal-section half">
-                                <label>区分</label>
-                                <select id="categorySelect">
-                                    <option value="facility">施設</option>
-                                    <option value="event">イベント</option>
-                                    <option value="traffic">交通</option>
-                                    <option value="highway">高速</option>
-                                    <option value="support_event">応援イベント</option>
-                                    <option value="support_traffic">応援交通</option>
-                                    <option value="support_highway">応援高速</option>
-                                    <option value="training">研修</option>
-                                    <option value="company">会社</option>
-                                </select>
+                    <!-- 区分 + 昼夜 -->
+                    <div class="modal-row">
+                        <div class="ob-chip-field" style="flex:2">
+                            <div class="ob-chip-field-header">
+                                <span class="ob-chip-field-title">区分</span>
+                                <button type="button" class="ob-btn-add-chip" onclick="smAddCategory()">+ 追加</button>
                             </div>
-                            <div class="modal-section half">
-                                <label>昼夜</label>
-                                <select id="shiftSelect">
-                                    <option value="day">昼</option>
-                                    <option value="night">夜</option>
-                                </select>
-                            </div>
+                            <div class="ob-row-chips" id="smCategoryChips"></div>
                         </div>
-
-                        <div class="modal-row">
-                            <div class="modal-section half">
-                                <label>開始時間</label>
-                                <div class="ob-time-picker-wrap" onclick="openTimePicker('startTimeInput', this)">
-                                    <input type="text" id="startTimeInput" class="ob-time-input" readonly placeholder="--:--" value="09:00">
-                                    <span class="ob-time-picker-icon">🕐</span>
-                                </div>
+                        <div class="ob-chip-field" style="flex:1">
+                            <div class="ob-chip-field-header">
+                                <span class="ob-chip-field-title">昼夜</span>
                             </div>
-                            <div class="modal-section half">
-                                <label>終了時間</label>
-                                <div class="ob-time-picker-wrap" onclick="openTimePicker('endTimeInput', this)">
-                                    <input type="text" id="endTimeInput" class="ob-time-input" readonly placeholder="--:--" value="18:00">
-                                    <span class="ob-time-picker-icon">🕐</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="modal-row">
-                            <div class="modal-section half">
-                                <label>集合時間</label>
-                                <div class="ob-time-picker-wrap" onclick="openTimePicker('meetingTimeInput', this)">
-                                    <input type="text" id="meetingTimeInput" class="ob-time-input" readonly placeholder="--:--" value="08:30">
-                                    <span class="ob-time-picker-icon">🕐</span>
-                                </div>
-                            </div>
-                            <div class="modal-section half">
-                                <label>連絡</label>
-                                <div class="combobox-container" id="contactCombobox">
-                                    <input type="text" class="combobox-input" id="contactInput"
-                                           placeholder="選択または入力..."
-                                           autocomplete="off">
-                                    <button type="button" class="combobox-toggle" id="contactToggle">▼</button>
-                                    <div class="combobox-dropdown" id="contactDropdown"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="modal-section">
-                            <label>必要人数</label>
-                            <div style="display: flex; align-items: center;">
-                                <input type="number" id="requiredCountInput" min="1" max="99" value="1" style="width: 80px;">
-                                <span style="color: var(--text-tertiary); font-size: 0.85rem; margin-left: 5px;">名</span>
-                            </div>
-                        </div>
-
-                        <div class="modal-section">
-                            <label>備考</label>
-                            <textarea id="notesInput" rows="2" placeholder="備考を入力..."></textarea>
+                            <div class="ob-row-chips" id="smShiftChips"></div>
                         </div>
                     </div>
 
-                    <!-- 右カラム: 現場情報 -->
-                    <div class="modal-site-col">
-                        <div class="modal-col-title">現場情報</div>
+                    <hr class="modal-site-divider">
 
-                        <div class="modal-section">
+                    <!-- 契約先 + 現場名 -->
+                    <div class="modal-row">
+                        <div class="modal-section" style="flex:1">
                             <label>契約先（元請け）</label>
                             <div class="combobox-container" id="companyCombobox">
                                 <input type="text" class="combobox-input" id="companyInput"
@@ -662,8 +622,7 @@
                                 <div class="combobox-dropdown" id="companyDropdown"></div>
                             </div>
                         </div>
-
-                        <div class="modal-section">
+                        <div class="modal-section" style="flex:1">
                             <label>現場名</label>
                             <div class="combobox-container" id="siteNameCombobox">
                                 <input type="text" class="combobox-input"
@@ -674,17 +633,137 @@
                                 <div class="combobox-dropdown"></div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- 動的追加項目コンテナ -->
-                        <div id="subItemsContainer">
-                            <!-- 追加項目は動的に生成される -->
-                            <button type="button" class="add-sub-item-btn" id="addSubItemBtn" onclick="addSubItemLevel()">＋ 追加項目を追加</button>
+                    <!-- 動的追加項目コンテナ（既存の階層コンボボックス） -->
+                    <div id="subItemsContainer">
+                        <button type="button" class="add-sub-item-btn" id="addSubItemBtn" onclick="addSubItemLevel()">＋ 追加項目を追加</button>
+                    </div>
+
+                    <!-- 業務詳細（サブタスク） -->
+                    <div class="ob-sub-task-fields" id="smSubTaskFields">
+                        <div class="ob-sub-task-header">
+                            <span class="ob-sub-task-title">業務詳細</span>
+                            <button type="button" class="ob-btn-add-sub" onclick="smAddSubTask()">+ 追加</button>
+                        </div>
+                        <div id="smSubTaskList"></div>
+                    </div>
+
+                    <hr class="modal-site-divider">
+
+                    <!-- 作業内容バッジ（3階層） -->
+                    <div class="ob-badge-section">
+                        <div class="ob-badge-group">
+                            <div class="ob-badge-group-header">
+                                <span class="ob-badge-group-title">区分</span>
+                                <span class="ob-badge-parent-display" id="smBadgeParentDisplay">-</span>
+                            </div>
+                        </div>
+                        <div class="ob-badge-group ob-badge-child-group" id="smBadgeChildSection" style="display:none;">
+                            <div class="ob-badge-group-header">
+                                <span class="ob-badge-group-subtitle">作業内容</span>
+                                <button type="button" class="ob-btn-add-badge" onclick="smAddChildBadge()">+ 追加</button>
+                            </div>
+                            <div class="ob-badge-chips" id="smBadgeChildList"></div>
+                            <div class="ob-badge-undo-bar" id="smBadgeUndoBar" style="display:none;">
+                                <span id="smBadgeUndoMsg"></span>
+                                <button type="button" class="ob-badge-undo-btn" onclick="smUndoDeleteBadge()">戻す</button>
+                            </div>
                         </div>
                     </div>
+
+                    <hr class="modal-site-divider">
+
+                    <!-- 開始時間 / 終了時間 / 必要人数 -->
+                    <div class="modal-row-3">
+                        <div class="modal-section">
+                            <label>開始時間</label>
+                            <div class="ob-time-picker-wrap" onclick="openTimePicker('smStartTime', this)">
+                                <input type="text" id="smStartTime" class="ob-time-input" readonly placeholder="--:--">
+                                <span class="ob-time-picker-icon">🕐</span>
+                            </div>
+                        </div>
+                        <div class="modal-section">
+                            <label>終了時間</label>
+                            <div class="ob-time-picker-wrap" onclick="openTimePicker('smEndTime', this)">
+                                <input type="text" id="smEndTime" class="ob-time-input" readonly placeholder="--:--">
+                                <span class="ob-time-picker-icon">🕐</span>
+                            </div>
+                        </div>
+                        <div class="modal-section">
+                            <label>必要人数</label>
+                            <div style="display:flex;align-items:center;">
+                                <input type="number" id="smRequiredCount" min="1" max="99" value="1" style="width:80px;">
+                                <span style="color:var(--text-tertiary);font-size:0.85rem;margin-left:5px;">名</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 集合場所 / 集合時間 / 連絡 -->
+                    <div class="modal-row-3">
+                        <div class="modal-section">
+                            <label>集合場所</label>
+                            <input type="text" id="smMeetingPlace" placeholder="集合場所を入力">
+                        </div>
+                        <div class="modal-section">
+                            <label>集合時間</label>
+                            <div class="ob-time-picker-wrap" onclick="openTimePicker('smMeetingTime', this)">
+                                <input type="text" id="smMeetingTime" class="ob-time-input" readonly placeholder="--:--">
+                                <span class="ob-time-picker-icon">🕐</span>
+                            </div>
+                        </div>
+                        <div class="modal-section">
+                            <label>連絡</label>
+                            <div class="combobox-container" id="contactCombobox">
+                                <input type="text" class="combobox-input" id="contactInput"
+                                       placeholder="選択または入力..."
+                                       autocomplete="off">
+                                <button type="button" class="combobox-clear">✕</button>
+                                <button type="button" class="combobox-toggle" id="contactToggle">▼</button>
+                                <div class="combobox-dropdown" id="contactDropdown"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="modal-site-divider">
+
+                    <!-- 現場監督 + 連絡先 -->
+                    <div class="modal-row">
+                        <div class="modal-section" style="flex:1">
+                            <label>現場監督</label>
+                            <input type="text" id="smSupervisor" placeholder="氏名">
+                        </div>
+                        <div class="modal-section" style="flex:1">
+                            <label>連絡先（TEL）</label>
+                            <input type="tel" id="smSupervisorTel" placeholder="電話番号">
+                        </div>
+                    </div>
+
+                    <!-- 現場監督候補 -->
+                    <div class="ob-supervisor-candidates" id="smSupervisorCandidates" style="display:none;">
+                        <span class="ob-candidates-label">過去の入力:</span>
+                        <div class="ob-candidates-chips" id="smSvCandidateChips"></div>
+                        <div class="ob-sv-undo-bar" id="smSvUndoBar" style="display:none;">
+                            <span id="smSvUndoMsg"></span>
+                            <button type="button" class="ob-badge-undo-btn" onclick="smUndoDeleteSupervisor()">戻す</button>
+                        </div>
+                    </div>
+
+                    <hr class="modal-site-divider">
+
+                    <!-- 備考 -->
+                    <div class="modal-section">
+                        <label>備考</label>
+                        <textarea id="smNotes" rows="2" placeholder="備考を入力..."></textarea>
+                    </div>
+
                 </div>
                 <div class="modal-site-footer">
-                    <button class="btn-cancel" onclick="closeSiteModal()">キャンセル</button>
-                    <button class="btn-save" onclick="saveSiteModal()">保存</button>
+                    <button class="ob-btn ob-btn-danger" onclick="smDeleteSite()">削除</button>
+                    <div class="modal-site-footer-right">
+                        <button class="ob-btn ob-btn-secondary" onclick="closeSiteModal()">キャンセル</button>
+                        <button class="ob-btn ob-btn-primary" onclick="saveSiteModal()">保存</button>
+                    </div>
                 </div>
             </div>
         </div>

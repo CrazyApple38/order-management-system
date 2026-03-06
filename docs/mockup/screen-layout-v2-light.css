@@ -280,22 +280,24 @@ h1 {
 /* ツールバー */
 .toolbar {
     background: var(--bg-surface-2);
-    padding: 10px 20px;
+    padding: 6px 12px;
     display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+    gap: 6px;
+    flex-wrap: nowrap;
+    align-items: center;
     border-bottom: 1px solid var(--divider);
 }
 
 .toolbar button {
-    padding: 8px 16px;
+    padding: 5px 10px;
     border: 1px solid var(--divider);
     background: var(--bg-surface);
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     transition: all 0.2s;
     color: var(--text-primary);
+    white-space: nowrap;
 }
 
 .toolbar button:hover {
@@ -333,7 +335,8 @@ h1 {
 .toolbar-separator {
     width: 1px;
     background: var(--divider);
-    margin: 0 5px;
+    margin: 0 2px;
+    align-self: stretch;
 }
 
 /* グリッドテーブル */
@@ -2505,7 +2508,7 @@ h1 {
 /* ==================== 現場詳細入力モーダル（2カラム） ==================== */
 .modal-site-detail {
     width: 90vw;
-    max-width: 900px;
+    max-width: 700px;
     max-height: 85vh;
     display: flex;
     flex-direction: column;
@@ -2514,10 +2517,13 @@ h1 {
     overflow: hidden;
 }
 .modal-site-header {
-    padding: 16px 24px;
+    padding: 14px 24px;
     border-bottom: 1px solid var(--divider);
     background: var(--bg-surface-2);
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 .modal-site-header h3 {
     margin: 0;
@@ -2526,7 +2532,8 @@ h1 {
 }
 .modal-site-body {
     display: flex;
-    gap: 24px;
+    flex-direction: column;
+    gap: 16px;
     padding: 20px 24px;
     overflow-y: auto;
     flex: 1;
@@ -2552,9 +2559,14 @@ h1 {
     border-top: 1px solid var(--divider);
     background: var(--bg-surface-2);
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     gap: 10px;
     flex-shrink: 0;
+}
+.modal-site-footer-right {
+    display: flex;
+    gap: 10px;
 }
 .modal-site-footer button {
     padding: 8px 24px;
@@ -2705,12 +2717,13 @@ h1 {
         max-height: 90vh;
     }
     .modal-site-body {
-        flex-direction: column;
-        gap: 16px;
         padding: 16px;
     }
     .modal-site-col {
         flex: none;
+    }
+    .modal-row, .modal-row-3 {
+        flex-direction: column;
     }
 }
 
@@ -2762,4 +2775,359 @@ h1 {
 }
 .ob-time-option.ob-time-selected {
     background: var(--accent); color: #fff;
+}
+
+/* ============================================
+   現場詳細入力モーダル — 追加スタイル
+   ============================================ */
+
+/* モーダル閉じるボタン */
+.ob-modal-close {
+    background: none; border: none;
+    color: var(--text-tertiary); font-size: 18px;
+    cursor: pointer; padding: 2px 6px; border-radius: 4px;
+}
+.ob-modal-close:hover { background: var(--accent-dim); color: var(--accent); }
+
+/* セクション区切り */
+.modal-site-divider {
+    border: none;
+    border-top: 1px solid var(--divider);
+    margin: 4px 0;
+}
+
+/* 横並び行レイアウト */
+.modal-row {
+    display: flex;
+    gap: 12px;
+}
+.modal-row-3 {
+    display: flex;
+    gap: 12px;
+}
+.modal-row-3 > .modal-section {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ボタン共通 */
+.ob-btn {
+    padding: 9px 22px; border: none; border-radius: 6px;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.ob-btn-primary { background: var(--accent); color: white; }
+.ob-btn-primary:hover { background: var(--accent-light); box-shadow: 0 2px 8px rgba(68,166,181,0.3); }
+.ob-btn-secondary { background: var(--bg-surface-2); color: var(--text-secondary); border: none; }
+.ob-btn-secondary:hover { background: var(--bg-surface-3); }
+.ob-btn-danger { background: #dc2626; color: white; }
+.ob-btn-danger:hover { background: #b91c1c; box-shadow: 0 2px 8px rgba(220,38,38,0.3); }
+
+/* ── チップ選択フィールド ── */
+.ob-chip-field {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 10px 14px;
+    border: 1px solid var(--divider); border-radius: 6px;
+    background: rgba(68,166,181,0.03);
+}
+.ob-chip-field-header {
+    display: flex; align-items: center; justify-content: space-between;
+}
+.ob-chip-field-title {
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    letter-spacing: 0.5px;
+}
+.ob-row-chips {
+    display: flex; flex-wrap: wrap; gap: 6px;
+}
+.ob-row-chip {
+    display: inline-flex; align-items: center;
+    padding: 5px 14px; border-radius: 16px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface); color: var(--text-secondary);
+    font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    user-select: none;
+}
+.ob-row-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.ob-row-chip.ob-chip-active {
+    background: var(--accent); color: #fff;
+    border-color: var(--accent);
+}
+.ob-btn-add-chip {
+    align-self: flex-start;
+    padding: 3px 12px; border: 1px dashed var(--divider);
+    border-radius: 14px; background: transparent;
+    color: var(--text-tertiary); font-size: 11px;
+    cursor: pointer; transition: all 0.15s;
+}
+.ob-btn-add-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+
+/* ── 業務詳細（サブタスク） ── */
+.ob-sub-task-fields {
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 12px 14px;
+    background: rgba(68,166,181,0.05);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+}
+.ob-sub-task-header {
+    display: flex; align-items: center; justify-content: space-between;
+}
+.ob-sub-task-title {
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    letter-spacing: 0.5px;
+}
+.ob-btn-add-sub {
+    background: var(--accent-dim); border: 1px solid var(--accent);
+    color: var(--accent); padding: 3px 12px; border-radius: 4px;
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s;
+}
+.ob-btn-add-sub:hover {
+    background: var(--accent); color: white;
+}
+.ob-sub-task-entry {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 6px;
+}
+.ob-sub-label-input {
+    width: 80px; flex-shrink: 0;
+    padding: 5px 8px; border: 1px dashed var(--divider);
+    border-radius: 4px; font-size: 11px;
+    background: rgba(68,166,181,0.04); color: var(--accent);
+    font-weight: 600; text-align: center;
+    transition: border-color 0.15s;
+}
+.ob-sub-label-input:focus {
+    outline: none; border-color: var(--accent); border-style: solid;
+    box-shadow: 0 0 0 2px var(--accent-dim);
+}
+.ob-sub-value-input {
+    flex: 1;
+    padding: 6px 10px; border: 1px solid var(--divider);
+    border-radius: 5px; font-size: 13px;
+    background: var(--bg-surface); color: var(--text-primary);
+    transition: border-color 0.15s;
+}
+.ob-sub-value-input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim);
+}
+.ob-btn-remove-sub {
+    background: none; border: 1px solid transparent;
+    color: var(--text-disabled); font-size: 16px;
+    cursor: pointer; padding: 2px 6px; border-radius: 4px;
+    transition: all 0.15s; flex-shrink: 0;
+    line-height: 1;
+}
+.ob-btn-remove-sub:hover {
+    color: #dc2626; border-color: rgba(220,38,38,0.3);
+    background: rgba(220,38,38,0.06);
+}
+
+/* ── バッジセクション（3階層） ── */
+.ob-badge-section {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 10px 14px;
+    background: var(--bg-surface-2); border: 1px solid var(--divider);
+    border-radius: 6px;
+}
+.ob-badge-group {
+    display: flex; flex-direction: column; gap: 6px;
+}
+.ob-badge-child-group {
+    padding-top: 8px; border-top: 1px dashed var(--divider);
+}
+.ob-badge-group-header {
+    display: flex; align-items: center; gap: 6px;
+}
+.ob-badge-group-title {
+    font-size: 12px; font-weight: 600; color: var(--text-secondary);
+}
+.ob-badge-parent-display {
+    display: inline-flex; align-items: center;
+    padding: 3px 12px; border-radius: 14px;
+    background: var(--accent); color: #fff;
+    font-size: 12px; font-weight: 600;
+}
+.ob-badge-parent-display.ob-badge-parent-unknown {
+    background: var(--divider); color: var(--text-secondary);
+}
+.ob-badge-group-subtitle {
+    font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+}
+.ob-badge-chips {
+    display: flex; flex-wrap: wrap; gap: 6px;
+}
+.ob-badge-chip {
+    display: inline-flex; align-items: center;
+    padding: 4px 12px; border-radius: 14px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface); color: var(--text-secondary);
+    font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    user-select: none;
+}
+.ob-badge-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.ob-badge-chip.ob-badge-selected {
+    background: var(--accent); color: #fff;
+    border-color: var(--accent);
+}
+.ob-badge-chip.ob-badge-child {
+    font-size: 11px; padding: 3px 10px; border-radius: 12px;
+}
+.ob-badge-chip.ob-badge-child.ob-badge-selected {
+    background: var(--secondary); color: var(--primary);
+    border-color: var(--secondary);
+}
+.ob-badge-empty {
+    font-size: 11px; color: var(--text-disabled); font-style: italic;
+}
+.ob-btn-add-badge {
+    align-self: flex-start;
+    padding: 2px 10px; border: 1px dashed var(--divider);
+    border-radius: 12px; background: transparent;
+    color: var(--text-tertiary); font-size: 11px;
+    cursor: pointer; transition: all 0.15s;
+}
+.ob-btn-add-badge:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+
+/* バッジ ドラッグ＆ドロップ */
+.ob-badge-drag-item {
+    display: inline-flex; align-items: center; gap: 2px;
+    border-radius: 14px;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.ob-badge-drag-item[draggable="true"] { cursor: grab; }
+.ob-badge-drag-item.ob-badge-dragging { opacity: 0.4; transform: scale(0.95); }
+.ob-badge-drag-item.ob-badge-drag-over { box-shadow: 0 0 0 2px var(--accent); border-radius: 14px; }
+.ob-badge-drag-grip {
+    font-size: 10px; color: var(--text-disabled);
+    cursor: grab; padding: 0 2px; user-select: none;
+}
+.ob-badge-delete-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    border: none; background: transparent;
+    color: var(--text-disabled); font-size: 9px;
+    cursor: pointer; transition: all 0.15s;
+    padding: 0; line-height: 1;
+}
+.ob-badge-delete-btn:hover { background: #fee2e2; color: #dc2626; }
+
+/* バッジ削除復元バー */
+.ob-badge-undo-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border-radius: 6px;
+    background: #fef3c7; border: 1px solid #fcd34d;
+    font-size: 11px; color: #92400e;
+    animation: badgeUndoFadeIn 0.2s ease;
+}
+.ob-badge-undo-btn {
+    padding: 2px 10px; border-radius: 10px;
+    border: 1px solid #f59e0b; background: #fff;
+    color: #d97706; font-size: 11px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+}
+.ob-badge-undo-btn:hover { background: #f59e0b; color: #fff; }
+@keyframes badgeUndoFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 孫バッジセクション */
+.ob-grandchild-section {
+    width: 100%;
+    margin: 4px 0 6px 0;
+    padding: 8px 10px 6px 14px;
+    border-left: 2px solid var(--secondary);
+    background: rgba(68,166,181,0.04);
+    border-radius: 0 6px 6px 0;
+}
+.ob-grandchild-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px;
+}
+.ob-grandchild-label {
+    font-size: 10px; font-weight: 600; color: var(--text-tertiary);
+    letter-spacing: 0.5px;
+    display: inline-flex; align-items: center; gap: 2px;
+}
+.ob-grandchild-arrow { color: var(--text-disabled); font-size: 12px; }
+.ob-grandchild-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.ob-badge-grandchild { font-size: 11px; padding: 3px 10px; border-radius: 12px; }
+.ob-badge-grandchild.ob-badge-selected {
+    background: var(--secondary); color: var(--text-primary);
+    border-color: var(--secondary);
+}
+.ob-gc-drag-item { border-radius: 12px; }
+.ob-gc-undo-bar { margin-top: 6px; }
+.ob-btn-add-gc { font-size: 10px; padding: 1px 8px; border-radius: 10px; }
+
+/* タッチドラッグ共通 */
+.ob-touch-dragging { opacity: 0.4; transform: scale(0.95); }
+.ob-touch-drag-over { box-shadow: 0 0 0 2px var(--accent); }
+
+/* ── 現場監督候補チップ ── */
+.ob-supervisor-candidates {
+    display: flex; align-items: baseline; gap: 8px;
+    flex-wrap: wrap; padding: 2px 0 0;
+}
+.ob-candidates-label {
+    font-size: 11px; color: var(--text-tertiary);
+    white-space: nowrap; flex-shrink: 0;
+}
+.ob-candidates-chips {
+    display: flex; flex-wrap: wrap; gap: 6px;
+}
+.ob-sv-drag-item {
+    display: inline-flex; align-items: center; gap: 2px;
+    border-radius: 14px;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.ob-sv-drag-item[draggable="true"] { cursor: grab; }
+.ob-sv-drag-item.ob-sv-dragging { opacity: 0.4; transform: scale(0.95); }
+.ob-sv-drag-item.ob-sv-drag-over { box-shadow: 0 0 0 2px var(--accent); border-radius: 14px; }
+.ob-sv-drag-grip {
+    font-size: 10px; color: var(--text-disabled);
+    cursor: grab; padding: 0 2px; user-select: none;
+}
+.ob-supervisor-chip {
+    padding: 4px 10px; border: 1px solid var(--divider);
+    border-radius: 14px; background: var(--bg-surface);
+    color: var(--text-secondary); font-size: 11px;
+    cursor: pointer; transition: all 0.15s;
+    white-space: nowrap;
+}
+.ob-supervisor-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.ob-sv-delete-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    border: none; background: transparent;
+    color: var(--text-disabled); font-size: 9px;
+    cursor: pointer; transition: all 0.15s;
+    padding: 0; line-height: 1;
+}
+.ob-sv-delete-btn:hover { background: #fee2e2; color: #dc2626; }
+.ob-sv-undo-bar {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; padding: 4px 10px;
+    background: #fef9c3; border-radius: 6px;
+    font-size: 11px; color: #92400e;
+    margin-top: 4px;
 }
