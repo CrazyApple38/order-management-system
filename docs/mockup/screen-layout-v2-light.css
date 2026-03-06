@@ -393,9 +393,41 @@ h1 {
     vertical-align: middle;
 }
 .col-notes {
-    width: 150px;
+    width: 180px;
     text-align: left !important;
     color: var(--text-secondary);
+}
+
+/* 備考セル内表示 */
+.notes-place, .notes-memo {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.notes-place {
+    color: var(--accent);
+}
+.notes-memo {
+    color: var(--text-secondary);
+}
+.notes-label {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0 4px;
+    border-radius: 3px;
+    margin-right: 3px;
+    vertical-align: baseline;
+}
+.notes-place .notes-label {
+    background: rgba(68,166,181,0.12);
+    color: var(--accent);
+}
+.notes-memo .notes-label {
+    background: rgba(160,160,160,0.15);
+    color: var(--text-tertiary);
 }
 .col-map { width: 50px; }
 
@@ -2506,6 +2538,65 @@ h1 {
 }
 
 /* ==================== 現場詳細入力モーダル（2カラム） ==================== */
+.modal-notes-detail {
+    width: 90vw;
+    max-width: 420px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.modal-notes-detail textarea {
+    width: 100%;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 0.9rem;
+    padding: 8px 10px;
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    box-sizing: border-box;
+}
+
+.modal-work-detail {
+    width: 90vw;
+    max-width: 520px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.modal-work-detail textarea {
+    width: 100%;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 0.9rem;
+    padding: 8px 10px;
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    box-sizing: border-box;
+}
+
+.modal-meeting-detail {
+    width: 90vw;
+    max-width: 420px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
 .modal-site-detail {
     width: 90vw;
     max-width: 700px;
@@ -2896,7 +2987,8 @@ h1 {
     display: flex; align-items: center; gap: 6px;
     margin-top: 6px;
 }
-.ob-sub-label-input {
+.ob-sub-label-input,
+.modal-site-body input.ob-sub-label-input {
     width: 80px; flex-shrink: 0;
     padding: 5px 8px; border: 1px dashed var(--divider);
     border-radius: 4px; font-size: 11px;
@@ -2904,18 +2996,21 @@ h1 {
     font-weight: 600; text-align: center;
     transition: border-color 0.15s;
 }
-.ob-sub-label-input:focus {
+.ob-sub-label-input:focus,
+.modal-site-body input.ob-sub-label-input:focus {
     outline: none; border-color: var(--accent); border-style: solid;
     box-shadow: 0 0 0 2px var(--accent-dim);
 }
-.ob-sub-value-input {
-    flex: 1;
+.ob-sub-value-input,
+.modal-site-body input.ob-sub-value-input {
+    flex: 1; width: auto;
     padding: 6px 10px; border: 1px solid var(--divider);
     border-radius: 5px; font-size: 13px;
     background: var(--bg-surface); color: var(--text-primary);
     transition: border-color 0.15s;
 }
-.ob-sub-value-input:focus {
+.ob-sub-value-input:focus,
+.modal-site-body input.ob-sub-value-input:focus {
     outline: none; border-color: var(--accent);
     box-shadow: 0 0 0 2px var(--accent-dim);
 }
@@ -2929,6 +3024,28 @@ h1 {
 .ob-btn-remove-sub:hover {
     color: #dc2626; border-color: rgba(220,38,38,0.3);
     background: rgba(220,38,38,0.06);
+}
+
+/* 計画書業務名行（読み取り専用） */
+.ob-plan-name-row {
+    padding: 10px 14px;
+    background: rgba(68,166,181,0.06);
+    border: 1px solid var(--secondary);
+    border-radius: 6px;
+}
+.ob-plan-name-label {
+    font-size: 10px; font-weight: 600; color: var(--accent);
+    letter-spacing: 0.5px; margin-bottom: 4px;
+}
+.ob-plan-name-value {
+    font-size: 13px; font-weight: 600; color: var(--text-primary);
+    min-height: 20px; line-height: 1.4;
+}
+.ob-plan-name-value .ob-plan-arrow {
+    color: var(--text-disabled); margin: 0 4px; font-weight: 400;
+}
+.ob-plan-name-value.ob-plan-empty {
+    color: var(--text-disabled); font-style: italic; font-weight: 400;
 }
 
 /* ── バッジセクション（3階層） ── */

@@ -360,6 +360,29 @@
             return parts.join(' ');
         }
 
+        // 業務管理計画書 業務名をリアルタイム更新（読み取り専用表示）
+        function smUpdatePlanTaskName() {
+            const parts = [];
+            // 親: 現場名
+            if (siteNameCombobox && siteNameCombobox.selectedItem) {
+                parts.push(siteNameCombobox.selectedItem.name);
+            }
+            // 子: 業務詳細の各値
+            const subTasks = smCollectSubTasks();
+            if (subTasks && subTasks.length > 0) {
+                subTasks.forEach(st => { if (st.value) parts.push(st.value); });
+            }
+            const el = document.getElementById('smPlanTaskName');
+            if (!el) return;
+            if (parts.length > 0) {
+                el.className = 'ob-plan-name-value';
+                el.innerHTML = parts.join(' <span class="ob-plan-arrow">›</span> ');
+            } else {
+                el.className = 'ob-plan-name-value ob-plan-empty';
+                el.textContent = '現場名・業務詳細を入力すると自動生成されます';
+            }
+        }
+
         // 追加項目セクションのHTMLを生成してComboboxを初期化
         function addSubItemLevel() {
             const level = subItemComboboxes.length;
@@ -399,6 +422,7 @@
                 allowAddNew: true,
                 onSelect: (item) => {
                     clearSubItemsBelow(level);
+                    smUpdatePlanTaskName();
                 },
                 onAddNew: (item) => {
                     item.subItems = [];
@@ -435,6 +459,7 @@
                 }
             }
             renumberSubItems();
+            smUpdatePlanTaskName();
         }
 
         function clearAllSubItems() {
@@ -480,6 +505,7 @@
                 allowAddNew: true,
                 onSelect: (item) => {
                     clearAllSubItems();
+                    smUpdatePlanTaskName();
                 },
                 onAddNew: (item) => {
                     item.subItems = [];
@@ -489,15 +515,17 @@
                 }
             });
 
-            contactCombobox = new Combobox('contactCombobox', {
-                items: contactsData,
-                allowAddNew: false,
-                onSelect: (item) => {
-                    if (item) {
-                        console.log('連絡選択:', item);
+            if (document.getElementById('contactCombobox')) {
+                contactCombobox = new Combobox('contactCombobox', {
+                    items: contactsData,
+                    allowAddNew: false,
+                    onSelect: (item) => {
+                        if (item) {
+                            console.log('連絡選択:', item);
+                        }
                     }
-                }
-            });
+                });
+            }
 
             // カラー設定パネル: カラーピッカー変更時にCSS変数を即時更新
             document.querySelectorAll('.color-setting-picker').forEach(picker => {
@@ -575,43 +603,7 @@
                 }
             }
 
-            // === 行内の他セルから読み取り ===
-            if (row) {
-                const cells = row.querySelectorAll('td');
-
-                // 集合時間・連絡 (4列目 = index 3)
-                const meetingCell = cells[3];
-                if (meetingCell) {
-                    const timeDisplay = meetingCell.querySelector('.time-display');
-                    document.getElementById('smMeetingTime').value = timeDisplay ? timeDisplay.textContent.trim() : '';
-                    const contactBadge = meetingCell.querySelector('.contact-badge');
-                    if (contactBadge) {
-                        const contactName = contactBadge.textContent.trim();
-                        const contactItem = contactsData.find(c => c.name === contactName);
-                        if (contactItem) contactCombobox.select(contactItem);
-                    }
-                }
-
-                // 必要人数 (5列目 = index 4)
-                const countCell = cells[4];
-                if (countCell) {
-                    const countDisplay = countCell.querySelector('.count-display');
-                    if (countDisplay) {
-                        const countText = countDisplay.textContent.trim();
-                        const match = countText.match(/\d+\/(\d+)/);
-                        if (match) {
-                            document.getElementById('smRequiredCount').value = match[1];
-                        }
-                    }
-                }
-
-                // 備考 (col-notes)
-                const notesCell = row.querySelector('.col-notes');
-                document.getElementById('smNotes').value = notesCell ? notesCell.textContent.trim() : '';
-            }
-
             // === data属性の非表示フィールド ===
-            document.getElementById('smMeetingPlace').value = cell.dataset.meetingPlace || '';
             document.getElementById('smSupervisor').value = cell.dataset.supervisor || '';
             document.getElementById('smSupervisorTel').value = cell.dataset.supervisorTel || '';
 
@@ -638,6 +630,9 @@
             // 現場監督候補
             smRenderSupervisorCandidates();
 
+            // 業務名プレビュー（コンボボックス選択完了後に更新）
+            setTimeout(() => smUpdatePlanTaskName(), 50);
+
             document.getElementById('siteModal').classList.add('active');
         }
 
@@ -663,10 +658,13 @@
             // 時間・数値
             const startTime = document.getElementById('smStartTime').value;
             const endTime = document.getElementById('smEndTime').value;
-            const meetingTime = document.getElementById('smMeetingTime').value;
-            const meetingPlace = document.getElementById('smMeetingPlace').value;
-            const requiredCount = document.getElementById('smRequiredCount').value;
-            const contact = contactCombobox.selectedItem;
+            const meetingTimeEl = document.getElementById('smMeetingTime');
+            const meetingTime = meetingTimeEl ? meetingTimeEl.value : '';
+            const meetingPlaceEl = document.getElementById('smMeetingPlace');
+            const meetingPlace = meetingPlaceEl ? meetingPlaceEl.value : '';
+            const requiredCountEl = document.getElementById('smRequiredCount');
+            const requiredCount = requiredCountEl ? requiredCountEl.value : '';
+            const contact = contactCombobox ? contactCombobox.selectedItem : null;
 
             // コンボボックス
             const company = companyCombobox.selectedItem;
@@ -679,7 +677,8 @@
             const badgeData = smGetSelectedBadgeData();
             const supervisor = document.getElementById('smSupervisor').value;
             const supervisorTel = document.getElementById('smSupervisorTel').value;
-            const notes = document.getElementById('smNotes').value;
+            const notesEl = document.getElementById('smNotes');
+            const notes = notesEl ? notesEl.value : '';
 
             // === セルへの反映 ===
             if (currentSiteCell) {
@@ -785,8 +784,8 @@
                 if (row) {
                     const cells = row.querySelectorAll('td');
 
-                    // 集合時間・連絡 (index 3)
-                    const meetingCell = cells[3];
+                    // 集合時間・連絡 (index 4)
+                    const meetingCell = cells[4];
                     if (meetingCell) {
                         let timeDisp = meetingCell.querySelector('.time-display');
                         let contactEl = meetingCell.querySelector('.contact-badge');
@@ -816,8 +815,8 @@
                         }
                     }
 
-                    // 必要人数 (index 4)
-                    const countCell = cells[4];
+                    // 必要人数 (index 5)
+                    const countCell = cells[5];
                     if (countCell) {
                         let countDisp = countCell.querySelector('.count-display');
                         if (countDisp) {
@@ -837,9 +836,9 @@
                         badgeCell.innerHTML = smBuildBadgeDisplayHtml(badgeData);
                     }
 
-                    // 備考 (col-notes)
+                    // 備考 (col-notes) — 集合場所+備考の構造化表示
                     const notesCell = row.querySelector('.col-notes');
-                    if (notesCell) notesCell.textContent = notes;
+                    if (notesCell) ntRenderNotesCell(notesCell, meetingPlace, notes);
                 }
             }
 
@@ -863,6 +862,262 @@
 
         document.getElementById('siteModal').addEventListener('click', function(e) {
             if (e.target === this) closeSiteModal();
+        });
+
+        // ============================================
+        // 集合モーダル
+        // ============================================
+        let currentMeetingCell = null;
+        let mtSelectedContact = null;
+
+        function openMeetingModal(cell, event) {
+            event.stopPropagation();
+            currentMeetingCell = cell;
+            const row = cell.closest('tr');
+            const siteCell = row ? row.querySelector('.col-site-info') : null;
+
+            // 集合場所を data属性から読み取り
+            document.getElementById('mtMeetingPlace').value = siteCell ? (siteCell.dataset.meetingPlace || '') : '';
+
+            // セルから現在値を読み取り
+            const timeDisp = cell.querySelector('.time-display');
+            document.getElementById('mtMeetingTime').value = timeDisp ? timeDisp.textContent.trim() : '';
+
+            const contactBadge = cell.querySelector('.contact-badge');
+            mtSelectedContact = contactBadge ? contactBadge.textContent.trim() : null;
+
+            mtRenderContactChips();
+            document.getElementById('meetingModal').classList.add('active');
+        }
+
+        function mtRenderContactChips() {
+            const container = document.getElementById('mtContactChips');
+            let html = '';
+            employeeContactItems.forEach(item => {
+                const active = mtSelectedContact === item.name ? ' ob-chip-active' : '';
+                html += `<button type="button" class="ob-row-chip${active}" onclick="mtSelectContact('${escapeHtml(item.name)}')">${escapeHtml(item.name)}</button>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function mtSelectContact(name) {
+            // トグル: 同じものを再クリックで解除
+            mtSelectedContact = mtSelectedContact === name ? null : name;
+            mtRenderContactChips();
+        }
+
+        function mtAddContact() {
+            const name = prompt('新しい連絡項目名を入力:');
+            if (!name || !name.trim()) return;
+            const trimmed = name.trim();
+            if (employeeContactItems.some(i => i.name === trimmed)) {
+                alert('同名の項目が既に存在します。');
+                return;
+            }
+            const colorPalette = [
+                { bg: 'rgba(68,166,181,0.12)', color: '#2A6B7A', borderColor: 'rgba(68,166,181,0.3)' },
+                { bg: 'rgba(56,161,105,0.12)', color: '#276749', borderColor: 'rgba(56,161,105,0.3)' },
+                { bg: 'rgba(49,151,149,0.12)', color: '#285E61', borderColor: 'rgba(49,151,149,0.3)' },
+                { bg: 'rgba(214,158,46,0.1)', color: '#975A16', borderColor: 'rgba(214,158,46,0.3)' },
+                { bg: 'rgba(128,90,213,0.1)', color: '#6B46C1', borderColor: 'rgba(128,90,213,0.3)' }
+            ];
+            const idx = employeeContactItems.length % colorPalette.length;
+            const colors = colorPalette[idx];
+            const cssClass = 'contact-custom-' + employeeContactItems.length;
+            employeeContactItems.push({
+                name: trimmed, bg: colors.bg, color: colors.color,
+                borderColor: colors.borderColor, cssClass: cssClass
+            });
+            mtSelectedContact = trimmed;
+            mtRenderContactChips();
+        }
+
+        function saveMeetingModal() {
+            pushUndo();
+            if (!currentMeetingCell) return;
+            const row = currentMeetingCell.closest('tr');
+            const siteCell = row ? row.querySelector('.col-site-info') : null;
+
+            // 集合場所保存
+            const meetingPlace = document.getElementById('mtMeetingPlace').value.trim();
+            if (siteCell) {
+                if (meetingPlace) siteCell.dataset.meetingPlace = meetingPlace;
+                else delete siteCell.dataset.meetingPlace;
+            }
+
+            // 備考列の集合場所表示を更新
+            const notesCell = row ? row.querySelector('.col-notes') : null;
+            if (notesCell) {
+                const memoEl = notesCell.querySelector('.notes-memo');
+                const memoText = memoEl ? memoEl.textContent.replace(/^備考/, '').trim() : '';
+                ntRenderNotesCell(notesCell, meetingPlace, memoText);
+            }
+
+            const meetingTime = document.getElementById('mtMeetingTime').value;
+
+            // time-display 更新
+            let timeDisp = currentMeetingCell.querySelector('.time-display');
+            if (meetingTime) {
+                if (!timeDisp) {
+                    timeDisp = document.createElement('span');
+                    timeDisp.className = 'time-display';
+                    currentMeetingCell.insertBefore(timeDisp, currentMeetingCell.firstChild);
+                }
+                timeDisp.textContent = meetingTime;
+            } else if (timeDisp) {
+                timeDisp.textContent = '';
+            }
+
+            // contact-badge 更新
+            let contactEl = currentMeetingCell.querySelector('.contact-badge');
+            if (mtSelectedContact) {
+                if (!contactEl) {
+                    contactEl = document.createElement('span');
+                    contactEl.className = 'contact-badge';
+                    currentMeetingCell.appendChild(contactEl);
+                }
+                contactEl.textContent = mtSelectedContact;
+                // CSSクラス更新
+                [...contactEl.classList].filter(c => c.startsWith('contact-') && c !== 'contact-badge').forEach(c => contactEl.classList.remove(c));
+                const empContact = employeeContactItems.find(ec => ec.name === mtSelectedContact);
+                if (empContact) contactEl.classList.add(empContact.cssClass);
+            } else if (contactEl) {
+                contactEl.remove();
+            }
+
+            closeMeetingModal();
+        }
+
+        function closeMeetingModal() {
+            document.getElementById('meetingModal').classList.remove('active');
+            closeTimePicker();
+            currentMeetingCell = null;
+        }
+
+        document.getElementById('meetingModal').addEventListener('click', function(e) {
+            if (e.target === this) closeMeetingModal();
+        });
+
+        // ============================================
+        // 作業内容・備考モーダル
+        // ============================================
+        let currentWorkCell = null;
+
+        function openWorkModal(cell, event) {
+            event.stopPropagation();
+            currentWorkCell = cell;
+            const row = cell.closest('tr');
+            const siteCell = row ? row.querySelector('.col-site-info') : null;
+
+            // 区分を取得（バッジの親カテゴリ決定用）
+            const categoryBadge = siteCell ? siteCell.querySelector('.category-badge') : null;
+            const categoryName = categoryBadge ? categoryBadge.textContent.trim() : null;
+
+            // バッジデータ復元
+            smBadgeSnapshot = JSON.parse(JSON.stringify(smBadgeDefinitions));
+            let badgeChildIds = [];
+            let badgeGcMap = {};
+            if (siteCell && siteCell.dataset.badgeData) {
+                try {
+                    const bd = JSON.parse(siteCell.dataset.badgeData);
+                    badgeChildIds = bd.childIds || [];
+                    badgeGcMap = bd.grandchildMap || {};
+                } catch(e) {}
+            }
+            smRenderBadgeSection(categoryName, badgeChildIds, badgeGcMap);
+
+            document.getElementById('workModal').classList.add('active');
+        }
+
+        function saveWorkModal() {
+            pushUndo();
+            if (!currentWorkCell) return;
+            const row = currentWorkCell.closest('tr');
+            const siteCell = row ? row.querySelector('.col-site-info') : null;
+
+            // バッジデータ保存
+            const badgeData = smGetSelectedBadgeData();
+            if (siteCell) {
+                if (badgeData.parentId) siteCell.dataset.badgeData = JSON.stringify(badgeData);
+                else delete siteCell.dataset.badgeData;
+            }
+
+            // col-badge セル更新
+            currentWorkCell.innerHTML = smBuildBadgeDisplayHtml(badgeData);
+
+            // スナップショットクリア（保存成功）
+            smBadgeSnapshot = null;
+
+            document.getElementById('workModal').classList.remove('active');
+            currentWorkCell = null;
+        }
+
+        function closeWorkModal() {
+            // バッジ定義をキャンセル復元
+            if (smBadgeSnapshot) {
+                smBadgeDefinitions.length = 0;
+                smBadgeSnapshot.forEach(b => smBadgeDefinitions.push(b));
+                smBadgeSnapshot = null;
+            }
+            document.getElementById('workModal').classList.remove('active');
+            currentWorkCell = null;
+        }
+
+        document.getElementById('workModal').addEventListener('click', function(e) {
+            if (e.target === this) closeWorkModal();
+        });
+
+        // ============================================
+        // 集合場所・備考モーダル
+        // ============================================
+        let currentNotesCell = null;
+
+        function openNotesModal(cell, event) {
+            event.stopPropagation();
+            currentNotesCell = cell;
+
+            // 備考をセルの .notes-memo から読み取り
+            const memoEl = cell.querySelector('.notes-memo');
+            const memoText = memoEl ? memoEl.textContent.replace(/^備考/, '').trim() : '';
+            document.getElementById('ntNotes').value = memoText;
+
+            document.getElementById('notesModal').classList.add('active');
+        }
+
+        function saveNotesModal() {
+            pushUndo();
+            if (!currentNotesCell) return;
+            const row = currentNotesCell.closest('tr');
+            const siteCell = row ? row.querySelector('.col-site-info') : null;
+
+            const notes = document.getElementById('ntNotes').value.trim();
+            const meetingPlace = siteCell ? (siteCell.dataset.meetingPlace || '') : '';
+
+            // セル表示更新
+            ntRenderNotesCell(currentNotesCell, meetingPlace, notes);
+
+            document.getElementById('notesModal').classList.remove('active');
+            currentNotesCell = null;
+        }
+
+        function ntRenderNotesCell(cell, meetingPlace, notes) {
+            let html = '';
+            if (meetingPlace) {
+                html += `<div class="notes-place"><span class="notes-label">集合</span>${escapeHtml(meetingPlace)}</div>`;
+            }
+            if (notes) {
+                html += `<div class="notes-memo"><span class="notes-label">備考</span>${escapeHtml(notes)}</div>`;
+            }
+            cell.innerHTML = html;
+        }
+
+        function closeNotesModal() {
+            document.getElementById('notesModal').classList.remove('active');
+            currentNotesCell = null;
+        }
+
+        document.getElementById('notesModal').addEventListener('click', function(e) {
+            if (e.target === this) closeNotesModal();
         });
 
         // 個別連絡選択ポップアップ
@@ -2146,11 +2401,12 @@
                 entry.className = 'ob-sub-task-entry';
                 entry.dataset.idx = idx;
                 entry.innerHTML =
-                    `<input type="text" class="ob-sub-label-input" value="${escapeHtml(st.label)}" placeholder="項目名">` +
-                    `<input type="text" class="ob-sub-value-input" value="${escapeHtml(st.value)}" placeholder="内容を入力">` +
+                    `<input type="text" class="ob-sub-label-input" value="${escapeHtml(st.label)}" placeholder="項目名" oninput="smUpdatePlanTaskName()">` +
+                    `<input type="text" class="ob-sub-value-input" value="${escapeHtml(st.value)}" placeholder="内容を入力" oninput="smUpdatePlanTaskName()">` +
                     `<button type="button" class="ob-btn-remove-sub" onclick="smRemoveSubTask(${idx})" title="削除">×</button>`;
                 list.appendChild(entry);
             });
+            smUpdatePlanTaskName();
         }
 
         function smAddSubTask() {
@@ -2165,11 +2421,12 @@
             entry.className = 'ob-sub-task-entry';
             entry.dataset.idx = idx;
             entry.innerHTML =
-                `<input type="text" class="ob-sub-label-input" value="${escapeHtml(defaultLabel)}" placeholder="項目名">` +
-                `<input type="text" class="ob-sub-value-input" value="" placeholder="内容を入力">` +
+                `<input type="text" class="ob-sub-label-input" value="${escapeHtml(defaultLabel)}" placeholder="項目名" oninput="smUpdatePlanTaskName()">` +
+                `<input type="text" class="ob-sub-value-input" value="" placeholder="内容を入力" oninput="smUpdatePlanTaskName()">` +
                 `<button type="button" class="ob-btn-remove-sub" onclick="smRemoveSubTask(${idx})" title="削除">×</button>`;
             list.appendChild(entry);
             entry.querySelector('.ob-sub-value-input').focus();
+            smUpdatePlanTaskName();
         }
 
         function smRemoveSubTask(idx) {
@@ -2181,6 +2438,7 @@
                 entry.dataset.idx = i;
                 entry.querySelector('.ob-btn-remove-sub').setAttribute('onclick', `smRemoveSubTask(${i})`);
             });
+            smUpdatePlanTaskName();
         }
 
         function smCollectSubTasks() {
@@ -2205,6 +2463,7 @@
             smSelectedGrandchildBadges = grandchildMap ? JSON.parse(JSON.stringify(grandchildMap)) : {};
 
             const display = document.getElementById('smBadgeParentDisplay');
+            if (!display) return;
             if (!display) return;
             const parent = smBadgeDefinitions.find(p => p.id === smSelectedParentBadge);
             if (parent) {
@@ -2354,7 +2613,7 @@
                 if (child) child.children.splice(smDeletedBadgeInfo.index, 0, smDeletedBadgeInfo.badge);
             }
             // undo barを非表示
-            document.querySelectorAll('#siteModal .ob-badge-undo-bar').forEach(b => b.style.display = 'none');
+            document.querySelectorAll('#workModal .ob-badge-undo-bar').forEach(b => b.style.display = 'none');
             if (smBadgeUndoTimer) { clearTimeout(smBadgeUndoTimer); smBadgeUndoTimer = null; }
             smDeletedBadgeInfo = null;
             smRenderChildBadges();
