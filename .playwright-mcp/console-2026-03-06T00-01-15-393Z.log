@@ -1,0 +1,4 @@
+[      33ms] TypeError: Cannot read properties of null (reading 'addEventListener')
+    at Combobox.init (http://localhost/order-management-system/docs/mockup/screen-layout-v2-light.js:170:28)
+    at new Combobox (http://localhost/order-management-system/docs/mockup/screen-layout-v2-light.js:162:22)
+    at HTMLDocument.<anonymous> (http://localhost/order-management-system/docs/mockup/screen-layout-v2-light.js:492:31)

@@ -384,6 +384,11 @@ h1 {
 .col-time { width: 60px; }
 .col-count { width: 50px; }
 .col-vehicle { width: 60px; }
+.col-badge {
+    width: 120px;
+    text-align: left !important;
+    vertical-align: middle;
+}
 .col-notes {
     width: 150px;
     text-align: left !important;
@@ -757,6 +762,38 @@ h1 {
 
 .site-info .site-name {
     color: var(--text-secondary);
+}
+
+/* 作業内容・詳細バッジ表示（受注簿セル編集からの反映） */
+.badge-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+}
+.badge-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+.badge-child-tag {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid rgba(68, 166, 181, 0.25);
+}
+.badge-gc-tag {
+    background: rgba(178, 213, 226, 0.25);
+    color: var(--text-tertiary);
+    border: 1px solid rgba(178, 213, 226, 0.4);
+    font-weight: 500;
+}
+.badge-gc-sep {
+    color: var(--text-disabled);
+    font-size: 0.55rem;
+    align-self: center;
 }
 
 /* 時間表示 */

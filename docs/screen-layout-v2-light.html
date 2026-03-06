@@ -79,6 +79,7 @@
                                 <th class="col-time">集合</th>
                                 <th class="col-count">人数</th>
                                 <th>配置（右からドラッグ&ドロップ）</th>
+                                <th class="col-badge">作業内容</th>
                                 <th class="col-notes">備考</th>
                             </tr>
                         </thead>
@@ -125,6 +126,7 @@
                                     <div class="vehicle-transport-box" onclick="openVtModal(this)"></div>
                                     <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
                                 </td>
+                                <td class="col-badge"></td>
                                 <td class="col-notes"></td>
                             </tr>
 
@@ -183,6 +185,11 @@
                                     </div>
                                     <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
                                 </td>
+                                <td class="col-badge">
+                                    <div class="badge-display">
+                                        <span class="badge-tag badge-child-tag">片側交互</span>
+                                    </div>
+                                </td>
                                 <td class="col-notes">雨天中止の場合連絡</td>
                             </tr>
 
@@ -218,6 +225,7 @@
                                     <div class="vehicle-transport-box" onclick="openVtModal(this)"></div>
                                     <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
                                 </td>
+                                <td class="col-badge"></td>
                                 <td class="col-notes">要1名追加</td>
                             </tr>
 
@@ -265,6 +273,14 @@
                                     </div>
                                     <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
                                 </td>
+                                <td class="col-badge">
+                                    <div class="badge-display">
+                                        <span class="badge-tag badge-child-tag">車線規制</span>
+                                        <span class="badge-gc-sep">›</span>
+                                        <span class="badge-tag badge-gc-tag">標識車</span>
+                                        <span class="badge-tag badge-gc-tag">規制材</span>
+                                    </div>
+                                </td>
                                 <td class="col-notes"></td>
                             </tr>
 
@@ -303,6 +319,7 @@
                                     <div class="vehicle-transport-box" onclick="openVtModal(this)"></div>
                                     <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
                                 </td>
+                                <td class="col-badge"></td>
                                 <td class="col-notes">田中さん連続勤務</td>
                             </tr>
 
@@ -350,6 +367,13 @@
                                         </div>
                                     </div>
                                     <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
+                                </td>
+                                <td class="col-badge">
+                                    <div class="badge-display">
+                                        <span class="badge-tag badge-child-tag">車線規制</span>
+                                        <span class="badge-gc-sep">›</span>
+                                        <span class="badge-tag badge-gc-tag">保安灯</span>
+                                    </div>
                                 </td>
                                 <td class="col-notes">渡辺・加藤 相性注意</td>
                             </tr>
