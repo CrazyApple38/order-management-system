@@ -1120,6 +1120,45 @@
             if (e.target === this) closeNotesModal();
         });
 
+        // ============================================
+        // 人数インライン編集
+        // ============================================
+        function startCountEdit(cell, event) {
+            event.stopPropagation();
+            const countDisp = cell.querySelector('.count-display');
+            if (!countDisp || cell.querySelector('.count-inline-input')) return;
+
+            const text = countDisp.textContent.trim();
+            const match = text.match(/(\d+)\/(\d+)/);
+            const assigned = match ? parseInt(match[1]) : 0;
+            const required = match ? parseInt(match[2]) : 1;
+
+            // 表示を 「配置済/」+ input に置き換え
+            countDisp.textContent = assigned + '/';
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.min = '0';
+            input.max = '99';
+            input.value = required;
+            input.className = 'count-inline-input';
+            countDisp.appendChild(input);
+            input.focus();
+            input.select();
+
+            function commitEdit() {
+                const newRequired = parseInt(input.value) || 1;
+                countDisp.textContent = `${assigned}/${newRequired}`;
+                countDisp.classList.remove('count-ok', 'count-shortage');
+                countDisp.classList.add(assigned >= newRequired ? 'count-ok' : 'count-shortage');
+            }
+
+            input.addEventListener('blur', commitEdit);
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+                if (e.key === 'Escape') { input.value = required; input.blur(); }
+            });
+        }
+
         // 個別連絡選択ポップアップ
         let currentEmployeeNameBlock = null;
 
@@ -2660,7 +2699,7 @@
             badgeData.childIds.forEach((childId, ci) => {
                 const child = parent.children.find(c => c.id === childId);
                 if (!child) return;
-                if (ci > 0) html += ' ';
+                if (ci > 0) html += '<span class="badge-group-sep"></span>';
                 html += `<span class="badge-tag badge-child-tag">${escapeHtml(child.name)}</span>`;
                 const gcIds = gcMap[childId];
                 if (gcIds && gcIds.length > 0 && child.children) {

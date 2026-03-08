@@ -38,9 +38,6 @@ Excel VBAで運用していた受注簿・業務管理計画書をWebシステ�
 - `docs/02_既存システム分析.md` — 既存システム分析
 - `docs/03_データベース設計.md` — DB設計書（PostgreSQL / Supabase）
 - `docs/04_差分処理要件定義.md` — 差分処理要件定義
-- Mockup A（業務管理計画書）: `docs/screen-layout-v2-light.html` + `docs/mockup/screen-layout-v2-light.{js,css}`
-- Mockup B（受注簿）: `docs/order-book-light.html` + `docs/mockup/order-book-light.{js,css}`
-- UIコンポーネント集: `docs/ui-components/index-light.html` + `{script-light.js, styles-light.css}`
 
 ## Technical Stack
 
@@ -54,7 +51,6 @@ MCP設定: `docs/mcp-servers.md` を参照
 
 - **Confirmation Rule**: When responding to user requests, confirm step-by-step until understanding exceeds 90%. If there are better approaches or improvements, propose them step-by-step for user confirmation.
 - **Naming Consistency Rule**: 用語・名付けについて、整合性が取れないものや判断が必要なものがある場合、ユーザーにステップバイステップで確認すること。自己判断で用語を統一しない。
-- **No Playwright**: User tests in browser themselves. Playwrightを使ったブラウザ確認は不要。
 
 ## Context Optimization Rules（厳守）
 
@@ -73,13 +69,3 @@ MCP設定: `docs/mcp-servers.md` を参照
 4. **探索エージェントの結果は必要部分だけ抽出**
    - 全文転記しない。行番号・関数名など必要情報のみ参照
    - 直接Read/Grepで確認できるものはエージェントを使わない
-
-## Mockup Conventions
-
-- CSS Grid layout for spreadsheet-like order book
-- Coastal Light color palette (CSS variables in `:root`)
-- Badge system: parent = category (read-only), children = selectable chips, grandchildren = detail items
-- `categoryToBadgeId` maps category names to badge definition IDs
-- Row edit modal uses chip selection (not dropdowns) for 会社/区分/昼夜
-- Category additions auto-sync to badgeDefinitions
-- Code marked with `【モックアップ専用】` or `【検証用】` is demo-only and not needed in production
