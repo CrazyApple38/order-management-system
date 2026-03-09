@@ -789,6 +789,9 @@ h1 {
     font-weight: bold;
     color: var(--text-primary);
 }
+.site-info .time.time-night {
+    color: #D05050;
+}
 
 .site-info .company {
     color: var(--text-tertiary);
@@ -2564,7 +2567,7 @@ h1 {
 /* ==================== 現場詳細入力モーダル（2カラム） ==================== */
 .modal-notes-detail {
     width: 90vw;
-    max-width: 420px;
+    max-width: 500px;
     max-height: 85vh;
     display: flex;
     flex-direction: column;
@@ -2588,7 +2591,7 @@ h1 {
 
 .modal-work-detail {
     width: 90vw;
-    max-width: 520px;
+    max-width: 500px;
     max-height: 85vh;
     display: flex;
     flex-direction: column;
@@ -2612,7 +2615,7 @@ h1 {
 
 .modal-meeting-detail {
     width: 90vw;
-    max-width: 420px;
+    max-width: 500px;
     max-height: 85vh;
     display: flex;
     flex-direction: column;
@@ -2623,7 +2626,7 @@ h1 {
 
 .modal-site-detail {
     width: 90vw;
-    max-width: 700px;
+    max-width: 500px;
     max-height: 85vh;
     display: flex;
     flex-direction: column;
@@ -2939,8 +2942,8 @@ h1 {
 
 /* ── チップ選択フィールド ── */
 .ob-chip-field {
-    display: flex; flex-direction: column; gap: 8px;
-    padding: 10px 14px;
+    display: flex; flex-direction: column; gap: 5px;
+    padding: 6px 10px;
     border: 1px solid var(--divider); border-radius: 6px;
     background: rgba(68,166,181,0.03);
 }
@@ -2948,18 +2951,18 @@ h1 {
     display: flex; align-items: center; justify-content: space-between;
 }
 .ob-chip-field-title {
-    font-size: 12px; font-weight: 600; color: var(--accent);
+    font-size: 11px; font-weight: 600; color: var(--accent);
     letter-spacing: 0.5px;
 }
 .ob-row-chips {
-    display: flex; flex-wrap: wrap; gap: 6px;
+    display: flex; flex-wrap: wrap; gap: 4px;
 }
 .ob-row-chip {
     display: inline-flex; align-items: center;
-    padding: 5px 14px; border-radius: 16px;
+    padding: 2px 10px; border-radius: 12px;
     border: 1px solid var(--divider);
     background: var(--bg-surface); color: var(--text-secondary);
-    font-size: 12px; font-weight: 500;
+    font-size: 11px; font-weight: 500;
     cursor: pointer; transition: all 0.15s;
     user-select: none;
 }

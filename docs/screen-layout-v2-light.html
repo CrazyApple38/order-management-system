@@ -321,7 +321,7 @@
                                             <span class="category-badge category-facility">施設</span>
                                         </div>
                                         <div class="site-details">
-                                            <div class="time">18:00 - 09:00</div>
+                                            <div class="time time-night">18:00 - 09:00</div>
                                             <div class="company">〇〇株式会社</div>
                                             <div class="site-name">〇〇ビル 夜間警備</div>
                                         </div>
@@ -367,7 +367,7 @@
                                             <span class="category-badge category-highway">高速</span>
                                         </div>
                                         <div class="site-details">
-                                            <div class="time">20:00 - 06:00</div>
+                                            <div class="time time-night">20:00 - 06:00</div>
                                             <div class="company">◇◇工業</div>
                                             <div class="site-name">県道〇号 夜間規制</div>
                                         </div>
@@ -598,29 +598,16 @@
                 </div>
                 <div class="modal-site-body">
 
-                    <!-- 契約先 + 現場名 -->
-                    <div class="modal-row">
-                        <div class="modal-section" style="flex:1">
-                            <label>契約先（元請け）</label>
-                            <div class="combobox-container" id="companyCombobox">
-                                <input type="text" class="combobox-input" id="companyInput"
-                                       placeholder="入力して検索、またはリストから選択..."
-                                       autocomplete="off">
-                                <button type="button" class="combobox-clear" id="companyClear">✕</button>
-                                <button type="button" class="combobox-toggle" id="companyToggle">▼</button>
-                                <div class="combobox-dropdown" id="companyDropdown"></div>
-                            </div>
-                        </div>
-                        <div class="modal-section" style="flex:1">
-                            <label>現場名</label>
-                            <div class="combobox-container" id="siteNameCombobox">
-                                <input type="text" class="combobox-input"
-                                       placeholder="契約先を選択してから入力..."
-                                       autocomplete="off" disabled>
-                                <button type="button" class="combobox-clear">✕</button>
-                                <button type="button" class="combobox-toggle">▼</button>
-                                <div class="combobox-dropdown"></div>
-                            </div>
+                    <!-- 契約先 -->
+                    <div class="modal-section">
+                        <label>契約先（元請け）</label>
+                        <div class="combobox-container" id="companyCombobox">
+                            <input type="text" class="combobox-input" id="companyInput"
+                                   placeholder="入力して検索、またはリストから選択..."
+                                   autocomplete="off">
+                            <button type="button" class="combobox-clear" id="companyClear">✕</button>
+                            <button type="button" class="combobox-toggle" id="companyToggle">▼</button>
+                            <div class="combobox-dropdown" id="companyDropdown"></div>
                         </div>
                     </div>
 
@@ -628,6 +615,19 @@
                     <div class="ob-plan-name-row">
                         <div class="ob-plan-name-label">業務管理計画書 業務名</div>
                         <div class="ob-plan-name-value" id="smPlanTaskName">-</div>
+                    </div>
+
+                    <!-- 現場名 -->
+                    <div class="modal-section">
+                        <label>現場名</label>
+                        <div class="combobox-container" id="siteNameCombobox">
+                            <input type="text" class="combobox-input"
+                                   placeholder="契約先を選択してから入力..."
+                                   autocomplete="off" disabled>
+                            <button type="button" class="combobox-clear">✕</button>
+                            <button type="button" class="combobox-toggle">▼</button>
+                            <div class="combobox-dropdown"></div>
+                        </div>
                     </div>
 
                     <!-- 業務詳細（サブタスク） -->
@@ -802,6 +802,10 @@
                     <button class="ob-modal-close" onclick="closeNotesModal()">✕</button>
                 </div>
                 <div class="modal-site-body">
+                    <div class="modal-section">
+                        <label>集合場所</label>
+                        <input type="text" id="ntMeetingPlace" placeholder="集合場所を入力...">
+                    </div>
                     <div class="modal-section">
                         <label>備考</label>
                         <textarea id="ntNotes" rows="3" placeholder="備考を入力..."></textarea>

@@ -587,11 +587,21 @@
                 const companyItem = companiesData.find(c => c.id === companyId);
                 if (companyItem) {
                     companyCombobox.select(companyItem);
-                    if (siteId && sitesData[companyId]) {
-                        const siteItem = sitesData[companyId].find(s => s.id === siteId);
-                        if (siteItem) {
-                            setTimeout(() => siteNameCombobox.select(siteItem), 0);
+                    const sites = sitesData[companyId] || [];
+                    let siteItem = null;
+                    if (siteId) {
+                        siteItem = sites.find(s => s.id === siteId);
+                    }
+                    if (!siteItem) {
+                        // siteIdが無い場合、セルのテキストから前方一致で照合
+                        const siteText = cell.querySelector('.site-name');
+                        if (siteText && siteText.textContent.trim()) {
+                            const cellSiteName = siteText.textContent.trim();
+                            siteItem = sites.find(s => cellSiteName.startsWith(s.name));
                         }
+                    }
+                    if (siteItem) {
+                        setTimeout(() => siteNameCombobox.select(siteItem), 0);
                     }
                 }
             } else {
@@ -599,7 +609,17 @@
                 const companyText = cell.querySelector('.company');
                 if (companyText && companyText.textContent.trim()) {
                     const found = companiesData.find(c => c.name === companyText.textContent.trim());
-                    if (found) companyCombobox.select(found);
+                    if (found) {
+                        companyCombobox.select(found);
+                        const siteText = cell.querySelector('.site-name');
+                        if (siteText && siteText.textContent.trim()) {
+                            const sites = sitesData[found.id] || [];
+                            const siteFound = sites.find(s => s.name === siteText.textContent.trim());
+                            if (siteFound) {
+                                setTimeout(() => siteNameCombobox.select(siteFound), 0);
+                            }
+                        }
+                    }
                 }
             }
 
@@ -752,6 +772,9 @@
                     if (startTime && endTime) timeEl.textContent = `${startTime} - ${endTime}`;
                     else if (startTime) timeEl.textContent = startTime;
                     else timeEl.textContent = '';
+                    // 夜の場合は赤色
+                    if (shift === '夜') timeEl.classList.add('time-night');
+                    else timeEl.classList.remove('time-night');
                 }
 
                 // --- 契約先 ---
@@ -1076,6 +1099,13 @@
             event.stopPropagation();
             currentNotesCell = cell;
 
+            const row = cell.closest('tr');
+            const siteCell = row ? row.querySelector('.col-site-info') : null;
+
+            // 集合場所をセルの dataset から読み取り
+            const meetingPlace = siteCell ? (siteCell.dataset.meetingPlace || '') : '';
+            document.getElementById('ntMeetingPlace').value = meetingPlace;
+
             // 備考をセルの .notes-memo から読み取り
             const memoEl = cell.querySelector('.notes-memo');
             const memoText = memoEl ? memoEl.textContent.replace(/^備考/, '').trim() : '';
@@ -1090,8 +1120,11 @@
             const row = currentNotesCell.closest('tr');
             const siteCell = row ? row.querySelector('.col-site-info') : null;
 
+            const meetingPlace = document.getElementById('ntMeetingPlace').value.trim();
             const notes = document.getElementById('ntNotes').value.trim();
-            const meetingPlace = siteCell ? (siteCell.dataset.meetingPlace || '') : '';
+
+            // 集合場所を dataset に保存（集合モーダルと共有）
+            if (siteCell) siteCell.dataset.meetingPlace = meetingPlace;
 
             // セル表示更新
             ntRenderNotesCell(currentNotesCell, meetingPlace, notes);
