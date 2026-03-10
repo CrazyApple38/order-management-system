@@ -1,0 +1,2 @@
+[     319ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:8888/favicon.ico:0
+[   98388ms] [ERROR] Refused to display 'https://www.google.com/' in a frame because it set 'X-Frame-Options' to 'sameorigin'. @ chrome-error://chromewebdata/:0
