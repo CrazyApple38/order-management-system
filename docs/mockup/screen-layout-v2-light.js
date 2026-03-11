@@ -760,6 +760,19 @@
                 const siteNameDiv = details.querySelector('.site-name');
                 if (siteNameDiv) siteNameDiv.textContent = displayName || '';
 
+                // --- 現場監督バッジ ---
+                let svBadge = details.querySelector('.supervisor-badge');
+                if (supervisor) {
+                    if (!svBadge) {
+                        svBadge = document.createElement('div');
+                        svBadge.className = 'supervisor-badge';
+                        details.appendChild(svBadge);
+                    }
+                    svBadge.textContent = supervisor + (supervisorTel ? ' ' + supervisorTel : '');
+                } else if (svBadge) {
+                    svBadge.remove();
+                }
+
                 // --- data属性保存（コンボボックスID） ---
                 if (company) currentSiteCell.dataset.companyId = company.id;
                 else delete currentSiteCell.dataset.companyId;

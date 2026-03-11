@@ -812,6 +812,21 @@ h1 {
 .site-info .site-name {
     color: var(--text-secondary);
 }
+.supervisor-badge {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid rgba(68, 166, 181, 0.25);
+}
 
 /* 作業内容・詳細バッジ表示（受注簿セル編集からの反映） */
 .badge-display {
