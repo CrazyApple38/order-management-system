@@ -874,9 +874,6 @@
             const row = cell.closest('tr');
             const siteCell = row ? row.querySelector('.col-site-info') : null;
 
-            // 集合場所を data属性から読み取り
-            document.getElementById('mtMeetingPlace').value = siteCell ? (siteCell.dataset.meetingPlace || '') : '';
-
             // セルから現在値を読み取り
             const timeDisp = cell.querySelector('.time-display');
             document.getElementById('mtMeetingTime').value = timeDisp ? timeDisp.textContent.trim() : '';
@@ -935,21 +932,6 @@
             if (!currentMeetingCell) return;
             const row = currentMeetingCell.closest('tr');
             const siteCell = row ? row.querySelector('.col-site-info') : null;
-
-            // 集合場所保存
-            const meetingPlace = document.getElementById('mtMeetingPlace').value.trim();
-            if (siteCell) {
-                if (meetingPlace) siteCell.dataset.meetingPlace = meetingPlace;
-                else delete siteCell.dataset.meetingPlace;
-            }
-
-            // 備考列の集合場所表示を更新
-            const notesCell = row ? row.querySelector('.col-notes') : null;
-            if (notesCell) {
-                const memoEl = notesCell.querySelector('.notes-memo');
-                const memoText = memoEl ? memoEl.textContent.replace(/^備考/, '').trim() : '';
-                ntRenderNotesCell(notesCell, meetingPlace, memoText);
-            }
 
             const meetingTime = document.getElementById('mtMeetingTime').value;
 

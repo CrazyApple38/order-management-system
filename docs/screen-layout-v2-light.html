@@ -636,26 +636,26 @@
                         <div class="ob-plan-name-value" id="smPlanTaskName">-</div>
                     </div>
 
-                    <!-- 現場名 -->
-                    <div class="modal-section">
-                        <label>現場名</label>
-                        <div class="combobox-container" id="siteNameCombobox">
-                            <input type="text" class="combobox-input"
-                                   placeholder="契約先を選択してから入力..."
-                                   autocomplete="off" disabled>
-                            <button type="button" class="combobox-clear">✕</button>
-                            <button type="button" class="combobox-toggle">▼</button>
-                            <div class="combobox-dropdown"></div>
+                    <!-- 現場名 + 業務詳細 グループ -->
+                    <div class="sm-site-group">
+                        <div class="modal-section">
+                            <label>現場名</label>
+                            <div class="combobox-container" id="siteNameCombobox">
+                                <input type="text" class="combobox-input"
+                                       placeholder="契約先を選択してから入力..."
+                                       autocomplete="off" disabled>
+                                <button type="button" class="combobox-clear">✕</button>
+                                <button type="button" class="combobox-toggle">▼</button>
+                                <div class="combobox-dropdown"></div>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- 業務詳細（サブタスク） -->
-                    <div class="ob-sub-task-fields" id="smSubTaskFields">
-                        <div class="ob-sub-task-header">
-                            <span class="ob-sub-task-title">業務詳細</span>
-                            <button type="button" class="ob-btn-add-sub" onclick="smAddSubTask()">+ 追加</button>
+                        <div class="ob-sub-task-fields" id="smSubTaskFields">
+                            <div class="ob-sub-task-header">
+                                <span class="ob-sub-task-title">業務詳細</span>
+                                <button type="button" class="ob-btn-add-sub" onclick="smAddSubTask()">+ 追加</button>
+                            </div>
+                            <div id="smSubTaskList"></div>
                         </div>
-                        <div id="smSubTaskList"></div>
                     </div>
 
                     <hr class="modal-site-divider">
@@ -741,10 +741,6 @@
                             <button type="button" class="ob-btn-add-chip" onclick="mtAddContact()">+ 追加</button>
                         </div>
                         <div class="ob-row-chips" id="mtContactChips"></div>
-                    </div>
-                    <div class="modal-section">
-                        <label>集合場所</label>
-                        <input type="text" id="mtMeetingPlace" placeholder="集合場所を入力...">
                     </div>
                 </div>
                 <div class="modal-site-footer">
@@ -850,29 +846,34 @@
             </div>
         </div>
 
-        <!-- 作業時間編集モーダル -->
+        <!-- 時間モーダル -->
         <div class="modal-overlay" id="workTimeModal">
-            <div class="modal-content" style="min-width: 320px; max-width: 380px;">
-                <h3>作業時間</h3>
-                <div class="modal-row">
-                    <div class="modal-section" style="flex:1">
-                        <label>開始時間</label>
-                        <div class="ob-time-picker-wrap" onclick="openTimePicker('wtStartTime', this)">
-                            <input type="text" id="wtStartTime" class="ob-time-input" readonly placeholder="--:--">
-                            <span class="ob-time-picker-icon">🕐</span>
-                        </div>
-                    </div>
-                    <div class="modal-section" style="flex:1">
-                        <label>終了時間</label>
-                        <div class="ob-time-picker-wrap" onclick="openTimePicker('wtEndTime', this)">
-                            <input type="text" id="wtEndTime" class="ob-time-input" readonly placeholder="--:--">
-                            <span class="ob-time-picker-icon">🕐</span>
-                        </div>
-                    </div>
+            <div class="modal-content modal-work-time-detail">
+                <div class="modal-site-header">
+                    <h3>時間</h3>
+                    <button class="ob-modal-close" onclick="closeWorkTimeModal()">✕</button>
                 </div>
-                <div class="modal-buttons">
-                    <button class="btn-cancel" onclick="closeWorkTimeModal()">キャンセル</button>
-                    <button class="btn-save" onclick="saveWorkTimeModal()">保存</button>
+                <div class="modal-site-body">
+                    <div class="modal-row">
+                        <div class="modal-section" style="flex:1">
+                            <label>開始時間</label>
+                            <div class="ob-time-picker-wrap" onclick="openTimePicker('wtStartTime', this)">
+                                <input type="text" id="wtStartTime" class="ob-time-input" readonly placeholder="--:--">
+                                <span class="ob-time-picker-icon">🕐</span>
+                            </div>
+                        </div>
+                        <div class="modal-section" style="flex:1">
+                            <label>終了時間</label>
+                            <div class="ob-time-picker-wrap" onclick="openTimePicker('wtEndTime', this)">
+                                <input type="text" id="wtEndTime" class="ob-time-input" readonly placeholder="--:--">
+                                <span class="ob-time-picker-icon">🕐</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-buttons">
+                        <button class="btn-cancel" onclick="closeWorkTimeModal()">キャンセル</button>
+                        <button class="btn-save" onclick="saveWorkTimeModal()">保存</button>
+                    </div>
                 </div>
             </div>
         </div>

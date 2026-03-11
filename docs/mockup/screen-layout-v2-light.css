@@ -2600,15 +2600,24 @@ h1 {
     box-sizing: border-box;
 }
 
-.modal-work-detail {
-    width: 90vw;
-    max-width: 500px;
+.modal-work-detail,
+.modal-meeting-detail,
+.modal-work-time-detail {
     max-height: 85vh;
     display: flex;
     flex-direction: column;
     padding: 0;
     border-radius: 10px;
     overflow: hidden;
+}
+.modal-work-detail {
+    width: 400px;
+    max-width: 400px;
+}
+.modal-meeting-detail,
+.modal-work-time-detail {
+    width: 300px;
+    max-width: 300px;
 }
 
 .modal-work-detail textarea {
@@ -2622,17 +2631,6 @@ h1 {
     background: var(--bg-surface);
     color: var(--text-primary);
     box-sizing: border-box;
-}
-
-.modal-meeting-detail {
-    width: 90vw;
-    max-width: 500px;
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    border-radius: 10px;
-    overflow: hidden;
 }
 
 .modal-site-detail {
@@ -2917,6 +2915,20 @@ h1 {
     cursor: pointer; padding: 2px 6px; border-radius: 4px;
 }
 .ob-modal-close:hover { background: var(--accent-dim); color: var(--accent); }
+
+/* 現場名 + 業務詳細グループ */
+.sm-site-group {
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    background: var(--bg-surface-2);
+    padding: 12px;
+}
+.sm-site-group .modal-section {
+    margin-bottom: 8px;
+}
+.sm-site-group .ob-sub-task-fields {
+    margin-top: 0;
+}
 
 /* セクション区切り */
 .modal-site-divider {
