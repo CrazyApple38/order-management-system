@@ -22,10 +22,10 @@
     --secondary: #B2D5E2;
     --divider: #B2D5E2;
 
-    /* グループ会社ボーダー */
-    --gc-color-touo: #3B8BC5;
-    --gc-color-nikkei: #D05050;
-    --gc-color-zennihon: #2E8B57;
+    /* グループ会社背景色 */
+    --gc-bg-touo: #FFFFFF;
+    --gc-bg-nikkei: #F3F9F6;
+    --gc-bg-zennihon: #F2F4F8;
     /* 区分カラー（背景: 半透明） */
     --cat-bg-facility: rgba(56, 161, 105, 0.12);
     --cat-bg-event: rgba(221, 107, 32, 0.12);
@@ -760,28 +760,35 @@ h1 {
 .shift-day { background: var(--shift-bg-day); color: var(--shift-text-day); }
 .shift-night { background: var(--shift-bg-night); color: var(--shift-text-night); }
 
-/* グループ会社: 左ボーダーライン */
-.gc-border-touo {
-    border-left: 4px solid var(--gc-color-touo) !important;
+/* グループ会社: 行背景色 */
+.gc-row-touo,
+.gc-row-touo td,
+.gc-row-touo .assignment-zone {
+    background: var(--gc-bg-touo) !important;
 }
-.gc-border-nikkei {
-    border-left: 4px solid var(--gc-color-nikkei) !important;
+.gc-row-nikkei,
+.gc-row-nikkei td,
+.gc-row-nikkei .assignment-zone {
+    background: var(--gc-bg-nikkei) !important;
 }
-.gc-border-zennihon {
-    border-left: 4px solid var(--gc-color-zennihon) !important;
+.gc-row-zennihon,
+.gc-row-zennihon td,
+.gc-row-zennihon .assignment-zone {
+    background: var(--gc-bg-zennihon) !important;
 }
 
 /* 凡例グループ会社カラー表示 */
-.gc-legend-color {
+.gc-legend-swatch {
     display: inline-block;
-    width: 4px;
-    height: 18px;
+    width: 16px;
+    height: 12px;
     border-radius: 2px;
+    border: 1px solid #ddd;
     margin-right: 4px;
 }
-.gc-legend-color-touo { background: var(--gc-color-touo); }
-.gc-legend-color-nikkei { background: var(--gc-color-nikkei); }
-.gc-legend-color-zennihon { background: var(--gc-color-zennihon); }
+.gc-legend-swatch-touo { background: var(--gc-bg-touo); }
+.gc-legend-swatch-nikkei { background: var(--gc-bg-nikkei); }
+.gc-legend-swatch-zennihon { background: var(--gc-bg-zennihon); }
 
 /* ホバー時にグループ会社名をツールチップ表示 */
 .col-site-info[data-group-company] {
@@ -909,6 +916,46 @@ h1 {
 .count-ok { color: #276749; }
 .count-shortage { color: #E53E3E; background: rgba(229, 62, 62, 0.08); }
 
+.count-shortage-badge {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.6rem;
+    font-weight: bold;
+    color: #E53E3E;
+    border: 1px solid #E53E3E;
+    border-radius: 3px;
+    padding: 0 3px;
+    line-height: 1.4;
+}
+
+.row-night .count-shortage-badge {
+    color: #D05050;
+    border-color: #D05050;
+}
+
+.count-excess { color: #718096; background: rgba(113, 128, 150, 0.08); }
+
+.count-excess-badge {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.6rem;
+    font-weight: bold;
+    color: #718096;
+    border: 1px solid #718096;
+    border-radius: 3px;
+    padding: 0 3px;
+    line-height: 1.4;
+}
+
+.row-night .count-excess {
+    color: #718096;
+}
+
+.row-night .count-excess-badge {
+    color: #718096;
+    border-color: #718096;
+}
+
 /* 人数インライン編集 */
 .count-inline-input {
     width: 32px;
@@ -952,16 +999,46 @@ h1 {
 
 /* 夜勤行のスタイル */
 .row-night {
-    background: rgba(43, 108, 176, 0.04) !important;
+    background: #fff !important;
 }
 
 .row-night td {
-    background: rgba(43, 108, 176, 0.04);
+    background: #fff;
 }
 
 .row-night .assignment-zone {
-    background: rgba(43, 108, 176, 0.03);
+    background: #fff;
 }
+
+.row-night .company,
+.row-night .site-name {
+    color: #D05050;
+}
+
+.row-night .time-display {
+    color: #D05050;
+}
+
+.row-night .count-display {
+    color: #D05050;
+}
+
+.row-night .employee-name-block > span:first-child {
+    color: #D05050;
+}
+
+.row-night .supervisor-badge {
+    background: rgba(208, 80, 80, 0.1);
+    color: #D05050;
+    border-color: rgba(208, 80, 80, 0.25);
+}
+
+.row-night > td > .contact-badge {
+    background: rgba(208, 80, 80, 0.1);
+    color: #D05050;
+}
+
+
 
 /* インジケーター */
 .indicator {

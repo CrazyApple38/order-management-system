@@ -1,8 +1,9 @@
         // グループ会社データ
+        // 【本番】DBのグループ会社マスターから動的に取得。背景色はユーザー設定テーブルから読み込み
         const groupCompaniesData = [
-            { id: 1, code: 'touo', name: '東央警備', borderClass: 'gc-border-touo' },
-            { id: 2, code: 'nikkei', name: 'Nikkeiホールディングス', borderClass: 'gc-border-nikkei' },
-            { id: 3, code: 'zennihon', name: '全日本エンタープライズ', borderClass: 'gc-border-zennihon' }
+            { id: 1, code: 'touo', name: '東央警備', rowClass: 'gc-row-touo' },
+            { id: 2, code: 'nikkei', name: 'Nikkeiホールディングス', rowClass: 'gc-row-nikkei' },
+            { id: 3, code: 'zennihon', name: '全日本エンタープライズ', rowClass: 'gc-row-zennihon' }
         ];
 
         // サンプルデータ（契約先/元請け先）
@@ -701,14 +702,15 @@
                 const badges = siteInfo.querySelector('.site-badges');
                 const details = siteInfo.querySelector('.site-details');
 
-                // --- 会社ボーダー ---
-                groupCompaniesData.forEach(g => currentSiteCell.classList.remove(g.borderClass));
+                // --- 会社背景色 ---
+                const currentRow = currentSiteCell.closest('tr');
+                groupCompaniesData.forEach(g => currentRow.classList.remove(g.rowClass));
                 currentSiteCell.removeAttribute('data-group-company');
                 currentSiteCell.removeAttribute('data-gc-name');
                 if (branch) {
                     const gc = groupCompaniesData.find(g => g.name === branch);
                     if (gc) {
-                        currentSiteCell.classList.add(gc.borderClass);
+                        currentRow.classList.add(gc.rowClass);
                         currentSiteCell.setAttribute('data-group-company', gc.code);
                         currentSiteCell.setAttribute('data-gc-name', gc.name);
                     }
@@ -836,8 +838,18 @@
                             const assigned = match ? parseInt(match[1]) : 0;
                             const required = parseInt(requiredCount) || 1;
                             countDisp.textContent = `${assigned}/${required}`;
-                            countDisp.classList.remove('count-ok', 'count-shortage');
-                            countDisp.classList.add(assigned >= required ? 'count-ok' : 'count-shortage');
+                            countDisp.classList.remove('count-ok', 'count-shortage', 'count-excess');
+                            const isShort = assigned < required;
+                            const isExc = assigned > required;
+                            countDisp.classList.add(isShort ? 'count-shortage' : isExc ? 'count-excess' : 'count-ok');
+                            let sBadge = countCell.querySelector('.count-shortage-badge');
+                            if (isShort) {
+                                if (!sBadge) { sBadge = document.createElement('span'); sBadge.className = 'count-shortage-badge'; sBadge.textContent = '不足'; countCell.appendChild(sBadge); }
+                            } else if (sBadge) { sBadge.remove(); }
+                            let eBadge = countCell.querySelector('.count-excess-badge');
+                            if (isExc) {
+                                if (!eBadge) { eBadge = document.createElement('span'); eBadge.className = 'count-excess-badge'; eBadge.textContent = '過多'; countCell.appendChild(eBadge); }
+                            } else if (eBadge) { eBadge.remove(); }
                         }
                     }
 
@@ -1151,8 +1163,18 @@
             function commitEdit() {
                 const newRequired = parseInt(input.value) || 1;
                 countDisp.textContent = `${assigned}/${newRequired}`;
-                countDisp.classList.remove('count-ok', 'count-shortage');
-                countDisp.classList.add(assigned >= newRequired ? 'count-ok' : 'count-shortage');
+                countDisp.classList.remove('count-ok', 'count-shortage', 'count-excess');
+                const isShortage = assigned < newRequired;
+                const isExcess = assigned > newRequired;
+                countDisp.classList.add(isShortage ? 'count-shortage' : isExcess ? 'count-excess' : 'count-ok');
+                let sBadge = cell.querySelector('.count-shortage-badge');
+                if (isShortage) {
+                    if (!sBadge) { sBadge = document.createElement('span'); sBadge.className = 'count-shortage-badge'; sBadge.textContent = '不足'; cell.appendChild(sBadge); }
+                } else if (sBadge) { sBadge.remove(); }
+                let eBadge = cell.querySelector('.count-excess-badge');
+                if (isExcess) {
+                    if (!eBadge) { eBadge = document.createElement('span'); eBadge.className = 'count-excess-badge'; eBadge.textContent = '過多'; cell.appendChild(eBadge); }
+                } else if (eBadge) { eBadge.remove(); }
             }
 
             input.addEventListener('blur', commitEdit);
@@ -1608,12 +1630,40 @@
             });
         }
 
+        function updateRowCount(zone) {
+            const row = zone.closest('tr');
+            if (!row) return;
+            const countCell = row.cells[4];
+            if (!countCell) return;
+            const countDisp = countCell.querySelector('.count-display');
+            if (!countDisp) return;
+            const assigned = zone.querySelectorAll('.assigned-employee').length;
+            const text = countDisp.textContent.trim();
+            const match = text.match(/\d+\/(\d+)/);
+            const required = match ? parseInt(match[1]) : 1;
+            countDisp.textContent = `${assigned}/${required}`;
+            countDisp.classList.remove('count-ok', 'count-shortage', 'count-excess');
+            const isShortage = assigned < required;
+            const isExcess = assigned > required;
+            countDisp.classList.add(isShortage ? 'count-shortage' : isExcess ? 'count-excess' : 'count-ok');
+            let sBadge = countCell.querySelector('.count-shortage-badge');
+            if (isShortage) {
+                if (!sBadge) { sBadge = document.createElement('span'); sBadge.className = 'count-shortage-badge'; sBadge.textContent = '不足'; countCell.appendChild(sBadge); }
+            } else if (sBadge) { sBadge.remove(); }
+            let eBadge = countCell.querySelector('.count-excess-badge');
+            if (isExcess) {
+                if (!eBadge) { eBadge = document.createElement('span'); eBadge.className = 'count-excess-badge'; eBadge.textContent = '過多'; countCell.appendChild(eBadge); }
+            } else if (eBadge) { eBadge.remove(); }
+        }
+
         function removeEmployee(btn, event) {
             event.stopPropagation();
             pushUndo();
             const employeeTag = btn.closest('.assigned-employee');
             if (employeeTag) {
+                const zone = employeeTag.closest('.assignment-zone');
                 employeeTag.remove();
+                if (zone) updateRowCount(zone);
                 updateEmployeeListStatus();
             }
         }
@@ -1644,6 +1694,7 @@
                 + '</span>'
                 + '<span class="remove-btn" onclick="removeEmployee(this, event)">×</span>';
             ev.target.appendChild(newTag);
+            updateRowCount(ev.target);
             updateEmployeeListStatus();
         }
 
@@ -1699,6 +1750,11 @@
         }
 
         // ===== ソート設定モーダル =====
+        const DEFAULT_SORT_ORDER = {
+            category: ['施設', 'イベント', '交通', '高速'],
+            shift: ['昼', '夜']
+        };
+
         const sortState = {
             category: [], shift: [], contractor: [], site: [],
             categoryContractorOrders: {},
@@ -1749,8 +1805,15 @@
 
         function openSortModal() {
             const gridData = extractGridData();
-            sortState.category = getUniqueValues(gridData, 'category');
-            sortState.shift = getUniqueValues(gridData, 'shift');
+            // デフォルト順序を適用（グリッドに存在する値のみ）
+            const gridCategories = getUniqueValues(gridData, 'category');
+            sortState.category = DEFAULT_SORT_ORDER.category.filter(c => gridCategories.includes(c));
+            gridCategories.forEach(c => { if (!sortState.category.includes(c)) sortState.category.push(c); });
+
+            const gridShifts = getUniqueValues(gridData, 'shift');
+            sortState.shift = DEFAULT_SORT_ORDER.shift.filter(s => gridShifts.includes(s));
+            gridShifts.forEach(s => { if (!sortState.shift.includes(s)) sortState.shift.push(s); });
+
             sortState.contractor = getUniqueValues(gridData, 'contractor');
             sortState.site = getUniqueValues(gridData, 'site');
 
@@ -1904,8 +1967,15 @@
 
         function resetSortSettings() {
             const gridData = extractGridData();
-            sortState.category = getUniqueValues(gridData, 'category');
-            sortState.shift = getUniqueValues(gridData, 'shift');
+            // デフォルト順序を適用（グリッドに存在する値のみ）
+            const gridCategories = getUniqueValues(gridData, 'category');
+            sortState.category = DEFAULT_SORT_ORDER.category.filter(c => gridCategories.includes(c));
+            gridCategories.forEach(c => { if (!sortState.category.includes(c)) sortState.category.push(c); });
+
+            const gridShifts = getUniqueValues(gridData, 'shift');
+            sortState.shift = DEFAULT_SORT_ORDER.shift.filter(s => gridShifts.includes(s));
+            gridShifts.forEach(s => { if (!sortState.shift.includes(s)) sortState.shift.push(s); });
+
             sortState.contractor = getUniqueValues(gridData, 'contractor');
             sortState.site = getUniqueValues(gridData, 'site');
 
@@ -2102,8 +2172,9 @@
         // ==================== カラー設定パネル ====================
         // ライトテーマ用カラー（Coastal）デフォルト
         const COLOR_DEFAULTS = {
-            '--gc-color-touo': '#3B8BC5',
-            '--gc-color-nikkei': '#D05050',
+            '--gc-bg-touo': '#FFFFFF',
+            '--gc-bg-nikkei': '#F3F9F6',
+            '--gc-bg-zennihon': '#F2F4F8',
             '--cat-bg-facility': 'rgba(56, 161, 105, 0.12)',
             '--cat-bg-event': 'rgba(221, 107, 32, 0.12)',
             '--cat-bg-traffic': 'rgba(49, 130, 206, 0.12)',
@@ -2879,7 +2950,8 @@
             if (currentSiteCell) {
                 const siteNameDiv = currentSiteCell.querySelector('.site-name');
                 if (siteNameDiv) siteNameDiv.textContent = '';
-                groupCompaniesData.forEach(g => currentSiteCell.classList.remove(g.borderClass));
+                const delRow = currentSiteCell.closest('tr');
+                groupCompaniesData.forEach(g => delRow.classList.remove(g.rowClass));
                 currentSiteCell.removeAttribute('data-group-company');
                 currentSiteCell.removeAttribute('data-gc-name');
             }
