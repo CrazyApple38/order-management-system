@@ -1381,7 +1381,7 @@
         let vtItems = [];
         let vtDragIndex = null;
 
-        const vehicleList = ['標識A', '標識B', '2t車', '軽トラ', 'ワゴン'];
+        const vehicleList = ['さ 3078', 'く 7521', 'た 4163', 'わ 2490', 'め 8345', 'は 1627', 'わ 5814', 'ゆ 6932', 'わ 9056'];
 
         function openVtModal(box) {
             currentVtBox = box;
