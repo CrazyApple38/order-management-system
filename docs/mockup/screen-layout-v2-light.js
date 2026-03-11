@@ -567,18 +567,6 @@
             smRenderChips('smCategoryChips', smGetCategoryList(), categoryName, 'category');
             smRenderChips('smShiftChips', shiftList, shiftName, 'shift');
 
-            // === 時間パース ===
-            const timeEl = cell.querySelector('.time');
-            const timeText = timeEl ? timeEl.textContent.trim() : '';
-            let startTime = '', endTime = '';
-            if (timeText.includes(' - ')) {
-                const parts = timeText.split(' - ');
-                startTime = parts[0].trim();
-                endTime = parts[1].trim();
-            }
-            document.getElementById('smStartTime').value = startTime;
-            document.getElementById('smEndTime').value = endTime;
-
             // === コンボボックス復元 ===
             clearAllSubItems();
             const companyId = cell.dataset.companyId ? parseInt(cell.dataset.companyId) : null;
@@ -675,9 +663,7 @@
             const category = smChipSelected.category;
             const shift = smChipSelected.shift;
 
-            // 時間・数値
-            const startTime = document.getElementById('smStartTime').value;
-            const endTime = document.getElementById('smEndTime').value;
+            // 数値
             const meetingTimeEl = document.getElementById('smMeetingTime');
             const meetingTime = meetingTimeEl ? meetingTimeEl.value : '';
             const meetingPlaceEl = document.getElementById('smMeetingPlace');
@@ -709,7 +695,7 @@
                 if (!siteInfo) {
                     siteInfo = document.createElement('div');
                     siteInfo.className = 'site-info';
-                    siteInfo.innerHTML = '<div class="site-badges"></div><div class="site-details"><div class="time"></div><div class="company"></div><div class="site-name"></div></div>';
+                    siteInfo.innerHTML = '<div class="site-badges"></div><div class="site-details"><div class="company"></div><div class="site-name"></div></div>';
                     currentSiteCell.insertBefore(siteInfo, currentSiteCell.firstChild);
                 }
                 const badges = siteInfo.querySelector('.site-badges');
@@ -766,17 +752,6 @@
                     catEl.remove();
                 }
 
-                // --- 時間 ---
-                const timeEl = details.querySelector('.time');
-                if (timeEl) {
-                    if (startTime && endTime) timeEl.textContent = `${startTime} - ${endTime}`;
-                    else if (startTime) timeEl.textContent = startTime;
-                    else timeEl.textContent = '';
-                    // 夜の場合は赤色
-                    if (shift === '夜') timeEl.classList.add('time-night');
-                    else timeEl.classList.remove('time-night');
-                }
-
                 // --- 契約先 ---
                 const companyEl = details.querySelector('.company');
                 if (companyEl) companyEl.textContent = company ? company.name : '';
@@ -807,8 +782,8 @@
                 if (row) {
                     const cells = row.querySelectorAll('td');
 
-                    // 集合時間・連絡 (index 4)
-                    const meetingCell = cells[4];
+                    // 集合時間・連絡 (index 2)
+                    const meetingCell = cells[2];
                     if (meetingCell) {
                         let timeDisp = meetingCell.querySelector('.time-display');
                         let contactEl = meetingCell.querySelector('.contact-badge');
@@ -838,8 +813,8 @@
                         }
                     }
 
-                    // 必要人数 (index 5)
-                    const countCell = cells[5];
+                    // 必要人数 (index 4)
+                    const countCell = cells[4];
                     if (countCell) {
                         let countDisp = countCell.querySelector('.count-display');
                         if (countDisp) {
@@ -869,7 +844,7 @@
             smBadgeSnapshot = null;
 
             console.log('保存データ:', {
-                branch, category, shift, startTime, endTime, meetingTime, meetingPlace,
+                branch, category, shift, meetingTime, meetingPlace,
                 requiredCount, supervisor, supervisorTel,
                 contact: contact ? contact.name : null,
                 company: company ? company.name : null,
@@ -2914,4 +2889,53 @@
                 currentSiteCell.removeAttribute('data-gc-name');
             }
             closeSiteModal();
+        }
+
+        // ============================================
+        // 作業時間モーダル
+        // ============================================
+        let currentWorkTimeCell = null;
+
+        function openWorkTimeModal(cell, event) {
+            event.stopPropagation();
+            currentWorkTimeCell = cell;
+            const startTime = cell.dataset.startTime || '';
+            const endTime = cell.dataset.endTime || '';
+            document.getElementById('wtStartTime').value = startTime;
+            document.getElementById('wtEndTime').value = endTime;
+            document.getElementById('workTimeModal').classList.add('active');
+        }
+
+        function closeWorkTimeModal() {
+            document.getElementById('workTimeModal').classList.remove('active');
+            closeTimePicker();
+            currentWorkTimeCell = null;
+        }
+
+        document.getElementById('workTimeModal').addEventListener('click', function(e) {
+            if (e.target === this) closeWorkTimeModal();
+        });
+
+        function saveWorkTimeModal() {
+            if (!currentWorkTimeCell) return;
+            pushUndo();
+            const startTime = document.getElementById('wtStartTime').value;
+            const endTime = document.getElementById('wtEndTime').value;
+            currentWorkTimeCell.dataset.startTime = startTime;
+            currentWorkTimeCell.dataset.endTime = endTime;
+            let startEl = currentWorkTimeCell.querySelector('.work-time-start');
+            let endEl = currentWorkTimeCell.querySelector('.work-time-end');
+            if (!startEl) {
+                startEl = document.createElement('span');
+                startEl.className = 'work-time-start';
+                currentWorkTimeCell.appendChild(startEl);
+            }
+            if (!endEl) {
+                endEl = document.createElement('span');
+                endEl.className = 'work-time-end';
+                currentWorkTimeCell.appendChild(endEl);
+            }
+            startEl.textContent = startTime || '';
+            endEl.textContent = endTime || '';
+            closeWorkTimeModal();
         }

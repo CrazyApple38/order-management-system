@@ -385,6 +385,25 @@ h1 {
 }
 
 .col-time { width: 60px; }
+.col-work-time {
+    width: 60px;
+    text-align: center !important;
+    vertical-align: middle;
+}
+.work-time-start, .work-time-end {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+.work-time-end {
+    color: var(--text-secondary);
+}
+.row-night .work-time-start,
+.row-night .work-time-end {
+    color: #D05050;
+}
 .col-count { width: 50px; }
 .col-vehicle { width: 60px; }
 .col-badge {
@@ -783,14 +802,6 @@ h1 {
     z-index: 10;
     box-shadow: 0 2px 6px rgba(0,69,84,0.2);
     border: 1px solid rgba(0,69,84,0.3);
-}
-
-.site-info .time {
-    font-weight: bold;
-    color: var(--text-primary);
-}
-.site-info .time.time-night {
-    color: #D05050;
 }
 
 .site-info .company {
