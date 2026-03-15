@@ -1989,24 +1989,25 @@ h1 {
 /* ===== 差分処理モーダル ===== */
 .diff-modal {
     background: var(--bg-surface);
-    border-radius: 12px;
-    box-shadow: 0 10px 60px rgba(0,69,84,0.15);
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0,69,84,0.15);
     width: 90vw;
-    max-width: 1000px;
+    max-width: 850px;
     max-height: 85vh;
     display: flex;
     flex-direction: column;
     border: 1px solid var(--divider);
+    overflow: hidden;
 }
 
 .diff-modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 18px 24px;
+    padding: 14px 24px;
     border-bottom: 1px solid var(--divider);
     background: var(--bg-surface-2);
-    border-radius: 12px 12px 0 0;
+    flex-shrink: 0;
 }
 
 .diff-modal-header h3 {
@@ -2037,10 +2038,10 @@ h1 {
 .diff-modal-close {
     background: none;
     border: none;
-    font-size: 1.3rem;
+    font-size: 18px;
     cursor: pointer;
     color: var(--text-tertiary);
-    padding: 4px 8px;
+    padding: 2px 6px;
     border-radius: 4px;
 }
 
@@ -2071,11 +2072,11 @@ h1 {
 
 .diff-summary-item:hover { background: rgba(0,69,84,0.03); }
 .diff-summary-item:last-child { border-right: none; }
-.diff-summary-item.s-match { color: #276749; border-bottom: 3px solid #38A169; }
-.diff-summary-item.s-diff { color: #2B6CB0; border-bottom: 3px solid #3182CE; }
-.diff-summary-item.s-new { color: #975A16; border-bottom: 3px solid #D69E2E; }
-.diff-summary-item.s-dbonly { color: #E53E3E; border-bottom: 3px solid #E53E3E; }
-.diff-summary-item .s-count { font-size: 1.3rem; display: block; font-weight: 700; }
+.diff-summary-item.s-match { color: var(--text-primary); border-bottom: 3px solid var(--accent); }
+.diff-summary-item.s-diff { color: var(--text-primary); border-bottom: 3px solid var(--accent); }
+.diff-summary-item.s-new { color: var(--text-primary); border-bottom: 3px solid var(--text-tertiary); }
+.diff-summary-item.s-dbonly { color: var(--text-primary); border-bottom: 3px solid var(--text-tertiary); }
+.diff-summary-item .s-count { font-size: 1.3rem; display: block; font-weight: 700; color: var(--text-primary); }
 
 /* メインボディ（サイドバー＋詳細） */
 .diff-modal-body {
@@ -2088,7 +2089,7 @@ h1 {
 /* 左サイドバー */
 .diff-sidebar {
     width: 240px;
-    border-right: 2px solid var(--divider);
+    border-right: 1px solid var(--divider);
     overflow-y: auto;
     background: var(--bg-surface-2);
     flex-shrink: 0;
@@ -2244,34 +2245,24 @@ h1 {
     background: var(--accent-dim);
 }
 
-.diff-row {
+/* セクション（括り） */
+.diff-section {
     border: 1px solid var(--divider);
     border-radius: 8px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     overflow: hidden;
-    border-left: 4px solid var(--divider);
+    position: relative;
+    padding: 12px;
 }
 
-.diff-row.type-fuzzy   { border-left-color: #D69E2E; }
-.diff-row.type-value    { border-left-color: #3182CE; }
-.diff-row.type-new      { border-left-color: #38A169; }
-.diff-row.type-dbonly   { border-left-color: #E53E3E; }
-
-.diff-row-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.diff-type-badge {
-    font-size: 0.75rem;
+.diff-section-badge {
+    font-size: 0.7rem;
     font-weight: bold;
-    padding: 3px 10px;
+    padding: 2px 8px;
     border-radius: 4px;
     white-space: nowrap;
+    display: inline-block;
+    margin-bottom: 8px;
 }
 
 .diff-type-fuzzy   { background: rgba(214, 158, 46, 0.12); color: #975A16; }
@@ -2279,50 +2270,142 @@ h1 {
 .diff-type-new      { background: rgba(56, 161, 105, 0.12); color: #276749; }
 .diff-type-dbonly   { background: rgba(229, 62, 62, 0.1); color: #E53E3E; }
 
-.diff-row.type-fuzzy .diff-row-header   { background: rgba(214, 158, 46, 0.04); }
-.diff-row.type-value .diff-row-header    { background: rgba(49, 130, 206, 0.04); }
-.diff-row.type-new .diff-row-header      { background: rgba(56, 161, 105, 0.04); }
-.diff-row.type-dbonly .diff-row-header    { background: rgba(229, 62, 62, 0.04); }
+/* フィールド行 */
+.diff-field-item {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr auto;
+    align-items: center;
+    padding: 8px 0;
+    border-top: 1px solid rgba(178, 213, 226, 0.4);
+}
 
-.diff-row-site {
+.diff-field-item:first-of-type {
+    border-top: none;
+}
+
+.diff-field-label {
+    font-size: 0.8rem;
+    font-weight: 600;
     color: var(--text-secondary);
-    font-weight: 500;
+}
+
+.diff-field-values {
+    display: contents;
+}
+
+.diff-field-values .diff-radio-label {
+    justify-self: center;
+}
+
+.diff-field-text {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.diff-field-header {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr auto;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--divider);
+    margin-bottom: 2px;
+}
+
+.diff-field-col-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-align: center;
+}
+
+.diff-field-col-action {
+    width: auto;
+    min-width: 36px;
 }
 
 /* あいまい一致: 表記選択 */
 .diff-fuzzy-select {
-    padding: 10px 14px;
-    background: rgba(214, 158, 46, 0.04);
-    border-bottom: 1px solid var(--divider);
+    padding: 10px 0;
+    background: transparent;
+    border-bottom: 1px solid rgba(178, 213, 226, 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.diff-fuzzy-select:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.diff-fuzzy-message {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+}
+
+.diff-fuzzy-choices {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
+    justify-content: center;
+}
+
+.diff-fuzzy-choice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+}
+
+.diff-fuzzy-source {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    font-weight: 600;
 }
 
 .diff-fuzzy-select label {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 0;
     cursor: pointer;
-    padding: 4px 10px;
-    border-radius: 4px;
-    border: 1px solid var(--divider);
     transition: all 0.15s;
-    color: var(--text-primary);
 }
 
-.diff-fuzzy-select label:has(input:checked) {
-    background: rgba(214, 158, 46, 0.1);
-    border-color: #D69E2E;
+.diff-fuzzy-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--divider);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    background: var(--bg-surface);
+    transition: all 0.15s;
+}
+
+.diff-fuzzy-badge:hover {
+    border-color: var(--text-tertiary);
+    background: rgba(0,69,84,0.03);
+}
+
+.diff-fuzzy-select label:has(input:checked) .diff-fuzzy-badge {
+    background: var(--accent-dim);
+    border-color: var(--accent);
     font-weight: 600;
 }
 
+.diff-fuzzy-select label input[type="radio"] {
+    display: none;
+}
+
 .diff-fuzzy-select .fuzzy-equal {
-    color: #975A16;
-    font-weight: bold;
+    color: var(--text-disabled);
     font-size: 1.1rem;
+    flex-shrink: 0;
 }
 
 /* 項目比較テーブル */
@@ -2346,15 +2429,13 @@ h1 {
 }
 
 .diff-items-table th.col-excel {
-    background: rgba(56, 161, 105, 0.06);
-    color: #276749;
-    border-bottom-color: #38A169;
+    background: var(--bg-surface-2);
+    color: var(--text-secondary);
 }
 
 .diff-items-table th.col-db {
-    background: rgba(49, 130, 206, 0.06);
-    color: #2B6CB0;
-    border-bottom-color: #3182CE;
+    background: var(--bg-surface-2);
+    color: var(--text-secondary);
 }
 
 .diff-items-table th.col-action {
@@ -2370,11 +2451,11 @@ h1 {
 }
 
 .diff-items-table td.col-excel {
-    background: rgba(56, 161, 105, 0.02);
+    background: transparent;
 }
 
 .diff-items-table td.col-db {
-    background: rgba(49, 130, 206, 0.02);
+    background: transparent;
 }
 
 .diff-items-table tr:last-child td {
@@ -2389,44 +2470,37 @@ h1 {
 .diff-radio-label {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 0;
     cursor: pointer;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 6px;
     transition: all 0.15s;
-    border: 1px solid transparent;
+    border: 1px solid var(--divider);
     color: var(--text-primary);
 }
 
 .diff-radio-label:hover {
     background: rgba(0,69,84,0.03);
-    border-color: var(--divider);
+    border-color: var(--text-tertiary);
 }
 
-.col-excel .diff-radio-label:has(input:checked) {
-    background: rgba(56, 161, 105, 0.1);
-    border-color: rgba(56, 161, 105, 0.3);
+.diff-radio-label:has(input:checked) {
+    background: var(--accent-dim);
+    border-color: var(--accent);
     font-weight: 600;
-    color: #276749;
+    color: var(--text-primary);
 }
 
-.col-db .diff-radio-label:has(input:checked) {
-    background: rgba(49, 130, 206, 0.1);
-    border-color: rgba(49, 130, 206, 0.3);
-    font-weight: 600;
-    color: #2B6CB0;
-}
-
-.diff-radio-label input[type="radio"] {
-    accent-color: var(--accent);
-    width: 16px;
-    height: 16px;
+.diff-radio-label input[type="radio"],
+.diff-fuzzy-select label input[type="radio"] {
+    display: none;
 }
 
 .diff-match-text {
     color: var(--text-disabled);
     font-style: italic;
     font-size: 0.8rem;
+    grid-column: 2 / -1;
 }
 
 .diff-edit-btn {
@@ -2437,6 +2511,8 @@ h1 {
     cursor: pointer;
     font-size: 0.75rem;
     color: var(--accent);
+    white-space: nowrap;
+    justify-self: end;
 }
 
 .diff-edit-btn:hover {
@@ -2446,12 +2522,13 @@ h1 {
 
 /* 新規行 / DBのみ行の操作 */
 .diff-row-action {
-    padding: 10px 14px;
+    padding: 8px 0;
     display: flex;
     align-items: center;
     gap: 12px;
     font-size: 0.85rem;
     color: var(--text-secondary);
+    border-bottom: 1px solid rgba(178, 213, 226, 0.4);
 }
 
 .diff-row-action label {
@@ -2478,11 +2555,11 @@ h1 {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 14px;
-    background: rgba(214, 158, 46, 0.04);
-    border-bottom: 1px solid var(--divider);
+    padding: 8px 0;
+    background: transparent;
+    border-bottom: 1px solid rgba(178, 213, 226, 0.4);
     font-size: 0.85rem;
-    color: #975A16;
+    color: var(--text-secondary);
 }
 
 .diff-new-site-icon {
@@ -2522,10 +2599,10 @@ h1 {
 .diff-modal-footer {
     display: flex;
     gap: 10px;
-    padding: 16px 24px;
-    border-top: 2px solid var(--divider);
+    padding: 14px 24px;
+    border-top: 1px solid var(--divider);
     background: var(--bg-surface-2);
-    border-radius: 0 0 12px 12px;
+    flex-shrink: 0;
 }
 
 .diff-modal-footer .diff-bulk-left {
@@ -2552,10 +2629,10 @@ h1 {
 .diff-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,69,84,0.1); }
 .diff-btn-ghost { background: var(--bg-surface); color: var(--text-secondary); }
 .diff-btn-ghost:hover { background: var(--bg-surface-2); }
-.diff-btn-ghost-excel { background: rgba(56, 161, 105, 0.06); color: #276749; border-color: rgba(56, 161, 105, 0.3); }
-.diff-btn-ghost-excel:hover { background: rgba(56, 161, 105, 0.12); }
-.diff-btn-ghost-db { background: rgba(49, 130, 206, 0.06); color: #2B6CB0; border-color: rgba(49, 130, 206, 0.3); }
-.diff-btn-ghost-db:hover { background: rgba(49, 130, 206, 0.12); }
+.diff-btn-ghost-excel { background: var(--bg-surface); color: var(--text-secondary); border-color: var(--divider); }
+.diff-btn-ghost-excel:hover { background: var(--bg-surface-2); }
+.diff-btn-ghost-db { background: var(--bg-surface); color: var(--text-secondary); border-color: var(--divider); }
+.diff-btn-ghost-db:hover { background: var(--bg-surface-2); }
 .diff-btn-cancel { background: var(--bg-surface); color: var(--text-secondary); border-color: var(--divider); }
 .diff-btn-apply { background: var(--accent); color: white; border-color: var(--accent); }
 .diff-btn-apply:hover { background: var(--accent-light); }

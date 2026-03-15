@@ -2017,12 +2017,12 @@
             const title = document.getElementById('diffModalTitle');
 
             if (direction === 'import') {
-                title.textContent = '差分確認 - 受注簿データ取得（受注簿 → システム）';
+                title.textContent = '差分確認 - 受注簿データ取得（受注簿 → 業務管理計画書）';
                 document.getElementById('diffNewLabel').textContent = '受注簿のみ';
                 document.getElementById('diffNewBadge').textContent = '受注簿のみ';
                 document.getElementById('diffNewSidebarBadge').textContent = '受注簿のみ';
             } else {
-                title.textContent = '差分確認 - 受注簿へ転記（システム → 受注簿）';
+                title.textContent = '差分確認 - 受注簿へ転記（業務管理計画書 → 受注簿）';
                 document.getElementById('diffNewLabel').textContent = 'システムのみ(新規)';
                 document.getElementById('diffNewBadge').textContent = 'システムのみ(新規)';
                 document.getElementById('diffNewSidebarBadge').textContent = 'システムのみ';
