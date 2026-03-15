@@ -529,11 +529,21 @@
             }
 
             // カラー設定パネル: カラーピッカー変更時にCSS変数を即時更新
-            document.querySelectorAll('.color-setting-picker').forEach(picker => {
+            // グループ会社（従来の直接CSS変数ピッカー）
+            document.querySelectorAll('.color-setting-picker:not(.color-base-picker)').forEach(picker => {
                 picker.addEventListener('input', function() {
                     const cssVar = this.dataset.cssVar;
                     document.documentElement.style.setProperty(cssVar, this.value);
                     const hexLabel = document.querySelector('.color-setting-hex[data-css-var="' + cssVar + '"]');
+                    if (hexLabel) hexLabel.textContent = this.value;
+                });
+            });
+            // ベース色ピッカー（区分・シフト: 背景・文字を自動生成）
+            document.querySelectorAll('.color-base-picker').forEach(picker => {
+                picker.addEventListener('input', function() {
+                    const baseKey = this.dataset.baseKey;
+                    applyBaseColor(baseKey, this.value);
+                    const hexLabel = document.querySelector('.color-setting-hex[data-base-key="' + baseKey + '"]');
                     if (hexLabel) hexLabel.textContent = this.value;
                 });
             });
@@ -2170,23 +2180,88 @@
         }
 
         // ==================== カラー設定パネル ====================
-        // ライトテーマ用カラー（Coastal）デフォルト
-        const COLOR_DEFAULTS = {
+
+        // --- ベース色 → 背景(rgba 12%) / 文字(暗色) 自動生成ユーティリティ ---
+        function hexToRgb(hex) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return { r, g, b };
+        }
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            if (max === min) { h = s = 0; }
+            else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+                else if (max === g) h = ((b - r) / d + 2) / 6;
+                else h = ((r - g) / d + 4) / 6;
+            }
+            return { h, s, l };
+        }
+        function hslToHex(h, s, l) {
+            function hue2rgb(p, q, t) {
+                if (t < 0) t += 1; if (t > 1) t -= 1;
+                if (t < 1/6) return p + (q - p) * 6 * t;
+                if (t < 1/2) return q;
+                if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                return p;
+            }
+            let r, g, b;
+            if (s === 0) { r = g = b = l; }
+            else {
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            const toHex = v => { const h = Math.round(v * 255).toString(16); return h.length === 1 ? '0' + h : h; };
+            return '#' + toHex(r) + toHex(g) + toHex(b);
+        }
+        /** ベース色HEXから背景rgbaと文字HEXを生成 */
+        function deriveColors(baseHex) {
+            const { r, g, b } = hexToRgb(baseHex);
+            const bg = 'rgba(' + r + ', ' + g + ', ' + b + ', 0.12)';
+            const { h, s } = rgbToHsl(r, g, b);
+            const textHex = hslToHex(h, Math.min(s * 1.1, 1), 0.22);
+            return { bg, text: textHex };
+        }
+        /** ベース色キーからCSS変数名を解決 */
+        function baseKeyToCssVars(baseKey) {
+            if (baseKey.startsWith('cat-')) {
+                return { bg: '--cat-bg-' + baseKey.slice(4), text: '--cat-text-' + baseKey.slice(4) };
+            }
+            // shift-day, shift-night
+            return { bg: '--shift-bg-' + baseKey.slice(6), text: '--shift-text-' + baseKey.slice(6) };
+        }
+        /** ベース色を適用（背景・文字のCSS変数を自動設定） */
+        function applyBaseColor(baseKey, baseHex) {
+            const vars = baseKeyToCssVars(baseKey);
+            const { bg, text } = deriveColors(baseHex);
+            document.documentElement.style.setProperty(vars.bg, bg);
+            document.documentElement.style.setProperty(vars.text, text);
+        }
+
+        // --- ベース色のデフォルト値（全区分: 緑統一） ---
+        const BASE_COLOR_DEFAULTS = {
             '--gc-bg-touo': '#FFFFFF',
             '--gc-bg-nikkei': '#F3F9F6',
             '--gc-bg-zennihon': '#F2F4F8',
-            '--cat-bg-facility': 'rgba(56, 161, 105, 0.12)',
-            '--cat-bg-event': 'rgba(221, 107, 32, 0.12)',
-            '--cat-bg-traffic': 'rgba(49, 130, 206, 0.12)',
-            '--cat-bg-highway': 'rgba(128, 90, 213, 0.12)',
-            '--cat-text-facility': '#276749',
-            '--cat-text-event': '#9C4221',
-            '--cat-text-traffic': '#2B6CB0',
-            '--cat-text-highway': '#6B46C1',
-            '--shift-bg-day': 'rgba(214, 158, 46, 0.12)',
-            '--shift-text-day': '#975A16',
-            '--shift-bg-night': 'rgba(43, 108, 176, 0.12)',
-            '--shift-text-night': '#2C5282'
+            'cat-facility': '#38A169',
+            'cat-event': '#38A169',
+            'cat-traffic': '#38A169',
+            'cat-highway': '#38A169',
+            'cat-support-event': '#38A169',
+            'cat-support-traffic': '#38A169',
+            'cat-support-highway': '#38A169',
+            'cat-training': '#38A169',
+            'cat-company': '#38A169',
+            'shift-day': '#D69E2E',
+            'shift-night': '#2B6CB0'
         };
         const MAX_PRESETS = 5;
         const STORAGE_KEY = 'colorPresets_v2_light';
@@ -2198,24 +2273,39 @@
 
         function getCurrentColors() {
             const colors = {};
-            document.querySelectorAll('.color-setting-picker').forEach(picker => {
+            // グループ会社（従来の直接CSS変数ピッカー）
+            document.querySelectorAll('.color-setting-picker:not(.color-base-picker)').forEach(picker => {
                 colors[picker.dataset.cssVar] = picker.value;
+            });
+            // ベース色ピッカー（ベースキーで保存）
+            document.querySelectorAll('.color-base-picker').forEach(picker => {
+                colors[picker.dataset.baseKey] = picker.value;
             });
             return colors;
         }
 
         function applyColors(colors) {
-            Object.entries(colors).forEach(([cssVar, value]) => {
-                document.documentElement.style.setProperty(cssVar, value);
-                const picker = document.querySelector('.color-setting-picker[data-css-var="' + cssVar + '"]');
-                if (picker) picker.value = value;
-                const hex = document.querySelector('.color-setting-hex[data-css-var="' + cssVar + '"]');
-                if (hex) hex.textContent = value;
+            Object.entries(colors).forEach(([key, value]) => {
+                if (key.startsWith('--')) {
+                    // 従来のCSS変数（グループ会社背景色）
+                    document.documentElement.style.setProperty(key, value);
+                    const picker = document.querySelector('.color-setting-picker[data-css-var="' + key + '"]');
+                    if (picker) picker.value = value;
+                    const hex = document.querySelector('.color-setting-hex[data-css-var="' + key + '"]');
+                    if (hex) hex.textContent = value;
+                } else {
+                    // ベース色キー → 背景・文字を自動生成
+                    applyBaseColor(key, value);
+                    const picker = document.querySelector('.color-base-picker[data-base-key="' + key + '"]');
+                    if (picker) picker.value = value;
+                    const hex = document.querySelector('.color-setting-hex[data-base-key="' + key + '"]');
+                    if (hex) hex.textContent = value;
+                }
             });
         }
 
         function resetColorsToDefault() {
-            applyColors(COLOR_DEFAULTS);
+            applyColors(BASE_COLOR_DEFAULTS);
             document.getElementById('colorPresetSelect').value = 'default';
             localStorage.setItem(ACTIVE_PRESET_KEY, 'default');
         }

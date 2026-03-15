@@ -28,14 +28,14 @@
     --gc-bg-zennihon: #F2F4F8;
     /* 区分カラー（背景: 半透明） */
     --cat-bg-facility: rgba(56, 161, 105, 0.12);
-    --cat-bg-event: rgba(221, 107, 32, 0.12);
-    --cat-bg-traffic: rgba(49, 130, 206, 0.12);
-    --cat-bg-highway: rgba(128, 90, 213, 0.12);
+    --cat-bg-event: rgba(56, 161, 105, 0.12);
+    --cat-bg-traffic: rgba(56, 161, 105, 0.12);
+    --cat-bg-highway: rgba(56, 161, 105, 0.12);
     /* 区分カラー（文字: 濃いめ） */
     --cat-text-facility: #276749;
-    --cat-text-event: #9C4221;
-    --cat-text-traffic: #2B6CB0;
-    --cat-text-highway: #6B46C1;
+    --cat-text-event: #276749;
+    --cat-text-traffic: #276749;
+    --cat-text-highway: #276749;
     /* シフト区分 */
     --shift-bg-day: rgba(214, 158, 46, 0.12);
     --shift-text-day: #975A16;
@@ -794,11 +794,11 @@ h1 {
 .category-event { background: var(--cat-bg-event); color: var(--cat-text-event); }
 .category-traffic { background: var(--cat-bg-traffic); color: var(--cat-text-traffic); }
 .category-highway { background: var(--cat-bg-highway); color: var(--cat-text-highway); }
-.category-support-event { background: rgba(221, 107, 32, 0.08); color: #C05621; }
-.category-support-traffic { background: rgba(49, 130, 206, 0.08); color: #2B6CB0; }
-.category-support-highway { background: rgba(128, 90, 213, 0.08); color: #805AD5; }
-.category-training { background: rgba(213, 63, 140, 0.08); color: #B83280; }
-.category-company { background: rgba(68, 166, 181, 0.08); color: var(--accent); }
+.category-support-event { background: rgba(56, 161, 105, 0.12); color: #276749; }
+.category-support-traffic { background: rgba(56, 161, 105, 0.12); color: #276749; }
+.category-support-highway { background: rgba(56, 161, 105, 0.12); color: #276749; }
+.category-training { background: rgba(56, 161, 105, 0.12); color: #276749; }
+.category-company { background: rgba(56, 161, 105, 0.12); color: #276749; }
 
 .shift-day { background: var(--shift-bg-day); color: var(--shift-text-day); }
 .shift-night { background: var(--shift-bg-night); color: var(--shift-text-night); }

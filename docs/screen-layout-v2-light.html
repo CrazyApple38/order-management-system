@@ -567,88 +567,70 @@
 
             <hr class="color-settings-divider">
 
-            <!-- 区分カラー -->
+            <!-- 区分カラー（ベース色から背景・文字を自動生成） -->
             <div class="color-settings-section">
-                <label class="color-settings-label">区分カラー（背景）</label>
+                <label class="color-settings-label">区分カラー</label>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker" data-css-var="--cat-bg-facility" value="#38A169">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-facility" value="#38A169">
                     <span class="color-setting-name">施設警備</span>
-                    <span class="color-setting-hex" data-css-var="--cat-bg-facility">rgba(...)</span>
+                    <span class="color-setting-hex" data-base-key="cat-facility">#38A169</span>
                 </div>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker" data-css-var="--cat-bg-event" value="#DD6B20">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-event" value="#38A169">
                     <span class="color-setting-name">イベント</span>
-                    <span class="color-setting-hex" data-css-var="--cat-bg-event">rgba(...)</span>
+                    <span class="color-setting-hex" data-base-key="cat-event">#38A169</span>
                 </div>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker" data-css-var="--cat-bg-traffic" value="#3182CE">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-traffic" value="#38A169">
                     <span class="color-setting-name">交通誘導</span>
-                    <span class="color-setting-hex" data-css-var="--cat-bg-traffic">rgba(...)</span>
+                    <span class="color-setting-hex" data-base-key="cat-traffic">#38A169</span>
                 </div>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker" data-css-var="--cat-bg-highway" value="#805AD5">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-highway" value="#38A169">
                     <span class="color-setting-name">高速道路</span>
-                    <span class="color-setting-hex" data-css-var="--cat-bg-highway">rgba(...)</span>
+                    <span class="color-setting-hex" data-base-key="cat-highway">#38A169</span>
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-support-event" value="#38A169">
+                    <span class="color-setting-name">応援イベント</span>
+                    <span class="color-setting-hex" data-base-key="cat-support-event">#38A169</span>
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-support-traffic" value="#38A169">
+                    <span class="color-setting-name">応援交通</span>
+                    <span class="color-setting-hex" data-base-key="cat-support-traffic">#38A169</span>
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-support-highway" value="#38A169">
+                    <span class="color-setting-name">応援高速</span>
+                    <span class="color-setting-hex" data-base-key="cat-support-highway">#38A169</span>
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-training" value="#38A169">
+                    <span class="color-setting-name">研修</span>
+                    <span class="color-setting-hex" data-base-key="cat-training">#38A169</span>
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-company" value="#38A169">
+                    <span class="color-setting-name">社内</span>
+                    <span class="color-setting-hex" data-base-key="cat-company">#38A169</span>
                 </div>
             </div>
 
             <hr class="color-settings-divider">
 
-            <!-- 区分カラー（文字） -->
+            <!-- シフト区分（ベース色から自動生成） -->
             <div class="color-settings-section">
-                <label class="color-settings-label">区分カラー（文字）</label>
+                <label class="color-settings-label">シフト区分</label>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker" data-css-var="--cat-text-facility" value="#276749">
-                    <span class="color-setting-name">施設警備</span>
-                    <span class="color-setting-hex" data-css-var="--cat-text-facility">#276749</span>
-                </div>
-                <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker" data-css-var="--cat-text-event" value="#9C4221">
-                    <span class="color-setting-name">イベント</span>
-                    <span class="color-setting-hex" data-css-var="--cat-text-event">#9C4221</span>
-                </div>
-                <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker" data-css-var="--cat-text-traffic" value="#2B6CB0">
-                    <span class="color-setting-name">交通誘導</span>
-                    <span class="color-setting-hex" data-css-var="--cat-text-traffic">#2B6CB0</span>
-                </div>
-                <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker" data-css-var="--cat-text-highway" value="#6B46C1">
-                    <span class="color-setting-name">高速道路</span>
-                    <span class="color-setting-hex" data-css-var="--cat-text-highway">#6B46C1</span>
-                </div>
-            </div>
-
-            <hr class="color-settings-divider">
-
-            <!-- シフト区分 -->
-            <div class="color-settings-section">
-                <label class="color-settings-label">シフト区分（背景）</label>
-                <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker" data-css-var="--shift-bg-day" value="#D69E2E">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="shift-day" value="#D69E2E">
                     <span class="color-setting-name">昼勤務</span>
-                    <span class="color-setting-hex" data-css-var="--shift-bg-day">rgba(...)</span>
+                    <span class="color-setting-hex" data-base-key="shift-day">#D69E2E</span>
                 </div>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker" data-css-var="--shift-bg-night" value="#2B6CB0">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="shift-night" value="#2B6CB0">
                     <span class="color-setting-name">夜勤務</span>
-                    <span class="color-setting-hex" data-css-var="--shift-bg-night">rgba(...)</span>
-                </div>
-            </div>
-
-            <hr class="color-settings-divider">
-
-            <div class="color-settings-section">
-                <label class="color-settings-label">シフト区分（文字）</label>
-                <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker" data-css-var="--shift-text-day" value="#975A16">
-                    <span class="color-setting-name">昼勤務</span>
-                    <span class="color-setting-hex" data-css-var="--shift-text-day">#975A16</span>
-                </div>
-                <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker" data-css-var="--shift-text-night" value="#2C5282">
-                    <span class="color-setting-name">夜勤務</span>
-                    <span class="color-setting-hex" data-css-var="--shift-text-night">#2C5282</span>
+                    <span class="color-setting-hex" data-base-key="shift-night">#2B6CB0</span>
                 </div>
             </div>
 

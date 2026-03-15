@@ -604,14 +604,14 @@
             --gc-color-nikkei: #fca5a5;
             /* 区分カラー（背景） */
             --cat-bg-facility: #c6f6d5;
-            --cat-bg-event: #feebc8;
-            --cat-bg-traffic: #bee3f8;
-            --cat-bg-highway: #e9d8fd;
+            --cat-bg-event: #c6f6d5;
+            --cat-bg-traffic: #c6f6d5;
+            --cat-bg-highway: #c6f6d5;
             /* 区分カラー（文字） */
             --cat-text-facility: #276749;
-            --cat-text-event: #c05621;
-            --cat-text-traffic: #2b6cb0;
-            --cat-text-highway: #6b46c1;
+            --cat-text-event: #276749;
+            --cat-text-traffic: #276749;
+            --cat-text-highway: #276749;
             /* シフト区分 */
             --shift-bg-day: #fefcbf;
             --shift-text-day: #744210;
@@ -623,11 +623,11 @@
         .category-event { background: var(--cat-bg-event); color: var(--cat-text-event); }
         .category-traffic { background: var(--cat-bg-traffic); color: var(--cat-text-traffic); }
         .category-highway { background: var(--cat-bg-highway); color: var(--cat-text-highway); }
-        .category-support-event { background: #fed7aa; color: #9c4221; }
-        .category-support-traffic { background: #90cdf4; color: #2c5282; }
-        .category-support-highway { background: #d6bcfa; color: #553c9a; }
-        .category-training { background: #fbb6ce; color: #97266d; }
-        .category-company { background: #e2e8f0; color: #4a5568; }
+        .category-support-event { background: #c6f6d5; color: #276749; }
+        .category-support-traffic { background: #c6f6d5; color: #276749; }
+        .category-support-highway { background: #c6f6d5; color: #276749; }
+        .category-training { background: #c6f6d5; color: #276749; }
+        .category-company { background: #c6f6d5; color: #276749; }
 
         .shift-day { background: var(--shift-bg-day); color: var(--shift-text-day); }
         .shift-night { background: var(--shift-bg-night); color: var(--shift-text-night); }
