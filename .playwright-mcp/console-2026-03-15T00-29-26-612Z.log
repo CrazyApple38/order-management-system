@@ -1,0 +1,2 @@
+[   11736ms] ReferenceError: updateGcFilter is not defined
+    at HTMLInputElement.onchange (http://127.0.0.1:5500/docs/screen-layout-v2-light.html:504:107)
