@@ -32,12 +32,10 @@
                             <button>📅</button>
                         </div>
                         <div class="company-filter">
-                            <label>グループ会社:</label>
-                            <select>
-                                <option selected>全て</option>
-                                <option>東央警備</option>
-                                <option>Nikkeiホールディングス</option>
-                            </select>
+                            <button class="gc-filter-btn" onclick="openGcFilterModal()">
+                                <span id="gcFilterLabel">東央警備 + Nikkei</span>
+                                <span class="gc-filter-arrow">▼</span>
+                            </button>
                         </div>
                     </div>
                     <div class="header-right">
@@ -478,6 +476,49 @@
                     <span class="employee-tag" draggable="true" ondragstart="drag(event)">阿部</span>
                     <span class="employee-tag" draggable="true" ondragstart="drag(event)">石川</span>
                     <span class="employee-tag" draggable="true" ondragstart="drag(event)">前田</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- グループ会社フィルタモーダル -->
+        <!-- グループ会社フィルタモーダル -->
+        <div class="modal-overlay" id="gcFilterModal" onclick="if(event.target===this)closeGcFilterModal()">
+            <div class="modal-content modal-meeting-detail">
+                <div class="modal-site-header">
+                    <h3>表示グループ会社</h3>
+                    <button class="ob-modal-close" onclick="closeGcFilterModal()">✕</button>
+                </div>
+                <div class="modal-site-body">
+                    <div class="ob-chip-field">
+                        <div class="ob-chip-field-header">
+                            <span class="ob-chip-field-title">表示する会社</span>
+                        </div>
+                        <p style="font-size:0.75rem; color:var(--text-tertiary); margin:0 0 8px;">チェックを入れた会社の現場が表示されます</p>
+                        <div class="gcf-checkboxes">
+                            <label class="gcf-checkbox-item">
+                                <input type="checkbox" value="touo" checked>
+                                <span class="gcf-swatch" style="background:var(--gc-bg-touo); border:1px solid #ddd;"></span>
+                                東央警備
+                            </label>
+                            <label class="gcf-checkbox-item">
+                                <input type="checkbox" value="nikkei" checked>
+                                <span class="gcf-swatch" style="background:var(--gc-bg-nikkei); border:1px solid #ddd;"></span>
+                                Nikkeiホールディングス
+                            </label>
+                            <label class="gcf-checkbox-item">
+                                <input type="checkbox" value="zennihon">
+                                <span class="gcf-swatch" style="background:var(--gc-bg-zennihon); border:1px solid #ddd;"></span>
+                                全日本エンタープライズ
+                            </label>
+                        </div>
+                    </div>
+                    <!-- 【本番】デフォルト設定はログインユーザーの所属グループ会社から自動判定 -->
+                </div>
+                <div class="modal-site-footer">
+                    <div class="modal-site-footer-right">
+                        <button class="ob-btn ob-btn-secondary" onclick="closeGcFilterModal()">キャンセル</button>
+                        <button class="ob-btn ob-btn-primary" onclick="applyGcFilter()">適用</button>
+                    </div>
                 </div>
             </div>
         </div>

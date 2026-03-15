@@ -3006,3 +3006,55 @@
             endEl.textContent = endTime || '';
             closeWorkTimeModal();
         }
+
+        // ============================================
+        // グループ会社フィルタ
+        // ============================================
+        // 【本番】デフォルトはログインユーザーの所属から自動判定
+        //   東央警備・Nikkei所属 → ['touo','nikkei']
+        //   全日本エンタープライズ所属 → ['zennihon']
+        const gcFilterState = { selected: ['touo', 'nikkei'] };
+
+        function openGcFilterModal() {
+            const modal = document.getElementById('gcFilterModal');
+            modal.querySelectorAll('.gcf-checkbox-item input').forEach(cb => {
+                cb.checked = gcFilterState.selected.includes(cb.value);
+            });
+            modal.classList.add('active');
+        }
+
+        function closeGcFilterModal() {
+            document.getElementById('gcFilterModal').classList.remove('active');
+        }
+
+        function applyGcFilter() {
+            const modal = document.getElementById('gcFilterModal');
+            const checked = Array.from(modal.querySelectorAll('.gcf-checkbox-item input:checked')).map(cb => cb.value);
+            if (checked.length === 0) {
+                alert('少なくとも1つのグループ会社を選択してください。');
+                return;
+            }
+            gcFilterState.selected = checked;
+
+            // ラベル更新
+            const allCodes = groupCompaniesData.map(g => g.code);
+            const isAll = allCodes.length === checked.length && allCodes.every(c => checked.includes(c));
+            document.getElementById('gcFilterLabel').textContent = isAll
+                ? 'すべて'
+                : checked.map(c => {
+                    const gc = groupCompaniesData.find(g => g.code === c);
+                    return gc ? gc.name.replace('ホールディングス', '').replace('エンタープライズ', '') : c;
+                }).join(' + ');
+
+            // 行の表示/非表示
+            const tbody = document.querySelector('.grid-table tbody');
+            if (tbody) {
+                tbody.querySelectorAll('tr').forEach(row => {
+                    const gc = groupCompaniesData.find(g => row.classList.contains(g.rowClass));
+                    if (gc) {
+                        row.style.display = checked.includes(gc.code) ? '' : 'none';
+                    }
+                });
+            }
+            closeGcFilterModal();
+        }
