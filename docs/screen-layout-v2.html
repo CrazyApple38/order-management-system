@@ -41,6 +41,10 @@
                         </div>
                     </div>
                     <div class="header-right">
+                        <button class="cn-notify-btn" id="cnNotifyBtn" onclick="openChangeNotifyModal()" title="変更通知">
+                            🔔
+                            <span class="cn-badge" id="cnBadge" style="display:none;">0</span>
+                        </button>
                         <a href="screen-layout-v2-light.html" class="theme-toggle-btn">
                             <span class="theme-toggle-label">Light Mode</span>
                         </a>
@@ -63,6 +67,8 @@
                     <button>🔍 フィルタ</button>
                     <div class="toolbar-separator"></div>
                     <button onclick="toggleColorSettingsPanel()">🎨 カラー設定</button>
+                    <div class="toolbar-separator"></div>
+                    <button id="cnDemoBtn" onclick="toggleChangeNotifyDemo()">▶ デモ開始</button>
                 </div>
 
                 <!-- グリッドテーブル -->
@@ -530,6 +536,12 @@
             <div class="modal-content modal-site-detail">
                 <div class="modal-site-header">
                     <h3>現場詳細入力</h3>
+                    <!-- コンフリクト警告バナー -->
+                    <div class="cn-conflict-banner" id="cnConflictBanner" style="display:none;">
+                        <span class="cn-conflict-icon">⚠</span>
+                        <span class="cn-conflict-text" id="cnConflictText">他のユーザーがこの現場を変更しました。最新のデータに更新されます。</span>
+                        <button class="cn-conflict-close" onclick="hideConflictBanner()">✕</button>
+                    </div>
                 </div>
                 <div class="modal-site-body">
                     <!-- 左カラム: 基本情報 -->
@@ -1284,6 +1296,41 @@
                     <strong>右クリック</strong>
                     <span>コンテキストメニュー（編集、削除、コピー等）</span>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- トースト通知コンテナ -->
+    <div id="cnToastContainer"></div>
+
+    <!-- 変更通知モーダル -->
+    <div class="modal-overlay" id="changeNotifyModal">
+        <div class="cn-modal">
+            <div class="cn-header">
+                <div class="cn-header-left">
+                    <h3>変更通知</h3>
+                    <span class="cn-header-date" id="cnHeaderDate">2026年1月27日</span>
+                </div>
+                <button class="cn-close" onclick="closeChangeNotifyModal()">✕</button>
+            </div>
+            <div class="cn-tabs">
+                <button class="cn-tab active" data-tab="latest" onclick="switchCnTab('latest')">最新の変更</button>
+                <button class="cn-tab" data-tab="history" onclick="switchCnTab('history')">変更履歴</button>
+            </div>
+            <div class="cn-body">
+                <div class="cn-tab-content active" id="cnTabLatest">
+                    <div class="cn-card-list" id="cnCardList">
+                        <div class="cn-empty">変更通知はありません</div>
+                    </div>
+                </div>
+                <div class="cn-tab-content" id="cnTabHistory">
+                    <div class="cn-timeline" id="cnTimeline">
+                        <div class="cn-empty">変更履歴はありません</div>
+                    </div>
+                </div>
+            </div>
+            <div class="cn-footer">
+                <button class="cn-footer-btn" onclick="closeChangeNotifyModal()">閉じる</button>
             </div>
         </div>
     </div>

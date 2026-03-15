@@ -2378,6 +2378,253 @@
             resetColorsToDefault();
         }
 
+        // ==================== 変更通知システム ====================
+
+        const cnState = {
+            notifications: [],
+            history: [],
+            unreadCount: 0,
+            activeTab: 'latest'
+        };
+
+        function cnTimeNow() {
+            const d = new Date();
+            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+        }
+
+        function updateNotifyBadge() {
+            const badge = document.getElementById('cnBadge');
+            if (cnState.unreadCount > 0) {
+                badge.textContent = cnState.unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function showChangeToast(notification) {
+            const container = document.getElementById('cnToastContainer');
+            const toast = document.createElement('div');
+            const typeClass = 'cn-toast-' + notification.type;
+            const icons = { add: '🟢', modify: '🟡', delete: '🔴' };
+            const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
+
+            toast.className = 'cn-toast ' + typeClass;
+            toast.innerHTML =
+                '<span class="cn-toast-icon">' + icons[notification.type] + '</span>' +
+                '<div class="cn-toast-body">' +
+                    '<div class="cn-toast-title">' + typeLabels[notification.type] + ' — ' + notification.user + '</div>' +
+                    '<div class="cn-toast-desc">' + escapeHtml(notification.siteName) + '</div>' +
+                '</div>' +
+                '<span class="cn-toast-time">' + notification.time + '</span>';
+
+            toast.onclick = function() {
+                toast.classList.add('cn-toast-exit');
+                setTimeout(function() { toast.remove(); }, 300);
+                openChangeNotifyModal();
+            };
+
+            container.appendChild(toast);
+
+            setTimeout(function() {
+                if (toast.parentNode) {
+                    toast.classList.add('cn-toast-exit');
+                    setTimeout(function() { toast.remove(); }, 300);
+                }
+            }, 5000);
+        }
+
+        function openChangeNotifyModal() {
+            document.getElementById('changeNotifyModal').classList.add('active');
+            cnState.unreadCount = 0;
+            updateNotifyBadge();
+            renderLatestChanges();
+            renderChangeHistory();
+        }
+
+        function closeChangeNotifyModal() {
+            document.getElementById('changeNotifyModal').classList.remove('active');
+        }
+
+        function switchCnTab(tabName) {
+            cnState.activeTab = tabName;
+            document.querySelectorAll('.cn-tab').forEach(function(tab) {
+                tab.classList.toggle('active', tab.dataset.tab === tabName);
+            });
+            document.querySelectorAll('.cn-tab-content').forEach(function(content) {
+                content.classList.toggle('active', content.id === (tabName === 'latest' ? 'cnTabLatest' : 'cnTabHistory'));
+            });
+        }
+
+        function renderLatestChanges() {
+            const list = document.getElementById('cnCardList');
+            if (cnState.notifications.length === 0) {
+                list.innerHTML = '<div class="cn-empty">変更通知はありません</div>';
+                return;
+            }
+
+            const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
+            const smCategoryClassMapLocal = {
+                '施設': 'category-facility', 'イベント': 'category-event',
+                '交通': 'category-traffic', '高速': 'category-highway'
+            };
+            const smShiftClassMapLocal = { '昼': 'shift-day', '夜': 'shift-night' };
+
+            list.innerHTML = cnState.notifications.map(function(n) {
+                var cardClass = 'cn-card cn-card-' + n.type;
+                var badgeClass = 'cn-type-badge cn-type-badge-' + n.type;
+                var catClass = smCategoryClassMapLocal[n.category] || 'category-facility';
+                var shiftClass = smShiftClassMapLocal[n.shift] || 'shift-day';
+
+                var diffHtml = '';
+                if (n.type === 'modify' && n.diffs) {
+                    diffHtml = '<div class="cn-diff-list">' +
+                        n.diffs.map(function(d) {
+                            return '<div class="cn-diff-row">' +
+                                '<span class="cn-diff-label">' + d.field + '</span>' +
+                                '<span class="cn-diff-old">' + escapeHtml(d.oldVal) + '</span>' +
+                                '<span class="cn-diff-arrow">→</span>' +
+                                '<span class="cn-diff-new">' + escapeHtml(d.newVal) + '</span>' +
+                            '</div>';
+                        }).join('') +
+                    '</div>';
+                } else if (n.type === 'add' && n.details) {
+                    diffHtml = '<div class="cn-diff-list">' +
+                        n.details.map(function(d) {
+                            return '<div class="cn-diff-row">' +
+                                '<span class="cn-diff-label">' + d.field + '</span>' +
+                                '<span class="cn-diff-new">' + escapeHtml(d.value) + '</span>' +
+                            '</div>';
+                        }).join('') +
+                    '</div>';
+                } else if (n.type === 'delete') {
+                    diffHtml = '<div class="cn-diff-list"><div class="cn-diff-row"><span class="cn-diff-old">この行は削除されました</span></div></div>';
+                }
+
+                return '<div class="' + cardClass + '">' +
+                    '<div class="cn-card-header">' +
+                        '<span class="' + badgeClass + '">' + typeLabels[n.type] + '</span>' +
+                        '<span class="cn-card-user">' + escapeHtml(n.user) + '</span>' +
+                        '<span class="cn-card-time">' + n.time + '</span>' +
+                    '</div>' +
+                    '<div class="cn-card-body">' +
+                        '<div class="cn-card-site">' +
+                            '<span class="shift-badge ' + shiftClass + '">' + n.shift + '</span>' +
+                            '<span class="category-badge ' + catClass + '">' + n.category + '</span>' +
+                            escapeHtml(n.siteName) +
+                        '</div>' +
+                        diffHtml +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function renderChangeHistory() {
+            const timeline = document.getElementById('cnTimeline');
+            if (cnState.history.length === 0) {
+                timeline.innerHTML = '<div class="cn-empty">変更履歴はありません</div>';
+                return;
+            }
+
+            const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
+
+            timeline.innerHTML = cnState.history.map(function(h) {
+                return '<div class="cn-timeline-item tl-' + h.type + '">' +
+                    '<div class="cn-tl-header">' +
+                        '<span class="cn-tl-time">' + h.time + '</span>' +
+                        '<span class="cn-tl-user">' + escapeHtml(h.user) + '</span>' +
+                        '<span class="cn-tl-type cn-tl-type-' + h.type + '">' + typeLabels[h.type] + '</span>' +
+                    '</div>' +
+                    '<div class="cn-tl-content">' + escapeHtml(h.summary) + '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function checkConflict(notification) {
+            const siteModal = document.getElementById('siteModal');
+            if (!siteModal.classList.contains('active')) return false;
+            return true;
+        }
+
+        function showConflictBanner(notification) {
+            const banner = document.getElementById('cnConflictBanner');
+            const text = document.getElementById('cnConflictText');
+            text.textContent = notification.user + 'が「' + notification.siteName + '」を変更しました。最新のデータに更新されます。';
+            banner.style.display = 'flex';
+        }
+
+        function hideConflictBanner() {
+            document.getElementById('cnConflictBanner').style.display = 'none';
+        }
+
+        function receiveChangeNotification(notification) {
+            cnState.notifications.unshift(notification);
+            cnState.history.unshift({
+                type: notification.type,
+                user: notification.user,
+                time: notification.time,
+                summary: notification.siteName + (notification.type === 'modify' && notification.diffs
+                    ? '（' + notification.diffs.map(function(d) { return d.field; }).join('・') + '）'
+                    : '')
+            });
+            cnState.unreadCount++;
+            updateNotifyBadge();
+
+            if (checkConflict(notification)) {
+                showConflictBanner(notification);
+            }
+
+            showChangeToast(notification);
+        }
+
+        let cnDemoInterval = null;
+        let cnDemoRunning = false;
+
+        const cnDemoPool = [
+            { type: 'modify', user: '佐藤（営業部）', siteName: '〇〇ビル 巡回警備', category: '施設', shift: '昼',
+              diffs: [{ field: '人数', oldVal: '2', newVal: '3' }, { field: '配置', oldVal: '田中, 佐藤', newVal: '田中, 佐藤, 山田' }] },
+            { type: 'add', user: '鈴木（受注担当）', siteName: '〇〇会館 展示会 特別警備', category: 'イベント', shift: '昼',
+              details: [{ field: '区分', value: 'イベント（昼）' }, { field: '時間', value: '12:00 - 22:00' }, { field: '人数', value: '4名' }, { field: '集合', value: '11:30' }] },
+            { type: 'delete', user: '高橋（管理部）', siteName: '県道〇号 夜間規制', category: '交通', shift: '夜', diffs: null },
+            { type: 'modify', user: '山田（現場管理）', siteName: '国道〇号線 舗装工事', category: '交通', shift: '昼',
+              diffs: [{ field: '時間', oldVal: '08:00 - 17:00', newVal: '09:00 - 18:00' }] },
+            { type: 'add', user: '田中（営業部）', siteName: '△△ビル 常駐警備', category: '施設', shift: '夜',
+              details: [{ field: '区分', value: '施設（夜）' }, { field: '時間', value: '20:00 - 08:00' }, { field: '人数', value: '2名' }] },
+            { type: 'modify', user: '伊藤（配車担当）', siteName: '〇〇会館 展示会', category: 'イベント', shift: '昼',
+              diffs: [{ field: '配置', oldVal: '山本', newVal: '山本, 吉田, 松本' }, { field: '人数', oldVal: '1', newVal: '3' }] }
+        ];
+
+        function sendDemoNotification() {
+            var n = Object.assign({}, cnDemoPool[Math.floor(Math.random() * cnDemoPool.length)]);
+            n.time = cnTimeNow();
+            if (n.diffs) n.diffs = n.diffs.map(function(d) { return Object.assign({}, d); });
+            if (n.details) n.details = n.details.map(function(d) { return Object.assign({}, d); });
+            receiveChangeNotification(n);
+        }
+
+        function toggleChangeNotifyDemo() {
+            var btn = document.getElementById('cnDemoBtn');
+            if (cnDemoRunning) {
+                clearInterval(cnDemoInterval);
+                cnDemoInterval = null;
+                cnDemoRunning = false;
+                btn.textContent = '▶ デモ開始';
+                btn.style.background = '';
+                btn.style.color = '';
+            } else {
+                cnState.notifications = [];
+                cnState.history = [];
+                cnState.unreadCount = 0;
+                updateNotifyBadge();
+                cnDemoRunning = true;
+                btn.textContent = '⏹ デモ停止';
+                btn.style.background = '#e53e3e';
+                btn.style.color = '#fff';
+                sendDemoNotification();
+                cnDemoInterval = setInterval(sendDemoNotification, 3000);
+            }
+        }
+
         // --- カスタム時間ピッカー（10分刻み） ---
         let timePickerTargetId = null;
         let timePickerSelectedHour = null;
