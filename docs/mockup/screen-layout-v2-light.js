@@ -1,3 +1,20 @@
+        // === テーマ切替 ===
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme_v2', newTheme);
+            var btn = document.getElementById('themeToggleBtn');
+            if (btn) btn.textContent = isDark ? '🌙 Dark' : '☀️ Light';
+        }
+        (function initTheme() {
+            var saved = localStorage.getItem('theme_v2');
+            if (saved === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+
         // グループ会社データ
         // 【本番】DBのグループ会社マスターから動的に取得。背景色はユーザー設定テーブルから読み込み
         const groupCompaniesData = [
@@ -549,6 +566,13 @@
             });
 
             loadColorPresetsFromStorage();
+
+            // テーマボタン初期テキスト
+            var themeBtn = document.getElementById('themeToggleBtn');
+            if (themeBtn) {
+                var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                themeBtn.textContent = isDark ? '☀️ Light' : '🌙 Dark';
+            }
         });
 
         // 現場詳細モーダルの開閉

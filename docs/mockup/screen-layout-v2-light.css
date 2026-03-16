@@ -1,10 +1,10 @@
 /* =============================================
-   Screen Layout V2 - Light Theme
-   Coastal Palette (Timberwolf / Alice Blue /
-   Light Blue / Moonstone / Midnight Green)
+   Screen Layout V2 - Unified Theme
+   Light: Coastal Palette
+   Dark: Luca Davincci Palette
    ============================================= */
 
-/* === CSS Variables === */
+/* === CSS Variables (Light Theme - Default) === */
 :root {
     /* Coastal Light Palette */
     --bg-page: #E9F1F6;
@@ -31,7 +31,7 @@
     --cat-bg-event: rgba(56, 161, 105, 0.12);
     --cat-bg-traffic: rgba(56, 161, 105, 0.12);
     --cat-bg-highway: rgba(56, 161, 105, 0.12);
-    /* 区分カラー（文字: 濃いめ） */
+    /* 区分カラー（文字） */
     --cat-text-facility: #276749;
     --cat-text-event: #276749;
     --cat-text-traffic: #276749;
@@ -41,6 +41,77 @@
     --shift-text-day: #975A16;
     --shift-bg-night: rgba(43, 108, 176, 0.12);
     --shift-text-night: #2C5282;
+
+    /* セマンティック変数 */
+    --shadow-color: rgba(0, 69, 84, 0.08);
+    --shadow-medium: rgba(0, 69, 84, 0.12);
+    --shadow-strong: rgba(0, 69, 84, 0.15);
+    --error: #E53E3E;
+    --error-light: #fc8181;
+    --error-bg: rgba(229, 62, 62, 0.12);
+    --success: #38A169;
+    --success-text: #276749;
+    --success-bg: rgba(56, 161, 105, 0.1);
+    --warning: #D69E2E;
+    --warning-text: #975A16;
+    --warning-bg: rgba(214, 158, 46, 0.1);
+    --night-text: #D05050;
+    --tooltip-bg: rgba(0, 69, 84, 0.95);
+    --tooltip-color: white;
+    --header-btn-bg: rgba(255, 255, 255, 0.15);
+    --header-btn-hover: rgba(255, 255, 255, 0.25);
+}
+
+/* === Dark Theme Override === */
+[data-theme="dark"] {
+    --bg-page: #1a1e22;
+    --bg-surface: #2a3038;
+    --bg-surface-2: #3D444B;
+    --bg-surface-3: #505A63;
+    --bg-sidebar: #14181c;
+    --text-primary: #D9D4D1;
+    --text-secondary: #BAB1AD;
+    --text-tertiary: #8a8480;
+    --text-disabled: #5a5550;
+    --accent: #098698;
+    --accent-light: #0a9db0;
+    --accent-dim: rgba(9, 134, 152, 0.2);
+    --secondary: #AEC0C2;
+    --divider: #4a5259;
+
+    --gc-bg-touo: #2a3038;
+    --gc-bg-nikkei: #2d3540;
+    --gc-bg-zennihon: #303848;
+    --cat-bg-facility: rgba(72, 187, 120, 0.2);
+    --cat-bg-event: rgba(72, 187, 120, 0.2);
+    --cat-bg-traffic: rgba(72, 187, 120, 0.2);
+    --cat-bg-highway: rgba(72, 187, 120, 0.2);
+    --cat-text-facility: #68d391;
+    --cat-text-event: #68d391;
+    --cat-text-traffic: #68d391;
+    --cat-text-highway: #68d391;
+    --shift-bg-day: rgba(236, 201, 75, 0.2);
+    --shift-text-day: #ecc94b;
+    --shift-bg-night: rgba(43, 108, 176, 0.35);
+    --shift-text-night: #90cdf4;
+
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --shadow-medium: rgba(0, 0, 0, 0.2);
+    --shadow-strong: rgba(0, 0, 0, 0.4);
+    --error: #fc8181;
+    --error-light: #feb2b2;
+    --error-bg: rgba(252, 129, 129, 0.2);
+    --success: #68d391;
+    --success-text: #68d391;
+    --success-bg: rgba(72, 187, 120, 0.2);
+    --warning: #ecc94b;
+    --warning-text: #ecc94b;
+    --warning-bg: rgba(236, 201, 75, 0.2);
+    --night-text: #fc8181;
+    --tooltip-bg: rgba(20, 24, 28, 0.95);
+    --tooltip-color: #D9D4D1;
+    --header-btn-bg: rgba(255, 255, 255, 0.08);
+    --header-btn-hover: rgba(255, 255, 255, 0.15);
 }
 
 * {
@@ -72,7 +143,7 @@ h1 {
     color: var(--text-primary);
     text-align: center;
     margin-bottom: 20px;
-    text-shadow: 0 1px 4px rgba(0,69,84,0.08);
+    text-shadow: 0 1px 4px var(--shadow-color);
 }
 
 .description {
@@ -80,7 +151,7 @@ h1 {
     padding: 15px 20px;
     border-radius: 8px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0,69,84,0.08);
+    box-shadow: 0 2px 8px var(--shadow-color);
     border: 1px solid var(--divider);
 }
 
@@ -184,9 +255,9 @@ h1 {
 }
 
 .employee-tag.assigned {
-    background: rgba(56, 161, 105, 0.1);
+    background: var(--success-bg);
     border-color: rgba(56, 161, 105, 0.3);
-    color: #276749;
+    color: var(--success-text);
 }
 
 /* ヘッダー部 */
@@ -213,7 +284,7 @@ h1 {
 }
 
 .date-picker button {
-    background: rgba(255,255,255,0.15);
+    background: var(--header-btn-bg);
     color: white;
     border: none;
     padding: 8px 12px;
@@ -233,7 +304,7 @@ h1 {
 }
 
 .date-display .weekday {
-    color: #fc8181;
+    color: var(--error-light);
 }
 
 .company-filter {
@@ -304,11 +375,11 @@ h1 {
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    background: rgba(255,255,255,0.12);
+    background: var(--header-btn-bg);
     border: 1px solid rgba(255,255,255,0.2);
     border-radius: 6px;
     color: white;
-    text-decoration: none;
+    font-family: inherit;
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
@@ -364,12 +435,12 @@ h1 {
 }
 
 .toolbar button.danger {
-    color: #E53E3E;
-    border-color: #E53E3E;
+    color: var(--error);
+    border-color: var(--error);
 }
 
 .toolbar button.danger:hover {
-    background: #E53E3E;
+    background: var(--error);
     color: white;
 }
 
@@ -449,7 +520,7 @@ h1 {
 }
 .row-night .work-time-start,
 .row-night .work-time-end {
-    color: #D05050;
+    color: var(--night-text);
 }
 .col-count { width: 50px; }
 .col-vehicle { width: 60px; }
@@ -545,7 +616,7 @@ h1 {
 }
 
 .assignment-zone.drag-over {
-    border-color: #38A169;
+    border-color: var(--success);
     background: rgba(56, 161, 105, 0.08);
 }
 
@@ -560,7 +631,7 @@ h1 {
     border: 1px solid rgba(56, 161, 105, 0.25);
     border-radius: 4px;
     font-size: 0.8rem;
-    color: #276749;
+    color: var(--success-text);
 }
 
 .assigned-employee .remove-btn {
@@ -572,7 +643,7 @@ h1 {
     line-height: 12px;
     text-align: center;
     border-radius: 50%;
-    background: #E53E3E;
+    background: var(--error);
     color: white;
     font-size: 0.6rem;
     font-weight: bold;
@@ -585,7 +656,7 @@ h1 {
 }
 
 .assigned-employee .remove-btn:hover {
-    background: #C53030;
+    background: var(--error);
 }
 
 .assigned-employee .indicator {
@@ -615,7 +686,7 @@ h1 {
     background: var(--bg-surface);
     border: 1px solid var(--divider);
     border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0,69,84,0.15);
+    box-shadow: 0 4px 16px var(--shadow-strong);
     padding: 10px;
     z-index: 2000;
     display: none;
@@ -668,7 +739,7 @@ h1 {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #E53E3E;
+    background: var(--error);
     color: white;
     font-size: 0.55rem;
     line-height: 14px;
@@ -684,12 +755,12 @@ h1 {
 
 .contact-popup-btn.opt-clear {
     border-color: rgba(229, 62, 62, 0.3);
-    color: #E53E3E;
+    color: var(--error);
     font-size: 0.75rem;
     background: rgba(229, 62, 62, 0.06);
 }
 .contact-popup-btn.opt-clear:hover {
-    background: rgba(229, 62, 62, 0.12);
+    background: var(--error-bg);
 }
 .contact-popup-btn.opt-clear .delete-item-btn {
     display: none !important;
@@ -736,8 +807,8 @@ h1 {
 
 /* 個別バッジ追加色 (light theme) */
 .contact-pickup {
-    background: rgba(214, 158, 46, 0.1);
-    color: #975A16;
+    background: var(--warning-bg);
+    color: var(--warning-text);
 }
 
 .contact-op {
@@ -798,11 +869,11 @@ h1 {
 .category-event { background: var(--cat-bg-event); color: var(--cat-text-event); }
 .category-traffic { background: var(--cat-bg-traffic); color: var(--cat-text-traffic); }
 .category-highway { background: var(--cat-bg-highway); color: var(--cat-text-highway); }
-.category-support-event { background: rgba(56, 161, 105, 0.12); color: #276749; }
-.category-support-traffic { background: rgba(56, 161, 105, 0.12); color: #276749; }
-.category-support-highway { background: rgba(56, 161, 105, 0.12); color: #276749; }
-.category-training { background: rgba(56, 161, 105, 0.12); color: #276749; }
-.category-company { background: rgba(56, 161, 105, 0.12); color: #276749; }
+.category-support-event { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
+.category-support-traffic { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
+.category-support-highway { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
+.category-training { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
+.category-company { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
 
 .shift-day { background: var(--shift-bg-day); color: var(--shift-text-day); }
 .shift-night { background: var(--shift-bg-night); color: var(--shift-text-night); }
@@ -846,8 +917,8 @@ h1 {
     position: absolute;
     left: 8px;
     top: 4px;
-    background: rgba(0, 69, 84, 0.95);
-    color: white;
+    background: var(--tooltip-bg);
+    color: var(--tooltip-color);
     padding: 3px 8px;
     border-radius: 4px;
     font-size: 0.7rem;
@@ -947,7 +1018,7 @@ h1 {
 
 .contact-direct {
     background: rgba(56, 161, 105, 0.12);
-    color: #276749;
+    color: var(--success-text);
 }
 
 .contact-line {
@@ -960,24 +1031,24 @@ h1 {
     font-weight: bold;
 }
 
-.count-ok { color: #276749; }
-.count-shortage { color: #E53E3E; background: rgba(229, 62, 62, 0.08); }
+.count-ok { color: var(--success-text); }
+.count-shortage { color: var(--error); background: rgba(229, 62, 62, 0.08); }
 
 .count-shortage-badge {
     display: block;
     margin-top: 2px;
     font-size: 0.6rem;
     font-weight: bold;
-    color: #E53E3E;
-    border: 1px solid #E53E3E;
+    color: var(--error);
+    border: 1px solid var(--error);
     border-radius: 3px;
     padding: 0 3px;
     line-height: 1.4;
 }
 
 .row-night .count-shortage-badge {
-    color: #D05050;
-    border-color: #D05050;
+    color: var(--night-text);
+    border-color: var(--night-text);
 }
 
 .count-excess { color: #718096; background: rgba(113, 128, 150, 0.08); }
@@ -1059,30 +1130,30 @@ h1 {
 
 .row-night .company,
 .row-night .site-name {
-    color: #D05050;
+    color: var(--night-text);
 }
 
 .row-night .time-display {
-    color: #D05050;
+    color: var(--night-text);
 }
 
 .row-night .count-display {
-    color: #D05050;
+    color: var(--night-text);
 }
 
 .row-night .employee-name-block > span:first-child {
-    color: #D05050;
+    color: var(--night-text);
 }
 
 .row-night .supervisor-badge {
     background: rgba(208, 80, 80, 0.1);
-    color: #D05050;
+    color: var(--night-text);
     border-color: rgba(208, 80, 80, 0.25);
 }
 
 .row-night > td > .contact-badge {
     background: rgba(208, 80, 80, 0.1);
-    color: #D05050;
+    color: var(--night-text);
 }
 
 
@@ -1100,12 +1171,12 @@ h1 {
 
 .indicator-continuous {
     background: rgba(214, 158, 46, 0.15);
-    color: #975A16;
+    color: var(--warning-text);
 }
 
 .indicator-conflict {
-    background: rgba(229, 62, 62, 0.12);
-    color: #E53E3E;
+    background: var(--error-bg);
+    color: var(--error);
 }
 
 /* 連勤バッジ（▼表示） */
@@ -1119,7 +1190,7 @@ h1 {
 .continuous-badge {
     font-size: 0.6rem;
     line-height: 1;
-    color: #975A16;
+    color: var(--warning-text);
 }
 
 .continuous-badge-above {
@@ -1292,7 +1363,7 @@ h1 {
     height: 26px;
     border: none;
     background: rgba(229, 62, 62, 0.08);
-    color: #E53E3E;
+    color: var(--error);
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.85rem;
@@ -1301,7 +1372,7 @@ h1 {
 
 .vt-item-row .vt-remove-btn:hover {
     background: rgba(229, 62, 62, 0.18);
-    color: #C53030;
+    color: var(--error);
 }
 
 /* 車両リスト追加 */
@@ -1381,8 +1452,8 @@ h1 {
 
 .transport-badge {
     display: inline-block;
-    background: rgba(214, 158, 46, 0.1);
-    color: #975A16;
+    background: var(--warning-bg);
+    color: var(--warning-text);
     padding: 1px 5px;
     border-radius: 3px;
     font-size: 0.7rem;
@@ -1410,7 +1481,7 @@ h1 {
     background: var(--bg-surface);
     padding: 25px;
     border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0,69,84,0.15);
+    box-shadow: 0 10px 40px var(--shadow-strong);
     min-width: 300px;
     max-width: 90vw;
     border: 1px solid var(--divider);
@@ -1540,7 +1611,7 @@ h1 {
     padding: 15px 20px;
     margin-top: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,69,84,0.08);
+    box-shadow: 0 2px 8px var(--shadow-color);
     border: 1px solid var(--divider);
 }
 
@@ -1584,7 +1655,7 @@ h1 {
     padding: 20px;
     margin-top: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,69,84,0.08);
+    box-shadow: 0 2px 8px var(--shadow-color);
     border: 1px solid var(--divider);
 }
 
@@ -1633,7 +1704,7 @@ h1 {
     padding: 20px;
     margin-top: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,69,84,0.08);
+    box-shadow: 0 2px 8px var(--shadow-color);
     border: 1px solid var(--divider);
 }
 
@@ -1734,7 +1805,7 @@ h1 {
 }
 
 .combobox-clear:hover {
-    color: #E53E3E;
+    color: var(--error);
 }
 
 .combobox-dropdown {
@@ -1746,7 +1817,7 @@ h1 {
     border: 1px solid var(--divider);
     border-top: none;
     border-radius: 0 0 6px 6px;
-    box-shadow: 0 4px 12px rgba(0,69,84,0.12);
+    box-shadow: 0 4px 12px var(--shadow-medium);
     max-height: 200px;
     overflow-y: auto;
     z-index: 100;
@@ -1779,7 +1850,7 @@ h1 {
 .combobox-option.selected {
     background: rgba(56, 161, 105, 0.08);
     font-weight: 500;
-    color: #276749;
+    color: var(--success-text);
 }
 
 .combobox-option-icon {
@@ -1817,14 +1888,14 @@ h1 {
 .combobox-match {
     background: rgba(214, 158, 46, 0.2);
     font-weight: bold;
-    color: #975A16;
+    color: var(--warning-text);
 }
 
 /* ===== ソート設定モーダル ===== */
 .sort-modal {
     background: var(--bg-surface);
     border-radius: 12px;
-    box-shadow: 0 10px 60px rgba(0,69,84,0.15);
+    box-shadow: 0 10px 60px var(--shadow-strong);
     width: 90vw;
     max-width: 900px;
     max-height: 85vh;
@@ -2008,13 +2079,13 @@ h1 {
 
 .sort-btn-reset {
     background: rgba(229, 62, 62, 0.08);
-    color: #E53E3E;
+    color: var(--error);
     border-color: rgba(229, 62, 62, 0.3);
 }
 
 .sort-btn-reset:hover {
     background: rgba(229, 62, 62, 0.15);
-    color: #C53030;
+    color: var(--error);
 }
 
 .sort-btn-cancel {
@@ -2037,7 +2108,7 @@ h1 {
 .diff-modal {
     background: var(--bg-surface);
     border-radius: 10px;
-    box-shadow: 0 10px 40px rgba(0,69,84,0.15);
+    box-shadow: 0 10px 40px var(--shadow-strong);
     width: 90vw;
     max-width: 850px;
     max-height: 85vh;
@@ -2078,7 +2149,7 @@ h1 {
 }
 
 .diff-progress.all-done {
-    color: #276749;
+    color: var(--success-text);
     background: rgba(56, 161, 105, 0.15);
 }
 
@@ -2227,9 +2298,9 @@ h1 {
 }
 
 .diff-status-icon.status-done {
-    background: #38A169;
+    background: var(--success);
     color: white;
-    border: 2px solid #38A169;
+    border: 2px solid var(--success);
 }
 
 .diff-status-icon.status-done:hover {
@@ -2264,7 +2335,7 @@ h1 {
 
 .diff-btn-done {
     background: var(--bg-surface);
-    color: #276749;
+    color: var(--success-text);
     border: 1px solid rgba(56, 161, 105, 0.3);
 }
 
@@ -2273,7 +2344,7 @@ h1 {
 }
 
 .diff-btn-done.is-done {
-    background: #38A169;
+    background: var(--success);
     color: white;
     border-color: #2F855A;
 }
@@ -2312,10 +2383,10 @@ h1 {
     margin-bottom: 8px;
 }
 
-.diff-type-fuzzy   { background: rgba(214, 158, 46, 0.12); color: #975A16; }
+.diff-type-fuzzy   { background: rgba(214, 158, 46, 0.12); color: var(--warning-text); }
 .diff-type-value    { background: rgba(49, 130, 206, 0.12); color: #2B6CB0; }
-.diff-type-new      { background: rgba(56, 161, 105, 0.12); color: #276749; }
-.diff-type-dbonly   { background: rgba(229, 62, 62, 0.1); color: #E53E3E; }
+.diff-type-new      { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
+.diff-type-dbonly   { background: rgba(229, 62, 62, 0.1); color: var(--error); }
 
 /* フィールド行 */
 .diff-field-item {
@@ -2586,7 +2657,7 @@ h1 {
 }
 
 .diff-row-action input[type="checkbox"] {
-    accent-color: #38A169;
+    accent-color: var(--success);
     width: 16px;
     height: 16px;
 }
@@ -2620,7 +2691,7 @@ h1 {
     font-size: 0.55rem;
     font-weight: bold;
     background: rgba(56, 161, 105, 0.12);
-    color: #276749;
+    color: var(--success-text);
     padding: 1px 4px;
     border-radius: 3px;
     vertical-align: middle;
@@ -2992,7 +3063,7 @@ h1 {
     position: relative;
 }
 .sub-item-section:nth-child(even) {
-    border-left-color: #38A169;
+    border-left-color: var(--success);
     background: rgba(56, 161, 105, 0.06);
 }
 .sub-item-header {
@@ -3019,7 +3090,7 @@ h1 {
 }
 .sub-item-remove-btn:hover {
     background: rgba(229, 62, 62, 0.08);
-    color: #E53E3E;
+    color: var(--error);
 }
 .add-sub-item-btn {
     display: flex;
@@ -3118,7 +3189,7 @@ h1 {
     position: absolute;
     top: -6px;
     right: -6px;
-    background: #e53e3e;
+    background: var(--error);
     color: white;
     font-size: 0.65rem;
     font-weight: 700;
@@ -3181,7 +3252,7 @@ h1 {
 /* セル内差分表示 */
 .cn-cell-old {
     text-decoration: line-through;
-    color: #e53e3e;
+    color: var(--error);
     opacity: 0.7;
     font-size: 0.85em;
     position: relative;
@@ -3256,9 +3327,9 @@ h1 {
     opacity: 0;
     transform: translateX(100%);
 }
-.cn-toast-add { border-left: 4px solid #38a169; }
-.cn-toast-modify { border-left: 4px solid #d69e2e; }
-.cn-toast-delete { border-left: 4px solid #e53e3e; }
+.cn-toast-add { border-left: 4px solid var(--success); }
+.cn-toast-modify { border-left: 4px solid var(--warning); }
+.cn-toast-delete { border-left: 4px solid var(--error); }
 
 @keyframes cn-toast-enter {
     from { opacity: 0; transform: translateX(100%); }
@@ -3402,9 +3473,9 @@ h1 {
     overflow: hidden;
     background: var(--bg-surface);
 }
-.cn-card-add { border-left: 4px solid #38a169; }
-.cn-card-modify { border-left: 4px solid #d69e2e; }
-.cn-card-delete { border-left: 4px solid #e53e3e; }
+.cn-card-add { border-left: 4px solid var(--success); }
+.cn-card-modify { border-left: 4px solid var(--warning); }
+.cn-card-delete { border-left: 4px solid var(--error); }
 
 .cn-card-header {
     display: flex;
@@ -3420,9 +3491,9 @@ h1 {
     border-radius: 4px;
     flex-shrink: 0;
 }
-.cn-type-badge-add { background: rgba(56,161,105,0.15); color: #276749; }
-.cn-type-badge-modify { background: rgba(214,158,46,0.15); color: #975A16; }
-.cn-type-badge-delete { background: rgba(229,62,62,0.15); color: #c53030; }
+.cn-type-badge-add { background: rgba(56,161,105,0.15); color: var(--success-text); }
+.cn-type-badge-modify { background: rgba(214,158,46,0.15); color: var(--warning-text); }
+.cn-type-badge-delete { background: rgba(229,62,62,0.15); color: var(--error); }
 
 .cn-card-user {
     font-size: 0.8rem;
@@ -3471,7 +3542,7 @@ h1 {
     flex-shrink: 0;
 }
 .cn-diff-old {
-    color: #c53030;
+    color: var(--error);
     text-decoration: line-through;
 }
 .cn-diff-arrow {
@@ -3479,7 +3550,7 @@ h1 {
     flex-shrink: 0;
 }
 .cn-diff-new {
-    color: #276749;
+    color: var(--success-text);
     font-weight: 600;
 }
 
@@ -3512,9 +3583,9 @@ h1 {
     background: var(--bg-surface-3);
     border: 2px solid var(--divider);
 }
-.cn-timeline-item.tl-add::before { background: #38a169; border-color: #38a169; }
-.cn-timeline-item.tl-modify::before { background: #d69e2e; border-color: #d69e2e; }
-.cn-timeline-item.tl-delete::before { background: #e53e3e; border-color: #e53e3e; }
+.cn-timeline-item.tl-add::before { background: var(--success); border-color: var(--success); }
+.cn-timeline-item.tl-modify::before { background: var(--warning); border-color: var(--warning); }
+.cn-timeline-item.tl-delete::before { background: var(--error); border-color: var(--error); }
 
 .cn-tl-header {
     display: flex;
@@ -3537,9 +3608,9 @@ h1 {
     padding: 1px 6px;
     border-radius: 3px;
 }
-.cn-tl-type-add { background: rgba(56,161,105,0.15); color: #276749; }
-.cn-tl-type-modify { background: rgba(214,158,46,0.15); color: #975A16; }
-.cn-tl-type-delete { background: rgba(229,62,62,0.15); color: #c53030; }
+.cn-tl-type-add { background: rgba(56,161,105,0.15); color: var(--success-text); }
+.cn-tl-type-modify { background: rgba(214,158,46,0.15); color: var(--warning-text); }
+.cn-tl-type-delete { background: rgba(229,62,62,0.15); color: var(--error); }
 
 .cn-tl-content {
     font-size: 0.8rem;
@@ -3593,12 +3664,12 @@ h1 {
 .cn-conflict-text {
     flex: 1;
     font-size: 0.8rem;
-    color: #975A16;
+    color: var(--warning-text);
 }
 .cn-conflict-close {
     background: none;
     border: none;
-    color: #975A16;
+    color: var(--warning-text);
     font-size: 1rem;
     cursor: pointer;
     padding: 2px 6px;
