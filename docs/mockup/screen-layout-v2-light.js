@@ -2625,6 +2625,19 @@
             }
         }
 
+        // --- フッター詳細情報 折りたたみ ---
+        function toggleFooterDetails() {
+            var content = document.getElementById('footerDetailsContent');
+            var icon = document.querySelector('.footer-toggle-icon');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.classList.add('open');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('open');
+            }
+        }
+
         // --- カスタム時間ピッカー（10分刻み） ---
         let timePickerTargetId = null;
         let timePickerSelectedHour = null;

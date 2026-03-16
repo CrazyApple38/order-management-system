@@ -1828,3 +1828,16 @@
                 cnDemoInterval = setInterval(sendDemoNotification, 3000);
             }
         }
+
+        // --- フッター詳細情報 折りたたみ ---
+        function toggleFooterDetails() {
+            var content = document.getElementById('footerDetailsContent');
+            var icon = document.querySelector('.footer-toggle-icon');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.classList.add('open');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('open');
+            }
+        }

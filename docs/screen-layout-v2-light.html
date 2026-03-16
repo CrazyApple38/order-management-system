@@ -4,20 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>業務管理計画書 - 画面レイアウト設計（Light Theme (Coastal)）</title>
-    <link rel="stylesheet" href="mockup/screen-layout-v2-light.css">
+    <link rel="stylesheet" href="mockup/screen-layout-v2-light.css?v=2">
 </head>
 <body>
     <div class="container">
-        <h1>業務管理計画書 - 画面レイアウト設計</h1>
-
-        <div class="description">
-            <h2>5.1.1 画面構成</h2>
-            <p>既存のExcel業務管理計画書と同様のレイアウトを採用し、受注一覧・受注詳細・編集・人員配置を1つの画面で操作可能にする。<br>
-            左側に現場情報（固定列）、中央に配置ゾーン、右側に社員リスト（サイドパネル）を配置。<br>
-            社員は右サイドパネルから配置ゾーンへドラッグ&ドロップで配置する。<br>
-            現場情報セルをクリックすると、時間・会社・現場名・区分・昼夜の入力ポップアップが開く。</p>
-        </div>
-
         <!-- メインレイアウト -->
         <div class="main-layout">
             <!-- 画面モックアップ -->
@@ -1357,6 +1347,13 @@
             </div>
         </div>
 
+        <!-- フッター詳細情報（折りたたみ） -->
+        <div class="footer-details">
+            <button class="footer-toggle-btn" onclick="toggleFooterDetails()">
+                <span class="footer-toggle-icon">▶</span> 詳細情報（凡例・レイアウト・操作説明）
+            </button>
+            <div class="footer-details-content" id="footerDetailsContent" style="display: none;">
+
         <!-- 凡例 -->
         <div class="legend">
             <h3>凡例</h3>
@@ -1518,6 +1515,9 @@
                 </div>
             </div>
         </div>
+
+            </div><!-- /.footer-details-content -->
+        </div><!-- /.footer-details -->
     </div>
 
     <!-- カスタム時間ピッカー -->
