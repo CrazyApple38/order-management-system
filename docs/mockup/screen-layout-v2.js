@@ -1780,30 +1780,209 @@
             showChangeToast(notification);
         }
 
-        // --- デモシミュレーション（開始/停止トグル） ---
+        // --- デモシミュレーション（承認方式） ---
         let cnDemoInterval = null;
         let cnDemoRunning = false;
+        let cnDemoIndex = 0;
+        const cnPendingMap = new Map();
 
-        const cnDemoPool = [
-            { type: 'modify', user: '佐藤（営業部）', siteName: '〇〇ビル 巡回警備', category: '施設', shift: '昼',
-              diffs: [{ field: '人数', oldVal: '2', newVal: '3' }, { field: '配置', oldVal: '田中, 佐藤', newVal: '田中, 佐藤, 山田' }] },
-            { type: 'add', user: '鈴木（受注担当）', siteName: '〇〇会館 展示会 特別警備', category: 'イベント', shift: '昼',
-              details: [{ field: '区分', value: 'イベント（昼）' }, { field: '時間', value: '12:00 - 22:00' }, { field: '人数', value: '4名' }, { field: '集合', value: '11:30' }] },
-            { type: 'delete', user: '高橋（管理部）', siteName: '県道〇号 夜間規制', category: '交通', shift: '夜', diffs: null },
+        const cnDemoSequence = [
             { type: 'modify', user: '山田（現場管理）', siteName: '国道〇号線 舗装工事', category: '交通', shift: '昼',
-              diffs: [{ field: '時間', oldVal: '08:00 - 17:00', newVal: '09:00 - 18:00' }] },
-            { type: 'add', user: '田中（営業部）', siteName: '△△ビル 常駐警備', category: '施設', shift: '夜',
-              details: [{ field: '区分', value: '施設（夜）' }, { field: '時間', value: '20:00 - 08:00' }, { field: '人数', value: '2名' }] },
+              diffs: [{ field: '時間', oldVal: '08:00 - 17:00', newVal: '09:00 - 18:00' }],
+              apply: function(self) {
+                  var row = cnFindRow('国道〇号線 舗装工事'); if (!row) return;
+                  var tsEl = row.querySelector('.work-time-start');
+                  var teEl = row.querySelector('.work-time-end');
+                  var wtCell = row.querySelector('.col-work-time');
+                  if (tsEl) cnShowCellDiff(tsEl, tsEl.textContent, '09:00');
+                  if (teEl) cnShowCellDiff(teEl, teEl.textContent, '18:00');
+                  if (wtCell) cnAddCellBadge(wtCell);
+                  cnMarkPending(row, 'modify', function() {
+                      if (tsEl) tsEl.textContent = '09:00';
+                      if (teEl) teEl.textContent = '18:00';
+                      cnCleanCellBadges(row);
+                  });
+              }},
+            { type: 'add', user: '鈴木（受注担当）', siteName: '△△マンション 常駐警備', category: '施設', shift: '夜',
+              details: [{ field: '会社', value: '△△不動産' }, { field: '区分', value: '施設（夜）' }, { field: '時間', value: '20:00 - 08:00' }, { field: '人数', value: '2名' }, { field: '集合', value: '19:30' }],
+              apply: function(self) {
+                  var tbody = document.querySelector('.grid-table tbody');
+                  var no = tbody.querySelectorAll('tr').length + 1;
+                  var tr = cnCreateRow({ no: no, gcClass: 'gc-row-touo', shiftClass: 'shift-night', shiftLabel: '夜',
+                      categoryClass: 'category-facility', categoryLabel: '施設', company: '△△不動産',
+                      siteName: '△△マンション 常駐警備', meetingTime: '19:30', meetingMethod: '直', meetingMethodClass: 'method-direct',
+                      timeStart: '20:00', timeEnd: '08:00', count: '0/2', shortage: true });
+                  tbody.appendChild(tr);
+                  cnMarkPending(tr, 'add', function() {});
+              }},
             { type: 'modify', user: '伊藤（配車担当）', siteName: '〇〇会館 展示会', category: 'イベント', shift: '昼',
-              diffs: [{ field: '配置', oldVal: '山本', newVal: '山本, 吉田, 松本' }, { field: '人数', oldVal: '1', newVal: '3' }] }
+              diffs: [{ field: '人数', oldVal: '1/2', newVal: '3/2' }, { field: '配置', oldVal: '山本', newVal: '山本, 吉田, 松本' }],
+              apply: function(self) {
+                  var row = cnFindRow('〇〇会館 展示会'); if (!row) return;
+                  var countEl = row.querySelector('.count-display');
+                  var countCell = countEl ? countEl.closest('td') : null;
+                  if (countEl) cnShowCellDiff(countEl, countEl.textContent.trim(), '3/2');
+                  if (countCell) cnAddCellBadge(countCell);
+                  cnMarkPending(row, 'modify', function() {
+                      if (countEl) { countEl.textContent = '3/2'; countEl.className = 'count-display count-over'; }
+                      cnCleanCellBadges(row);
+                  });
+              }},
+            { type: 'delete', user: '高橋（管理部）', siteName: '県道〇号 夜間規制', category: '高速', shift: '夜', diffs: null,
+              apply: function(self) {
+                  var row = cnFindRow('県道〇号 夜間規制'); if (!row) return;
+                  cnMarkPending(row, 'delete', function() {
+                      row.remove(); cnRenumberRows();
+                  });
+              }},
+            { type: 'add', user: '田中（営業部）', siteName: '□□公園 花火大会警備', category: 'イベント', shift: '昼',
+              details: [{ field: '会社', value: '□□イベント' }, { field: '区分', value: 'イベント（昼）' }, { field: '時間', value: '16:00 - 22:00' }, { field: '人数', value: '5名' }, { field: '集合', value: '15:00' }],
+              apply: function(self) {
+                  var tbody = document.querySelector('.grid-table tbody');
+                  var no = tbody.querySelectorAll('tr').length + 1;
+                  var tr = cnCreateRow({ no: no, gcClass: 'gc-row-nikkei', shiftClass: 'shift-day', shiftLabel: '昼',
+                      categoryClass: 'category-event', categoryLabel: 'イベント', company: '□□イベント',
+                      siteName: '□□公園 花火大会警備', meetingTime: '15:00', meetingMethod: '会社', meetingMethodClass: 'method-company',
+                      timeStart: '16:00', timeEnd: '22:00', count: '0/5', shortage: true });
+                  tbody.appendChild(tr);
+                  cnMarkPending(tr, 'add', function() {});
+              }},
+            { type: 'modify', user: '佐藤（営業部）', siteName: '〇〇ビル 巡回警備', category: '施設', shift: '昼',
+              diffs: [{ field: '集合時間', oldVal: '08:45', newVal: '08:30' }],
+              apply: function(self) {
+                  var row = cnFindRow('〇〇ビル 巡回警備'); if (!row) return;
+                  var mtEl = row.querySelector('.time-display');
+                  var timeCell = mtEl ? mtEl.closest('td') : null;
+                  if (mtEl) cnShowCellDiff(mtEl, mtEl.textContent, '08:30');
+                  if (timeCell) cnAddCellBadge(timeCell);
+                  cnMarkPending(row, 'modify', function() {
+                      if (mtEl) mtEl.textContent = '08:30';
+                      cnCleanCellBadges(row);
+                  });
+              }}
         ];
 
+        // セル内差分表示ヘルパー
+        function cnShowCellDiff(el, oldText, newText) {
+            el.innerHTML = '<span class="cn-cell-old">' + oldText + '</span><div class="cn-cell-new">' + newText + '</div>';
+        }
+
+        function cnAddCellBadge(cell) {
+            var badge = document.createElement('div');
+            badge.className = 'cn-cell-badge';
+            badge.textContent = '変更';
+            cell.insertBefore(badge, cell.firstChild);
+        }
+
+        function cnCleanCellBadges(row) {
+            var els = row.querySelectorAll('.cn-cell-badge');
+            for (var i = 0; i < els.length; i++) els[i].remove();
+        }
+
+        function cnFindRow(siteName) {
+            var rows = document.querySelectorAll('.grid-table tbody tr');
+            for (var i = 0; i < rows.length; i++) {
+                var sn = rows[i].querySelector('.site-name');
+                if (sn && sn.textContent.trim() === siteName) return rows[i];
+            }
+            return null;
+        }
+
+        function cnMarkPending(row, type, commitFn) {
+            row.classList.add('cn-pending');
+            cnPendingMap.set(row, { type: type, commit: commitFn });
+            // 追加・削除バッジ → site-badges エリアに配置
+            if (type === 'add' || type === 'delete') {
+                var badges = row.querySelector('.site-badges');
+                if (badges) {
+                    var badge = document.createElement('span');
+                    badge.className = 'cn-row-badge cn-row-badge-' + type;
+                    badge.textContent = type === 'add' ? '追加' : '削除';
+                    badges.insertBefore(badge, badges.firstChild);
+                }
+            }
+            // グレーオーバーレイ（コンテンツなし）
+            var existingOv = row.querySelector('.cn-overlay');
+            if (existingOv) existingOv.remove();
+            var overlay = document.createElement('div');
+            overlay.className = 'cn-overlay';
+            var noCell = row.querySelector('.col-no');
+            if (noCell) {
+                noCell.style.position = 'relative';
+                noCell.appendChild(overlay);
+                overlay.style.width = row.offsetWidth + 'px';
+            }
+            overlay.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                cnApprovePending(row);
+            });
+        }
+
+        function cnApprovePending(row) {
+            var pending = cnPendingMap.get(row);
+            if (!pending) return;
+            pending.commit();
+            row.classList.remove('cn-pending');
+            var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-overlay');
+            for (var i = 0; i < els.length; i++) els[i].remove();
+            cnPendingMap.delete(row);
+            if (pending.type !== 'delete') {
+                row.classList.add('cn-flash-approve');
+                setTimeout(function() { row.classList.remove('cn-flash-approve'); }, 2000);
+            }
+        }
+
+        function cnFlashRow(row, type) {
+            row.classList.add('cn-flash-' + type);
+            setTimeout(function() { row.classList.remove('cn-flash-' + type); }, 3000);
+        }
+
+        function cnRenumberRows() {
+            var rows = document.querySelectorAll('.grid-table tbody tr');
+            for (var i = 0; i < rows.length; i++) {
+                var no = rows[i].querySelector('.col-no');
+                if (no) no.textContent = i + 1;
+            }
+        }
+
+        function cnCreateRow(d) {
+            var tr = document.createElement('tr');
+            tr.className = d.gcClass;
+            tr.setAttribute('onclick', 'selectRow(this, event)');
+            tr.innerHTML =
+                '<td class="col-no">' + d.no + '</td>' +
+                '<td class="col-site-info clickable-cell" onclick="openSiteModal(this)">' +
+                  '<div class="site-info"><div class="site-badges">' +
+                    '<span class="shift-badge ' + d.shiftClass + '">' + d.shiftLabel + '</span>' +
+                    '<span class="category-badge ' + d.categoryClass + '">' + d.categoryLabel + '</span>' +
+                  '</div><div class="site-details">' +
+                    '<div class="company">' + d.company + '</div>' +
+                    '<div class="site-name">' + d.siteName + '</div>' +
+                  '</div></div></td>' +
+                '<td class="col-time"><div class="meeting-time">' + d.meetingTime + '</div>' +
+                  '<div class="meeting-method ' + d.meetingMethodClass + '">' + d.meetingMethod + '</div></td>' +
+                '<td class="col-work-time"><div class="time-start">' + d.timeStart + '</div>' +
+                  '<div class="time-end">' + d.timeEnd + '</div></td>' +
+                '<td class="col-count">' + d.count + (d.shortage ? ' <span class="shortage-indicator">不足</span>' : '') + '</td>' +
+                '<td><div class="assignment-zone"></div><button class="vehicle-add-btn">＋ 車両・送迎</button></td>' +
+                '<td class="col-badge"></td><td class="col-map"></td><td class="col-notes"></td>';
+            return tr;
+        }
+
         function sendDemoNotification() {
-            var n = Object.assign({}, cnDemoPool[Math.floor(Math.random() * cnDemoPool.length)]);
-            n.time = cnTimeNow();
-            if (n.diffs) n.diffs = n.diffs.map(function(d) { return Object.assign({}, d); });
-            if (n.details) n.details = n.details.map(function(d) { return Object.assign({}, d); });
+            if (cnDemoIndex >= cnDemoSequence.length) {
+                toggleChangeNotifyDemo();
+                return;
+            }
+            var item = cnDemoSequence[cnDemoIndex];
+            cnDemoIndex++;
+            var n = { type: item.type, user: item.user, siteName: item.siteName,
+                category: item.category, shift: item.shift, time: cnTimeNow(),
+                diffs: item.diffs ? item.diffs.map(function(d) { return Object.assign({}, d); }) : null,
+                details: item.details ? item.details.map(function(d) { return Object.assign({}, d); }) : null };
             receiveChangeNotification(n);
+            if (item.apply) item.apply(item);
         }
 
         function toggleChangeNotifyDemo() {
@@ -1820,12 +1999,13 @@
                 cnState.history = [];
                 cnState.unreadCount = 0;
                 updateNotifyBadge();
+                cnDemoIndex = 0;
                 cnDemoRunning = true;
                 btn.textContent = '⏹ デモ停止';
                 btn.style.background = '#e53e3e';
                 btn.style.color = '#fff';
                 sendDemoNotification();
-                cnDemoInterval = setInterval(sendDemoNotification, 3000);
+                cnDemoInterval = setInterval(sendDemoNotification, 5000);
             }
         }
 
