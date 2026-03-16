@@ -1950,6 +1950,7 @@
             var tr = document.createElement('tr');
             tr.className = d.gcClass;
             tr.setAttribute('onclick', 'selectRow(this, event)');
+            var countClass = d.shortage ? 'count-display count-shortage' : 'count-display count-ok';
             tr.innerHTML =
                 '<td class="col-no">' + d.no + '</td>' +
                 '<td class="col-site-info clickable-cell" onclick="openSiteModal(this)">' +
@@ -1960,13 +1961,22 @@
                     '<div class="company">' + d.company + '</div>' +
                     '<div class="site-name">' + d.siteName + '</div>' +
                   '</div></div></td>' +
-                '<td class="col-time"><div class="meeting-time">' + d.meetingTime + '</div>' +
-                  '<div class="meeting-method ' + d.meetingMethodClass + '">' + d.meetingMethod + '</div></td>' +
-                '<td class="col-work-time"><div class="time-start">' + d.timeStart + '</div>' +
-                  '<div class="time-end">' + d.timeEnd + '</div></td>' +
-                '<td class="col-count">' + d.count + (d.shortage ? ' <span class="shortage-indicator">不足</span>' : '') + '</td>' +
-                '<td><div class="assignment-zone"></div><button class="vehicle-add-btn">＋ 車両・送迎</button></td>' +
-                '<td class="col-badge"></td><td class="col-map"></td><td class="col-notes"></td>';
+                '<td class="clickable-cell" onclick="openMeetingModal(this, event)">' +
+                  '<span class="time-display">' + d.meetingTime + '</span>' +
+                  '<span class="contact-badge ' + d.meetingMethodClass + '">' + d.meetingMethod + '</span></td>' +
+                '<td class="col-work-time clickable-cell" onclick="openWorkTimeModal(this, event)"' +
+                  ' data-start-time="' + d.timeStart + '" data-end-time="' + d.timeEnd + '">' +
+                  '<span class="work-time-start">' + d.timeStart + '</span>' +
+                  '<span class="work-time-end">' + d.timeEnd + '</span></td>' +
+                '<td class="clickable-cell" onclick="startCountEdit(this, event)">' +
+                  '<span class="' + countClass + '">' + d.count + '</span>' +
+                  (d.shortage ? ' <span class="shortage-indicator">不足</span>' : '') + '</td>' +
+                '<td><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>' +
+                  '<div class="vehicle-transport-box" onclick="openVtModal(this)"></div>' +
+                  '<button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button></td>' +
+                '<td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>' +
+                '<td class="col-map clickable-cell" onclick="openMapModal(this, ' + d.no + ')"></td>' +
+                '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"></td>';
             return tr;
         }
 
