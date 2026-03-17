@@ -2763,7 +2763,14 @@
             var rows = document.querySelectorAll('.grid-table tbody tr');
             for (var i = 0; i < rows.length; i++) {
                 var no = rows[i].querySelector('.col-no');
-                if (no) no.textContent = i + 1;
+                if (!no) continue;
+                // .cn-overlay等の子要素を破壊しないよう、テキストノードのみ更新
+                var textNode = no.firstChild;
+                if (textNode && textNode.nodeType === 3) {
+                    textNode.textContent = i + 1;
+                } else {
+                    no.insertBefore(document.createTextNode(i + 1), no.firstChild);
+                }
             }
         }
 
@@ -2791,7 +2798,7 @@
                   '<span class="work-time-end">' + d.timeEnd + '</span></td>' +
                 '<td class="clickable-cell" onclick="startCountEdit(this, event)">' +
                   '<span class="' + countClass + '">' + d.count + '</span>' +
-                  (d.shortage ? ' <span class="shortage-indicator">不足</span>' : '') + '</td>' +
+                  (d.shortage ? '<span class="count-shortage-badge">不足</span>' : '') + '</td>' +
                 '<td><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>' +
                   '<div class="vehicle-transport-box" onclick="openVtModal(this)"></div>' +
                   '<button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button></td>' +
