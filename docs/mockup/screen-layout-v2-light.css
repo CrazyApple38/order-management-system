@@ -3643,6 +3643,87 @@ h1 {
     background: var(--bg-surface-2);
 }
 
+/* --- カード内アクションボタン --- */
+.cn-card-actions {
+    display: flex;
+    gap: 6px;
+    padding: 8px 14px;
+    border-top: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+}
+.cn-btn-revert,
+.cn-btn-reapprove {
+    padding: 5px 16px;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+}
+.cn-btn-revert {
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--divider);
+}
+.cn-btn-revert:hover {
+    background: var(--error);
+    color: #fff;
+    border-color: var(--error);
+}
+.cn-btn-reapprove {
+    background: var(--accent);
+    color: #fff;
+    border: 1px solid var(--accent);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.cn-btn-reapprove:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* 取消済カード */
+.cn-card-reverted {
+    border-left-color: var(--text-disabled) !important;
+}
+.cn-card-reverted .cn-card-header,
+.cn-card-reverted .cn-card-body {
+    opacity: 0.45;
+}
+.cn-card-reverted .cn-card-header {
+    background: var(--bg-surface-3);
+}
+.cn-reverted-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--bg-surface-3);
+    color: var(--text-disabled);
+    margin-left: 6px;
+}
+
+/* 承認済カード */
+.cn-card-approved {
+    border-left-color: var(--text-disabled) !important;
+}
+.cn-card-approved .cn-card-header,
+.cn-card-approved .cn-card-body {
+    opacity: 0.45;
+}
+.cn-card-approved .cn-card-header {
+    background: var(--bg-surface-3);
+}
+.cn-approved-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(56, 161, 105, 0.15);
+    color: var(--success-text);
+    margin-left: 6px;
+}
+
 /* --- コンフリクト警告バナー --- */
 .cn-conflict-banner {
     display: flex;

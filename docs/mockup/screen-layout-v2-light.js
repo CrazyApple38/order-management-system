@@ -2408,7 +2408,8 @@
             notifications: [],
             history: [],
             unreadCount: 0,
-            activeTab: 'latest'
+            activeTab: 'latest',
+            nextId: 1
         };
 
         function cnTimeNow() {
@@ -2525,9 +2526,25 @@
                     diffHtml = '<div class="cn-diff-list"><div class="cn-diff-row"><span class="cn-diff-old">この行は削除されました</span></div></div>';
                 }
 
-                return '<div class="' + cardClass + '">' +
+                var stateClass = n.reverted ? ' cn-card-reverted' : (n._approved ? ' cn-card-approved' : '');
+                var statusBadge = '';
+                var actionsHtml = '';
+                if (n.reverted) {
+                    statusBadge = '<span class="cn-reverted-badge">取消済</span>';
+                    actionsHtml = '<div class="cn-card-actions">' +
+                        '<button class="cn-btn-reapprove" onclick="cnReapproveNotification(' + n.id + ')">やっぱり反映</button>' +
+                    '</div>';
+                } else {
+                    if (n._approved) statusBadge = '<span class="cn-approved-badge">承認済</span>';
+                    actionsHtml = '<div class="cn-card-actions">' +
+                        '<button class="cn-btn-revert" onclick="cnRevertNotification(' + n.id + ')">元に戻す</button>' +
+                    '</div>';
+                }
+
+                return '<div class="' + cardClass + stateClass + '">' +
                     '<div class="cn-card-header">' +
                         '<span class="' + badgeClass + '">' + typeLabels[n.type] + '</span>' +
+                        statusBadge +
                         '<span class="cn-card-user">' + escapeHtml(n.user) + '</span>' +
                         '<span class="cn-card-time">' + n.time + '</span>' +
                     '</div>' +
@@ -2539,6 +2556,7 @@
                         '</div>' +
                         diffHtml +
                     '</div>' +
+                    actionsHtml +
                 '</div>';
             }).join('');
         }
@@ -2582,6 +2600,8 @@
         }
 
         function receiveChangeNotification(notification) {
+            notification.id = cnState.nextId++;
+            notification.reverted = false;
             cnState.notifications.unshift(notification);
             cnState.history.unshift({
                 type: notification.type,
@@ -2743,14 +2763,27 @@
         function cnApprovePending(row) {
             var pending = cnPendingMap.get(row);
             if (!pending) return;
+            // 対応する通知を承認済みにマーク
+            var notif = cnState.notifications.find(function(n) { return n._row === row; });
+            // delete承認前に行HTMLを保存（後で復元可能にする）
+            if (pending.type === 'delete' && notif) {
+                notif._deletedRowHtml = row.outerHTML;
+                notif._deletedRowIndex = Array.from(row.parentNode.children).indexOf(row);
+                notif._deletedRowParent = row.parentNode;
+            }
             pending.commit();
             row.classList.remove('cn-pending');
             var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-overlay');
             for (var i = 0; i < els.length; i++) els[i].remove();
             cnPendingMap.delete(row);
+            if (notif) notif._approved = true;
             if (pending.type !== 'delete') {
                 row.classList.add('cn-flash-approve');
                 setTimeout(function() { row.classList.remove('cn-flash-approve'); }, 2000);
+            }
+            // モーダルが開いていれば再描画
+            if (document.getElementById('changeNotifyModal').classList.contains('active')) {
+                renderLatestChanges();
             }
         }
 
@@ -2772,6 +2805,112 @@
                     no.insertBefore(document.createTextNode(i + 1), no.firstChild);
                 }
             }
+        }
+
+        // --- 元に戻す / やっぱり反映 ---
+
+        function cnClearPending(row) {
+            cnPendingMap.delete(row);
+            row.classList.remove('cn-pending');
+            var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-overlay');
+            for (var i = 0; i < els.length; i++) els[i].remove();
+        }
+
+        function cnRevertNotification(id) {
+            var n = cnState.notifications.find(function(x) { return x.id === id; });
+            if (!n || n.reverted) return;
+
+            if (n._approved) {
+                // --- 承認済みからのrevert ---
+                if (n.type === 'modify') {
+                    var row = n._row || cnFindRow(n.siteName);
+                    if (row && n._oldValues) {
+                        n._oldValues.forEach(function(v) { v.parent.textContent = v.oldText; });
+                        row.classList.add('cn-flash-approve');
+                        setTimeout(function() { row.classList.remove('cn-flash-approve'); }, 2000);
+                    }
+                } else if (n.type === 'add') {
+                    var row = n._row || cnFindRow(n.siteName);
+                    if (row) { row.remove(); cnRenumberRows(); }
+                } else if (n.type === 'delete') {
+                    // 保存済みHTMLから行を復元
+                    if (n._deletedRowHtml && n._deletedRowParent) {
+                        var temp = document.createElement('tbody');
+                        temp.innerHTML = n._deletedRowHtml;
+                        var restored = temp.firstChild;
+                        var parent = n._deletedRowParent;
+                        var siblings = parent.children;
+                        if (n._deletedRowIndex < siblings.length) {
+                            parent.insertBefore(restored, siblings[n._deletedRowIndex]);
+                        } else {
+                            parent.appendChild(restored);
+                        }
+                        n._row = restored;
+                        cnRenumberRows();
+                    }
+                }
+            } else {
+                // --- 未承認（pending）からのrevert ---
+                if (n.type === 'modify') {
+                    var row = n._row || cnFindRow(n.siteName);
+                    if (!row) return;
+                    var oldSpans = row.querySelectorAll('.cn-cell-old');
+                    for (var i = 0; i < oldSpans.length; i++) {
+                        var parent = oldSpans[i].parentElement;
+                        parent.textContent = oldSpans[i].textContent;
+                    }
+                    cnClearPending(row);
+                } else if (n.type === 'add') {
+                    var row = n._row || cnFindRow(n.siteName);
+                    if (row) { cnPendingMap.delete(row); row.remove(); cnRenumberRows(); }
+                } else if (n.type === 'delete') {
+                    var row = n._row || cnFindRow(n.siteName);
+                    if (!row) return;
+                    cnClearPending(row);
+                }
+            }
+
+            n.reverted = true;
+            n._approved = false;
+            renderLatestChanges();
+        }
+
+        function cnReapproveNotification(id) {
+            var n = cnState.notifications.find(function(x) { return x.id === id; });
+            if (!n || !n.reverted) return;
+
+            if (n.type === 'modify') {
+                var row = n._row || cnFindRow(n.siteName);
+                if (row && n._commitFn) {
+                    n._commitFn();
+                    row.classList.add('cn-flash-approve');
+                    setTimeout(function() { row.classList.remove('cn-flash-approve'); }, 2000);
+                }
+            } else if (n.type === 'add') {
+                // 行を再作成し即承認
+                if (n._demoItem && n._demoItem.apply) {
+                    n._demoItem.apply(n._demoItem);
+                    var newRow = cnFindRow(n.siteName);
+                    if (newRow) {
+                        cnApprovePending(newRow);
+                        n._row = newRow;
+                    }
+                }
+            } else if (n.type === 'delete') {
+                var row = n._row || cnFindRow(n.siteName);
+                if (row) {
+                    // 再削除前に行HTMLを保存
+                    n._deletedRowHtml = row.outerHTML;
+                    n._deletedRowIndex = Array.from(row.parentNode.children).indexOf(row);
+                    n._deletedRowParent = row.parentNode;
+                    row.remove();
+                    cnRenumberRows();
+                }
+            }
+
+            n.reverted = false;
+            n._approved = true;
+            renderLatestChanges();
         }
 
         function cnCreateRow(d) {
@@ -2819,8 +2958,24 @@
                 category: item.category, shift: item.shift, time: cnTimeNow(),
                 diffs: item.diffs ? item.diffs.map(function(d) { return Object.assign({}, d); }) : null,
                 details: item.details ? item.details.map(function(d) { return Object.assign({}, d); }) : null };
+            n._demoItem = item;
             receiveChangeNotification(n);
             if (item.apply) item.apply(item);
+            // 通知と行をリンク
+            var row = cnFindRow(n.siteName);
+            if (row) {
+                n._row = row;
+                var pending = cnPendingMap.get(row);
+                if (pending) n._commitFn = pending.commit;
+                // modify: 承認後revert用に旧値と要素参照を保存
+                if (n.type === 'modify') {
+                    var oldValues = [];
+                    row.querySelectorAll('.cn-cell-old').forEach(function(el) {
+                        oldValues.push({ parent: el.parentElement, oldText: el.textContent });
+                    });
+                    n._oldValues = oldValues;
+                }
+            }
         }
 
         function toggleChangeNotifyDemo() {
@@ -2836,6 +2991,8 @@
                 cnState.notifications = [];
                 cnState.history = [];
                 cnState.unreadCount = 0;
+                cnState.nextId = 1;
+                cnPendingMap.clear();
                 updateNotifyBadge();
                 cnDemoIndex = 0;
                 cnDemoRunning = true;
