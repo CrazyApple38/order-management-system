@@ -2712,14 +2712,14 @@
         function cnMarkPending(row, type, commitFn) {
             row.classList.add('cn-pending');
             cnPendingMap.set(row, { type: type, commit: commitFn });
-            // 追加・削除バッジ → site-badges エリアに配置
+            // 追加・削除バッジ → No列に配置
             if (type === 'add' || type === 'delete') {
-                var badges = row.querySelector('.site-badges');
-                if (badges) {
+                var noCell = row.querySelector('.col-no');
+                if (noCell) {
                     var badge = document.createElement('span');
                     badge.className = 'cn-row-badge cn-row-badge-' + type;
                     badge.textContent = type === 'add' ? '追加' : '削除';
-                    badges.insertBefore(badge, badges.firstChild);
+                    noCell.appendChild(badge);
                 }
             }
             // グレーオーバーレイ（コンテンツなし）
