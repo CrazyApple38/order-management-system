@@ -2644,6 +2644,10 @@
 
         // revert/reapprove後のオーバーレイ＋差分可視化
         function cnShowRevertOverlay(row, type, diffs) {
+            // 既存の差分要素を先にクリーンアップ（重複防止）
+            var staleEls = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-cell-old, .cn-cell-new');
+            for (var i = 0; i < staleEls.length; i++) staleEls[i].remove();
+
             row.classList.add('cn-pending');
             // バッジ
             var noCell = row.querySelector('.col-no');
@@ -2653,12 +2657,17 @@
                 badge.textContent = type === 'add' ? '削除' : '復元';
                 noCell.appendChild(badge);
             }
-            // modify差分表示
+            // modify差分表示（バッジはtdセル単位で重複防止）
             if (type === 'modify' && diffs) {
+                var badgedTds = [];
                 diffs.forEach(function(d) {
-                    if (d.cell) {
-                        cnShowCellDiff(d.cell, d.oldText, d.newText);
-                        cnAddCellBadge(d.cell);
+                    if (d.el) {
+                        cnShowCellDiff(d.el, d.oldText, d.newText);
+                        var td = d.td || d.el.closest('td');
+                        if (td && badgedTds.indexOf(td) === -1) {
+                            cnAddCellBadge(td);
+                            badgedTds.push(td);
+                        }
                     }
                 });
             }
@@ -2706,16 +2715,12 @@
                 // --- 承認済みからのrevert ---
                 if (n.type === 'modify') {
                     var row = n._row || cnFindRow(n.siteName);
-                    if (row && n._oldValues) {
-                        // 現在の値を保存（やっぱり反映時に使用）
-                        n._newValues = n._oldValues.map(function(v) {
-                            return { cell: v.parent, currentText: v.parent.textContent };
-                        });
-                        // 値を元に戻す
-                        n._oldValues.forEach(function(v) { v.parent.textContent = v.oldText; });
-                        // 差分可視化（変更後の値B → 元に戻した値A）
-                        var diffs = n._oldValues.map(function(v, i) {
-                            return { cell: v.parent, oldText: n._newValues[i].currentText, newText: v.oldText };
+                    if (row && n._modifyData) {
+                        // セルをクリーン状態にして元の値を復元
+                        n._modifyData.forEach(function(d) { d.el.textContent = d.originalText; });
+                        // 差分可視化（変更後B → 元の値A）
+                        var diffs = n._modifyData.map(function(d) {
+                            return { el: d.el, td: d.td, oldText: d.changedText, newText: d.originalText };
                         });
                         cnShowRevertOverlay(row, 'modify', diffs);
                     }
@@ -2744,26 +2749,14 @@
                 // --- 未承認（pending）からのrevert ---
                 if (n.type === 'modify') {
                     var row = n._row || cnFindRow(n.siteName);
-                    if (!row) return;
-                    // 現在の値を保存（やっぱり反映時に使用）
-                    var newValues = [];
-                    row.querySelectorAll('.cn-cell-new').forEach(function(el) {
-                        newValues.push({ cell: el.parentElement, newText: el.textContent });
-                    });
-                    n._newValues = newValues.map(function(v) {
-                        return { cell: v.cell, currentText: v.newText };
-                    });
-                    var oldSpans = row.querySelectorAll('.cn-cell-old');
-                    var revertDiffs = [];
-                    for (var i = 0; i < oldSpans.length; i++) {
-                        var parent = oldSpans[i].parentElement;
-                        var newSpan = parent.querySelector('.cn-cell-new');
-                        var newText = newSpan ? newSpan.textContent : '';
-                        var oldText = oldSpans[i].textContent;
-                        revertDiffs.push({ cell: parent, oldText: newText, newText: oldText });
-                        parent.textContent = oldText;
-                    }
+                    if (!row || !n._modifyData) return;
+                    // セルをクリーン状態にして元の値を復元
+                    n._modifyData.forEach(function(d) { d.el.textContent = d.originalText; });
                     cnClearPending(row);
+                    // 差分可視化（変更後B → 元の値A）
+                    var revertDiffs = n._modifyData.map(function(d) {
+                        return { el: d.el, td: d.td, oldText: d.changedText, newText: d.originalText };
+                    });
                     cnShowRevertOverlay(row, 'modify', revertDiffs);
                 } else if (n.type === 'add') {
                     var row = n._row || cnFindRow(n.siteName);
@@ -2786,27 +2779,18 @@
 
             if (n.type === 'modify') {
                 var row = n._row || cnFindRow(n.siteName);
-                if (row) {
+                if (row && n._modifyData) {
                     // revertオーバーレイをクリア
                     row.classList.remove('cn-pending');
-                    var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-overlay, .cn-cell-old, .cn-cell-new');
+                    var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-overlay');
                     for (var i = 0; i < els.length; i++) els[i].remove();
-
-                    if (n._commitFn) {
-                        // 現在の値を保存（差分表示用）
-                        var beforeValues = [];
-                        if (n._oldValues) {
-                            n._oldValues.forEach(function(v) {
-                                beforeValues.push({ cell: v.parent, oldText: v.parent.textContent });
-                            });
-                        }
-                        n._commitFn();
-                        // 差分可視化（戻した値A → 再反映した値B）
-                        var diffs = beforeValues.map(function(v) {
-                            return { cell: v.cell, oldText: v.oldText, newText: v.cell.textContent };
-                        });
-                        cnShowRevertOverlay(row, 'modify', diffs);
-                    }
+                    // セルをクリーン状態にして変更後の値を再設定
+                    n._modifyData.forEach(function(d) { d.el.textContent = d.changedText; });
+                    // 差分可視化（元の値A → 変更後B）
+                    var diffs = n._modifyData.map(function(d) {
+                        return { el: d.el, td: d.td, oldText: d.originalText, newText: d.changedText };
+                    });
+                    cnShowRevertOverlay(row, 'modify', diffs);
                 }
             } else if (n.type === 'add') {
                 // 行を再作成し即承認
@@ -2890,13 +2874,20 @@
                 n._row = row;
                 var pending = cnPendingMap.get(row);
                 if (pending) n._commitFn = pending.commit;
-                // modify: 承認後revert用に旧値と要素参照を保存
+                // modify: 不変のテキスト値と要素参照を保存（DOM状態に依存しない）
                 if (n.type === 'modify') {
-                    var oldValues = [];
+                    var modifyData = [];
                     row.querySelectorAll('.cn-cell-old').forEach(function(el) {
-                        oldValues.push({ parent: el.parentElement, oldText: el.textContent });
+                        var parent = el.parentElement;
+                        var newSpan = parent.querySelector('.cn-cell-new');
+                        modifyData.push({
+                            el: parent,
+                            td: parent.closest('td'),
+                            originalText: el.textContent,
+                            changedText: newSpan ? newSpan.textContent : ''
+                        });
                     });
-                    n._oldValues = oldValues;
+                    n._modifyData = modifyData;
                 }
             }
         }
