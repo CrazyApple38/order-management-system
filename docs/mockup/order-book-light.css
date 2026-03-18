@@ -960,6 +960,103 @@ body {
     background: rgba(68,166,181,0.06);
 }
 
+/* ========== 複数配置先 ========== */
+
+/* グリッド内の配置先エントリ（縦並び） */
+.ob-site-entry {
+    cursor: pointer; width: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 1px 0;
+    transition: background 0.1s;
+    border-radius: 2px;
+}
+.ob-site-entry:hover {
+    background: var(--accent-dim);
+    box-shadow: inset 0 0 0 1px var(--accent);
+}
+.ob-site-entry + .ob-site-entry {
+    border-top: 1px dotted var(--divider);
+}
+.ob-site-entry.ob-conf-tentative_high .ob-cell-count { opacity: 0.5; }
+.ob-site-entry.ob-conf-tentative_low .ob-cell-count { opacity: 0.25; }
+
+/* 配置先ナビゲーション */
+.ob-site-nav {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 8px 12px; margin-bottom: 12px;
+    background: rgba(68,166,181,0.06);
+    border: 1px solid var(--secondary);
+    border-radius: 8px;
+}
+.ob-site-nav-top {
+    display: flex; align-items: center; gap: 8px;
+}
+.ob-site-name-row {
+    display: flex; align-items: center; gap: 8px;
+}
+.ob-site-name-label {
+    font-size: 12px; font-weight: 600; color: var(--text-secondary);
+    white-space: nowrap;
+}
+.ob-site-name-input {
+    flex: 1; padding: 5px 8px; border: 1px solid var(--divider);
+    border-radius: 6px; font-size: 13px; background: var(--bg-surface);
+    color: var(--text-primary);
+}
+.ob-site-name-input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(68,166,181,0.15);
+}
+.ob-site-nav-btn {
+    padding: 4px 10px; border: 1px solid var(--divider);
+    border-radius: 6px; background: var(--bg-surface);
+    color: var(--text-secondary); font-size: 12px;
+    cursor: pointer; transition: all 0.15s;
+    font-weight: 600;
+}
+.ob-site-nav-btn:hover:not(:disabled) {
+    background: var(--accent-dim); border-color: var(--accent); color: var(--accent);
+}
+.ob-site-nav-btn:disabled {
+    opacity: 0.3; cursor: default;
+}
+.ob-site-nav-label {
+    font-size: 13px; font-weight: 600; color: var(--text-primary);
+    min-width: 80px; text-align: center;
+}
+.ob-btn-add-site {
+    margin-left: auto;
+    padding: 4px 12px; border: 1px dashed var(--accent);
+    border-radius: 6px; background: var(--accent-dim);
+    color: var(--accent); font-size: 11px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+}
+.ob-btn-add-site:hover {
+    background: var(--accent); color: white; border-style: solid;
+}
+.ob-btn-delete-site {
+    padding: 4px 10px; border: 1px solid rgba(220,38,38,0.3);
+    border-radius: 6px; background: rgba(220,38,38,0.06);
+    color: #dc2626; font-size: 11px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+}
+.ob-btn-delete-site:hover {
+    background: #dc2626; color: white; border-color: #dc2626;
+}
+
+/* ツールチップ内の配置先ヘッダー */
+.ob-tt-site-header {
+    font-size: 10px; font-weight: 700; color: var(--accent-light);
+    letter-spacing: 0.5px; margin-top: 4px;
+    padding: 2px 8px; border-radius: 8px;
+    background: rgba(68,166,181,0.15);
+    display: inline-block;
+}
+.ob-tt-divider {
+    height: 1px; background: rgba(178,213,226,0.3);
+    margin: 6px 0;
+}
+
 .ob-frozen-clickable {
     cursor: pointer; transition: background 0.1s;
 }

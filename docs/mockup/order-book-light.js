@@ -345,7 +345,39 @@ function generateCellData() {
                 }
                 // 計画書業務名を自動生成（親業務名 > 子 > 孫）
                 cellEntry.dailyTaskName = buildDailyTaskName(row.task, cellEntry.subTasks);
-                data[ri][d] = cellEntry;
+
+                // 配列として格納（複数配置先対応）
+                const entries = [cellEntry];
+
+                // 約20%の確率で2つ目の配置先を生成（モックアップ用）
+                if (Math.random() < 0.2 && count >= 3) {
+                    const count2 = Math.floor(Math.random() * Math.min(count - 1, 3)) + 1;
+                    cellEntry.count = count - count2;
+                    cellEntry.siteName = '現場A';
+
+                    const startH2 = row.shift === '夜' ? 20 : 7 + Math.floor(Math.random() * 2);
+                    const endH2 = row.shift === '夜' ? 5 : 16 + Math.floor(Math.random() * 2);
+                    const entry2 = {
+                        count: count2,
+                        siteName: '現場B',
+                        subTasks: [],
+                        dailyTaskName: buildDailyTaskName(row.task, []),
+                        startTime: String(startH2).padStart(2, '0') + ':00',
+                        endTime: String(endH2).padStart(2, '0') + ':00',
+                        supervisor: '',
+                        supervisorTel: '',
+                        assignment: '',
+                        mapUrl: '',
+                        badge: cellEntry.badge ? JSON.parse(JSON.stringify(cellEntry.badge)) : null,
+                        confidence: cellEntry.confidence,
+                        remarks: '',
+                        meetingPlace: '',
+                        meetingTime: '',
+                    };
+                    entries.push(entry2);
+                }
+
+                data[ri][d] = entries;
             }
         }
     });
@@ -353,6 +385,18 @@ function generateCellData() {
 }
 
 let cellData = generateCellData(); // 【モックアップ専用】本番ではAPIから取得したデータで初期化
+
+// --- 配置先ヘルパー ---
+// cellData[ri][d] は配列。常に配列として返す。
+function getCellEntries(ri, d) {
+    const cell = cellData[ri] && cellData[ri][d];
+    if (!cell) return [];
+    return Array.isArray(cell) ? cell : [cell];
+}
+
+function getCellTotalCount(ri, d) {
+    return getCellEntries(ri, d).reduce((sum, e) => sum + (e.count || 0), 0);
+}
 
 // --- 信頼度の自動確定ルール ---
 // ルール1: 昨日以前の日付 → 自動的に「確定」（常に適用、手動フラグ無視）
@@ -365,27 +409,28 @@ function applyAutoConfidence() {
     sampleRows.forEach((_row, ri) => {
         if (!cellData[ri]) return;
         for (let d = 1; d <= daysInMonth; d++) {
-            const cell = cellData[ri][d];
-            if (!cell) continue;
+            const entries = getCellEntries(ri, d);
+            if (entries.length === 0) continue;
 
             const cellDate = new Date(currentYear, currentMonth - 1, d);
             cellDate.setHours(0, 0, 0, 0);
 
-            // ルール1: 昨日以前 → 確定（過去の事実は変わらないため常に適用）
-            if (cellDate < today) {
-                cell.confidence = 'confirmed';
-                cell.confidenceManual = false; // 過去日は手動フラグをリセット
-                continue;
-            }
+            entries.forEach(entry => {
+                // ルール1: 昨日以前 → 確定（過去の事実は変わらないため常に適用）
+                if (cellDate < today) {
+                    entry.confidence = 'confirmed';
+                    entry.confidenceManual = false;
+                    return;
+                }
 
-            // ユーザーが手動で設定した場合はルール2をスキップ
-            if (cell.confidenceManual) continue;
+                // ユーザーが手動で設定した場合はルール2をスキップ
+                if (entry.confidenceManual) return;
 
-            // ルール2: 社員が配置済み → 確定
-            // （実システムではassignment_detailsの存在で判定）
-            if (cell.assignment && cell.assignment.trim() !== '') {
-                cell.confidence = 'confirmed';
-            }
+                // ルール2: 社員が配置済み → 確定
+                if (entry.assignment && entry.assignment.trim() !== '') {
+                    entry.confidence = 'confirmed';
+                }
+            });
         }
     });
 }
@@ -463,24 +508,27 @@ function renderGrid() {
             const dt = new Date(currentYear, currentMonth - 1, d);
             const dow = dt.getDay();
             const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-            const cell = cellData[ri] && cellData[ri][d];
+            const entries = getCellEntries(ri, d);
             let cls = `ob-cell ob-date-cell ${rowCls}${evenCls}`;
             if (weekendColorsEnabled) {
                 if (holidays[dateStr]) cls += ' ob-holiday';
                 else if (dow === 0) cls += ' ob-sun';
                 else if (dow === 6) cls += ' ob-sat';
             }
-            // 信頼度クラス
-            if (cell && cell.confidence === 'tentative_high') cls += ' ob-conf-tentative_high';
-            else if (cell && cell.confidence === 'tentative_low') cls += ' ob-conf-tentative_low';
+            // 信頼度クラス（単一エントリ時のみセルに適用）
+            if (entries.length === 1) {
+                if (entries[0].confidence === 'tentative_high') cls += ' ob-conf-tentative_high';
+                else if (entries[0].confidence === 'tentative_low') cls += ' ob-conf-tentative_low';
+            }
             let cellContent = '';
-            if (cell) {
-                cellContent = `<span class="ob-cell-count">${cell.count}</span>`;
-                // 子バッジを小さなテキストで表示
-                if (cell.badge && cell.badge.childIds && cell.badge.childIds.length > 0) {
-                    const parent = badgeDefinitions.find(p => p.id === cell.badge.parentId);
+            if (entries.length === 1) {
+                // 単一配置先: 従来通り
+                const entry = entries[0];
+                cellContent = `<span class="ob-cell-count">${entry.count}</span>`;
+                if (entry.badge && entry.badge.childIds && entry.badge.childIds.length > 0) {
+                    const parent = badgeDefinitions.find(p => p.id === entry.badge.parentId);
                     if (parent) {
-                        const names = cell.badge.childIds
+                        const names = entry.badge.childIds
                             .map(cid => parent.children.find(c => c.id === cid))
                             .filter(Boolean)
                             .map(c => c.name);
@@ -489,16 +537,41 @@ function renderGrid() {
                         }
                     }
                 }
+            } else if (entries.length > 1) {
+                // 複数配置先: 縦並びで各人数を個別クリック可能に
+                cellContent = entries.map((entry, si) => {
+                    let confCls = '';
+                    if (entry.confidence === 'tentative_high') confCls = ' ob-conf-tentative_high';
+                    else if (entry.confidence === 'tentative_low') confCls = ' ob-conf-tentative_low';
+                    let badgeHtml = '';
+                    if (entry.badge && entry.badge.childIds && entry.badge.childIds.length > 0) {
+                        const parent = badgeDefinitions.find(p => p.id === entry.badge.parentId);
+                        if (parent) {
+                            const names = entry.badge.childIds
+                                .map(cid => parent.children.find(c => c.id === cid))
+                                .filter(Boolean)
+                                .map(c => c.name);
+                            if (names.length > 0) {
+                                badgeHtml = `<span class="ob-cell-badge-text">${escapeHtml(names.join('・'))}</span>`;
+                            }
+                        }
+                    }
+                    return `<div class="ob-site-entry${confCls}" onclick="event.stopPropagation(); openEditModal(${ri},${d},${si})" onmouseenter="showTooltip(event,${ri},${d},${si})" onmouseleave="hideTooltip()"><span class="ob-cell-count">${entry.count}</span>${badgeHtml}</div>`;
+                }).join('');
             }
-            if (cell && !isHidden) {
-                rowTotalMax += cell.count;
-                dailyTotalsMax[d - 1] += cell.count;
-                if (cell.confidence === 'confirmed' || !cell.confidence) {
-                    rowTotalMin += cell.count;
-                    dailyTotalsMin[d - 1] += cell.count;
-                }
+            if (entries.length > 0 && !isHidden) {
+                entries.forEach(entry => {
+                    rowTotalMax += entry.count;
+                    dailyTotalsMax[d - 1] += entry.count;
+                    if (entry.confidence === 'confirmed' || !entry.confidence) {
+                        rowTotalMin += entry.count;
+                        dailyTotalsMin[d - 1] += entry.count;
+                    }
+                });
             }
-            html += `<div class="${cls}" data-ri="${ri}" data-day="${d}" onmouseenter="showTooltip(event,${ri},${d})" onmouseleave="hideTooltip()" onclick="openEditModal(${ri},${d})">${cellContent}</div>`;
+            const cellClick = entries.length > 1 ? '' : `onclick="openEditModal(${ri},${d},0)"`;
+            const cellHover = entries.length > 1 ? '' : `onmouseenter="showTooltip(event,${ri},${d})" onmouseleave="hideTooltip()"`;
+            html += `<div class="${cls}" data-ri="${ri}" data-day="${d}" ${cellHover} ${cellClick}>${cellContent}</div>`;
         }
 
         // Row total（最小～最大）
@@ -582,27 +655,43 @@ function toggleHiddenRows() {
 }
 
 // --- ツールチップ ---
-function showTooltip(e, ri, day) {
-    const cell = cellData[ri] && cellData[ri][day];
-    if (!cell) return;
+function showTooltip(e, ri, day, siteIdx) {
+    const entries = getCellEntries(ri, day);
+    if (entries.length === 0) return;
     const row = sampleRows[ri];
     const dateStr = `${currentMonth}/${day}`;
 
-    // タイトル: 契約先名 / 親業務名 › 子 › 孫 の連結表示
-    const dailyName = cell.dailyTaskName || buildDailyTaskName(row.task, cell.subTasks);
-    const titleTask = dailyName
-        ? dailyName.replace(/ > /g, ' <span class="ob-tt-arrow">›</span> ')
-        : (row.task || '(個別業務)');
-    let thtml = `<div class="ob-tt-title">${row.company} / ${titleTask}</div>`;
-    thtml += `<div class="ob-tt-row"><span class="ob-tt-label">日付:</span><span class="ob-tt-value">${dateStr}（${row.shift}）</span></div>`;
-    thtml += `<div class="ob-tt-row"><span class="ob-tt-label">時間:</span><span class="ob-tt-value">${cell.startTime} - ${cell.endTime}</span></div>`;
-    if (cell.supervisor) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">現場監督:</span><span class="ob-tt-value">${cell.supervisor}${cell.supervisorTel ? ' / ' + cell.supervisorTel : ''}</span></div>`;
-    if (cell.meetingPlace || cell.meetingTime) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">集合:</span><span class="ob-tt-value">${cell.meetingPlace || ''}${cell.meetingPlace && cell.meetingTime ? ' / ' : ''}${cell.meetingTime || ''}</span></div>`;
-    thtml += `<div class="ob-tt-row"><span class="ob-tt-label">人数:</span><span class="ob-tt-value">${cell.count}名</span></div>`;
-    const badgeText = getBadgeDisplayText(cell.badge);
-    if (badgeText) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">バッジ:</span><span class="ob-tt-value"><span class="ob-tt-badge">${escapeHtml(badgeText)}</span></span></div>`;
-    if (cell.mapUrl) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">地図:</span><span class="ob-tt-value ob-tt-map-link">📍 あり</span></div>`;
-    if (cell.remarks) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">備考:</span><span class="ob-tt-value">${cell.remarks}</span></div>`;
+    let thtml = '';
+
+    // 特定の配置先が指定された場合はその1件だけ、なければ全エントリ表示
+    const entriesToShow = (siteIdx !== undefined) ? [entries[siteIdx]] : entries;
+
+    entriesToShow.forEach((entry, idx) => {
+        if (!entry) return;
+        if (entries.length > 1) {
+            const sLabel = (siteIdx !== undefined) ? `配置先 ${siteIdx + 1}/${entries.length}` : `配置先 ${(siteIdx !== undefined ? siteIdx : idx) + 1}`;
+            const siteName = entry.siteName ? ` - ${escapeHtml(entry.siteName)}` : '';
+            thtml += `<div class="ob-tt-site-header">${sLabel}${siteName}</div>`;
+        }
+
+        const dailyName = entry.dailyTaskName || buildDailyTaskName(row.task, entry.subTasks);
+        const titleTask = dailyName
+            ? dailyName.replace(/ > /g, ' <span class="ob-tt-arrow">›</span> ')
+            : (row.task || '(個別業務)');
+        thtml += `<div class="ob-tt-title">${row.company} / ${titleTask}</div>`;
+        thtml += `<div class="ob-tt-row"><span class="ob-tt-label">日付:</span><span class="ob-tt-value">${dateStr}（${row.shift}）</span></div>`;
+        if (entry.siteName) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">配置先:</span><span class="ob-tt-value">${escapeHtml(entry.siteName)}</span></div>`;
+        thtml += `<div class="ob-tt-row"><span class="ob-tt-label">時間:</span><span class="ob-tt-value">${entry.startTime} - ${entry.endTime}</span></div>`;
+        if (entry.supervisor) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">現場監督:</span><span class="ob-tt-value">${entry.supervisor}${entry.supervisorTel ? ' / ' + entry.supervisorTel : ''}</span></div>`;
+        if (entry.meetingPlace || entry.meetingTime) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">集合:</span><span class="ob-tt-value">${entry.meetingPlace || ''}${entry.meetingPlace && entry.meetingTime ? ' / ' : ''}${entry.meetingTime || ''}</span></div>`;
+        thtml += `<div class="ob-tt-row"><span class="ob-tt-label">人数:</span><span class="ob-tt-value">${entry.count}名</span></div>`;
+        const badgeText = getBadgeDisplayText(entry.badge);
+        if (badgeText) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">バッジ:</span><span class="ob-tt-value"><span class="ob-tt-badge">${escapeHtml(badgeText)}</span></span></div>`;
+        if (entry.mapUrl) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">地図:</span><span class="ob-tt-value ob-tt-map-link">あり</span></div>`;
+        if (entry.remarks) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">備考:</span><span class="ob-tt-value">${entry.remarks}</span></div>`;
+
+        if (idx < entriesToShow.length - 1) thtml += `<div class="ob-tt-divider"></div>`;
+    });
 
     const tooltip = document.getElementById('cellTooltip');
     tooltip.innerHTML = thtml;
@@ -624,6 +713,7 @@ function hideTooltip() {
 // --- 編集モーダル ---
 let editingRi = null;
 let editingDay = null;
+let editingSiteIdx = 0; // 編集中の配置先インデックス
 
 // サブタスクエントリをDOMに描画
 function renderSubTaskEntries(subTasks, category) {
@@ -1242,12 +1332,15 @@ function getSupervisorCandidates(task) {
         if (row.task !== task) return;
         const rowCells = cellData[ri];
         if (!rowCells) return;
-        Object.values(rowCells).forEach(cell => {
-            if (!cell || !cell.supervisor) return;
-            const key = cell.supervisor + '||' + (cell.supervisorTel || '');
-            if (seen.has(key)) return;
-            seen.add(key);
-            results.push({ name: cell.supervisor, tel: cell.supervisorTel || '' });
+        Object.values(rowCells).forEach(cellOrEntries => {
+            const entries = Array.isArray(cellOrEntries) ? cellOrEntries : [cellOrEntries];
+            entries.forEach(entry => {
+                if (!entry || !entry.supervisor) return;
+                const key = entry.supervisor + '||' + (entry.supervisorTel || '');
+                if (seen.has(key)) return;
+                seen.add(key);
+                results.push({ name: entry.supervisor, tel: entry.supervisorTel || '' });
+            });
         });
     });
     return results;
@@ -1374,13 +1467,15 @@ function onSvDragEnd() {
     });
 }
 
-function openEditModal(ri, day) {
+function openEditModal(ri, day, siteIdx) {
     editingRi = ri;
     editingDay = day;
+    editingSiteIdx = siteIdx || 0;
     // バッジ定義のスナップショット保存（キャンセル時復元用）
     badgeSnapshot = JSON.parse(JSON.stringify(badgeDefinitions));
     const row = sampleRows[ri];
-    const cell = cellData[ri] && cellData[ri][day];
+    const entries = getCellEntries(ri, day);
+    const entry = entries[editingSiteIdx] || null;
     const dateStr = `${currentYear}年${currentMonth}月${day}日`;
 
     const taskDisplay = row.task || '(個別業務)';
@@ -1389,20 +1484,24 @@ function openEditModal(ri, day) {
         `<strong>${row.company}</strong> / ${taskDisplay}<br>` +
         `${row.branch} | ${row.category} | ${row.shift}勤`;
 
-    document.getElementById('editCount').value = cell ? cell.count : '';
-    confidenceManualFlag = cell ? (cell.confidenceManual || false) : false;
-    renderConfidenceChips(cell ? (cell.confidence || 'confirmed') : 'confirmed');
-    document.getElementById('editStartTime').value = cell ? cell.startTime : '';
-    document.getElementById('editEndTime').value = cell ? cell.endTime : '';
-    document.getElementById('editSupervisor').value = cell ? (cell.supervisor || '') : '';
-    document.getElementById('editSupervisorTel').value = cell ? (cell.supervisorTel || '') : '';
-    document.getElementById('editMeetingPlace').value = cell ? (cell.meetingPlace || '') : '';
-    document.getElementById('editMeetingTime').value = cell ? (cell.meetingTime || '') : '';
-    document.getElementById('editMapUrl').value = cell ? (cell.mapUrl || '') : '';
-    document.getElementById('editRemarks').value = cell ? cell.remarks : '';
+    // 配置先ナビゲーション更新
+    updateSiteNav();
+
+    document.getElementById('editSiteName').value = entry ? (entry.siteName || '') : '';
+    document.getElementById('editCount').value = entry ? entry.count : '';
+    confidenceManualFlag = entry ? (entry.confidenceManual || false) : false;
+    renderConfidenceChips(entry ? (entry.confidence || 'confirmed') : 'confirmed');
+    document.getElementById('editStartTime').value = entry ? entry.startTime : '';
+    document.getElementById('editEndTime').value = entry ? entry.endTime : '';
+    document.getElementById('editSupervisor').value = entry ? (entry.supervisor || '') : '';
+    document.getElementById('editSupervisorTel').value = entry ? (entry.supervisorTel || '') : '';
+    document.getElementById('editMeetingPlace').value = entry ? (entry.meetingPlace || '') : '';
+    document.getElementById('editMeetingTime').value = entry ? (entry.meetingTime || '') : '';
+    document.getElementById('editMapUrl').value = entry ? (entry.mapUrl || '') : '';
+    document.getElementById('editRemarks').value = entry ? entry.remarks : '';
 
     // 地図プレビューをリセット（URLがあれば自動表示）
-    const mapUrl = cell ? (cell.mapUrl || '') : '';
+    const mapUrl = entry ? (entry.mapUrl || '') : '';
     if (mapUrl) {
         document.getElementById('mapPreviewFrame').src = mapUrl;
         document.getElementById('mapPreviewContainer').style.display = 'block';
@@ -1411,20 +1510,192 @@ function openEditModal(ri, day) {
     }
 
     // 動的サブタスクエントリを描画
-    const subTasks = cell ? (cell.subTasks || []) : [];
+    const subTasks = entry ? (entry.subTasks || []) : [];
     renderSubTaskEntries(subTasks, row.category);
 
     // 計画書業務名（読み取り専用：リアルタイム自動生成）
     updateDailyTaskNamePreview();
 
     // バッジ選択を復元（親バッジは区分から自動決定）
-    const badge = cell ? (cell.badge || null) : null;
+    const badge = entry ? (entry.badge || null) : null;
     renderBadgeSection(row.category, badge ? badge.childIds : [], badge ? (badge.grandchildMap || {}) : {});
 
     // 同一業務名の現場監督・連絡先候補を表示
     renderSupervisorCandidates(row.task);
 
     document.getElementById('editModalOverlay').style.display = 'flex';
+}
+
+// --- 配置先ナビゲーション ---
+function updateSiteNav() {
+    const entries = getCellEntries(editingRi, editingDay);
+    const total = Math.max(entries.length, 1);
+    const nav = document.getElementById('siteNavBar');
+    if (!nav) return;
+
+    if (total <= 1 && entries.length <= 1) {
+        // 単一配置先の場合はナビを簡易表示（追加ボタンのみ）
+        nav.style.display = 'flex';
+        document.getElementById('siteNavLabel').textContent = '';
+        document.getElementById('siteNavPrev').style.display = 'none';
+        document.getElementById('siteNavNext').style.display = 'none';
+        document.getElementById('btnDeleteSite').style.display = 'none';
+    } else {
+        nav.style.display = 'flex';
+        document.getElementById('siteNavLabel').textContent = `配置先 ${editingSiteIdx + 1}/${total}`;
+        document.getElementById('siteNavPrev').style.display = '';
+        document.getElementById('siteNavNext').style.display = '';
+        document.getElementById('siteNavPrev').disabled = editingSiteIdx <= 0;
+        document.getElementById('siteNavNext').disabled = editingSiteIdx >= total - 1;
+        document.getElementById('btnDeleteSite').style.display = '';
+    }
+}
+
+function navigateSite(delta) {
+    // 現在のエントリを一時保存してから切り替え
+    saveSiteToData();
+    const entries = getCellEntries(editingRi, editingDay);
+    const newIdx = editingSiteIdx + delta;
+    if (newIdx < 0 || newIdx >= entries.length) return;
+    editingSiteIdx = newIdx;
+    loadSiteToModal();
+}
+
+// モーダルのフォーム値をcellDataに書き戻す（切替時用）
+function saveSiteToData() {
+    const count = parseInt(document.getElementById('editCount').value) || 0;
+    if (!cellData[editingRi]) cellData[editingRi] = {};
+    const entries = getCellEntries(editingRi, editingDay);
+
+    const subTasks = collectSubTasks();
+    const row = sampleRows[editingRi];
+    const entryData = {
+        count: count,
+        siteName: document.getElementById('editSiteName').value,
+        confidence: selectedConfidence,
+        confidenceManual: confidenceManualFlag,
+        subTasks: subTasks,
+        dailyTaskName: buildDailyTaskName(row.task, subTasks),
+        startTime: document.getElementById('editStartTime').value,
+        endTime: document.getElementById('editEndTime').value,
+        supervisor: document.getElementById('editSupervisor').value,
+        supervisorTel: document.getElementById('editSupervisorTel').value,
+        meetingPlace: document.getElementById('editMeetingPlace').value,
+        meetingTime: document.getElementById('editMeetingTime').value,
+        mapUrl: document.getElementById('editMapUrl').value.trim(),
+        badge: getSelectedBadgeData(),
+        remarks: document.getElementById('editRemarks').value,
+    };
+
+    if (entries.length === 0) {
+        cellData[editingRi][editingDay] = [entryData];
+    } else {
+        entries[editingSiteIdx] = entryData;
+    }
+}
+
+// cellDataからモーダルにロード
+function loadSiteToModal() {
+    const entries = getCellEntries(editingRi, editingDay);
+    const entry = entries[editingSiteIdx] || null;
+    const row = sampleRows[editingRi];
+
+    updateSiteNav();
+
+    document.getElementById('editSiteName').value = entry ? (entry.siteName || '') : '';
+    document.getElementById('editCount').value = entry ? entry.count : '';
+    confidenceManualFlag = entry ? (entry.confidenceManual || false) : false;
+    renderConfidenceChips(entry ? (entry.confidence || 'confirmed') : 'confirmed');
+    document.getElementById('editStartTime').value = entry ? entry.startTime : '';
+    document.getElementById('editEndTime').value = entry ? entry.endTime : '';
+    document.getElementById('editSupervisor').value = entry ? (entry.supervisor || '') : '';
+    document.getElementById('editSupervisorTel').value = entry ? (entry.supervisorTel || '') : '';
+    document.getElementById('editMeetingPlace').value = entry ? (entry.meetingPlace || '') : '';
+    document.getElementById('editMeetingTime').value = entry ? (entry.meetingTime || '') : '';
+    document.getElementById('editMapUrl').value = entry ? (entry.mapUrl || '') : '';
+    document.getElementById('editRemarks').value = entry ? entry.remarks : '';
+
+    const mapUrl = entry ? (entry.mapUrl || '') : '';
+    if (mapUrl) {
+        document.getElementById('mapPreviewFrame').src = mapUrl;
+        document.getElementById('mapPreviewContainer').style.display = 'block';
+    } else {
+        clearMapPreview();
+    }
+
+    const subTasks = entry ? (entry.subTasks || []) : [];
+    renderSubTaskEntries(subTasks, row.category);
+    updateDailyTaskNamePreview();
+
+    const badge = entry ? (entry.badge || null) : null;
+    renderBadgeSection(row.category, badge ? badge.childIds : [], badge ? (badge.grandchildMap || {}) : {});
+
+    renderSupervisorCandidates(row.task);
+}
+
+// --- 配置先追加 ---
+function addSiteEntry() {
+    pushUndo();
+    saveSiteToData();
+    if (!cellData[editingRi]) cellData[editingRi] = {};
+    const entries = getCellEntries(editingRi, editingDay);
+
+    const row = sampleRows[editingRi];
+    // 既存エントリにsiteNameが空のものがあれば自動命名
+    const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if (entries.length > 0) {
+        entries.forEach((e, i) => {
+            if (!e.siteName) e.siteName = '現場' + alpha[i % 26];
+        });
+        // 現在モーダルに表示中のエントリのsiteNameも更新
+        document.getElementById('editSiteName').value = entries[editingSiteIdx].siteName;
+    }
+
+    const nextLetter = alpha[entries.length % 26];
+    const newEntry = {
+        count: 1,
+        siteName: '現場' + nextLetter,
+        confidence: 'confirmed',
+        confidenceManual: false,
+        subTasks: [],
+        dailyTaskName: buildDailyTaskName(row.task, []),
+        startTime: '',
+        endTime: '',
+        supervisor: '',
+        supervisorTel: '',
+        meetingPlace: '',
+        meetingTime: '',
+        mapUrl: '',
+        badge: null,
+        remarks: '',
+    };
+
+    if (entries.length === 0) {
+        newEntry.siteName = '現場A';
+        cellData[editingRi][editingDay] = [newEntry];
+        editingSiteIdx = 0;
+    } else {
+        entries.push(newEntry);
+        editingSiteIdx = entries.length - 1;
+    }
+
+    loadSiteToModal();
+}
+
+// --- 配置先削除 ---
+function deleteSiteEntry() {
+    const entries = getCellEntries(editingRi, editingDay);
+    if (entries.length <= 1) {
+        // 最後の1つを削除 → セルごと削除
+        deleteCell();
+        return;
+    }
+    pushUndo();
+    entries.splice(editingSiteIdx, 1);
+    if (editingSiteIdx >= entries.length) {
+        editingSiteIdx = entries.length - 1;
+    }
+    loadSiteToModal();
 }
 
 function closeEditModal(e) {
@@ -1446,13 +1717,21 @@ function saveEdit() {
     const count = parseInt(document.getElementById('editCount').value) || 0;
     if (!cellData[editingRi]) cellData[editingRi] = {};
 
+    const entries = getCellEntries(editingRi, editingDay);
+
     if (count === 0) {
-        delete cellData[editingRi][editingDay];
+        // この配置先を削除
+        if (entries.length <= 1) {
+            delete cellData[editingRi][editingDay];
+        } else {
+            entries.splice(editingSiteIdx, 1);
+        }
     } else {
         const subTasks = collectSubTasks();
         const row = sampleRows[editingRi];
-        cellData[editingRi][editingDay] = {
+        const entryData = {
             count: count,
+            siteName: document.getElementById('editSiteName').value,
             confidence: selectedConfidence,
             confidenceManual: confidenceManualFlag,
             subTasks: subTasks,
@@ -1467,6 +1746,12 @@ function saveEdit() {
             badge: getSelectedBadgeData(),
             remarks: document.getElementById('editRemarks').value,
         };
+
+        if (entries.length === 0) {
+            cellData[editingRi][editingDay] = [entryData];
+        } else {
+            entries[editingSiteIdx] = entryData;
+        }
     }
     closeEditModal();
     applyAutoConfidence();
@@ -1477,6 +1762,16 @@ function deleteCell() {
     if (editingRi === null || editingDay === null) return;
     pushUndo();
     badgeSnapshot = null; // セル削除時もバッジ変更を確定
+    const entries = getCellEntries(editingRi, editingDay);
+    if (entries.length > 1) {
+        // 複数配置先がある場合は現在のエントリのみ削除
+        entries.splice(editingSiteIdx, 1);
+        if (editingSiteIdx >= entries.length) editingSiteIdx = entries.length - 1;
+        // モーダルを更新して次の配置先を表示
+        loadSiteToModal();
+        renderGrid();
+        return;
+    }
     if (cellData[editingRi]) {
         delete cellData[editingRi][editingDay];
     }
@@ -1611,12 +1906,14 @@ function saveRowEdit() {
         const rowCells = cellData[editingRowRi];
         if (rowCells) {
             Object.keys(rowCells).forEach(day => {
-                const cell = rowCells[day];
-                if (cell && cell.badge) {
-                    cell.badge.parentId = newBadgeId;
-                    cell.badge.childIds = []; // 親が変わったので子バッジをリセット
-                    cell.badge.grandchildMap = {};
-                }
+                const entries = getCellEntries(editingRowRi, parseInt(day));
+                entries.forEach(entry => {
+                    if (entry && entry.badge) {
+                        entry.badge.parentId = newBadgeId;
+                        entry.badge.childIds = [];
+                        entry.badge.grandchildMap = {};
+                    }
+                });
             });
         }
     }
@@ -1625,10 +1922,12 @@ function saveRowEdit() {
     const rowCells = cellData[editingRowRi];
     if (rowCells) {
         Object.keys(rowCells).forEach(day => {
-            const cell = rowCells[day];
-            if (cell) {
-                cell.dailyTaskName = buildDailyTaskName(row.task, cell.subTasks);
-            }
+            const entries = getCellEntries(editingRowRi, parseInt(day));
+            entries.forEach(entry => {
+                if (entry) {
+                    entry.dailyTaskName = buildDailyTaskName(row.task, entry.subTasks);
+                }
+            });
         });
     }
 

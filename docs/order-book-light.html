@@ -110,6 +110,20 @@
             </div>
             <div class="ob-modal-body">
                 <div class="ob-modal-info" id="editModalInfo"></div>
+                <!-- 配置先ナビゲーション -->
+                <div class="ob-site-nav" id="siteNavBar">
+                    <div class="ob-site-nav-top">
+                        <button type="button" class="ob-site-nav-btn" id="siteNavPrev" onclick="navigateSite(-1)">◀</button>
+                        <span class="ob-site-nav-label" id="siteNavLabel"></span>
+                        <button type="button" class="ob-site-nav-btn" id="siteNavNext" onclick="navigateSite(1)">▶</button>
+                        <button type="button" class="ob-btn-add-site" onclick="addSiteEntry()">+ 配置先を追加</button>
+                        <button type="button" class="ob-btn-delete-site" id="btnDeleteSite" onclick="deleteSiteEntry()" style="display:none;">この配置先を削除</button>
+                    </div>
+                    <div class="ob-site-name-row">
+                        <label class="ob-site-name-label">配置場所名</label>
+                        <input type="text" id="editSiteName" class="ob-site-name-input" placeholder="現場名を入力（例：現場A）">
+                    </div>
+                </div>
                 <div class="ob-edit-form">
                     <div class="ob-count-confidence-row">
                         <div class="ob-form-row">
