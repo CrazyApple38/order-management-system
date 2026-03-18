@@ -37,7 +37,6 @@ Excel VBAで運用していた受注簿・業務管理計画書をWebシステ�
 - `docs/01_要件定義.md` — システム要件定義
 - `docs/02_既存システム分析.md` — 既存システム分析
 - `docs/03_データベース設計.md` — DB設計書（PostgreSQL / Supabase）
-- `docs/04_差分処理要件定義.md` — 差分処理要件定義
 
 ## Technical Stack
 

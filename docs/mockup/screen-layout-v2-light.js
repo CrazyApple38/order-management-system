@@ -1,4 +1,4 @@
-        // === テーマ切替 ===
+﻿        // === テーマ切替 ===
         function toggleTheme() {
             const html = document.documentElement;
             const isDark = html.getAttribute('data-theme') === 'dark';
@@ -2031,178 +2031,6 @@
             updateSortFilters();
         }
 
-        // ===== 差分処理モーダル =====
-        const diffItemIds = ['fuzzy1', 'fuzzy2', 'fuzzy3', 'value1', 'new1', 'dbonly1'];
-        const diffDoneState = {};
-        let currentDiffItemId = 'fuzzy1';
-
-        function openDiffModal(direction) {
-            const modal = document.getElementById('diffModal');
-            const title = document.getElementById('diffModalTitle');
-
-            if (direction === 'import') {
-                title.textContent = '差分確認 - 受注簿データ取得（受注簿 → 業務管理計画書）';
-                document.getElementById('diffNewLabel').textContent = '受注簿のみ';
-                document.getElementById('diffNewBadge').textContent = '受注簿のみ';
-                document.getElementById('diffNewSidebarBadge').textContent = '受注簿のみ';
-            } else {
-                title.textContent = '差分確認 - 受注簿へ転記（業務管理計画書 → 受注簿）';
-                document.getElementById('diffNewLabel').textContent = 'システムのみ(新規)';
-                document.getElementById('diffNewBadge').textContent = 'システムのみ(新規)';
-                document.getElementById('diffNewSidebarBadge').textContent = 'システムのみ';
-            }
-
-            diffItemIds.forEach(id => { diffDoneState[id] = false; });
-            currentDiffItemId = diffItemIds[0];
-            selectDiffItem(diffItemIds[0]);
-            updateAllDiffStatus();
-            modal.classList.add('active');
-        }
-
-        function closeDiffModal() { document.getElementById('diffModal').classList.remove('active'); }
-
-        document.getElementById('diffModal').addEventListener('click', function(e) {
-            if (e.target === this) closeDiffModal();
-        });
-
-        function selectDiffItem(id) {
-            currentDiffItemId = id;
-            document.querySelectorAll('.diff-sidebar-item').forEach(item => {
-                item.classList.toggle('active', item.dataset.diffId === id);
-            });
-            document.querySelectorAll('.diff-detail-panel').forEach(panel => {
-                panel.classList.toggle('active', panel.id === 'diffPanel_' + id);
-            });
-        }
-
-        function selectNextDiffItem() {
-            const currentIndex = diffItemIds.indexOf(currentDiffItemId);
-            if (currentIndex < diffItemIds.length - 1) selectDiffItem(diffItemIds[currentIndex + 1]);
-        }
-
-        function onDiffRadioChange(diffId) {
-            if (!diffDoneState[diffId]) {
-                diffDoneState[diffId] = true;
-                updateDiffStatus(diffId);
-                updateDiffProgress();
-            }
-        }
-
-        function toggleDiffDone(diffId) {
-            diffDoneState[diffId] = !diffDoneState[diffId];
-            updateDiffStatus(diffId);
-            updateDiffProgress();
-        }
-
-        function updateDiffStatus(diffId) {
-            const icon = document.getElementById('diffStatus_' + diffId);
-            const btn = document.getElementById('diffDoneBtn_' + diffId);
-            const sidebarItem = document.querySelector('.diff-sidebar-item[data-diff-id="' + diffId + '"]');
-
-            if (diffDoneState[diffId]) {
-                icon.className = 'diff-status-icon status-done';
-                icon.textContent = '✓';
-                if (btn) { btn.classList.add('is-done'); btn.textContent = '確認済み ✓（クリックで解除）'; }
-                if (sidebarItem) sidebarItem.classList.add('done');
-            } else {
-                icon.className = 'diff-status-icon status-pending';
-                icon.textContent = '○';
-                if (btn) { btn.classList.remove('is-done'); btn.textContent = '確認済みにする'; }
-                if (sidebarItem) sidebarItem.classList.remove('done');
-            }
-        }
-
-        function updateAllDiffStatus() {
-            diffItemIds.forEach(id => updateDiffStatus(id));
-            updateDiffProgress();
-        }
-
-        function updateDiffProgress() {
-            const doneCount = diffItemIds.filter(id => diffDoneState[id]).length;
-            const total = diffItemIds.length;
-            const progressEl = document.getElementById('diffProgress');
-            progressEl.textContent = doneCount + ' / ' + total + ' 確認済み';
-            progressEl.classList.toggle('all-done', doneCount === total);
-        }
-
-        function selectAllFile() {
-            document.querySelectorAll('#diffModal .diff-items-table tbody tr').forEach(tr => {
-                const fileRadio = tr.querySelector('.col-excel input[type="radio"]');
-                if (fileRadio) fileRadio.checked = true;
-            });
-            document.querySelectorAll('#diffModal .diff-fuzzy-select label:first-of-type input[type="radio"]').forEach(r => r.checked = true);
-            diffItemIds.forEach(id => { diffDoneState[id] = true; });
-            updateAllDiffStatus();
-        }
-
-        function selectAllSys() {
-            document.querySelectorAll('#diffModal .diff-items-table tbody tr').forEach(tr => {
-                const sysRadio = tr.querySelector('.col-db input[type="radio"]');
-                if (sysRadio) sysRadio.checked = true;
-            });
-            document.querySelectorAll('#diffModal .diff-fuzzy-select label:last-of-type input[type="radio"]').forEach(r => r.checked = true);
-            diffItemIds.forEach(id => { diffDoneState[id] = true; });
-            updateAllDiffStatus();
-        }
-
-        function toggleDiffEdit(btn) {
-            const tr = btn.closest('tr');
-            const fileTd = tr.querySelector('.col-excel');
-            const sysTd = tr.querySelector('.col-db');
-
-            if (btn.textContent === '編集') {
-                const checkedLabel = tr.querySelector('input[type="radio"]:checked');
-                let currentValue = '';
-                if (checkedLabel) {
-                    const label = checkedLabel.closest('.diff-radio-label');
-                    currentValue = label.textContent.replace(label.querySelector('input')?.outerHTML || '', '').trim();
-                }
-
-                fileTd.colSpan = 2;
-                fileTd.className = '';
-                fileTd.innerHTML = `<input type="text" class="diff-edit-input" value="${escapeHtml(currentValue)}">`;
-                fileTd.querySelector('input').focus();
-
-                if (sysTd) sysTd.style.display = 'none';
-                btn.textContent = '確定';
-                btn.style.color = '#276749';
-                btn.style.borderColor = '#276749';
-            } else {
-                const editInput = fileTd.querySelector('.diff-edit-input');
-                const newValue = editInput ? editInput.value : '';
-
-                fileTd.colSpan = 1;
-                fileTd.className = 'col-excel';
-
-                const radioName = 'edited_' + Math.random().toString(36).substr(2, 5);
-                fileTd.innerHTML = `<label class="diff-radio-label"><input type="radio" name="${radioName}" checked> ${escapeHtml(newValue)}</label>`;
-
-                if (sysTd) {
-                    sysTd.style.display = '';
-                    sysTd.innerHTML = `<span class="diff-match-text">（編集済み）</span>`;
-                }
-
-                btn.textContent = '編集';
-                btn.style.color = 'var(--accent)';
-                btn.style.borderColor = 'var(--divider)';
-
-                onDiffRadioChange(currentDiffItemId);
-            }
-        }
-
-        function applyDiff() {
-            const doneCount = diffItemIds.filter(id => diffDoneState[id]).length;
-            const total = diffItemIds.length;
-
-            if (doneCount < total) {
-                if (!confirm('未確認の項目が ' + (total - doneCount) + ' 件あります。\nこのまま反映しますか？')) return;
-            }
-
-            const checkedCount = document.querySelectorAll('#diffModal input[type="radio"]:checked').length;
-            alert('差分を反映しました（デモ）\n\n確認済み: ' + doneCount + '/' + total + '件\n選択された項目: ' + checkedCount + '件\n\n※ 実際のReact実装では、選択結果に基づきSupabase DBを更新します。');
-            closeDiffModal();
-        }
-
         // ==================== カラー設定パネル ====================
 
         // --- ベース色 → 背景(rgba 12%) / 文字(暗色) 自動生成ユーティリティ ---
@@ -2470,6 +2298,11 @@
         function closeChangeNotifyModal() {
             document.getElementById('changeNotifyModal').classList.remove('active');
         }
+
+        // モーダル外クリックで閉じる
+        document.getElementById('changeNotifyModal').addEventListener('click', function(e) {
+            if (e.target === this) closeChangeNotifyModal();
+        });
 
         function switchCnTab(tabName) {
             cnState.activeTab = tabName;
