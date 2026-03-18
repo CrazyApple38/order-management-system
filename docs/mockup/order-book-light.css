@@ -230,6 +230,14 @@ body {
 .ob-cell-count {
     font-size: 13px; font-weight: 500;
 }
+.ob-cell-subtask {
+    font-size: 7px; font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+    max-width: 100%;
+    line-height: 1;
+}
 .ob-cell-badge-text {
     font-size: 7px; font-weight: 500;
     color: var(--accent);

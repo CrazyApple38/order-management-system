@@ -205,6 +205,18 @@ const sampleSubTasks = {
     ],
 };
 
+// 個別業務用サンプル業務詳細（土地名）
+const sampleIndividualSubTasks = [
+    { values: ['〇〇交差点'] },
+    { values: ['△△公園前'] },
+    { values: ['□□駅前'] },
+    { values: ['××橋付近'] },
+    { values: ['〇〇町3丁目'] },
+    { values: ['△△通り'] },
+    { values: ['□□インター入口'] },
+    { values: ['〇〇小学校前'] },
+];
+
 // --- バッジ定義（グローバル） ---
 // 【モックアップ専用】本番環境ではDBのbadge_definitionsテーブルから取得
 let badgeDefinitions = [
@@ -289,7 +301,7 @@ function generateCellData() {
                 const assigned = (isFuture && Math.random() > 0.4) ? '' : names.slice(0, count).join('、');
                 const startH = row.shift === '夜' ? 20 : 7 + Math.floor(Math.random() * 2);
                 const endH = row.shift === '夜' ? 5 : 16 + Math.floor(Math.random() * 2);
-                const catSamples = sampleSubTasks[row.category] || [];
+                const catSamples = !row.task ? sampleIndividualSubTasks : (sampleSubTasks[row.category] || []);
                 const sample = catSamples.length ? catSamples[Math.floor(Math.random() * catSamples.length)] : null;
 
                 // subTasks: 動的配列 [{ label, value }]
@@ -525,6 +537,11 @@ function renderGrid() {
                 // 単一配置先: 従来通り
                 const entry = entries[0];
                 cellContent = `<span class="ob-cell-count">${entry.count}</span>`;
+                // 個別業務の場合、業務詳細テキストを表示
+                if (!row.task && entry.subTasks && entry.subTasks.length > 0) {
+                    const subText = entry.subTasks.map(st => st.value).filter(Boolean).join('・');
+                    if (subText) cellContent += `<span class="ob-cell-subtask">${escapeHtml(subText)}</span>`;
+                }
                 if (entry.badge && entry.badge.childIds && entry.badge.childIds.length > 0) {
                     const parent = badgeDefinitions.find(p => p.id === entry.badge.parentId);
                     if (parent) {
@@ -556,7 +573,12 @@ function renderGrid() {
                             }
                         }
                     }
-                    return `<div class="ob-site-entry${confCls}" onclick="event.stopPropagation(); openEditModal(${ri},${d},${si})" onmouseenter="showTooltip(event,${ri},${d},${si})" onmouseleave="hideTooltip()"><span class="ob-cell-count">${entry.count}</span>${badgeHtml}</div>`;
+                    let subTaskHtml = '';
+                    if (!row.task && entry.subTasks && entry.subTasks.length > 0) {
+                        const subText = entry.subTasks.map(st => st.value).filter(Boolean).join('・');
+                        if (subText) subTaskHtml = `<span class="ob-cell-subtask">${escapeHtml(subText)}</span>`;
+                    }
+                    return `<div class="ob-site-entry${confCls}" onclick="event.stopPropagation(); openEditModal(${ri},${d},${si})" onmouseenter="showTooltip(event,${ri},${d},${si})" onmouseleave="hideTooltip()"><span class="ob-cell-count">${entry.count}</span>${subTaskHtml}${badgeHtml}</div>`;
                 }).join('');
             }
             if (entries.length > 0 && !isHidden) {
