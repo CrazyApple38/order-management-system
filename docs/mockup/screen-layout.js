@@ -1,7 +1,26 @@
+﻿        // === テーマ切替 ===
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme_v2', newTheme);
+            var btn = document.getElementById('themeToggleBtn');
+            if (btn) btn.textContent = isDark ? '🌙 Dark' : '☀️ Light';
+        }
+        (function initTheme() {
+            var saved = localStorage.getItem('theme_v2');
+            if (saved === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+
         // グループ会社データ
+        // 【本番】DBのグループ会社マスターから動的に取得。背景色はユーザー設定テーブルから読み込み
         const groupCompaniesData = [
-            { id: 1, code: 'touo', name: '東央警備', borderClass: 'gc-border-touo' },
-            { id: 2, code: 'nikkei', name: 'Nikkeiホールディングス', borderClass: 'gc-border-nikkei' }
+            { id: 1, code: 'touo', name: '東央警備', rowClass: 'gc-row-touo' },
+            { id: 2, code: 'nikkei', name: 'Nikkeiホールディングス', rowClass: 'gc-row-nikkei' },
+            { id: 3, code: 'zennihon', name: '全日本エンタープライズ', rowClass: 'gc-row-zennihon' }
         ];
 
         // サンプルデータ（契約先/元請け先）
@@ -71,6 +90,76 @@
             { id: 2, name: '直' },
             { id: 3, name: 'LINE' }
         ];
+
+        // --- Undo/Redo ---
+        const undoStack = [];
+        const redoStack = [];
+        const MAX_HISTORY = 50;
+
+        function cloneGridState() {
+            const tbody = document.querySelector('.grid-table tbody');
+            return {
+                tbodyHTML: tbody ? tbody.innerHTML : '',
+                companiesData: JSON.parse(JSON.stringify(companiesData)),
+                sitesData: JSON.parse(JSON.stringify(sitesData)),
+                employeeContactItems: typeof employeeContactItems !== 'undefined'
+                    ? JSON.parse(JSON.stringify(employeeContactItems)) : [],
+                vehicleList: typeof vehicleList !== 'undefined'
+                    ? JSON.parse(JSON.stringify(vehicleList)) : [],
+            };
+        }
+
+        function restoreGridState(snapshot) {
+            const tbody = document.querySelector('.grid-table tbody');
+            if (tbody) tbody.innerHTML = snapshot.tbodyHTML;
+            companiesData.length = 0;
+            snapshot.companiesData.forEach(c => companiesData.push(c));
+            Object.keys(sitesData).forEach(k => delete sitesData[k]);
+            Object.assign(sitesData, JSON.parse(JSON.stringify(snapshot.sitesData)));
+            if (typeof employeeContactItems !== 'undefined') {
+                employeeContactItems.length = 0;
+                snapshot.employeeContactItems.forEach(i => employeeContactItems.push(i));
+            }
+            if (typeof vehicleList !== 'undefined') {
+                vehicleList.length = 0;
+                snapshot.vehicleList.forEach(v => vehicleList.push(v));
+            }
+            selectedGridRow = null;
+            updateEmployeeListStatus();
+        }
+
+        function pushUndo() {
+            undoStack.push(cloneGridState());
+            if (undoStack.length > MAX_HISTORY) undoStack.shift();
+            redoStack.length = 0;
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            if (undoStack.length === 0) return;
+            redoStack.push(cloneGridState());
+            restoreGridState(undoStack.pop());
+            updateUndoRedoButtons();
+        }
+
+        function redo() {
+            if (redoStack.length === 0) return;
+            undoStack.push(cloneGridState());
+            restoreGridState(redoStack.pop());
+            updateUndoRedoButtons();
+        }
+
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById('undoBtn');
+            const redoBtn = document.getElementById('redoBtn');
+            if (undoBtn) undoBtn.disabled = undoStack.length === 0;
+            if (redoBtn) redoBtn.disabled = redoStack.length === 0;
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
+            if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
+        });
 
         // Combobox管理
         class Combobox {
@@ -289,6 +378,29 @@
             return parts.join(' ');
         }
 
+        // 業務管理計画書 業務名をリアルタイム更新（読み取り専用表示）
+        function smUpdatePlanTaskName() {
+            const parts = [];
+            // 親: 現場名
+            if (siteNameCombobox && siteNameCombobox.selectedItem) {
+                parts.push(siteNameCombobox.selectedItem.name);
+            }
+            // 子: 業務詳細の各値
+            const subTasks = smCollectSubTasks();
+            if (subTasks && subTasks.length > 0) {
+                subTasks.forEach(st => { if (st.value) parts.push(st.value); });
+            }
+            const el = document.getElementById('smPlanTaskName');
+            if (!el) return;
+            if (parts.length > 0) {
+                el.className = 'ob-plan-name-value';
+                el.innerHTML = parts.join(' <span class="ob-plan-arrow">›</span> ');
+            } else {
+                el.className = 'ob-plan-name-value ob-plan-empty';
+                el.textContent = '現場名・業務詳細を入力すると自動生成されます';
+            }
+        }
+
         // 追加項目セクションのHTMLを生成してComboboxを初期化
         function addSubItemLevel() {
             const level = subItemComboboxes.length;
@@ -327,12 +439,11 @@
                 items: parentItems,
                 allowAddNew: true,
                 onSelect: (item) => {
-                    // 下位の追加項目があればクリア
                     clearSubItemsBelow(level);
+                    smUpdatePlanTaskName();
                 },
                 onAddNew: (item) => {
                     item.subItems = [];
-                    // 親のsubItemsに追加
                     if (level === 0 && siteNameCombobox.selectedItem) {
                         siteNameCombobox.selectedItem.subItems.push(item);
                     } else if (level > 0 && subItemComboboxes[level - 1] && subItemComboboxes[level - 1].instance.selectedItem) {
@@ -347,7 +458,6 @@
             renumberSubItems();
         }
 
-        // 指定レベルより下の追加項目を全て削除
         function clearSubItemsBelow(level) {
             while (subItemComboboxes.length > level + 1) {
                 const last = subItemComboboxes.pop();
@@ -357,11 +467,9 @@
             renumberSubItems();
         }
 
-        // 指定の追加項目を削除
         function removeSubItemLevel(sectionId, containerId) {
             const idx = subItemComboboxes.findIndex(cb => cb.id === containerId);
             if (idx >= 0) {
-                // この段以降を全て削除
                 while (subItemComboboxes.length > idx) {
                     const last = subItemComboboxes.pop();
                     const sec = document.getElementById(last.sectionId);
@@ -369,9 +477,9 @@
                 }
             }
             renumberSubItems();
+            smUpdatePlanTaskName();
         }
 
-        // 全追加項目をクリア
         function clearAllSubItems() {
             subItemComboboxes.forEach(cb => {
                 const sec = document.getElementById(cb.sectionId);
@@ -380,7 +488,6 @@
             subItemComboboxes = [];
         }
 
-        // 追加項目のラベル番号を振り直す
         function renumberSubItems() {
             subItemComboboxes.forEach((cb, i) => {
                 const sec = document.getElementById(cb.sectionId);
@@ -411,12 +518,12 @@
                 }
             });
 
-            // 現場名 Combobox
             siteNameCombobox = new Combobox('siteNameCombobox', {
                 items: [],
                 allowAddNew: true,
                 onSelect: (item) => {
                     clearAllSubItems();
+                    smUpdatePlanTaskName();
                 },
                 onAddNew: (item) => {
                     item.subItems = [];
@@ -426,29 +533,46 @@
                 }
             });
 
-            contactCombobox = new Combobox('contactCombobox', {
-                items: contactsData,
-                allowAddNew: false,
-                onSelect: (item) => {
-                    if (item) {
-                        console.log('連絡選択:', item);
+            if (document.getElementById('contactCombobox')) {
+                contactCombobox = new Combobox('contactCombobox', {
+                    items: contactsData,
+                    allowAddNew: false,
+                    onSelect: (item) => {
+                        if (item) {
+                            console.log('連絡選択:', item);
+                        }
                     }
-                }
-            });
+                });
+            }
 
             // カラー設定パネル: カラーピッカー変更時にCSS変数を即時更新
-            document.querySelectorAll('.color-setting-picker').forEach(picker => {
+            // グループ会社（従来の直接CSS変数ピッカー）
+            document.querySelectorAll('.color-setting-picker:not(.color-base-picker)').forEach(picker => {
                 picker.addEventListener('input', function() {
                     const cssVar = this.dataset.cssVar;
                     document.documentElement.style.setProperty(cssVar, this.value);
-                    // HEX表示を更新
                     const hexLabel = document.querySelector('.color-setting-hex[data-css-var="' + cssVar + '"]');
                     if (hexLabel) hexLabel.textContent = this.value;
                 });
             });
+            // ベース色ピッカー（区分・シフト: 背景・文字を自動生成）
+            document.querySelectorAll('.color-base-picker').forEach(picker => {
+                picker.addEventListener('input', function() {
+                    const baseKey = this.dataset.baseKey;
+                    applyBaseColor(baseKey, this.value);
+                    const hexLabel = document.querySelector('.color-setting-hex[data-base-key="' + baseKey + '"]');
+                    if (hexLabel) hexLabel.textContent = this.value;
+                });
+            });
 
-            // 保存済みパターンをlocalStorageから読み込み
             loadColorPresetsFromStorage();
+
+            // テーマボタン初期テキスト
+            var themeBtn = document.getElementById('themeToggleBtn');
+            if (themeBtn) {
+                var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                themeBtn.textContent = isDark ? '☀️ Light' : '🌙 Dark';
+            }
         });
 
         // 現場詳細モーダルの開閉
@@ -456,112 +580,663 @@
 
         function openSiteModal(cell) {
             currentSiteCell = cell;
+            const row = cell.closest('tr');
 
-            // data-group-company属性からグループ会社の初期値を設定
+            // === チップ復元 ===
+            // 会社
             const gcCode = cell.getAttribute('data-group-company');
-            const gcSelect = document.getElementById('groupCompanySelect');
+            let branchName = null;
             if (gcCode) {
                 const gc = groupCompaniesData.find(g => g.code === gcCode);
-                if (gc) {
-                    for (let i = 0; i < gcSelect.options.length; i++) {
-                        if (gcSelect.options[i].text === gc.name) {
-                            gcSelect.selectedIndex = i;
-                            break;
+                if (gc) branchName = gc.name;
+            }
+            // 区分
+            const categoryBadge = cell.querySelector('.category-badge');
+            const categoryName = categoryBadge ? categoryBadge.textContent.trim() : null;
+            // 昼夜
+            const shiftBadge = cell.querySelector('.shift-badge');
+            const shiftName = shiftBadge ? shiftBadge.textContent.trim() : null;
+
+            smChipSelected = { branch: branchName, category: categoryName, shift: shiftName };
+            smRenderChips('smBranchChips', branchList, branchName, 'branch');
+            smRenderChips('smCategoryChips', smGetCategoryList(), categoryName, 'category');
+            smRenderChips('smShiftChips', shiftList, shiftName, 'shift');
+
+            // === コンボボックス復元 ===
+            clearAllSubItems();
+            const companyId = cell.dataset.companyId ? parseInt(cell.dataset.companyId) : null;
+            const siteId = cell.dataset.siteId ? parseInt(cell.dataset.siteId) : null;
+            if (companyId) {
+                const companyItem = companiesData.find(c => c.id === companyId);
+                if (companyItem) {
+                    companyCombobox.select(companyItem);
+                    const sites = sitesData[companyId] || [];
+                    let siteItem = null;
+                    if (siteId) {
+                        siteItem = sites.find(s => s.id === siteId);
+                    }
+                    if (!siteItem) {
+                        // siteIdが無い場合、セルのテキストから前方一致で照合
+                        const siteText = cell.querySelector('.site-name');
+                        if (siteText && siteText.textContent.trim()) {
+                            const cellSiteName = siteText.textContent.trim();
+                            siteItem = sites.find(s => cellSiteName.startsWith(s.name));
                         }
+                    }
+                    if (siteItem) {
+                        setTimeout(() => siteNameCombobox.select(siteItem), 0);
                     }
                 }
             } else {
-                gcSelect.selectedIndex = 0;
+                // コンボボックスにセルのテキストを表示（IDが無い場合）
+                const companyText = cell.querySelector('.company');
+                if (companyText && companyText.textContent.trim()) {
+                    const found = companiesData.find(c => c.name === companyText.textContent.trim());
+                    if (found) {
+                        companyCombobox.select(found);
+                        const siteText = cell.querySelector('.site-name');
+                        if (siteText && siteText.textContent.trim()) {
+                            const sites = sitesData[found.id] || [];
+                            const siteFound = sites.find(s => s.name === siteText.textContent.trim());
+                            if (siteFound) {
+                                setTimeout(() => siteNameCombobox.select(siteFound), 0);
+                            }
+                        }
+                    }
+                }
             }
 
-            // 追加項目をリセット
-            clearAllSubItems();
+            // === data属性の非表示フィールド ===
+            document.getElementById('smSupervisor').value = cell.dataset.supervisor || '';
+            document.getElementById('smSupervisorTel').value = cell.dataset.supervisorTel || '';
+
+            // 業務詳細（サブタスク）
+            let subTasks = [];
+            if (cell.dataset.subTasks) {
+                try { subTasks = JSON.parse(cell.dataset.subTasks); } catch(e) {}
+            }
+            smRenderSubTaskEntries(subTasks);
+
+            // === バッジ初期化（区分連動） ===
+            smBadgeSnapshot = JSON.parse(JSON.stringify(smBadgeDefinitions));
+            let badgeChildIds = [];
+            let badgeGcMap = {};
+            if (cell.dataset.badgeData) {
+                try {
+                    const bd = JSON.parse(cell.dataset.badgeData);
+                    badgeChildIds = bd.childIds || [];
+                    badgeGcMap = bd.grandchildMap || {};
+                } catch(e) {}
+            }
+            smRenderBadgeSection(categoryName, badgeChildIds, badgeGcMap);
+
+            // 現場監督候補
+            smRenderSupervisorCandidates();
+
+            // 業務名プレビュー（コンボボックス選択完了後に更新）
+            setTimeout(() => smUpdatePlanTaskName(), 50);
 
             document.getElementById('siteModal').classList.add('active');
         }
 
         function closeSiteModal() {
+            // バッジ定義をキャンセル復元
+            if (smBadgeSnapshot) {
+                smBadgeDefinitions.length = 0;
+                smBadgeSnapshot.forEach(b => smBadgeDefinitions.push(b));
+                smBadgeSnapshot = null;
+            }
             document.getElementById('siteModal').classList.remove('active');
+            closeTimePicker();
         }
 
         function saveSiteModal() {
-            // 保存処理（デモ）
-            const groupCompany = document.getElementById('groupCompanySelect').value;
-            const category = document.getElementById('categorySelect').value;
-            const shift = document.getElementById('shiftSelect').value;
-            const startTime = document.getElementById('startTimeInput').value;
-            const endTime = document.getElementById('endTimeInput').value;
-            const meetingTime = document.getElementById('meetingTimeInput').value;
-            const contact = contactCombobox.selectedItem;
-            const requiredCount = document.getElementById('requiredCountInput').value;
+            pushUndo();
+
+            // チップからの取得
+            const branch = smChipSelected.branch;
+            const category = smChipSelected.category;
+            const shift = smChipSelected.shift;
+
+            // 数値
+            const meetingTimeEl = document.getElementById('smMeetingTime');
+            const meetingTime = meetingTimeEl ? meetingTimeEl.value : '';
+            const meetingPlaceEl = document.getElementById('smMeetingPlace');
+            const meetingPlace = meetingPlaceEl ? meetingPlaceEl.value : '';
+            const requiredCountEl = document.getElementById('smRequiredCount');
+            const requiredCount = requiredCountEl ? requiredCountEl.value : '';
+            const contact = contactCombobox ? contactCombobox.selectedItem : null;
+
+            // コンボボックス
             const company = companyCombobox.selectedItem;
             const site = siteNameCombobox.selectedItem;
             const subItems = subItemComboboxes.map(cb => cb.instance.selectedItem).filter(Boolean);
             const displayName = buildSiteDisplayName();
-            const notes = document.getElementById('notesInput').value;
 
-            // グループ会社ボーダーを更新
+            // 新規フィールド
+            const subTasks = smCollectSubTasks();
+            const badgeData = smGetSelectedBadgeData();
+            const supervisor = document.getElementById('smSupervisor').value;
+            const supervisorTel = document.getElementById('smSupervisorTel').value;
+            const notesEl = document.getElementById('smNotes');
+            const notes = notesEl ? notesEl.value : '';
+
+            // === セルへの反映 ===
             if (currentSiteCell) {
-                groupCompaniesData.forEach(g => currentSiteCell.classList.remove(g.borderClass));
+                const row = currentSiteCell.closest('tr');
+
+                // --- site-info 構造を確保 ---
+                let siteInfo = currentSiteCell.querySelector('.site-info');
+                if (!siteInfo) {
+                    siteInfo = document.createElement('div');
+                    siteInfo.className = 'site-info';
+                    siteInfo.innerHTML = '<div class="site-badges"></div><div class="site-details"><div class="company"></div><div class="site-name"></div></div>';
+                    currentSiteCell.insertBefore(siteInfo, currentSiteCell.firstChild);
+                }
+                const badges = siteInfo.querySelector('.site-badges');
+                const details = siteInfo.querySelector('.site-details');
+
+                // --- 会社背景色 ---
+                const currentRow = currentSiteCell.closest('tr');
+                groupCompaniesData.forEach(g => currentRow.classList.remove(g.rowClass));
                 currentSiteCell.removeAttribute('data-group-company');
                 currentSiteCell.removeAttribute('data-gc-name');
-
-                if (groupCompany) {
-                    const gcName = document.getElementById('groupCompanySelect').selectedOptions[0]?.text;
-                    const gc = groupCompaniesData.find(g => g.name === gcName);
+                if (branch) {
+                    const gc = groupCompaniesData.find(g => g.name === branch);
                     if (gc) {
-                        currentSiteCell.classList.add(gc.borderClass);
+                        currentRow.classList.add(gc.rowClass);
                         currentSiteCell.setAttribute('data-group-company', gc.code);
                         currentSiteCell.setAttribute('data-gc-name', gc.name);
                     }
                 }
 
-                // 現場名をグリッドに反映
-                const siteNameDiv = currentSiteCell.querySelector('.site-name');
-                if (siteNameDiv && displayName) {
-                    siteNameDiv.textContent = displayName;
+                // --- 昼夜バッジ ---
+                let shiftEl = badges.querySelector('.shift-badge');
+                if (shift) {
+                    if (!shiftEl) {
+                        shiftEl = document.createElement('span');
+                        shiftEl.className = 'shift-badge';
+                        badges.insertBefore(shiftEl, badges.firstChild);
+                    }
+                    shiftEl.textContent = shift;
+                    shiftEl.classList.remove('shift-day', 'shift-night');
+                    const shiftCls = smShiftClassMap[shift];
+                    if (shiftCls) shiftEl.classList.add(shiftCls);
+                    // 行背景連動
+                    if (row) {
+                        if (shift === '夜') row.classList.add('row-night');
+                        else row.classList.remove('row-night');
+                    }
+                } else if (shiftEl) {
+                    shiftEl.remove();
+                }
+
+                // --- 区分バッジ ---
+                let catEl = badges.querySelector('.category-badge');
+                if (category) {
+                    if (!catEl) {
+                        catEl = document.createElement('span');
+                        catEl.className = 'category-badge';
+                        badges.appendChild(catEl);
+                    }
+                    catEl.textContent = category;
+                    // 全 category-* クラスを除去
+                    [...catEl.classList].filter(c => c.startsWith('category-') && c !== 'category-badge').forEach(c => catEl.classList.remove(c));
+                    const catCls = smCategoryClassMap[category];
+                    if (catCls) catEl.classList.add(catCls);
+                } else if (catEl) {
+                    catEl.remove();
+                }
+
+                // --- 契約先 ---
+                const companyEl = details.querySelector('.company');
+                if (companyEl) companyEl.textContent = company ? company.name : '';
+
+                // --- 現場名 ---
+                const siteNameDiv = details.querySelector('.site-name');
+                if (siteNameDiv) siteNameDiv.textContent = displayName || '';
+
+                // --- 現場監督バッジ ---
+                let svBadge = details.querySelector('.supervisor-badge');
+                if (supervisor) {
+                    if (!svBadge) {
+                        svBadge = document.createElement('div');
+                        svBadge.className = 'supervisor-badge';
+                        details.appendChild(svBadge);
+                    }
+                    svBadge.textContent = supervisor + (supervisorTel ? ' ' + supervisorTel : '');
+                } else if (svBadge) {
+                    svBadge.remove();
+                }
+
+                // --- data属性保存（コンボボックスID） ---
+                if (company) currentSiteCell.dataset.companyId = company.id;
+                else delete currentSiteCell.dataset.companyId;
+                if (site) currentSiteCell.dataset.siteId = site.id;
+                else delete currentSiteCell.dataset.siteId;
+
+                // --- data属性保存（非表示フィールド） ---
+                if (meetingPlace) currentSiteCell.dataset.meetingPlace = meetingPlace;
+                else delete currentSiteCell.dataset.meetingPlace;
+                if (supervisor) currentSiteCell.dataset.supervisor = supervisor;
+                else delete currentSiteCell.dataset.supervisor;
+                if (supervisorTel) currentSiteCell.dataset.supervisorTel = supervisorTel;
+                else delete currentSiteCell.dataset.supervisorTel;
+                if (subTasks.length > 0) currentSiteCell.dataset.subTasks = JSON.stringify(subTasks);
+                else delete currentSiteCell.dataset.subTasks;
+                if (badgeData.parentId) currentSiteCell.dataset.badgeData = JSON.stringify(badgeData);
+                else delete currentSiteCell.dataset.badgeData;
+
+                // --- 行内の他セル更新 ---
+                if (row) {
+                    const cells = row.querySelectorAll('td');
+
+                    // 集合時間・連絡 (index 2)
+                    const meetingCell = cells[2];
+                    if (meetingCell) {
+                        let timeDisp = meetingCell.querySelector('.time-display');
+                        let contactEl = meetingCell.querySelector('.contact-badge');
+                        if (meetingTime) {
+                            if (!timeDisp) {
+                                timeDisp = document.createElement('span');
+                                timeDisp.className = 'time-display';
+                                meetingCell.insertBefore(timeDisp, meetingCell.firstChild);
+                            }
+                            timeDisp.textContent = meetingTime;
+                        } else if (timeDisp) {
+                            timeDisp.textContent = '';
+                        }
+                        if (contact) {
+                            if (!contactEl) {
+                                contactEl = document.createElement('span');
+                                contactEl.className = 'contact-badge';
+                                meetingCell.appendChild(contactEl);
+                            }
+                            contactEl.textContent = contact.name;
+                            // contactクラス更新
+                            [...contactEl.classList].filter(c => c.startsWith('contact-') && c !== 'contact-badge').forEach(c => contactEl.classList.remove(c));
+                            const empContact = employeeContactItems.find(ec => ec.name === contact.name);
+                            if (empContact) contactEl.classList.add(empContact.cssClass);
+                        } else if (contactEl) {
+                            contactEl.remove();
+                        }
+                    }
+
+                    // 必要人数 (index 4)
+                    const countCell = cells[4];
+                    if (countCell) {
+                        let countDisp = countCell.querySelector('.count-display');
+                        if (countDisp) {
+                            const countText = countDisp.textContent.trim();
+                            const match = countText.match(/(\d+)\/\d+/);
+                            const assigned = match ? parseInt(match[1]) : 0;
+                            const required = parseInt(requiredCount) || 1;
+                            countDisp.textContent = `${assigned}/${required}`;
+                            countDisp.classList.remove('count-ok', 'count-shortage', 'count-excess');
+                            const isShort = assigned < required;
+                            const isExc = assigned > required;
+                            countDisp.classList.add(isShort ? 'count-shortage' : isExc ? 'count-excess' : 'count-ok');
+                            let sBadge = countCell.querySelector('.count-shortage-badge');
+                            if (isShort) {
+                                if (!sBadge) { sBadge = document.createElement('span'); sBadge.className = 'count-shortage-badge'; sBadge.textContent = '不足'; countCell.appendChild(sBadge); }
+                            } else if (sBadge) { sBadge.remove(); }
+                            let eBadge = countCell.querySelector('.count-excess-badge');
+                            if (isExc) {
+                                if (!eBadge) { eBadge = document.createElement('span'); eBadge.className = 'count-excess-badge'; eBadge.textContent = '過多'; countCell.appendChild(eBadge); }
+                            } else if (eBadge) { eBadge.remove(); }
+                        }
+                    }
+
+                    // 作業内容 (col-badge)
+                    const badgeCell = row.querySelector('.col-badge');
+                    if (badgeCell) {
+                        badgeCell.innerHTML = smBuildBadgeDisplayHtml(badgeData);
+                    }
+
+                    // 備考 (col-notes) — 集合場所+備考の構造化表示
+                    const notesCell = row.querySelector('.col-notes');
+                    if (notesCell) ntRenderNotesCell(notesCell, meetingPlace, notes);
                 }
             }
 
+            // バッジスナップショットをクリア（保存成功）
+            smBadgeSnapshot = null;
+
             console.log('保存データ:', {
-                groupCompany, category, shift, startTime, endTime, meetingTime, requiredCount,
+                branch, category, shift, meetingTime, meetingPlace,
+                requiredCount, supervisor, supervisorTel,
                 contact: contact ? contact.name : null,
                 company: company ? company.name : null,
                 site: site ? site.name : null,
                 subItems: subItems.map(s => s.name),
                 displayName,
-                notes
+                subTasks, badgeData, notes
             });
 
-            closeSiteModal();
+            document.getElementById('siteModal').classList.remove('active');
+            closeTimePicker();
         }
 
-        // モーダル外クリックで閉じる
         document.getElementById('siteModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeSiteModal();
-            }
+            if (e.target === this) closeSiteModal();
         });
+
+        // ============================================
+        // 集合モーダル
+        // ============================================
+        let currentMeetingCell = null;
+        let mtSelectedContact = null;
+
+        function openMeetingModal(cell, event) {
+            event.stopPropagation();
+            currentMeetingCell = cell;
+            const row = cell.closest('tr');
+            const siteCell = row ? row.querySelector('.col-site-info') : null;
+
+            // セルから現在値を読み取り
+            const timeDisp = cell.querySelector('.time-display');
+            document.getElementById('mtMeetingTime').value = timeDisp ? timeDisp.textContent.trim() : '';
+
+            const contactBadge = cell.querySelector('.contact-badge');
+            mtSelectedContact = contactBadge ? contactBadge.textContent.trim() : null;
+
+            mtRenderContactChips();
+            document.getElementById('meetingModal').classList.add('active');
+        }
+
+        function mtRenderContactChips() {
+            const container = document.getElementById('mtContactChips');
+            let html = '';
+            employeeContactItems.forEach(item => {
+                const active = mtSelectedContact === item.name ? ' ob-chip-active' : '';
+                html += `<button type="button" class="ob-row-chip${active}" onclick="mtSelectContact('${escapeHtml(item.name)}')">${escapeHtml(item.name)}</button>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function mtSelectContact(name) {
+            // トグル: 同じものを再クリックで解除
+            mtSelectedContact = mtSelectedContact === name ? null : name;
+            mtRenderContactChips();
+        }
+
+        function mtAddContact() {
+            const name = prompt('新しい連絡項目名を入力:');
+            if (!name || !name.trim()) return;
+            const trimmed = name.trim();
+            if (employeeContactItems.some(i => i.name === trimmed)) {
+                alert('同名の項目が既に存在します。');
+                return;
+            }
+            const colorPalette = [
+                { bg: 'rgba(68,166,181,0.12)', color: '#2A6B7A', borderColor: 'rgba(68,166,181,0.3)' },
+                { bg: 'rgba(56,161,105,0.12)', color: '#276749', borderColor: 'rgba(56,161,105,0.3)' },
+                { bg: 'rgba(49,151,149,0.12)', color: '#285E61', borderColor: 'rgba(49,151,149,0.3)' },
+                { bg: 'rgba(214,158,46,0.1)', color: '#975A16', borderColor: 'rgba(214,158,46,0.3)' },
+                { bg: 'rgba(128,90,213,0.1)', color: '#6B46C1', borderColor: 'rgba(128,90,213,0.3)' }
+            ];
+            const idx = employeeContactItems.length % colorPalette.length;
+            const colors = colorPalette[idx];
+            const cssClass = 'contact-custom-' + employeeContactItems.length;
+            employeeContactItems.push({
+                name: trimmed, bg: colors.bg, color: colors.color,
+                borderColor: colors.borderColor, cssClass: cssClass
+            });
+            mtSelectedContact = trimmed;
+            mtRenderContactChips();
+        }
+
+        function saveMeetingModal() {
+            pushUndo();
+            if (!currentMeetingCell) return;
+            const row = currentMeetingCell.closest('tr');
+            const siteCell = row ? row.querySelector('.col-site-info') : null;
+
+            const meetingTime = document.getElementById('mtMeetingTime').value;
+
+            // time-display 更新
+            let timeDisp = currentMeetingCell.querySelector('.time-display');
+            if (meetingTime) {
+                if (!timeDisp) {
+                    timeDisp = document.createElement('span');
+                    timeDisp.className = 'time-display';
+                    currentMeetingCell.insertBefore(timeDisp, currentMeetingCell.firstChild);
+                }
+                timeDisp.textContent = meetingTime;
+            } else if (timeDisp) {
+                timeDisp.textContent = '';
+            }
+
+            // contact-badge 更新
+            let contactEl = currentMeetingCell.querySelector('.contact-badge');
+            if (mtSelectedContact) {
+                if (!contactEl) {
+                    contactEl = document.createElement('span');
+                    contactEl.className = 'contact-badge';
+                    currentMeetingCell.appendChild(contactEl);
+                }
+                contactEl.textContent = mtSelectedContact;
+                // CSSクラス更新
+                [...contactEl.classList].filter(c => c.startsWith('contact-') && c !== 'contact-badge').forEach(c => contactEl.classList.remove(c));
+                const empContact = employeeContactItems.find(ec => ec.name === mtSelectedContact);
+                if (empContact) contactEl.classList.add(empContact.cssClass);
+            } else if (contactEl) {
+                contactEl.remove();
+            }
+
+            closeMeetingModal();
+        }
+
+        function closeMeetingModal() {
+            document.getElementById('meetingModal').classList.remove('active');
+            closeTimePicker();
+            currentMeetingCell = null;
+        }
+
+        document.getElementById('meetingModal').addEventListener('click', function(e) {
+            if (e.target === this) closeMeetingModal();
+        });
+
+        // ============================================
+        // 作業内容・備考モーダル
+        // ============================================
+        let currentWorkCell = null;
+
+        function openWorkModal(cell, event) {
+            event.stopPropagation();
+            currentWorkCell = cell;
+            const row = cell.closest('tr');
+            const siteCell = row ? row.querySelector('.col-site-info') : null;
+
+            // 区分を取得（バッジの親カテゴリ決定用）
+            const categoryBadge = siteCell ? siteCell.querySelector('.category-badge') : null;
+            const categoryName = categoryBadge ? categoryBadge.textContent.trim() : null;
+
+            // バッジデータ復元
+            smBadgeSnapshot = JSON.parse(JSON.stringify(smBadgeDefinitions));
+            let badgeChildIds = [];
+            let badgeGcMap = {};
+            if (siteCell && siteCell.dataset.badgeData) {
+                try {
+                    const bd = JSON.parse(siteCell.dataset.badgeData);
+                    badgeChildIds = bd.childIds || [];
+                    badgeGcMap = bd.grandchildMap || {};
+                } catch(e) {}
+            }
+            smRenderBadgeSection(categoryName, badgeChildIds, badgeGcMap);
+
+            document.getElementById('workModal').classList.add('active');
+        }
+
+        function saveWorkModal() {
+            pushUndo();
+            if (!currentWorkCell) return;
+            const row = currentWorkCell.closest('tr');
+            const siteCell = row ? row.querySelector('.col-site-info') : null;
+
+            // バッジデータ保存
+            const badgeData = smGetSelectedBadgeData();
+            if (siteCell) {
+                if (badgeData.parentId) siteCell.dataset.badgeData = JSON.stringify(badgeData);
+                else delete siteCell.dataset.badgeData;
+            }
+
+            // col-badge セル更新
+            currentWorkCell.innerHTML = smBuildBadgeDisplayHtml(badgeData);
+
+            // スナップショットクリア（保存成功）
+            smBadgeSnapshot = null;
+
+            document.getElementById('workModal').classList.remove('active');
+            currentWorkCell = null;
+        }
+
+        function closeWorkModal() {
+            // バッジ定義をキャンセル復元
+            if (smBadgeSnapshot) {
+                smBadgeDefinitions.length = 0;
+                smBadgeSnapshot.forEach(b => smBadgeDefinitions.push(b));
+                smBadgeSnapshot = null;
+            }
+            document.getElementById('workModal').classList.remove('active');
+            currentWorkCell = null;
+        }
+
+        document.getElementById('workModal').addEventListener('click', function(e) {
+            if (e.target === this) closeWorkModal();
+        });
+
+        // ============================================
+        // 集合場所・備考モーダル
+        // ============================================
+        let currentNotesCell = null;
+
+        function openNotesModal(cell, event) {
+            event.stopPropagation();
+            currentNotesCell = cell;
+
+            const row = cell.closest('tr');
+            const siteCell = row ? row.querySelector('.col-site-info') : null;
+
+            // 集合場所をセルの dataset から読み取り
+            const meetingPlace = siteCell ? (siteCell.dataset.meetingPlace || '') : '';
+            document.getElementById('ntMeetingPlace').value = meetingPlace;
+
+            // 備考をセルの .notes-memo から読み取り
+            const memoEl = cell.querySelector('.notes-memo');
+            const memoText = memoEl ? memoEl.textContent.replace(/^備考/, '').trim() : '';
+            document.getElementById('ntNotes').value = memoText;
+
+            document.getElementById('notesModal').classList.add('active');
+        }
+
+        function saveNotesModal() {
+            pushUndo();
+            if (!currentNotesCell) return;
+            const row = currentNotesCell.closest('tr');
+            const siteCell = row ? row.querySelector('.col-site-info') : null;
+
+            const meetingPlace = document.getElementById('ntMeetingPlace').value.trim();
+            const notes = document.getElementById('ntNotes').value.trim();
+
+            // 集合場所を dataset に保存（集合モーダルと共有）
+            if (siteCell) siteCell.dataset.meetingPlace = meetingPlace;
+
+            // セル表示更新
+            ntRenderNotesCell(currentNotesCell, meetingPlace, notes);
+
+            document.getElementById('notesModal').classList.remove('active');
+            currentNotesCell = null;
+        }
+
+        function ntRenderNotesCell(cell, meetingPlace, notes) {
+            let html = '';
+            if (meetingPlace) {
+                html += `<div class="notes-place"><span class="notes-label">集合</span>${escapeHtml(meetingPlace)}</div>`;
+            }
+            if (notes) {
+                html += `<div class="notes-memo"><span class="notes-label">備考</span>${escapeHtml(notes)}</div>`;
+            }
+            cell.innerHTML = html;
+        }
+
+        function closeNotesModal() {
+            document.getElementById('notesModal').classList.remove('active');
+            currentNotesCell = null;
+        }
+
+        document.getElementById('notesModal').addEventListener('click', function(e) {
+            if (e.target === this) closeNotesModal();
+        });
+
+        // ============================================
+        // 人数インライン編集
+        // ============================================
+        function startCountEdit(cell, event) {
+            event.stopPropagation();
+            const countDisp = cell.querySelector('.count-display');
+            if (!countDisp || cell.querySelector('.count-inline-input')) return;
+
+            const text = countDisp.textContent.trim();
+            const match = text.match(/(\d+)\/(\d+)/);
+            const assigned = match ? parseInt(match[1]) : 0;
+            const required = match ? parseInt(match[2]) : 1;
+
+            // 表示を 「配置済/」+ input に置き換え
+            countDisp.textContent = assigned + '/';
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.min = '0';
+            input.max = '99';
+            input.value = required;
+            input.className = 'count-inline-input';
+            countDisp.appendChild(input);
+            input.focus();
+            input.select();
+
+            function commitEdit() {
+                const newRequired = parseInt(input.value) || 1;
+                countDisp.textContent = `${assigned}/${newRequired}`;
+                countDisp.classList.remove('count-ok', 'count-shortage', 'count-excess');
+                const isShortage = assigned < newRequired;
+                const isExcess = assigned > newRequired;
+                countDisp.classList.add(isShortage ? 'count-shortage' : isExcess ? 'count-excess' : 'count-ok');
+                let sBadge = cell.querySelector('.count-shortage-badge');
+                if (isShortage) {
+                    if (!sBadge) { sBadge = document.createElement('span'); sBadge.className = 'count-shortage-badge'; sBadge.textContent = '不足'; cell.appendChild(sBadge); }
+                } else if (sBadge) { sBadge.remove(); }
+                let eBadge = cell.querySelector('.count-excess-badge');
+                if (isExcess) {
+                    if (!eBadge) { eBadge = document.createElement('span'); eBadge.className = 'count-excess-badge'; eBadge.textContent = '過多'; cell.appendChild(eBadge); }
+                } else if (eBadge) { eBadge.remove(); }
+            }
+
+            input.addEventListener('blur', commitEdit);
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+                if (e.key === 'Escape') { input.value = required; input.blur(); }
+            });
+        }
 
         // 個別連絡選択ポップアップ
         let currentEmployeeNameBlock = null;
 
-        // 連絡項目リスト（追加・削除可能）
+        // 連絡項目リスト（ライトテーマ用カラー（Coastal））
         const employeeContactItems = [
-            { name: '会社', bg: '#e2e8f0', color: '#4a5568', borderColor: '#cbd5e0', cssClass: 'contact-company' },
-            { name: '直', bg: '#c6f6d5', color: '#276749', borderColor: '#9ae6b4', cssClass: 'contact-direct' },
-            { name: 'LINE', bg: '#c3fae8', color: '#0d9488', borderColor: '#81e6d9', cssClass: 'contact-line' },
-            { name: '迎え', bg: '#fef3c7', color: '#92400e', borderColor: '#fbd38d', cssClass: 'contact-pickup' },
-            { name: 'OP', bg: '#e9d8fd', color: '#6b46c1', borderColor: '#d6bcfa', cssClass: 'contact-op' }
+            { name: '会社', bg: 'rgba(68,166,181,0.12)', color: '#2A6B7A', borderColor: 'rgba(68,166,181,0.3)', cssClass: 'contact-company' },
+            { name: '直', bg: 'rgba(56,161,105,0.12)', color: '#276749', borderColor: 'rgba(56,161,105,0.3)', cssClass: 'contact-direct' },
+            { name: 'LINE', bg: 'rgba(49,151,149,0.12)', color: '#285E61', borderColor: 'rgba(49,151,149,0.3)', cssClass: 'contact-line' },
+            { name: '迎え', bg: 'rgba(214,158,46,0.1)', color: '#975A16', borderColor: 'rgba(214,158,46,0.3)', cssClass: 'contact-pickup' },
+            { name: 'OP', bg: 'rgba(128,90,213,0.1)', color: '#6B46C1', borderColor: 'rgba(128,90,213,0.3)', cssClass: 'contact-op' }
         ];
 
-        // 動的カラーパレット（新規追加用）
+        // 動的カラーパレット（新規追加用・ライトテーマ（Coastal））
         const colorPalette = [
-            { bg: '#fed7e2', color: '#97266d', borderColor: '#fbb6ce' },
-            { bg: '#bee3f8', color: '#2b6cb0', borderColor: '#90cdf4' },
-            { bg: '#feebc8', color: '#c05621', borderColor: '#fbd38d' },
-            { bg: '#c6f6d5', color: '#276749', borderColor: '#9ae6b4' },
-            { bg: '#e9d8fd', color: '#6b46c1', borderColor: '#d6bcfa' }
+            { bg: 'rgba(237,100,166,0.1)', color: '#B83280', borderColor: 'rgba(237,100,166,0.3)' },
+            { bg: 'rgba(49,130,206,0.1)', color: '#2B6CB0', borderColor: 'rgba(49,130,206,0.3)' },
+            { bg: 'rgba(221,107,32,0.1)', color: '#9C4221', borderColor: 'rgba(221,107,32,0.3)' },
+            { bg: 'rgba(56,161,105,0.1)', color: '#276749', borderColor: 'rgba(56,161,105,0.3)' },
+            { bg: 'rgba(128,90,213,0.1)', color: '#6B46C1', borderColor: 'rgba(128,90,213,0.3)' }
         ];
 
         function renderContactPopupOptions() {
@@ -595,7 +1270,6 @@
             currentEmployeeNameBlock = nameBlock;
             renderContactPopupOptions();
 
-            // ポップアップ位置を計算
             const rect = nameBlock.getBoundingClientRect();
             popup.style.left = rect.left + 'px';
             popup.style.top = (rect.bottom + 4) + 'px';
@@ -614,17 +1288,15 @@
             if (item) {
                 return { className: 'contact-badge ' + item.cssClass, bg: item.bg, color: item.color };
             }
-            // 未知の項目はデフォルトスタイル
-            return { className: 'contact-badge', bg: '#edf2f7', color: '#4a5568' };
+            return { className: 'contact-badge', bg: 'rgba(68,166,181,0.12)', color: '#2A6B7A' };
         }
 
         function setEmployeeContact(contactType) {
             if (!currentEmployeeNameBlock) return;
+            pushUndo();
 
             const existingBadge = currentEmployeeNameBlock.querySelector('.contact-badge');
-            if (existingBadge) {
-                existingBadge.remove();
-            }
+            if (existingBadge) existingBadge.remove();
 
             if (contactType) {
                 const badge = document.createElement('span');
@@ -665,12 +1337,10 @@
         }
 
         function removeContactItem(index) {
-            const removedName = employeeContactItems[index].name;
             employeeContactItems.splice(index, 1);
             renderContactPopupOptions();
         }
 
-        // Enter キーで追加
         document.getElementById('newContactItemInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -678,7 +1348,6 @@
             }
         });
 
-        // ポップアップ外クリックで閉じる
         document.addEventListener('click', function(e) {
             const popup = document.getElementById('employeeContactPopup');
             if (popup.classList.contains('active') && !popup.contains(e.target)) {
@@ -738,9 +1407,7 @@
         }
 
         document.getElementById('mapModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeMapModal();
-            }
+            if (e.target === this) closeMapModal();
         });
 
         // 車両・送迎編集モーダル
@@ -748,8 +1415,7 @@
         let vtItems = [];
         let vtDragIndex = null;
 
-        // 車両リスト（自由に追加可能）
-        const vehicleList = ['標識A', '標識B', '2t車', '軽トラ', 'ワゴン'];
+        const vehicleList = ['さ 3078', 'く 7521', 'た 4163', 'わ 2490', 'め 8345', 'は 1627', 'わ 5814', 'ゆ 6932', 'わ 9056'];
 
         function openVtModal(box) {
             currentVtBox = box;
@@ -761,8 +1427,8 @@
                     vtItems.push({
                         label: label.textContent.replace(':', '').trim(),
                         value: value.textContent.trim(),
-                        bg: value.style.background || '#e2e8f0',
-                        color: value.style.color || '#4a5568'
+                        bg: value.style.background || 'rgba(68,166,181,0.12)',
+                        color: value.style.color || '#2A6B7A'
                     });
                 }
             });
@@ -781,7 +1447,6 @@
             rows.forEach((row, index) => {
                 if (!vtItems[index]) return;
                 const labelInput = row.querySelector('.vt-label-input');
-                // 内容: select or text
                 const valueSelect = row.querySelector('.vt-value-select');
                 const valueInput = row.querySelector('.vt-value-input');
                 const colors = row.querySelectorAll('input[type="color"]');
@@ -809,7 +1474,6 @@
                            style="width: 80px; flex: none;">`;
 
                 if (isVehicle) {
-                    // 車両: セレクト + 自由入力追加
                     html += `<div class="vt-vehicle-input-wrap">
                         <select class="vt-value-select" onchange="vtItems[${index}].value = this.value">
                             <option value="">選択...</option>`;
@@ -817,7 +1481,6 @@
                         const sel = item.value === v ? ' selected' : '';
                         html += `<option value="${escapeHtml(v)}"${sel}>${escapeHtml(v)}</option>`;
                     });
-                    // リストにない値が入っている場合
                     if (item.value && !vehicleList.includes(item.value)) {
                         html += `<option value="${escapeHtml(item.value)}" selected>${escapeHtml(item.value)}</option>`;
                     }
@@ -837,22 +1500,18 @@
             container.innerHTML = html;
         }
 
-        // 車両リストに新規追加
         function addNewVehicle(itemIndex, btn) {
             const row = btn.closest('.vt-item-row');
             const input = row.querySelector('.vt-new-vehicle-input');
             const name = input.value.trim();
             if (!name) return;
-            if (!vehicleList.includes(name)) {
-                vehicleList.push(name);
-            }
+            if (!vehicleList.includes(name)) vehicleList.push(name);
             vtItems[itemIndex].value = name;
             input.value = '';
             syncVtItemsFromDom();
             renderVtItems();
         }
 
-        // ドラッグ並べ替え
         function vtRowDragStart(e, index) {
             vtDragIndex = index;
             e.dataTransfer.effectAllowed = 'move';
@@ -865,9 +1524,7 @@
             e.dataTransfer.dropEffect = 'move';
             const rows = document.querySelectorAll('#vtModalItems .vt-item-row');
             rows.forEach(r => r.classList.remove('vt-drag-over'));
-            if (index !== vtDragIndex) {
-                e.currentTarget.classList.add('vt-drag-over');
-            }
+            if (index !== vtDragIndex) e.currentTarget.classList.add('vt-drag-over');
         }
 
         function vtRowDragLeave(e) {
@@ -878,7 +1535,6 @@
             e.preventDefault();
             e.currentTarget.classList.remove('vt-drag-over');
             if (vtDragIndex === null || vtDragIndex === dropIndex) return;
-
             const moved = vtItems.splice(vtDragIndex, 1)[0];
             vtItems.splice(dropIndex, 0, moved);
             vtDragIndex = null;
@@ -887,9 +1543,7 @@
 
         function vtRowDragEnd(e) {
             e.currentTarget.classList.remove('vt-dragging');
-            document.querySelectorAll('#vtModalItems .vt-item-row').forEach(r => {
-                r.classList.remove('vt-drag-over');
-            });
+            document.querySelectorAll('#vtModalItems .vt-item-row').forEach(r => r.classList.remove('vt-drag-over'));
             vtDragIndex = null;
         }
 
@@ -909,13 +1563,11 @@
 
         function addVtEmptyItem() {
             syncVtItemsFromDom();
-            vtItems.push({ label: '', value: '', bg: '#e2e8f0', color: '#4a5568' });
+            vtItems.push({ label: '', value: '', bg: 'rgba(68,166,181,0.12)', color: '#2A6B7A' });
             renderVtItems();
             const rows = document.querySelectorAll('#vtModalItems .vt-item-row');
             const lastRow = rows[rows.length - 1];
-            if (lastRow) {
-                lastRow.querySelector('.vt-label-input').focus();
-            }
+            if (lastRow) lastRow.querySelector('.vt-label-input').focus();
         }
 
         function removeVtItem(index) {
@@ -925,6 +1577,7 @@
 
         function saveVtModal() {
             if (!currentVtBox) return;
+            pushUndo();
             syncVtItemsFromDom();
 
             const validItems = vtItems.filter(item => item.label && item.value);
@@ -954,7 +1607,7 @@
         }
 
         function rgbToHex(color) {
-            if (!color) return '#e2e8f0';
+            if (!color) return '#D3D0C8';
             if (color.startsWith('#')) {
                 if (color.length === 4) {
                     return '#' + color[1]+color[1] + color[2]+color[2] + color[3]+color[3];
@@ -965,16 +1618,13 @@
             if (match && match.length >= 3) {
                 return '#' + match.slice(0, 3).map(n => parseInt(n).toString(16).padStart(2, '0')).join('');
             }
-            return '#e2e8f0';
+            return '#D3D0C8';
         }
 
         document.getElementById('vtModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeVtModal();
-            }
+            if (e.target === this) closeVtModal();
         });
 
-        // 新規車両入力欄でEnterキー対応（イベント委譲）
         document.getElementById('vtModalItems').addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && e.target.classList.contains('vt-new-vehicle-input')) {
                 e.preventDefault();
@@ -990,20 +1640,15 @@
             const continuous = nameBlock.querySelector('.employee-with-continuous');
             if (continuous) {
                 for (const child of continuous.children) {
-                    if (!child.classList.contains('continuous-badge')) {
-                        return child.textContent.trim();
-                    }
+                    if (!child.classList.contains('continuous-badge')) return child.textContent.trim();
                 }
             }
             for (const child of nameBlock.children) {
-                if (!child.classList.contains('contact-badge')) {
-                    return child.textContent.trim();
-                }
+                if (!child.classList.contains('contact-badge')) return child.textContent.trim();
             }
             return null;
         }
 
-        // 社員リストの配置状態を更新
         function updateEmployeeListStatus() {
             const assignedNames = new Set();
             document.querySelectorAll('.assignment-zone .assigned-employee').forEach(el => {
@@ -1019,17 +1664,44 @@
             });
         }
 
-        // 社員配置解除
+        function updateRowCount(zone) {
+            const row = zone.closest('tr');
+            if (!row) return;
+            const countCell = row.cells[4];
+            if (!countCell) return;
+            const countDisp = countCell.querySelector('.count-display');
+            if (!countDisp) return;
+            const assigned = zone.querySelectorAll('.assigned-employee').length;
+            const text = countDisp.textContent.trim();
+            const match = text.match(/\d+\/(\d+)/);
+            const required = match ? parseInt(match[1]) : 1;
+            countDisp.textContent = `${assigned}/${required}`;
+            countDisp.classList.remove('count-ok', 'count-shortage', 'count-excess');
+            const isShortage = assigned < required;
+            const isExcess = assigned > required;
+            countDisp.classList.add(isShortage ? 'count-shortage' : isExcess ? 'count-excess' : 'count-ok');
+            let sBadge = countCell.querySelector('.count-shortage-badge');
+            if (isShortage) {
+                if (!sBadge) { sBadge = document.createElement('span'); sBadge.className = 'count-shortage-badge'; sBadge.textContent = '不足'; countCell.appendChild(sBadge); }
+            } else if (sBadge) { sBadge.remove(); }
+            let eBadge = countCell.querySelector('.count-excess-badge');
+            if (isExcess) {
+                if (!eBadge) { eBadge = document.createElement('span'); eBadge.className = 'count-excess-badge'; eBadge.textContent = '過多'; countCell.appendChild(eBadge); }
+            } else if (eBadge) { eBadge.remove(); }
+        }
+
         function removeEmployee(btn, event) {
             event.stopPropagation();
+            pushUndo();
             const employeeTag = btn.closest('.assigned-employee');
             if (employeeTag) {
+                const zone = employeeTag.closest('.assignment-zone');
                 employeeTag.remove();
+                if (zone) updateRowCount(zone);
                 updateEmployeeListStatus();
             }
         }
 
-        // ドラッグ&ドロップ機能
         function drag(ev) {
             ev.dataTransfer.setData("text", ev.target.textContent);
             ev.target.classList.add('dragging');
@@ -1047,6 +1719,7 @@
         function drop(ev) {
             ev.preventDefault();
             ev.target.classList.remove('drag-over');
+            pushUndo();
             var data = ev.dataTransfer.getData("text");
             var newTag = document.createElement('span');
             newTag.className = 'assigned-employee';
@@ -1055,10 +1728,10 @@
                 + '</span>'
                 + '<span class="remove-btn" onclick="removeEmployee(this, event)">×</span>';
             ev.target.appendChild(newTag);
+            updateRowCount(ev.target);
             updateEmployeeListStatus();
         }
 
-        // ドラッグ終了
         document.querySelectorAll('.employee-tag').forEach(tag => {
             tag.addEventListener('dragend', function() {
                 this.classList.remove('dragging');
@@ -1066,47 +1739,37 @@
         });
 
         // ===== 行選択・上下移動 =====
-
         let selectedGridRow = null;
 
         function selectRow(tr, event) {
-            // モーダルやポップアップ内の要素クリック、または配置ゾーン内操作は無視
             if (event.target.closest('.modal-overlay, .contact-popup, .assigned-employee, .vehicle-transport-box, .vehicle-transport-add')) return;
-            // 現場セル・地図セルクリックの場合はモーダルが開くので選択しない
             if (event.target.closest('.clickable-cell')) return;
 
             if (selectedGridRow === tr) {
-                // 同じ行を再クリックで選択解除
                 tr.classList.remove('selected');
                 selectedGridRow = null;
             } else {
-                if (selectedGridRow) {
-                    selectedGridRow.classList.remove('selected');
-                }
+                if (selectedGridRow) selectedGridRow.classList.remove('selected');
                 tr.classList.add('selected');
                 selectedGridRow = tr;
             }
         }
 
         function moveRowUp() {
-            if (!selectedGridRow) {
-                alert('移動する行を選択してください');
-                return;
-            }
+            if (!selectedGridRow) { alert('移動する行を選択してください'); return; }
             const prev = selectedGridRow.previousElementSibling;
             if (prev) {
+                pushUndo();
                 selectedGridRow.parentNode.insertBefore(selectedGridRow, prev);
                 renumberRows();
             }
         }
 
         function moveRowDown() {
-            if (!selectedGridRow) {
-                alert('移動する行を選択してください');
-                return;
-            }
+            if (!selectedGridRow) { alert('移動する行を選択してください'); return; }
             const next = selectedGridRow.nextElementSibling;
             if (next) {
+                pushUndo();
                 selectedGridRow.parentNode.insertBefore(next, selectedGridRow);
                 renumberRows();
             }
@@ -1116,32 +1779,24 @@
             const rows = document.querySelectorAll('.grid-table tbody tr');
             rows.forEach((row, index) => {
                 const noCell = row.querySelector('.col-no');
-                if (noCell) {
-                    noCell.textContent = index + 1;
-                }
+                if (noCell) noCell.textContent = index + 1;
             });
         }
 
         // ===== ソート設定モーダル =====
-
-        // ソートデータ管理
-        const sortState = {
-            category: [],     // 区分の順序
-            shift: [],        // 昼夜の順序
-            contractor: [],   // 契約先の順序
-            site: [],         // 現場名の順序
-            // ドリルダウン: 区分ごとの契約先順序
-            categoryContractorOrders: {},
-            // ドリルダウン: 契約先ごとの現場名順序
-            contractorSiteOrders: {},
-            // 選択中の項目
-            selected: { category: null, shift: null, contractor: null, site: null },
-            // フィルタ中の親
-            filterCategory: null,
-            filterContractor: null
+        const DEFAULT_SORT_ORDER = {
+            category: ['施設', 'イベント', '交通', '高速'],
+            shift: ['昼', '夜']
         };
 
-        // グリッドから現在のデータを抽出
+        const sortState = {
+            category: [], shift: [], contractor: [], site: [],
+            categoryContractorOrders: {},
+            contractorSiteOrders: {},
+            selected: { category: null, shift: null, contractor: null, site: null },
+            filterCategory: null, filterContractor: null
+        };
+
         function extractGridData() {
             const rows = document.querySelectorAll('.grid-table tbody tr');
             const data = [];
@@ -1161,28 +1816,22 @@
             return data;
         }
 
-        // ユニーク値を順序保持で取得
         function getUniqueValues(dataArray, key) {
             const seen = new Set();
             const result = [];
             dataArray.forEach(d => {
                 const val = d[key];
-                if (val && !seen.has(val)) {
-                    seen.add(val);
-                    result.push(val);
-                }
+                if (val && !seen.has(val)) { seen.add(val); result.push(val); }
             });
             return result;
         }
 
-        // 条件付きユニーク値取得
         function getFilteredUniqueValues(dataArray, key, filterKey, filterValue) {
             const seen = new Set();
             const result = [];
             dataArray.forEach(d => {
                 if (d[filterKey] === filterValue && d[key] && !seen.has(d[key])) {
-                    seen.add(d[key]);
-                    result.push(d[key]);
+                    seen.add(d[key]); result.push(d[key]);
                 }
             });
             return result;
@@ -1190,58 +1839,51 @@
 
         function openSortModal() {
             const gridData = extractGridData();
+            // デフォルト順序を適用（グリッドに存在する値のみ）
+            const gridCategories = getUniqueValues(gridData, 'category');
+            sortState.category = DEFAULT_SORT_ORDER.category.filter(c => gridCategories.includes(c));
+            gridCategories.forEach(c => { if (!sortState.category.includes(c)) sortState.category.push(c); });
 
-            // 初期順序を設定
-            sortState.category = getUniqueValues(gridData, 'category');
-            sortState.shift = getUniqueValues(gridData, 'shift');
+            const gridShifts = getUniqueValues(gridData, 'shift');
+            sortState.shift = DEFAULT_SORT_ORDER.shift.filter(s => gridShifts.includes(s));
+            gridShifts.forEach(s => { if (!sortState.shift.includes(s)) sortState.shift.push(s); });
+
             sortState.contractor = getUniqueValues(gridData, 'contractor');
             sortState.site = getUniqueValues(gridData, 'site');
 
-            // ドリルダウンデータ構築
             sortState.categoryContractorOrders = {};
             sortState.category.forEach(cat => {
                 sortState.categoryContractorOrders[cat] = getFilteredUniqueValues(gridData, 'contractor', 'category', cat);
             });
-
             sortState.contractorSiteOrders = {};
             sortState.contractor.forEach(con => {
                 sortState.contractorSiteOrders[con] = getFilteredUniqueValues(gridData, 'site', 'contractor', con);
             });
 
-            // 選択状態リセット
             sortState.selected = { category: null, shift: null, contractor: null, site: null };
             sortState.filterCategory = null;
             sortState.filterContractor = null;
 
-            // リスト描画
-            renderSortList('category');
-            renderSortList('shift');
-            renderSortList('contractor');
-            renderSortList('site');
+            renderSortList('category'); renderSortList('shift');
+            renderSortList('contractor'); renderSortList('site');
             updateSortFilters();
 
             document.getElementById('sortModal').classList.add('active');
         }
 
-        function closeSortModal() {
-            document.getElementById('sortModal').classList.remove('active');
-        }
+        function closeSortModal() { document.getElementById('sortModal').classList.remove('active'); }
 
         document.getElementById('sortModal').addEventListener('click', function(e) {
             if (e.target === this) closeSortModal();
         });
 
-        // リスト描画
         function renderSortList(column) {
             const container = document.getElementById('sortList' + column.charAt(0).toUpperCase() + column.slice(1));
             let items;
-
             if (column === 'contractor' && sortState.filterCategory) {
-                const cat = sortState.filterCategory;
-                items = sortState.categoryContractorOrders[cat] || [];
+                items = sortState.categoryContractorOrders[sortState.filterCategory] || [];
             } else if (column === 'site' && sortState.filterContractor) {
-                const con = sortState.filterContractor;
-                items = sortState.contractorSiteOrders[con] || [];
+                items = sortState.contractorSiteOrders[sortState.filterContractor] || [];
             } else {
                 items = sortState[column];
             }
@@ -1256,34 +1898,26 @@
             });
 
             if (items.length === 0) {
-                html = '<div style="padding: 20px; text-align: center; color: #a0aec0; font-size: 0.8rem;">項目なし</div>';
+                html = '<div style="padding: 20px; text-align: center; color: var(--text-disabled); font-size: 0.8rem;">項目なし</div>';
             }
-
             container.innerHTML = html;
         }
 
-        // アイテム選択
         function selectSortItem(column, index) {
             sortState.selected[column] = index;
             renderSortList(column);
 
-            // ドリルダウン連動
             if (column === 'category') {
-                const items = sortState.category;
-                sortState.filterCategory = items[index] || null;
+                sortState.filterCategory = sortState.category[index] || null;
                 sortState.filterContractor = null;
                 sortState.selected.contractor = null;
                 sortState.selected.site = null;
-                renderSortList('contractor');
-                renderSortList('site');
+                renderSortList('contractor'); renderSortList('site');
                 updateSortFilters();
             } else if (column === 'contractor') {
-                let items;
-                if (sortState.filterCategory) {
-                    items = sortState.categoryContractorOrders[sortState.filterCategory] || [];
-                } else {
-                    items = sortState.contractor;
-                }
+                let items = sortState.filterCategory
+                    ? (sortState.categoryContractorOrders[sortState.filterCategory] || [])
+                    : sortState.contractor;
                 sortState.filterContractor = items[index] || null;
                 sortState.selected.site = null;
                 renderSortList('site');
@@ -1291,98 +1925,59 @@
             }
         }
 
-        // フィルタ表示更新
         function updateSortFilters() {
             const contractorFilter = document.getElementById('sortContractorFilter');
             const siteFilter = document.getElementById('sortSiteFilter');
-
-            if (sortState.filterCategory) {
-                contractorFilter.textContent = '▸ ' + sortState.filterCategory;
-            } else {
-                contractorFilter.textContent = '（区分を選択で絞込み）';
-            }
-
-            if (sortState.filterContractor) {
-                siteFilter.textContent = '▸ ' + sortState.filterContractor;
-            } else {
-                siteFilter.textContent = '（契約先を選択で絞込み）';
-            }
+            contractorFilter.textContent = sortState.filterCategory ? '▸ ' + sortState.filterCategory : '（区分を選択で絞込み）';
+            siteFilter.textContent = sortState.filterContractor ? '▸ ' + sortState.filterContractor : '（契約先を選択で絞込み）';
         }
 
-        // 上へ移動
         function sortMoveUp(column) {
             const idx = sortState.selected[column];
             if (idx === null || idx <= 0) return;
-
             const items = getCurrentSortItems(column);
-            const temp = items[idx - 1];
-            items[idx - 1] = items[idx];
-            items[idx] = temp;
-
+            const temp = items[idx - 1]; items[idx - 1] = items[idx]; items[idx] = temp;
             sortState.selected[column] = idx - 1;
             renderSortList(column);
         }
 
-        // 下へ移動
         function sortMoveDown(column) {
             const idx = sortState.selected[column];
             const items = getCurrentSortItems(column);
             if (idx === null || idx >= items.length - 1) return;
-
-            const temp = items[idx + 1];
-            items[idx + 1] = items[idx];
-            items[idx] = temp;
-
+            const temp = items[idx + 1]; items[idx + 1] = items[idx]; items[idx] = temp;
             sortState.selected[column] = idx + 1;
             renderSortList(column);
         }
 
-        // 現在表示中のリストアイテムを取得（ドリルダウン考慮）
         function getCurrentSortItems(column) {
-            if (column === 'contractor' && sortState.filterCategory) {
-                return sortState.categoryContractorOrders[sortState.filterCategory];
-            } else if (column === 'site' && sortState.filterContractor) {
-                return sortState.contractorSiteOrders[sortState.filterContractor];
-            }
+            if (column === 'contractor' && sortState.filterCategory) return sortState.categoryContractorOrders[sortState.filterCategory];
+            if (column === 'site' && sortState.filterContractor) return sortState.contractorSiteOrders[sortState.filterContractor];
             return sortState[column];
         }
 
-        // ソート実行
         function applySortSettings() {
+            pushUndo();
             const tbody = document.querySelector('.grid-table tbody');
             const rows = Array.from(tbody.querySelectorAll('tr'));
 
-            // 各行にソート優先度を割り当て
             rows.sort((a, b) => {
-                const dataA = extractRowData(a);
-                const dataB = extractRowData(b);
-
-                // 1. 区分
+                const dataA = extractRowData(a), dataB = extractRowData(b);
                 let cmp = getSortPriority(sortState.category, dataA.category) - getSortPriority(sortState.category, dataB.category);
                 if (cmp !== 0) return cmp;
-
-                // 2. 昼夜
                 cmp = getSortPriority(sortState.shift, dataA.shift) - getSortPriority(sortState.shift, dataB.shift);
                 if (cmp !== 0) return cmp;
-
-                // 3. 契約先（区分別の順序があればそれを使用）
-                const catA = dataA.category;
-                const contractorOrderA = sortState.categoryContractorOrders[catA] || sortState.contractor;
+                const contractorOrderA = sortState.categoryContractorOrders[dataA.category] || sortState.contractor;
                 const contractorOrderB = sortState.categoryContractorOrders[dataB.category] || sortState.contractor;
                 cmp = getSortPriority(contractorOrderA, dataA.contractor) - getSortPriority(contractorOrderB, dataB.contractor);
                 if (cmp !== 0) return cmp;
-
-                // 4. 現場名（契約先別の順序があればそれを使用）
                 const siteOrderA = sortState.contractorSiteOrders[dataA.contractor] || sortState.site;
                 const siteOrderB = sortState.contractorSiteOrders[dataB.contractor] || sortState.site;
-                cmp = getSortPriority(siteOrderA, dataA.site) - getSortPriority(siteOrderB, dataB.site);
-                return cmp;
+                return getSortPriority(siteOrderA, dataA.site) - getSortPriority(siteOrderB, dataB.site);
             });
 
-            // DOMに反映
             rows.forEach(row => tbody.appendChild(row));
             renumberRows();
-
             closeSortModal();
         }
 
@@ -1404,11 +1999,17 @@
             return idx >= 0 ? idx : 9999;
         }
 
-        // リセット
         function resetSortSettings() {
             const gridData = extractGridData();
-            sortState.category = getUniqueValues(gridData, 'category');
-            sortState.shift = getUniqueValues(gridData, 'shift');
+            // デフォルト順序を適用（グリッドに存在する値のみ）
+            const gridCategories = getUniqueValues(gridData, 'category');
+            sortState.category = DEFAULT_SORT_ORDER.category.filter(c => gridCategories.includes(c));
+            gridCategories.forEach(c => { if (!sortState.category.includes(c)) sortState.category.push(c); });
+
+            const gridShifts = getUniqueValues(gridData, 'shift');
+            sortState.shift = DEFAULT_SORT_ORDER.shift.filter(s => gridShifts.includes(s));
+            gridShifts.forEach(s => { if (!sortState.shift.includes(s)) sortState.shift.push(s); });
+
             sortState.contractor = getUniqueValues(gridData, 'contractor');
             sortState.site = getUniqueValues(gridData, 'site');
 
@@ -1425,300 +2026,153 @@
             sortState.filterCategory = null;
             sortState.filterContractor = null;
 
-            renderSortList('category');
-            renderSortList('shift');
-            renderSortList('contractor');
-            renderSortList('site');
+            renderSortList('category'); renderSortList('shift');
+            renderSortList('contractor'); renderSortList('site');
             updateSortFilters();
         }
 
-        // ===== 差分処理モーダル =====
-
-        // 差分アイテムのID一覧と状態管理
-        const diffItemIds = ['fuzzy1', 'fuzzy2', 'fuzzy3', 'value1', 'new1', 'dbonly1'];
-        const diffDoneState = {};
-        let currentDiffItemId = 'fuzzy1';
-
-        function openDiffModal(direction) {
-            const modal = document.getElementById('diffModal');
-            const title = document.getElementById('diffModalTitle');
-
-            if (direction === 'import') {
-                title.textContent = '差分確認 - 受注簿データ取得（受注簿 → システム）';
-                document.getElementById('diffNewLabel').textContent = '受注簿のみ';
-                document.getElementById('diffNewBadge').textContent = '受注簿のみ';
-                document.getElementById('diffNewSidebarBadge').textContent = '受注簿のみ';
-            } else {
-                title.textContent = '差分確認 - 受注簿へ転記（システム → 受注簿）';
-                document.getElementById('diffNewLabel').textContent = 'システムのみ(新規)';
-                document.getElementById('diffNewBadge').textContent = 'システムのみ(新規)';
-                document.getElementById('diffNewSidebarBadge').textContent = 'システムのみ';
-            }
-
-            // 状態リセット
-            diffItemIds.forEach(id => { diffDoneState[id] = false; });
-            currentDiffItemId = diffItemIds[0];
-
-            // UI初期化
-            selectDiffItem(diffItemIds[0]);
-            updateAllDiffStatus();
-
-            modal.classList.add('active');
-        }
-
-        function closeDiffModal() {
-            document.getElementById('diffModal').classList.remove('active');
-        }
-
-        // モーダル外クリックで閉じる
-        document.getElementById('diffModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeDiffModal();
-            }
-        });
-
-        // サイドバーの項目選択
-        function selectDiffItem(id) {
-            currentDiffItemId = id;
-
-            // サイドバーのactive切替
-            document.querySelectorAll('.diff-sidebar-item').forEach(item => {
-                item.classList.toggle('active', item.dataset.diffId === id);
-            });
-
-            // 詳細パネルの表示切替
-            document.querySelectorAll('.diff-detail-panel').forEach(panel => {
-                panel.classList.toggle('active', panel.id === 'diffPanel_' + id);
-            });
-        }
-
-        // 次の項目に移動
-        function selectNextDiffItem() {
-            const currentIndex = diffItemIds.indexOf(currentDiffItemId);
-            if (currentIndex < diffItemIds.length - 1) {
-                selectDiffItem(diffItemIds[currentIndex + 1]);
-            }
-        }
-
-        // ラジオ/チェックボックス変更時 → 自動で済にする
-        function onDiffRadioChange(diffId) {
-            if (!diffDoneState[diffId]) {
-                diffDoneState[diffId] = true;
-                updateDiffStatus(diffId);
-                updateDiffProgress();
-            }
-        }
-
-        // 済状態のトグル（手動）
-        function toggleDiffDone(diffId) {
-            diffDoneState[diffId] = !diffDoneState[diffId];
-            updateDiffStatus(diffId);
-            updateDiffProgress();
-        }
-
-        // 個別のステータスUI更新
-        function updateDiffStatus(diffId) {
-            const icon = document.getElementById('diffStatus_' + diffId);
-            const btn = document.getElementById('diffDoneBtn_' + diffId);
-            const sidebarItem = document.querySelector('.diff-sidebar-item[data-diff-id="' + diffId + '"]');
-
-            if (diffDoneState[diffId]) {
-                icon.className = 'diff-status-icon status-done';
-                icon.textContent = '✓';
-                if (btn) {
-                    btn.classList.add('is-done');
-                    btn.textContent = '確認済み ✓（クリックで解除）';
-                }
-                if (sidebarItem) sidebarItem.classList.add('done');
-            } else {
-                icon.className = 'diff-status-icon status-pending';
-                icon.textContent = '○';
-                if (btn) {
-                    btn.classList.remove('is-done');
-                    btn.textContent = '確認済みにする';
-                }
-                if (sidebarItem) sidebarItem.classList.remove('done');
-            }
-        }
-
-        // 全ステータスUI更新
-        function updateAllDiffStatus() {
-            diffItemIds.forEach(id => updateDiffStatus(id));
-            updateDiffProgress();
-        }
-
-        // 進捗表示の更新
-        function updateDiffProgress() {
-            const doneCount = diffItemIds.filter(id => diffDoneState[id]).length;
-            const total = diffItemIds.length;
-            const progressEl = document.getElementById('diffProgress');
-            progressEl.textContent = doneCount + ' / ' + total + ' 確認済み';
-            progressEl.classList.toggle('all-done', doneCount === total);
-        }
-
-        // すべて受注簿側を選択
-        function selectAllFile() {
-            document.querySelectorAll('#diffModal .diff-items-table tbody tr').forEach(tr => {
-                const fileRadio = tr.querySelector('.col-excel input[type="radio"]');
-                if (fileRadio) fileRadio.checked = true;
-            });
-            document.querySelectorAll('#diffModal .diff-fuzzy-select label:first-of-type input[type="radio"]').forEach(r => {
-                r.checked = true;
-            });
-            // 全て済にする
-            diffItemIds.forEach(id => {
-                diffDoneState[id] = true;
-            });
-            updateAllDiffStatus();
-        }
-
-        // すべてシステム側を選択
-        function selectAllSys() {
-            document.querySelectorAll('#diffModal .diff-items-table tbody tr').forEach(tr => {
-                const sysRadio = tr.querySelector('.col-db input[type="radio"]');
-                if (sysRadio) sysRadio.checked = true;
-            });
-            document.querySelectorAll('#diffModal .diff-fuzzy-select label:last-of-type input[type="radio"]').forEach(r => {
-                r.checked = true;
-            });
-            // 全て済にする
-            diffItemIds.forEach(id => {
-                diffDoneState[id] = true;
-            });
-            updateAllDiffStatus();
-        }
-
-        // 編集ボタン
-        function toggleDiffEdit(btn) {
-            const tr = btn.closest('tr');
-            const fileTd = tr.querySelector('.col-excel');
-            const sysTd = tr.querySelector('.col-db');
-
-            if (btn.textContent === '編集') {
-                const checkedLabel = tr.querySelector('input[type="radio"]:checked');
-                let currentValue = '';
-                if (checkedLabel) {
-                    const label = checkedLabel.closest('.diff-radio-label');
-                    currentValue = label.textContent.replace(label.querySelector('input')?.outerHTML || '', '').trim();
-                }
-
-                fileTd.colSpan = 2;
-                fileTd.className = '';
-                fileTd.innerHTML = `<input type="text" class="diff-edit-input" value="${escapeHtml(currentValue)}">`;
-                fileTd.querySelector('input').focus();
-
-                if (sysTd) sysTd.style.display = 'none';
-                btn.textContent = '確定';
-                btn.style.color = '#38a169';
-                btn.style.borderColor = '#38a169';
-            } else {
-                const editInput = fileTd.querySelector('.diff-edit-input');
-                const newValue = editInput ? editInput.value : '';
-
-                fileTd.colSpan = 1;
-                fileTd.className = 'col-excel';
-
-                const radioName = 'edited_' + Math.random().toString(36).substr(2, 5);
-                fileTd.innerHTML = `<label class="diff-radio-label"><input type="radio" name="${radioName}" checked> ${escapeHtml(newValue)}</label>`;
-
-                if (sysTd) {
-                    sysTd.style.display = '';
-                    sysTd.innerHTML = `<span class="diff-match-text">（編集済み）</span>`;
-                }
-
-                btn.textContent = '編集';
-                btn.style.color = '#4299e1';
-                btn.style.borderColor = '#e2e8f0';
-
-                // 編集確定で済にする
-                onDiffRadioChange(currentDiffItemId);
-            }
-        }
-
-        // 反映実行
-        function applyDiff() {
-            const doneCount = diffItemIds.filter(id => diffDoneState[id]).length;
-            const total = diffItemIds.length;
-
-            if (doneCount < total) {
-                if (!confirm('未確認の項目が ' + (total - doneCount) + ' 件あります。\nこのまま反映しますか？')) {
-                    return;
-                }
-            }
-
-            const checkedCount = document.querySelectorAll('#diffModal input[type="radio"]:checked').length;
-            alert('差分を反映しました（デモ）\n\n確認済み: ' + doneCount + '/' + total + '件\n選択された項目: ' + checkedCount + '件\n\n※ 実際のReact実装では、選択結果に基づきSupabase DBを更新します。');
-            closeDiffModal();
-        }
-
         // ==================== カラー設定パネル ====================
-        const COLOR_DEFAULTS = {
-            '--gc-color-touo': '#93c5fd',
-            '--gc-color-nikkei': '#fca5a5',
-            '--cat-bg-facility': '#c6f6d5',
-            '--cat-bg-event': '#feebc8',
-            '--cat-bg-traffic': '#bee3f8',
-            '--cat-bg-highway': '#e9d8fd',
-            '--cat-text-facility': '#276749',
-            '--cat-text-event': '#c05621',
-            '--cat-text-traffic': '#2b6cb0',
-            '--cat-text-highway': '#6b46c1',
-            '--shift-bg-day': '#fefcbf',
-            '--shift-text-day': '#744210',
-            '--shift-bg-night': '#2b6cb0',
-            '--shift-text-night': '#ffffff'
+
+        // --- ベース色 → 背景(rgba 12%) / 文字(暗色) 自動生成ユーティリティ ---
+        function hexToRgb(hex) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return { r, g, b };
+        }
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            if (max === min) { h = s = 0; }
+            else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+                else if (max === g) h = ((b - r) / d + 2) / 6;
+                else h = ((r - g) / d + 4) / 6;
+            }
+            return { h, s, l };
+        }
+        function hslToHex(h, s, l) {
+            function hue2rgb(p, q, t) {
+                if (t < 0) t += 1; if (t > 1) t -= 1;
+                if (t < 1/6) return p + (q - p) * 6 * t;
+                if (t < 1/2) return q;
+                if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                return p;
+            }
+            let r, g, b;
+            if (s === 0) { r = g = b = l; }
+            else {
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            const toHex = v => { const h = Math.round(v * 255).toString(16); return h.length === 1 ? '0' + h : h; };
+            return '#' + toHex(r) + toHex(g) + toHex(b);
+        }
+        /** ベース色HEXから背景rgbaと文字HEXを生成 */
+        function deriveColors(baseHex) {
+            const { r, g, b } = hexToRgb(baseHex);
+            const bg = 'rgba(' + r + ', ' + g + ', ' + b + ', 0.12)';
+            const { h, s } = rgbToHsl(r, g, b);
+            const textHex = hslToHex(h, Math.min(s * 1.1, 1), 0.22);
+            return { bg, text: textHex };
+        }
+        /** ベース色キーからCSS変数名を解決 */
+        function baseKeyToCssVars(baseKey) {
+            if (baseKey.startsWith('cat-')) {
+                return { bg: '--cat-bg-' + baseKey.slice(4), text: '--cat-text-' + baseKey.slice(4) };
+            }
+            // shift-day, shift-night
+            return { bg: '--shift-bg-' + baseKey.slice(6), text: '--shift-text-' + baseKey.slice(6) };
+        }
+        /** ベース色を適用（背景・文字のCSS変数を自動設定） */
+        function applyBaseColor(baseKey, baseHex) {
+            const vars = baseKeyToCssVars(baseKey);
+            const { bg, text } = deriveColors(baseHex);
+            document.documentElement.style.setProperty(vars.bg, bg);
+            document.documentElement.style.setProperty(vars.text, text);
+        }
+
+        // --- ベース色のデフォルト値（全区分: 緑統一） ---
+        const BASE_COLOR_DEFAULTS = {
+            '--gc-bg-touo': '#FFFFFF',
+            '--gc-bg-nikkei': '#F3F9F6',
+            '--gc-bg-zennihon': '#F2F4F8',
+            'cat-facility': '#38A169',
+            'cat-event': '#38A169',
+            'cat-traffic': '#38A169',
+            'cat-highway': '#38A169',
+            'cat-support-event': '#38A169',
+            'cat-support-traffic': '#38A169',
+            'cat-support-highway': '#38A169',
+            'cat-training': '#38A169',
+            'cat-company': '#38A169',
+            'shift-day': '#D69E2E',
+            'shift-night': '#2B6CB0'
         };
         const MAX_PRESETS = 5;
-        const STORAGE_KEY = 'colorPresets';
-        const ACTIVE_PRESET_KEY = 'activeColorPreset';
+        const STORAGE_KEY = 'colorPresets_v2_light';
+        const ACTIVE_PRESET_KEY = 'activeColorPreset_v2_light';
 
         function toggleColorSettingsPanel() {
             document.getElementById('colorSettingsPanel').classList.toggle('open');
         }
 
-        // 現在のカラーピッカーの値を取得
         function getCurrentColors() {
             const colors = {};
-            document.querySelectorAll('.color-setting-picker').forEach(picker => {
+            // グループ会社（従来の直接CSS変数ピッカー）
+            document.querySelectorAll('.color-setting-picker:not(.color-base-picker)').forEach(picker => {
                 colors[picker.dataset.cssVar] = picker.value;
+            });
+            // ベース色ピッカー（ベースキーで保存）
+            document.querySelectorAll('.color-base-picker').forEach(picker => {
+                colors[picker.dataset.baseKey] = picker.value;
             });
             return colors;
         }
 
-        // 色をUIとCSS変数に適用
         function applyColors(colors) {
-            Object.entries(colors).forEach(([cssVar, value]) => {
-                document.documentElement.style.setProperty(cssVar, value);
-                const picker = document.querySelector('.color-setting-picker[data-css-var="' + cssVar + '"]');
-                if (picker) picker.value = value;
-                const hex = document.querySelector('.color-setting-hex[data-css-var="' + cssVar + '"]');
-                if (hex) hex.textContent = value;
+            Object.entries(colors).forEach(([key, value]) => {
+                if (key.startsWith('--')) {
+                    // 従来のCSS変数（グループ会社背景色）
+                    document.documentElement.style.setProperty(key, value);
+                    const picker = document.querySelector('.color-setting-picker[data-css-var="' + key + '"]');
+                    if (picker) picker.value = value;
+                    const hex = document.querySelector('.color-setting-hex[data-css-var="' + key + '"]');
+                    if (hex) hex.textContent = value;
+                } else {
+                    // ベース色キー → 背景・文字を自動生成
+                    applyBaseColor(key, value);
+                    const picker = document.querySelector('.color-base-picker[data-base-key="' + key + '"]');
+                    if (picker) picker.value = value;
+                    const hex = document.querySelector('.color-setting-hex[data-base-key="' + key + '"]');
+                    if (hex) hex.textContent = value;
+                }
             });
         }
 
-        // デフォルトに戻す
         function resetColorsToDefault() {
-            applyColors(COLOR_DEFAULTS);
+            applyColors(BASE_COLOR_DEFAULTS);
             document.getElementById('colorPresetSelect').value = 'default';
             localStorage.setItem(ACTIVE_PRESET_KEY, 'default');
         }
 
-        // localStorageからプリセット一覧を取得
         function getPresetsFromStorage() {
-            try {
-                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-            } catch { return []; }
+            try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+            catch { return []; }
         }
 
-        // localStorageにプリセット一覧を保存
         function savePresetsToStorage(presets) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
         }
 
-        // プリセットのselect要素を更新
         function updatePresetSelect(presets, activeId) {
             const select = document.getElementById('colorPresetSelect');
-            // デフォルト以外を削除
             while (select.options.length > 1) select.remove(1);
             presets.forEach(p => {
                 const opt = document.createElement('option');
@@ -1729,7 +2183,6 @@
             if (activeId) select.value = activeId;
         }
 
-        // 起動時にlocalStorageからプリセットを読み込み
         function loadColorPresetsFromStorage() {
             const presets = getPresetsFromStorage();
             const activeId = localStorage.getItem(ACTIVE_PRESET_KEY) || 'default';
@@ -1740,12 +2193,8 @@
             }
         }
 
-        // プリセット選択時
         function loadColorPreset(presetId) {
-            if (presetId === 'default') {
-                resetColorsToDefault();
-                return;
-            }
+            if (presetId === 'default') { resetColorsToDefault(); return; }
             const presets = getPresetsFromStorage();
             const preset = presets.find(p => p.id === presetId);
             if (preset) {
@@ -1754,7 +2203,6 @@
             }
         }
 
-        // 現在の色をプリセットとして保存
         function saveColorPreset() {
             const presets = getPresetsFromStorage();
             if (presets.length >= MAX_PRESETS) {
@@ -1770,18 +2218,1486 @@
             localStorage.setItem(ACTIVE_PRESET_KEY, id);
         }
 
-        // 選択中のプリセットを削除
         function deleteColorPreset() {
             const select = document.getElementById('colorPresetSelect');
             const activeId = select.value;
-            if (activeId === 'default') {
-                alert('デフォルトは削除できません。');
-                return;
-            }
+            if (activeId === 'default') { alert('デフォルトは削除できません。'); return; }
             if (!confirm('パターン「' + select.options[select.selectedIndex].text + '」を削除しますか？')) return;
             let presets = getPresetsFromStorage();
             presets = presets.filter(p => p.id !== activeId);
             savePresetsToStorage(presets);
             updatePresetSelect(presets, 'default');
             resetColorsToDefault();
+        }
+
+        // ==================== 変更通知システム ====================
+
+        const cnState = {
+            notifications: [],
+            history: [],
+            unreadCount: 0,
+            activeTab: 'latest',
+            nextId: 1
+        };
+
+        function cnTimeNow() {
+            const d = new Date();
+            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+        }
+
+        function updateNotifyBadge() {
+            const badge = document.getElementById('cnBadge');
+            if (cnState.unreadCount > 0) {
+                badge.textContent = cnState.unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function showChangeToast(notification) {
+            const container = document.getElementById('cnToastContainer');
+            const toast = document.createElement('div');
+            const typeClass = 'cn-toast-' + notification.type;
+            const icons = { add: '🟢', modify: '🟡', delete: '🔴' };
+            const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
+
+            toast.className = 'cn-toast ' + typeClass;
+            toast.innerHTML =
+                '<span class="cn-toast-icon">' + icons[notification.type] + '</span>' +
+                '<div class="cn-toast-body">' +
+                    '<div class="cn-toast-title">' + typeLabels[notification.type] + ' — ' + notification.user + '</div>' +
+                    '<div class="cn-toast-desc">' + escapeHtml(notification.siteName) + '</div>' +
+                '</div>' +
+                '<span class="cn-toast-time">' + notification.time + '</span>';
+
+            toast.onclick = function() {
+                toast.classList.add('cn-toast-exit');
+                setTimeout(function() { toast.remove(); }, 300);
+                openChangeNotifyModal();
+            };
+
+            container.appendChild(toast);
+
+            setTimeout(function() {
+                if (toast.parentNode) {
+                    toast.classList.add('cn-toast-exit');
+                    setTimeout(function() { toast.remove(); }, 300);
+                }
+            }, 5000);
+        }
+
+        function openChangeNotifyModal() {
+            document.getElementById('changeNotifyModal').classList.add('active');
+            cnState.unreadCount = 0;
+            updateNotifyBadge();
+            renderLatestChanges();
+            renderChangeHistory();
+        }
+
+        function closeChangeNotifyModal() {
+            document.getElementById('changeNotifyModal').classList.remove('active');
+        }
+
+        // モーダル外クリックで閉じる
+        document.getElementById('changeNotifyModal').addEventListener('click', function(e) {
+            if (e.target === this) closeChangeNotifyModal();
+        });
+
+        function switchCnTab(tabName) {
+            cnState.activeTab = tabName;
+            document.querySelectorAll('.cn-tab').forEach(function(tab) {
+                tab.classList.toggle('active', tab.dataset.tab === tabName);
+            });
+            document.querySelectorAll('.cn-tab-content').forEach(function(content) {
+                content.classList.toggle('active', content.id === (tabName === 'latest' ? 'cnTabLatest' : 'cnTabHistory'));
+            });
+        }
+
+        function renderLatestChanges() {
+            const list = document.getElementById('cnCardList');
+            if (cnState.notifications.length === 0) {
+                list.innerHTML = '<div class="cn-empty">変更通知はありません</div>';
+                return;
+            }
+
+            const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
+            const smCategoryClassMapLocal = {
+                '施設': 'category-facility', 'イベント': 'category-event',
+                '交通': 'category-traffic', '高速': 'category-highway'
+            };
+            const smShiftClassMapLocal = { '昼': 'shift-day', '夜': 'shift-night' };
+
+            list.innerHTML = cnState.notifications.map(function(n) {
+                var cardClass = 'cn-card cn-card-' + n.type;
+                var badgeClass = 'cn-type-badge cn-type-badge-' + n.type;
+                var catClass = smCategoryClassMapLocal[n.category] || 'category-facility';
+                var shiftClass = smShiftClassMapLocal[n.shift] || 'shift-day';
+
+                var diffHtml = '';
+                if (n.type === 'modify' && n.diffs) {
+                    diffHtml = '<div class="cn-diff-list">' +
+                        n.diffs.map(function(d) {
+                            return '<div class="cn-diff-row">' +
+                                '<span class="cn-diff-label">' + d.field + '</span>' +
+                                '<span class="cn-diff-old">' + escapeHtml(d.oldVal) + '</span>' +
+                                '<span class="cn-diff-arrow">→</span>' +
+                                '<span class="cn-diff-new">' + escapeHtml(d.newVal) + '</span>' +
+                            '</div>';
+                        }).join('') +
+                    '</div>';
+                } else if (n.type === 'add' && n.details) {
+                    diffHtml = '<div class="cn-diff-list">' +
+                        n.details.map(function(d) {
+                            return '<div class="cn-diff-row">' +
+                                '<span class="cn-diff-label">' + d.field + '</span>' +
+                                '<span class="cn-diff-new">' + escapeHtml(d.value) + '</span>' +
+                            '</div>';
+                        }).join('') +
+                    '</div>';
+                } else if (n.type === 'delete') {
+                    diffHtml = '<div class="cn-diff-list"><div class="cn-diff-row"><span class="cn-diff-old">この行は削除されました</span></div></div>';
+                }
+
+                var stateClass = n.reverted ? ' cn-card-reverted' : (n._approved ? ' cn-card-approved' : '');
+                var statusBadge = '';
+                var actionsHtml = '';
+                if (n.reverted) {
+                    statusBadge = '<span class="cn-reverted-badge">取消済</span>';
+                    actionsHtml = '<div class="cn-card-actions">' +
+                        '<button class="cn-btn-reapprove" onclick="cnReapproveNotification(' + n.id + ')">やっぱり反映</button>' +
+                    '</div>';
+                } else {
+                    if (n._approved) statusBadge = '<span class="cn-approved-badge">承認済</span>';
+                    actionsHtml = '<div class="cn-card-actions">' +
+                        '<button class="cn-btn-revert" onclick="cnRevertNotification(' + n.id + ')">元に戻す</button>' +
+                    '</div>';
+                }
+
+                return '<div class="' + cardClass + stateClass + '">' +
+                    '<div class="cn-card-header">' +
+                        '<span class="' + badgeClass + '">' + typeLabels[n.type] + '</span>' +
+                        statusBadge +
+                        '<span class="cn-card-user">' + escapeHtml(n.user) + '</span>' +
+                        '<span class="cn-card-time">' + n.time + '</span>' +
+                    '</div>' +
+                    '<div class="cn-card-body">' +
+                        '<div class="cn-card-site">' +
+                            '<span class="shift-badge ' + shiftClass + '">' + n.shift + '</span>' +
+                            '<span class="category-badge ' + catClass + '">' + n.category + '</span>' +
+                            escapeHtml(n.siteName) +
+                        '</div>' +
+                        diffHtml +
+                    '</div>' +
+                    actionsHtml +
+                '</div>';
+            }).join('');
+        }
+
+        function renderChangeHistory() {
+            const timeline = document.getElementById('cnTimeline');
+            if (cnState.history.length === 0) {
+                timeline.innerHTML = '<div class="cn-empty">変更履歴はありません</div>';
+                return;
+            }
+
+            const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
+
+            timeline.innerHTML = cnState.history.map(function(h) {
+                return '<div class="cn-timeline-item tl-' + h.type + '">' +
+                    '<div class="cn-tl-header">' +
+                        '<span class="cn-tl-time">' + h.time + '</span>' +
+                        '<span class="cn-tl-user">' + escapeHtml(h.user) + '</span>' +
+                        '<span class="cn-tl-type cn-tl-type-' + h.type + '">' + typeLabels[h.type] + '</span>' +
+                    '</div>' +
+                    '<div class="cn-tl-content">' + escapeHtml(h.summary) + '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function checkConflict(notification) {
+            const siteModal = document.getElementById('siteModal');
+            if (!siteModal.classList.contains('active')) return false;
+            return true;
+        }
+
+        function showConflictBanner(notification) {
+            const banner = document.getElementById('cnConflictBanner');
+            const text = document.getElementById('cnConflictText');
+            text.textContent = notification.user + 'が「' + notification.siteName + '」を変更しました。最新のデータに更新されます。';
+            banner.style.display = 'flex';
+        }
+
+        function hideConflictBanner() {
+            document.getElementById('cnConflictBanner').style.display = 'none';
+        }
+
+        function receiveChangeNotification(notification) {
+            notification.id = cnState.nextId++;
+            notification.reverted = false;
+            cnState.notifications.unshift(notification);
+            cnState.history.unshift({
+                type: notification.type,
+                user: notification.user,
+                time: notification.time,
+                summary: notification.siteName + (notification.type === 'modify' && notification.diffs
+                    ? '（' + notification.diffs.map(function(d) { return d.field; }).join('・') + '）'
+                    : '')
+            });
+            cnState.unreadCount++;
+            updateNotifyBadge();
+
+            if (checkConflict(notification)) {
+                showConflictBanner(notification);
+            }
+
+            showChangeToast(notification);
+        }
+
+        // --- デモシミュレーション（承認方式） ---
+        let cnDemoInterval = null;
+        let cnDemoRunning = false;
+        let cnDemoIndex = 0;
+        const cnPendingMap = new Map();
+
+        const cnDemoSequence = [
+            { type: 'modify', user: '山田（現場管理）', siteName: '国道〇号線 舗装工事', category: '交通', shift: '昼',
+              diffs: [{ field: '時間', oldVal: '08:00 - 17:00', newVal: '09:00 - 18:00' }],
+              apply: function(self) {
+                  var row = cnFindRow('国道〇号線 舗装工事'); if (!row) return;
+                  var tsEl = row.querySelector('.work-time-start');
+                  var teEl = row.querySelector('.work-time-end');
+                  var wtCell = row.querySelector('.col-work-time');
+                  if (tsEl) cnShowCellDiff(tsEl, tsEl.textContent, '09:00');
+                  if (teEl) cnShowCellDiff(teEl, teEl.textContent, '18:00');
+                  if (wtCell) cnAddCellBadge(wtCell);
+                  cnMarkPending(row, 'modify', function() {
+                      if (tsEl) tsEl.textContent = '09:00';
+                      if (teEl) teEl.textContent = '18:00';
+                      cnCleanCellBadges(row);
+                  });
+              }},
+            { type: 'add', user: '鈴木（受注担当）', siteName: '△△マンション 常駐警備', category: '施設', shift: '夜',
+              details: [{ field: '会社', value: '△△不動産' }, { field: '区分', value: '施設（夜）' }, { field: '時間', value: '20:00 - 08:00' }, { field: '人数', value: '2名' }, { field: '集合', value: '19:30' }],
+              apply: function(self) {
+                  var tbody = document.querySelector('.grid-table tbody');
+                  var no = tbody.querySelectorAll('tr').length + 1;
+                  var tr = cnCreateRow({ no: no, gcClass: 'gc-row-touo', shiftClass: 'shift-night', shiftLabel: '夜',
+                      categoryClass: 'category-facility', categoryLabel: '施設', company: '△△不動産',
+                      siteName: '△△マンション 常駐警備', meetingTime: '19:30', meetingMethod: '直', meetingMethodClass: 'method-direct',
+                      timeStart: '20:00', timeEnd: '08:00', count: '0/2', shortage: true });
+                  tbody.appendChild(tr);
+                  cnMarkPending(tr, 'add', function() {});
+              }},
+            { type: 'modify', user: '伊藤（配車担当）', siteName: '〇〇会館 展示会', category: 'イベント', shift: '昼',
+              diffs: [{ field: '人数', oldVal: '1/2', newVal: '3/2' }, { field: '配置', oldVal: '山本', newVal: '山本, 吉田, 松本' }],
+              apply: function(self) {
+                  var row = cnFindRow('〇〇会館 展示会'); if (!row) return;
+                  var countEl = row.querySelector('.count-display');
+                  var countCell = countEl ? countEl.closest('td') : null;
+                  if (countEl) cnShowCellDiff(countEl, countEl.textContent.trim(), '3/2');
+                  if (countCell) cnAddCellBadge(countCell);
+                  cnMarkPending(row, 'modify', function() {
+                      if (countEl) { countEl.textContent = '3/2'; countEl.className = 'count-display count-over'; }
+                      cnCleanCellBadges(row);
+                  });
+              }},
+            { type: 'delete', user: '高橋（管理部）', siteName: '県道〇号 夜間規制', category: '高速', shift: '夜', diffs: null,
+              apply: function(self) {
+                  var row = cnFindRow('県道〇号 夜間規制'); if (!row) return;
+                  cnMarkPending(row, 'delete', function() {
+                      row.remove(); cnRenumberRows();
+                  });
+              }},
+            { type: 'add', user: '田中（営業部）', siteName: '□□公園 花火大会警備', category: 'イベント', shift: '昼',
+              details: [{ field: '会社', value: '□□イベント' }, { field: '区分', value: 'イベント（昼）' }, { field: '時間', value: '16:00 - 22:00' }, { field: '人数', value: '5名' }, { field: '集合', value: '15:00' }],
+              apply: function(self) {
+                  var tbody = document.querySelector('.grid-table tbody');
+                  var no = tbody.querySelectorAll('tr').length + 1;
+                  var tr = cnCreateRow({ no: no, gcClass: 'gc-row-nikkei', shiftClass: 'shift-day', shiftLabel: '昼',
+                      categoryClass: 'category-event', categoryLabel: 'イベント', company: '□□イベント',
+                      siteName: '□□公園 花火大会警備', meetingTime: '15:00', meetingMethod: '会社', meetingMethodClass: 'method-company',
+                      timeStart: '16:00', timeEnd: '22:00', count: '0/5', shortage: true });
+                  tbody.appendChild(tr);
+                  cnMarkPending(tr, 'add', function() {});
+              }},
+            { type: 'modify', user: '佐藤（営業部）', siteName: '〇〇ビル 巡回警備', category: '施設', shift: '昼',
+              diffs: [{ field: '集合時間', oldVal: '08:45', newVal: '08:30' }],
+              apply: function(self) {
+                  var row = cnFindRow('〇〇ビル 巡回警備'); if (!row) return;
+                  var mtEl = row.querySelector('.time-display');
+                  var timeCell = mtEl ? mtEl.closest('td') : null;
+                  if (mtEl) cnShowCellDiff(mtEl, mtEl.textContent, '08:30');
+                  if (timeCell) cnAddCellBadge(timeCell);
+                  cnMarkPending(row, 'modify', function() {
+                      if (mtEl) mtEl.textContent = '08:30';
+                      cnCleanCellBadges(row);
+                  });
+              }}
+        ];
+
+        // セル内差分表示ヘルパー
+        function cnShowCellDiff(el, oldText, newText) {
+            el.innerHTML = '<span class="cn-cell-old">' + oldText + '</span><div class="cn-cell-new">' + newText + '</div>';
+        }
+
+        function cnAddCellBadge(cell) {
+            var badge = document.createElement('div');
+            badge.className = 'cn-cell-badge';
+            badge.textContent = '変更';
+            cell.insertBefore(badge, cell.firstChild);
+        }
+
+        function cnCleanCellBadges(row) {
+            var els = row.querySelectorAll('.cn-cell-badge');
+            for (var i = 0; i < els.length; i++) els[i].remove();
+        }
+
+        function cnFindRow(siteName) {
+            var rows = document.querySelectorAll('.grid-table tbody tr');
+            for (var i = 0; i < rows.length; i++) {
+                var sn = rows[i].querySelector('.site-name');
+                if (sn && sn.textContent.trim() === siteName) return rows[i];
+            }
+            return null;
+        }
+
+        function cnMarkPending(row, type, commitFn) {
+            row.classList.add('cn-pending');
+            cnPendingMap.set(row, { type: type, commit: commitFn });
+            // 追加・削除バッジ → No列に配置
+            if (type === 'add' || type === 'delete') {
+                var noCell = row.querySelector('.col-no');
+                if (noCell) {
+                    var badge = document.createElement('span');
+                    badge.className = 'cn-row-badge cn-row-badge-' + type;
+                    badge.textContent = type === 'add' ? '追加' : '削除';
+                    noCell.appendChild(badge);
+                }
+            }
+            // グレーオーバーレイ（コンテンツなし）
+            var existingOv = row.querySelector('.cn-overlay');
+            if (existingOv) existingOv.remove();
+            var overlay = document.createElement('div');
+            overlay.className = 'cn-overlay';
+            var noCell = row.querySelector('.col-no');
+            if (noCell) {
+                noCell.style.position = 'relative';
+                noCell.appendChild(overlay);
+                overlay.style.width = row.offsetWidth + 'px';
+            }
+            overlay.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                cnApprovePending(row);
+            });
+        }
+
+        function cnApprovePending(row) {
+            var pending = cnPendingMap.get(row);
+            if (!pending) return;
+            // 対応する通知を承認済みにマーク
+            var notif = cnState.notifications.find(function(n) { return n._row === row; });
+            // delete承認前に行HTMLを保存（後で復元可能にする）
+            if (pending.type === 'delete' && notif) {
+                notif._deletedRowHtml = row.outerHTML;
+                notif._deletedRowIndex = Array.from(row.parentNode.children).indexOf(row);
+                notif._deletedRowParent = row.parentNode;
+            }
+            pending.commit();
+            row.classList.remove('cn-pending');
+            var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-overlay');
+            for (var i = 0; i < els.length; i++) els[i].remove();
+            cnPendingMap.delete(row);
+            if (notif) notif._approved = true;
+            if (pending.type !== 'delete') {
+                row.classList.add('cn-flash-approve');
+                setTimeout(function() { row.classList.remove('cn-flash-approve'); }, 2000);
+            }
+            // モーダルが開いていれば再描画
+            if (document.getElementById('changeNotifyModal').classList.contains('active')) {
+                renderLatestChanges();
+            }
+        }
+
+        function cnFlashRow(row, type) {
+            row.classList.add('cn-flash-' + type);
+            setTimeout(function() { row.classList.remove('cn-flash-' + type); }, 3000);
+        }
+
+        function cnRenumberRows() {
+            var rows = document.querySelectorAll('.grid-table tbody tr');
+            for (var i = 0; i < rows.length; i++) {
+                var no = rows[i].querySelector('.col-no');
+                if (!no) continue;
+                // .cn-overlay等の子要素を破壊しないよう、テキストノードのみ更新
+                var textNode = no.firstChild;
+                if (textNode && textNode.nodeType === 3) {
+                    textNode.textContent = i + 1;
+                } else {
+                    no.insertBefore(document.createTextNode(i + 1), no.firstChild);
+                }
+            }
+        }
+
+        // --- 元に戻す / やっぱり反映 ---
+
+        // revert/reapprove後のオーバーレイ＋差分可視化
+        function cnShowRevertOverlay(row, type, diffs) {
+            // 既存の差分要素を先にクリーンアップ（重複防止）
+            var staleEls = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-cell-old, .cn-cell-new');
+            for (var i = 0; i < staleEls.length; i++) staleEls[i].remove();
+
+            row.classList.add('cn-pending');
+            // バッジ
+            var noCell = row.querySelector('.col-no');
+            if (noCell && (type === 'add' || type === 'delete')) {
+                var badge = document.createElement('span');
+                badge.className = 'cn-row-badge cn-row-badge-' + (type === 'add' ? 'delete' : 'add');
+                badge.textContent = type === 'add' ? '削除' : '復元';
+                noCell.appendChild(badge);
+            }
+            // modify差分表示（バッジはtdセル単位で重複防止）
+            if (type === 'modify' && diffs) {
+                var badgedTds = [];
+                diffs.forEach(function(d) {
+                    if (d.el) {
+                        cnShowCellDiff(d.el, d.oldText, d.newText);
+                        var td = d.td || d.el.closest('td');
+                        if (td && badgedTds.indexOf(td) === -1) {
+                            cnAddCellBadge(td);
+                            badgedTds.push(td);
+                        }
+                    }
+                });
+            }
+            // オーバーレイ
+            var existingOv = row.querySelector('.cn-overlay');
+            if (existingOv) existingOv.remove();
+            var overlay = document.createElement('div');
+            overlay.className = 'cn-overlay';
+            if (noCell) {
+                noCell.style.position = 'relative';
+                noCell.appendChild(overlay);
+                overlay.style.width = row.offsetWidth + 'px';
+            }
+            overlay.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                // 確認済みとして除去
+                row.classList.remove('cn-pending');
+                var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-overlay');
+                for (var i = 0; i < els.length; i++) els[i].remove();
+                // modifyの場合、差分表示をクリーンアップ（現在値のみ表示）
+                var oldSpans = row.querySelectorAll('.cn-cell-old');
+                for (var i = 0; i < oldSpans.length; i++) oldSpans[i].remove();
+                var newSpans = row.querySelectorAll('.cn-cell-new');
+                for (var i = 0; i < newSpans.length; i++) {
+                    var parent = newSpans[i].parentElement;
+                    var text = newSpans[i].textContent;
+                    parent.textContent = text;
+                }
+            });
+        }
+
+        function cnClearPending(row) {
+            cnPendingMap.delete(row);
+            row.classList.remove('cn-pending');
+            var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-overlay');
+            for (var i = 0; i < els.length; i++) els[i].remove();
+        }
+
+        function cnRevertNotification(id) {
+            var n = cnState.notifications.find(function(x) { return x.id === id; });
+            if (!n || n.reverted) return;
+
+            if (n._approved) {
+                // --- 承認済みからのrevert ---
+                if (n.type === 'modify') {
+                    var row = n._row || cnFindRow(n.siteName);
+                    if (row && n._modifyData) {
+                        // セルをクリーン状態にして元の値を復元
+                        n._modifyData.forEach(function(d) { d.el.textContent = d.originalText; });
+                        // 差分可視化（変更後B → 元の値A）
+                        var diffs = n._modifyData.map(function(d) {
+                            return { el: d.el, td: d.td, oldText: d.changedText, newText: d.originalText };
+                        });
+                        cnShowRevertOverlay(row, 'modify', diffs);
+                    }
+                } else if (n.type === 'add') {
+                    var row = n._row || cnFindRow(n.siteName);
+                    if (row) { row.remove(); cnRenumberRows(); }
+                } else if (n.type === 'delete') {
+                    // 保存済みHTMLから行を復元
+                    if (n._deletedRowHtml && n._deletedRowParent) {
+                        var temp = document.createElement('tbody');
+                        temp.innerHTML = n._deletedRowHtml;
+                        var restored = temp.firstChild;
+                        var parent = n._deletedRowParent;
+                        var siblings = parent.children;
+                        if (n._deletedRowIndex < siblings.length) {
+                            parent.insertBefore(restored, siblings[n._deletedRowIndex]);
+                        } else {
+                            parent.appendChild(restored);
+                        }
+                        n._row = restored;
+                        cnRenumberRows();
+                        cnShowRevertOverlay(restored, 'delete', null);
+                    }
+                }
+            } else {
+                // --- 未承認（pending）からのrevert ---
+                if (n.type === 'modify') {
+                    var row = n._row || cnFindRow(n.siteName);
+                    if (!row || !n._modifyData) return;
+                    // セルをクリーン状態にして元の値を復元
+                    n._modifyData.forEach(function(d) { d.el.textContent = d.originalText; });
+                    cnClearPending(row);
+                    // 差分可視化（変更後B → 元の値A）
+                    var revertDiffs = n._modifyData.map(function(d) {
+                        return { el: d.el, td: d.td, oldText: d.changedText, newText: d.originalText };
+                    });
+                    cnShowRevertOverlay(row, 'modify', revertDiffs);
+                } else if (n.type === 'add') {
+                    var row = n._row || cnFindRow(n.siteName);
+                    if (row) { cnPendingMap.delete(row); row.remove(); cnRenumberRows(); }
+                } else if (n.type === 'delete') {
+                    var row = n._row || cnFindRow(n.siteName);
+                    if (!row) return;
+                    cnClearPending(row);
+                }
+            }
+
+            n.reverted = true;
+            n._approved = false;
+            renderLatestChanges();
+        }
+
+        function cnReapproveNotification(id) {
+            var n = cnState.notifications.find(function(x) { return x.id === id; });
+            if (!n || !n.reverted) return;
+
+            if (n.type === 'modify') {
+                var row = n._row || cnFindRow(n.siteName);
+                if (row && n._modifyData) {
+                    // revertオーバーレイをクリア
+                    row.classList.remove('cn-pending');
+                    var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-overlay');
+                    for (var i = 0; i < els.length; i++) els[i].remove();
+                    // セルをクリーン状態にして変更後の値を再設定
+                    n._modifyData.forEach(function(d) { d.el.textContent = d.changedText; });
+                    // 差分可視化（元の値A → 変更後B）
+                    var diffs = n._modifyData.map(function(d) {
+                        return { el: d.el, td: d.td, oldText: d.originalText, newText: d.changedText };
+                    });
+                    cnShowRevertOverlay(row, 'modify', diffs);
+                }
+            } else if (n.type === 'add') {
+                // 行を再作成し即承認
+                if (n._demoItem && n._demoItem.apply) {
+                    n._demoItem.apply(n._demoItem);
+                    var newRow = cnFindRow(n.siteName);
+                    if (newRow) {
+                        cnApprovePending(newRow);
+                        n._row = newRow;
+                        cnShowRevertOverlay(newRow, 'add', null);
+                    }
+                }
+            } else if (n.type === 'delete') {
+                var row = n._row || cnFindRow(n.siteName);
+                if (row) {
+                    // 再削除前に行HTMLを保存
+                    n._deletedRowHtml = row.outerHTML;
+                    n._deletedRowIndex = Array.from(row.parentNode.children).indexOf(row);
+                    n._deletedRowParent = row.parentNode;
+                    row.remove();
+                    cnRenumberRows();
+                }
+            }
+
+            n.reverted = false;
+            n._approved = true;
+            renderLatestChanges();
+        }
+
+        function cnCreateRow(d) {
+            var tr = document.createElement('tr');
+            tr.className = d.gcClass;
+            tr.setAttribute('onclick', 'selectRow(this, event)');
+            var countClass = d.shortage ? 'count-display count-shortage' : 'count-display count-ok';
+            tr.innerHTML =
+                '<td class="col-no">' + d.no + '</td>' +
+                '<td class="col-site-info clickable-cell" onclick="openSiteModal(this)">' +
+                  '<div class="site-info"><div class="site-badges">' +
+                    '<span class="shift-badge ' + d.shiftClass + '">' + d.shiftLabel + '</span>' +
+                    '<span class="category-badge ' + d.categoryClass + '">' + d.categoryLabel + '</span>' +
+                  '</div><div class="site-details">' +
+                    '<div class="company">' + d.company + '</div>' +
+                    '<div class="site-name">' + d.siteName + '</div>' +
+                  '</div></div></td>' +
+                '<td class="clickable-cell" onclick="openMeetingModal(this, event)">' +
+                  '<span class="time-display">' + d.meetingTime + '</span>' +
+                  '<span class="contact-badge ' + d.meetingMethodClass + '">' + d.meetingMethod + '</span></td>' +
+                '<td class="col-work-time clickable-cell" onclick="openWorkTimeModal(this, event)"' +
+                  ' data-start-time="' + d.timeStart + '" data-end-time="' + d.timeEnd + '">' +
+                  '<span class="work-time-start">' + d.timeStart + '</span>' +
+                  '<span class="work-time-end">' + d.timeEnd + '</span></td>' +
+                '<td class="clickable-cell" onclick="startCountEdit(this, event)">' +
+                  '<span class="' + countClass + '">' + d.count + '</span>' +
+                  (d.shortage ? '<span class="count-shortage-badge">不足</span>' : '') + '</td>' +
+                '<td><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>' +
+                  '<div class="vehicle-transport-box" onclick="openVtModal(this)"></div>' +
+                  '<button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button></td>' +
+                '<td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>' +
+                '<td class="col-map clickable-cell" onclick="openMapModal(this, ' + d.no + ')"></td>' +
+                '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"></td>';
+            return tr;
+        }
+
+        function sendDemoNotification() {
+            if (cnDemoIndex >= cnDemoSequence.length) {
+                toggleChangeNotifyDemo();
+                return;
+            }
+            var item = cnDemoSequence[cnDemoIndex];
+            cnDemoIndex++;
+            var n = { type: item.type, user: item.user, siteName: item.siteName,
+                category: item.category, shift: item.shift, time: cnTimeNow(),
+                diffs: item.diffs ? item.diffs.map(function(d) { return Object.assign({}, d); }) : null,
+                details: item.details ? item.details.map(function(d) { return Object.assign({}, d); }) : null };
+            n._demoItem = item;
+            receiveChangeNotification(n);
+            if (item.apply) item.apply(item);
+            // 通知と行をリンク
+            var row = cnFindRow(n.siteName);
+            if (row) {
+                n._row = row;
+                var pending = cnPendingMap.get(row);
+                if (pending) n._commitFn = pending.commit;
+                // modify: 不変のテキスト値と要素参照を保存（DOM状態に依存しない）
+                if (n.type === 'modify') {
+                    var modifyData = [];
+                    row.querySelectorAll('.cn-cell-old').forEach(function(el) {
+                        var parent = el.parentElement;
+                        var newSpan = parent.querySelector('.cn-cell-new');
+                        modifyData.push({
+                            el: parent,
+                            td: parent.closest('td'),
+                            originalText: el.textContent,
+                            changedText: newSpan ? newSpan.textContent : ''
+                        });
+                    });
+                    n._modifyData = modifyData;
+                }
+            }
+        }
+
+        function toggleChangeNotifyDemo() {
+            var btn = document.getElementById('cnDemoBtn');
+            if (cnDemoRunning) {
+                clearInterval(cnDemoInterval);
+                cnDemoInterval = null;
+                cnDemoRunning = false;
+                btn.textContent = '▶ デモ開始';
+                btn.style.background = '';
+                btn.style.color = '';
+            } else {
+                cnState.notifications = [];
+                cnState.history = [];
+                cnState.unreadCount = 0;
+                cnState.nextId = 1;
+                cnPendingMap.clear();
+                updateNotifyBadge();
+                cnDemoIndex = 0;
+                cnDemoRunning = true;
+                btn.textContent = '⏹ デモ停止';
+                btn.style.background = '#e53e3e';
+                btn.style.color = '#fff';
+                sendDemoNotification();
+                cnDemoInterval = setInterval(sendDemoNotification, 5000);
+            }
+        }
+
+        // --- フッター詳細情報 折りたたみ ---
+        function toggleFooterDetails() {
+            var content = document.getElementById('footerDetailsContent');
+            var icon = document.querySelector('.footer-toggle-icon');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.classList.add('open');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('open');
+            }
+        }
+
+        // --- カスタム時間ピッカー（10分刻み） ---
+        let timePickerTargetId = null;
+        let timePickerSelectedHour = null;
+
+        function openTimePicker(inputId, anchorEl) {
+            const dropdown = document.getElementById('timePickerDropdown');
+            if (timePickerTargetId === inputId && dropdown.style.display !== 'none') {
+                closeTimePicker();
+                return;
+            }
+            const input = document.getElementById(inputId);
+            const currentVal = input.value || '';
+            const parts = currentVal.split(':');
+            const currentHour = parts.length >= 2 ? parseInt(parts[0]) : null;
+            const currentMin = parts.length >= 2 ? parseInt(parts[1]) : null;
+
+            timePickerTargetId = inputId;
+            timePickerSelectedHour = currentHour;
+
+            const hoursEl = document.getElementById('timePickerHours');
+            let hhtml = '';
+            for (let h = 0; h < 24; h++) {
+                const sel = h === currentHour ? ' ob-time-selected' : '';
+                hhtml += `<div class="ob-time-option${sel}" data-value="${h}" onclick="selectTimeHour(${h})">${String(h).padStart(2, '0')}</div>`;
+            }
+            hoursEl.innerHTML = hhtml;
+
+            const minsEl = document.getElementById('timePickerMinutes');
+            let mhtml = '';
+            for (let m = 0; m < 60; m += 10) {
+                const sel = m === currentMin ? ' ob-time-selected' : '';
+                mhtml += `<div class="ob-time-option${sel}" data-value="${m}" onclick="selectTimeMinute(${m})">${String(m).padStart(2, '0')}</div>`;
+            }
+            minsEl.innerHTML = mhtml;
+
+            const el = anchorEl || input;
+            const rect = el.getBoundingClientRect();
+            dropdown.style.display = 'flex';
+            const ddRect = dropdown.getBoundingClientRect();
+            let left = rect.left;
+            let top = rect.bottom + 4;
+            if (left + ddRect.width > window.innerWidth) left = window.innerWidth - ddRect.width - 8;
+            if (top + ddRect.height > window.innerHeight) top = rect.top - ddRect.height - 4;
+            dropdown.style.left = left + 'px';
+            dropdown.style.top = top + 'px';
+
+            if (currentHour !== null) {
+                const hourOpt = hoursEl.children[currentHour];
+                if (hourOpt) hourOpt.scrollIntoView({ block: 'center', behavior: 'instant' });
+            }
+        }
+
+        function selectTimeHour(h) {
+            timePickerSelectedHour = h;
+            document.querySelectorAll('#timePickerHours .ob-time-option').forEach(el => {
+                el.classList.toggle('ob-time-selected', parseInt(el.dataset.value) === h);
+            });
+        }
+
+        function selectTimeMinute(m) {
+            if (timePickerSelectedHour === null) timePickerSelectedHour = 0;
+            const input = document.getElementById(timePickerTargetId);
+            input.value = `${String(timePickerSelectedHour).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+            closeTimePicker();
+        }
+
+        function closeTimePicker() {
+            const dropdown = document.getElementById('timePickerDropdown');
+            if (dropdown) dropdown.style.display = 'none';
+            timePickerTargetId = null;
+            timePickerSelectedHour = null;
+        }
+
+        document.addEventListener('mousedown', function (e) {
+            const dropdown = document.getElementById('timePickerDropdown');
+            if (!dropdown || dropdown.style.display === 'none') return;
+            if (dropdown.contains(e.target)) return;
+            if (e.target.classList.contains('ob-time-input') || e.target.classList.contains('ob-time-picker-icon')) return;
+            closeTimePicker();
+        });
+
+        // ============================================
+        // 現場詳細入力モーダル — 新機能
+        // ============================================
+
+        // --- データ定義 ---
+        const branchList = ['東央警備', 'Nikkeiホールディングス', '全日本エンタープライズ'];
+        const shiftList = ['昼', '夜'];
+
+        // 区分名 → CSSクラス マッピング
+        const smCategoryClassMap = {
+            '施設': 'category-facility',
+            'イベント': 'category-event',
+            '交通': 'category-traffic',
+            '高速': 'category-highway',
+            '応援交通': 'category-support-traffic',
+            '応援イベント': 'category-support-event',
+            '応援高速': 'category-support-highway',
+            '研修': 'category-training',
+            '社内': 'category-company',
+        };
+        // 昼夜 → CSSクラス マッピング
+        const smShiftClassMap = { '昼': 'shift-day', '夜': 'shift-night' };
+
+        let smBadgeDefinitions = [
+            { id: 'facility',        name: '施設',     children: [] },
+            { id: 'event',           name: 'イベント', children: [] },
+            { id: 'highway',         name: '高速',     children: [
+                { id: 'hw-lane',     name: '車線規制', children: [
+                    { id: 'hw-lane-sign',  name: '標識車' },
+                    { id: 'hw-lane-mat',   name: '規制材' },
+                    { id: 'hw-lane-light', name: '保安灯' },
+                ]},
+                { id: 'hw-shoulder', name: '路肩規制', children: [
+                    { id: 'hw-sh-cone', name: 'コーン' },
+                    { id: 'hw-sh-bar',  name: 'バー' },
+                ]},
+                { id: 'hw-booth',    name: 'ブース規制', children: [] },
+                { id: 'hw-security', name: '保安員', children: [] },
+            ]},
+            { id: 'traffic',         name: '交通',     children: [
+                { id: 'tr-alternate', name: '片側交互', children: [
+                    { id: 'tr-alt-flag', name: '旗' },
+                    { id: 'tr-alt-sign', name: '看板' },
+                ]},
+                { id: 'tr-closure',   name: '通行止め', children: [] },
+            ]},
+            { id: 'support-traffic', name: '応援交通', children: [] },
+        ];
+
+        let smCategoryToBadgeId = {
+            '施設':     'facility',
+            'イベント': 'event',
+            '高速':     'highway',
+            '交通':     'traffic',
+            '応援交通': 'support-traffic',
+        };
+
+        let smBadgeNextId = 1;
+        function smGenerateBadgeId(prefix) {
+            return `${prefix}-sm-${smBadgeNextId++}`;
+        }
+
+        function smGetCategoryList() {
+            return smBadgeDefinitions.map(b => b.name);
+        }
+
+        // --- 状態変数 ---
+        let smChipSelected = { branch: null, category: null, shift: null };
+
+        // バッジ状態
+        let smSelectedParentBadge = null;
+        let smSelectedChildBadges = [];
+        let smSelectedGrandchildBadges = {};
+        let smDeletedBadgeInfo = null;
+        let smBadgeUndoTimer = null;
+        let smBadgeSnapshot = null;
+
+        // 現場監督候補状態
+        let smSvCandidateList = [];
+        let smSvDeletedCandidate = null;
+        let smSvUndoTimer = null;
+        let smSvDragSrcIdx = null;
+
+        // デフォルトサブタスクラベルプレフィックス
+        const smDefaultSubTaskPrefix = '工事名';
+
+        // --- デモ用 現場監督候補データ ---
+        const smDemoSupervisorCandidates = [
+            { name: '山田太郎', tel: '090-1234-5678' },
+            { name: '佐藤次郎', tel: '080-9876-5432' },
+            { name: '田中三郎', tel: '070-5555-1234' },
+        ];
+
+        // ============================================
+        // チップ選択
+        // ============================================
+        function smRenderChips(containerId, items, selectedValue, groupKey) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            let html = '';
+            items.forEach(item => {
+                const active = item === selectedValue ? ' ob-chip-active' : '';
+                html += `<button type="button" class="ob-row-chip${active}" onclick="smSelectChip('${groupKey}', '${escapeHtml(item)}')">${escapeHtml(item)}</button>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function smSelectChip(groupKey, value) {
+            smChipSelected[groupKey] = value;
+            if (groupKey === 'branch') smRenderChips('smBranchChips', branchList, value, 'branch');
+            else if (groupKey === 'category') {
+                smRenderChips('smCategoryChips', smGetCategoryList(), value, 'category');
+                // 区分が変わったらバッジも更新
+                smRenderBadgeSection(value, [], {});
+            }
+            else if (groupKey === 'shift') smRenderChips('smShiftChips', shiftList, value, 'shift');
+        }
+
+        function smAddCategory() {
+            const name = prompt('新しい区分名を入力:');
+            if (!name || !name.trim()) return;
+            const trimmed = name.trim();
+            if (smGetCategoryList().includes(trimmed)) {
+                alert('同名の区分が既に存在します。');
+                return;
+            }
+            const badgeId = smGenerateBadgeId('cat');
+            smBadgeDefinitions.push({ id: badgeId, name: trimmed, children: [] });
+            smCategoryToBadgeId[trimmed] = badgeId;
+            smSelectChip('category', trimmed);
+        }
+
+        // ============================================
+        // 業務詳細（サブタスク）
+        // ============================================
+        function smRenderSubTaskEntries(subTasks) {
+            const list = document.getElementById('smSubTaskList');
+            if (!list) return;
+            list.innerHTML = '';
+            if (!subTasks || subTasks.length === 0) return;
+            subTasks.forEach((st, idx) => {
+                const entry = document.createElement('div');
+                entry.className = 'ob-sub-task-entry';
+                entry.dataset.idx = idx;
+                entry.innerHTML =
+                    `<input type="text" class="ob-sub-label-input" value="${escapeHtml(st.label)}" placeholder="項目名" oninput="smUpdatePlanTaskName()">` +
+                    `<input type="text" class="ob-sub-value-input" value="${escapeHtml(st.value)}" placeholder="内容を入力" oninput="smUpdatePlanTaskName()">` +
+                    `<button type="button" class="ob-btn-remove-sub" onclick="smRemoveSubTask(${idx})" title="削除">×</button>`;
+                list.appendChild(entry);
+            });
+            smUpdatePlanTaskName();
+        }
+
+        function smAddSubTask() {
+            const list = document.getElementById('smSubTaskList');
+            if (!list) return;
+            const currentCount = list.children.length;
+            const nums = ['①','②','③','④','⑤'];
+            const num = nums[currentCount] || (currentCount + 1);
+            const defaultLabel = smDefaultSubTaskPrefix + num;
+            const idx = currentCount;
+            const entry = document.createElement('div');
+            entry.className = 'ob-sub-task-entry';
+            entry.dataset.idx = idx;
+            entry.innerHTML =
+                `<input type="text" class="ob-sub-label-input" value="${escapeHtml(defaultLabel)}" placeholder="項目名" oninput="smUpdatePlanTaskName()">` +
+                `<input type="text" class="ob-sub-value-input" value="" placeholder="内容を入力" oninput="smUpdatePlanTaskName()">` +
+                `<button type="button" class="ob-btn-remove-sub" onclick="smRemoveSubTask(${idx})" title="削除">×</button>`;
+            list.appendChild(entry);
+            entry.querySelector('.ob-sub-value-input').focus();
+            smUpdatePlanTaskName();
+        }
+
+        function smRemoveSubTask(idx) {
+            const list = document.getElementById('smSubTaskList');
+            if (!list) return;
+            const entries = list.querySelectorAll('.ob-sub-task-entry');
+            if (entries[idx]) entries[idx].remove();
+            list.querySelectorAll('.ob-sub-task-entry').forEach((entry, i) => {
+                entry.dataset.idx = i;
+                entry.querySelector('.ob-btn-remove-sub').setAttribute('onclick', `smRemoveSubTask(${i})`);
+            });
+            smUpdatePlanTaskName();
+        }
+
+        function smCollectSubTasks() {
+            const list = document.getElementById('smSubTaskList');
+            if (!list) return [];
+            const entries = list.querySelectorAll('.ob-sub-task-entry');
+            const subTasks = [];
+            entries.forEach(entry => {
+                const label = entry.querySelector('.ob-sub-label-input').value.trim();
+                const value = entry.querySelector('.ob-sub-value-input').value.trim();
+                subTasks.push({ label: label || '項目', value });
+            });
+            return subTasks;
+        }
+
+        // ============================================
+        // バッジ（3階層）
+        // ============================================
+        function smRenderBadgeSection(category, childIds, grandchildMap) {
+            smSelectedParentBadge = smCategoryToBadgeId[category] || null;
+            smSelectedChildBadges = childIds ? [...childIds] : [];
+            smSelectedGrandchildBadges = grandchildMap ? JSON.parse(JSON.stringify(grandchildMap)) : {};
+
+            const display = document.getElementById('smBadgeParentDisplay');
+            if (!display) return;
+            if (!display) return;
+            const parent = smBadgeDefinitions.find(p => p.id === smSelectedParentBadge);
+            if (parent) {
+                display.textContent = parent.name;
+                display.className = 'ob-badge-parent-display';
+            } else {
+                display.textContent = category || '-';
+                display.className = 'ob-badge-parent-display ob-badge-parent-unknown';
+            }
+            smRenderChildBadges();
+        }
+
+        function smRenderChildBadges() {
+            const container = document.getElementById('smBadgeChildList');
+            const wrapper = document.getElementById('smBadgeChildSection');
+            if (!container || !wrapper) return;
+
+            if (!smSelectedParentBadge) {
+                wrapper.style.display = 'none';
+                return;
+            }
+            const parent = smBadgeDefinitions.find(p => p.id === smSelectedParentBadge);
+            if (!parent || parent.children.length === 0) {
+                container.innerHTML = '<span class="ob-badge-empty">バッジなし</span>';
+                wrapper.style.display = 'flex';
+                return;
+            }
+
+            let html = '';
+            parent.children.forEach((c, i) => {
+                const sel = smSelectedChildBadges.includes(c.id) ? ' ob-badge-selected' : '';
+                html += `<div class="ob-badge-drag-item" draggable="true" data-badge-idx="${i}" data-badge-id="${c.id}" data-badge-level="child">`;
+                html += `<span class="ob-badge-drag-grip">☰</span>`;
+                html += `<button type="button" class="ob-badge-chip ob-badge-child${sel}" onclick="smToggleChildBadge('${c.id}')">${escapeHtml(c.name)}</button>`;
+                html += `<button type="button" class="ob-badge-delete-btn" onclick="smDeleteBadge('child','${c.id}')" title="削除">✕</button>`;
+                html += `</div>`;
+            });
+
+            // 選択済み子バッジの孫セクション
+            parent.children.forEach(c => {
+                if (smSelectedChildBadges.includes(c.id) && c.children) {
+                    html += smRenderGrandchildSection(c);
+                }
+            });
+
+            container.innerHTML = html;
+            wrapper.style.display = 'flex';
+            smInitBadgeDragDrop('child');
+            smInitBadgeDragDrop('grandchild');
+        }
+
+        function smRenderGrandchildSection(childBadge) {
+            const gcIds = smSelectedGrandchildBadges[childBadge.id] || [];
+            let html = `<div class="ob-grandchild-section" data-child-id="${childBadge.id}">`;
+            html += `<div class="ob-grandchild-header">`;
+            html += `<span class="ob-grandchild-label">${escapeHtml(childBadge.name)} <span class="ob-grandchild-arrow">›</span> 詳細</span>`;
+            html += `<button type="button" class="ob-btn-add-badge ob-btn-add-gc" onclick="smAddGrandchildBadge('${childBadge.id}')">+ 追加</button>`;
+            html += `</div>`;
+            if (!childBadge.children || childBadge.children.length === 0) {
+                html += `<div class="ob-grandchild-chips"><span class="ob-badge-empty">詳細なし</span></div>`;
+            } else {
+                html += `<div class="ob-grandchild-chips">`;
+                childBadge.children.forEach((gc, gi) => {
+                    const sel = gcIds.includes(gc.id) ? ' ob-badge-selected' : '';
+                    html += `<div class="ob-badge-drag-item ob-gc-drag-item" draggable="true" data-badge-idx="${gi}" data-badge-id="${gc.id}" data-badge-level="grandchild" data-parent-child="${childBadge.id}">`;
+                    html += `<span class="ob-badge-drag-grip">☰</span>`;
+                    html += `<button type="button" class="ob-badge-chip ob-badge-grandchild${sel}" onclick="smToggleGrandchildBadge('${childBadge.id}','${gc.id}')">${escapeHtml(gc.name)}</button>`;
+                    html += `<button type="button" class="ob-badge-delete-btn" onclick="smDeleteBadge('grandchild','${gc.id}','${childBadge.id}')" title="削除">✕</button>`;
+                    html += `</div>`;
+                });
+                html += `</div>`;
+            }
+            html += `<div class="ob-badge-undo-bar ob-gc-undo-bar" id="smGcUndoBar_${childBadge.id}" style="display:none;">`;
+            html += `<span id="smGcUndoMsg_${childBadge.id}"></span>`;
+            html += `<button type="button" class="ob-badge-undo-btn" onclick="smUndoDeleteBadge()">戻す</button>`;
+            html += `</div>`;
+            html += `</div>`;
+            return html;
+        }
+
+        function smToggleChildBadge(id) {
+            const idx = smSelectedChildBadges.indexOf(id);
+            if (idx >= 0) smSelectedChildBadges.splice(idx, 1);
+            else smSelectedChildBadges.push(id);
+            smRenderChildBadges();
+        }
+
+        function smToggleGrandchildBadge(childId, gcId) {
+            if (!smSelectedGrandchildBadges[childId]) smSelectedGrandchildBadges[childId] = [];
+            const arr = smSelectedGrandchildBadges[childId];
+            const idx = arr.indexOf(gcId);
+            if (idx >= 0) arr.splice(idx, 1);
+            else arr.push(gcId);
+            smRenderChildBadges();
+        }
+
+        function smDeleteBadge(level, id, childId) {
+            const parent = smBadgeDefinitions.find(p => p.id === smSelectedParentBadge);
+            if (!parent) return;
+            if (level === 'child') {
+                const ci = parent.children.findIndex(c => c.id === id);
+                if (ci < 0) return;
+                const removed = parent.children.splice(ci, 1)[0];
+                smDeletedBadgeInfo = { level: 'child', badge: removed, index: ci, parentId: smSelectedParentBadge };
+                smSelectedChildBadges = smSelectedChildBadges.filter(cid => cid !== id);
+                delete smSelectedGrandchildBadges[id];
+                smRenderChildBadges();
+                smShowBadgeUndoBar(removed.name, 'smBadgeUndoBar');
+            } else if (level === 'grandchild') {
+                const child = parent.children.find(c => c.id === childId);
+                if (!child) return;
+                const gi = child.children.findIndex(gc => gc.id === id);
+                if (gi < 0) return;
+                const removed = child.children.splice(gi, 1)[0];
+                smDeletedBadgeInfo = { level: 'grandchild', badge: removed, index: gi, parentId: smSelectedParentBadge, childId };
+                if (smSelectedGrandchildBadges[childId]) {
+                    smSelectedGrandchildBadges[childId] = smSelectedGrandchildBadges[childId].filter(gid => gid !== id);
+                }
+                smRenderChildBadges();
+                smShowBadgeUndoBar(removed.name, `smGcUndoBar_${childId}`);
+            }
+        }
+
+        function smShowBadgeUndoBar(name, barId) {
+            const bar = document.getElementById(barId);
+            if (!bar) return;
+            const msgId = barId.replace('Bar', 'Msg');
+            const msgEl = document.getElementById(msgId);
+            if (msgEl) msgEl.textContent = `「${name}」を削除しました`;
+            bar.style.display = 'flex';
+            if (smBadgeUndoTimer) clearTimeout(smBadgeUndoTimer);
+            smBadgeUndoTimer = setTimeout(() => {
+                bar.style.display = 'none';
+                smDeletedBadgeInfo = null;
+                smBadgeUndoTimer = null;
+            }, 5000);
+        }
+
+        function smUndoDeleteBadge() {
+            if (!smDeletedBadgeInfo) return;
+            const parent = smBadgeDefinitions.find(p => p.id === smDeletedBadgeInfo.parentId);
+            if (!parent) return;
+            if (smDeletedBadgeInfo.level === 'child') {
+                parent.children.splice(smDeletedBadgeInfo.index, 0, smDeletedBadgeInfo.badge);
+            } else if (smDeletedBadgeInfo.level === 'grandchild') {
+                const child = parent.children.find(c => c.id === smDeletedBadgeInfo.childId);
+                if (child) child.children.splice(smDeletedBadgeInfo.index, 0, smDeletedBadgeInfo.badge);
+            }
+            // undo barを非表示
+            document.querySelectorAll('#workModal .ob-badge-undo-bar').forEach(b => b.style.display = 'none');
+            if (smBadgeUndoTimer) { clearTimeout(smBadgeUndoTimer); smBadgeUndoTimer = null; }
+            smDeletedBadgeInfo = null;
+            smRenderChildBadges();
+        }
+
+        function smAddChildBadge() {
+            const name = prompt('新しい作業内容を入力:');
+            if (!name || !name.trim()) return;
+            const parent = smBadgeDefinitions.find(p => p.id === smSelectedParentBadge);
+            if (!parent) return;
+            const id = smGenerateBadgeId('child');
+            parent.children.push({ id, name: name.trim(), children: [] });
+            smRenderChildBadges();
+        }
+
+        function smAddGrandchildBadge(childId) {
+            const name = prompt('新しい詳細項目を入力:');
+            if (!name || !name.trim()) return;
+            const parent = smBadgeDefinitions.find(p => p.id === smSelectedParentBadge);
+            if (!parent) return;
+            const child = parent.children.find(c => c.id === childId);
+            if (!child) return;
+            if (!child.children) child.children = [];
+            const id = smGenerateBadgeId('gc');
+            child.children.push({ id, name: name.trim() });
+            smRenderChildBadges();
+        }
+
+        function smGetSelectedBadgeData() {
+            return {
+                parentId: smSelectedParentBadge,
+                childIds: [...smSelectedChildBadges],
+                grandchildMap: JSON.parse(JSON.stringify(smSelectedGrandchildBadges))
+            };
+        }
+
+        // バッジデータ → col-badge セル用HTML生成
+        function smBuildBadgeDisplayHtml(badgeData) {
+            if (!badgeData || !badgeData.parentId || !badgeData.childIds || badgeData.childIds.length === 0) return '';
+            const parent = smBadgeDefinitions.find(p => p.id === badgeData.parentId);
+            if (!parent) return '';
+            let html = '<div class="badge-display">';
+            const gcMap = badgeData.grandchildMap || {};
+            badgeData.childIds.forEach((childId, ci) => {
+                const child = parent.children.find(c => c.id === childId);
+                if (!child) return;
+                if (ci > 0) html += '<span class="badge-group-sep"></span>';
+                html += `<span class="badge-tag badge-child-tag">${escapeHtml(child.name)}</span>`;
+                const gcIds = gcMap[childId];
+                if (gcIds && gcIds.length > 0 && child.children) {
+                    html += '<span class="badge-gc-sep">›</span>';
+                    gcIds.forEach(gcId => {
+                        const gc = child.children.find(g => g.id === gcId);
+                        if (gc) html += `<span class="badge-tag badge-gc-tag">${escapeHtml(gc.name)}</span>`;
+                    });
+                }
+            });
+            html += '</div>';
+            return html;
+        }
+
+        // バッジ ドラッグ＆ドロップ
+        let smBadgeDragSrcIdx = null;
+        let smBadgeDragLevel = null;
+        let smBadgeDragChildId = null;
+
+        function smInitBadgeDragDrop(level) {
+            const selector = level === 'child'
+                ? '#smBadgeChildList > .ob-badge-drag-item[data-badge-level="child"]'
+                : '#smBadgeChildList .ob-gc-drag-item[data-badge-level="grandchild"]';
+            document.querySelectorAll(selector).forEach(item => {
+                item.addEventListener('dragstart', e => {
+                    smBadgeDragSrcIdx = parseInt(item.dataset.badgeIdx);
+                    smBadgeDragLevel = level;
+                    smBadgeDragChildId = item.dataset.parentChild || null;
+                    item.classList.add('ob-badge-dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                item.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    if (smBadgeDragLevel !== level) return;
+                    if (level === 'grandchild' && smBadgeDragChildId !== item.dataset.parentChild) return;
+                    item.classList.add('ob-badge-drag-over');
+                });
+                item.addEventListener('dragleave', () => item.classList.remove('ob-badge-drag-over'));
+                item.addEventListener('drop', e => {
+                    e.preventDefault();
+                    item.classList.remove('ob-badge-drag-over');
+                    const targetIdx = parseInt(item.dataset.badgeIdx);
+                    if (smBadgeDragSrcIdx === null || smBadgeDragSrcIdx === targetIdx) return;
+                    const parent = smBadgeDefinitions.find(p => p.id === smSelectedParentBadge);
+                    if (!parent) return;
+                    let arr;
+                    if (level === 'child') {
+                        arr = parent.children;
+                    } else {
+                        const child = parent.children.find(c => c.id === smBadgeDragChildId);
+                        if (!child) return;
+                        arr = child.children;
+                    }
+                    const moved = arr.splice(smBadgeDragSrcIdx, 1)[0];
+                    arr.splice(targetIdx, 0, moved);
+                    smRenderChildBadges();
+                });
+                item.addEventListener('dragend', () => {
+                    item.classList.remove('ob-badge-dragging');
+                    smBadgeDragSrcIdx = null;
+                    smBadgeDragLevel = null;
+                    smBadgeDragChildId = null;
+                });
+            });
+        }
+
+        // ============================================
+        // 現場監督候補
+        // ============================================
+        function smRenderSupervisorCandidates() {
+            const container = document.getElementById('smSupervisorCandidates');
+            if (!container) return;
+            smSvCandidateList = [...smDemoSupervisorCandidates];
+            if (smSvCandidateList.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            smRenderSvChips();
+            container.style.display = 'flex';
+        }
+
+        function smRenderSvChips() {
+            const chipsEl = document.getElementById('smSvCandidateChips');
+            if (!chipsEl) return;
+            let html = '';
+            smSvCandidateList.forEach((c, i) => {
+                const label = c.tel ? `${escapeHtml(c.name)} / ${escapeHtml(c.tel)}` : escapeHtml(c.name);
+                html += `<div class="ob-sv-drag-item" draggable="true" data-sv-idx="${i}">`;
+                html += `<span class="ob-sv-drag-grip">☰</span>`;
+                html += `<button type="button" class="ob-supervisor-chip" onclick="smSelectSupervisorCandidate(${i})">${label}</button>`;
+                html += `<button type="button" class="ob-sv-delete-btn" onclick="smDeleteSupervisorCandidate(${i})" title="削除">✕</button>`;
+                html += `</div>`;
+            });
+            chipsEl.innerHTML = html;
+            smInitSvDragDrop();
+        }
+
+        function smSelectSupervisorCandidate(idx) {
+            if (!smSvCandidateList[idx]) return;
+            document.getElementById('smSupervisor').value = smSvCandidateList[idx].name;
+            document.getElementById('smSupervisorTel').value = smSvCandidateList[idx].tel;
+        }
+
+        function smDeleteSupervisorCandidate(idx) {
+            const removed = smSvCandidateList.splice(idx, 1)[0];
+            if (!removed) return;
+            smSvDeletedCandidate = { candidate: removed, index: idx };
+            smRenderSvChips();
+            smShowSvUndoBar(removed.name);
+            if (smSvCandidateList.length === 0) {
+                document.getElementById('smSupervisorCandidates').style.display = 'none';
+            }
+        }
+
+        function smShowSvUndoBar(name) {
+            const bar = document.getElementById('smSvUndoBar');
+            if (!bar) return;
+            const msg = document.getElementById('smSvUndoMsg');
+            if (msg) msg.textContent = `「${name}」を削除しました`;
+            bar.style.display = 'flex';
+            if (smSvUndoTimer) clearTimeout(smSvUndoTimer);
+            smSvUndoTimer = setTimeout(() => {
+                bar.style.display = 'none';
+                smSvDeletedCandidate = null;
+                smSvUndoTimer = null;
+            }, 5000);
+        }
+
+        function smUndoDeleteSupervisor() {
+            if (!smSvDeletedCandidate) return;
+            smSvCandidateList.splice(smSvDeletedCandidate.index, 0, smSvDeletedCandidate.candidate);
+            smSvDeletedCandidate = null;
+            if (smSvUndoTimer) { clearTimeout(smSvUndoTimer); smSvUndoTimer = null; }
+            const bar = document.getElementById('smSvUndoBar');
+            if (bar) bar.style.display = 'none';
+            smRenderSvChips();
+            document.getElementById('smSupervisorCandidates').style.display = 'flex';
+        }
+
+        function smInitSvDragDrop() {
+            document.querySelectorAll('#smSvCandidateChips .ob-sv-drag-item').forEach(item => {
+                item.addEventListener('dragstart', e => {
+                    smSvDragSrcIdx = parseInt(item.dataset.svIdx);
+                    item.classList.add('ob-sv-dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                item.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    item.classList.add('ob-sv-drag-over');
+                });
+                item.addEventListener('dragleave', () => item.classList.remove('ob-sv-drag-over'));
+                item.addEventListener('drop', e => {
+                    e.preventDefault();
+                    item.classList.remove('ob-sv-drag-over');
+                    const targetIdx = parseInt(item.dataset.svIdx);
+                    if (smSvDragSrcIdx === null || smSvDragSrcIdx === targetIdx) return;
+                    const moved = smSvCandidateList.splice(smSvDragSrcIdx, 1)[0];
+                    smSvCandidateList.splice(targetIdx, 0, moved);
+                    smRenderSvChips();
+                });
+                item.addEventListener('dragend', () => {
+                    item.classList.remove('ob-sv-dragging');
+                    smSvDragSrcIdx = null;
+                });
+            });
+        }
+
+        // ============================================
+        // 削除ボタン
+        // ============================================
+        function smDeleteSite() {
+            if (!confirm('この現場情報を削除しますか？')) return;
+            pushUndo();
+            if (currentSiteCell) {
+                const siteNameDiv = currentSiteCell.querySelector('.site-name');
+                if (siteNameDiv) siteNameDiv.textContent = '';
+                const delRow = currentSiteCell.closest('tr');
+                groupCompaniesData.forEach(g => delRow.classList.remove(g.rowClass));
+                currentSiteCell.removeAttribute('data-group-company');
+                currentSiteCell.removeAttribute('data-gc-name');
+            }
+            closeSiteModal();
+        }
+
+        // ============================================
+        // 作業時間モーダル
+        // ============================================
+        let currentWorkTimeCell = null;
+
+        function openWorkTimeModal(cell, event) {
+            event.stopPropagation();
+            currentWorkTimeCell = cell;
+            const startTime = cell.dataset.startTime || '';
+            const endTime = cell.dataset.endTime || '';
+            document.getElementById('wtStartTime').value = startTime;
+            document.getElementById('wtEndTime').value = endTime;
+            document.getElementById('workTimeModal').classList.add('active');
+        }
+
+        function closeWorkTimeModal() {
+            document.getElementById('workTimeModal').classList.remove('active');
+            closeTimePicker();
+            currentWorkTimeCell = null;
+        }
+
+        document.getElementById('workTimeModal').addEventListener('click', function(e) {
+            if (e.target === this) closeWorkTimeModal();
+        });
+
+        function saveWorkTimeModal() {
+            if (!currentWorkTimeCell) return;
+            pushUndo();
+            const startTime = document.getElementById('wtStartTime').value;
+            const endTime = document.getElementById('wtEndTime').value;
+            currentWorkTimeCell.dataset.startTime = startTime;
+            currentWorkTimeCell.dataset.endTime = endTime;
+            let startEl = currentWorkTimeCell.querySelector('.work-time-start');
+            let endEl = currentWorkTimeCell.querySelector('.work-time-end');
+            if (!startEl) {
+                startEl = document.createElement('span');
+                startEl.className = 'work-time-start';
+                currentWorkTimeCell.appendChild(startEl);
+            }
+            if (!endEl) {
+                endEl = document.createElement('span');
+                endEl.className = 'work-time-end';
+                currentWorkTimeCell.appendChild(endEl);
+            }
+            startEl.textContent = startTime || '';
+            endEl.textContent = endTime || '';
+            closeWorkTimeModal();
+        }
+
+        // ============================================
+        // グループ会社フィルタ
+        // ============================================
+        // 【本番】デフォルトはログインユーザーの所属から自動判定
+        //   東央警備・Nikkei所属 → ['touo','nikkei']
+        //   全日本エンタープライズ所属 → ['zennihon']
+        const gcFilterState = { selected: ['touo', 'nikkei'] };
+
+        function openGcFilterModal() {
+            const modal = document.getElementById('gcFilterModal');
+            modal.querySelectorAll('.gcf-checkbox-item input').forEach(cb => {
+                cb.checked = gcFilterState.selected.includes(cb.value);
+            });
+            modal.classList.add('active');
+        }
+
+        function closeGcFilterModal() {
+            document.getElementById('gcFilterModal').classList.remove('active');
+        }
+
+        function applyGcFilter() {
+            const modal = document.getElementById('gcFilterModal');
+            const checked = Array.from(modal.querySelectorAll('.gcf-checkbox-item input:checked')).map(cb => cb.value);
+            if (checked.length === 0) {
+                alert('少なくとも1つのグループ会社を選択してください。');
+                return;
+            }
+            gcFilterState.selected = checked;
+
+            // ラベル更新
+            const allCodes = groupCompaniesData.map(g => g.code);
+            const isAll = allCodes.length === checked.length && allCodes.every(c => checked.includes(c));
+            document.getElementById('gcFilterLabel').textContent = isAll
+                ? 'すべて'
+                : checked.map(c => {
+                    const gc = groupCompaniesData.find(g => g.code === c);
+                    return gc ? gc.name.replace('ホールディングス', '').replace('エンタープライズ', '') : c;
+                }).join(' + ');
+
+            // 行の表示/非表示
+            const tbody = document.querySelector('.grid-table tbody');
+            if (tbody) {
+                tbody.querySelectorAll('tr').forEach(row => {
+                    const gc = groupCompaniesData.find(g => row.classList.contains(g.rowClass));
+                    if (gc) {
+                        row.style.display = checked.includes(gc.code) ? '' : 'none';
+                    }
+                });
+            }
+            closeGcFilterModal();
         }

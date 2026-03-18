@@ -36,4 +36,8 @@ supabase/.temp/
 
 # Claude Code
 .claude/
-.vercel
+.vercel/
+
+# Playwright MCP
+.playwright-mcp/
+
