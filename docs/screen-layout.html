@@ -19,7 +19,7 @@
                             <button>◀</button>
                             <span class="date-display">2026年1月27日 <span class="weekday">火曜日</span></span>
                             <button>▶</button>
-                            <button>📅</button>
+                            <button><img src="mockup/icons/calendar.svg" class="ob-icon"></button>
                         </div>
                         <div class="company-filter">
                             <button class="gc-filter-btn" onclick="openGcFilterModal()">
@@ -30,10 +30,10 @@
                     </div>
                     <div class="header-right">
                         <button class="cn-notify-btn" id="cnNotifyBtn" onclick="openChangeNotifyModal()" title="変更通知">
-                            🔔
+                            <img src="mockup/icons/bell.svg" class="ob-icon" style="width:1.2em;height:1.2em;">
                             <span class="cn-badge" id="cnBadge" style="display:none;">0</span>
                         </button>
-                        <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()">🌙 Dark</button>
+                        <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()"><img src="mockup/icons/moon.svg" class="ob-icon"> Dark</button>
                     </div>
                 </div>
 
@@ -42,15 +42,15 @@
                     <button id="undoBtn" onclick="undo()" disabled>↩ 戻す</button>
                     <button id="redoBtn" onclick="redo()" disabled>↪ やり直す</button>
                     <div class="toolbar-separator"></div>
-                    <button>➕ 行挿入</button>
-                    <button class="danger">🗑 行削除</button>
-                    <button>🧹 消去</button>
+                    <button><img src="mockup/icons/plus.svg" class="ob-icon"> 行挿入</button>
+                    <button class="danger"><img src="mockup/icons/trash.svg" class="ob-icon"> 行削除</button>
+                    <button><img src="mockup/icons/broom.svg" class="ob-icon"> 消去</button>
                     <div class="toolbar-separator"></div>
-                    <button onclick="moveRowUp()">⬆ 上へ</button>
-                    <button onclick="moveRowDown()">⬇ 下へ</button>
-                    <button onclick="openSortModal()">📊 ソート設定</button>
+                    <button onclick="moveRowUp()"><img src="mockup/icons/arrow-up.svg" class="ob-icon"> 上へ</button>
+                    <button onclick="moveRowDown()"><img src="mockup/icons/arrow-down.svg" class="ob-icon"> 下へ</button>
+                    <button onclick="openSortModal()"><img src="mockup/icons/chart.svg" class="ob-icon"> ソート設定</button>
                     <div class="toolbar-separator"></div>
-                    <button onclick="toggleColorSettingsPanel()">🎨 カラー設定</button>
+                    <button onclick="toggleColorSettingsPanel()"><img src="mockup/icons/palette.svg" class="ob-icon"> カラー設定</button>
                     <div class="toolbar-separator"></div>
                     <button id="cnDemoBtn" onclick="toggleChangeNotifyDemo()">▶ デモ開始</button>
                 </div>
@@ -439,7 +439,7 @@
                     <span style="font-size: 0.8rem; opacity: 0.8;">全25名</span>
                 </div>
                 <div class="side-panel-search">
-                    <input type="text" placeholder="🔍 社員検索...">
+                    <input type="text" placeholder="社員検索...">
                 </div>
                 <div class="side-panel-content">
                     <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">田中</span>
@@ -528,8 +528,8 @@
                     <select id="colorPresetSelect" onchange="loadColorPreset(this.value)">
                         <option value="default">デフォルト</option>
                     </select>
-                    <button class="color-preset-btn" onclick="saveColorPreset()" title="現在の設定を保存">💾</button>
-                    <button class="color-preset-btn" onclick="deleteColorPreset()" title="選択中のパターンを削除">🗑</button>
+                    <button class="color-preset-btn" onclick="saveColorPreset()" title="現在の設定を保存"><img src="mockup/icons/save.svg" class="ob-icon"></button>
+                    <button class="color-preset-btn" onclick="deleteColorPreset()" title="選択中のパターンを削除"><img src="mockup/icons/trash.svg" class="ob-icon"></button>
                 </div>
             </div>
 
@@ -763,7 +763,7 @@
                         <label>集合時間</label>
                         <div class="ob-time-picker-wrap" onclick="openTimePicker('mtMeetingTime', this)">
                             <input type="text" id="mtMeetingTime" class="ob-time-input" readonly placeholder="--:--">
-                            <span class="ob-time-picker-icon">🕐</span>
+                            <span class="ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="ob-icon"></span>
                         </div>
                     </div>
                     <div class="ob-chip-field">
@@ -890,14 +890,14 @@
                             <label>開始時間</label>
                             <div class="ob-time-picker-wrap" onclick="openTimePicker('wtStartTime', this)">
                                 <input type="text" id="wtStartTime" class="ob-time-input" readonly placeholder="--:--">
-                                <span class="ob-time-picker-icon">🕐</span>
+                                <span class="ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="ob-icon"></span>
                             </div>
                         </div>
                         <div class="modal-section" style="flex:1">
                             <label>終了時間</label>
                             <div class="ob-time-picker-wrap" onclick="openTimePicker('wtEndTime', this)">
                                 <input type="text" id="wtEndTime" class="ob-time-input" readonly placeholder="--:--">
-                                <span class="ob-time-picker-icon">🕐</span>
+                                <span class="ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="ob-icon"></span>
                             </div>
                         </div>
                     </div>

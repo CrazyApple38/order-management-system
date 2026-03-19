@@ -1,0 +1,30 @@
+{
+  "name": "order-management-system",
+  "version": "1.0.0",
+  "description": "受注管理システム - Supabase + Next.js",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CrazyApple38/order-management-system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CrazyApple38/order-management-system/issues"
+  },
+  "homepage": "https://github.com/CrazyApple38/order-management-system#readme",
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "cheerio": "^1.2.0",
+    "kuroshiro": "^1.2.0",
+    "kuroshiro-analyzer-kuromoji": "^1.1.0",
+    "wanakana": "^5.3.1"
+  }
+}

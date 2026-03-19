@@ -1,0 +1,12 @@
+<svg version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:currentColor;}
+</style>
+<g>
+	<path class="st0" d="M272,48h-32V0H112v512h128v-48h32v48h128V0H272V48z M272,380.797h-32v-83.203h32V380.797z M272,214.398h-32
+		v-83.203h32V214.398z"/>
+	<rect class="st0" width="64" height="512"/>
+	<rect x="448" class="st0" width="64" height="512"/>
+</g>
+</svg>

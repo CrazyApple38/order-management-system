@@ -454,12 +454,12 @@ applyAutoConfidence();
 function renderGrid() {
     const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
     const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
-    const totalCols = 5 + daysInMonth + 1; // frozen(5) + dates + total(1)
+    const totalCols = 6 + daysInMonth + 1; // frozen(5) + calBtn(1) + dates + total(1)
 
     const grid = document.getElementById('obGrid');
 
     // grid-template-columns を設定
-    const colDef = `140px 64px 36px 130px 130px repeat(${daysInMonth}, 48px) 56px`;
+    const colDef = `140px 64px 36px 130px 130px 36px repeat(${daysInMonth}, 48px) 56px`;
     grid.style.gridTemplateColumns = colDef;
 
     let html = '';
@@ -469,6 +469,7 @@ function renderGrid() {
     frozenHeaders.forEach((h, i) => {
         html += `<div class="ob-cell ob-header ob-frozen-${i}">${h}</div>`;
     });
+    html += '<div class="ob-cell ob-header ob-frozen-5"><img src="mockup/icons/calendar.svg" alt="" style="width:14px;height:14px;opacity:0.7;"></div>';
     for (let d = 1; d <= daysInMonth; d++) {
         const dt = new Date(currentYear, currentMonth - 1, d);
         const dow = dt.getDay();
@@ -512,6 +513,7 @@ function renderGrid() {
         html += `<div class="ob-cell ob-frozen-3 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${row.company}</div>`;
         const taskLabel = row.task || '<span class="ob-individual-task">(個別)</span>';
         html += `<div class="ob-cell ob-frozen-4 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${taskLabel}</div>`;
+        html += `<div class="ob-cell ob-frozen-5 ${rowCls}${evenCls}"><button class="ob-cal-open-btn" onclick="event.stopPropagation(); openCalendarModal(${ri})" title="カレンダー入力"><img src="mockup/icons/calendar.svg" alt="カレンダー"></button></div>`;
 
         // Date cells
         let rowTotalMin = 0; // 確定のみ
@@ -607,6 +609,7 @@ function renderGrid() {
     html += '<div class="ob-cell ob-total-row ob-frozen-2"></div>';
     html += '<div class="ob-cell ob-total-row ob-frozen-3"></div>';
     html += '<div class="ob-cell ob-total-row ob-frozen-4" style="justify-content:flex-end;">合計</div>';
+    html += '<div class="ob-cell ob-total-row ob-frozen-5"></div>';
     let grandTotalMin = 0;
     let grandTotalMax = 0;
     for (let d = 0; d < daysInMonth; d++) {
@@ -1545,7 +1548,9 @@ function openEditModal(ri, day, siteIdx) {
     // 同一業務名の現場監督・連絡先候補を表示
     renderSupervisorCandidates(row.task);
 
-    document.getElementById('editModalOverlay').style.display = 'flex';
+    if (!calEditPanelActive) {
+        document.getElementById('editModalOverlay').style.display = 'flex';
+    }
 }
 
 // --- 配置先ナビゲーション ---
@@ -1729,12 +1734,17 @@ function closeEditModal(e) {
         badgeSnapshot = null;
     }
     closeTimePicker();
+    if (calEditPanelActive) {
+        collapseCalEditPanel();
+        renderCalendarGrid();
+        return;
+    }
     document.getElementById('editModalOverlay').style.display = 'none';
+    _restoreAfterCalendarEdit();
 }
 
-function saveEdit() {
-    pushUndo();
-    // 保存時：バッジ変更を確定（スナップショット破棄）
+// --- 保存ロジック共通ヘルパー ---
+function _commitEditData() {
     badgeSnapshot = null;
     const count = parseInt(document.getElementById('editCount').value) || 0;
     if (!cellData[editingRi]) cellData[editingRi] = {};
@@ -1742,7 +1752,6 @@ function saveEdit() {
     const entries = getCellEntries(editingRi, editingDay);
 
     if (count === 0) {
-        // この配置先を削除
         if (entries.length <= 1) {
             delete cellData[editingRi][editingDay];
         } else {
@@ -1775,6 +1784,15 @@ function saveEdit() {
             entries[editingSiteIdx] = entryData;
         }
     }
+}
+
+function saveEdit() {
+    pushUndo();
+    _commitEditData();
+    if (calEditPanelActive) {
+        renderCalendarGrid();
+        return;
+    }
     closeEditModal();
     applyAutoConfidence();
     renderGrid();
@@ -1783,19 +1801,23 @@ function saveEdit() {
 function deleteCell() {
     if (editingRi === null || editingDay === null) return;
     pushUndo();
-    badgeSnapshot = null; // セル削除時もバッジ変更を確定
+    badgeSnapshot = null;
     const entries = getCellEntries(editingRi, editingDay);
     if (entries.length > 1) {
-        // 複数配置先がある場合は現在のエントリのみ削除
         entries.splice(editingSiteIdx, 1);
         if (editingSiteIdx >= entries.length) editingSiteIdx = entries.length - 1;
-        // モーダルを更新して次の配置先を表示
         loadSiteToModal();
+        if (calEditPanelActive) { renderCalendarGrid(); return; }
         renderGrid();
         return;
     }
     if (cellData[editingRi]) {
         delete cellData[editingRi][editingDay];
+    }
+    if (calEditPanelActive) {
+        collapseCalEditPanel();
+        renderCalendarGrid();
+        return;
     }
     closeEditModal();
     renderGrid();
@@ -2036,6 +2058,316 @@ function applySort() {
     cellData = generateCellData(); // 【モックアップ専用】本番ではソート後にAPIから再取得
     closeSortModal();
     renderGrid();
+}
+
+// --- カレンダー入力モーダル ---
+let calendarRi = null;
+let calendarYear = null;
+let calendarMonth = null;
+let calendarCellCache = {};
+let calendarEditModalOpen = false;
+let _calendarEditRestore = null;
+let calendarExpanded = false;
+let calEditPanelActive = false;
+const CAL_MAX_VISIBLE_ENTRIES = 2;
+
+function openCalendarModal(ri) {
+    calendarRi = ri;
+    calendarYear = currentYear;
+    calendarMonth = currentMonth;
+    calendarCellCache = {};
+
+    const row = sampleRows[ri];
+    const taskDisplay = row.task || '(個別業務)';
+    document.getElementById('calendarModalTitle').textContent = 'カレンダー入力';
+    document.getElementById('calendarModalMeta').innerHTML =
+        `<span class="ob-cal-meta-company">${escapeHtml(row.branch)}</span>` +
+        `<span class="ob-cal-meta-task">${escapeHtml(row.company)} / ${escapeHtml(taskDisplay)}</span>` +
+        `<span class="ob-cal-meta-tags">${escapeHtml(row.category)} | ${escapeHtml(row.shift)}勤</span>`;
+
+    // 現在月のデータ参照をキャッシュ（直接参照：同月編集は即時反映）
+    const cacheKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+    calendarCellCache[cacheKey] = cellData;
+
+    renderCalendarGrid();
+
+    document.getElementById('calMonthLabel').textContent = `${calendarYear}年${calendarMonth}月`;
+    document.getElementById('calendarModalOverlay').style.display = 'flex';
+}
+
+function closeCalendarModal(e) {
+    if (e && e.target !== e.currentTarget) return;
+    // アコーディオンが開いていれば自動保存してフォームを戻す
+    if (calEditPanelActive) {
+        _calAutoSave();
+        _teardownCalEditPanel();
+    }
+    document.getElementById('calendarModalOverlay').style.display = 'none';
+    calendarCellCache = {};
+}
+
+function calendarNavMonth(delta) {
+    // 月切替時に編集中なら自動保存して折りたたむ
+    if (calEditPanelActive && editingRi !== null) {
+        _calAutoSave();
+        collapseCalEditPanel();
+    }
+    calendarMonth += delta;
+    if (calendarMonth > 12) { calendarMonth = 1; calendarYear++; }
+    if (calendarMonth < 1) { calendarMonth = 12; calendarYear--; }
+
+    const cacheKey = `${calendarYear}-${String(calendarMonth).padStart(2, '0')}`;
+    if (!calendarCellCache[cacheKey]) {
+        // メイン月と同じなら cellData を参照
+        if (calendarYear === currentYear && calendarMonth === currentMonth) {
+            calendarCellCache[cacheKey] = cellData;
+        } else {
+            // 別月のモックデータを生成
+            const savedYear = currentYear, savedMonth = currentMonth, savedData = cellData;
+            currentYear = calendarYear;
+            currentMonth = calendarMonth;
+            calendarCellCache[cacheKey] = generateCellData();
+            currentYear = savedYear;
+            currentMonth = savedMonth;
+            cellData = savedData;
+        }
+    }
+    document.getElementById('calMonthLabel').textContent = `${calendarYear}年${calendarMonth}月`;
+    renderCalendarGrid();
+
+}
+
+function renderCalendarGrid() {
+    const daysInMonth = new Date(calendarYear, calendarMonth, 0).getDate();
+    const firstDow = new Date(calendarYear, calendarMonth - 1, 1).getDay();
+    const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+
+    const cacheKey = `${calendarYear}-${String(calendarMonth).padStart(2, '0')}`;
+    const monthData = calendarCellCache[cacheKey] || {};
+    const rowData = monthData[calendarRi] || {};
+    const row = sampleRows[calendarRi];
+
+    let html = '';
+
+    // 曜日ヘッダー
+    dayNames.forEach((name, i) => {
+        let cls = 'ob-cal-dow-header';
+        if (i === 0) cls += ' ob-cal-sun';
+        if (i === 6) cls += ' ob-cal-sat';
+        html += `<div class="${cls}">${name}</div>`;
+    });
+
+    // 前月末のグレーアウト日
+    const prevMonthDays = new Date(calendarYear, calendarMonth - 1, 0).getDate();
+    for (let i = firstDow - 1; i >= 0; i--) {
+        html += `<div class="ob-cal-cell ob-cal-outside"><div class="ob-cal-day-num">${prevMonthDays - i}</div></div>`;
+    }
+
+    // 今日の日付
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // 当月日セル
+    for (let d = 1; d <= daysInMonth; d++) {
+        const dt = new Date(calendarYear, calendarMonth - 1, d);
+        const dow = dt.getDay();
+        const dateStr = `${calendarYear}-${String(calendarMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const entries = rowData[d] ? (Array.isArray(rowData[d]) ? rowData[d] : [rowData[d]]) : [];
+
+        let cls = 'ob-cal-cell ob-cal-day';
+        if (dow === 0 || holidays[dateStr]) cls += ' ob-cal-sun';
+        else if (dow === 6) cls += ' ob-cal-sat';
+        if (holidays[dateStr]) cls += ' ob-cal-holiday';
+        if (dt.getTime() === today.getTime()) cls += ' ob-cal-today';
+
+        let cellHtml = `<div class="ob-cal-day-num">${d}</div>`;
+        if (holidays[dateStr]) {
+            cellHtml += `<div class="ob-cal-holiday-name">${escapeHtml(holidays[dateStr])}</div>`;
+        }
+
+        if (entries.length > 0) {
+            cellHtml += '<div class="ob-cal-entries">';
+            const visibleCount = calendarExpanded ? entries.length : Math.min(entries.length, CAL_MAX_VISIBLE_ENTRIES);
+            for (let si = 0; si < visibleCount; si++) {
+                const entry = entries[si];
+                let confCls = '';
+                if (entry.confidence === 'tentative_high') confCls = ' ob-cal-tentative-high';
+                else if (entry.confidence === 'tentative_low') confCls = ' ob-cal-tentative-low';
+
+                let entryContent = `<span class="ob-cal-count${confCls}">${entry.count}</span>`;
+
+                // 業務詳細（個別業務の場合）
+                if (!row.task && entry.subTasks && entry.subTasks.length > 0) {
+                    const subText = entry.subTasks.map(st => st.value).filter(Boolean).join('・');
+                    if (subText) entryContent += `<span class="ob-cal-badge">${escapeHtml(subText)}</span>`;
+                }
+
+                // バッジ
+                if (entry.badge && entry.badge.childIds && entry.badge.childIds.length > 0) {
+                    const parent = badgeDefinitions.find(p => p.id === entry.badge.parentId);
+                    if (parent) {
+                        const names = entry.badge.childIds
+                            .map(cid => parent.children.find(c => c.id === cid))
+                            .filter(Boolean).map(c => c.name);
+                        if (names.length > 0) {
+                            entryContent += `<span class="ob-cal-badge">${escapeHtml(names.join('・'))}</span>`;
+                        }
+                    }
+                }
+
+                const clickHandler = `event.stopPropagation(); onCalendarCellClick(${calendarRi},${d},${si})`;
+                cellHtml += `<div class="ob-cal-entry" onclick="${clickHandler}">${entryContent}</div>`;
+            }
+            // 省略表示
+            if (!calendarExpanded && entries.length > CAL_MAX_VISIBLE_ENTRIES) {
+                const hidden = entries.length - CAL_MAX_VISIBLE_ENTRIES;
+                cellHtml += `<div class="ob-cal-more" onclick="event.stopPropagation(); toggleCalendarExpand()">+${hidden}件</div>`;
+            }
+            cellHtml += '</div>';
+        }
+
+        // セル全体クリック（エントリなし or 単一の場合）
+        const cellClick = entries.length <= 1 ? `onclick="onCalendarCellClick(${calendarRi},${d},0)"` : '';
+        html += `<div class="${cls}" ${cellClick}>${cellHtml}</div>`;
+    }
+
+    // 次月のグレーアウト日
+    const totalCells = firstDow + daysInMonth;
+    const remaining = (7 - totalCells % 7) % 7;
+    for (let i = 1; i <= remaining; i++) {
+        html += `<div class="ob-cal-cell ob-cal-outside"><div class="ob-cal-day-num">${i}</div></div>`;
+    }
+
+    document.getElementById('calendarGrid').innerHTML = html;
+}
+
+
+function toggleCalendarExpand() {
+    calendarExpanded = !calendarExpanded;
+    const btn = document.getElementById('calExpandBtn');
+    const icon = document.getElementById('calExpandIcon');
+    const label = document.getElementById('calExpandLabel');
+    if (calendarExpanded) {
+        btn.classList.add('ob-cal-expanded');
+        icon.textContent = '▲';
+        label.textContent = '折りたたむ';
+    } else {
+        btn.classList.remove('ob-cal-expanded');
+        icon.textContent = '▼';
+        label.textContent = 'すべて表示';
+    }
+    renderCalendarGrid();
+}
+
+function onCalendarCellClick(ri, day, siteIdx) {
+    // 既に編集中なら自動保存
+    if (calEditPanelActive && editingRi !== null) {
+        _calAutoSave();
+    }
+
+    // カレンダー月のデータコンテキスト設定
+    const isMainMonth = (calendarYear === currentYear && calendarMonth === currentMonth);
+    if (!isMainMonth) {
+        if (!_calendarEditRestore || _calendarEditRestore.isMainMonth) {
+            _calendarEditRestore = { savedCellData: cellData, savedYear: currentYear, savedMonth: currentMonth, isMainMonth: false };
+        }
+        const cacheKey = `${calendarYear}-${String(calendarMonth).padStart(2, '0')}`;
+        cellData = calendarCellCache[cacheKey] || {};
+        currentYear = calendarYear;
+        currentMonth = calendarMonth;
+    } else if (!_calendarEditRestore) {
+        _calendarEditRestore = { savedCellData: null, savedYear: currentYear, savedMonth: currentMonth, isMainMonth: true };
+    }
+
+    calendarEditModalOpen = true;
+
+    // アコーディオンパネル初期化（初回のみ）
+    if (!calEditPanelActive) {
+        _setupCalEditPanel();
+    }
+
+    // フォームにデータ読み込み
+    openEditModal(ri, day, siteIdx);
+
+    // アコーディオンヘッダーに日付を表示
+    document.getElementById('calEditPanelTitle').textContent = `セル編集 - ${calendarMonth}月${day}日`;
+
+    // 展開
+    expandCalEditPanel();
+}
+
+// --- カレンダー内 編集アコーディオンパネル ---
+function _setupCalEditPanel() {
+    const panelBody = document.getElementById('calEditPanelBody');
+    const editModal = document.querySelector('#editModalOverlay .ob-modal');
+    const modalBody = editModal.querySelector('.ob-modal-body');
+    const modalFooter = editModal.querySelector('.ob-modal-footer');
+    // DOM移動
+    panelBody.appendChild(modalBody);
+    panelBody.appendChild(modalFooter);
+    document.getElementById('calEditPanel').style.display = '';
+    calEditPanelActive = true;
+}
+
+function _teardownCalEditPanel() {
+    const panelBody = document.getElementById('calEditPanelBody');
+    const editModal = document.querySelector('#editModalOverlay .ob-modal');
+    const modalBody = panelBody.querySelector('.ob-modal-body');
+    const modalFooter = panelBody.querySelector('.ob-modal-footer');
+    if (modalBody) editModal.appendChild(modalBody);
+    if (modalFooter) editModal.appendChild(modalFooter);
+    document.getElementById('calEditPanel').style.display = 'none';
+    document.getElementById('calEditPanel').classList.remove('collapsed');
+    calEditPanelActive = false;
+    // コンテキスト復元
+    _restoreAfterCalendarEdit();
+}
+
+function _calAutoSave() {
+    if (editingRi === null || editingDay === null) return;
+    _commitEditData();
+    applyAutoConfidence();
+}
+
+function expandCalEditPanel() {
+    const panel = document.getElementById('calEditPanel');
+    panel.classList.remove('collapsed');
+    document.getElementById('calEditToggleIcon').textContent = '▲';
+    // パネルボディへスクロール
+    setTimeout(() => {
+        const body = document.getElementById('calEditPanelBody');
+        body.scrollTop = 0;
+    }, 50);
+}
+
+function collapseCalEditPanel() {
+    const panel = document.getElementById('calEditPanel');
+    panel.classList.add('collapsed');
+    document.getElementById('calEditToggleIcon').textContent = '▼';
+}
+
+function toggleCalEditPanel() {
+    const panel = document.getElementById('calEditPanel');
+    if (panel.classList.contains('collapsed')) {
+        expandCalEditPanel();
+    } else {
+        collapseCalEditPanel();
+    }
+}
+
+function _restoreAfterCalendarEdit() {
+    if (!calendarEditModalOpen) return;
+    calendarEditModalOpen = false;
+    const r = _calendarEditRestore;
+    if (r && !r.isMainMonth) {
+        const cacheKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+        calendarCellCache[cacheKey] = cellData;
+        cellData = r.savedCellData;
+        currentYear = r.savedYear;
+        currentMonth = r.savedMonth;
+    }
+    _calendarEditRestore = null;
+    renderCalendarGrid();
 }
 
 // --- 初期化 ---

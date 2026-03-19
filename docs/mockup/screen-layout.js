@@ -235,7 +235,7 @@
                 // 新規追加オプション
                 if (this.allowAddNew && query && !filteredItems.some(item => item.name.toLowerCase() === query)) {
                     html += `<div class="combobox-add-new" data-action="add-new">
-                                <span class="combobox-add-new-icon">➕</span>
+                                <span class="combobox-add-new-icon"><img src="mockup/icons/plus.svg" class="ob-icon"></span>
                                 <span>「${this.escapeHtml(this.input.value)}」を新規登録</span>
                              </div>`;
                 }

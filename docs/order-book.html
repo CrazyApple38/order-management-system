@@ -35,9 +35,9 @@
             <button class="ob-tb-btn" id="redoBtn" onclick="redo()" disabled>↪ 次へ</button>
             <span class="ob-toolbar-sep"></span>
             <button class="ob-tb-btn" onclick="openSortModal()">⇅ ソート</button>
-            <button class="ob-tb-btn" onclick="toggleFilterRow()">🔍 フィルタ</button>
-            <button class="ob-tb-btn" onclick="toggleHiddenRows()">👁 表示/非表示</button>
-            <button class="ob-tb-btn" onclick="toggleWeekendColors()">🎨 土日祝色</button>
+            <button class="ob-tb-btn" onclick="toggleFilterRow()"><img src="mockup/icons/search.svg" class="ob-icon"> フィルタ</button>
+            <button class="ob-tb-btn" onclick="toggleHiddenRows()"><img src="mockup/icons/eye.svg" class="ob-icon"> 表示/非表示</button>
+            <button class="ob-tb-btn" onclick="toggleWeekendColors()"><img src="mockup/icons/palette.svg" class="ob-icon"> 土日祝色</button>
             <span class="ob-toolbar-sep"></span>
             <button class="ob-tb-btn ob-tb-btn-add" onclick="addNewRow()">＋ 行追加</button>
         </div>
@@ -174,14 +174,14 @@
                             <label>開始時間</label>
                             <div class="ob-time-picker-wrap" onclick="openTimePicker('editStartTime', this)">
                                 <input type="text" id="editStartTime" class="ob-time-input" readonly placeholder="--:--">
-                                <span class="ob-time-picker-icon">🕐</span>
+                                <span class="ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="ob-icon"></span>
                             </div>
                         </div>
                         <div>
                             <label>終了時間</label>
                             <div class="ob-time-picker-wrap" onclick="openTimePicker('editEndTime', this)">
                                 <input type="text" id="editEndTime" class="ob-time-input" readonly placeholder="--:--">
-                                <span class="ob-time-picker-icon">🕐</span>
+                                <span class="ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="ob-icon"></span>
                             </div>
                         </div>
                     </div>
@@ -212,7 +212,7 @@
                             <label>集合時間</label>
                             <div class="ob-time-picker-wrap" onclick="openTimePicker('editMeetingTime', this)">
                                 <input type="text" id="editMeetingTime" class="ob-time-input" readonly placeholder="--:--">
-                                <span class="ob-time-picker-icon">🕐</span>
+                                <span class="ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="ob-icon"></span>
                             </div>
                         </div>
                     </div>
@@ -308,6 +308,41 @@
             <div class="ob-modal-footer">
                 <button class="ob-btn ob-btn-secondary" onclick="closeSortModal()">キャンセル</button>
                 <button class="ob-btn ob-btn-primary" onclick="applySort()">適用</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- カレンダー入力モーダル -->
+    <div class="ob-modal-overlay" id="calendarModalOverlay" style="display:none;" onclick="closeCalendarModal(event)">
+        <div class="ob-modal ob-modal-calendar" onclick="event.stopPropagation()">
+            <div class="ob-modal-header ob-cal-header">
+                <div class="ob-cal-header-info">
+                    <h3 id="calendarModalTitle">カレンダー入力</h3>
+                    <div class="ob-cal-header-meta" id="calendarModalMeta"></div>
+                </div>
+                <div class="ob-cal-month-nav">
+                    <button class="ob-cal-nav-btn" onclick="calendarNavMonth(-1)">◀</button>
+                    <span class="ob-cal-month-label" id="calMonthLabel"></span>
+                    <button class="ob-cal-nav-btn" onclick="calendarNavMonth(1)">▶</button>
+                </div>
+                <button class="ob-cal-expand-btn" id="calExpandBtn" onclick="toggleCalendarExpand()">
+                    <span id="calExpandIcon">▼</span><span id="calExpandLabel">すべて表示</span>
+                </button>
+                <button class="ob-modal-close" onclick="closeCalendarModal()">✕</button>
+            </div>
+            <div class="ob-modal-body ob-cal-body">
+                <div class="ob-cal-grid" id="calendarGrid"></div>
+            </div>
+            <!-- セル編集アコーディオンパネル -->
+            <div class="ob-cal-edit-panel" id="calEditPanel" style="display:none;">
+                <div class="ob-cal-edit-panel-header" onclick="toggleCalEditPanel()">
+                    <span id="calEditPanelTitle">セル編集</span>
+                    <span class="ob-cal-edit-toggle" id="calEditToggleIcon">▲</span>
+                </div>
+                <div class="ob-cal-edit-panel-body" id="calEditPanelBody"></div>
+            </div>
+            <div class="ob-modal-footer ob-cal-footer">
+                <button class="ob-btn ob-btn-secondary" onclick="closeCalendarModal()">閉じる</button>
             </div>
         </div>
     </div>
