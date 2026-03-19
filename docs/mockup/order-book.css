@@ -400,13 +400,6 @@ body {
     display: flex; gap: 10px;
 }
 
-/* モーダル情報ヘッダー */
-.ob-modal-info {
-    background: var(--accent-dim); border: 1px solid var(--secondary);
-    border-radius: 8px; padding: 10px 14px; margin-bottom: 16px;
-    font-size: 12px; line-height: 1.6; color: var(--text-secondary);
-}
-
 /* 編集フォーム */
 .ob-edit-form { display: flex; flex-direction: column; gap: 14px; }
 .ob-form-row { display: flex; flex-direction: column; gap: 5px; }
@@ -1086,16 +1079,20 @@ body {
 .ob-cal-header { flex-wrap: wrap; gap: 6px; }
 .ob-cal-header-info { flex: 1; min-width: 150px; }
 .ob-cal-header-meta {
-    font-size: 11px; color: var(--text-secondary); margin-top: 3px;
+    font-size: 13px; color: var(--text-secondary); margin-top: 3px;
     display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
 }
 .ob-cal-meta-company { font-weight: 600; }
 .ob-cal-meta-task { font-weight: 500; }
 .ob-cal-meta-tags {
-    font-size: 10px; color: var(--text-tertiary);
+    font-size: 12px; color: var(--text-tertiary);
     padding: 1px 6px; background: var(--accent-dim); border-radius: 10px;
 }
+.ob-night .ob-cal-meta-company,
+.ob-night .ob-cal-meta-task { color: #B5524D; }
+.ob-night .ob-cal-meta-tags { color: #B5524D; background: rgba(181,82,77,0.1); }
 .ob-cal-month-nav { display: flex; align-items: center; gap: 6px; }
+.ob-cal-undo-redo { display: flex; gap: 2px; }
 .ob-cal-nav-btn {
     background: var(--bg-surface); border: 1px solid var(--divider);
     color: var(--text-secondary); padding: 3px 8px; border-radius: 5px;
@@ -1160,6 +1157,16 @@ body {
 .ob-cal-count { font-size: 13px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
 .ob-cal-count.ob-cal-tentative-high { opacity: 0.5; }
 .ob-cal-count.ob-cal-tentative-low { opacity: 0.25; }
+.ob-cal-count.ob-cal-night { color: #B5524D; }
+
+/* 夜勤セル編集モーダル */
+.ob-edit-night #editCount { color: #B5524D; }
+.ob-edit-night .ob-sub-label-input { color: #B5524D; }
+.ob-edit-night .ob-sub-value-input { color: #B5524D; }
+.ob-edit-night .ob-plan-name-value { color: #B5524D; }
+.ob-edit-night .ob-plan-name-value.ob-plan-empty { color: #B5524D; opacity: 0.6; }
+.ob-edit-night #editStartTime,
+.ob-edit-night #editEndTime { color: #B5524D; }
 .ob-cal-badge {
     font-size: 7px; color: var(--accent);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
@@ -1186,23 +1193,6 @@ body {
 /* 複数配置先の区切り */
 .ob-cal-entry + .ob-cal-entry { border-top: 1px solid rgba(178,213,226,0.3); padding-top: 1px; }
 
-/* エントリ省略表示 */
-.ob-cal-more {
-    font-size: 8px; font-weight: 600; color: var(--accent);
-    text-align: center; cursor: pointer; padding: 1px 0; margin-top: 1px;
-    border-radius: 2px; transition: background 0.1s;
-}
-.ob-cal-more:hover { background: rgba(68,166,181,0.12); }
-
-/* 展開ボタン */
-.ob-cal-expand-btn {
-    background: var(--bg-surface); border: 1px solid var(--divider);
-    color: var(--text-secondary); padding: 3px 8px; border-radius: 5px;
-    cursor: pointer; font-size: 10px; font-weight: 500; transition: all 0.15s;
-    display: flex; align-items: center; gap: 3px; white-space: nowrap;
-}
-.ob-cal-expand-btn:hover { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
-.ob-cal-expand-btn.ob-cal-expanded { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
 /* バッジ表示ボタン */
 .ob-cal-badge-btn {
@@ -1243,6 +1233,9 @@ body {
 
 /* フッター */
 .ob-cal-footer { gap: 12px; }
+.ob-cal-footer-btn:disabled {
+    opacity: 0.35; cursor: not-allowed; pointer-events: none;
+}
 
 /* アイコン共通スタイル */
 .ob-icon {
