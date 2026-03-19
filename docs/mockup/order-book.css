@@ -1021,22 +1021,6 @@ body {
 .ob-site-nav-top {
     display: flex; align-items: center; gap: 8px;
 }
-.ob-site-name-row {
-    display: flex; align-items: center; gap: 8px;
-}
-.ob-site-name-label {
-    font-size: 12px; font-weight: 600; color: var(--text-secondary);
-    white-space: nowrap;
-}
-.ob-site-name-input {
-    flex: 1; padding: 5px 8px; border: 1px solid var(--divider);
-    border-radius: 6px; font-size: 13px; background: var(--bg-surface);
-    color: var(--text-primary);
-}
-.ob-site-name-input:focus {
-    outline: none; border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(68,166,181,0.15);
-}
 .ob-site-nav-btn {
     padding: 4px 10px; border: 1px solid var(--divider);
     border-radius: 6px; background: var(--bg-surface);
@@ -1219,6 +1203,17 @@ body {
 }
 .ob-cal-expand-btn:hover { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 .ob-cal-expand-btn.ob-cal-expanded { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+/* バッジ表示ボタン */
+.ob-cal-badge-btn {
+    background: var(--bg-surface); border: 1px solid var(--divider);
+    color: var(--text-secondary); padding: 3px 8px; border-radius: 5px;
+    cursor: pointer; font-size: 10px; font-weight: 500; transition: all 0.15s;
+    display: flex; align-items: center; gap: 3px; white-space: nowrap;
+}
+.ob-cal-badge-btn .ob-icon { width: 11px; height: 11px; }
+.ob-cal-badge-btn:hover { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.ob-cal-badge-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
 /* カレンダー内 編集アコーディオンパネル */
 .ob-cal-edit-panel {

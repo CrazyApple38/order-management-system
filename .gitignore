@@ -41,3 +41,7 @@ supabase/.temp/
 # Playwright MCP
 .playwright-mcp/
 
+# Docs Assets
+docs/assets/icons/
+
+

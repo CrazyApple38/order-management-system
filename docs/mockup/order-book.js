@@ -365,13 +365,13 @@ function generateCellData() {
                 if (Math.random() < 0.2 && count >= 3) {
                     const count2 = Math.floor(Math.random() * Math.min(count - 1, 3)) + 1;
                     cellEntry.count = count - count2;
-                    cellEntry.siteName = '現場A';
+
 
                     const startH2 = row.shift === '夜' ? 20 : 7 + Math.floor(Math.random() * 2);
                     const endH2 = row.shift === '夜' ? 5 : 16 + Math.floor(Math.random() * 2);
                     const entry2 = {
                         count: count2,
-                        siteName: '現場B',
+
                         subTasks: [],
                         dailyTaskName: buildDailyTaskName(row.task, []),
                         startTime: String(startH2).padStart(2, '0') + ':00',
@@ -544,7 +544,7 @@ function renderGrid() {
                     const subText = entry.subTasks.map(st => st.value).filter(Boolean).join('・');
                     if (subText) cellContent += `<span class="ob-cell-subtask">${escapeHtml(subText)}</span>`;
                 }
-                if (entry.badge && entry.badge.childIds && entry.badge.childIds.length > 0) {
+                if (showBadges && entry.badge && entry.badge.childIds && entry.badge.childIds.length > 0) {
                     const parent = badgeDefinitions.find(p => p.id === entry.badge.parentId);
                     if (parent) {
                         const names = entry.badge.childIds
@@ -563,7 +563,7 @@ function renderGrid() {
                     if (entry.confidence === 'tentative_high') confCls = ' ob-conf-tentative_high';
                     else if (entry.confidence === 'tentative_low') confCls = ' ob-conf-tentative_low';
                     let badgeHtml = '';
-                    if (entry.badge && entry.badge.childIds && entry.badge.childIds.length > 0) {
+                    if (showBadges && entry.badge && entry.badge.childIds && entry.badge.childIds.length > 0) {
                         const parent = badgeDefinitions.find(p => p.id === entry.badge.parentId);
                         if (parent) {
                             const names = entry.badge.childIds
@@ -672,6 +672,22 @@ function toggleWeekendColors() {
     renderGrid();
 }
 
+// --- バッジ表示トグル ---
+let showBadges = false; // デフォルト非表示
+function toggleBadgeDisplay() {
+    showBadges = !showBadges;
+    document.getElementById('btnToggleBadges').classList.toggle('active', showBadges);
+    renderGrid();
+}
+
+// --- カレンダーバッジ表示トグル ---
+let showCalBadges = false; // デフォルト非表示
+function toggleCalBadgeDisplay() {
+    showCalBadges = !showCalBadges;
+    document.getElementById('calBadgeBtn').classList.toggle('active', showCalBadges);
+    renderCalendarGrid();
+}
+
 // --- 表示/非表示トグル ---
 function toggleHiddenRows() {
     showHiddenRows = !showHiddenRows;
@@ -695,8 +711,7 @@ function showTooltip(e, ri, day, siteIdx) {
         if (!entry) return;
         if (entries.length > 1) {
             const sLabel = (siteIdx !== undefined) ? `配置先 ${siteIdx + 1}/${entries.length}` : `配置先 ${(siteIdx !== undefined ? siteIdx : idx) + 1}`;
-            const siteName = entry.siteName ? ` - ${escapeHtml(entry.siteName)}` : '';
-            thtml += `<div class="ob-tt-site-header">${sLabel}${siteName}</div>`;
+            thtml += `<div class="ob-tt-site-header">${sLabel}</div>`;
         }
 
         const dailyName = entry.dailyTaskName || buildDailyTaskName(row.task, entry.subTasks);
@@ -705,7 +720,7 @@ function showTooltip(e, ri, day, siteIdx) {
             : (row.task || '(個別業務)');
         thtml += `<div class="ob-tt-title">${row.company} / ${titleTask}</div>`;
         thtml += `<div class="ob-tt-row"><span class="ob-tt-label">日付:</span><span class="ob-tt-value">${dateStr}（${row.shift}）</span></div>`;
-        if (entry.siteName) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">配置先:</span><span class="ob-tt-value">${escapeHtml(entry.siteName)}</span></div>`;
+
         thtml += `<div class="ob-tt-row"><span class="ob-tt-label">時間:</span><span class="ob-tt-value">${entry.startTime} - ${entry.endTime}</span></div>`;
         if (entry.supervisor) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">現場監督:</span><span class="ob-tt-value">${entry.supervisor}${entry.supervisorTel ? ' / ' + entry.supervisorTel : ''}</span></div>`;
         if (entry.meetingPlace || entry.meetingTime) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">集合:</span><span class="ob-tt-value">${entry.meetingPlace || ''}${entry.meetingPlace && entry.meetingTime ? ' / ' : ''}${entry.meetingTime || ''}</span></div>`;
@@ -1512,7 +1527,7 @@ function openEditModal(ri, day, siteIdx) {
     // 配置先ナビゲーション更新
     updateSiteNav();
 
-    document.getElementById('editSiteName').value = entry ? (entry.siteName || '') : '';
+
     document.getElementById('editCount').value = entry ? entry.count : '';
     confidenceManualFlag = entry ? (entry.confidenceManual || false) : false;
     renderConfidenceChips(entry ? (entry.confidence || 'confirmed') : 'confirmed');
@@ -1598,7 +1613,7 @@ function saveSiteToData() {
     const row = sampleRows[editingRi];
     const entryData = {
         count: count,
-        siteName: document.getElementById('editSiteName').value,
+
         confidence: selectedConfidence,
         confidenceManual: confidenceManualFlag,
         subTasks: subTasks,
@@ -1629,7 +1644,7 @@ function loadSiteToModal() {
 
     updateSiteNav();
 
-    document.getElementById('editSiteName').value = entry ? (entry.siteName || '') : '';
+
     document.getElementById('editCount').value = entry ? entry.count : '';
     confidenceManualFlag = entry ? (entry.confidenceManual || false) : false;
     renderConfidenceChips(entry ? (entry.confidence || 'confirmed') : 'confirmed');
@@ -1668,20 +1683,8 @@ function addSiteEntry() {
     const entries = getCellEntries(editingRi, editingDay);
 
     const row = sampleRows[editingRi];
-    // 既存エントリにsiteNameが空のものがあれば自動命名
-    const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    if (entries.length > 0) {
-        entries.forEach((e, i) => {
-            if (!e.siteName) e.siteName = '現場' + alpha[i % 26];
-        });
-        // 現在モーダルに表示中のエントリのsiteNameも更新
-        document.getElementById('editSiteName').value = entries[editingSiteIdx].siteName;
-    }
-
-    const nextLetter = alpha[entries.length % 26];
     const newEntry = {
         count: 1,
-        siteName: '現場' + nextLetter,
         confidence: 'confirmed',
         confidenceManual: false,
         subTasks: [],
@@ -1698,7 +1701,6 @@ function addSiteEntry() {
     };
 
     if (entries.length === 0) {
-        newEntry.siteName = '現場A';
         cellData[editingRi][editingDay] = [newEntry];
         editingSiteIdx = 0;
     } else {
@@ -1762,7 +1764,7 @@ function _commitEditData() {
         const row = sampleRows[editingRi];
         const entryData = {
             count: count,
-            siteName: document.getElementById('editSiteName').value,
+    
             confidence: selectedConfidence,
             confidenceManual: confidenceManualFlag,
             subTasks: subTasks,
@@ -2223,7 +2225,7 @@ function renderCalendarGrid() {
                 }
 
                 // バッジ
-                if (entry.badge && entry.badge.childIds && entry.badge.childIds.length > 0) {
+                if (showCalBadges && entry.badge && entry.badge.childIds && entry.badge.childIds.length > 0) {
                     const parent = badgeDefinitions.find(p => p.id === entry.badge.parentId);
                     if (parent) {
                         const names = entry.badge.childIds
