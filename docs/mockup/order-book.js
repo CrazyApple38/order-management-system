@@ -580,7 +580,7 @@ function renderGrid() {
                         const subText = entry.subTasks.map(st => st.value).filter(Boolean).join('・');
                         if (subText) subTaskHtml = `<span class="ob-cell-subtask">${escapeHtml(subText)}</span>`;
                     }
-                    return `<div class="ob-site-entry${confCls}" onclick="event.stopPropagation(); openEditModal(${ri},${d},${si})" onmouseenter="showTooltip(event,${ri},${d},${si})" onmouseleave="hideTooltip()"><span class="ob-cell-count">${entry.count}</span>${subTaskHtml}${badgeHtml}</div>`;
+                    return `<div class="ob-site-entry${confCls}" onclick="event.stopPropagation(); openCalendarWithEdit(${ri},${d},${si})" onmouseenter="showTooltip(event,${ri},${d},${si})" onmouseleave="hideTooltip()"><span class="ob-cell-count">${entry.count}</span>${subTaskHtml}${badgeHtml}</div>`;
                 }).join('');
             }
             if (entries.length > 0 && !isHidden) {
@@ -593,7 +593,7 @@ function renderGrid() {
                     }
                 });
             }
-            const cellClick = entries.length > 1 ? '' : `onclick="openEditModal(${ri},${d},0)"`;
+            const cellClick = entries.length > 1 ? '' : `onclick="openCalendarWithEdit(${ri},${d},0)"`;
             const cellHover = entries.length > 1 ? '' : `onmouseenter="showTooltip(event,${ri},${d})" onmouseleave="hideTooltip()"`;
             html += `<div class="${cls}" data-ri="${ri}" data-day="${d}" ${cellHover} ${cellClick}>${cellContent}</div>`;
         }
@@ -2076,6 +2076,11 @@ function openCalendarModal(ri) {
     calendarYear = currentYear;
     calendarMonth = currentMonth;
     calendarCellCache = {};
+    // 前回の編集状態をリセット
+    editingRi = null;
+    editingDay = null;
+    calendarEditModalOpen = false;
+    _calendarEditRestore = null;
 
     const row = sampleRows[ri];
     const taskDisplay = row.task || '(個別業務)';
@@ -2092,18 +2097,32 @@ function openCalendarModal(ri) {
     renderCalendarGrid();
 
     document.getElementById('calMonthLabel').textContent = `${calendarYear}年${calendarMonth}月`;
+
+    // 編集アコーディオンパネルを折りたたみ状態で表示
+    _setupCalEditPanel();
+    collapseCalEditPanel();
+    document.getElementById('calEditPanelTitle').textContent = 'セル編集';
+
     document.getElementById('calendarModalOverlay').style.display = 'flex';
 }
 
 function closeCalendarModal(e) {
     if (e && e.target !== e.currentTarget) return;
+    closeTimePicker();
     // アコーディオンが開いていれば自動保存してフォームを戻す
     if (calEditPanelActive) {
-        _calAutoSave();
+        if (editingRi !== null && editingDay !== null) {
+            _calAutoSave();
+        }
         _teardownCalEditPanel();
     }
     document.getElementById('calendarModalOverlay').style.display = 'none';
     calendarCellCache = {};
+    calendarEditModalOpen = false;
+    _calendarEditRestore = null;
+    editingRi = null;
+    editingDay = null;
+    renderGrid();
 }
 
 function calendarNavMonth(delta) {
@@ -2179,6 +2198,7 @@ function renderCalendarGrid() {
         else if (dow === 6) cls += ' ob-cal-sat';
         if (holidays[dateStr]) cls += ' ob-cal-holiday';
         if (dt.getTime() === today.getTime()) cls += ' ob-cal-today';
+        if (d === editingDay && calEditPanelActive) cls += ' ob-cal-selected';
 
         let cellHtml = `<div class="ob-cal-day-num">${d}</div>`;
         if (holidays[dateStr]) {
@@ -2215,8 +2235,10 @@ function renderCalendarGrid() {
                     }
                 }
 
+                const isSelected = (d === editingDay && si === editingSiteIdx && calEditPanelActive);
+                const entryCls = 'ob-cal-entry' + (isSelected ? ' ob-cal-entry-selected' : '');
                 const clickHandler = `event.stopPropagation(); onCalendarCellClick(${calendarRi},${d},${si})`;
-                cellHtml += `<div class="ob-cal-entry" onclick="${clickHandler}">${entryContent}</div>`;
+                cellHtml += `<div class="${entryCls}" onclick="${clickHandler}">${entryContent}</div>`;
             }
             // 省略表示
             if (!calendarExpanded && entries.length > CAL_MAX_VISIBLE_ENTRIES) {
@@ -2239,6 +2261,14 @@ function renderCalendarGrid() {
     }
 
     document.getElementById('calendarGrid').innerHTML = html;
+
+    // アコーディオン展開中は選択週のみ表示
+    if (calEditPanelActive && editingDay !== null) {
+        const panel = document.getElementById('calEditPanel');
+        if (!panel.classList.contains('collapsed')) {
+            _showSelectedWeekOnly(editingDay);
+        }
+    }
 }
 
 
@@ -2286,8 +2316,11 @@ function onCalendarCellClick(ri, day, siteIdx) {
         _setupCalEditPanel();
     }
 
-    // フォームにデータ読み込み
+    // フォームにデータ読み込み（editingDay がセットされる）
     openEditModal(ri, day, siteIdx);
+
+    // 選択状態を反映してグリッド再描画
+    renderCalendarGrid();
 
     // アコーディオンヘッダーに日付を表示
     document.getElementById('calEditPanelTitle').textContent = `セル編集 - ${calendarMonth}月${day}日`;
@@ -2296,8 +2329,20 @@ function onCalendarCellClick(ri, day, siteIdx) {
     expandCalEditPanel();
 }
 
+// --- セルクリックからカレンダー+編集を直接開く ---
+function openCalendarWithEdit(ri, day, siteIdx) {
+    // カレンダーモーダルが未表示なら開く
+    const overlay = document.getElementById('calendarModalOverlay');
+    if (overlay.style.display === 'none' || !overlay.style.display) {
+        openCalendarModal(ri);
+    }
+    // 対象セルをカレンダー内クリックと同じ扱い
+    onCalendarCellClick(ri, day, siteIdx);
+}
+
 // --- カレンダー内 編集アコーディオンパネル ---
 function _setupCalEditPanel() {
+    if (calEditPanelActive) return; // 重複呼び出し防止
     const panelBody = document.getElementById('calEditPanelBody');
     const editModal = document.querySelector('#editModalOverlay .ob-modal');
     const modalBody = editModal.querySelector('.ob-modal-body');
@@ -2333,6 +2378,9 @@ function expandCalEditPanel() {
     const panel = document.getElementById('calEditPanel');
     panel.classList.remove('collapsed');
     document.getElementById('calEditToggleIcon').textContent = '▲';
+    // カレンダーを選択週のみ表示（未選択時は今日の週）
+    const focusDay = editingDay !== null ? editingDay : _getTodayDayInMonth();
+    _showSelectedWeekOnly(focusDay);
     // パネルボディへスクロール
     setTimeout(() => {
         const body = document.getElementById('calEditPanelBody');
@@ -2344,6 +2392,39 @@ function collapseCalEditPanel() {
     const panel = document.getElementById('calEditPanel');
     panel.classList.add('collapsed');
     document.getElementById('calEditToggleIcon').textContent = '▼';
+    // カレンダー全日表示に戻す
+    _showAllCalendarCells();
+}
+
+function _showSelectedWeekOnly(day) {
+    const grid = document.getElementById('calendarGrid');
+    const cells = grid.children;
+    const firstDow = new Date(calendarYear, calendarMonth - 1, 1).getDay();
+    const selectedRow = Math.floor((firstDow + day - 1) / 7);
+
+    let cellIdx = 0;
+    for (let i = 0; i < cells.length; i++) {
+        if (i < 7) continue; // 曜日ヘッダーはそのまま
+        const row = Math.floor(cellIdx / 7);
+        cells[i].style.display = (row === selectedRow) ? '' : 'none';
+        cellIdx++;
+    }
+}
+
+function _getTodayDayInMonth() {
+    const today = new Date();
+    if (today.getFullYear() === calendarYear && today.getMonth() + 1 === calendarMonth) {
+        return today.getDate();
+    }
+    return 1; // 表示中の月が今月でなければ1日
+}
+
+function _showAllCalendarCells() {
+    const grid = document.getElementById('calendarGrid');
+    const cells = grid.children;
+    for (let i = 0; i < cells.length; i++) {
+        cells[i].style.display = '';
+    }
 }
 
 function toggleCalEditPanel() {

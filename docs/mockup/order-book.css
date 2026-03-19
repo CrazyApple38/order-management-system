@@ -1182,6 +1182,23 @@ body {
     line-height: 1;
 }
 
+/* 選択中のセル */
+.ob-cal-cell.ob-cal-selected {
+    background: rgba(68,166,181,0.22) !important;
+    border: 2px solid var(--accent) !important;
+}
+/* 選択中のエントリ（複数配置先時） */
+.ob-cal-entry.ob-cal-entry-selected {
+    background: var(--accent);
+    border-radius: 3px;
+}
+.ob-cal-entry.ob-cal-entry-selected .ob-cal-count {
+    color: white;
+}
+.ob-cal-entry.ob-cal-entry-selected .ob-cal-badge {
+    color: rgba(255,255,255,0.85);
+}
+
 /* 複数配置先の区切り */
 .ob-cal-entry + .ob-cal-entry { border-top: 1px solid rgba(178,213,226,0.3); padding-top: 1px; }
 
