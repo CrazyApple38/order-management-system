@@ -464,6 +464,7 @@ function generateCellData() {
 }
 
 let cellData = generateCellData(); // 【モックアップ専用】本番ではAPIから取得したデータで初期化
+let initialSorted = false;
 
 // --- 配置先ヘルパー ---
 // cellData[ri][d] は配列。常に配列として返す。
@@ -519,6 +520,7 @@ applyAutoConfidence();
 
 // --- グリッド描画 ---
 function renderGrid() {
+    if (!initialSorted) { sortRows(); initialSorted = true; }
     const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
     const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
     const totalCols = 6 + daysInMonth + 1; // frozen(5) + calBtn(1) + dates + total(1)
@@ -526,17 +528,20 @@ function renderGrid() {
     const grid = document.getElementById('obGrid');
 
     // grid-template-columns を設定
-    const colDef = `140px 64px 36px 130px 130px 36px repeat(${daysInMonth}, 48px) 56px`;
+    const colDef = `100px 64px 36px 130px 28px 130px 28px 36px repeat(${daysInMonth}, 48px) 56px`;
     grid.style.gridTemplateColumns = colDef;
 
     let html = '';
 
     // === ヘッダー行 ===
-    const frozenHeaders = ['会社', '区分', '昼夜', '契約先名', '業務名'];
+    const frozenHeaders = ['会社', '区分', '昼夜', '契約先名'];
     frozenHeaders.forEach((h, i) => {
         html += `<div class="ob-cell ob-header ob-frozen-${i}">${h}</div>`;
     });
-    html += '<div class="ob-cell ob-header ob-frozen-5"><img src="mockup/icons/calendar.svg" alt="" style="width:14px;height:14px;opacity:0.7;"></div>';
+    html += '<div class="ob-cell ob-header ob-frozen-4"></div>';
+    html += '<div class="ob-cell ob-header ob-frozen-5">業務名</div>';
+    html += '<div class="ob-cell ob-header ob-frozen-6"></div>';
+    html += '<div class="ob-cell ob-header ob-frozen-7"><img src="mockup/icons/calendar.svg" alt="" style="width:14px;height:14px;opacity:0.7;"></div>';
     for (let d = 1; d <= daysInMonth; d++) {
         const dt = new Date(currentYear, currentMonth - 1, d);
         const dow = dt.getDay();
@@ -578,9 +583,18 @@ function renderGrid() {
         html += `<div class="ob-cell ob-frozen-1 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${row.category}</div>`;
         html += `<div class="ob-cell ob-frozen-2 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${row.shift}</div>`;
         html += `<div class="ob-cell ob-frozen-3 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${row.company}</div>`;
+        html += `<div class="ob-cell ob-frozen-4 ${rowCls}${evenCls}"><button class="ob-row-add-btn" onclick="event.stopPropagation(); addNewRowFromRow(${ri})" title="この現場を複製して追加">＋</button></div>`;
         const taskLabel = row.task || '<span class="ob-individual-task">(個別)</span>';
-        html += `<div class="ob-cell ob-frozen-4 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${taskLabel}</div>`;
-        html += `<div class="ob-cell ob-frozen-5 ${rowCls}${evenCls}"><button class="ob-cal-open-btn" onclick="event.stopPropagation(); openCalendarModal(${ri})" title="カレンダー入力"><img src="mockup/icons/calendar.svg" alt="カレンダー"></button></div>`;
+        html += `<div class="ob-cell ob-frozen-5 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${taskLabel}</div>`;
+        // 昼夜＋ボタン: 対になるシフトの行が無い場合のみ表示
+        const oppositeShift = row.shift === '昼' ? '夜' : '昼';
+        const hasPair = sampleRows.some((r, j) => j !== ri && r.branch === row.branch && r.category === row.category && r.company === row.company && r.task === row.task && r.shift === oppositeShift);
+        if (hasPair) {
+            html += `<div class="ob-cell ob-frozen-6 ${rowCls}${evenCls}"></div>`;
+        } else {
+            html += `<div class="ob-cell ob-frozen-6 ${rowCls}${evenCls}"><button class="ob-row-add-btn" onclick="event.stopPropagation(); addShiftRow(${ri})" title="${oppositeShift}を追加">＋</button></div>`;
+        }
+        html += `<div class="ob-cell ob-frozen-7 ${rowCls}${evenCls}"><button class="ob-cal-open-btn" onclick="event.stopPropagation(); openCalendarModal(${ri})" title="カレンダー入力"><img src="mockup/icons/calendar.svg" alt="カレンダー"></button></div>`;
 
         // Date cells
         let rowTotalMin = 0; // 確定のみ
@@ -675,8 +689,10 @@ function renderGrid() {
     html += '<div class="ob-cell ob-total-row ob-frozen-1"></div>';
     html += '<div class="ob-cell ob-total-row ob-frozen-2"></div>';
     html += '<div class="ob-cell ob-total-row ob-frozen-3"></div>';
-    html += '<div class="ob-cell ob-total-row ob-frozen-4" style="justify-content:flex-end;">合計</div>';
-    html += '<div class="ob-cell ob-total-row ob-frozen-5"></div>';
+    html += '<div class="ob-cell ob-total-row ob-frozen-4"></div>';
+    html += '<div class="ob-cell ob-total-row ob-frozen-5" style="justify-content:flex-end;">合計</div>';
+    html += '<div class="ob-cell ob-total-row ob-frozen-6"></div>';
+    html += '<div class="ob-cell ob-total-row ob-frozen-7"></div>';
     let grandTotalMin = 0;
     let grandTotalMax = 0;
     for (let d = 0; d < daysInMonth; d++) {
@@ -1912,6 +1928,7 @@ function deleteCell() {
 // --- 行情報編集モーダル ---
 let editingRowRi = null;
 let rowEditSelected = { branch: null, category: null, shift: null };
+let rowEditDisabledShifts = [];
 
 // 会社リスト（グローバル）
 // 【モックアップ専用】本番環境ではDBのcompaniesテーブルから取得
@@ -1925,12 +1942,53 @@ function getCategoryList() {
     return badgeDefinitions.map(b => b.name);
 }
 
-function renderRowChips(containerId, items, selectedValue, groupKey) {
+function getExistingShifts(branch, category, company, task) {
+    return sampleRows
+        .filter(r => r.branch === branch && r.category === category && r.company === company && r.task === task)
+        .map(r => r.shift);
+}
+
+function sortRows() {
+    const shiftOrder = { '昼': 0, '夜': 1 };
+    // マスタ定義順でインデックスを生成（未登録は末尾）
+    const branchOrder = {};
+    branchList.forEach((b, i) => branchOrder[b] = i);
+    const catList = getCategoryList();
+    const catOrder = {};
+    catList.forEach((c, i) => catOrder[c] = i);
+
+    const indexed = sampleRows.map((row, i) => ({ row, origIdx: i }));
+    indexed.sort((a, b) => {
+        const cmp = (x, y) => (x || '').localeCompare(y || '', 'ja');
+        const br = (branchOrder[a.row.branch] ?? 999) - (branchOrder[b.row.branch] ?? 999);
+        const cat = (catOrder[a.row.category] ?? 999) - (catOrder[b.row.category] ?? 999);
+        return br || cat
+            || cmp(a.row.company, b.row.company)
+            || cmp(a.row.task, b.row.task)
+            || (shiftOrder[a.row.shift] || 0) - (shiftOrder[b.row.shift] || 0);
+    });
+    // sampleRows と cellData を並べ替え
+    sampleRows = indexed.map(e => e.row);
+    const newCellData = {};
+    indexed.forEach((e, newIdx) => {
+        if (cellData[e.origIdx]) newCellData[newIdx] = cellData[e.origIdx];
+    });
+    cellData = newCellData;
+}
+
+function renderRowChips(containerId, items, selectedValue, groupKey, disabledItems) {
     const container = document.getElementById(containerId);
+    const disabled = disabledItems || [];
     let html = '';
     items.forEach(item => {
+        const isDisabled = disabled.includes(item);
         const active = item === selectedValue ? ' ob-chip-active' : '';
-        html += `<button type="button" class="ob-row-chip${active}" onclick="selectRowChip('${groupKey}', '${escapeHtml(item)}')">${escapeHtml(item)}</button>`;
+        const disabledCls = isDisabled ? ' ob-chip-disabled' : '';
+        if (isDisabled) {
+            html += `<button type="button" class="ob-row-chip${disabledCls}" disabled>${escapeHtml(item)}</button>`;
+        } else {
+            html += `<button type="button" class="ob-row-chip${active}" onclick="selectRowChip('${groupKey}', '${escapeHtml(item)}')">${escapeHtml(item)}</button>`;
+        }
     });
     container.innerHTML = html;
 }
@@ -1940,7 +1998,35 @@ function selectRowChip(groupKey, value) {
     // 対応するチップコンテナを再描画
     if (groupKey === 'branch') renderRowChips('rowEditBranchChips', branchList, value, 'branch');
     else if (groupKey === 'category') renderRowChips('rowEditCategoryChips', getCategoryList(), value, 'category');
-    else if (groupKey === 'shift') renderRowChips('rowEditShiftChips', shiftList, value, 'shift');
+    else if (groupKey === 'shift') renderRowChips('rowEditShiftChips', shiftList, value, 'shift', rowEditDisabledShifts);
+    checkRowDuplicate();
+}
+
+function checkRowDuplicate() {
+    const branch = rowEditSelected.branch;
+    const category = rowEditSelected.category;
+    const shift = rowEditSelected.shift;
+    const company = document.getElementById('rowEditCompany').value;
+    const task = document.getElementById('rowEditTask').value;
+
+    const warning = document.getElementById('rowDupWarning');
+    const saveBtn = document.getElementById('rowEditSaveBtn');
+
+    // 全項目が選択・入力済みの場合のみチェック
+    if (!branch || !category || !shift) {
+        warning.style.display = 'none';
+        saveBtn.disabled = false;
+        return;
+    }
+
+    const isDup = sampleRows.some((r, i) =>
+        i !== editingRowRi &&
+        r.branch === branch && r.category === category &&
+        r.company === company && r.task === task && r.shift === shift
+    );
+
+    warning.style.display = isDup ? '' : 'none';
+    saveBtn.disabled = isDup;
 }
 
 function addRowCategory() {
@@ -1964,14 +2050,60 @@ function addRowCategory() {
     renderRowChips('rowEditCategoryChips', getCategoryList(), trimmed, 'category');
 }
 
+function addShiftRow(ri) {
+    const row = sampleRows[ri];
+    const oppositeShift = row.shift === '昼' ? '夜' : '昼';
+    editingRowRi = -1; // 新規行モード
+    document.getElementById('rowEditModalTitle').textContent = '新規追加';
+
+    // 元の行から全情報を引き継ぎ、昼夜は反対を選択
+    rowEditSelected.branch = row.branch;
+    rowEditSelected.category = row.category;
+    rowEditSelected.shift = oppositeShift;
+    rowEditDisabledShifts = getExistingShifts(row.branch, row.category, row.company, row.task);
+    // 昼なら現在行の上、夜なら現在行の下に挿入
+
+    renderRowChips('rowEditBranchChips', branchList, row.branch, 'branch');
+    renderRowChips('rowEditCategoryChips', getCategoryList(), row.category, 'category');
+    renderRowChips('rowEditShiftChips', shiftList, oppositeShift, 'shift', rowEditDisabledShifts);
+
+    document.getElementById('rowEditCompany').value = row.company || '';
+    document.getElementById('rowEditTask').value = row.task || '';
+    document.getElementById('rowEditModalOverlay').style.display = 'flex';
+    checkRowDuplicate();
+}
+
+function addNewRowFromRow(ri) {
+    const row = sampleRows[ri];
+    editingRowRi = -1; // 新規行モード
+    document.getElementById('rowEditModalTitle').textContent = '新規追加';
+
+    // 元の行から会社・区分・契約先名を引き継ぎ（業務名は空なので重複なし）
+    rowEditSelected.branch = row.branch;
+    rowEditSelected.category = row.category;
+    rowEditSelected.shift = null;
+    rowEditDisabledShifts = [];
+
+    renderRowChips('rowEditBranchChips', branchList, row.branch, 'branch');
+    renderRowChips('rowEditCategoryChips', getCategoryList(), row.category, 'category');
+    renderRowChips('rowEditShiftChips', shiftList, null, 'shift');
+
+    document.getElementById('rowEditCompany').value = row.company || '';
+    document.getElementById('rowEditTask').value = '';
+    document.getElementById('rowEditModalOverlay').style.display = 'flex';
+    checkRowDuplicate();
+}
+
 function addNewRow() {
     editingRowRi = -1; // 新規行モード
-    document.getElementById('rowEditModalTitle').textContent = '新規行追加';
+    document.getElementById('rowEditModalTitle').textContent = '新規追加';
 
     // チップ選択を空に初期化
     rowEditSelected.branch = null;
     rowEditSelected.category = null;
     rowEditSelected.shift = null;
+    rowEditDisabledShifts = [];
+
     renderRowChips('rowEditBranchChips', branchList, null, 'branch');
     renderRowChips('rowEditCategoryChips', getCategoryList(), null, 'category');
     renderRowChips('rowEditShiftChips', shiftList, null, 'shift');
@@ -1979,6 +2111,7 @@ function addNewRow() {
     document.getElementById('rowEditCompany').value = '';
     document.getElementById('rowEditTask').value = '';
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
+    checkRowDuplicate();
 }
 
 function openRowEditModal(ri) {
@@ -1997,6 +2130,7 @@ function openRowEditModal(ri) {
     document.getElementById('rowEditCompany').value = row.company;
     document.getElementById('rowEditTask').value = row.task;
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
+    checkRowDuplicate();
 }
 
 function closeRowEditModal(e) {
@@ -2017,6 +2151,7 @@ function saveRowEdit() {
         const task = document.getElementById('rowEditTask').value || '';
 
         sampleRows.push({ branch, category, shift, company, task, hidden: false });
+        sortRows();
         closeRowEditModal();
         renderGrid();
         return;
@@ -2061,6 +2196,7 @@ function saveRowEdit() {
         });
     }
 
+    sortRows();
     closeRowEditModal();
     renderGrid();
 }

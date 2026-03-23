@@ -192,12 +192,14 @@ body {
 }
 
 /* 固定列 */
-.ob-frozen-0 { position: sticky; left: 0; z-index: 10; background: var(--bg-page); }
-.ob-frozen-1 { position: sticky; left: 140px; z-index: 10; background: var(--bg-page); }
-.ob-frozen-2 { position: sticky; left: 204px; z-index: 10; background: var(--bg-page); }
-.ob-frozen-3 { position: sticky; left: 240px; z-index: 10; background: var(--bg-page); text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
-.ob-frozen-4 { position: sticky; left: 370px; z-index: 10; background: var(--bg-page); text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
-.ob-frozen-5 { position: sticky; left: 500px; z-index: 10; background: var(--bg-page); border-right: 2px solid var(--secondary); }
+.ob-frozen-0 { position: sticky; left: 0; z-index: 10; background: var(--bg-page); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; line-height: 28px; }
+.ob-frozen-1 { position: sticky; left: 100px; z-index: 10; background: var(--bg-page); }
+.ob-frozen-2 { position: sticky; left: 164px; z-index: 10; background: var(--bg-page); }
+.ob-frozen-3 { position: sticky; left: 200px; z-index: 10; background: var(--bg-page); text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
+.ob-frozen-4 { position: sticky; left: 330px; z-index: 10; background: var(--bg-page); }
+.ob-frozen-5 { position: sticky; left: 358px; z-index: 10; background: var(--bg-page); text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
+.ob-frozen-6 { position: sticky; left: 488px; z-index: 10; background: var(--bg-page); }
+.ob-frozen-7 { position: sticky; left: 516px; z-index: 10; background: var(--bg-page); border-right: 2px solid var(--secondary); }
 
 /* ヘッダー + 固定列（最高優先） */
 .ob-cell.ob-header.ob-frozen-0,
@@ -205,7 +207,9 @@ body {
 .ob-cell.ob-header.ob-frozen-2,
 .ob-cell.ob-header.ob-frozen-3,
 .ob-cell.ob-header.ob-frozen-4,
-.ob-cell.ob-header.ob-frozen-5 {
+.ob-cell.ob-header.ob-frozen-5,
+.ob-cell.ob-header.ob-frozen-6,
+.ob-cell.ob-header.ob-frozen-7 {
     z-index: 30;
     background: #334155;
 }
@@ -298,7 +302,9 @@ body {
 .ob-total-row.ob-frozen-2,
 .ob-total-row.ob-frozen-3,
 .ob-total-row.ob-frozen-4,
-.ob-total-row.ob-frozen-5 {
+.ob-total-row.ob-frozen-5,
+.ob-total-row.ob-frozen-6,
+.ob-total-row.ob-frozen-7 {
     background: rgba(68,166,181,0.12);
 }
 
@@ -314,9 +320,20 @@ body {
 .ob-even-row.ob-frozen-2,
 .ob-even-row.ob-frozen-3,
 .ob-even-row.ob-frozen-4,
-.ob-even-row.ob-frozen-5 {
+.ob-even-row.ob-frozen-5,
+.ob-even-row.ob-frozen-6,
+.ob-even-row.ob-frozen-7 {
     background: rgba(225,237,243,0.8);
 }
+
+/* 行複製＋ボタン列 */
+.ob-row-add-btn {
+    background: none; border: none; cursor: pointer;
+    padding: 2px; border-radius: 4px;
+    color: var(--text-tertiary); font-size: 14px; font-weight: 700;
+    transition: all 0.15s; line-height: 1;
+}
+.ob-row-add-btn:hover { background: var(--accent-dim); color: var(--accent); }
 
 /* カレンダーボタン列 */
 .ob-cal-open-btn {
@@ -844,6 +861,8 @@ body {
 }
 .ob-btn-primary { background: var(--accent); color: white; }
 .ob-btn-primary:hover { background: var(--accent-light); box-shadow: 0 2px 8px rgba(68,166,181,0.3); }
+.ob-btn-primary:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+.ob-btn-primary:disabled:hover { background: var(--accent); box-shadow: none; }
 .ob-btn-secondary { background: var(--bg-surface-2); color: var(--text-secondary); border: none; }
 .ob-btn-secondary:hover { background: var(--bg-surface-3); }
 .ob-btn-danger { background: #dc2626; color: white; }
@@ -919,6 +938,15 @@ body {
 .ob-row-chip.ob-chip-active {
     background: var(--accent); color: #fff;
     border-color: var(--accent);
+}
+.ob-row-chip.ob-chip-disabled {
+    opacity: 0.35; cursor: not-allowed;
+    background: var(--bg-surface-2); color: var(--text-tertiary);
+    border-color: var(--divider);
+}
+.ob-row-dup-warning {
+    color: #d32f2f; font-size: 12px; font-weight: 600;
+    padding: 6px 0 0; margin-top: 4px;
 }
 /* 現場監督・連絡先 候補チップ */
 .ob-supervisor-candidates {
@@ -1073,10 +1101,13 @@ body {
 }
 
 /* ========== カレンダー入力モーダル ========== */
-.ob-modal-calendar { width: 500px; max-width: 95vw; max-height: 90vh; }
+.ob-modal-calendar { width: 500px; max-width: 95vw; max-height: 90vh; position: relative; }
+.ob-cal-close {
+    position: absolute; top: 6px; right: 6px; z-index: 10;
+}
 
 /* ヘッダー */
-.ob-cal-header { flex-wrap: wrap; gap: 6px; }
+.ob-cal-header { flex-wrap: wrap; gap: 6px; padding-right: 36px; }
 .ob-cal-header-info { flex: 1; min-width: 150px; }
 .ob-cal-header-meta {
     font-size: 13px; color: var(--text-secondary); margin-top: 3px;
@@ -1091,7 +1122,11 @@ body {
 .ob-night .ob-cal-meta-company,
 .ob-night .ob-cal-meta-task { color: #B5524D; }
 .ob-night .ob-cal-meta-tags { color: #B5524D; background: rgba(181,82,77,0.1); }
+.ob-cal-month-nav-group {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
 .ob-cal-month-nav { display: flex; align-items: center; gap: 6px; }
+.ob-cal-sub-actions { display: flex; align-items: center; gap: 6px; }
 .ob-cal-undo-redo { display: flex; gap: 2px; }
 .ob-cal-nav-btn {
     background: var(--bg-surface); border: 1px solid var(--divider);
