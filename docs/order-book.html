@@ -22,6 +22,10 @@
             </div>
         </div>
         <div class="ob-header-right">
+            <button class="ob-cn-notify-btn" id="obCnNotifyBtn" onclick="obCnOpenModal()">
+                <img src="mockup/icons/bell.svg" class="ob-cn-bell-icon">
+                <span class="ob-cn-badge" id="obCnBadge" style="display:none;">0</span>
+            </button>
             <a href="order-book-dark.html" class="theme-toggle-btn">
                 <span class="theme-toggle-label">Dark Mode</span>
             </a>
@@ -40,6 +44,8 @@
             <button class="ob-tb-btn" onclick="toggleHiddenRows()"><img src="mockup/icons/eye.svg" class="ob-icon"> 表示/非表示</button>
             <button class="ob-tb-btn" onclick="toggleWeekendColors()"><img src="mockup/icons/palette.svg" class="ob-icon"> 土日祝色</button>
             <button class="ob-tb-btn" id="btnToggleBadges" onclick="toggleBadgeDisplay()"><img src="mockup/icons/tag.svg" class="ob-icon"> バッジ</button>
+            <span class="ob-toolbar-sep"></span>
+            <button class="ob-tb-btn" id="obCnDemoBtn" onclick="obCnToggleDemo()">▶ デモ開始</button>
         </div>
         <div class="ob-toolbar-right">
             <span class="ob-summary" id="summaryText">全 12 件</span>
@@ -108,6 +114,11 @@
                 <div class="ob-cal-header-info">
                     <h3 id="editModalTitle">セル編集</h3>
                     <div class="ob-cal-header-meta" id="editModalMeta"></div>
+                </div>
+                <div class="ob-cn-conflict-banner" id="obCnConflictBanner" style="display:none;">
+                    <span class="ob-cn-conflict-icon">⚠</span>
+                    <span class="ob-cn-conflict-text" id="obCnConflictText"></span>
+                    <button class="ob-cn-conflict-close" onclick="obCnHideConflictBanner()">✕</button>
                 </div>
                 <button class="ob-modal-close" onclick="closeEditModal()">✕</button>
             </div>
@@ -320,6 +331,11 @@
                     <h3 id="calendarModalTitle">カレンダー入力</h3>
                     <div class="ob-cal-header-meta" id="calendarModalMeta"></div>
                 </div>
+                <div class="ob-cn-conflict-banner" id="obCnConflictBannerCal" style="display:none;">
+                    <span class="ob-cn-conflict-icon">⚠</span>
+                    <span class="ob-cn-conflict-text" id="obCnConflictTextCal"></span>
+                    <button class="ob-cn-conflict-close" onclick="obCnHideConflictBanner()">✕</button>
+                </div>
                 <div class="ob-cal-month-nav-group">
                     <div class="ob-cal-month-nav">
                         <button class="ob-cal-nav-btn" onclick="calendarNav(-1)">◀</button>
@@ -354,6 +370,47 @@
                     <button class="ob-btn ob-btn-secondary ob-cal-footer-btn" onclick="closeEditModal()" disabled>カレンダー表示</button>
                     <button class="ob-btn ob-btn-primary ob-cal-footer-btn" onclick="saveEdit()" disabled>保存</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- トースト通知コンテナ -->
+    <div id="obCnToastContainer"></div>
+
+    <!-- 変更通知モーダル -->
+    <div class="ob-modal-overlay" id="obChangeNotifyModal" style="display:none;" onclick="if(event.target===this)obCnCloseModal()">
+        <div class="ob-cn-modal" onclick="event.stopPropagation()">
+            <div class="ob-cn-header">
+                <div class="ob-cn-header-left">
+                    <h3>変更通知</h3>
+                    <span class="ob-cn-header-date" id="obCnHeaderDate"></span>
+                </div>
+                <div class="ob-cn-header-right">
+                    <span id="obCnFilterWrap"><select class="ob-cn-filter-select" id="obCnFilterSelect" onchange="obCnSetFilter(this.value)">
+                        <option value="">すべての業務</option>
+                    </select></span>
+                    <span class="ob-cn-row-filter-label" id="obCnRowFilterLabel" style="display:none;"></span>
+                    <button class="ob-cn-close" onclick="obCnCloseModal()">✕</button>
+                </div>
+            </div>
+            <div class="ob-cn-tabs">
+                <button class="ob-cn-tab active" data-tab="latest" onclick="obCnSwitchTab('latest')">最新の変更</button>
+                <button class="ob-cn-tab" data-tab="history" onclick="obCnSwitchTab('history')">変更履歴</button>
+            </div>
+            <div class="ob-cn-body">
+                <div class="ob-cn-tab-content active" id="obCnTabLatest">
+                    <div class="ob-cn-card-list" id="obCnCardList">
+                        <div class="ob-cn-empty">変更通知はありません</div>
+                    </div>
+                </div>
+                <div class="ob-cn-tab-content" id="obCnTabHistory">
+                    <div class="ob-cn-timeline" id="obCnTimeline">
+                        <div class="ob-cn-empty">変更履歴はありません</div>
+                    </div>
+                </div>
+            </div>
+            <div class="ob-cn-footer">
+                <button class="ob-cn-footer-btn" onclick="obCnCloseModal()">閉じる</button>
             </div>
         </div>
     </div>

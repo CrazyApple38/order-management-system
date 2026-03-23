@@ -321,24 +321,25 @@ function generateBadgeId(prefix) {
 // --- サンプルデータ ---
 // 【モックアップ専用】本番環境ではDBのorder_rows / ordersテーブルからAPI経由で取得
 let sampleRows = [
-    { branch: '東央警備', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '東名SA巡回', hidden: false },
-    { branch: '東央警備', category: '高速', shift: '夜', company: '(株)〇〇高速', task: '東名SA巡回', hidden: false },
-    { branch: '東央警備', category: '高速',   shift: '昼', company: '△△建設(株)',  task: '中央道補修', hidden: false },
-    { branch: '東央警備', category: '交通', shift: '昼', company: '(株)丸山建設', task: '〇〇ビル巡回', hidden: false },
-    { branch: '東央警備', category: '交通', shift: '昼', company: '(株)丸山建設', task: '△△マンション', hidden: false },
-    { branch: '東央警備', category: '交通', shift: '夜', company: '□□警備(株)',  task: '国道1号線',  hidden: false },
-    { branch: '東央警備', category: '施設',   shift: '昼', company: '全日本エンタープライズ', task: '商業施設A', hidden: false },
-    { branch: '東央警備', category: '交通', shift: '昼', company: '(株)丸山建設', task: '', hidden: false },
-    { branch: 'Nikkeiホールディングス', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '名神SA巡回', hidden: false },
-    { branch: 'Nikkeiホールディングス', category: '高速',   shift: '昼', company: '△△建設(株)',  task: '東名高速補修', hidden: true },
-    { branch: 'Nikkeiホールディングス', category: '交通', shift: '昼', company: '(株)丸山建設', task: '□□公園整備', hidden: false },
-    { branch: 'Nikkeiホールディングス', category: '交通', shift: '夜', company: '□□警備(株)',  task: '県道12号線', hidden: false },
-    { branch: 'Nikkeiホールディングス', category: '施設',   shift: '昼', company: '全日本エンタープライズ', task: '商業施設B', hidden: false },
-    { branch: '全日本エンタープライズ', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '新東名SA巡回', hidden: false },
-    { branch: '全日本エンタープライズ', category: '交通', shift: '昼', company: '(株)丸山建設', task: '〇〇交差点', hidden: false },
-    { branch: '全日本エンタープライズ', category: '交通', shift: '夜', company: '□□警備(株)',  task: '国道246号線', hidden: false },
-    { branch: '全日本エンタープライズ', category: '施設', shift: '昼', company: '全日本エンタープライズ', task: '商業施設C', hidden: false },
+    { _rowId: 1,  branch: '東央警備', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '東名SA巡回', hidden: false },
+    { _rowId: 2,  branch: '東央警備', category: '高速', shift: '夜', company: '(株)〇〇高速', task: '東名SA巡回', hidden: false },
+    { _rowId: 3,  branch: '東央警備', category: '高速',   shift: '昼', company: '△△建設(株)',  task: '中央道補修', hidden: false },
+    { _rowId: 4,  branch: '東央警備', category: '交通', shift: '昼', company: '(株)丸山建設', task: '〇〇ビル巡回', hidden: false },
+    { _rowId: 5,  branch: '東央警備', category: '交通', shift: '昼', company: '(株)丸山建設', task: '△△マンション', hidden: false },
+    { _rowId: 6,  branch: '東央警備', category: '交通', shift: '夜', company: '□□警備(株)',  task: '国道1号線',  hidden: false },
+    { _rowId: 7,  branch: '東央警備', category: '施設',   shift: '昼', company: '全日本エンタープライズ', task: '商業施設A', hidden: false },
+    { _rowId: 8,  branch: '東央警備', category: '交通', shift: '昼', company: '(株)丸山建設', task: '', hidden: false },
+    { _rowId: 9,  branch: 'Nikkeiホールディングス', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '名神SA巡回', hidden: false },
+    { _rowId: 10, branch: 'Nikkeiホールディングス', category: '高速',   shift: '昼', company: '△△建設(株)',  task: '東名高速補修', hidden: true },
+    { _rowId: 11, branch: 'Nikkeiホールディングス', category: '交通', shift: '昼', company: '(株)丸山建設', task: '□□公園整備', hidden: false },
+    { _rowId: 12, branch: 'Nikkeiホールディングス', category: '交通', shift: '夜', company: '□□警備(株)',  task: '県道12号線', hidden: false },
+    { _rowId: 13, branch: 'Nikkeiホールディングス', category: '施設',   shift: '昼', company: '全日本エンタープライズ', task: '商業施設B', hidden: false },
+    { _rowId: 14, branch: '全日本エンタープライズ', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '新東名SA巡回', hidden: false },
+    { _rowId: 15, branch: '全日本エンタープライズ', category: '交通', shift: '昼', company: '(株)丸山建設', task: '〇〇交差点', hidden: false },
+    { _rowId: 16, branch: '全日本エンタープライズ', category: '交通', shift: '夜', company: '□□警備(株)',  task: '国道246号線', hidden: false },
+    { _rowId: 17, branch: '全日本エンタープライズ', category: '施設', shift: '昼', company: '全日本エンタープライズ', task: '商業施設C', hidden: false },
 ];
+let obNextRowId = 18;
 
 // --- 計画書業務名の自動生成（親業務名 > 子 > 孫 の階層表示） ---
 function buildDailyTaskName(parentTask, subTasks) {
@@ -585,7 +586,8 @@ function renderGrid() {
         html += `<div class="ob-cell ob-frozen-3 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${row.company}</div>`;
         html += `<div class="ob-cell ob-frozen-4 ${rowCls}${evenCls}"><button class="ob-row-add-btn" onclick="event.stopPropagation(); addNewRowFromRow(${ri})" title="この現場を複製して追加">＋</button></div>`;
         const taskLabel = row.task || '<span class="ob-individual-task">(個別)</span>';
-        html += `<div class="ob-cell ob-frozen-5 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${taskLabel}</div>`;
+        const bellHtml = obCnGetRowBellHtml(ri);
+        html += `<div class="ob-cell ob-frozen-5 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${taskLabel}${bellHtml}</div>`;
         // 昼夜＋ボタン: 対になるシフトの行が無い場合のみ表示
         const oppositeShift = row.shift === '昼' ? '夜' : '昼';
         const hasPair = sampleRows.some((r, j) => j !== ri && r.branch === row.branch && r.category === row.category && r.company === row.company && r.task === row.task && r.shift === oppositeShift);
@@ -2144,7 +2146,7 @@ function saveRowEdit() {
         const company = document.getElementById('rowEditCompany').value || '';
         const task = document.getElementById('rowEditTask').value || '';
 
-        sampleRows.push({ branch, category, shift, company, task, hidden: false });
+        sampleRows.push({ _rowId: obNextRowId++, branch, category, shift, company, task, hidden: false });
         sortRows();
         closeRowEditModal();
         renderGrid();
@@ -2721,6 +2723,675 @@ function _restoreAfterCalendarEdit() {
     }
     _calendarEditRestore = null;
     renderCalendarGrid();
+}
+
+// ==================== 変更通知システム ====================
+
+const obCnState = {
+    notifications: [],
+    history: [],
+    unreadCount: 0,
+    activeTab: 'latest',
+    nextId: 1,
+    filterTask: '', // 業務名フィルタ（受注簿固有）
+    filterRowId: -1 // 行ベルから開いた場合の_rowId（-1=行フィルタなし）
+};
+
+function obCnTimeNow() {
+    const d = new Date();
+    return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+}
+
+function obCnUpdateBadge() {
+    const badge = document.getElementById('obCnBadge');
+    if (obCnState.unreadCount > 0) {
+        badge.textContent = obCnState.unreadCount;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+// 行ミニベル: 各業務名の未読通知数を返す
+function obCnGetUnreadForRow(ri) {
+    const row = sampleRows[ri];
+    if (!row) return 0;
+    return obCnState.notifications.filter(function(n) {
+        return !n._read && n.rowId === row._rowId;
+    }).length;
+}
+
+// 行ミニベルHTML生成
+function obCnGetRowBellHtml(ri) {
+    const count = obCnGetUnreadForRow(ri);
+    const cls = count > 0 ? 'ob-row-bell has-unread' : 'ob-row-bell';
+    return '<span class="' + cls + '" onclick="event.stopPropagation(); obCnOpenModalForRow(' + ri + ')" title="この業務の変更通知">' +
+        '<img src="mockup/icons/bell.svg" class="ob-row-bell-img">' +
+        (count > 0 ? '<span class="ob-row-bell-dot"></span>' : '') +
+    '</span>';
+}
+
+// トースト表示
+function obCnShowToast(n) {
+    const container = document.getElementById('obCnToastContainer');
+    const toast = document.createElement('div');
+    const icons = { add: '🟢', modify: '🟡', delete: '🔴' };
+    const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
+    toast.className = 'ob-cn-toast ob-cn-toast-' + n.type;
+    toast.innerHTML =
+        '<span class="ob-cn-toast-icon">' + icons[n.type] + '</span>' +
+        '<div class="ob-cn-toast-body">' +
+            '<div class="ob-cn-toast-title">' + typeLabels[n.type] + ' — ' + escapeHtml(n.user) + '</div>' +
+            '<div class="ob-cn-toast-desc">' + escapeHtml(n.taskName || n.siteName || '') + '</div>' +
+        '</div>' +
+        '<span class="ob-cn-toast-time">' + n.time + '</span>';
+    toast.onclick = function() {
+        toast.classList.add('ob-cn-toast-exit');
+        setTimeout(function() { toast.remove(); }, 300);
+        obCnOpenModal();
+    };
+    container.appendChild(toast);
+    setTimeout(function() {
+        if (toast.parentNode) {
+            toast.classList.add('ob-cn-toast-exit');
+            setTimeout(function() { toast.remove(); }, 300);
+        }
+    }, 5000);
+}
+
+// モーダル開閉
+function obCnOpenModal() {
+    const modal = document.getElementById('obChangeNotifyModal');
+    modal.style.display = 'flex';
+    // 日付表示
+    const now = new Date();
+    document.getElementById('obCnHeaderDate').textContent =
+        now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日';
+    // ヘッダーから開いた場合は行フィルタをリセット
+    if (obCnState.filterRowId < 0) {
+        document.getElementById('obCnFilterWrap').style.display = '';
+        document.getElementById('obCnRowFilterLabel').style.display = 'none';
+    }
+    // 既読処理: 行ベルからはその行のみ、ヘッダーベルからは全既読
+    if (obCnState.filterRowId >= 0) {
+        obCnState.notifications.forEach(function(n) {
+            if (!n._read && n.rowId === obCnState.filterRowId) { n._read = true; }
+        });
+        obCnState.unreadCount = obCnState.notifications.filter(function(n) { return !n._read; }).length;
+    } else {
+        obCnState.notifications.forEach(function(n) { n._read = true; });
+        obCnState.unreadCount = 0;
+    }
+    obCnUpdateBadge();
+    obCnUpdateFilterSelect();
+    obCnRenderLatest();
+    obCnRenderHistory();
+    renderGrid(); // ミニベルのドット更新
+}
+
+function obCnOpenModalForRow(ri) {
+    const row = sampleRows[ri];
+    obCnState.filterRowId = row ? row._rowId : -1;
+    obCnState.filterTask = ''; // 行フィルタ時はtaskフィルタ無効
+    // ドロップダウンを隠し、行名ラベルを表示
+    document.getElementById('obCnFilterWrap').style.display = 'none';
+    const label = document.getElementById('obCnRowFilterLabel');
+    const displayName = row ? (row.task || '(個別)') : '';
+    const shiftText = row ? row.shift : '';
+    label.textContent = shiftText + ' ' + displayName;
+    label.style.display = '';
+    obCnOpenModal();
+}
+
+function obCnCloseModal() {
+    document.getElementById('obChangeNotifyModal').style.display = 'none';
+    obCnState.filterRowId = -1;
+    obCnState.filterTask = '';
+}
+
+// タブ切替
+function obCnSwitchTab(tabName) {
+    obCnState.activeTab = tabName;
+    document.querySelectorAll('.ob-cn-tab').forEach(function(tab) {
+        tab.classList.toggle('active', tab.dataset.tab === tabName);
+    });
+    document.querySelectorAll('.ob-cn-tab-content').forEach(function(content) {
+        content.classList.toggle('active', content.id === (tabName === 'latest' ? 'obCnTabLatest' : 'obCnTabHistory'));
+    });
+}
+
+// 業務名フィルタ
+function obCnSetFilter(task) {
+    obCnState.filterTask = task;
+    obCnRenderLatest();
+    obCnRenderHistory();
+}
+
+function obCnUpdateFilterSelect() {
+    const sel = document.getElementById('obCnFilterSelect');
+    const current = obCnState.filterTask;
+    // 業務名リスト（重複なし）
+    const tasks = [];
+    sampleRows.forEach(function(r) {
+        if (r.task && tasks.indexOf(r.task) === -1) tasks.push(r.task);
+    });
+    tasks.sort();
+    sel.innerHTML = '<option value="">すべての業務</option>';
+    tasks.forEach(function(t) {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = t;
+        if (t === current) opt.selected = true;
+        sel.appendChild(opt);
+    });
+}
+
+// カテゴリ→CSSクラス
+const obCnCatClassMap = {
+    '施設': 'ob-cn-cat-facility', 'イベント': 'ob-cn-cat-event',
+    '高速': 'ob-cn-cat-highway', '交通': 'ob-cn-cat-traffic',
+    '応援交通': 'ob-cn-cat-support'
+};
+const obCnShiftClassMap = { '昼': 'ob-cn-shift-day', '夜': 'ob-cn-shift-night' };
+
+// 最新変更カード描画
+function obCnRenderLatest() {
+    const list = document.getElementById('obCnCardList');
+    let filtered = obCnState.notifications;
+    if (obCnState.filterRowId >= 0) {
+        filtered = filtered.filter(function(n) {
+            return n.rowId === obCnState.filterRowId;
+        });
+    } else if (obCnState.filterTask !== '') {
+        filtered = filtered.filter(function(n) {
+            return (n.taskName || '') === obCnState.filterTask;
+        });
+    }
+    if (filtered.length === 0) {
+        list.innerHTML = '<div class="ob-cn-empty">変更通知はありません</div>';
+        return;
+    }
+
+    const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
+
+    list.innerHTML = filtered.map(function(n) {
+        var cardClass = 'ob-cn-card ob-cn-card-' + n.type;
+        var badgeClass = 'ob-cn-type-badge ob-cn-type-badge-' + n.type;
+        var catClass = obCnCatClassMap[n.category] || 'ob-cn-cat-facility';
+        var shiftClass = obCnShiftClassMap[n.shift] || 'ob-cn-shift-day';
+        var displayName = n.taskName || n.siteName || '(個別)';
+
+        var diffHtml = '';
+        if (n.type === 'modify' && n.diffs) {
+            diffHtml = '<div class="ob-cn-diff-list">' +
+                n.diffs.map(function(d) {
+                    return '<div class="ob-cn-diff-row">' +
+                        '<span class="ob-cn-diff-label">' + escapeHtml(d.field) + '</span>' +
+                        '<span class="ob-cn-diff-old">' + escapeHtml(d.oldVal) + '</span>' +
+                        '<span class="ob-cn-diff-arrow">→</span>' +
+                        '<span class="ob-cn-diff-new">' + escapeHtml(d.newVal) + '</span>' +
+                    '</div>';
+                }).join('') +
+            '</div>';
+        } else if (n.type === 'add' && n.details) {
+            diffHtml = '<div class="ob-cn-diff-list">' +
+                n.details.map(function(d) {
+                    return '<div class="ob-cn-diff-row">' +
+                        '<span class="ob-cn-diff-label">' + escapeHtml(d.field) + '</span>' +
+                        '<span class="ob-cn-diff-new">' + escapeHtml(d.value) + '</span>' +
+                    '</div>';
+                }).join('') +
+            '</div>';
+        } else if (n.type === 'delete') {
+            diffHtml = '<div class="ob-cn-diff-list"><div class="ob-cn-diff-row"><span class="ob-cn-diff-old">この行は削除されました</span></div></div>';
+        }
+
+        var stateClass = n.reverted ? ' ob-cn-card-reverted' : (n._approved ? ' ob-cn-card-approved' : '');
+        var statusBadge = '';
+        var actionsHtml = '';
+        if (n.reverted) {
+            statusBadge = '<span class="ob-cn-reverted-badge">取消済</span>';
+            actionsHtml = '<div class="ob-cn-card-actions">' +
+                '<button class="ob-cn-btn-reapprove" onclick="obCnReapprove(' + n.id + ')">やっぱり反映</button>' +
+            '</div>';
+        } else {
+            if (n._approved) statusBadge = '<span class="ob-cn-approved-badge">承認済</span>';
+            actionsHtml = '<div class="ob-cn-card-actions">' +
+                '<button class="ob-cn-btn-revert" onclick="obCnRevert(' + n.id + ')">元に戻す</button>' +
+            '</div>';
+        }
+
+        return '<div class="' + cardClass + stateClass + '">' +
+            '<div class="ob-cn-card-header">' +
+                '<span class="' + badgeClass + '">' + typeLabels[n.type] + '</span>' +
+                statusBadge +
+                '<span class="ob-cn-card-user">' + escapeHtml(n.user) + '</span>' +
+                '<span class="ob-cn-card-time">' + n.time + '</span>' +
+            '</div>' +
+            '<div class="ob-cn-card-body">' +
+                '<div class="ob-cn-card-site">' +
+                    '<span class="ob-cn-shift-badge ' + shiftClass + '">' + n.shift + '</span>' +
+                    '<span class="ob-cn-category-badge ' + catClass + '">' + n.category + '</span>' +
+                    escapeHtml(displayName) +
+                '</div>' +
+                diffHtml +
+            '</div>' +
+            actionsHtml +
+        '</div>';
+    }).join('');
+}
+
+// 変更履歴タイムライン描画
+function obCnRenderHistory() {
+    const timeline = document.getElementById('obCnTimeline');
+    let filtered = obCnState.history;
+    if (obCnState.filterRowId >= 0) {
+        filtered = filtered.filter(function(h) {
+            return h.rowId === obCnState.filterRowId;
+        });
+    } else if (obCnState.filterTask !== '') {
+        filtered = filtered.filter(function(h) {
+            return (h.taskName || '') === obCnState.filterTask;
+        });
+    }
+    if (filtered.length === 0) {
+        timeline.innerHTML = '<div class="ob-cn-empty">変更履歴はありません</div>';
+        return;
+    }
+
+    const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
+
+    timeline.innerHTML = filtered.map(function(h) {
+        return '<div class="ob-cn-timeline-item ob-cn-tl-' + h.type + '">' +
+            '<div class="ob-cn-tl-header">' +
+                '<span class="ob-cn-tl-time">' + h.time + '</span>' +
+                '<span class="ob-cn-tl-user">' + escapeHtml(h.user) + '</span>' +
+                '<span class="ob-cn-tl-type ob-cn-tl-type-' + h.type + '">' + typeLabels[h.type] + '</span>' +
+            '</div>' +
+            '<div class="ob-cn-tl-content">' + escapeHtml(h.summary) + '</div>' +
+        '</div>';
+    }).join('');
+}
+
+// 通知受信
+function obCnReceive(n) {
+    n.id = obCnState.nextId++;
+    n.reverted = false;
+    n._read = false;
+    n._approved = true; // 受注簿ではデータ変更が即反映
+    obCnState.notifications.unshift(n);
+    obCnState.history.unshift({
+        type: n.type,
+        user: n.user,
+        time: n.time,
+        taskName: n.taskName || '',
+        rowId: n.rowId,
+        summary: (n.taskName || n.siteName || '(個別)') +
+            (n.type === 'modify' && n.diffs
+                ? '（' + n.diffs.map(function(d) { return d.field; }).join('・') + '）'
+                : '')
+    });
+    obCnState.unreadCount++;
+    obCnUpdateBadge();
+
+    if (obCnCheckConflict(n)) {
+        obCnShowConflictBanner(n);
+    }
+    obCnShowToast(n);
+}
+
+// 競合検出
+function obCnCheckConflict(n) {
+    const editModal = document.getElementById('editModalOverlay');
+    const calModal = document.getElementById('calendarModalOverlay');
+    return (editModal && editModal.style.display !== 'none') ||
+           (calModal && calModal.style.display !== 'none');
+}
+
+function obCnShowConflictBanner(n) {
+    const msg = n.user + 'が「' + (n.taskName || n.siteName || '') + '」を変更しました。最新のデータに更新されます。';
+    // セル編集モーダル
+    const banner1 = document.getElementById('obCnConflictBanner');
+    if (banner1) {
+        document.getElementById('obCnConflictText').textContent = msg;
+        banner1.style.display = 'flex';
+    }
+    // カレンダーモーダル
+    const banner2 = document.getElementById('obCnConflictBannerCal');
+    if (banner2) {
+        document.getElementById('obCnConflictTextCal').textContent = msg;
+        banner2.style.display = 'flex';
+    }
+}
+
+function obCnHideConflictBanner() {
+    var b1 = document.getElementById('obCnConflictBanner');
+    var b2 = document.getElementById('obCnConflictBannerCal');
+    if (b1) b1.style.display = 'none';
+    if (b2) b2.style.display = 'none';
+}
+
+// --- 元に戻す / やっぱり反映 ---
+
+function obCnRevert(id) {
+    var n = obCnState.notifications.find(function(x) { return x.id === id; });
+    if (!n || n.reverted) return;
+
+    if (n.type === 'modify' && n._snapshot) {
+        // セルデータを復元
+        var snap = n._snapshot;
+        if (snap.cellEntries !== undefined) {
+            if (!cellData[snap.rowIndex]) cellData[snap.rowIndex] = {};
+            cellData[snap.rowIndex][snap.day] = JSON.parse(JSON.stringify(snap.cellEntries));
+        }
+        if (snap.rowData) {
+            sampleRows[snap.rowIndex] = JSON.parse(JSON.stringify(snap.rowData));
+        }
+        renderGrid();
+    } else if (n.type === 'add' && n._addedRowIndex !== undefined) {
+        // 追加された行を削除
+        var ri = n._addedRowIndex;
+        // cellDataのシフト
+        var newCellData = {};
+        Object.keys(cellData).forEach(function(k) {
+            var idx = parseInt(k);
+            if (idx < ri) newCellData[idx] = cellData[idx];
+            else if (idx > ri) newCellData[idx - 1] = cellData[idx];
+            // idx === ri は削除
+        });
+        cellData = newCellData;
+        sampleRows.splice(ri, 1);
+        // 他の通知のrowIndexを調整
+        obCnState.notifications.forEach(function(other) {
+            if (other !== n && other.rowIndex !== undefined && other.rowIndex > ri) other.rowIndex--;
+        });
+        renderGrid();
+    } else if (n.type === 'delete' && n._deletedRow) {
+        // 削除された行を復元
+        var ri = n._deletedRowIndex;
+        sampleRows.splice(ri, 0, JSON.parse(JSON.stringify(n._deletedRow)));
+        // cellDataのシフト
+        var newCellData = {};
+        Object.keys(cellData).forEach(function(k) {
+            var idx = parseInt(k);
+            if (idx < ri) newCellData[idx] = cellData[idx];
+            else newCellData[idx + 1] = cellData[idx];
+        });
+        newCellData[ri] = JSON.parse(JSON.stringify(n._deletedCellData || {}));
+        cellData = newCellData;
+        // 他の通知のrowIndexを調整
+        obCnState.notifications.forEach(function(other) {
+            if (other !== n && other.rowIndex !== undefined && other.rowIndex >= ri) other.rowIndex++;
+        });
+        n.rowIndex = ri;
+        renderGrid();
+    }
+
+    n.reverted = true;
+    n._approved = false;
+    obCnRenderLatest();
+}
+
+function obCnReapprove(id) {
+    var n = obCnState.notifications.find(function(x) { return x.id === id; });
+    if (!n || !n.reverted) return;
+
+    if (n.type === 'modify' && n._newSnapshot) {
+        // 変更を再適用
+        var snap = n._newSnapshot;
+        if (snap.cellEntries !== undefined) {
+            if (!cellData[n.rowIndex]) cellData[n.rowIndex] = {};
+            cellData[n.rowIndex][snap.day] = JSON.parse(JSON.stringify(snap.cellEntries));
+        }
+        if (snap.rowData) {
+            sampleRows[n.rowIndex] = JSON.parse(JSON.stringify(snap.rowData));
+        }
+        renderGrid();
+    } else if (n.type === 'add' && n._addedRow) {
+        // 行を再追加
+        var ri = n._addedRowIndex !== undefined ? n._addedRowIndex : sampleRows.length;
+        sampleRows.splice(ri, 0, JSON.parse(JSON.stringify(n._addedRow)));
+        // cellDataのシフト
+        var newCellData = {};
+        Object.keys(cellData).forEach(function(k) {
+            var idx = parseInt(k);
+            if (idx < ri) newCellData[idx] = cellData[idx];
+            else newCellData[idx + 1] = cellData[idx];
+        });
+        newCellData[ri] = JSON.parse(JSON.stringify(n._addedCellData || {}));
+        cellData = newCellData;
+        // 他の通知のrowIndexを調整
+        obCnState.notifications.forEach(function(other) {
+            if (other !== n && other.rowIndex !== undefined && other.rowIndex >= ri) other.rowIndex++;
+        });
+        n.rowIndex = ri;
+        n._addedRowIndex = ri;
+        renderGrid();
+    } else if (n.type === 'delete' && n._deletedRow) {
+        // 行を再削除
+        var ri = n.rowIndex;
+        if (ri === undefined || ri >= sampleRows.length) return;
+        // cellData保存
+        n._deletedCellData = JSON.parse(JSON.stringify(cellData[ri] || {}));
+        n._deletedRowIndex = ri;
+        // cellDataのシフト
+        var newCellData = {};
+        Object.keys(cellData).forEach(function(k) {
+            var idx = parseInt(k);
+            if (idx < ri) newCellData[idx] = cellData[idx];
+            else if (idx > ri) newCellData[idx - 1] = cellData[idx];
+        });
+        cellData = newCellData;
+        sampleRows.splice(ri, 1);
+        // 他の通知のrowIndexを調整
+        obCnState.notifications.forEach(function(other) {
+            if (other !== n && other.rowIndex !== undefined && other.rowIndex > ri) other.rowIndex--;
+        });
+        renderGrid();
+    }
+
+    n.reverted = false;
+    n._approved = true;
+    obCnRenderLatest();
+}
+
+// --- デモシミュレーション ---
+let obCnDemoInterval = null;
+let obCnDemoRunning = false;
+let obCnDemoIndex = 0;
+
+const obCnDemoSequence = [
+    {
+        type: 'modify', user: '山田（現場管理）',
+        diffs: [{ field: '人数', oldVal: '', newVal: '' }],
+        apply: function() {
+            var ri = sampleRows.findIndex(function(r) { return r.task === '東名SA巡回' && r.shift === '昼'; });
+            if (ri === -1) return null;
+            var day = 5;
+            var entries = getCellEntries(ri, day);
+            var oldCount = entries.length > 0 ? entries[0].count : 0;
+            var newCount = 5;
+            this.diffs[0].oldVal = oldCount + '名';
+            this.diffs[0].newVal = newCount + '名';
+            // スナップショット保存
+            this._snapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri] && cellData[ri][day] ? cellData[ri][day] : [])) };
+            // 変更適用
+            if (!cellData[ri]) cellData[ri] = {};
+            if (!cellData[ri][day]) cellData[ri][day] = [{ count: 0, subTasks: [], startTime: '08:00', endTime: '17:00', supervisor: '', supervisorTel: '', assignment: '', badge: { parentId: 'highway', childIds: [], grandchildMap: {} }, confidence: 'confirmed', remarks: '' }];
+            cellData[ri][day][0].count = newCount;
+            this._newSnapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri][day])) };
+            renderGrid();
+            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, rowIndex: ri, rowId: sampleRows[ri]._rowId };
+        }
+    },
+    {
+        type: 'add', user: '鈴木（受注担当）',
+        details: [{ field: '会社', value: '東央警備' }, { field: '区分', value: '交通（夜）' }, { field: '契約先', value: '(株)丸山建設' }, { field: '業務名', value: '〇〇交差点' }],
+        apply: function() {
+            var newRow = { _rowId: obNextRowId++, branch: '東央警備', category: '交通', shift: '夜', company: '(株)丸山建設', task: '〇〇交差点', hidden: false };
+            var ri = sampleRows.length;
+            sampleRows.push(newRow);
+            // cellDataシフト不要（末尾追加）
+            cellData[ri] = {};
+            this._addedRow = JSON.parse(JSON.stringify(newRow));
+            this._addedRowIndex = ri;
+            this._addedCellData = {};
+            renderGrid();
+            return { taskName: '〇〇交差点', category: '交通', shift: '夜', rowIndex: ri, rowId: newRow._rowId };
+        }
+    },
+    {
+        type: 'modify', user: '伊藤（配車担当）',
+        diffs: [{ field: '開始時間', oldVal: '', newVal: '' }],
+        apply: function() {
+            var ri = sampleRows.findIndex(function(r) { return r.task === '商業施設A' && r.shift === '昼'; });
+            if (ri === -1) return null;
+            var day = 10;
+            var entries = getCellEntries(ri, day);
+            var oldTime = entries.length > 0 ? (entries[0].startTime || '08:00') : '08:00';
+            var newTime = '09:30';
+            this.diffs[0].oldVal = oldTime;
+            this.diffs[0].newVal = newTime;
+            this._snapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri] && cellData[ri][day] ? cellData[ri][day] : [])) };
+            if (!cellData[ri]) cellData[ri] = {};
+            if (!cellData[ri][day]) cellData[ri][day] = [{ count: 2, subTasks: [], startTime: oldTime, endTime: '17:00', supervisor: '', supervisorTel: '', assignment: '', badge: { parentId: 'facility', childIds: [], grandchildMap: {} }, confidence: 'confirmed', remarks: '' }];
+            cellData[ri][day][0].startTime = newTime;
+            this._newSnapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri][day])) };
+            renderGrid();
+            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, rowIndex: ri, rowId: sampleRows[ri]._rowId };
+        }
+    },
+    {
+        type: 'delete', user: '高橋（管理部）',
+        apply: function() {
+            var ri = sampleRows.findIndex(function(r) { return r.task === '中央道補修' && r.shift === '昼'; });
+            if (ri === -1) return null;
+            var deletedRow = JSON.parse(JSON.stringify(sampleRows[ri]));
+            var deletedCellData = JSON.parse(JSON.stringify(cellData[ri] || {}));
+            var taskName = sampleRows[ri].task;
+            var category = sampleRows[ri].category;
+            var shift = sampleRows[ri].shift;
+            var rowId = sampleRows[ri]._rowId;
+            // 行削除
+            sampleRows.splice(ri, 1);
+            // cellDataシフト
+            var newCellData = {};
+            Object.keys(cellData).forEach(function(k) {
+                var idx = parseInt(k);
+                if (idx < ri) newCellData[idx] = cellData[idx];
+                else if (idx > ri) newCellData[idx - 1] = cellData[idx];
+            });
+            cellData = newCellData;
+            // 他の通知のrowIndex調整
+            obCnState.notifications.forEach(function(other) {
+                if (other.rowIndex !== undefined && other.rowIndex > ri) other.rowIndex--;
+            });
+            renderGrid();
+            return { taskName: taskName, category: category, shift: shift, rowIndex: ri, rowId: rowId,
+                     _deletedRow: deletedRow, _deletedCellData: deletedCellData, _deletedRowIndex: ri };
+        }
+    },
+    {
+        type: 'add', user: '田中（営業部）',
+        details: [{ field: '会社', value: 'Nikkeiホールディングス' }, { field: '区分', value: '高速（夜）' }, { field: '契約先', value: '(株)〇〇高速' }, { field: '業務名', value: '名神SA巡回' }],
+        apply: function() {
+            var newRow = { _rowId: obNextRowId++, branch: 'Nikkeiホールディングス', category: '高速', shift: '夜', company: '(株)〇〇高速', task: '名神SA巡回', hidden: false };
+            var ri = sampleRows.length;
+            sampleRows.push(newRow);
+            cellData[ri] = {};
+            this._addedRow = JSON.parse(JSON.stringify(newRow));
+            this._addedRowIndex = ri;
+            this._addedCellData = {};
+            renderGrid();
+            return { taskName: '名神SA巡回', category: '高速', shift: '夜', rowIndex: ri, rowId: newRow._rowId };
+        }
+    },
+    {
+        type: 'modify', user: '佐藤（営業部）',
+        diffs: [{ field: '備考', oldVal: '', newVal: '' }],
+        apply: function() {
+            var ri = sampleRows.findIndex(function(r) { return r.task === '□□公園整備' && r.shift === '昼'; });
+            if (ri === -1) return null;
+            var day = 15;
+            var entries = getCellEntries(ri, day);
+            var oldRemarks = entries.length > 0 ? (entries[0].remarks || '(なし)') : '(なし)';
+            var newRemarks = '雨天中止の可能性あり';
+            this.diffs[0].oldVal = oldRemarks;
+            this.diffs[0].newVal = newRemarks;
+            this._snapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri] && cellData[ri][day] ? cellData[ri][day] : [])) };
+            if (!cellData[ri]) cellData[ri] = {};
+            if (!cellData[ri][day]) cellData[ri][day] = [{ count: 2, subTasks: [], startTime: '08:00', endTime: '17:00', supervisor: '', supervisorTel: '', assignment: '', badge: { parentId: 'traffic', childIds: [], grandchildMap: {} }, confidence: 'confirmed', remarks: '' }];
+            cellData[ri][day][0].remarks = newRemarks;
+            this._newSnapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri][day])) };
+            renderGrid();
+            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, rowIndex: ri, rowId: sampleRows[ri]._rowId };
+        }
+    }
+];
+
+function obCnSendDemoNotification() {
+    if (obCnDemoIndex >= obCnDemoSequence.length) {
+        obCnToggleDemo();
+        return;
+    }
+    var item = obCnDemoSequence[obCnDemoIndex];
+    obCnDemoIndex++;
+    var result = item.apply();
+    if (!result) { obCnSendDemoNotification(); return; } // 行が見つからない場合はスキップ
+    var n = {
+        type: item.type,
+        user: item.user,
+        taskName: result.taskName,
+        siteName: result.taskName,
+        category: result.category,
+        shift: result.shift,
+        time: obCnTimeNow(),
+        diffs: item.diffs ? item.diffs.map(function(d) { return { field: d.field, oldVal: d.oldVal, newVal: d.newVal }; }) : null,
+        details: item.details ? item.details.map(function(d) { return { field: d.field, value: d.value }; }) : null,
+        rowIndex: result.rowIndex,
+        rowId: result.rowId
+    };
+    // スナップショット保存（revert用）
+    if (item.type === 'modify') {
+        n._snapshot = item._snapshot;
+        n._newSnapshot = item._newSnapshot;
+    } else if (item.type === 'add') {
+        n._addedRow = item._addedRow;
+        n._addedRowIndex = item._addedRowIndex;
+        n._addedCellData = item._addedCellData;
+    } else if (item.type === 'delete') {
+        n._deletedRow = result._deletedRow;
+        n._deletedCellData = result._deletedCellData;
+        n._deletedRowIndex = result._deletedRowIndex;
+    }
+    obCnReceive(n);
+}
+
+function obCnToggleDemo() {
+    var btn = document.getElementById('obCnDemoBtn');
+    if (obCnDemoRunning) {
+        clearInterval(obCnDemoInterval);
+        obCnDemoInterval = null;
+        obCnDemoRunning = false;
+        btn.textContent = '▶ デモ開始';
+        btn.style.background = '';
+        btn.style.color = '';
+    } else {
+        obCnState.notifications = [];
+        obCnState.history = [];
+        obCnState.unreadCount = 0;
+        obCnState.nextId = 1;
+        obCnState.filterTask = '';
+        obCnState.filterRowId = -1;
+        obCnUpdateBadge();
+        obCnDemoIndex = 0;
+        obCnDemoRunning = true;
+        btn.textContent = '⏹ デモ停止';
+        btn.style.background = '#e53e3e';
+        btn.style.color = '#fff';
+        obCnSendDemoNotification();
+        obCnDemoInterval = setInterval(obCnSendDemoNotification, 5000);
+    }
 }
 
 // --- 初期化 ---
