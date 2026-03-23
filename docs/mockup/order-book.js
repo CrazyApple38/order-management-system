@@ -2003,21 +2003,15 @@ function selectRowChip(groupKey, value) {
 }
 
 function checkRowDuplicate() {
-    const branch = rowEditSelected.branch;
-    const category = rowEditSelected.category;
-    const shift = rowEditSelected.shift;
-    const company = document.getElementById('rowEditCompany').value;
-    const task = document.getElementById('rowEditTask').value;
+    // saveRowEditと同じデフォルト値を使用してチェック
+    const branch = rowEditSelected.branch || branchList[0];
+    const category = rowEditSelected.category || getCategoryList()[0] || '';
+    const shift = rowEditSelected.shift || '昼';
+    const company = document.getElementById('rowEditCompany').value || '';
+    const task = document.getElementById('rowEditTask').value || '';
 
     const warning = document.getElementById('rowDupWarning');
     const saveBtn = document.getElementById('rowEditSaveBtn');
-
-    // 全項目が選択・入力済みの場合のみチェック
-    if (!branch || !category || !shift) {
-        warning.style.display = 'none';
-        saveBtn.disabled = false;
-        return;
-    }
 
     const isDup = sampleRows.some((r, i) =>
         i !== editingRowRi &&
