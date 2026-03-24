@@ -199,7 +199,8 @@ body {
 .ob-frozen-4 { position: sticky; left: 330px; z-index: 10; background: var(--bg-page); }
 .ob-frozen-5 { position: sticky; left: 358px; z-index: 10; background: var(--bg-page); text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
 .ob-frozen-6 { position: sticky; left: 488px; z-index: 10; background: var(--bg-page); }
-.ob-frozen-7 { position: sticky; left: 516px; z-index: 10; background: var(--bg-page); border-right: 2px solid var(--secondary); }
+.ob-frozen-7 { position: sticky; left: 516px; z-index: 10; background: var(--bg-page); }
+.ob-frozen-8 { position: sticky; left: 552px; z-index: 10; background: var(--bg-page); border-right: 2px solid var(--secondary); }
 
 /* ヘッダー + 固定列（最高優先） */
 .ob-cell.ob-header.ob-frozen-0,
@@ -209,7 +210,8 @@ body {
 .ob-cell.ob-header.ob-frozen-4,
 .ob-cell.ob-header.ob-frozen-5,
 .ob-cell.ob-header.ob-frozen-6,
-.ob-cell.ob-header.ob-frozen-7 {
+.ob-cell.ob-header.ob-frozen-7,
+.ob-cell.ob-header.ob-frozen-8 {
     z-index: 30;
     background: #334155;
 }
@@ -304,7 +306,8 @@ body {
 .ob-total-row.ob-frozen-4,
 .ob-total-row.ob-frozen-5,
 .ob-total-row.ob-frozen-6,
-.ob-total-row.ob-frozen-7 {
+.ob-total-row.ob-frozen-7,
+.ob-total-row.ob-frozen-8 {
     background: rgba(68,166,181,0.12);
 }
 
@@ -322,7 +325,8 @@ body {
 .ob-even-row.ob-frozen-4,
 .ob-even-row.ob-frozen-5,
 .ob-even-row.ob-frozen-6,
-.ob-even-row.ob-frozen-7 {
+.ob-even-row.ob-frozen-7,
+.ob-even-row.ob-frozen-8 {
     background: rgba(225,237,243,0.8);
 }
 
@@ -1684,10 +1688,6 @@ body {
 }
 .ob-cn-footer-btn:hover { background: #edf2f7; }
 
-/* frozen-5(業務名)をflex化してベルアイコンを右端に配置 */
-.ob-frozen-5:not(.ob-row-hidden) { display: flex; align-items: center; }
-.ob-frozen-5 .ob-individual-task { flex: 1; }
-
 /* --- 行ミニベルアイコン --- */
 .ob-row-bell {
     display: inline-flex;
@@ -1697,11 +1697,9 @@ body {
     height: 18px;
     cursor: pointer;
     position: relative;
-    margin-left: 4px;
     vertical-align: middle;
     opacity: 0.4;
     transition: opacity 0.2s;
-    flex-shrink: 0;
 }
 .ob-row-bell:hover { opacity: 0.8; }
 .ob-row-bell.has-unread { opacity: 0.9; }

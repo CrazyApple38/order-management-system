@@ -2365,12 +2365,12 @@
                 if (n.reverted) {
                     statusBadge = '<span class="cn-reverted-badge">取消済</span>';
                     actionsHtml = '<div class="cn-card-actions">' +
-                        '<button class="cn-btn-reapprove" onclick="cnReapproveNotification(' + n.id + ')">やっぱり反映</button>' +
+                        '<button class="cn-btn-reapprove" onclick="cnReapproveNotification(' + n.id + ')">適用する</button>' +
                     '</div>';
                 } else {
                     if (n._approved) statusBadge = '<span class="cn-approved-badge">承認済</span>';
                     actionsHtml = '<div class="cn-card-actions">' +
-                        '<button class="cn-btn-revert" onclick="cnRevertNotification(' + n.id + ')">元に戻す</button>' +
+                        '<button class="cn-btn-revert" onclick="cnRevertNotification(' + n.id + ')">キャンセル</button>' +
                     '</div>';
                 }
 

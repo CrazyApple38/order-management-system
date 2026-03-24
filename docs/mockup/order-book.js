@@ -524,12 +524,12 @@ function renderGrid() {
     if (!initialSorted) { sortRows(); initialSorted = true; }
     const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
     const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
-    const totalCols = 6 + daysInMonth + 1; // frozen(5) + calBtn(1) + dates + total(1)
+    const totalCols = 7 + daysInMonth + 1; // frozen(5) + calBtn(1) + bellBtn(1) + dates + total(1)
 
     const grid = document.getElementById('obGrid');
 
     // grid-template-columns を設定
-    const colDef = `100px 64px 36px 130px 28px 130px 28px 36px repeat(${daysInMonth}, 48px) 56px`;
+    const colDef = `100px 64px 36px 130px 28px 130px 28px 36px 28px repeat(${daysInMonth}, 48px) 56px`;
     grid.style.gridTemplateColumns = colDef;
 
     let html = '';
@@ -543,6 +543,7 @@ function renderGrid() {
     html += '<div class="ob-cell ob-header ob-frozen-5">業務名</div>';
     html += '<div class="ob-cell ob-header ob-frozen-6"></div>';
     html += '<div class="ob-cell ob-header ob-frozen-7"><img src="mockup/icons/calendar.svg" alt="" style="width:14px;height:14px;opacity:0.7;"></div>';
+    html += '<div class="ob-cell ob-header ob-frozen-8"><img src="mockup/icons/bell.svg" alt="" style="width:13px;height:13px;opacity:0.5;"></div>';
     for (let d = 1; d <= daysInMonth; d++) {
         const dt = new Date(currentYear, currentMonth - 1, d);
         const dow = dt.getDay();
@@ -586,8 +587,7 @@ function renderGrid() {
         html += `<div class="ob-cell ob-frozen-3 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${row.company}</div>`;
         html += `<div class="ob-cell ob-frozen-4 ${rowCls}${evenCls}"><button class="ob-row-add-btn" onclick="event.stopPropagation(); addNewRowFromRow(${ri})" title="この現場を複製して追加">＋</button></div>`;
         const taskLabel = row.task || '<span class="ob-individual-task">(個別)</span>';
-        const bellHtml = obCnGetRowBellHtml(ri);
-        html += `<div class="ob-cell ob-frozen-5 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${taskLabel}${bellHtml}</div>`;
+        html += `<div class="ob-cell ob-frozen-5 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${taskLabel}</div>`;
         // 昼夜＋ボタン: 対になるシフトの行が無い場合のみ表示
         const oppositeShift = row.shift === '昼' ? '夜' : '昼';
         const hasPair = sampleRows.some((r, j) => j !== ri && r.branch === row.branch && r.category === row.category && r.company === row.company && r.task === row.task && r.shift === oppositeShift);
@@ -597,6 +597,7 @@ function renderGrid() {
             html += `<div class="ob-cell ob-frozen-6 ${rowCls}${evenCls}"><button class="ob-row-add-btn" onclick="event.stopPropagation(); addShiftRow(${ri})" title="${oppositeShift}を追加">＋</button></div>`;
         }
         html += `<div class="ob-cell ob-frozen-7 ${rowCls}${evenCls}"><button class="ob-cal-open-btn" onclick="event.stopPropagation(); openCalendarModal(${ri})" title="カレンダー入力"><img src="mockup/icons/calendar.svg" alt="カレンダー"></button></div>`;
+        html += `<div class="ob-cell ob-frozen-8 ${rowCls}${evenCls}">${obCnGetRowBellHtml(ri)}</div>`;
 
         // Date cells
         let rowTotalMin = 0; // 確定のみ
@@ -695,6 +696,7 @@ function renderGrid() {
     html += '<div class="ob-cell ob-total-row ob-frozen-5" style="justify-content:flex-end;">合計</div>';
     html += '<div class="ob-cell ob-total-row ob-frozen-6"></div>';
     html += '<div class="ob-cell ob-total-row ob-frozen-7"></div>';
+    html += '<div class="ob-cell ob-total-row ob-frozen-8"></div>';
     let grandTotalMin = 0;
     let grandTotalMax = 0;
     for (let d = 0; d < daysInMonth; d++) {
@@ -2946,25 +2948,21 @@ function obCnRenderLatest() {
             diffHtml = '<div class="ob-cn-diff-list"><div class="ob-cn-diff-row"><span class="ob-cn-diff-old">この行は削除されました</span></div></div>';
         }
 
-        var stateClass = n.reverted ? ' ob-cn-card-reverted' : (n._approved ? ' ob-cn-card-approved' : '');
-        var statusBadge = '';
+        var stateClass = n.reverted ? ' ob-cn-card-reverted' : '';
         var actionsHtml = '';
         if (n.reverted) {
-            statusBadge = '<span class="ob-cn-reverted-badge">取消済</span>';
             actionsHtml = '<div class="ob-cn-card-actions">' +
-                '<button class="ob-cn-btn-reapprove" onclick="obCnReapprove(' + n.id + ')">やっぱり反映</button>' +
+                '<button class="ob-cn-btn-reapprove" onclick="obCnReapprove(' + n.id + ')">適用する</button>' +
             '</div>';
         } else {
-            if (n._approved) statusBadge = '<span class="ob-cn-approved-badge">承認済</span>';
             actionsHtml = '<div class="ob-cn-card-actions">' +
-                '<button class="ob-cn-btn-revert" onclick="obCnRevert(' + n.id + ')">元に戻す</button>' +
+                '<button class="ob-cn-btn-revert" onclick="obCnRevert(' + n.id + ')">キャンセル</button>' +
             '</div>';
         }
 
         return '<div class="' + cardClass + stateClass + '">' +
             '<div class="ob-cn-card-header">' +
                 '<span class="' + badgeClass + '">' + typeLabels[n.type] + '</span>' +
-                statusBadge +
                 '<span class="ob-cn-card-user">' + escapeHtml(n.user) + '</span>' +
                 '<span class="ob-cn-card-time">' + n.time + '</span>' +
             '</div>' +
