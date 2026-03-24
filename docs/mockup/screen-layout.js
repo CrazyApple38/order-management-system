@@ -2363,12 +2363,12 @@
                 var statusBadge = '';
                 var actionsHtml = '';
                 if (n.reverted) {
-                    statusBadge = '<span class="cn-reverted-badge">取消済</span>';
+                    statusBadge = '<span class="cn-reverted-badge">キャンセル</span>';
                     actionsHtml = '<div class="cn-card-actions">' +
                         '<button class="cn-btn-reapprove" onclick="cnReapproveNotification(' + n.id + ')">適用する</button>' +
                     '</div>';
                 } else {
-                    if (n._approved) statusBadge = '<span class="cn-approved-badge">承認済</span>';
+                    if (n._approved) statusBadge = '<span class="cn-approved-badge">適用</span>';
                     actionsHtml = '<div class="cn-card-actions">' +
                         '<button class="cn-btn-revert" onclick="cnRevertNotification(' + n.id + ')">キャンセル</button>' +
                     '</div>';
@@ -2914,7 +2914,7 @@
                 btn.style.background = '#e53e3e';
                 btn.style.color = '#fff';
                 sendDemoNotification();
-                cnDemoInterval = setInterval(sendDemoNotification, 5000);
+                cnDemoInterval = setInterval(sendDemoNotification, 3000);
             }
         }
 

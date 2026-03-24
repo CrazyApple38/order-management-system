@@ -3388,7 +3388,7 @@ function obCnToggleDemo() {
         btn.style.background = '#e53e3e';
         btn.style.color = '#fff';
         obCnSendDemoNotification();
-        obCnDemoInterval = setInterval(obCnSendDemoNotification, 5000);
+        obCnDemoInterval = setInterval(obCnSendDemoNotification, 3000);
     }
 }
 
