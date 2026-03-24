@@ -2741,7 +2741,8 @@ const obCnState = {
 
 function obCnTimeNow() {
     const d = new Date();
-    return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+    return (d.getMonth() + 1) + '月' + d.getDate() + '日 ' +
+        d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
 }
 
 function obCnUpdateBadge() {
@@ -2805,14 +2806,10 @@ function obCnShowToast(n) {
 function obCnOpenModal() {
     const modal = document.getElementById('obChangeNotifyModal');
     modal.style.display = 'flex';
-    // 日付表示
-    const now = new Date();
-    document.getElementById('obCnHeaderDate').textContent =
-        now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日';
     // ヘッダーから開いた場合は行フィルタをリセット
     if (obCnState.filterRowId < 0) {
         document.getElementById('obCnFilterWrap').style.display = '';
-        document.getElementById('obCnRowFilterLabel').style.display = 'none';
+        document.getElementById('obCnRowInfo').style.display = 'none';
     }
     // 既読処理: 行ベルからはその行のみ、ヘッダーベルからは全既読
     if (obCnState.filterRowId >= 0) {
@@ -2835,13 +2832,22 @@ function obCnOpenModalForRow(ri) {
     const row = sampleRows[ri];
     obCnState.filterRowId = row ? row._rowId : -1;
     obCnState.filterTask = ''; // 行フィルタ時はtaskフィルタ無効
-    // ドロップダウンを隠し、行名ラベルを表示
+    // ドロップダウンを隠し、行情報をヘッダーに表示
     document.getElementById('obCnFilterWrap').style.display = 'none';
-    const label = document.getElementById('obCnRowFilterLabel');
-    const displayName = row ? (row.task || '(個別)') : '';
-    const shiftText = row ? row.shift : '';
-    label.textContent = shiftText + ' ' + displayName;
-    label.style.display = '';
+    const info = document.getElementById('obCnRowInfo');
+    if (row) {
+        var catClass = obCnCatClassMap[row.category] || 'ob-cn-cat-facility';
+        var shiftClass = obCnShiftClassMap[row.shift] || 'ob-cn-shift-day';
+        info.innerHTML =
+            '<span class="ob-cn-info-item">' + escapeHtml(row.branch) + '</span>' +
+            '<span class="ob-cn-category-badge ' + catClass + '">' + escapeHtml(row.category) + '</span>' +
+            '<span class="ob-cn-info-item">' + escapeHtml(row.company) + '</span>' +
+            '<span class="ob-cn-info-item">' + escapeHtml(row.task || '(個別)') + '</span>' +
+            '<span class="ob-cn-shift-badge ' + shiftClass + '">' + row.shift + '</span>';
+    } else {
+        info.innerHTML = '';
+    }
+    info.style.display = '';
     obCnOpenModal();
 }
 
@@ -2916,12 +2922,20 @@ function obCnRenderLatest() {
 
     const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
 
+    var isRowMode = obCnState.filterRowId >= 0;
+
     list.innerHTML = filtered.map(function(n) {
         var cardClass = 'ob-cn-card ob-cn-card-' + n.type;
         var badgeClass = 'ob-cn-type-badge ob-cn-type-badge-' + n.type;
         var catClass = obCnCatClassMap[n.category] || 'ob-cn-cat-facility';
         var shiftClass = obCnShiftClassMap[n.shift] || 'ob-cn-shift-day';
         var displayName = n.taskName || n.siteName || '(個別)';
+
+        // 対象日の表示
+        var dayLabel = '';
+        if (n.day != null) {
+            dayLabel = currentMonth + '月' + n.day + '日';
+        }
 
         var diffHtml = '';
         if (n.type === 'modify' && n.diffs) {
@@ -2960,6 +2974,28 @@ function obCnRenderLatest() {
             '</div>';
         }
 
+        // カードボディ: 行モードでは昼夜・区分・業務名を省略、対象日を表示
+        // 全体モードでは会社・区分・契約先名・業務名・昼夜・対象日をすべて表示
+        var siteHtml = '';
+        if (isRowMode) {
+            // 行ベルモード: 対象日のみ（あれば）
+            if (dayLabel) {
+                siteHtml = '<div class="ob-cn-card-site">' +
+                    '<span class="ob-cn-day-badge">' + dayLabel + '</span>' +
+                '</div>';
+            }
+        } else {
+            // 全体モード: 会社・区分・契約先名・業務名・昼夜・対象日
+            siteHtml = '<div class="ob-cn-card-site">' +
+                '<span class="ob-cn-info-item">' + escapeHtml(n.branch || '') + '</span>' +
+                '<span class="ob-cn-category-badge ' + catClass + '">' + n.category + '</span>' +
+                '<span class="ob-cn-info-item">' + escapeHtml(n.company || '') + '</span>' +
+                '<span class="ob-cn-info-item">' + escapeHtml(displayName) + '</span>' +
+                '<span class="ob-cn-shift-badge ' + shiftClass + '">' + n.shift + '</span>' +
+                (dayLabel ? '<span class="ob-cn-day-badge">' + dayLabel + '</span>' : '') +
+            '</div>';
+        }
+
         return '<div class="' + cardClass + stateClass + '">' +
             '<div class="ob-cn-card-header">' +
                 '<span class="' + badgeClass + '">' + typeLabels[n.type] + '</span>' +
@@ -2967,11 +3003,7 @@ function obCnRenderLatest() {
                 '<span class="ob-cn-card-time">' + n.time + '</span>' +
             '</div>' +
             '<div class="ob-cn-card-body">' +
-                '<div class="ob-cn-card-site">' +
-                    '<span class="ob-cn-shift-badge ' + shiftClass + '">' + n.shift + '</span>' +
-                    '<span class="ob-cn-category-badge ' + catClass + '">' + n.category + '</span>' +
-                    escapeHtml(displayName) +
-                '</div>' +
+                siteHtml +
                 diffHtml +
             '</div>' +
             actionsHtml +
@@ -3127,7 +3159,14 @@ function obCnRevert(id) {
 
     n.reverted = true;
     n._approved = false;
+    // キャンセルした通知を未読に戻し、ミニベルを更新
+    if (n._read) {
+        n._read = false;
+        obCnState.unreadCount++;
+        obCnUpdateBadge();
+    }
     obCnRenderLatest();
+    renderGrid();
 }
 
 function obCnReapprove(id) {
@@ -3190,7 +3229,14 @@ function obCnReapprove(id) {
 
     n.reverted = false;
     n._approved = true;
+    // 適用後は既読に戻し、該当行の全通知が既読ならミニベルも既読化
+    if (!n._read) {
+        n._read = true;
+        obCnState.unreadCount = Math.max(0, obCnState.unreadCount - 1);
+        obCnUpdateBadge();
+    }
     obCnRenderLatest();
+    renderGrid();
 }
 
 // --- デモシミュレーション ---
@@ -3219,7 +3265,7 @@ const obCnDemoSequence = [
             cellData[ri][day][0].count = newCount;
             this._newSnapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri][day])) };
             renderGrid();
-            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, rowIndex: ri, rowId: sampleRows[ri]._rowId };
+            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, rowIndex: ri, rowId: sampleRows[ri]._rowId };
         }
     },
     {
@@ -3235,7 +3281,7 @@ const obCnDemoSequence = [
             this._addedRowIndex = ri;
             this._addedCellData = {};
             renderGrid();
-            return { taskName: '〇〇交差点', category: '交通', shift: '夜', rowIndex: ri, rowId: newRow._rowId };
+            return { taskName: '〇〇交差点', category: '交通', shift: '夜', branch: '東央警備', company: '(株)丸山建設', day: null, rowIndex: ri, rowId: newRow._rowId };
         }
     },
     {
@@ -3256,7 +3302,7 @@ const obCnDemoSequence = [
             cellData[ri][day][0].startTime = newTime;
             this._newSnapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri][day])) };
             renderGrid();
-            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, rowIndex: ri, rowId: sampleRows[ri]._rowId };
+            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, rowIndex: ri, rowId: sampleRows[ri]._rowId };
         }
     },
     {
@@ -3285,7 +3331,7 @@ const obCnDemoSequence = [
                 if (other.rowIndex !== undefined && other.rowIndex > ri) other.rowIndex--;
             });
             renderGrid();
-            return { taskName: taskName, category: category, shift: shift, rowIndex: ri, rowId: rowId,
+            return { taskName: taskName, category: category, shift: shift, branch: deletedRow.branch, company: deletedRow.company, day: null, rowIndex: ri, rowId: rowId,
                      _deletedRow: deletedRow, _deletedCellData: deletedCellData, _deletedRowIndex: ri };
         }
     },
@@ -3301,7 +3347,7 @@ const obCnDemoSequence = [
             this._addedRowIndex = ri;
             this._addedCellData = {};
             renderGrid();
-            return { taskName: '名神SA巡回', category: '高速', shift: '夜', rowIndex: ri, rowId: newRow._rowId };
+            return { taskName: '名神SA巡回', category: '高速', shift: '夜', branch: 'Nikkeiホールディングス', company: '(株)〇〇高速', day: null, rowIndex: ri, rowId: newRow._rowId };
         }
     },
     {
@@ -3322,7 +3368,7 @@ const obCnDemoSequence = [
             cellData[ri][day][0].remarks = newRemarks;
             this._newSnapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri][day])) };
             renderGrid();
-            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, rowIndex: ri, rowId: sampleRows[ri]._rowId };
+            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, rowIndex: ri, rowId: sampleRows[ri]._rowId };
         }
     }
 ];
@@ -3343,6 +3389,9 @@ function obCnSendDemoNotification() {
         siteName: result.taskName,
         category: result.category,
         shift: result.shift,
+        branch: result.branch || '',
+        company: result.company || '',
+        day: result.day || null,
         time: obCnTimeNow(),
         diffs: item.diffs ? item.diffs.map(function(d) { return { field: d.field, oldVal: d.oldVal, newVal: d.newVal }; }) : null,
         details: item.details ? item.details.map(function(d) { return { field: d.field, value: d.value }; }) : null,

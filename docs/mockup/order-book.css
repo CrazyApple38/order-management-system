@@ -1401,9 +1401,24 @@ body {
     font-size: 1.1rem;
     color: #2d3748;
 }
-.ob-cn-header-date {
-    font-size: 0.8rem;
-    color: #a0aec0;
+.ob-cn-row-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.ob-cn-info-item {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #4a5568;
+}
+.ob-cn-day-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: #e2e8f0;
+    color: #2d3748;
 }
 .ob-cn-header-right {
     display: flex;
@@ -1425,15 +1440,7 @@ body {
     border-color: #44A6B5;
     box-shadow: 0 0 0 2px rgba(68,166,181,0.15);
 }
-.ob-cn-row-filter-label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #2d3748;
-    padding: 4px 10px;
-    background: #edf2f7;
-    border-radius: 6px;
-    white-space: nowrap;
-}
+/* ob-cn-row-filter-label removed — replaced by ob-cn-row-info */
 .ob-cn-close {
     background: none;
     border: none;
