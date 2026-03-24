@@ -2586,6 +2586,51 @@ h1 {
 .cn-row-badge-add { background: #c6f6d5; color: #22543d; }
 .cn-row-badge-delete { background: #fed7d7; color: #742a2a; }
 
+/* 行ミニベルアイコン */
+.col-no { position: relative; }
+.cn-row-bell {
+    display: block;
+    width: 18px;
+    height: 18px;
+    margin: 2px auto 0;
+    cursor: pointer;
+    position: relative;
+    z-index: 30;
+    opacity: 0.35;
+    transition: opacity 0.2s;
+}
+.cn-row-bell:hover { opacity: 0.8; }
+.cn-row-bell.has-unread { opacity: 0.9; }
+.cn-row-bell-img {
+    width: 13px;
+    height: 13px;
+    opacity: 0.6;
+    display: block;
+    margin: auto;
+}
+.cn-row-bell.has-unread .cn-row-bell-img { opacity: 1; }
+.cn-row-bell-dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 7px;
+    height: 7px;
+    background: var(--error);
+    border-radius: 50%;
+    border: 1px solid white;
+}
+
+/* 行フィルタラベル */
+.cn-row-filter-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 4px 10px;
+    background: var(--bg-surface-2);
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
 /* セル内変更バッジ */
 .cn-cell-badge {
     display: block;
@@ -3031,17 +3076,8 @@ h1 {
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
-/* 取消済カード */
-.cn-card-reverted {
-    border-left-color: var(--text-disabled) !important;
-}
-.cn-card-reverted .cn-card-header > *:not(.cn-reverted-badge),
-.cn-card-reverted .cn-card-body {
-    opacity: 0.45;
-}
-.cn-card-reverted .cn-card-header {
-    background: var(--bg-surface-3);
-}
+/* 取消済カード（通常表示 — 要注意のため薄くしない） */
+.cn-card-reverted {}
 .cn-reverted-badge {
     font-size: 0.7rem;
     font-weight: 700;

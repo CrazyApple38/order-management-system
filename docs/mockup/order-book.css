@@ -1498,8 +1498,8 @@ body {
 .ob-cn-card-add { border-left-color: #48bb78; }
 .ob-cn-card-modify { border-left-color: #ecc94b; }
 .ob-cn-card-delete { border-left-color: #f56565; }
-.ob-cn-card-reverted { opacity: 0.55; background: #f7fafc; }
-.ob-cn-card-approved { }
+.ob-cn-card-reverted { }
+.ob-cn-card-approved { opacity: 0.55; background: #f7fafc; }
 
 .ob-cn-card-header {
     display: flex;

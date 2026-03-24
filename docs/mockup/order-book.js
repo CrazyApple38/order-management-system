@@ -2948,7 +2948,7 @@ function obCnRenderLatest() {
             diffHtml = '<div class="ob-cn-diff-list"><div class="ob-cn-diff-row"><span class="ob-cn-diff-old">この行は削除されました</span></div></div>';
         }
 
-        var stateClass = n.reverted ? ' ob-cn-card-reverted' : '';
+        var stateClass = n.reverted ? ' ob-cn-card-reverted' : (n._approved ? ' ob-cn-card-approved' : '');
         var actionsHtml = '';
         if (n.reverted) {
             actionsHtml = '<div class="ob-cn-card-actions">' +
