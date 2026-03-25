@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>業務管理計画書 - 画面レイアウト設計</title>
-    <link rel="stylesheet" href="mockup/screen-layout.css?v=6">
+    <link rel="stylesheet" href="mockup/screen-layout.css?v=7">
 </head>
 <body>
     <div class="container">
@@ -436,37 +436,14 @@
             <div class="side-panel">
                 <div class="side-panel-header">
                     <span>社員リスト</span>
-                    <span style="font-size: 0.8rem; opacity: 0.8;">全25名</span>
+                    <span class="sp-employee-count">全25名</span>
                 </div>
                 <div class="side-panel-search">
-                    <input type="text" placeholder="社員検索...">
+                    <input type="text" id="spSearchInput" placeholder="社員検索...">
                 </div>
-                <div class="side-panel-content">
-                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">田中</span>
-                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">佐藤</span>
-                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">鈴木</span>
-                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">高橋</span>
-                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">伊藤</span>
-                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">山本</span>
-                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">中村</span>
-                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">小林</span>
-                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">渡辺</span>
-                    <span class="employee-tag assigned" draggable="true" ondragstart="drag(event)">加藤</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">吉田</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">山田</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">松本</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">井上</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">木村</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">林</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">斎藤</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">清水</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">山口</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">森</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">池田</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">橋本</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">阿部</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">石川</span>
-                    <span class="employee-tag" draggable="true" ondragstart="drag(event)">前田</span>
+                <div class="side-panel-body">
+                    <div class="sp-vtabs" id="spVtabs"><!-- JS動的生成 --></div>
+                    <div class="sp-content" id="spContent"><!-- JS動的生成 --></div>
                 </div>
             </div>
         </div>
@@ -1224,6 +1201,6 @@
         </div>
     </div>
 
-    <script src="mockup/screen-layout.js"></script>
+    <script src="mockup/screen-layout.js?v=7"></script>
 </body>
 </html>

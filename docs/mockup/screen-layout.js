@@ -23,6 +23,50 @@
             { id: 3, code: 'zennihon', name: '全日本エンタープライズ', rowClass: 'gc-row-zennihon' }
         ];
 
+        // 部署データ（会社コード → 部署リスト）
+        // 【本番】DBの部署マスターから動的に取得
+        const departmentsData = {
+            touo:     [{ id: 'touo-shisetsu', name: '施設課' }, { id: 'touo-kotsu', name: '交通課' }],
+            nikkei:   [{ id: 'nikkei-shisetsu', name: '施設課' }, { id: 'nikkei-kotsu', name: '交通課' }],
+            zennihon: [{ id: 'zen-kotsu1', name: '交通一課' }, { id: 'zen-kotsu2', name: '交通二課' }]
+        };
+
+        // 社員データ（名前・所属会社・所属部署）
+        // 【本番】DBの社員マスターから動的に取得
+        const employeesData = [
+            { name: '田中', company: 'touo', dept: 'touo-shisetsu' },
+            { name: '佐藤', company: 'touo', dept: 'touo-shisetsu' },
+            { name: '鈴木', company: 'touo', dept: 'touo-kotsu' },
+            { name: '高橋', company: 'touo', dept: 'touo-kotsu' },
+            { name: '伊藤', company: 'touo', dept: 'touo-shisetsu' },
+            { name: '林',   company: 'touo', dept: 'touo-shisetsu' },
+            { name: '斎藤', company: 'touo', dept: 'touo-kotsu' },
+            { name: '池田', company: 'touo', dept: 'touo-shisetsu' },
+            { name: '橋本', company: 'touo', dept: 'touo-kotsu' },
+            { name: '山本', company: 'nikkei', dept: 'nikkei-shisetsu' },
+            { name: '中村', company: 'nikkei', dept: 'nikkei-shisetsu' },
+            { name: '小林', company: 'nikkei', dept: 'nikkei-kotsu' },
+            { name: '渡辺', company: 'nikkei', dept: 'nikkei-kotsu' },
+            { name: '加藤', company: 'nikkei', dept: 'nikkei-shisetsu' },
+            { name: '清水', company: 'nikkei', dept: 'nikkei-kotsu' },
+            { name: '山口', company: 'nikkei', dept: 'nikkei-shisetsu' },
+            { name: '阿部', company: 'nikkei', dept: 'nikkei-shisetsu' },
+            { name: '吉田', company: 'zennihon', dept: 'zen-kotsu1' },
+            { name: '山田', company: 'zennihon', dept: 'zen-kotsu1' },
+            { name: '松本', company: 'zennihon', dept: 'zen-kotsu2' },
+            { name: '井上', company: 'zennihon', dept: 'zen-kotsu2' },
+            { name: '木村', company: 'zennihon', dept: 'zen-kotsu1' },
+            { name: '森',   company: 'zennihon', dept: 'zen-kotsu2' },
+            { name: '石川', company: 'zennihon', dept: 'zen-kotsu1' },
+            { name: '前田', company: 'zennihon', dept: 'zen-kotsu2' }
+        ];
+
+        // サイドパネル状態
+        const spState = {
+            activeTab: 'all',
+            expandedCompanies: new Set()
+        };
+
         // サンプルデータ（契約先/元請け先）
         const companiesData = [
             { id: 1, name: '〇〇株式会社' },
@@ -1650,18 +1694,138 @@
         }
 
         function updateEmployeeListStatus() {
+            renderSidePanel();
+        }
+
+        // ===== サイドパネル 縦タブ・部署別表示 =====
+        function renderSidePanel() {
+            const vtabs = document.getElementById('spVtabs');
+            const content = document.getElementById('spContent');
+            const searchInput = document.getElementById('spSearchInput');
+            if (!vtabs || !content) return;
+            const searchTerm = searchInput ? searchInput.value.trim() : '';
+
+            // 表示対象の会社
+            const visibleCompanies = groupCompaniesData.filter(gc =>
+                gcFilterState.selected.includes(gc.code)
+            );
+
+            // --- タブ列を構築 ---
+            let tabsHtml = '';
+            // 「すべて」タブ
+            tabsHtml += '<div class="sp-vtab' + (spState.activeTab === 'all' ? ' active' : '') + '"'
+                + ' data-sp-tab="all" onclick="spSelectTab(\'all\')">すべて</div>';
+
+            visibleCompanies.forEach(function(gc) {
+                const depts = departmentsData[gc.code] || [];
+                const isExpanded = spState.expandedCompanies.has(gc.code);
+                // 略称
+                const shortName = gc.name
+                    .replace('ホールディングス', 'HD')
+                    .replace('エンタープライズ', 'EP');
+
+                tabsHtml += '<div class="sp-gc-header' + (isExpanded ? ' expanded' : '') + '"'
+                    + ' data-sp-gc="' + gc.code + '"'
+                    + ' onclick="spToggleCompany(\'' + gc.code + '\')">' + shortName + '</div>';
+                tabsHtml += '<div class="sp-dept-group' + (isExpanded ? ' expanded' : '') + '"'
+                    + ' data-sp-gc-group="' + gc.code + '">';
+                depts.forEach(function(dept) {
+                    tabsHtml += '<div class="sp-vtab' + (spState.activeTab === dept.id ? ' active' : '') + '"'
+                        + ' data-sp-tab="' + dept.id + '"'
+                        + ' onclick="spSelectTab(\'' + dept.id + '\')">' + dept.name + '</div>';
+                });
+                tabsHtml += '</div>';
+            });
+            vtabs.innerHTML = tabsHtml;
+
+            // --- 社員リストを構築 ---
+            // 配置済み社員名を取得
             const assignedNames = new Set();
-            document.querySelectorAll('.assignment-zone .assigned-employee').forEach(el => {
+            document.querySelectorAll('.assignment-zone .assigned-employee').forEach(function(el) {
                 const name = getEmployeeName(el);
                 if (name) assignedNames.add(name);
             });
-            document.querySelectorAll('.side-panel-content .employee-tag').forEach(tag => {
-                if (assignedNames.has(tag.textContent.trim())) {
-                    tag.classList.add('assigned');
-                } else {
-                    tag.classList.remove('assigned');
-                }
+
+            // フィルタリング
+            let filtered = employeesData.filter(function(emp) {
+                return visibleCompanies.some(function(gc) { return gc.code === emp.company; });
             });
+            if (spState.activeTab !== 'all') {
+                filtered = filtered.filter(function(emp) { return emp.dept === spState.activeTab; });
+            }
+            if (searchTerm) {
+                filtered = filtered.filter(function(emp) { return emp.name.includes(searchTerm); });
+            }
+
+            let contentHtml = '';
+            if (spState.activeTab === 'all') {
+                // 会社別グループ表示
+                visibleCompanies.forEach(function(gc) {
+                    const companyEmps = filtered.filter(function(emp) { return emp.company === gc.code; });
+                    if (companyEmps.length === 0) return;
+                    const shortName = gc.name
+                        .replace('ホールディングス', 'HD')
+                        .replace('エンタープライズ', 'EP');
+                    contentHtml += '<div class="sp-gc-section-label">' + shortName + '</div>';
+                    companyEmps.forEach(function(emp) {
+                        const isAssigned = assignedNames.has(emp.name);
+                        contentHtml += '<span class="employee-tag' + (isAssigned ? ' assigned' : '') + '"'
+                            + ' draggable="true" ondragstart="drag(event)"'
+                            + ' data-company="' + emp.company + '"'
+                            + ' data-dept="' + emp.dept + '">' + emp.name + '</span>';
+                    });
+                });
+            } else {
+                // 部署別フラット表示
+                filtered.forEach(function(emp) {
+                    const isAssigned = assignedNames.has(emp.name);
+                    contentHtml += '<span class="employee-tag' + (isAssigned ? ' assigned' : '') + '"'
+                        + ' draggable="true" ondragstart="drag(event)"'
+                        + ' data-company="' + emp.company + '"'
+                        + ' data-dept="' + emp.dept + '">' + emp.name + '</span>';
+                });
+            }
+            content.innerHTML = contentHtml;
+
+            // ヘッダーのカウント更新
+            const countEl = document.querySelector('.sp-employee-count');
+            if (countEl) {
+                const total = employeesData.filter(function(emp) {
+                    return visibleCompanies.some(function(gc) { return gc.code === emp.company; });
+                }).length;
+                countEl.textContent = spState.activeTab === 'all'
+                    ? '全' + total + '名'
+                    : filtered.length + '/' + total + '名';
+            }
+
+            // dragendリスナー再登録
+            content.querySelectorAll('.employee-tag').forEach(function(tag) {
+                tag.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                });
+            });
+        }
+
+        function spSelectTab(tabId) {
+            spState.activeTab = tabId;
+            renderSidePanel();
+        }
+
+        function spToggleCompany(gcCode) {
+            if (spState.expandedCompanies.has(gcCode)) {
+                spState.expandedCompanies.delete(gcCode);
+            } else {
+                spState.expandedCompanies.add(gcCode);
+            }
+            // アクティブタブが閉じた会社の部署だった場合リセット
+            if (spState.activeTab !== 'all') {
+                var depts = departmentsData[gcCode] || [];
+                var isInThisCompany = depts.some(function(d) { return d.id === spState.activeTab; });
+                if (isInThisCompany && !spState.expandedCompanies.has(gcCode)) {
+                    spState.activeTab = 'all';
+                }
+            }
+            renderSidePanel();
         }
 
         function updateRowCount(zone) {
@@ -1702,6 +1866,28 @@
             }
         }
 
+        // ===== ドラッグ＆ドロップ（サイドパネル→配置 & 配置間移動） =====
+        let dragSourceAssignedEmployee = null;
+
+        function makeAssignedEmployeeDraggable(el) {
+            el.draggable = true;
+            el.addEventListener('dragstart', function(ev) {
+                ev.stopPropagation();
+                dragSourceAssignedEmployee = el;
+                const name = getEmployeeName(el);
+                ev.dataTransfer.setData('text', name || '');
+                ev.dataTransfer.effectAllowed = 'move';
+                el.classList.add('dragging');
+            });
+            el.addEventListener('dragend', function() {
+                el.classList.remove('dragging');
+                dragSourceAssignedEmployee = null;
+            });
+        }
+
+        // 初期化: 既存の配置済み社員をドラッグ可能にする
+        document.querySelectorAll('.assigned-employee').forEach(makeAssignedEmployeeDraggable);
+
         function drag(ev) {
             ev.dataTransfer.setData("text", ev.target.textContent);
             ev.target.classList.add('dragging');
@@ -1709,34 +1895,148 @@
 
         function allowDrop(ev) {
             ev.preventDefault();
-            ev.target.classList.add('drag-over');
+            const zone = ev.target.closest('.assignment-zone');
+            if (zone) zone.classList.add('drag-over');
         }
 
         function dragLeave(ev) {
-            ev.target.classList.remove('drag-over');
+            const zone = ev.target.closest('.assignment-zone');
+            if (zone && (!ev.relatedTarget || !zone.contains(ev.relatedTarget))) {
+                zone.classList.remove('drag-over');
+            }
+        }
+
+        // 行のシフト帯を取得（'昼' or '夜'）
+        function getRowShift(zone) {
+            var row = zone.closest('tr');
+            if (!row) return null;
+            var badge = row.querySelector('.shift-badge');
+            return badge ? badge.textContent.trim() : null;
+        }
+
+        // 同一シフト帯に同名社員が既に配置されているか判定
+        function isEmployeeDuplicateInShift(name, targetZone) {
+            var targetShift = getRowShift(targetZone);
+            var allZones = document.querySelectorAll('.assignment-zone');
+            for (var i = 0; i < allZones.length; i++) {
+                var z = allZones[i];
+                if (z === targetZone) continue;
+                var zShift = getRowShift(z);
+                if (zShift !== targetShift) continue;
+                var assigned = z.querySelectorAll('.assigned-employee');
+                for (var j = 0; j < assigned.length; j++) {
+                    if (getEmployeeName(assigned[j]) === name) return true;
+                }
+            }
+            // 同一ゾーン内の重複もチェック
+            var inZone = targetZone.querySelectorAll('.assigned-employee');
+            for (var k = 0; k < inZone.length; k++) {
+                if (getEmployeeName(inZone[k]) === name) return true;
+            }
+            return false;
         }
 
         function drop(ev) {
             ev.preventDefault();
-            ev.target.classList.remove('drag-over');
-            pushUndo();
-            var data = ev.dataTransfer.getData("text");
-            var newTag = document.createElement('span');
-            newTag.className = 'assigned-employee';
-            newTag.innerHTML = '<span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">'
-                + '<span>' + data + '</span>'
-                + '</span>'
-                + '<span class="remove-btn" onclick="removeEmployee(this, event)">×</span>';
-            ev.target.appendChild(newTag);
-            updateRowCount(ev.target);
-            updateEmployeeListStatus();
-        }
+            const zone = ev.target.closest('.assignment-zone');
+            if (!zone) return;
+            zone.classList.remove('drag-over');
 
-        document.querySelectorAll('.employee-tag').forEach(tag => {
-            tag.addEventListener('dragend', function() {
-                this.classList.remove('dragging');
-            });
-        });
+            if (dragSourceAssignedEmployee) {
+                // 配置済み社員の行間移動
+                const sourceZone = dragSourceAssignedEmployee.closest('.assignment-zone');
+                if (sourceZone === zone) { dragSourceAssignedEmployee = null; return; }
+
+                const name = getEmployeeName(dragSourceAssignedEmployee);
+
+                // 移動先の同一シフト帯に既に同名社員がいるかチェック（自分自身は除外）
+                var targetShift = getRowShift(zone);
+                var sourceShift = getRowShift(sourceZone);
+                var duplicate = false;
+                var allZones = document.querySelectorAll('.assignment-zone');
+                for (var i = 0; i < allZones.length; i++) {
+                    var z = allZones[i];
+                    if (z === sourceZone || z === zone) continue;
+                    if (getRowShift(z) !== targetShift) continue;
+                    var assigned = z.querySelectorAll('.assigned-employee');
+                    for (var j = 0; j < assigned.length; j++) {
+                        if (getEmployeeName(assigned[j]) === name) { duplicate = true; break; }
+                    }
+                    if (duplicate) break;
+                }
+                // 移動先ゾーン内の重複チェック
+                if (!duplicate) {
+                    var inZone = zone.querySelectorAll('.assigned-employee');
+                    for (var k = 0; k < inZone.length; k++) {
+                        if (getEmployeeName(inZone[k]) === name) { duplicate = true; break; }
+                    }
+                }
+                if (duplicate) { dragSourceAssignedEmployee = null; return; }
+
+                pushUndo();
+
+                // 元の行から削除
+                dragSourceAssignedEmployee.remove();
+
+                // 移動先に新規作成（連絡方法リセット）
+                var newTag = document.createElement('span');
+                newTag.className = 'assigned-employee';
+                newTag.innerHTML = '<span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">'
+                    + '<span>' + name + '</span>'
+                    + '</span>'
+                    + '<span class="remove-btn" onclick="removeEmployee(this, event)">×</span>';
+                zone.appendChild(newTag);
+                makeAssignedEmployeeDraggable(newTag);
+
+                // 両方のゾーンのカウント更新
+                updateRowCount(sourceZone);
+                updateRowCount(zone);
+                updateEmployeeListStatus();
+
+                dragSourceAssignedEmployee = null;
+            } else {
+                // サイドパネルからの新規配置
+                var data = ev.dataTransfer.getData("text");
+
+                // 同一ゾーン内の重複チェック（同じ行に同じ人は不可）
+                var inZone = zone.querySelectorAll('.assigned-employee');
+                for (var k = 0; k < inZone.length; k++) {
+                    if (getEmployeeName(inZone[k]) === data) return;
+                }
+
+                pushUndo();
+
+                // 同一シフト帯の既存配置を検索し、あれば移動（元から削除）
+                var targetShift = getRowShift(zone);
+                var allZones = document.querySelectorAll('.assignment-zone');
+                var movedFromZones = [];
+                for (var i = 0; i < allZones.length; i++) {
+                    var z = allZones[i];
+                    if (z === zone) continue;
+                    if (getRowShift(z) !== targetShift) continue;
+                    var assigned = z.querySelectorAll('.assigned-employee');
+                    for (var j = 0; j < assigned.length; j++) {
+                        if (getEmployeeName(assigned[j]) === data) {
+                            assigned[j].remove();
+                            movedFromZones.push(z);
+                            break;
+                        }
+                    }
+                }
+
+                var newTag = document.createElement('span');
+                newTag.className = 'assigned-employee';
+                newTag.innerHTML = '<span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">'
+                    + '<span>' + data + '</span>'
+                    + '</span>'
+                    + '<span class="remove-btn" onclick="removeEmployee(this, event)">×</span>';
+                zone.appendChild(newTag);
+                makeAssignedEmployeeDraggable(newTag);
+                updateRowCount(zone);
+                for (var m = 0; m < movedFromZones.length; m++) { updateRowCount(movedFromZones[m]); }
+                updateEmployeeListStatus();
+            }
+        }
 
         // ===== 行選択・上下移動 =====
         let selectedGridRow = null;
@@ -3828,6 +4128,18 @@
         //   全日本エンタープライズ所属 → ['zennihon']
         const gcFilterState = { selected: ['touo', 'nikkei'] };
 
+        // サイドパネル初期化: 表示中会社を展開し、レンダリング
+        gcFilterState.selected.forEach(function(code) { spState.expandedCompanies.add(code); });
+        renderSidePanel();
+
+        // 検索入力でリアルタイムフィルタ
+        var spSearchEl = document.getElementById('spSearchInput');
+        if (spSearchEl) {
+            spSearchEl.addEventListener('input', function() {
+                renderSidePanel();
+            });
+        }
+
         function openGcFilterModal() {
             const modal = document.getElementById('gcFilterModal');
             modal.querySelectorAll('.gcf-checkbox-item input').forEach(cb => {
@@ -3869,5 +4181,24 @@
                     }
                 });
             }
+            // サイドパネル連動: 非表示会社のタブをリセット
+            if (spState.activeTab !== 'all') {
+                var activeDeptCompany = null;
+                Object.keys(departmentsData).forEach(function(code) {
+                    if (departmentsData[code].some(function(d) { return d.id === spState.activeTab; })) {
+                        activeDeptCompany = code;
+                    }
+                });
+                if (activeDeptCompany && !checked.includes(activeDeptCompany)) {
+                    spState.activeTab = 'all';
+                }
+            }
+            // 非表示会社のアコーディオンをクリア＆新規表示会社を展開
+            spState.expandedCompanies.forEach(function(code) {
+                if (!checked.includes(code)) spState.expandedCompanies.delete(code);
+            });
+            checked.forEach(function(code) { spState.expandedCompanies.add(code); });
+            renderSidePanel();
+
             closeGcFilterModal();
         }

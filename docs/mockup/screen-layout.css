@@ -187,7 +187,7 @@ h1 {
 
 /* 右サイドパネル（社員リスト） */
 .side-panel {
-    width: 200px;
+    width: 280px;
     background: var(--bg-surface);
     overflow: hidden;
     display: flex;
@@ -228,6 +228,128 @@ h1 {
     flex: 1;
     overflow-y: auto;
     padding: 10px;
+}
+
+/* === サイドパネル 縦タブレイアウト === */
+.sp-employee-count { font-size: 0.8rem; opacity: 0.8; }
+
+.side-panel-body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* 縦タブ列 */
+.sp-vtabs {
+    display: flex;
+    flex-direction: column;
+    width: 34px;
+    min-width: 34px;
+    background: var(--bg-surface-2);
+    border-right: 1px solid var(--divider);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+}
+
+.sp-vtab {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    padding: 10px 5px;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-left: 2px solid transparent;
+    white-space: nowrap;
+    text-align: center;
+    transition: all 0.15s;
+    user-select: none;
+    letter-spacing: 0.08em;
+}
+
+.sp-vtab:hover {
+    color: var(--text-secondary);
+    background: var(--accent-dim);
+}
+
+.sp-vtab.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: var(--bg-surface);
+    font-weight: 600;
+}
+
+/* 会社セクションヘッダー（アコーディオン） */
+.sp-gc-header {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    padding: 8px 5px 12px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: var(--bg-surface-3);
+    border-top: 1px solid var(--divider);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    letter-spacing: 0.06em;
+    position: relative;
+    text-align: center;
+}
+
+.sp-gc-header::after {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 5px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    margin: 6px auto 0;
+    transition: transform 0.2s;
+}
+
+.sp-gc-header.expanded::after {
+    transform: rotate(-135deg);
+}
+
+/* 部署サブタブグループ（アコーディオン開閉） */
+.sp-dept-group {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+}
+
+.sp-dept-group.expanded {
+    max-height: 500px;
+}
+
+/* コンテンツエリア（社員タグ） */
+.sp-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+    min-width: 0;
+}
+
+/* 「すべて」タブでの会社セクション見出し */
+.sp-gc-section-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 6px 4px 2px;
+    margin-top: 6px;
+    border-bottom: 1px solid var(--divider);
+    letter-spacing: 0.04em;
+}
+
+.sp-gc-section-label:first-child {
+    margin-top: 0;
 }
 
 .employee-tag {
@@ -632,6 +754,13 @@ h1 {
     border-radius: 4px;
     font-size: 0.8rem;
     color: var(--success-text);
+    cursor: grab;
+    transition: opacity 0.15s, transform 0.15s;
+}
+.assigned-employee:active { cursor: grabbing; }
+.assigned-employee.dragging {
+    opacity: 0.35;
+    transform: scale(0.92);
 }
 
 .assigned-employee .remove-btn {
