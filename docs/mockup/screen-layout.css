@@ -799,6 +799,7 @@ h1 {
     color: var(--text-tertiary);
 }
 .col-map { width: 50px; }
+.col-vt { width: 140px; }
 
 /* 地図リンク */
 .map-link {
@@ -1460,7 +1461,7 @@ h1 {
 
 /* 車両・送迎表示枠 */
 .vehicle-transport-box {
-    margin-top: 8px;
+    margin-top: 0;
     padding: 6px 8px;
     background: var(--bg-surface-2);
     border: 1px solid var(--divider);
@@ -2909,18 +2910,9 @@ h1 {
     z-index: 25;
 }
 
-/* 承認待ちオーバーレイ（透明 — クリックハンドラ用） */
+/* 承認待ち行 — クリックで承認 */
 .cn-pending {
     cursor: pointer !important;
-}
-.cn-overlay {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 20;
-    background: transparent;
-    cursor: pointer;
 }
 
 /* 承認待ちセルグロー（box-shadow inset、受注簿と同じ方式） */

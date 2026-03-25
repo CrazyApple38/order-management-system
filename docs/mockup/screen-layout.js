@@ -3022,22 +3022,16 @@
                     cells[j].classList.add('cn-cell-glow-' + type);
                 }
             }
-            // 透明オーバーレイ（クリックハンドラ用）
-            var existingOv = row.querySelector('.cn-overlay');
-            if (existingOv) existingOv.remove();
-            var overlay = document.createElement('div');
-            overlay.className = 'cn-overlay';
-            var noCell = row.querySelector('.col-no');
-            if (noCell) {
-                noCell.style.position = 'relative';
-                noCell.appendChild(overlay);
-                overlay.style.width = row.offsetWidth + 'px';
-            }
-            overlay.addEventListener('click', function(e) {
+            // 行クリックで承認（captureフェーズでインラインonclickより先に発火）
+            row._cnClickHandler = function(e) {
+                // D&D操作中やボタンクリックは除外
+                if (e.target.closest('button, .vehicle-send-section')) return;
                 e.stopPropagation();
+                e.stopImmediatePropagation();
                 e.preventDefault();
                 cnApprovePending(row);
-            });
+            };
+            row.addEventListener('click', row._cnClickHandler, true);
         }
 
         function cnApprovePending(row) {
@@ -3058,8 +3052,13 @@
             for (var j = 0; j < cells.length; j++) {
                 cells[j].classList.remove('cn-cell-glow-add', 'cn-cell-glow-modify', 'cn-cell-glow-delete');
             }
-            var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-overlay');
+            var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge');
             for (var i = 0; i < els.length; i++) els[i].remove();
+            // 行クリックハンドラ解除
+            if (row._cnClickHandler) {
+                row.removeEventListener('click', row._cnClickHandler, true);
+                row._cnClickHandler = null;
+            }
             cnPendingMap.delete(row);
             if (notif) {
                 notif._approved = true;
@@ -3208,22 +3207,17 @@
                     }
                 });
             }
-            // オーバーレイ
-            var existingOv = row.querySelector('.cn-overlay');
-            if (existingOv) existingOv.remove();
-            var overlay = document.createElement('div');
-            overlay.className = 'cn-overlay';
-            if (noCell) {
-                noCell.style.position = 'relative';
-                noCell.appendChild(overlay);
-                overlay.style.width = row.offsetWidth + 'px';
+            // 行クリックで確認済みとして除去
+            if (row._cnClickHandler) {
+                row.removeEventListener('click', row._cnClickHandler, true);
             }
-            overlay.addEventListener('click', function(e) {
+            row._cnClickHandler = function(e) {
+                if (e.target.closest('button, .vehicle-send-section')) return;
                 e.stopPropagation();
+                e.stopImmediatePropagation();
                 e.preventDefault();
-                // 確認済みとして除去
                 row.classList.remove('cn-pending');
-                var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-overlay');
+                var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge');
                 for (var i = 0; i < els.length; i++) els[i].remove();
                 // modifyの場合、差分表示をクリーンアップ（現在値のみ表示）
                 var oldSpans = row.querySelectorAll('.cn-cell-old');
@@ -3244,14 +3238,21 @@
                     updateNotifyBadge();
                     cnUpdateRowBells();
                 }
-            });
+                row.removeEventListener('click', row._cnClickHandler, true);
+                row._cnClickHandler = null;
+            };
+            row.addEventListener('click', row._cnClickHandler, true);
         }
 
         function cnClearPending(row) {
             cnPendingMap.delete(row);
             row.classList.remove('cn-pending');
-            var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-overlay');
+            var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge');
             for (var i = 0; i < els.length; i++) els[i].remove();
+            if (row._cnClickHandler) {
+                row.removeEventListener('click', row._cnClickHandler, true);
+                row._cnClickHandler = null;
+            }
         }
 
         function cnRevertNotification(id) {
@@ -3327,10 +3328,14 @@
             if (n.type === 'modify') {
                 var row = n._row || cnFindRow(n.siteName);
                 if (row && n._modifyData) {
-                    // revertオーバーレイをクリア
+                    // revert状態をクリア
                     row.classList.remove('cn-pending');
-                    var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-overlay');
+                    var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge');
                     for (var i = 0; i < els.length; i++) els[i].remove();
+                    if (row._cnClickHandler) {
+                        row.removeEventListener('click', row._cnClickHandler, true);
+                        row._cnClickHandler = null;
+                    }
                     // セルをクリーン状態にして変更後の値を再設定
                     n._modifyData.forEach(function(d) { d.el.textContent = d.changedText; });
                     // 差分可視化（元の値A → 変更後B）
@@ -3395,11 +3400,11 @@
                 '<td class="clickable-cell" onclick="startCountEdit(this, event)">' +
                   '<span class="' + countClass + '">' + d.count + '</span>' +
                   (d.shortage ? '<span class="count-shortage-badge">不足</span>' : '') + '</td>' +
-                '<td><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>' +
-                  '<div class="vehicle-transport-box" onclick="openVtModal(this)"></div>' +
-                  '<button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button></td>' +
+                '<td><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
                 '<td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>' +
                 '<td class="col-map clickable-cell" onclick="openMapModal(this, ' + d.no + ')"></td>' +
+                '<td class="col-vt"><div class="vehicle-transport-box" onclick="openVtModal(this)"></div>' +
+                  '<button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button></td>' +
                 '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"></td>';
             return tr;
         }
