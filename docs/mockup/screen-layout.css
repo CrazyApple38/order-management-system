@@ -27,20 +27,20 @@
     --gc-bg-nikkei: #F3F9F6;
     --gc-bg-zennihon: #F2F4F8;
     /* 区分カラー（背景: 半透明） */
-    --cat-bg-facility: rgba(56, 161, 105, 0.12);
-    --cat-bg-event: rgba(56, 161, 105, 0.12);
-    --cat-bg-traffic: rgba(56, 161, 105, 0.12);
-    --cat-bg-highway: rgba(56, 161, 105, 0.12);
+    --cat-bg-facility: rgba(68, 166, 181, 0.12);
+    --cat-bg-event: rgba(68, 166, 181, 0.12);
+    --cat-bg-traffic: rgba(68, 166, 181, 0.12);
+    --cat-bg-highway: rgba(68, 166, 181, 0.12);
     /* 区分カラー（文字） */
-    --cat-text-facility: #276749;
-    --cat-text-event: #276749;
-    --cat-text-traffic: #276749;
-    --cat-text-highway: #276749;
+    --cat-text-facility: #1c4d54;
+    --cat-text-event: #1c4d54;
+    --cat-text-traffic: #1c4d54;
+    --cat-text-highway: #1c4d54;
     /* シフト区分 */
-    --shift-bg-day: rgba(214, 158, 46, 0.12);
-    --shift-text-day: #975A16;
-    --shift-bg-night: rgba(176, 36, 204, 0.12);
-    --shift-text-night: #b024cc;
+    --shift-bg-day: rgba(211, 208, 200, 0.12);
+    --shift-text-day: #3f3b31;
+    --shift-bg-night: rgba(0, 69, 84, 0.12);
+    --shift-text-night: #005c70;
 
     /* セマンティック変数 */
     --shadow-color: rgba(0, 69, 84, 0.08);
@@ -82,18 +82,18 @@
     --gc-bg-touo: #2a3038;
     --gc-bg-nikkei: #2d3540;
     --gc-bg-zennihon: #303848;
-    --cat-bg-facility: rgba(72, 187, 120, 0.2);
-    --cat-bg-event: rgba(72, 187, 120, 0.2);
-    --cat-bg-traffic: rgba(72, 187, 120, 0.2);
-    --cat-bg-highway: rgba(72, 187, 120, 0.2);
-    --cat-text-facility: #68d391;
-    --cat-text-event: #68d391;
-    --cat-text-traffic: #68d391;
-    --cat-text-highway: #68d391;
-    --shift-bg-day: rgba(236, 201, 75, 0.2);
-    --shift-text-day: #ecc94b;
-    --shift-bg-night: rgba(43, 108, 176, 0.35);
-    --shift-text-night: #90cdf4;
+    --cat-bg-facility: rgba(68, 166, 181, 0.2);
+    --cat-bg-event: rgba(68, 166, 181, 0.2);
+    --cat-bg-traffic: rgba(68, 166, 181, 0.2);
+    --cat-bg-highway: rgba(68, 166, 181, 0.2);
+    --cat-text-facility: #76d6e4;
+    --cat-text-event: #76d6e4;
+    --cat-text-traffic: #76d6e4;
+    --cat-text-highway: #76d6e4;
+    --shift-bg-day: rgba(211, 208, 200, 0.2);
+    --shift-text-day: #d3d0c8;
+    --shift-bg-night: rgba(0, 69, 84, 0.2);
+    --shift-text-night: #5ab8c6;
 
     --shadow-color: rgba(0, 0, 0, 0.3);
     --shadow-medium: rgba(0, 0, 0, 0.2);
@@ -284,8 +284,8 @@ h1 {
     min-width: 18px;
 }
 
-.minimap-shift.shift-day { color: #D69E2E; background: rgba(214, 158, 46, 0.1); }
-.minimap-shift.shift-night { color: #2B6CB0; background: rgba(43, 108, 176, 0.1); }
+.minimap-shift.shift-day { color: #D3D0C8; background: rgba(211, 208, 200, 0.1); }
+.minimap-shift.shift-night { color: #004554; background: rgba(0, 69, 84, 0.1); }
 
 .minimap-site {
     flex: 1;
@@ -775,6 +775,9 @@ h1 {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.notes-transport {
+    color: var(--text-secondary);
+}
 .notes-place {
     color: var(--accent);
 }
@@ -789,6 +792,10 @@ h1 {
     border-radius: 3px;
     margin-right: 3px;
     vertical-align: baseline;
+}
+.notes-transport .notes-label {
+    background: rgba(214,158,46,0.1);
+    color: #975A16;
 }
 .notes-place .notes-label {
     background: rgba(68,166,181,0.12);
@@ -1459,66 +1466,73 @@ h1 {
     color: var(--text-secondary);
 }
 
-/* 車両・送迎表示枠 */
-.vehicle-transport-box {
-    margin-top: 0;
-    padding: 6px 8px;
-    background: var(--bg-surface-2);
-    border: 1px solid var(--divider);
+/* 車両ドロップゾーン */
+.vehicle-drop-zone {
+    min-height: 32px;
+    padding: 4px;
+    border: 2px dashed var(--divider);
     border-radius: 4px;
-    font-size: 0.8rem;
-    display: none;
-    gap: 12px;
+    display: flex;
     flex-wrap: wrap;
-    cursor: pointer;
-    transition: border-color 0.2s;
+    gap: 4px;
+    align-items: center;
+    transition: all 0.2s;
 }
 
-.vehicle-transport-box.has-items {
-    display: flex;
+.vehicle-drop-zone:empty::before {
+    content: '車両をドロップ';
+    font-size: 0.7rem;
+    color: var(--text-disabled);
+    width: 100%;
+    text-align: center;
+    padding: 2px 0;
 }
 
-.vehicle-transport-box:hover {
+.vehicle-drop-zone:hover {
     border-color: var(--accent);
+    background: var(--accent-dim);
 }
 
-.vehicle-transport-box .box-section {
-    display: flex;
+.vehicle-drop-zone.drag-over {
+    border-color: var(--success);
+    background: rgba(56, 161, 105, 0.08);
+}
+
+.vehicle-tag {
+    position: relative;
+    display: inline-flex;
     align-items: center;
     gap: 4px;
-}
-
-.vehicle-transport-box .box-label {
-    font-size: 0.7rem;
-    font-weight: 600;
-}
-
-.vehicle-transport-box .box-value {
-    display: inline-block;
-    padding: 1px 5px;
-    border-radius: 3px;
-    font-size: 0.7rem;
-}
-
-/* 車両・送迎追加ボタン */
-.vehicle-transport-add {
-    margin-top: 4px;
     padding: 3px 8px;
-    background: none;
-    border: 1px dashed var(--divider);
-    border-radius: 4px;
-    color: var(--text-disabled);
-    font-size: 0.7rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: block;
-    text-align: center;
+    background: rgba(68,166,181,0.12);
+    border: 1px solid rgba(68,166,181,0.3);
+    border-radius: 3px;
+    font-size: 0.75rem;
+    color: #2A6B7A;
+    cursor: default;
 }
 
-.vehicle-transport-add:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--accent-dim);
+.vehicle-remove-btn {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 14px;
+    height: 14px;
+    background: rgba(229, 62, 62, 0.1);
+    color: var(--error);
+    border: none;
+    border-radius: 50%;
+    font-size: 0.65rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: none;
+    line-height: 1;
+}
+
+.vehicle-tag:hover .vehicle-remove-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* 車両・送迎編集モーダル */
@@ -1623,31 +1637,7 @@ h1 {
     color: var(--error);
 }
 
-/* 車両リスト追加 */
-.vt-vehicle-input-wrap {
-    flex: 1;
-    display: flex;
-    gap: 4px;
-}
 
-.vt-vehicle-input-wrap select { flex: 1; }
-.vt-vehicle-input-wrap input { flex: 1; }
-
-.vt-vehicle-add-btn {
-    padding: 4px 8px;
-    border: 1px solid var(--divider);
-    background: var(--bg-surface);
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    flex-shrink: 0;
-    color: var(--text-primary);
-}
-
-.vt-vehicle-add-btn:hover {
-    background: var(--accent-dim);
-    border-color: var(--accent);
-}
 
 .vt-add-item-btn {
     width: 100%;
@@ -2453,10 +2443,49 @@ h1 {
 }
 .color-setting-hex {
     font-size: 0.72rem;
-    color: var(--text-disabled);
+    color: var(--text-secondary);
     font-family: monospace;
-    min-width: 58px;
-    text-align: right;
+    width: 68px;
+    text-align: center;
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    padding: 2px 4px;
+    background: var(--bg-surface);
+    outline: none;
+}
+.color-setting-hex:focus {
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+/* プリセットカラーパレット */
+.color-palette-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 2px 0;
+}
+.color-swatch {
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid var(--divider);
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.color-swatch:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 2px var(--accent);
+    z-index: 1;
+}
+.color-swatch:active {
+    transform: scale(1.05);
+}
+.color-palette-hint {
+    font-size: 0.68rem;
+    color: var(--text-disabled);
+    margin-top: 4px;
 }
 
 /* パターン選択 */
@@ -2506,7 +2535,7 @@ h1 {
 /* ==================== 現場詳細入力モーダル（2カラム） ==================== */
 .modal-notes-detail {
     width: 90vw;
-    max-width: 500px;
+    max-width: 600px;
     max-height: 85vh;
     display: flex;
     flex-direction: column;

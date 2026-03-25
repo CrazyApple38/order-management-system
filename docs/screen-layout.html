@@ -68,7 +68,7 @@
                                 <th>配置（右からドラッグ&ドロップ）</th>
                                 <th class="col-badge">作業内容</th>
                                 <th class="col-map">地図</th>
-                                <th class="col-vt">車両・送迎</th>
+                                <th class="col-vt">車両</th>
                                 <th class="col-notes">備考</th>
                             </tr>
                         </thead>
@@ -122,11 +122,11 @@
                                 <td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>
                                 <td class="col-map clickable-cell" onclick="openMapModal(this, 1)" data-map-url="https://maps.google.com/?q=33.8,130.8"><span class="map-link">MAP</span></td>
                                 <td class="col-vt">
-                                    <div class="vehicle-transport-box" onclick="openVtModal(this)"></div>
-                                    <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
+                                    <div class="vehicle-drop-zone"></div>
                                 </td>
-                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)">
-                                    <div class="notes-place"><span class="notes-label">集合</span>〇〇ビル正面玄関</div>
+                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
+                                    data-vt-items='[{"label":"集合場所","value":"〇〇ビル正面玄関","bg":"rgba(68,166,181,0.12)","color":"#2A6B7A"}]'>
+                                    <div class="notes-transport" style="color:#2A6B7A;"><span class="notes-label" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">集合場所</span>〇〇ビル正面玄関</div>
                                 </td>
                             </tr>
 
@@ -172,12 +172,12 @@
                                 <td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>
                                 <td class="col-map clickable-cell" onclick="openMapModal(this, 2)" data-map-url="https://maps.google.com/?q=33.8,130.8"><span class="map-link">MAP</span></td>
                                 <td class="col-vt">
-                                    <div class="vehicle-transport-box" onclick="openVtModal(this)"></div>
-                                    <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
+                                    <div class="vehicle-drop-zone"></div>
                                 </td>
-                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)">
-                                    <div class="notes-place"><span class="notes-label">集合</span>〇〇ビル正面玄関</div>
-                                    <div class="notes-memo"><span class="notes-label">備考</span>田中さん連続勤務</div>
+                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
+                                    data-vt-items='[{"label":"集合場所","value":"〇〇ビル正面玄関","bg":"rgba(68,166,181,0.12)","color":"#2A6B7A"},{"label":"備考","value":"田中さん連続勤務","bg":"rgba(160,160,160,0.15)","color":"#6B7280"}]'>
+                                    <div class="notes-transport" style="color:#2A6B7A;"><span class="notes-label" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">集合場所</span>〇〇ビル正面玄関</div>
+                                    <div class="notes-transport" style="color:#6B7280;"><span class="notes-label" style="background:rgba(160,160,160,0.15); color:#6B7280;">備考</span>田中さん連続勤務</div>
                                 </td>
                             </tr>
 
@@ -219,12 +219,12 @@
                                 <td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>
                                 <td class="col-map clickable-cell" onclick="openMapModal(this, 3)" data-map-url=""><span class="map-empty">＋</span></td>
                                 <td class="col-vt">
-                                    <div class="vehicle-transport-box" onclick="openVtModal(this)"></div>
-                                    <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
+                                    <div class="vehicle-drop-zone"></div>
                                 </td>
-                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)">
-                                    <div class="notes-place"><span class="notes-label">集合</span>〇〇会館 搬入口</div>
-                                    <div class="notes-memo"><span class="notes-label">備考</span>要1名追加</div>
+                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
+                                    data-vt-items='[{"label":"集合場所","value":"〇〇会館 搬入口","bg":"rgba(68,166,181,0.12)","color":"#2A6B7A"},{"label":"備考","value":"要1名追加","bg":"rgba(160,160,160,0.15)","color":"#6B7280"}]'>
+                                    <div class="notes-transport" style="color:#2A6B7A;"><span class="notes-label" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">集合場所</span>〇〇会館 搬入口</div>
+                                    <div class="notes-transport" style="color:#6B7280;"><span class="notes-label" style="background:rgba(160,160,160,0.15); color:#6B7280;">備考</span>要1名追加</div>
                                 </td>
                             </tr>
 
@@ -287,21 +287,15 @@
                                 </td>
                                 <td class="col-map clickable-cell" onclick="openMapModal(this, 4)" data-map-url="https://maps.google.com/?q=33.9,130.9"><span class="map-link">MAP</span></td>
                                 <td class="col-vt">
-                                    <div class="vehicle-transport-box has-items" onclick="openVtModal(this)">
-                                        <div class="box-section">
-                                            <span class="box-label" style="color:#2A6B7A;">車両:</span>
-                                            <span class="box-value" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">さ 3078</span>
-                                        </div>
-                                        <div class="box-section">
-                                            <span class="box-label" style="color:#975A16;">送迎:</span>
-                                            <span class="box-value" style="background:rgba(214,158,46,0.1); color:#975A16;">鈴木→高橋</span>
-                                        </div>
+                                    <div class="vehicle-drop-zone">
+                                        <span class="vehicle-tag">さ 3078<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button></span>
                                     </div>
-                                    <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
                                 </td>
-                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)">
-                                    <div class="notes-place"><span class="notes-label">集合</span>△△建設 現場事務所前</div>
-                                    <div class="notes-memo"><span class="notes-label">備考</span>雨天中止の場合連絡</div>
+                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
+                                    data-vt-items='[{"label":"送迎","value":"鈴木→高橋","base":"#975A16","bg":"rgba(151, 90, 22, 0.12)","color":"#663b0a"},{"label":"集合場所","value":"△△建設 現場事務所前","bg":"rgba(68,166,181,0.12)","color":"#2A6B7A"},{"label":"備考","value":"雨天中止の場合連絡","bg":"rgba(160,160,160,0.15)","color":"#6B7280"}]'>
+                                    <div class="notes-transport" style="color:#663b0a;"><span class="notes-label" style="background:rgba(151, 90, 22, 0.12); color:#663b0a;">送迎</span>鈴木→高橋</div>
+                                    <div class="notes-transport" style="color:#2A6B7A;"><span class="notes-label" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">集合場所</span>△△建設 現場事務所前</div>
+                                    <div class="notes-transport" style="color:#6B7280;"><span class="notes-label" style="background:rgba(160,160,160,0.15); color:#6B7280;">備考</span>雨天中止の場合連絡</div>
                                 </td>
                             </tr>
 
@@ -360,16 +354,13 @@
                                 </td>
                                 <td class="col-map clickable-cell" onclick="openMapModal(this, 5)" data-map-url=""><span class="map-empty">＋</span></td>
                                 <td class="col-vt">
-                                    <div class="vehicle-transport-box has-items" onclick="openVtModal(this)">
-                                        <div class="box-section">
-                                            <span class="box-label" style="color:#2A6B7A;">車両:</span>
-                                            <span class="box-value" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">わ 2490</span>
-                                        </div>
+                                    <div class="vehicle-drop-zone">
+                                        <span class="vehicle-tag">わ 2490<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button></span>
                                     </div>
-                                    <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
                                 </td>
-                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)">
-                                    <div class="notes-place"><span class="notes-label">集合</span>高速SA集合</div>
+                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
+                                    data-vt-items='[{"label":"集合場所","value":"高速SA集合","bg":"rgba(68,166,181,0.12)","color":"#2A6B7A"}]'>
+                                    <div class="notes-transport" style="color:#2A6B7A;"><span class="notes-label" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">集合場所</span>高速SA集合</div>
                                 </td>
                             </tr>
 
@@ -427,17 +418,14 @@
                                 </td>
                                 <td class="col-map clickable-cell" onclick="openMapModal(this, 6)" data-map-url=""><span class="map-empty">＋</span></td>
                                 <td class="col-vt">
-                                    <div class="vehicle-transport-box has-items" onclick="openVtModal(this)">
-                                        <div class="box-section">
-                                            <span class="box-label" style="color:#2A6B7A;">車両:</span>
-                                            <span class="box-value" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">く 7521</span>
-                                        </div>
+                                    <div class="vehicle-drop-zone">
+                                        <span class="vehicle-tag">く 7521<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button></span>
                                     </div>
-                                    <button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button>
                                 </td>
-                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)">
-                                    <div class="notes-place"><span class="notes-label">集合</span>◇◇工業 本社前</div>
-                                    <div class="notes-memo"><span class="notes-label">備考</span>渡辺・加藤 相性注意</div>
+                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
+                                    data-vt-items='[{"label":"集合場所","value":"◇◇工業 本社前","bg":"rgba(68,166,181,0.12)","color":"#2A6B7A"},{"label":"備考","value":"渡辺・加藤 相性注意","bg":"rgba(160,160,160,0.15)","color":"#6B7280"}]'>
+                                    <div class="notes-transport" style="color:#2A6B7A;"><span class="notes-label" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">集合場所</span>◇◇工業 本社前</div>
+                                    <div class="notes-transport" style="color:#6B7280;"><span class="notes-label" style="background:rgba(160,160,160,0.15); color:#6B7280;">備考</span>渡辺・加藤 相性注意</div>
                                 </td>
                             </tr>
                         </tbody>
@@ -534,6 +522,31 @@
 
             <hr class="color-settings-divider">
 
+            <!-- プリセットカラーパレット -->
+            <div class="color-settings-section">
+                <label class="color-settings-label">プリセットカラー</label>
+                <div class="color-palette-grid" id="colorPaletteGrid">
+                    <button class="color-swatch" data-color="#004554" style="background:#004554;" title="#004554"></button>
+                    <button class="color-swatch" data-color="#2A6B7A" style="background:#2A6B7A;" title="#2A6B7A"></button>
+                    <button class="color-swatch" data-color="#44A6B5" style="background:#44A6B5;" title="#44A6B5"></button>
+                    <button class="color-swatch" data-color="#5AB8C6" style="background:#5AB8C6;" title="#5AB8C6"></button>
+                    <button class="color-swatch" data-color="#6B9AA8" style="background:#6B9AA8;" title="#6B9AA8"></button>
+                    <button class="color-swatch" data-color="#A0BCC5" style="background:#A0BCC5;" title="#A0BCC5"></button>
+                    <button class="color-swatch" data-color="#B2D5E2" style="background:#B2D5E2;" title="#B2D5E2"></button>
+                    <button class="color-swatch" data-color="#38A169" style="background:#38A169;" title="#38A169"></button>
+                    <button class="color-swatch" data-color="#D69E2E" style="background:#D69E2E;" title="#D69E2E"></button>
+                    <button class="color-swatch" data-color="#DD6B20" style="background:#DD6B20;" title="#DD6B20"></button>
+                    <button class="color-swatch" data-color="#E53E3E" style="background:#E53E3E;" title="#E53E3E"></button>
+                    <button class="color-swatch" data-color="#D3D0C8" style="background:#D3D0C8;" title="#D3D0C8"></button>
+                    <button class="color-swatch" data-color="#F0EDE9" style="background:#F0EDE9;" title="#F0EDE9"></button>
+                    <button class="color-swatch" data-color="#E9F1F6" style="background:#E9F1F6;" title="#E9F1F6"></button>
+                    <button class="color-swatch" data-color="#FFFFFF" style="background:#FFFFFF;" title="#FFFFFF"></button>
+                </div>
+                <div class="color-palette-hint">クリックで最後に操作したカラーピッカーに適用</div>
+            </div>
+
+            <hr class="color-settings-divider">
+
             <!-- グループ会社背景色 -->
             <!-- 【本番】グループ会社一覧はDBマスターから動的に生成 -->
             <div class="color-settings-section">
@@ -541,17 +554,17 @@
                 <div class="color-setting-row">
                     <input type="color" class="color-setting-picker" data-css-var="--gc-bg-touo" value="#FFFFFF">
                     <span class="color-setting-name">東央警備</span>
-                    <span class="color-setting-hex" data-css-var="--gc-bg-touo">#FFFFFF</span>
+                    <input type="text" class="color-setting-hex" data-css-var="--gc-bg-touo" value="#FFFFFF">
                 </div>
                 <div class="color-setting-row">
                     <input type="color" class="color-setting-picker" data-css-var="--gc-bg-nikkei" value="#F3F9F6">
                     <span class="color-setting-name">Nikkeiホールディングス</span>
-                    <span class="color-setting-hex" data-css-var="--gc-bg-nikkei">#F3F9F6</span>
+                    <input type="text" class="color-setting-hex" data-css-var="--gc-bg-nikkei" value="#F3F9F6">
                 </div>
                 <div class="color-setting-row">
                     <input type="color" class="color-setting-picker" data-css-var="--gc-bg-zennihon" value="#F2F4F8">
                     <span class="color-setting-name">全日本エンタープライズ</span>
-                    <span class="color-setting-hex" data-css-var="--gc-bg-zennihon">#F2F4F8</span>
+                    <input type="text" class="color-setting-hex" data-css-var="--gc-bg-zennihon" value="#F2F4F8">
                 </div>
             </div>
 
@@ -561,49 +574,49 @@
             <div class="color-settings-section">
                 <label class="color-settings-label">区分カラー</label>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-facility" value="#38A169">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-facility" value="#44A6B5">
                     <span class="color-setting-name">施設警備</span>
-                    <span class="color-setting-hex" data-base-key="cat-facility">#38A169</span>
+                    <input type="text" class="color-setting-hex" data-base-key="cat-facility" value="#44A6B5">
                 </div>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-event" value="#38A169">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-event" value="#44A6B5">
                     <span class="color-setting-name">イベント</span>
-                    <span class="color-setting-hex" data-base-key="cat-event">#38A169</span>
+                    <input type="text" class="color-setting-hex" data-base-key="cat-event" value="#44A6B5">
                 </div>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-traffic" value="#38A169">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-traffic" value="#44A6B5">
                     <span class="color-setting-name">交通誘導</span>
-                    <span class="color-setting-hex" data-base-key="cat-traffic">#38A169</span>
+                    <input type="text" class="color-setting-hex" data-base-key="cat-traffic" value="#44A6B5">
                 </div>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-highway" value="#38A169">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-highway" value="#44A6B5">
                     <span class="color-setting-name">高速道路</span>
-                    <span class="color-setting-hex" data-base-key="cat-highway">#38A169</span>
+                    <input type="text" class="color-setting-hex" data-base-key="cat-highway" value="#44A6B5">
                 </div>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-support-event" value="#38A169">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-support-event" value="#44A6B5">
                     <span class="color-setting-name">応援イベント</span>
-                    <span class="color-setting-hex" data-base-key="cat-support-event">#38A169</span>
+                    <input type="text" class="color-setting-hex" data-base-key="cat-support-event" value="#44A6B5">
                 </div>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-support-traffic" value="#38A169">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-support-traffic" value="#44A6B5">
                     <span class="color-setting-name">応援交通</span>
-                    <span class="color-setting-hex" data-base-key="cat-support-traffic">#38A169</span>
+                    <input type="text" class="color-setting-hex" data-base-key="cat-support-traffic" value="#44A6B5">
                 </div>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-support-highway" value="#38A169">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-support-highway" value="#44A6B5">
                     <span class="color-setting-name">応援高速</span>
-                    <span class="color-setting-hex" data-base-key="cat-support-highway">#38A169</span>
+                    <input type="text" class="color-setting-hex" data-base-key="cat-support-highway" value="#44A6B5">
                 </div>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-training" value="#38A169">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-training" value="#44A6B5">
                     <span class="color-setting-name">研修</span>
-                    <span class="color-setting-hex" data-base-key="cat-training">#38A169</span>
+                    <input type="text" class="color-setting-hex" data-base-key="cat-training" value="#44A6B5">
                 </div>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-company" value="#38A169">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="cat-company" value="#44A6B5">
                     <span class="color-setting-name">社内</span>
-                    <span class="color-setting-hex" data-base-key="cat-company">#38A169</span>
+                    <input type="text" class="color-setting-hex" data-base-key="cat-company" value="#44A6B5">
                 </div>
             </div>
 
@@ -613,14 +626,14 @@
             <div class="color-settings-section">
                 <label class="color-settings-label">シフト区分</label>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="shift-day" value="#D69E2E">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="shift-day" value="#D3D0C8">
                     <span class="color-setting-name">昼勤務</span>
-                    <span class="color-setting-hex" data-base-key="shift-day">#D69E2E</span>
+                    <input type="text" class="color-setting-hex" data-base-key="shift-day" value="#D3D0C8">
                 </div>
                 <div class="color-setting-row">
-                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="shift-night" value="#2B6CB0">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="shift-night" value="#004554">
                     <span class="color-setting-name">夜勤務</span>
-                    <span class="color-setting-hex" data-base-key="shift-night">#2B6CB0</span>
+                    <input type="text" class="color-setting-hex" data-base-key="shift-night" value="#004554">
                 </div>
             </div>
 
@@ -821,21 +834,25 @@
             </div>
         </div>
 
-        <!-- 備考モーダル -->
+        <!-- 送迎・備考モーダル（統合） -->
         <div class="modal-overlay" id="notesModal">
             <div class="modal-content modal-notes-detail">
                 <div class="modal-site-header">
-                    <h3>備考</h3>
+                    <h3>送迎・備考</h3>
                     <button class="ob-modal-close" onclick="closeNotesModal()">✕</button>
                 </div>
                 <div class="modal-site-body">
                     <div class="modal-section">
-                        <label>集合場所</label>
-                        <input type="text" id="ntMeetingPlace" placeholder="集合場所を入力...">
-                    </div>
-                    <div class="modal-section">
-                        <label>備考</label>
-                        <textarea id="ntNotes" rows="3" placeholder="備考を入力..."></textarea>
+                        <div class="vt-preset-section">
+                            <div class="vt-preset-label">プリセットから追加</div>
+                            <div class="vt-preset-btns">
+                                <button class="vt-preset-btn" onclick="addVtPresetItem('送迎', '#975A16')">＋ 送迎</button>
+                                <button class="vt-preset-btn" onclick="addVtPresetItem('集合場所', '#44A6B5')">＋ 集合場所</button>
+                                <button class="vt-preset-btn" onclick="addVtPresetItem('備考', '#A0A0A0')">＋ 備考</button>
+                            </div>
+                        </div>
+                        <div class="vt-modal-items" id="vtModalItems"></div>
+                        <button class="vt-add-item-btn" onclick="addVtEmptyItem()">＋ 項目を追加</button>
                     </div>
                 </div>
                 <div class="modal-site-footer">
@@ -904,32 +921,6 @@
                         <button class="btn-cancel" onclick="closeWorkTimeModal()">キャンセル</button>
                         <button class="btn-save" onclick="saveWorkTimeModal()">保存</button>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 車両・送迎編集モーダル -->
-        <div class="modal-overlay" id="vtModal">
-            <div class="modal-content modal-wide">
-                <h3>車両・送迎設定</h3>
-
-                <div class="vt-preset-section">
-                    <div class="vt-preset-label">プリセットから追加</div>
-                    <div class="vt-preset-btns">
-                        <button class="vt-preset-btn" onclick="addVtPresetItem('車両', 'rgba(68,166,181,0.12)', '#2A6B7A')">＋ 車両</button>
-                        <button class="vt-preset-btn" onclick="addVtPresetItem('送迎', 'rgba(214,158,46,0.1)', '#975A16')">＋ 送迎</button>
-                    </div>
-                </div>
-
-                <div class="vt-modal-items" id="vtModalItems">
-                    <!-- 動的に生成 -->
-                </div>
-
-                <button class="vt-add-item-btn" onclick="addVtEmptyItem()">＋ 項目を追加</button>
-
-                <div class="modal-buttons">
-                    <button class="btn-cancel" onclick="closeVtModal()">キャンセル</button>
-                    <button class="btn-save" onclick="saveVtModal()">保存</button>
                 </div>
             </div>
         </div>

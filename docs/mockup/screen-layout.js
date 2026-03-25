@@ -596,7 +596,7 @@
                     const cssVar = this.dataset.cssVar;
                     document.documentElement.style.setProperty(cssVar, this.value);
                     const hexLabel = document.querySelector('.color-setting-hex[data-css-var="' + cssVar + '"]');
-                    if (hexLabel) hexLabel.textContent = this.value;
+                    if (hexLabel) hexLabel.value = this.value;
                 });
             });
             // ベース色ピッカー（区分・シフト: 背景・文字を自動生成）
@@ -605,7 +605,40 @@
                     const baseKey = this.dataset.baseKey;
                     applyBaseColor(baseKey, this.value);
                     const hexLabel = document.querySelector('.color-setting-hex[data-base-key="' + baseKey + '"]');
-                    if (hexLabel) hexLabel.textContent = this.value;
+                    if (hexLabel) hexLabel.value = this.value;
+                });
+            });
+
+            // プリセットカラーパレット: 最後にクリックしたピッカーを追跡
+            let lastActivePicker = null;
+            document.querySelectorAll('.color-setting-picker, .color-base-picker').forEach(picker => {
+                picker.addEventListener('click', function() { lastActivePicker = this; });
+                picker.addEventListener('input', function() { lastActivePicker = this; });
+            });
+            document.querySelectorAll('.color-swatch').forEach(swatch => {
+                swatch.addEventListener('click', function() {
+                    if (!lastActivePicker) return;
+                    lastActivePicker.value = this.dataset.color;
+                    lastActivePicker.dispatchEvent(new Event('input'));
+                });
+            });
+
+            // Hex入力フィールドからカラーピッカーへの逆同期
+            document.querySelectorAll('.color-setting-hex').forEach(hexInput => {
+                hexInput.addEventListener('change', function() {
+                    let val = this.value.trim();
+                    if (!val.startsWith('#')) val = '#' + val;
+                    if (!/^#[0-9a-fA-F]{6}$/.test(val)) return;
+                    this.value = val;
+                    const cssVar = this.dataset.cssVar;
+                    const baseKey = this.dataset.baseKey;
+                    if (cssVar) {
+                        const picker = document.querySelector('.color-setting-picker[data-css-var="' + cssVar + '"]');
+                        if (picker) { picker.value = val; picker.dispatchEvent(new Event('input')); }
+                    } else if (baseKey) {
+                        const picker = document.querySelector('.color-base-picker[data-base-key="' + baseKey + '"]');
+                        if (picker) { picker.value = val; picker.dispatchEvent(new Event('input')); }
+                    }
                 });
             });
 
@@ -937,9 +970,22 @@
                         badgeCell.innerHTML = smBuildBadgeDisplayHtml(badgeData);
                     }
 
-                    // 備考 (col-notes) — 集合場所+備考の構造化表示
+                    // 備考 (col-notes) — vtItems内の集合場所を同期
                     const notesCell = row.querySelector('.col-notes');
-                    if (notesCell) ntRenderNotesCell(notesCell, meetingPlace, notes);
+                    if (notesCell) {
+                        let existingVtItems = [];
+                        try { if (notesCell.dataset.vtItems) existingVtItems = JSON.parse(notesCell.dataset.vtItems); } catch(e) {}
+                        // 集合場所を vtItems 内で更新
+                        const mpIdx = existingVtItems.findIndex(i => i.label === '集合場所');
+                        if (meetingPlace) {
+                            if (mpIdx >= 0) existingVtItems[mpIdx].value = meetingPlace;
+                            else existingVtItems.push({ label: '集合場所', value: meetingPlace, base: '#44A6B5', bg: 'rgba(68,166,181,0.12)', color: '#2A6B7A' });
+                        } else if (mpIdx >= 0) {
+                            existingVtItems.splice(mpIdx, 1);
+                        }
+                        notesCell.dataset.vtItems = existingVtItems.length > 0 ? JSON.stringify(existingVtItems) : '';
+                        ntRenderNotesCell(notesCell, existingVtItems);
+                    }
                 }
             }
 
@@ -1151,9 +1197,11 @@
         });
 
         // ============================================
-        // 集合場所・備考モーダル
+        // 送迎・備考モーダル（統合）
         // ============================================
         let currentNotesCell = null;
+        let vtItems = [];
+        let vtDragIndex = null;
 
         function openNotesModal(cell, event) {
             event.stopPropagation();
@@ -1162,15 +1210,23 @@
             const row = cell.closest('tr');
             const siteCell = row ? row.querySelector('.col-site-info') : null;
 
-            // 集合場所をセルの dataset から読み取り
-            const meetingPlace = siteCell ? (siteCell.dataset.meetingPlace || '') : '';
-            document.getElementById('ntMeetingPlace').value = meetingPlace;
+            // vtItems を dataset から読み取り
+            vtItems = [];
+            try {
+                const stored = cell.dataset.vtItems;
+                if (stored) vtItems = JSON.parse(stored);
+            } catch (e) { vtItems = []; }
 
-            // 備考をセルの .notes-memo から読み取り
-            const memoEl = cell.querySelector('.notes-memo');
-            const memoText = memoEl ? memoEl.textContent.replace(/^備考/, '').trim() : '';
-            document.getElementById('ntNotes').value = memoText;
+            // レガシーデータ移行: dataset にない場合、siteCell / DOM から復元
+            if (vtItems.length === 0) {
+                const mp = siteCell ? (siteCell.dataset.meetingPlace || '') : '';
+                if (mp) vtItems.push({ label: '集合場所', value: mp, base: '#44A6B5', bg: 'rgba(68,166,181,0.12)', color: '#2A6B7A' });
+                const memoEl = cell.querySelector('.notes-memo');
+                const memo = memoEl ? memoEl.textContent.replace(/^備考/, '').trim() : '';
+                if (memo) vtItems.push({ label: '備考', value: memo, base: '#A0A0A0', bg: 'rgba(160,160,160,0.15)', color: '#6B7280' });
+            }
 
+            renderVtItems();
             document.getElementById('notesModal').classList.add('active');
         }
 
@@ -1180,26 +1236,32 @@
             const row = currentNotesCell.closest('tr');
             const siteCell = row ? row.querySelector('.col-site-info') : null;
 
-            const meetingPlace = document.getElementById('ntMeetingPlace').value.trim();
-            const notes = document.getElementById('ntNotes').value.trim();
+            syncVtItemsFromDom();
+            const validVtItems = vtItems.filter(item => item.label && item.value);
 
-            // 集合場所を dataset に保存（集合モーダルと共有）
-            if (siteCell) siteCell.dataset.meetingPlace = meetingPlace;
+            // vtItems を dataset に保存
+            currentNotesCell.dataset.vtItems = validVtItems.length > 0 ? JSON.stringify(validVtItems) : '';
+
+            // 集合場所を siteCell.dataset に同期（現場詳細モーダルと共有）
+            if (siteCell) {
+                const mpItem = validVtItems.find(i => i.label === '集合場所');
+                siteCell.dataset.meetingPlace = mpItem ? mpItem.value : '';
+            }
 
             // セル表示更新
-            ntRenderNotesCell(currentNotesCell, meetingPlace, notes);
+            ntRenderNotesCell(currentNotesCell, validVtItems);
 
             document.getElementById('notesModal').classList.remove('active');
             currentNotesCell = null;
+            vtItems = [];
         }
 
-        function ntRenderNotesCell(cell, meetingPlace, notes) {
+        function ntRenderNotesCell(cell, items) {
             let html = '';
-            if (meetingPlace) {
-                html += `<div class="notes-place"><span class="notes-label">集合</span>${escapeHtml(meetingPlace)}</div>`;
-            }
-            if (notes) {
-                html += `<div class="notes-memo"><span class="notes-label">備考</span>${escapeHtml(notes)}</div>`;
+            if (items && items.length > 0) {
+                items.forEach(item => {
+                    html += `<div class="notes-transport" style="color:${item.color};"><span class="notes-label" style="background:${item.bg}; color:${item.color};">${escapeHtml(item.label)}</span>${escapeHtml(item.value)}</div>`;
+                });
             }
             cell.innerHTML = html;
         }
@@ -1207,11 +1269,126 @@
         function closeNotesModal() {
             document.getElementById('notesModal').classList.remove('active');
             currentNotesCell = null;
+            vtItems = [];
         }
 
         document.getElementById('notesModal').addEventListener('click', function(e) {
             if (e.target === this) closeNotesModal();
         });
+
+        // --- 送迎アイテム管理（モーダル内） ---
+        function syncVtItemsFromDom() {
+            const rows = document.querySelectorAll('#vtModalItems .vt-item-row');
+            rows.forEach((row, index) => {
+                if (!vtItems[index]) return;
+                const labelInput = row.querySelector('.vt-label-input');
+                const valueInput = row.querySelector('.vt-value-input');
+                const basePicker = row.querySelector('.vt-base-color');
+                const textPicker = row.querySelector('.vt-text-color');
+                if (labelInput) vtItems[index].label = labelInput.value.trim();
+                if (valueInput) vtItems[index].value = valueInput.value.trim();
+                if (basePicker) {
+                    vtItems[index].base = basePicker.value;
+                    const { bg } = deriveColors(basePicker.value);
+                    vtItems[index].bg = bg;
+                }
+                if (textPicker) vtItems[index].color = textPicker.value;
+            });
+        }
+
+        function renderVtItems() {
+            const container = document.getElementById('vtModalItems');
+            let html = '';
+            vtItems.forEach((item, index) => {
+                const baseHex = item.base || rgbToHex(item.bg);
+                html += `<div class="vt-item-row" draggable="true" data-vt-index="${index}"
+                              ondragstart="vtRowDragStart(event, ${index})"
+                              ondragover="vtRowDragOver(event, ${index})"
+                              ondragleave="vtRowDragLeave(event)"
+                              ondrop="vtRowDrop(event, ${index})"
+                              ondragend="vtRowDragEnd(event)">
+                    <span class="vt-drag-handle" title="ドラッグで並べ替え">⠿</span>
+                    <input type="text" class="vt-label-input" value="${escapeHtml(item.label)}" placeholder="項目名"
+                           style="width: 80px; flex: none;">
+                    <input type="text" class="vt-value-input" value="${escapeHtml(item.value)}" placeholder="内容">
+                    <input type="color" class="vt-base-color" value="${baseHex}" title="ベース色" oninput="vtBaseColorChanged(${index}, this)">
+                    <input type="color" class="vt-text-color" value="${rgbToHex(item.color)}" title="文字色">
+                    <button class="vt-remove-btn" onclick="syncVtItemsFromDom(); removeVtItem(${index})">×</button>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function vtBaseColorChanged(index, picker) {
+            const { bg, text } = deriveColors(picker.value);
+            const row = picker.closest('.vt-item-row');
+            const textPicker = row.querySelector('.vt-text-color');
+            if (textPicker) textPicker.value = rgbToHex(text);
+        }
+
+        function vtRowDragStart(e, index) {
+            vtDragIndex = index;
+            e.dataTransfer.effectAllowed = 'move';
+            e.currentTarget.classList.add('vt-dragging');
+            syncVtItemsFromDom();
+        }
+
+        function vtRowDragOver(e, index) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const rows = document.querySelectorAll('#vtModalItems .vt-item-row');
+            rows.forEach(r => r.classList.remove('vt-drag-over'));
+            if (index !== vtDragIndex) e.currentTarget.classList.add('vt-drag-over');
+        }
+
+        function vtRowDragLeave(e) {
+            e.currentTarget.classList.remove('vt-drag-over');
+        }
+
+        function vtRowDrop(e, dropIndex) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('vt-drag-over');
+            if (vtDragIndex === null || vtDragIndex === dropIndex) return;
+            const moved = vtItems.splice(vtDragIndex, 1)[0];
+            vtItems.splice(dropIndex, 0, moved);
+            vtDragIndex = null;
+            renderVtItems();
+        }
+
+        function vtRowDragEnd(e) {
+            e.currentTarget.classList.remove('vt-dragging');
+            document.querySelectorAll('#vtModalItems .vt-item-row').forEach(r => r.classList.remove('vt-drag-over'));
+            vtDragIndex = null;
+        }
+
+        function addVtPresetItem(label, base) {
+            syncVtItemsFromDom();
+            const { bg, text } = deriveColors(base);
+            vtItems.push({ label: label, value: '', base: base, bg: bg, color: text });
+            renderVtItems();
+            const rows = document.querySelectorAll('#vtModalItems .vt-item-row');
+            const lastRow = rows[rows.length - 1];
+            if (lastRow) {
+                const inp = lastRow.querySelector('.vt-value-input');
+                if (inp) inp.focus();
+            }
+        }
+
+        function addVtEmptyItem() {
+            syncVtItemsFromDom();
+            const defaultBase = '#975A16';
+            const { bg: emptyBg, text: emptyText } = deriveColors(defaultBase);
+            vtItems.push({ label: '', value: '', base: defaultBase, bg: emptyBg, color: emptyText });
+            renderVtItems();
+            const rows = document.querySelectorAll('#vtModalItems .vt-item-row');
+            const lastRow = rows[rows.length - 1];
+            if (lastRow) lastRow.querySelector('.vt-label-input').focus();
+        }
+
+        function removeVtItem(index) {
+            vtItems.splice(index, 1);
+            renderVtItems();
+        }
 
         // ============================================
         // 人数インライン編集
@@ -1454,196 +1631,6 @@
             if (e.target === this) closeMapModal();
         });
 
-        // 車両・送迎編集モーダル
-        let currentVtBox = null;
-        let vtItems = [];
-        let vtDragIndex = null;
-
-        const vehicleList = ['さ 3078', 'く 7521', 'た 4163', 'わ 2490', 'め 8345', 'は 1627', 'わ 5814', 'ゆ 6932', 'わ 9056'];
-
-        function openVtModal(box) {
-            currentVtBox = box;
-            vtItems = [];
-            box.querySelectorAll('.box-section').forEach(section => {
-                const label = section.querySelector('.box-label');
-                const value = section.querySelector('.box-value');
-                if (label && value) {
-                    vtItems.push({
-                        label: label.textContent.replace(':', '').trim(),
-                        value: value.textContent.trim(),
-                        bg: value.style.background || 'rgba(68,166,181,0.12)',
-                        color: value.style.color || '#2A6B7A'
-                    });
-                }
-            });
-            renderVtItems();
-            document.getElementById('vtModal').classList.add('active');
-        }
-
-        function closeVtModal() {
-            document.getElementById('vtModal').classList.remove('active');
-            currentVtBox = null;
-            vtItems = [];
-        }
-
-        function syncVtItemsFromDom() {
-            const rows = document.querySelectorAll('#vtModalItems .vt-item-row');
-            rows.forEach((row, index) => {
-                if (!vtItems[index]) return;
-                const labelInput = row.querySelector('.vt-label-input');
-                const valueSelect = row.querySelector('.vt-value-select');
-                const valueInput = row.querySelector('.vt-value-input');
-                const colors = row.querySelectorAll('input[type="color"]');
-                if (labelInput) vtItems[index].label = labelInput.value.trim();
-                if (valueSelect) vtItems[index].value = valueSelect.value.trim();
-                if (valueInput) vtItems[index].value = valueInput.value.trim();
-                if (colors[0]) vtItems[index].bg = colors[0].value;
-                if (colors[1]) vtItems[index].color = colors[1].value;
-            });
-        }
-
-        function renderVtItems() {
-            const container = document.getElementById('vtModalItems');
-            let html = '';
-            vtItems.forEach((item, index) => {
-                const isVehicle = item.label === '車両';
-                html += `<div class="vt-item-row" draggable="true" data-vt-index="${index}"
-                              ondragstart="vtRowDragStart(event, ${index})"
-                              ondragover="vtRowDragOver(event, ${index})"
-                              ondragleave="vtRowDragLeave(event)"
-                              ondrop="vtRowDrop(event, ${index})"
-                              ondragend="vtRowDragEnd(event)">
-                    <span class="vt-drag-handle" title="ドラッグで並べ替え">⠿</span>
-                    <input type="text" class="vt-label-input" value="${escapeHtml(item.label)}" placeholder="項目名"
-                           style="width: 80px; flex: none;">`;
-
-                if (isVehicle) {
-                    html += `<div class="vt-vehicle-input-wrap">
-                        <select class="vt-value-select" onchange="vtItems[${index}].value = this.value">
-                            <option value="">選択...</option>`;
-                    vehicleList.forEach(v => {
-                        const sel = item.value === v ? ' selected' : '';
-                        html += `<option value="${escapeHtml(v)}"${sel}>${escapeHtml(v)}</option>`;
-                    });
-                    if (item.value && !vehicleList.includes(item.value)) {
-                        html += `<option value="${escapeHtml(item.value)}" selected>${escapeHtml(item.value)}</option>`;
-                    }
-                    html += `</select>
-                        <input type="text" class="vt-new-vehicle-input" placeholder="新規車両名..." style="flex: 0 1 100px;">
-                        <button class="vt-vehicle-add-btn" onclick="addNewVehicle(${index}, this)" title="車両を追加">＋</button>
-                    </div>`;
-                } else {
-                    html += `<input type="text" class="vt-value-input" value="${escapeHtml(item.value)}" placeholder="内容">`;
-                }
-
-                html += `<input type="color" value="${rgbToHex(item.bg)}" title="背景色">
-                    <input type="color" value="${rgbToHex(item.color)}" title="文字色">
-                    <button class="vt-remove-btn" onclick="syncVtItemsFromDom(); removeVtItem(${index})">×</button>
-                </div>`;
-            });
-            container.innerHTML = html;
-        }
-
-        function addNewVehicle(itemIndex, btn) {
-            const row = btn.closest('.vt-item-row');
-            const input = row.querySelector('.vt-new-vehicle-input');
-            const name = input.value.trim();
-            if (!name) return;
-            if (!vehicleList.includes(name)) vehicleList.push(name);
-            vtItems[itemIndex].value = name;
-            input.value = '';
-            syncVtItemsFromDom();
-            renderVtItems();
-        }
-
-        function vtRowDragStart(e, index) {
-            vtDragIndex = index;
-            e.dataTransfer.effectAllowed = 'move';
-            e.currentTarget.classList.add('vt-dragging');
-            syncVtItemsFromDom();
-        }
-
-        function vtRowDragOver(e, index) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            const rows = document.querySelectorAll('#vtModalItems .vt-item-row');
-            rows.forEach(r => r.classList.remove('vt-drag-over'));
-            if (index !== vtDragIndex) e.currentTarget.classList.add('vt-drag-over');
-        }
-
-        function vtRowDragLeave(e) {
-            e.currentTarget.classList.remove('vt-drag-over');
-        }
-
-        function vtRowDrop(e, dropIndex) {
-            e.preventDefault();
-            e.currentTarget.classList.remove('vt-drag-over');
-            if (vtDragIndex === null || vtDragIndex === dropIndex) return;
-            const moved = vtItems.splice(vtDragIndex, 1)[0];
-            vtItems.splice(dropIndex, 0, moved);
-            vtDragIndex = null;
-            renderVtItems();
-        }
-
-        function vtRowDragEnd(e) {
-            e.currentTarget.classList.remove('vt-dragging');
-            document.querySelectorAll('#vtModalItems .vt-item-row').forEach(r => r.classList.remove('vt-drag-over'));
-            vtDragIndex = null;
-        }
-
-        function addVtPresetItem(label, bg, color) {
-            syncVtItemsFromDom();
-            vtItems.push({ label: label, value: '', bg: bg, color: color });
-            renderVtItems();
-            const rows = document.querySelectorAll('#vtModalItems .vt-item-row');
-            const lastRow = rows[rows.length - 1];
-            if (lastRow) {
-                const sel = lastRow.querySelector('.vt-value-select');
-                const inp = lastRow.querySelector('.vt-value-input');
-                if (sel) sel.focus();
-                else if (inp) inp.focus();
-            }
-        }
-
-        function addVtEmptyItem() {
-            syncVtItemsFromDom();
-            vtItems.push({ label: '', value: '', bg: 'rgba(68,166,181,0.12)', color: '#2A6B7A' });
-            renderVtItems();
-            const rows = document.querySelectorAll('#vtModalItems .vt-item-row');
-            const lastRow = rows[rows.length - 1];
-            if (lastRow) lastRow.querySelector('.vt-label-input').focus();
-        }
-
-        function removeVtItem(index) {
-            vtItems.splice(index, 1);
-            renderVtItems();
-        }
-
-        function saveVtModal() {
-            if (!currentVtBox) return;
-            pushUndo();
-            syncVtItemsFromDom();
-
-            const validItems = vtItems.filter(item => item.label && item.value);
-
-            let html = '';
-            validItems.forEach(item => {
-                html += `<div class="box-section">
-                    <span class="box-label" style="color:${item.color};">${escapeHtml(item.label)}:</span>
-                    <span class="box-value" style="background:${item.bg}; color:${item.color};">${escapeHtml(item.value)}</span>
-                </div>`;
-            });
-            currentVtBox.innerHTML = html;
-
-            if (validItems.length > 0) {
-                currentVtBox.classList.add('has-items');
-            } else {
-                currentVtBox.classList.remove('has-items');
-            }
-
-            closeVtModal();
-        }
-
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
@@ -1665,17 +1652,11 @@
             return '#D3D0C8';
         }
 
-        document.getElementById('vtModal').addEventListener('click', function(e) {
-            if (e.target === this) closeVtModal();
-        });
-
-        document.getElementById('vtModalItems').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && e.target.classList.contains('vt-new-vehicle-input')) {
-                e.preventDefault();
-                const btn = e.target.nextElementSibling;
-                if (btn) btn.click();
-            }
-        });
+        // 車両ドロップゾーン（D&Dソースは後続で実装）
+        function removeVehicle(btn) {
+            const tag = btn.closest('.vehicle-tag');
+            if (tag) tag.remove();
+        }
 
         // 配置中の社員名を取得
         function getEmployeeName(assignedEl) {
@@ -2117,7 +2098,7 @@
         let selectedGridRow = null;
 
         function selectRow(tr, event) {
-            if (event.target.closest('.modal-overlay, .contact-popup, .assigned-employee, .vehicle-transport-box, .vehicle-transport-add')) return;
+            if (event.target.closest('.modal-overlay, .contact-popup, .assigned-employee, .vehicle-drop-zone')) return;
             if (event.target.closest('.clickable-cell')) return;
 
             if (selectedGridRow === tr) {
@@ -2474,22 +2455,22 @@
             document.documentElement.style.setProperty(vars.text, text);
         }
 
-        // --- ベース色のデフォルト値（全区分: 緑統一） ---
+        // --- ベース色のデフォルト値 ---
         const BASE_COLOR_DEFAULTS = {
             '--gc-bg-touo': '#FFFFFF',
             '--gc-bg-nikkei': '#F3F9F6',
             '--gc-bg-zennihon': '#F2F4F8',
-            'cat-facility': '#38A169',
-            'cat-event': '#38A169',
-            'cat-traffic': '#38A169',
-            'cat-highway': '#38A169',
-            'cat-support-event': '#38A169',
-            'cat-support-traffic': '#38A169',
-            'cat-support-highway': '#38A169',
-            'cat-training': '#38A169',
-            'cat-company': '#38A169',
-            'shift-day': '#D69E2E',
-            'shift-night': '#2B6CB0'
+            'cat-facility': '#44A6B5',
+            'cat-event': '#44A6B5',
+            'cat-traffic': '#44A6B5',
+            'cat-highway': '#44A6B5',
+            'cat-support-event': '#44A6B5',
+            'cat-support-traffic': '#44A6B5',
+            'cat-support-highway': '#44A6B5',
+            'cat-training': '#44A6B5',
+            'cat-company': '#44A6B5',
+            'shift-day': '#D3D0C8',
+            'shift-night': '#004554'
         };
         const MAX_PRESETS = 5;
         const STORAGE_KEY = 'colorPresets_v2_light';
@@ -2498,6 +2479,15 @@
         function toggleColorSettingsPanel() {
             document.getElementById('colorSettingsPanel').classList.toggle('open');
         }
+        document.addEventListener('click', function(e) {
+            var panel = document.getElementById('colorSettingsPanel');
+            if (!panel.classList.contains('open')) return;
+            if (panel.contains(e.target)) return;
+            // カラー設定ボタン自体のクリックはtoggleに任せる
+            var btn = document.querySelector('[onclick*="toggleColorSettingsPanel"]');
+            if (btn && btn.contains(e.target)) return;
+            panel.classList.remove('open');
+        });
 
         function getCurrentColors() {
             const colors = {};
@@ -2520,14 +2510,14 @@
                     const picker = document.querySelector('.color-setting-picker[data-css-var="' + key + '"]');
                     if (picker) picker.value = value;
                     const hex = document.querySelector('.color-setting-hex[data-css-var="' + key + '"]');
-                    if (hex) hex.textContent = value;
+                    if (hex) hex.value = value;
                 } else {
                     // ベース色キー → 背景・文字を自動生成
                     applyBaseColor(key, value);
                     const picker = document.querySelector('.color-base-picker[data-base-key="' + key + '"]');
                     if (picker) picker.value = value;
                     const hex = document.querySelector('.color-setting-hex[data-base-key="' + key + '"]');
-                    if (hex) hex.textContent = value;
+                    if (hex) hex.value = value;
                 }
             });
         }
@@ -3403,8 +3393,7 @@
                 '<td><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
                 '<td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>' +
                 '<td class="col-map clickable-cell" onclick="openMapModal(this, ' + d.no + ')"></td>' +
-                '<td class="col-vt"><div class="vehicle-transport-box" onclick="openVtModal(this)"></div>' +
-                  '<button class="vehicle-transport-add" onclick="openVtModal(this.previousElementSibling)">＋ 車両・送迎</button></td>' +
+                '<td class="col-vt"><div class="vehicle-drop-zone"></div></td>' +
                 '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"></td>';
             return tr;
         }
