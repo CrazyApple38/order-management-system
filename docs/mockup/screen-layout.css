@@ -2662,7 +2662,7 @@ h1 {
     z-index: 25;
 }
 
-/* 承認待ちオーバーレイ */
+/* 承認待ちオーバーレイ（透明 — クリックハンドラ用） */
 .cn-pending {
     cursor: pointer !important;
 }
@@ -2672,12 +2672,25 @@ h1 {
     bottom: 0;
     left: 0;
     z-index: 20;
-    background: rgba(0, 0, 0, 0.18);
+    background: transparent;
     cursor: pointer;
-    transition: background 0.2s;
 }
-.cn-overlay:hover {
-    background: rgba(0, 0, 0, 0.28);
+
+/* 承認待ちセルグロー（box-shadow inset、受注簿と同じ方式） */
+.cn-cell-glow-modify { animation: cn-glow-yellow 1.2s ease-in-out infinite; }
+.cn-cell-glow-add    { animation: cn-glow-green  1.2s ease-in-out infinite; }
+.cn-cell-glow-delete { animation: cn-glow-red    1.2s ease-in-out infinite; }
+@keyframes cn-glow-yellow {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: inset 0 0 0 100px rgba(236, 201, 75, 0.3); }
+}
+@keyframes cn-glow-green {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: inset 0 0 0 100px rgba(72, 187, 120, 0.3); }
+}
+@keyframes cn-glow-red {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: inset 0 0 0 100px rgba(245, 101, 101, 0.3); }
 }
 
 /* 承認フラッシュアニメーション */

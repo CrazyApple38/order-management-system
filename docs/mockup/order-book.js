@@ -3348,7 +3348,8 @@ function obCnReceive(n) {
         obCnShowConflictBanner(n);
     }
     obCnShowToast(n);
-    // 該当セルをハイライト
+    // ミニベル未読ドット更新 + 該当セルハイライト
+    renderGrid();
     if (n.rowIndex !== undefined) {
         setTimeout(function() { obCnHighlightCells(n.rowIndex, n.day, n.type, n.subIndex); }, 100);
     }

@@ -2306,6 +2306,16 @@
         function cnOpenModalForRow(bellEl) {
             var row = bellEl.closest('tr');
             var siteName = cnGetRowSiteName(row);
+            var pending = cnPendingMap.get(row);
+            // 承認待ちの行 → ベルクリックで承認（既読化 + 変更適用 + ハイライト除去）
+            if (pending) {
+                if (pending.type === 'delete') {
+                    // 削除はモーダルを開かずに承認のみ
+                    cnApprovePending(row);
+                    return;
+                }
+                cnApprovePending(row);
+            }
             cnState.filterRowId = siteName;
             // 該当行の通知のみ既読
             cnState.notifications.forEach(function(n) {
@@ -2619,7 +2629,22 @@
                     noCell.appendChild(badge);
                 }
             }
-            // グレーオーバーレイ（コンテンツなし）
+            // セルグロー（box-shadow inset）
+            if (type === 'modify') {
+                // 変更：cn-cell-badgeを持つセルのみ明滅
+                var badgeCells = row.querySelectorAll('.cn-cell-badge');
+                for (var j = 0; j < badgeCells.length; j++) {
+                    var td = badgeCells[j].closest('td');
+                    if (td) td.classList.add('cn-cell-glow-modify');
+                }
+            } else {
+                // 追加・削除：行全体を明滅
+                var cells = row.querySelectorAll('td');
+                for (var j = 0; j < cells.length; j++) {
+                    cells[j].classList.add('cn-cell-glow-' + type);
+                }
+            }
+            // 透明オーバーレイ（クリックハンドラ用）
             var existingOv = row.querySelector('.cn-overlay');
             if (existingOv) existingOv.remove();
             var overlay = document.createElement('div');
@@ -2650,6 +2675,11 @@
             }
             pending.commit();
             row.classList.remove('cn-pending');
+            // セルグロー除去
+            var cells = row.querySelectorAll('td');
+            for (var j = 0; j < cells.length; j++) {
+                cells[j].classList.remove('cn-cell-glow-add', 'cn-cell-glow-modify', 'cn-cell-glow-delete');
+            }
             var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-overlay');
             for (var i = 0; i < els.length; i++) els[i].remove();
             cnPendingMap.delete(row);
