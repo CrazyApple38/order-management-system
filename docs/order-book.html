@@ -278,13 +278,25 @@
                     </div>
                     <div class="ob-row-chips" id="rowEditShiftChips"></div>
                 </div>
-                <div class="ob-form-row">
+                <div class="ob-form-row ob-company-field">
                     <label>契約先名</label>
-                    <input type="text" id="rowEditCompany" oninput="checkRowDuplicate()">
+                    <input type="text" id="rowEditCompany" oninput="checkRowDuplicate(); obCompanySuggest()" autocomplete="off">
+                    <div class="ob-company-suggest" id="obCompanySuggest" style="display:none;"></div>
                 </div>
-                <div class="ob-form-row">
+                <div class="ob-form-row ob-task-field">
                     <label>業務名</label>
-                    <input type="text" id="rowEditTask" placeholder="空欄で個別業務" oninput="checkRowDuplicate()">
+                    <input type="text" id="rowEditTask" placeholder="空欄で個別業務" oninput="checkRowDuplicate(); obTaskSuggest()" autocomplete="off">
+                    <div class="ob-company-suggest" id="obTaskSuggest" style="display:none;"></div>
+                </div>
+                <div class="ob-form-row-half">
+                    <div>
+                        <label>開始時間（プリセット）</label>
+                        <input type="time" id="rowEditPresetStart">
+                    </div>
+                    <div>
+                        <label>終了時間（プリセット）</label>
+                        <input type="time" id="rowEditPresetEnd">
+                    </div>
                 </div>
                 <div class="ob-row-dup-warning" id="rowDupWarning" style="display:none;">※ この組み合わせは既に存在します</div>
             </div>

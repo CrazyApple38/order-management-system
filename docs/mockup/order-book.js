@@ -581,23 +581,23 @@ function renderGrid() {
         if (!isHidden) { visibleCount++; visibleRowIndex++; }
 
         // Frozen cells（クリックで行編集モーダルを開く）
-        html += `<div class="ob-cell ob-frozen-0 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${row.branch}</div>`;
-        html += `<div class="ob-cell ob-frozen-1 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${row.category}</div>`;
-        html += `<div class="ob-cell ob-frozen-2 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${row.shift}</div>`;
-        html += `<div class="ob-cell ob-frozen-3 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${row.company}</div>`;
-        html += `<div class="ob-cell ob-frozen-4 ${rowCls}${evenCls}"><button class="ob-row-add-btn" onclick="event.stopPropagation(); addNewRowFromRow(${ri})" title="この現場を複製して追加">＋</button></div>`;
+        html += `<div class="ob-cell ob-frozen-0 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.branch}</div>`;
+        html += `<div class="ob-cell ob-frozen-1 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.category}</div>`;
+        html += `<div class="ob-cell ob-frozen-2 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.shift}</div>`;
+        html += `<div class="ob-cell ob-frozen-3 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.company}</div>`;
+        html += `<div class="ob-cell ob-frozen-4 ${rowCls}${evenCls}" data-ri="${ri}"><button class="ob-row-add-btn" onclick="event.stopPropagation(); addNewRowFromRow(${ri})" title="この現場を複製して追加">＋</button></div>`;
         const taskLabel = row.task || '<span class="ob-individual-task">(個別)</span>';
-        html += `<div class="ob-cell ob-frozen-5 ob-frozen-clickable ${rowCls}${evenCls}" onclick="openRowEditModal(${ri})">${taskLabel}</div>`;
+        html += `<div class="ob-cell ob-frozen-5 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${taskLabel}</div>`;
         // 昼夜＋ボタン: 対になるシフトの行が無い場合のみ表示
         const oppositeShift = row.shift === '昼' ? '夜' : '昼';
         const hasPair = sampleRows.some((r, j) => j !== ri && r.branch === row.branch && r.category === row.category && r.company === row.company && r.task === row.task && r.shift === oppositeShift);
         if (hasPair) {
-            html += `<div class="ob-cell ob-frozen-6 ${rowCls}${evenCls}"></div>`;
+            html += `<div class="ob-cell ob-frozen-6 ${rowCls}${evenCls}" data-ri="${ri}"></div>`;
         } else {
-            html += `<div class="ob-cell ob-frozen-6 ${rowCls}${evenCls}"><button class="ob-row-add-btn" onclick="event.stopPropagation(); addShiftRow(${ri})" title="${oppositeShift}を追加">＋</button></div>`;
+            html += `<div class="ob-cell ob-frozen-6 ${rowCls}${evenCls}" data-ri="${ri}"><button class="ob-row-add-btn" onclick="event.stopPropagation(); addShiftRow(${ri})" title="${oppositeShift}を追加">＋</button></div>`;
         }
-        html += `<div class="ob-cell ob-frozen-7 ${rowCls}${evenCls}"><button class="ob-cal-open-btn" onclick="event.stopPropagation(); openCalendarModal(${ri})" title="カレンダー入力"><img src="mockup/icons/calendar.svg" alt="カレンダー"></button></div>`;
-        html += `<div class="ob-cell ob-frozen-8 ${rowCls}${evenCls}">${obCnGetRowBellHtml(ri)}</div>`;
+        html += `<div class="ob-cell ob-frozen-7 ${rowCls}${evenCls}" data-ri="${ri}"><button class="ob-cal-open-btn" onclick="event.stopPropagation(); openCalendarModal(${ri})" title="カレンダー入力"><img src="mockup/icons/calendar.svg" alt="カレンダー"></button></div>`;
+        html += `<div class="ob-cell ob-frozen-8 ${rowCls}${evenCls}" data-ri="${ri}">${obCnGetRowBellHtml(ri)}</div>`;
 
         // Date cells
         let rowTotalMin = 0; // 確定のみ
@@ -664,7 +664,7 @@ function renderGrid() {
                         const subText = entry.subTasks.map(st => st.value).filter(Boolean).join('・');
                         if (subText) subTaskHtml = `<span class="ob-cell-subtask">${escapeHtml(subText)}</span>`;
                     }
-                    return `<div class="ob-site-entry${confCls}" onclick="event.stopPropagation(); openCalendarWithEdit(${ri},${d},${si})" onmouseenter="showTooltip(event,${ri},${d},${si})" onmouseleave="hideTooltip()"><span class="ob-cell-count">${entry.count}</span>${subTaskHtml}${badgeHtml}</div>`;
+                    return `<div class="ob-site-entry${confCls}" data-ri="${ri}" data-day="${d}" data-si="${si}" onclick="event.stopPropagation(); openCalendarWithEdit(${ri},${d},${si})" onmouseenter="showTooltip(event,${ri},${d},${si})" onmouseleave="hideTooltip()"><span class="ob-cell-count">${entry.count}</span>${subTaskHtml}${badgeHtml}</div>`;
                 }).join('');
             }
             if (entries.length > 0 && !isHidden) {
@@ -684,7 +684,7 @@ function renderGrid() {
 
         // Row total（最小～最大）
         const rowTotalLabel = rowTotalMax === 0 ? '' : (rowTotalMin === rowTotalMax ? `${rowTotalMax}` : `${rowTotalMin}<span class="ob-total-max">~${rowTotalMax}</span>`);
-        html += `<div class="ob-cell ob-total-cell ${rowCls}${evenCls}">${rowTotalLabel}</div>`;
+        html += `<div class="ob-cell ob-total-cell ${rowCls}${evenCls}" data-ri="${ri}">${rowTotalLabel}</div>`;
     });
 
     // === 合計行 ===
@@ -1625,8 +1625,8 @@ function openEditModal(ri, day, siteIdx) {
     document.getElementById('editCount').value = entry ? entry.count : '';
     confidenceManualFlag = entry ? (entry.confidenceManual || false) : false;
     renderConfidenceChips(entry ? (entry.confidence || 'confirmed') : 'confirmed');
-    document.getElementById('editStartTime').value = entry ? entry.startTime : '';
-    document.getElementById('editEndTime').value = entry ? entry.endTime : '';
+    document.getElementById('editStartTime').value = entry ? entry.startTime : (row.presetStartTime || '');
+    document.getElementById('editEndTime').value = entry ? entry.endTime : (row.presetEndTime || '');
     document.getElementById('editSupervisor').value = entry ? (entry.supervisor || '') : '';
     document.getElementById('editSupervisorTel').value = entry ? (entry.supervisorTel || '') : '';
     document.getElementById('editMeetingPlace').value = entry ? (entry.meetingPlace || '') : '';
@@ -1742,8 +1742,8 @@ function loadSiteToModal() {
     document.getElementById('editCount').value = entry ? entry.count : '';
     confidenceManualFlag = entry ? (entry.confidenceManual || false) : false;
     renderConfidenceChips(entry ? (entry.confidence || 'confirmed') : 'confirmed');
-    document.getElementById('editStartTime').value = entry ? entry.startTime : '';
-    document.getElementById('editEndTime').value = entry ? entry.endTime : '';
+    document.getElementById('editStartTime').value = entry ? entry.startTime : (row.presetStartTime || '');
+    document.getElementById('editEndTime').value = entry ? entry.endTime : (row.presetEndTime || '');
     document.getElementById('editSupervisor').value = entry ? (entry.supervisor || '') : '';
     document.getElementById('editSupervisorTel').value = entry ? (entry.supervisorTel || '') : '';
     document.getElementById('editMeetingPlace').value = entry ? (entry.meetingPlace || '') : '';
@@ -2023,9 +2023,201 @@ function checkRowDuplicate() {
         r.company === company && r.task === task && r.shift === shift
     );
 
+    // 新規追加時: 会社・区分・昼夜が未選択、または契約先名が空なら保存不可
+    let isIncomplete = false;
+    if (editingRowRi === -1) {
+        isIncomplete = !rowEditSelected.branch || !rowEditSelected.category || !rowEditSelected.shift || !company.trim();
+    }
+
     warning.style.display = isDup ? '' : 'none';
-    saveBtn.disabled = isDup;
+    saveBtn.disabled = isDup || isIncomplete;
 }
+
+// --- 契約先名サジェスト ---
+
+// 固定マスターリスト + sampleRowsから重複なしで収集
+function obGetCompanyList() {
+    var master = ['(株)〇〇高速', '△△建設(株)', '(株)丸山建設', '□□警備(株)', '全日本エンタープライズ'];
+    var set = {};
+    master.forEach(function(c) { set[c] = true; });
+    sampleRows.forEach(function(r) { if (r.company) set[r.company] = true; });
+    return Object.keys(set);
+}
+
+// 正規化: 株式会社/(株)/有限会社/(有)を除去して社名の核心部分を取得
+function obNormalizeCompany(name) {
+    return name
+        .replace(/株式会社|有限会社|\(株\)|\(有\)|（株）|（有）/g, '')
+        .replace(/\s+/g, '')
+        .trim();
+}
+
+// 法人格の種別を抽出（株式会社系 / 有限会社系 / なし）
+function obGetCorpType(name) {
+    if (/株式会社|\(株\)|（株）/.test(name)) return 'kabushiki';
+    if (/有限会社|\(有\)|（有）/.test(name)) return 'yugen';
+    return '';
+}
+
+// 法人格の位置を判定（前 / 後 / なし）
+function obGetCorpPos(name) {
+    if (/^(株式会社|\(株\)|（株）)/.test(name)) return 'prefix';
+    if (/(株式会社|\(株\)|（株）)$/.test(name)) return 'suffix';
+    if (/^(有限会社|\(有\)|（有）)/.test(name)) return 'prefix';
+    if (/(有限会社|\(有\)|（有）)$/.test(name)) return 'suffix';
+    return '';
+}
+
+function obCompanySuggest() {
+    var input = document.getElementById('rowEditCompany').value;
+    var panel = document.getElementById('obCompanySuggest');
+    if (!input || input.length < 1) { panel.style.display = 'none'; return; }
+
+    var all = obGetCompanyList();
+    var inputNorm = obNormalizeCompany(input);
+    var inputLower = input.toLowerCase();
+    var inputType = obGetCorpType(input);
+    var inputPos = obGetCorpPos(input);
+
+    var exact = [];    // 前方一致
+    var similar = [];  // 類似（正規化一致 or 部分一致）
+
+    all.forEach(function(c) {
+        if (c === input) return; // 完全一致は除外
+        var cLower = c.toLowerCase();
+        // 前方一致
+        if (cLower.indexOf(inputLower) === 0) {
+            exact.push({ name: c, reason: '' });
+            return;
+        }
+        // 正規化一致（社名核心部分が同じ）
+        var cNorm = obNormalizeCompany(c);
+        if (inputNorm && cNorm && inputNorm === cNorm) {
+            var reasons = [];
+            var cType = obGetCorpType(c);
+            var cPos = obGetCorpPos(c);
+            if (inputType && cType && inputType !== cType) {
+                reasons.push('法人格の種類が異なります');
+            } else if (inputPos && cPos && inputPos !== cPos) {
+                reasons.push('法人格の位置が異なります');
+            } else {
+                reasons.push('表記が異なります');
+            }
+            similar.push({ name: c, reason: reasons.join('、') });
+            return;
+        }
+        // 部分一致（正規化後の核心部分を含む）
+        if (inputNorm.length >= 2 && cNorm.indexOf(inputNorm) >= 0) {
+            similar.push({ name: c, reason: '類似する契約先名' });
+        }
+    });
+
+    if (exact.length === 0 && similar.length === 0) { panel.style.display = 'none'; return; }
+
+    var html = '';
+    if (exact.length > 0) {
+        html += '<div class="ob-cs-section">候補</div>';
+        exact.forEach(function(s) {
+            html += '<div class="ob-cs-item" onmousedown="obCompanySelect(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\')">' +
+                escapeHtml(s.name) + '</div>';
+        });
+    }
+    if (similar.length > 0) {
+        html += '<div class="ob-cs-section ob-cs-warn">もしかして？</div>';
+        similar.forEach(function(s) {
+            html += '<div class="ob-cs-item ob-cs-item-warn" onmousedown="obCompanySelect(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\')">' +
+                '<span class="ob-cs-name">' + escapeHtml(s.name) + '</span>' +
+                '<span class="ob-cs-reason">' + escapeHtml(s.reason) + '</span>' +
+            '</div>';
+        });
+    }
+    panel.innerHTML = html;
+    panel.style.display = '';
+}
+
+function obCompanySelect(name) {
+    document.getElementById('rowEditCompany').value = name;
+    document.getElementById('obCompanySuggest').style.display = 'none';
+    checkRowDuplicate();
+}
+
+// --- 業務名サジェスト ---
+
+function obGetTaskList() {
+    var set = {};
+    sampleRows.forEach(function(r) { if (r.task) set[r.task] = true; });
+    return Object.keys(set);
+}
+
+function obTaskSuggest() {
+    var input = document.getElementById('rowEditTask').value;
+    var panel = document.getElementById('obTaskSuggest');
+    if (!input || input.length < 1) { panel.style.display = 'none'; return; }
+
+    var all = obGetTaskList();
+    var inputLower = input.toLowerCase();
+
+    var exact = [];   // 前方一致
+    var partial = []; // 部分一致（前方一致以外）
+
+    all.forEach(function(t) {
+        if (t === input) return;
+        var tLower = t.toLowerCase();
+        if (tLower.indexOf(inputLower) === 0) {
+            exact.push(t);
+        } else if (tLower.indexOf(inputLower) >= 0) {
+            partial.push(t);
+        }
+    });
+
+    if (exact.length === 0 && partial.length === 0) { panel.style.display = 'none'; return; }
+
+    var html = '';
+    if (exact.length > 0) {
+        html += '<div class="ob-cs-section">候補</div>';
+        exact.forEach(function(t) {
+            html += '<div class="ob-cs-item" onmousedown="obTaskSelect(\'' + escapeHtml(t).replace(/'/g, "\\'") + '\')">' +
+                escapeHtml(t) + '</div>';
+        });
+    }
+    if (partial.length > 0) {
+        html += '<div class="ob-cs-section">部分一致</div>';
+        partial.forEach(function(t) {
+            html += '<div class="ob-cs-item" onmousedown="obTaskSelect(\'' + escapeHtml(t).replace(/'/g, "\\'") + '\')">' +
+                escapeHtml(t) + '</div>';
+        });
+    }
+    panel.innerHTML = html;
+    panel.style.display = '';
+}
+
+function obTaskSelect(name) {
+    document.getElementById('rowEditTask').value = name;
+    document.getElementById('obTaskSuggest').style.display = 'none';
+    checkRowDuplicate();
+}
+
+// 入力欄からフォーカスが外れたらパネルを閉じる
+document.addEventListener('DOMContentLoaded', function() {
+    var el = document.getElementById('rowEditCompany');
+    if (el) {
+        el.addEventListener('blur', function() {
+            setTimeout(function() {
+                document.getElementById('obCompanySuggest').style.display = 'none';
+            }, 150);
+        });
+        el.addEventListener('focus', function() { obCompanySuggest(); });
+    }
+    var el2 = document.getElementById('rowEditTask');
+    if (el2) {
+        el2.addEventListener('blur', function() {
+            setTimeout(function() {
+                document.getElementById('obTaskSuggest').style.display = 'none';
+            }, 150);
+        });
+        el2.addEventListener('focus', function() { obTaskSuggest(); });
+    }
+});
 
 function addRowCategory() {
     const name = prompt('新しい区分名を入力:');
@@ -2067,6 +2259,8 @@ function addShiftRow(ri) {
 
     document.getElementById('rowEditCompany').value = row.company || '';
     document.getElementById('rowEditTask').value = row.task || '';
+    document.getElementById('rowEditPresetStart').value = row.presetStartTime || '';
+    document.getElementById('rowEditPresetEnd').value = row.presetEndTime || '';
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
 }
@@ -2088,6 +2282,8 @@ function addNewRowFromRow(ri) {
 
     document.getElementById('rowEditCompany').value = row.company || '';
     document.getElementById('rowEditTask').value = '';
+    document.getElementById('rowEditPresetStart').value = '';
+    document.getElementById('rowEditPresetEnd').value = '';
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
 }
@@ -2108,6 +2304,8 @@ function addNewRow() {
 
     document.getElementById('rowEditCompany').value = '';
     document.getElementById('rowEditTask').value = '';
+    document.getElementById('rowEditPresetStart').value = '';
+    document.getElementById('rowEditPresetEnd').value = '';
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
 }
@@ -2127,6 +2325,8 @@ function openRowEditModal(ri) {
 
     document.getElementById('rowEditCompany').value = row.company;
     document.getElementById('rowEditTask').value = row.task;
+    document.getElementById('rowEditPresetStart').value = row.presetStartTime || '';
+    document.getElementById('rowEditPresetEnd').value = row.presetEndTime || '';
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
 }
@@ -2138,6 +2338,13 @@ function closeRowEditModal(e) {
 
 function saveRowEdit() {
     if (editingRowRi === null) return;
+
+    // 新規追加時: 必須フィールド未入力なら保存しない
+    if (editingRowRi === -1) {
+        const company = document.getElementById('rowEditCompany').value || '';
+        if (!rowEditSelected.branch || !rowEditSelected.category || !rowEditSelected.shift || !company.trim()) return;
+    }
+
     pushUndo();
 
     // 新規行モード
@@ -2148,7 +2355,9 @@ function saveRowEdit() {
         const company = document.getElementById('rowEditCompany').value || '';
         const task = document.getElementById('rowEditTask').value || '';
 
-        sampleRows.push({ _rowId: obNextRowId++, branch, category, shift, company, task, hidden: false });
+        const presetStartTime = document.getElementById('rowEditPresetStart').value || '';
+        const presetEndTime = document.getElementById('rowEditPresetEnd').value || '';
+        sampleRows.push({ _rowId: obNextRowId++, branch, category, shift, company, task, hidden: false, presetStartTime, presetEndTime });
         sortRows();
         closeRowEditModal();
         renderGrid();
@@ -2162,6 +2371,8 @@ function saveRowEdit() {
     row.shift = rowEditSelected.shift || row.shift;
     row.company = document.getElementById('rowEditCompany').value;
     row.task = document.getElementById('rowEditTask').value;
+    row.presetStartTime = document.getElementById('rowEditPresetStart').value || '';
+    row.presetEndTime = document.getElementById('rowEditPresetEnd').value || '';
 
     // 区分が変わった場合、セルのバッジ親IDを更新
     if (row.category !== oldCategory) {
@@ -2868,6 +3079,66 @@ function obCnSwitchTab(tabName) {
     });
 }
 
+// セル明滅ハイライト（5秒で自動消去）
+// si: サブインデックス（複数エントリセルで特定エントリだけハイライト）
+function obCnHighlightCells(ri, day, type, si) {
+    // 既存のハイライトをクリア
+    document.querySelectorAll('[class*="ob-cn-cell-glow-"]').forEach(function(el) {
+        el.classList.remove('ob-cn-cell-glow-add', 'ob-cn-cell-glow-modify', 'ob-cn-cell-glow-delete');
+    });
+    var targets;
+    if (day != null) {
+        // 特定日セル — 複数エントリがある場合はサブエントリだけを対象にする
+        var subEntry = si != null
+            ? document.querySelector('.ob-site-entry[data-ri="' + ri + '"][data-day="' + day + '"][data-si="' + si + '"]')
+            : null;
+        if (subEntry) {
+            targets = [subEntry];
+        } else {
+            targets = document.querySelectorAll('.ob-cell[data-ri="' + ri + '"][data-day="' + day + '"]');
+        }
+    } else {
+        // 行全体（frozen列 + 日付セル + 合計）
+        targets = document.querySelectorAll('.ob-cell[data-ri="' + ri + '"]');
+    }
+    var glowClass = 'ob-cn-cell-glow-' + (type || 'modify');
+    if (targets.forEach) {
+        targets.forEach(function(el) { el.classList.add(glowClass); });
+    } else {
+        // 単一要素配列の場合
+        for (var i = 0; i < targets.length; i++) targets[i].classList.add(glowClass);
+    }
+    setTimeout(function() {
+        if (targets.forEach) {
+            targets.forEach(function(el) { el.classList.remove(glowClass); });
+        } else {
+            for (var i = 0; i < targets.length; i++) targets[i].classList.remove(glowClass);
+        }
+    }, 5000);
+}
+
+// カードクリック→モーダルを閉じてセルハイライト
+function obCnCardClick(notificationId) {
+    var n = obCnState.notifications.find(function(x) { return x.id === notificationId; });
+    if (!n || n.rowIndex === undefined) return;
+    obCnCloseModal();
+    setTimeout(function() { obCnHighlightCells(n.rowIndex, n.day, n.type, n.subIndex); }, 100);
+}
+
+// 履歴→カードジャンプ
+function obCnJumpToCard(notificationId) {
+    // 最新の変更タブに切替
+    obCnSwitchTab('latest');
+    // カードにdata-nid属性で対象を探してスクロール＋ハイライト
+    setTimeout(function() {
+        var card = document.querySelector('.ob-cn-card[data-nid="' + notificationId + '"]');
+        if (!card) return;
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('ob-cn-card-highlight');
+        setTimeout(function() { card.classList.remove('ob-cn-card-highlight'); }, 1500);
+    }, 50);
+}
+
 // 業務名フィルタ
 function obCnSetFilter(task) {
     obCnState.filterTask = task;
@@ -2966,11 +3237,11 @@ function obCnRenderLatest() {
         var actionsHtml = '';
         if (n.reverted) {
             actionsHtml = '<div class="ob-cn-card-actions">' +
-                '<button class="ob-cn-btn-reapprove" onclick="obCnReapprove(' + n.id + ')">適用する</button>' +
+                '<button class="ob-cn-btn-reapprove" onclick="event.stopPropagation(); obCnReapprove(' + n.id + ')">適用する</button>' +
             '</div>';
         } else {
             actionsHtml = '<div class="ob-cn-card-actions">' +
-                '<button class="ob-cn-btn-revert" onclick="obCnRevert(' + n.id + ')">キャンセル</button>' +
+                '<button class="ob-cn-btn-revert" onclick="event.stopPropagation(); obCnRevert(' + n.id + ')">キャンセル</button>' +
             '</div>';
         }
 
@@ -2996,7 +3267,7 @@ function obCnRenderLatest() {
             '</div>';
         }
 
-        return '<div class="' + cardClass + stateClass + '">' +
+        return '<div class="' + cardClass + stateClass + '" data-nid="' + n.id + '" onclick="obCnCardClick(' + n.id + ')">' +
             '<div class="ob-cn-card-header">' +
                 '<span class="' + badgeClass + '">' + typeLabels[n.type] + '</span>' +
                 '<span class="ob-cn-card-user">' + escapeHtml(n.user) + '</span>' +
@@ -3032,13 +3303,20 @@ function obCnRenderHistory() {
     const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
 
     timeline.innerHTML = filtered.map(function(h) {
-        return '<div class="ob-cn-timeline-item ob-cn-tl-' + h.type + '">' +
+        var displayName = escapeHtml(h.company ? h.company + ' / ' + (h.taskName || '(個別)') : (h.taskName || '(個別)'));
+        var dayBadge = h.day != null ? '<span class="ob-cn-day-badge">' + currentMonth + '月' + h.day + '日</span>' : '';
+        var summaryText = h.summary ? '<span class="ob-cn-tl-summary">(' + escapeHtml(h.summary) + ')</span>' : '';
+        return '<div class="ob-cn-timeline-item ob-cn-tl-' + h.type + ' ob-cn-tl-clickable" onclick="obCnJumpToCard(' + h.notificationId + ')">' +
             '<div class="ob-cn-tl-header">' +
                 '<span class="ob-cn-tl-time">' + h.time + '</span>' +
                 '<span class="ob-cn-tl-user">' + escapeHtml(h.user) + '</span>' +
                 '<span class="ob-cn-tl-type ob-cn-tl-type-' + h.type + '">' + typeLabels[h.type] + '</span>' +
             '</div>' +
-            '<div class="ob-cn-tl-content">' + escapeHtml(h.summary) + '</div>' +
+            '<div class="ob-cn-tl-content">' +
+                '<span class="ob-cn-tl-name">' + displayName + '</span> ' +
+                summaryText + ' ' +
+                dayBadge +
+            '</div>' +
         '</div>';
     }).join('');
 }
@@ -3051,15 +3329,17 @@ function obCnReceive(n) {
     n._approved = true; // 受注簿ではデータ変更が即反映
     obCnState.notifications.unshift(n);
     obCnState.history.unshift({
+        notificationId: n.id,
         type: n.type,
         user: n.user,
         time: n.time,
         taskName: n.taskName || '',
+        company: n.company || '',
+        day: n.day || null,
         rowId: n.rowId,
-        summary: (n.taskName || n.siteName || '(個別)') +
-            (n.type === 'modify' && n.diffs
-                ? '（' + n.diffs.map(function(d) { return d.field; }).join('・') + '）'
-                : '')
+        summary: (n.type === 'modify' && n.diffs
+            ? n.diffs.map(function(d) { return d.field; }).join('・')
+            : '')
     });
     obCnState.unreadCount++;
     obCnUpdateBadge();
@@ -3068,6 +3348,10 @@ function obCnReceive(n) {
         obCnShowConflictBanner(n);
     }
     obCnShowToast(n);
+    // 該当セルをハイライト
+    if (n.rowIndex !== undefined) {
+        setTimeout(function() { obCnHighlightCells(n.rowIndex, n.day, n.type, n.subIndex); }, 100);
+    }
 }
 
 // 競合検出
@@ -3265,7 +3549,7 @@ const obCnDemoSequence = [
             cellData[ri][day][0].count = newCount;
             this._newSnapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri][day])) };
             renderGrid();
-            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, rowIndex: ri, rowId: sampleRows[ri]._rowId };
+            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, subIndex: 0, rowIndex: ri, rowId: sampleRows[ri]._rowId };
         }
     },
     {
@@ -3302,7 +3586,7 @@ const obCnDemoSequence = [
             cellData[ri][day][0].startTime = newTime;
             this._newSnapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri][day])) };
             renderGrid();
-            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, rowIndex: ri, rowId: sampleRows[ri]._rowId };
+            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, subIndex: 0, rowIndex: ri, rowId: sampleRows[ri]._rowId };
         }
     },
     {
@@ -3368,7 +3652,7 @@ const obCnDemoSequence = [
             cellData[ri][day][0].remarks = newRemarks;
             this._newSnapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri][day])) };
             renderGrid();
-            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, rowIndex: ri, rowId: sampleRows[ri]._rowId };
+            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, subIndex: 0, rowIndex: ri, rowId: sampleRows[ri]._rowId };
         }
     }
 ];
@@ -3392,6 +3676,7 @@ function obCnSendDemoNotification() {
         branch: result.branch || '',
         company: result.company || '',
         day: result.day || null,
+        subIndex: result.subIndex != null ? result.subIndex : null,
         time: obCnTimeNow(),
         diffs: item.diffs ? item.diffs.map(function(d) { return { field: d.field, oldVal: d.oldVal, newVal: d.newVal }; }) : null,
         details: item.details ? item.details.map(function(d) { return { field: d.field, value: d.value }; }) : null,
