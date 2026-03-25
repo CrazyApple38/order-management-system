@@ -434,6 +434,15 @@
 
             <!-- 右サイドパネル（社員リスト） -->
             <div class="side-panel">
+                <div class="minimap">
+                    <div class="minimap-header" onclick="toggleMinimap()">
+                        <span class="minimap-title">配置状況</span>
+                        <span class="minimap-total" id="minimapTotal"></span>
+                    </div>
+                    <div class="minimap-body expanded" id="minimapBody">
+                        <!-- JS動的生成 -->
+                    </div>
+                </div>
                 <div class="side-panel-header">
                     <span>社員リスト</span>
                     <span class="sp-employee-count">全25名</span>

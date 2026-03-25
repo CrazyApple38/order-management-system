@@ -205,6 +205,116 @@ h1 {
     align-items: center;
 }
 
+/* ===== ミニマップ ===== */
+.minimap {
+    border-bottom: 1px solid var(--divider);
+}
+
+.minimap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 12px;
+    background: var(--bg-surface-2);
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--divider);
+}
+
+.minimap-header:hover { background: var(--bg-surface-3); }
+
+.minimap-title::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    margin-right: 6px;
+    transition: transform 0.2s;
+    vertical-align: middle;
+}
+
+.minimap.collapsed .minimap-title::before {
+    transform: rotate(-45deg);
+}
+
+.minimap-total {
+    font-size: 0.68rem;
+    font-weight: 400;
+    color: var(--text-tertiary);
+}
+
+.minimap-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.minimap-body.expanded {
+    max-height: calc(100vh / 3);
+    overflow-y: auto;
+}
+
+.minimap-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    font-size: 0.68rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--divider);
+    transition: background 0.15s;
+}
+
+.minimap-row:last-child { border-bottom: none; }
+.minimap-row:hover { background: var(--bg-surface-2); }
+
+.minimap-shift {
+    flex-shrink: 0;
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 1px 4px;
+    border-radius: 2px;
+    text-align: center;
+    min-width: 18px;
+}
+
+.minimap-shift.shift-day { color: #D69E2E; background: rgba(214, 158, 46, 0.1); }
+.minimap-shift.shift-night { color: #2B6CB0; background: rgba(43, 108, 176, 0.1); }
+
+.minimap-site {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-primary);
+}
+
+.minimap-count {
+    flex-shrink: 0;
+    font-weight: 700;
+    min-width: 28px;
+    text-align: right;
+}
+
+.minimap-count.count-ok { color: var(--success-text); }
+.minimap-count.shortage { color: var(--error); }
+
+@keyframes minimapPulse {
+    0%, 100% { background: transparent; }
+    50% { background: var(--error-bg); }
+}
+
+.minimap-row.shortage {
+    animation: minimapPulse 2.5s ease-in-out infinite;
+}
+
 .side-panel-search {
     padding: 10px;
     border-bottom: 1px solid var(--divider);
@@ -1242,6 +1352,14 @@ h1 {
 
 .grid-table tbody tr.selected .assignment-zone {
     background: rgba(68, 166, 181, 0.08);
+}
+
+@keyframes highlightFlash {
+    0% { outline: 3px solid var(--accent); outline-offset: -3px; }
+    100% { outline: 3px solid transparent; outline-offset: -3px; }
+}
+.grid-table tbody tr.highlight-flash {
+    animation: highlightFlash 1.5s ease-out;
 }
 
 /* 夜勤行のスタイル */

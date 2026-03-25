@@ -1852,6 +1852,7 @@
             if (isExcess) {
                 if (!eBadge) { eBadge = document.createElement('span'); eBadge.className = 'count-excess-badge'; eBadge.textContent = '過多'; countCell.appendChild(eBadge); }
             } else if (eBadge) { eBadge.remove(); }
+            renderMinimap();
         }
 
         function removeEmployee(btn, event) {
@@ -1863,6 +1864,80 @@
                 employeeTag.remove();
                 if (zone) updateRowCount(zone);
                 updateEmployeeListStatus();
+            }
+        }
+
+        // ===== ミニマップ =====
+        function renderMinimap() {
+            var body = document.getElementById('minimapBody');
+            var totalEl = document.getElementById('minimapTotal');
+            if (!body) return;
+
+            var rows = document.querySelectorAll('.grid-table tbody tr');
+            var html = '';
+            var totalRequired = 0;
+            var totalAssigned = 0;
+
+            rows.forEach(function(row, idx) {
+                if (row.style.display === 'none') return;
+
+                var shiftBadge = row.querySelector('.shift-badge');
+                var shift = shiftBadge ? shiftBadge.textContent.trim() : '';
+                var shiftClass = shift === '夜' ? 'shift-night' : 'shift-day';
+
+                var companyEl = row.querySelector('.site-info .company');
+                var siteEl = row.querySelector('.site-info .site-name');
+                var company = companyEl ? companyEl.textContent.trim() : '';
+                var site = siteEl ? siteEl.textContent.trim() : '';
+                // 契約先＋現場名を短縮表示
+                var siteText = company ? company + ' ' + site : site;
+
+                var countDisp = row.querySelector('.count-display');
+                var countText = countDisp ? countDisp.textContent.trim() : '0/0';
+                var match = countText.match(/(\d+)\/(\d+)/);
+                var assigned = match ? parseInt(match[1]) : 0;
+                var required = match ? parseInt(match[2]) : 0;
+
+                totalRequired += required;
+                totalAssigned += assigned;
+
+                var isShortage = assigned < required;
+                var rowClass = 'minimap-row' + (isShortage ? ' shortage' : '');
+                var countClass = 'minimap-count' + (isShortage ? ' shortage' : ' count-ok');
+
+                html += '<div class="' + rowClass + '" onclick="minimapScrollToRow(' + idx + ')">'
+                    + '<span class="minimap-shift ' + shiftClass + '">' + (shift || '-') + '</span>'
+                    + '<span class="minimap-site" title="' + siteText.replace(/"/g, '&quot;') + '">' + siteText + '</span>'
+                    + '<span class="' + countClass + '">' + assigned + '/' + required + '</span>'
+                    + '</div>';
+            });
+
+            body.innerHTML = html;
+            if (totalEl) {
+                totalEl.textContent = '必要: ' + totalRequired + ' / 配置: ' + totalAssigned;
+            }
+        }
+
+        function toggleMinimap() {
+            var minimap = document.querySelector('.minimap');
+            var body = document.getElementById('minimapBody');
+            if (!minimap || !body) return;
+            minimap.classList.toggle('collapsed');
+            body.classList.toggle('expanded');
+        }
+
+        function minimapScrollToRow(idx) {
+            var rows = document.querySelectorAll('.grid-table tbody tr');
+            var visibleIdx = 0;
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i].style.display === 'none') continue;
+                if (visibleIdx === idx) {
+                    rows[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    rows[i].classList.add('highlight-flash');
+                    setTimeout(function() { rows[i].classList.remove('highlight-flash'); }, 1500);
+                    return;
+                }
+                visibleIdx++;
             }
         }
 
@@ -2081,6 +2156,7 @@
                 const noCell = row.querySelector('.col-no');
                 if (noCell) noCell.textContent = index + 1;
             });
+            renderMinimap();
         }
 
         // ===== ソート設定モーダル =====
@@ -2841,6 +2917,7 @@
                       siteName: '△△マンション 常駐警備', meetingTime: '19:30', meetingMethod: '直', meetingMethodClass: 'method-direct',
                       timeStart: '20:00', timeEnd: '08:00', count: '0/2', shortage: true });
                   tbody.appendChild(tr);
+                  if (typeof renderMinimap === 'function') renderMinimap();
                   cnMarkPending(tr, 'add', function() {});
               }},
             { type: 'modify', user: '伊藤（配車担当）', siteName: '〇〇会館 展示会', category: 'イベント', shift: '昼',
@@ -2873,6 +2950,7 @@
                       siteName: '□□公園 花火大会警備', meetingTime: '15:00', meetingMethod: '会社', meetingMethodClass: 'method-company',
                       timeStart: '16:00', timeEnd: '22:00', count: '0/5', shortage: true });
                   tbody.appendChild(tr);
+                  if (typeof renderMinimap === 'function') renderMinimap();
                   cnMarkPending(tr, 'add', function() {});
               }},
             { type: 'modify', user: '佐藤（営業部）', siteName: '〇〇ビル 巡回警備', category: '施設', shift: '昼',
@@ -2999,6 +3077,7 @@
             if (document.getElementById('changeNotifyModal').classList.contains('active')) {
                 renderLatestChanges();
             }
+            if (typeof renderMinimap === 'function') renderMinimap();
         }
 
         function cnFlashRow(row, type) {
@@ -3019,6 +3098,7 @@
                     no.insertBefore(document.createTextNode(i + 1), no.firstChild);
                 }
             }
+            if (typeof renderMinimap === 'function') renderMinimap();
         }
 
         // --- 行ミニベルアイコン ---
@@ -4131,6 +4211,7 @@
         // サイドパネル初期化: 表示中会社を展開し、レンダリング
         gcFilterState.selected.forEach(function(code) { spState.expandedCompanies.add(code); });
         renderSidePanel();
+        renderMinimap();
 
         // 検索入力でリアルタイムフィルタ
         var spSearchEl = document.getElementById('spSearchInput');
@@ -4199,6 +4280,7 @@
             });
             checked.forEach(function(code) { spState.expandedCompanies.add(code); });
             renderSidePanel();
+            renderMinimap();
 
             closeGcFilterModal();
         }
