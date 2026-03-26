@@ -1946,48 +1946,196 @@
         }
 
         // ===== 車両D&D =====
+        let dragSourceVehicleTag = null;
+        let dragSourceEtcTag = null;
+
+        function makeAssignedVehicleDraggable(el) {
+            el.draggable = true;
+            el.addEventListener('dragstart', function(ev) {
+                ev.stopPropagation();
+                dragSourceVehicleTag = el;
+                var plate = el.childNodes[0].textContent.trim();
+                ev.dataTransfer.setData('text/vehicle', plate);
+                ev.dataTransfer.effectAllowed = 'move';
+                el.classList.add('dragging');
+            });
+            el.addEventListener('dragend', function() {
+                el.classList.remove('dragging');
+                dragSourceVehicleTag = null;
+            });
+        }
+
+        function makeAssignedEtcDraggable(el) {
+            el.draggable = true;
+            el.addEventListener('dragstart', function(ev) {
+                ev.stopPropagation();
+                dragSourceEtcTag = el;
+                var label = el.childNodes[0].textContent.trim();
+                ev.dataTransfer.setData('text/etc', label);
+                ev.dataTransfer.effectAllowed = 'move';
+                el.classList.add('dragging');
+            });
+            el.addEventListener('dragend', function() {
+                el.classList.remove('dragging');
+                dragSourceEtcTag = null;
+            });
+        }
+
+        // 初期化: 既存の配置済み車両・ETCをドラッグ可能にする
+        document.querySelectorAll('.vehicle-tag').forEach(makeAssignedVehicleDraggable);
+        document.querySelectorAll('.etc-tag').forEach(makeAssignedEtcDraggable);
+
         function vehicleDrag(ev) {
             ev.dataTransfer.setData('text/vehicle', ev.target.dataset.plate);
             ev.dataTransfer.effectAllowed = 'copy';
             ev.target.classList.add('dragging');
         }
 
-        function vehicleAllowDrop(ev) {
-            if (ev.dataTransfer.types.includes('text/vehicle')) {
+        // 車両・ETC共通: 車両列内どこにドロップしても自動振り分け
+        function vtAllowDrop(ev) {
+            if (ev.dataTransfer.types.includes('text/vehicle') || ev.dataTransfer.types.includes('text/etc')) {
                 ev.preventDefault();
-                ev.currentTarget.classList.add('drag-over');
-            }
-        }
-
-        function vehicleDragLeave(ev) {
-            ev.currentTarget.classList.remove('drag-over');
-        }
-
-        function vehicleDrop(ev) {
-            ev.preventDefault();
-            var zone = ev.currentTarget;
-            zone.classList.remove('drag-over');
-            var plate = ev.dataTransfer.getData('text/vehicle');
-            if (!plate) return;
-
-            // 同一シフト帯の全行で重複チェック
-            var targetShift = getRowShift(zone);
-            var allZones = document.querySelectorAll('.vehicle-drop-zone');
-            for (var i = 0; i < allZones.length; i++) {
-                var z = allZones[i];
-                if (getRowShift(z) !== targetShift) continue;
-                var tags = z.querySelectorAll('.vehicle-tag');
-                for (var j = 0; j < tags.length; j++) {
-                    if (tags[j].childNodes[0].textContent.trim() === plate) return;
+                var split = ev.currentTarget.closest('.vt-split-zone');
+                if (!split) return;
+                // ドラッグ種別に応じたゾーンをハイライト
+                if (ev.dataTransfer.types.includes('text/vehicle')) {
+                    split.querySelector('.vehicle-drop-zone').classList.add('drag-over');
+                } else {
+                    split.querySelector('.etc-drop-zone').classList.add('drag-over');
                 }
             }
+        }
 
-            pushUndo();
-            var tag = document.createElement('span');
-            tag.className = 'vehicle-tag';
-            tag.innerHTML = plate + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
-            zone.appendChild(tag);
-            updateVehicleListStatus();
+        function vtDragLeave(ev) {
+            var split = ev.currentTarget.closest('.vt-split-zone');
+            if (!split) return;
+            split.querySelector('.vehicle-drop-zone').classList.remove('drag-over');
+            split.querySelector('.etc-drop-zone').classList.remove('drag-over');
+        }
+
+        function vtDrop(ev) {
+            ev.preventDefault();
+            var split = ev.currentTarget.closest('.vt-split-zone');
+            if (!split) return;
+            split.querySelector('.vehicle-drop-zone').classList.remove('drag-over');
+            split.querySelector('.etc-drop-zone').classList.remove('drag-over');
+
+            var plate = ev.dataTransfer.getData('text/vehicle');
+            var label = ev.dataTransfer.getData('text/etc');
+
+            if (plate) {
+                var vZone = split.querySelector('.vehicle-drop-zone');
+
+                // テーブル内タグの行間移動
+                if (dragSourceVehicleTag) {
+                    var sourceZone = dragSourceVehicleTag.closest('.vehicle-drop-zone');
+                    if (sourceZone === vZone) { dragSourceVehicleTag = null; return; }
+
+                    var targetShift = getRowShift(vZone);
+                    var duplicate = false;
+                    var allVZones = document.querySelectorAll('.vehicle-drop-zone');
+                    for (var i = 0; i < allVZones.length; i++) {
+                        if (allVZones[i] === sourceZone || allVZones[i] === vZone) continue;
+                        if (getRowShift(allVZones[i]) !== targetShift) continue;
+                        var tags = allVZones[i].querySelectorAll('.vehicle-tag');
+                        for (var j = 0; j < tags.length; j++) {
+                            if (tags[j].childNodes[0].textContent.trim() === plate) { duplicate = true; break; }
+                        }
+                        if (duplicate) break;
+                    }
+                    if (!duplicate) {
+                        var inZone = vZone.querySelectorAll('.vehicle-tag');
+                        for (var k = 0; k < inZone.length; k++) {
+                            if (inZone[k].childNodes[0].textContent.trim() === plate) { duplicate = true; break; }
+                        }
+                    }
+                    if (duplicate) { dragSourceVehicleTag = null; return; }
+
+                    pushUndo();
+                    dragSourceVehicleTag.remove();
+                    var newTag = document.createElement('span');
+                    newTag.className = 'vehicle-tag';
+                    newTag.innerHTML = plate + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
+                    vZone.appendChild(newTag);
+                    makeAssignedVehicleDraggable(newTag);
+                    dragSourceVehicleTag = null;
+                    updateVehicleListStatus();
+                } else {
+                    // サイドパネルからの新規配置
+                    var targetShift = getRowShift(vZone);
+                    var allVZones = document.querySelectorAll('.vehicle-drop-zone');
+                    for (var i = 0; i < allVZones.length; i++) {
+                        if (getRowShift(allVZones[i]) !== targetShift) continue;
+                        var tags = allVZones[i].querySelectorAll('.vehicle-tag');
+                        for (var j = 0; j < tags.length; j++) {
+                            if (tags[j].childNodes[0].textContent.trim() === plate) return;
+                        }
+                    }
+                    pushUndo();
+                    var tag = document.createElement('span');
+                    tag.className = 'vehicle-tag';
+                    tag.innerHTML = plate + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
+                    vZone.appendChild(tag);
+                    makeAssignedVehicleDraggable(tag);
+                    updateVehicleListStatus();
+                }
+            } else if (label) {
+                var eZone = split.querySelector('.etc-drop-zone');
+
+                // テーブル内ETCタグの行間移動
+                if (dragSourceEtcTag) {
+                    var sourceZone = dragSourceEtcTag.closest('.etc-drop-zone');
+                    if (sourceZone === eZone) { dragSourceEtcTag = null; return; }
+
+                    var targetShift2 = getRowShift(eZone);
+                    var duplicate2 = false;
+                    var allEZones = document.querySelectorAll('.etc-drop-zone');
+                    for (var i2 = 0; i2 < allEZones.length; i2++) {
+                        if (allEZones[i2] === sourceZone || allEZones[i2] === eZone) continue;
+                        if (getRowShift(allEZones[i2]) !== targetShift2) continue;
+                        var eTags = allEZones[i2].querySelectorAll('.etc-tag');
+                        for (var j2 = 0; j2 < eTags.length; j2++) {
+                            if (eTags[j2].childNodes[0].textContent.trim() === label) { duplicate2 = true; break; }
+                        }
+                        if (duplicate2) break;
+                    }
+                    if (!duplicate2) {
+                        var inEZone = eZone.querySelectorAll('.etc-tag');
+                        for (var k2 = 0; k2 < inEZone.length; k2++) {
+                            if (inEZone[k2].childNodes[0].textContent.trim() === label) { duplicate2 = true; break; }
+                        }
+                    }
+                    if (duplicate2) { dragSourceEtcTag = null; return; }
+
+                    pushUndo();
+                    dragSourceEtcTag.remove();
+                    var newETag = document.createElement('span');
+                    newETag.className = 'etc-tag';
+                    newETag.innerHTML = label + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
+                    eZone.appendChild(newETag);
+                    makeAssignedEtcDraggable(newETag);
+                    dragSourceEtcTag = null;
+                    updateVehicleListStatus();
+                } else {
+                    // サイドパネルからの新規配置
+                    var targetShift2 = getRowShift(eZone);
+                    var allEZones = document.querySelectorAll('.etc-drop-zone');
+                    for (var i2 = 0; i2 < allEZones.length; i2++) {
+                        if (getRowShift(allEZones[i2]) !== targetShift2) continue;
+                        var eTags = allEZones[i2].querySelectorAll('.etc-tag');
+                        for (var j2 = 0; j2 < eTags.length; j2++) {
+                            if (eTags[j2].childNodes[0].textContent.trim() === label) return;
+                        }
+                    }
+                    pushUndo();
+                    var eTag = document.createElement('span');
+                    eTag.className = 'etc-tag';
+                    eTag.innerHTML = label + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
+                    eZone.appendChild(eTag);
+                    makeAssignedEtcDraggable(eTag);
+                    updateVehicleListStatus();
+                }
+            }
         }
 
         // ===== ETC D&D =====
@@ -1995,44 +2143,6 @@
             ev.dataTransfer.setData('text/etc', ev.target.dataset.label);
             ev.dataTransfer.effectAllowed = 'copy';
             ev.target.classList.add('dragging');
-        }
-
-        function etcAllowDrop(ev) {
-            if (ev.dataTransfer.types.includes('text/etc')) {
-                ev.preventDefault();
-                ev.currentTarget.classList.add('drag-over');
-            }
-        }
-
-        function etcDragLeave(ev) {
-            ev.currentTarget.classList.remove('drag-over');
-        }
-
-        function etcDrop(ev) {
-            ev.preventDefault();
-            var zone = ev.currentTarget;
-            zone.classList.remove('drag-over');
-            var label = ev.dataTransfer.getData('text/etc');
-            if (!label) return;
-
-            // 同一シフト帯の全行で重複チェック
-            var targetShift = getRowShift(zone);
-            var allZones = document.querySelectorAll('.etc-drop-zone');
-            for (var i = 0; i < allZones.length; i++) {
-                var z = allZones[i];
-                if (getRowShift(z) !== targetShift) continue;
-                var tags = z.querySelectorAll('.etc-tag');
-                for (var j = 0; j < tags.length; j++) {
-                    if (tags[j].childNodes[0].textContent.trim() === label) return;
-                }
-            }
-
-            pushUndo();
-            var tag = document.createElement('span');
-            tag.className = 'etc-tag';
-            tag.innerHTML = label + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
-            zone.appendChild(tag);
-            updateVehicleListStatus();
         }
 
         function removeEtc(btn) {
@@ -2387,7 +2497,14 @@
             const rows = document.querySelectorAll('.grid-table tbody tr');
             rows.forEach((row, index) => {
                 const noCell = row.querySelector('.col-no');
-                if (noCell) noCell.textContent = index + 1;
+                if (!noCell) return;
+                // テキストノードのみ更新（ベルアイコン等の子要素を保持）
+                const textNode = Array.from(noCell.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
+                if (textNode) {
+                    textNode.textContent = index + 1;
+                } else {
+                    noCell.insertBefore(document.createTextNode(index + 1), noCell.firstChild);
+                }
             });
             renderMinimap();
         }
@@ -3647,7 +3764,7 @@
                 '<td><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
                 '<td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>' +
                 '<td class="col-map clickable-cell" onclick="openMapModal(this, ' + d.no + ')"></td>' +
-                '<td class="col-vt"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vehicleDrop(event)" ondragover="vehicleAllowDrop(event)" ondragleave="vehicleDragLeave(event)"></div><div class="etc-drop-zone" ondrop="etcDrop(event)" ondragover="etcAllowDrop(event)" ondragleave="etcDragLeave(event)"></div></div></td>' +
+                '<td class="col-vt"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div><div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div></div></td>' +
                 '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"></td>';
             return tr;
         }

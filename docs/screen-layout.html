@@ -44,7 +44,6 @@
                     <div class="toolbar-separator"></div>
                     <button><img src="mockup/icons/plus.svg" class="ob-icon"> 行挿入</button>
                     <button class="danger" onclick="deleteRow()"><img src="mockup/icons/trash.svg" class="ob-icon"> 行削除</button>
-                    <button><img src="mockup/icons/eraser.png" class="ob-icon"> 消去</button>
                     <div class="toolbar-separator"></div>
                     <button onclick="moveRowUp()"><img src="mockup/icons/arrow-up.svg" class="ob-icon"> 上へ</button>
                     <button onclick="moveRowDown()"><img src="mockup/icons/arrow-down.svg" class="ob-icon"> 下へ</button>
@@ -123,8 +122,8 @@
                                 <td class="col-map clickable-cell" onclick="openMapModal(this, 1)" data-map-url="https://maps.google.com/?q=33.8,130.8"><span class="map-link">MAP</span></td>
                                 <td class="col-vt">
                                     <div class="vt-split-zone">
-                                        <div class="vehicle-drop-zone" ondrop="vehicleDrop(event)" ondragover="vehicleAllowDrop(event)" ondragleave="vehicleDragLeave(event)"></div>
-                                        <div class="etc-drop-zone" ondrop="etcDrop(event)" ondragover="etcAllowDrop(event)" ondragleave="etcDragLeave(event)"></div>
+                                        <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
+                                        <div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
                                     </div>
                                 </td>
                                 <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
@@ -176,8 +175,8 @@
                                 <td class="col-map clickable-cell" onclick="openMapModal(this, 2)" data-map-url="https://maps.google.com/?q=33.8,130.8"><span class="map-link">MAP</span></td>
                                 <td class="col-vt">
                                     <div class="vt-split-zone">
-                                        <div class="vehicle-drop-zone" ondrop="vehicleDrop(event)" ondragover="vehicleAllowDrop(event)" ondragleave="vehicleDragLeave(event)"></div>
-                                        <div class="etc-drop-zone" ondrop="etcDrop(event)" ondragover="etcAllowDrop(event)" ondragleave="etcDragLeave(event)"></div>
+                                        <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
+                                        <div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
                                     </div>
                                 </td>
                                 <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
@@ -226,8 +225,8 @@
                                 <td class="col-map clickable-cell" onclick="openMapModal(this, 3)" data-map-url=""><span class="map-empty">＋</span></td>
                                 <td class="col-vt">
                                     <div class="vt-split-zone">
-                                        <div class="vehicle-drop-zone" ondrop="vehicleDrop(event)" ondragover="vehicleAllowDrop(event)" ondragleave="vehicleDragLeave(event)"></div>
-                                        <div class="etc-drop-zone" ondrop="etcDrop(event)" ondragover="etcAllowDrop(event)" ondragleave="etcDragLeave(event)"></div>
+                                        <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
+                                        <div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
                                     </div>
                                 </td>
                                 <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
@@ -297,10 +296,10 @@
                                 <td class="col-map clickable-cell" onclick="openMapModal(this, 4)" data-map-url="https://maps.google.com/?q=33.9,130.9"><span class="map-link">MAP</span></td>
                                 <td class="col-vt">
                                     <div class="vt-split-zone">
-                                        <div class="vehicle-drop-zone" ondrop="vehicleDrop(event)" ondragover="vehicleAllowDrop(event)" ondragleave="vehicleDragLeave(event)">
+                                        <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)">
                                             <span class="vehicle-tag">さ 3078<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button></span>
                                         </div>
-                                        <div class="etc-drop-zone" ondrop="etcDrop(event)" ondragover="etcAllowDrop(event)" ondragleave="etcDragLeave(event)"></div>
+                                        <div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
                                     </div>
                                 </td>
                                 <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
@@ -367,10 +366,10 @@
                                 <td class="col-map clickable-cell" onclick="openMapModal(this, 5)" data-map-url=""><span class="map-empty">＋</span></td>
                                 <td class="col-vt">
                                     <div class="vt-split-zone">
-                                        <div class="vehicle-drop-zone" ondrop="vehicleDrop(event)" ondragover="vehicleAllowDrop(event)" ondragleave="vehicleDragLeave(event)">
+                                        <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)">
                                             <span class="vehicle-tag">わ 2490<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button></span>
                                         </div>
-                                        <div class="etc-drop-zone" ondrop="etcDrop(event)" ondragover="etcAllowDrop(event)" ondragleave="etcDragLeave(event)"></div>
+                                        <div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
                                     </div>
                                 </td>
                                 <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
@@ -434,10 +433,10 @@
                                 <td class="col-map clickable-cell" onclick="openMapModal(this, 6)" data-map-url=""><span class="map-empty">＋</span></td>
                                 <td class="col-vt">
                                     <div class="vt-split-zone">
-                                        <div class="vehicle-drop-zone" ondrop="vehicleDrop(event)" ondragover="vehicleAllowDrop(event)" ondragleave="vehicleDragLeave(event)">
+                                        <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)">
                                             <span class="vehicle-tag">く 7521<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button></span>
                                         </div>
-                                        <div class="etc-drop-zone" ondrop="etcDrop(event)" ondragover="etcAllowDrop(event)" ondragleave="etcDragLeave(event)"></div>
+                                        <div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
                                     </div>
                                 </td>
                                 <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"

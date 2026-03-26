@@ -2847,6 +2847,12 @@ h1 {
 .modal-site-footer button:first-child:hover {
     background: var(--bg-surface-2);
 }
+.modal-site-footer button.ob-btn-danger {
+    background: #dc2626; color: white; border-color: #dc2626;
+}
+.modal-site-footer button.ob-btn-danger:hover {
+    background: #b91c1c; border-color: #b91c1c; box-shadow: 0 2px 8px rgba(220,38,38,0.3);
+}
 .modal-site-footer button:last-child {
     background: var(--accent);
     color: white;
@@ -3960,12 +3966,12 @@ h1 {
 .ob-badge-delete-btn {
     display: inline-flex; align-items: center; justify-content: center;
     width: 16px; height: 16px; border-radius: 50%;
-    border: none; background: transparent;
-    color: var(--text-disabled); font-size: 9px;
+    border: none; background: rgba(220, 38, 38, 0.1);
+    color: #e53e3e; font-size: 9px;
     cursor: pointer; transition: all 0.15s;
     padding: 0; line-height: 1;
 }
-.ob-badge-delete-btn:hover { background: #fee2e2; color: #dc2626; }
+.ob-badge-delete-btn:hover { background: rgba(220, 38, 38, 0.25); color: #c53030; }
 
 /* バッジ削除復元バー */
 .ob-badge-undo-bar {
