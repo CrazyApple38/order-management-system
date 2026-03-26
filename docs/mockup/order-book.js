@@ -581,7 +581,7 @@ function renderGrid() {
         if (!isHidden) { visibleCount++; visibleRowIndex++; }
 
         // Frozen cells（クリックで行編集モーダルを開く）
-        html += `<div class="ob-cell ob-frozen-0 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.branch}</div>`;
+        html += `<div class="ob-cell ob-frozen-0 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${obBranchShort(row.branch)}</div>`;
         html += `<div class="ob-cell ob-frozen-1 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.category}</div>`;
         html += `<div class="ob-cell ob-frozen-2 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.shift}</div>`;
         html += `<div class="ob-cell ob-frozen-3 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.company}</div>`;
@@ -1609,7 +1609,7 @@ function openEditModal(ri, day, siteIdx) {
     document.getElementById('editModalTitle').textContent = `セル編集 - ${dateStr}`;
     const editMeta = document.getElementById('editModalMeta');
     editMeta.innerHTML =
-        `<span class="ob-cal-meta-company">${escapeHtml(row.branch)}</span>` +
+        `<span class="ob-cal-meta-company">${escapeHtml(obBranchShort(row.branch))}</span>` +
         `<span class="ob-cal-meta-task">${escapeHtml(row.company)} / ${escapeHtml(taskDisplay)}</span>` +
         `<span class="ob-cal-meta-tags">${escapeHtml(row.category)} | ${escapeHtml(row.shift)}勤</span>`;
     editMeta.classList.toggle('ob-night', row.shift === '夜');
@@ -1937,6 +1937,9 @@ let rowEditDisabledShifts = [];
 // 会社リスト（グローバル）
 // 【モックアップ専用】本番環境ではDBのcompaniesテーブルから取得
 const branchList = ['東央警備', 'Nikkeiホールディングス', '全日本エンタープライズ'];
+// 会社略称マッピング（狭いUI向け: テーブル列・カレンダーモーダル・変更通知カード）
+const branchShortNames = { '東央警備': '東央', 'Nikkeiホールディングス': 'Nikkei', '全日本エンタープライズ': 'AJE' };
+function obBranchShort(name) { return branchShortNames[name] || name; }
 // 昼夜リスト
 // 【モックアップ専用】本番環境ではDBのshift_typesマスタから取得
 const shiftList = ['昼', '夜'];
@@ -2522,7 +2525,7 @@ function openCalendarModal(ri) {
     document.getElementById('calendarModalTitle').textContent = 'カレンダー入力';
     const calMeta = document.getElementById('calendarModalMeta');
     calMeta.innerHTML =
-        `<span class="ob-cal-meta-company">${escapeHtml(row.branch)}</span>` +
+        `<span class="ob-cal-meta-company">${escapeHtml(obBranchShort(row.branch))}</span>` +
         `<span class="ob-cal-meta-task">${escapeHtml(row.company)} / ${escapeHtml(taskDisplay)}</span>` +
         `<span class="ob-cal-meta-tags">${escapeHtml(row.category)} | ${escapeHtml(row.shift)}勤</span>`;
     calMeta.classList.toggle('ob-night', row.shift === '夜');
@@ -3258,7 +3261,7 @@ function obCnRenderLatest() {
         } else {
             // 全体モード: 会社・区分・契約先名・業務名・昼夜・対象日
             siteHtml = '<div class="ob-cn-card-site">' +
-                '<span class="ob-cn-info-item">' + escapeHtml(n.branch || '') + '</span>' +
+                '<span class="ob-cn-info-item">' + escapeHtml(obBranchShort(n.branch || '')) + '</span>' +
                 '<span class="ob-cn-category-badge ' + catClass + '">' + n.category + '</span>' +
                 '<span class="ob-cn-info-item">' + escapeHtml(n.company || '') + '</span>' +
                 '<span class="ob-cn-info-item">' + escapeHtml(displayName) + '</span>' +
@@ -3555,7 +3558,7 @@ const obCnDemoSequence = [
     },
     {
         type: 'add', user: '鈴木（受注担当）',
-        details: [{ field: '会社', value: '東央警備' }, { field: '区分', value: '交通（夜）' }, { field: '契約先', value: '(株)丸山建設' }, { field: '業務名', value: '〇〇交差点' }],
+        details: [{ field: '会社', value: '東央' }, { field: '区分', value: '交通（夜）' }, { field: '契約先', value: '(株)丸山建設' }, { field: '業務名', value: '〇〇交差点' }],
         apply: function() {
             var newRow = { _rowId: obNextRowId++, branch: '東央警備', category: '交通', shift: '夜', company: '(株)丸山建設', task: '〇〇交差点', hidden: false };
             var ri = sampleRows.length;
@@ -3622,7 +3625,7 @@ const obCnDemoSequence = [
     },
     {
         type: 'add', user: '田中（営業部）',
-        details: [{ field: '会社', value: 'Nikkeiホールディングス' }, { field: '区分', value: '高速（夜）' }, { field: '契約先', value: '(株)〇〇高速' }, { field: '業務名', value: '名神SA巡回' }],
+        details: [{ field: '会社', value: 'Nikkei' }, { field: '区分', value: '高速（夜）' }, { field: '契約先', value: '(株)〇〇高速' }, { field: '業務名', value: '名神SA巡回' }],
         apply: function() {
             var newRow = { _rowId: obNextRowId++, branch: 'Nikkeiホールディングス', category: '高速', shift: '夜', company: '(株)〇〇高速', task: '名神SA巡回', hidden: false };
             var ri = sampleRows.length;

@@ -18,9 +18,9 @@
         // グループ会社データ
         // 【本番】DBのグループ会社マスターから動的に取得。背景色はユーザー設定テーブルから読み込み
         const groupCompaniesData = [
-            { id: 1, code: 'touo', name: '東央警備', rowClass: 'gc-row-touo' },
-            { id: 2, code: 'nikkei', name: 'Nikkeiホールディングス', rowClass: 'gc-row-nikkei' },
-            { id: 3, code: 'zennihon', name: '全日本エンタープライズ', rowClass: 'gc-row-zennihon' }
+            { id: 1, code: 'touo', name: '東央警備', shortName: '東央', rowClass: 'gc-row-touo' },
+            { id: 2, code: 'nikkei', name: 'Nikkeiホールディングス', shortName: 'Nikkei', rowClass: 'gc-row-nikkei' },
+            { id: 3, code: 'zennihon', name: '全日本エンタープライズ', shortName: 'AJE', rowClass: 'gc-row-zennihon' }
         ];
 
         // 部署データ（会社コード → 部署リスト）
@@ -1700,14 +1700,9 @@
             visibleCompanies.forEach(function(gc) {
                 const depts = departmentsData[gc.code] || [];
                 const isExpanded = spState.expandedCompanies.has(gc.code);
-                // 略称
-                const shortName = gc.name
-                    .replace('ホールディングス', 'HD')
-                    .replace('エンタープライズ', 'EP');
-
                 tabsHtml += '<div class="sp-gc-header' + (isExpanded ? ' expanded' : '') + '"'
                     + ' data-sp-gc="' + gc.code + '"'
-                    + ' onclick="spToggleCompany(\'' + gc.code + '\')">' + shortName + '</div>';
+                    + ' onclick="spToggleCompany(\'' + gc.code + '\')">' + gc.shortName + '</div>';
                 tabsHtml += '<div class="sp-dept-group' + (isExpanded ? ' expanded' : '') + '"'
                     + ' data-sp-gc-group="' + gc.code + '">';
                 depts.forEach(function(dept) {
@@ -1744,10 +1739,7 @@
                 visibleCompanies.forEach(function(gc) {
                     const companyEmps = filtered.filter(function(emp) { return emp.company === gc.code; });
                     if (companyEmps.length === 0) return;
-                    const shortName = gc.name
-                        .replace('ホールディングス', 'HD')
-                        .replace('エンタープライズ', 'EP');
-                    contentHtml += '<div class="sp-gc-section-label">' + shortName + '</div>';
+                    contentHtml += '<div class="sp-gc-section-label">' + gc.shortName + '</div>';
                     companyEmps.forEach(function(emp) {
                         const isAssigned = assignedNames.has(emp.name);
                         contentHtml += '<span class="employee-tag' + (isAssigned ? ' assigned' : '') + '"'
@@ -4243,7 +4235,7 @@
                 ? 'すべて'
                 : checked.map(c => {
                     const gc = groupCompaniesData.find(g => g.code === c);
-                    return gc ? gc.name.replace('ホールディングス', '').replace('エンタープライズ', '') : c;
+                    return gc ? gc.shortName : c;
                 }).join(' + ');
 
             // 行の表示/非表示
