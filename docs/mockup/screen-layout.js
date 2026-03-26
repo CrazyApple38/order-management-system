@@ -72,6 +72,20 @@
             { plate: 'た 9012', model: 'エルフ', owner: 'touo' },
         ];
 
+        // ETCカードデータ
+        // 【本番】DBのETCカードマスターから動的に取得
+        const etcCardsData = [
+            { label: 'ETC-A', owner: 'touo' },
+            { label: 'ETC-B', owner: 'touo' },
+            { label: 'ETC-C', owner: 'touo' },
+            { label: 'ETC-D', owner: 'touo' },
+            { label: 'ETC-E', owner: 'touo' },
+            { label: 'ETC-F', owner: 'touo' },
+            { label: 'ETC く7521', owner: 'nikkei' },
+            { label: 'ETC わ2490', owner: 'nikkei' },
+            { label: 'ETC か5678', owner: 'nikkei' },
+        ];
+
         // サイドパネル状態
         const spState = {
             activeTab: 'all',
@@ -1864,10 +1878,28 @@
                 });
             }
 
+            // 配置済みETCラベルを取得
+            var assignedEtcs = new Set();
+            document.querySelectorAll('.etc-drop-zone .etc-tag').forEach(function(tag) {
+                var text = tag.childNodes[0];
+                if (text) assignedEtcs.add(text.textContent.trim());
+            });
+
+            // ETCフィルタリング
+            var filteredEtc = etcCardsData.filter(function(e) {
+                return visibleCompanies.some(function(gc) { return gc.code === e.owner; });
+            });
+            if (searchTerm) {
+                filteredEtc = filteredEtc.filter(function(e) {
+                    return e.label.includes(searchTerm);
+                });
+            }
+
             var html = '';
             visibleCompanies.forEach(function(gc) {
                 var companyVehicles = filtered.filter(function(v) { return v.owner === gc.code; });
-                if (companyVehicles.length === 0) return;
+                var companyEtc = filteredEtc.filter(function(e) { return e.owner === gc.code; });
+                if (companyVehicles.length === 0 && companyEtc.length === 0) return;
                 html += '<div class="sp-gc-section-label">' + gc.shortName + '</div>';
                 companyVehicles.forEach(function(v) {
                     var isAssigned = assignedPlates.has(v.plate);
@@ -1878,6 +1910,17 @@
                         + v.plate + '<span class="vlt-model">' + v.model + '</span>'
                         + '</span>';
                 });
+                if (companyEtc.length > 0) {
+                    html += '<div class="sp-etc-label">ETC</div>';
+                    companyEtc.forEach(function(e) {
+                        var isAssigned = assignedEtcs.has(e.label);
+                        html += '<span class="etc-list-tag' + (isAssigned ? ' assigned' : '') + '"'
+                            + ' draggable="true" ondragstart="etcDrag(event)"'
+                            + ' data-label="' + e.label + '">'
+                            + e.label
+                            + '</span>';
+                    });
+                }
             });
             content.innerHTML = html;
 
@@ -1891,7 +1934,7 @@
             }
 
             // dragendリスナー
-            content.querySelectorAll('.vehicle-list-tag').forEach(function(tag) {
+            content.querySelectorAll('.vehicle-list-tag, .etc-list-tag').forEach(function(tag) {
                 tag.addEventListener('dragend', function() {
                     this.classList.remove('dragging');
                 });
@@ -1927,10 +1970,16 @@
             var plate = ev.dataTransfer.getData('text/vehicle');
             if (!plate) return;
 
-            // 同一ゾーン内の重複チェック
-            var existing = zone.querySelectorAll('.vehicle-tag');
-            for (var i = 0; i < existing.length; i++) {
-                if (existing[i].childNodes[0].textContent.trim() === plate) return;
+            // 同一シフト帯の全行で重複チェック
+            var targetShift = getRowShift(zone);
+            var allZones = document.querySelectorAll('.vehicle-drop-zone');
+            for (var i = 0; i < allZones.length; i++) {
+                var z = allZones[i];
+                if (getRowShift(z) !== targetShift) continue;
+                var tags = z.querySelectorAll('.vehicle-tag');
+                for (var j = 0; j < tags.length; j++) {
+                    if (tags[j].childNodes[0].textContent.trim() === plate) return;
+                }
             }
 
             pushUndo();
@@ -1938,6 +1987,58 @@
             tag.className = 'vehicle-tag';
             tag.innerHTML = plate + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
             zone.appendChild(tag);
+            updateVehicleListStatus();
+        }
+
+        // ===== ETC D&D =====
+        function etcDrag(ev) {
+            ev.dataTransfer.setData('text/etc', ev.target.dataset.label);
+            ev.dataTransfer.effectAllowed = 'copy';
+            ev.target.classList.add('dragging');
+        }
+
+        function etcAllowDrop(ev) {
+            if (ev.dataTransfer.types.includes('text/etc')) {
+                ev.preventDefault();
+                ev.currentTarget.classList.add('drag-over');
+            }
+        }
+
+        function etcDragLeave(ev) {
+            ev.currentTarget.classList.remove('drag-over');
+        }
+
+        function etcDrop(ev) {
+            ev.preventDefault();
+            var zone = ev.currentTarget;
+            zone.classList.remove('drag-over');
+            var label = ev.dataTransfer.getData('text/etc');
+            if (!label) return;
+
+            // 同一シフト帯の全行で重複チェック
+            var targetShift = getRowShift(zone);
+            var allZones = document.querySelectorAll('.etc-drop-zone');
+            for (var i = 0; i < allZones.length; i++) {
+                var z = allZones[i];
+                if (getRowShift(z) !== targetShift) continue;
+                var tags = z.querySelectorAll('.etc-tag');
+                for (var j = 0; j < tags.length; j++) {
+                    if (tags[j].childNodes[0].textContent.trim() === label) return;
+                }
+            }
+
+            pushUndo();
+            var tag = document.createElement('span');
+            tag.className = 'etc-tag';
+            tag.innerHTML = label + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
+            zone.appendChild(tag);
+            updateVehicleListStatus();
+        }
+
+        function removeEtc(btn) {
+            pushUndo();
+            var tag = btn.closest('.etc-tag');
+            if (tag) tag.remove();
             updateVehicleListStatus();
         }
 
@@ -3546,7 +3647,7 @@
                 '<td><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
                 '<td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>' +
                 '<td class="col-map clickable-cell" onclick="openMapModal(this, ' + d.no + ')"></td>' +
-                '<td class="col-vt"><div class="vehicle-drop-zone" ondrop="vehicleDrop(event)" ondragover="vehicleAllowDrop(event)" ondragleave="vehicleDragLeave(event)"></div></td>' +
+                '<td class="col-vt"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vehicleDrop(event)" ondragover="vehicleAllowDrop(event)" ondragleave="vehicleDragLeave(event)"></div><div class="etc-drop-zone" ondrop="etcDrop(event)" ondragover="etcAllowDrop(event)" ondragleave="etcDragLeave(event)"></div></div></td>' +
                 '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"></td>';
             return tr;
         }
