@@ -2061,17 +2061,33 @@
                     dragSourceVehicleTag = null;
                     updateVehicleListStatus();
                 } else {
-                    // サイドパネルからの新規配置
+                    // サイドパネルからの配置（同一シフト帯に既存配置があれば移動）
                     var targetShift = getRowShift(vZone);
+                    var existingTag = null;
+
+                    // ドロップ先に既に同じ車両がある場合は何もしない
+                    var inZone = vZone.querySelectorAll('.vehicle-tag');
+                    for (var k = 0; k < inZone.length; k++) {
+                        if (inZone[k].childNodes[0].textContent.trim() === plate) return;
+                    }
+
+                    // 同一シフト帯の他の行で既存配置を探す
                     var allVZones = document.querySelectorAll('.vehicle-drop-zone');
                     for (var i = 0; i < allVZones.length; i++) {
+                        if (allVZones[i] === vZone) continue;
                         if (getRowShift(allVZones[i]) !== targetShift) continue;
                         var tags = allVZones[i].querySelectorAll('.vehicle-tag');
                         for (var j = 0; j < tags.length; j++) {
-                            if (tags[j].childNodes[0].textContent.trim() === plate) return;
+                            if (tags[j].childNodes[0].textContent.trim() === plate) {
+                                existingTag = tags[j];
+                                break;
+                            }
                         }
+                        if (existingTag) break;
                     }
+
                     pushUndo();
+                    if (existingTag) existingTag.remove();
                     var tag = document.createElement('span');
                     tag.className = 'vehicle-tag';
                     tag.innerHTML = plate + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
