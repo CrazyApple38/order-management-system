@@ -1775,3 +1775,260 @@ body {
     .sidebar.open { transform: translateX(0); }
     .main { margin-left: 0; padding: 16px; }
 }
+
+/* ===========================
+   Web Components — Buttons
+   =========================== */
+
+/* --- Action Buttons (モーダルフッター用) --- */
+.web-btn {
+    padding: 9px 22px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.web-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.web-btn-primary {
+    background: var(--accent);
+    color: white;
+}
+.web-btn-primary:hover {
+    background: var(--accent-light);
+    box-shadow: 0 2px 8px rgba(68,166,181,0.3);
+}
+
+.web-btn-secondary {
+    background: var(--bg-surface-2);
+    color: var(--text-secondary);
+}
+.web-btn-secondary:hover {
+    background: var(--bg-surface-3);
+}
+
+.web-btn-danger {
+    background: rgba(229, 62, 62, 0.08);
+    color: #E53E3E;
+    border: 1px solid rgba(229, 62, 62, 0.3);
+}
+.web-btn-danger:hover {
+    background: rgba(229, 62, 62, 0.15);
+}
+
+/* --- Toolbar Buttons (ツールバー用) --- */
+.web-tb-btn {
+    padding: 5px 10px;
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    background: var(--bg-surface);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.web-tb-btn:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.web-tb-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.web-tb-btn-primary {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+.web-tb-btn-primary:hover {
+    background: var(--accent-light);
+    border-color: var(--accent-light);
+}
+
+.web-tb-btn-danger {
+    background: rgba(229, 62, 62, 0.08);
+    color: #E53E3E;
+    border-color: rgba(229, 62, 62, 0.3);
+}
+.web-tb-btn-danger:hover {
+    background: rgba(229, 62, 62, 0.15);
+    color: #E53E3E;
+}
+
+/* --- Add Buttons (追加系) --- */
+.web-btn-add-dashed {
+    padding: 4px 12px;
+    border: 1px dashed var(--accent);
+    border-radius: 6px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.web-btn-add-dashed:hover {
+    background: var(--accent);
+    color: white;
+    border-style: solid;
+}
+
+.web-btn-add-solid {
+    padding: 6px 14px;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.web-btn-add-solid:hover {
+    background: var(--accent);
+    color: white;
+}
+
+/* --- Button Demo Layout --- */
+.web-btn-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 14px 20px;
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+}
+.web-btn-group.footer-demo {
+    justify-content: space-between;
+}
+.web-btn-group.footer-demo .web-btn-group-right {
+    display: flex;
+    gap: 10px;
+}
+.web-toolbar-demo {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    flex-wrap: wrap;
+}
+.web-toolbar-demo .tb-separator {
+    width: 1px;
+    height: 20px;
+    background: var(--divider);
+    margin: 0 4px;
+}
+.web-btn-spec {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* --- Close Button --- */
+.web-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+    line-height: 1;
+}
+.web-close-btn:hover,
+.web-close-btn.hover {
+    background: var(--accent-dim);
+    color: var(--accent);
+}
+
+/* --- Inline Small Buttons --- */
+.web-inline-btn {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+    line-height: 1.4;
+}
+.web-inline-danger {
+    background: rgba(220, 38, 38, 0.06);
+    color: #dc2626;
+    border-color: rgba(220, 38, 38, 0.3);
+}
+.web-inline-danger:hover {
+    background: rgba(229, 62, 62, 0.15);
+}
+.web-inline-undo {
+    background: #fff;
+    color: #d97706;
+    border-color: #f59e0b;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 2px 10px;
+}
+.web-inline-undo:hover {
+    background: #f59e0b;
+    color: #fff;
+}
+.web-inline-action {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-color: var(--accent);
+    font-weight: 600;
+}
+.web-inline-action:hover {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* --- Tab Buttons --- */
+.web-tab-demo {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--divider);
+    background: var(--bg-surface);
+    padding: 0 8px;
+    border-radius: 8px 8px 0 0;
+}
+.web-tab {
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+}
+.web-tab:hover {
+    color: var(--text-secondary);
+}
+.web-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}

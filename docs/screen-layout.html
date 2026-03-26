@@ -895,29 +895,33 @@
 
         <!-- 地図URLモーダル -->
         <div class="modal-overlay" id="mapModal">
-            <div class="modal-content" style="min-width: 500px;">
-                <h3>地図URL設定</h3>
-
-                <div class="modal-section">
-                    <label>Google Maps URL</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="url" id="mapUrlInput" placeholder="https://maps.google.com/..." style="flex: 1;" oninput="updateMapPreview()">
-                        <button type="button" onclick="updateMapPreview()" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; white-space: nowrap;">表示</button>
-                    </div>
-                    <p style="color: var(--text-tertiary); font-size: 0.8rem; margin-top: 5px;">Google Mapsで場所を開き、URLをコピーして貼り付けてください</p>
+            <div class="modal-content modal-map-detail">
+                <div class="modal-site-header">
+                    <h3>地図URL設定</h3>
+                    <button class="ob-modal-close" onclick="closeMapModal()">✕</button>
                 </div>
-
-                <div class="modal-section" id="mapPreviewSection" style="display: none;">
-                    <label>プレビュー</label>
-                    <div style="border: 1px solid var(--divider); border-radius: 6px; overflow: hidden; background: var(--bg-surface-2);">
-                        <iframe id="mapPreviewFrame" src="" style="width: 100%; height: 300px; border: none;"></iframe>
+                <div class="modal-site-body">
+                    <div class="modal-section">
+                        <label>Google Maps URL</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="url" id="mapUrlInput" placeholder="https://maps.google.com/..." style="flex: 1;" oninput="updateMapPreview()">
+                            <button type="button" onclick="updateMapPreview()" style="padding: 8px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; white-space: nowrap;">表示</button>
+                        </div>
+                        <p style="color: var(--text-tertiary); font-size: 0.8rem; margin-top: 5px;">Google Mapsで場所を開き、URLをコピーして貼り付けてください</p>
+                    </div>
+                    <div class="modal-section" id="mapPreviewSection" style="display: none;">
+                        <label>プレビュー</label>
+                        <div style="border: 1px solid var(--divider); border-radius: 6px; overflow: hidden; background: var(--bg-surface-2);">
+                            <iframe id="mapPreviewFrame" src="" style="width: 100%; height: 300px; border: none;"></iframe>
+                        </div>
                     </div>
                 </div>
-
-                <div class="modal-buttons">
-                    <button class="btn-cancel" onclick="clearMapUrl()" style="margin-right: auto; background: rgba(229,62,62,0.15); color: #fc8181;">削除</button>
-                    <button class="btn-cancel" onclick="closeMapModal()">キャンセル</button>
-                    <button class="btn-save" onclick="saveMapModal()">保存</button>
+                <div class="modal-site-footer">
+                    <button class="ob-btn ob-btn-danger" onclick="clearMapUrl()">削除</button>
+                    <div class="modal-site-footer-right">
+                        <button class="ob-btn ob-btn-secondary" onclick="closeMapModal()">キャンセル</button>
+                        <button class="ob-btn ob-btn-primary" onclick="saveMapModal()">保存</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -946,9 +950,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal-buttons">
-                        <button class="btn-cancel" onclick="closeWorkTimeModal()">キャンセル</button>
-                        <button class="btn-save" onclick="saveWorkTimeModal()">保存</button>
+                </div>
+                <div class="modal-site-footer">
+                    <div class="modal-site-footer-right">
+                        <button class="ob-btn ob-btn-secondary" onclick="closeWorkTimeModal()">キャンセル</button>
+                        <button class="ob-btn ob-btn-primary" onclick="saveWorkTimeModal()">保存</button>
                     </div>
                 </div>
             </div>
@@ -1014,10 +1020,10 @@
                     </div>
                 </div>
                 <div class="sort-modal-footer">
-                    <button class="sort-btn sort-btn-reset" onclick="resetSortSettings()">リセット</button>
+                    <button class="ob-btn ob-btn-danger" onclick="resetSortSettings()">リセット</button>
                     <div class="sort-footer-right">
-                        <button class="sort-btn sort-btn-cancel" onclick="closeSortModal()">キャンセル</button>
-                        <button class="sort-btn sort-btn-apply" onclick="applySortSettings()">ソート実行</button>
+                        <button class="ob-btn ob-btn-secondary" onclick="closeSortModal()">キャンセル</button>
+                        <button class="ob-btn ob-btn-primary" onclick="applySortSettings()">ソート実行</button>
                     </div>
                 </div>
             </div>
@@ -1238,7 +1244,7 @@
                 </div>
             </div>
             <div class="cn-footer">
-                <button class="cn-footer-btn" onclick="closeChangeNotifyModal()">閉じる</button>
+                <button class="ob-btn ob-btn-secondary" onclick="closeChangeNotifyModal()">閉じる</button>
             </div>
         </div>
     </div>

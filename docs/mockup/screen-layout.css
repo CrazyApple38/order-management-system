@@ -737,20 +737,20 @@ h1 {
 }
 
 .toolbar button {
-    padding: 5px 10px;
+    padding: 6px 14px;
     border: 1px solid var(--divider);
     background: var(--bg-surface);
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 0.8rem;
-    transition: all 0.2s;
+    transition: all 0.15s;
     color: var(--text-primary);
     white-space: nowrap;
 }
 
 .toolbar button:hover {
-    background: var(--accent);
-    color: white;
+    background: var(--accent-dim);
+    color: var(--accent);
     border-color: var(--accent);
 }
 
@@ -765,13 +765,14 @@ h1 {
 }
 
 .toolbar button.danger {
+    background: rgba(229, 62, 62, 0.08);
     color: var(--error);
-    border-color: var(--error);
+    border-color: rgba(229, 62, 62, 0.3);
 }
 
 .toolbar button.danger:hover {
-    background: var(--error);
-    color: white;
+    background: rgba(229, 62, 62, 0.15);
+    color: var(--error);
 }
 
 .toolbar button:disabled {
@@ -1986,6 +1987,17 @@ h1 {
     color: var(--text-secondary);
 }
 
+.modal-buttons .btn-danger {
+    background: rgba(229, 62, 62, 0.08);
+    border: 1px solid rgba(229, 62, 62, 0.3);
+    color: var(--error);
+    margin-right: auto;
+    transition: background 0.15s;
+}
+.modal-buttons .btn-danger:hover {
+    background: rgba(229, 62, 62, 0.15);
+}
+
 .modal-buttons .btn-save {
     background: var(--accent);
     border: none;
@@ -2483,9 +2495,9 @@ h1 {
     align-items: center;
     gap: 10px;
     padding: 14px 24px;
-    border-top: 2px solid var(--divider);
+    border-top: 1px solid var(--divider);
     background: var(--bg-surface-2);
-    border-radius: 0 0 12px 12px;
+    border-radius: 0 0 10px 10px;
 }
 
 .sort-footer-right {
@@ -2753,13 +2765,18 @@ h1 {
 
 .modal-work-detail,
 .modal-meeting-detail,
-.modal-work-time-detail {
+.modal-work-time-detail,
+.modal-map-detail {
     max-height: 85vh;
     display: flex;
     flex-direction: column;
     padding: 0;
     border-radius: 10px;
     overflow: hidden;
+}
+.modal-map-detail {
+    width: 550px;
+    max-width: 90vw;
 }
 .modal-work-detail {
     width: 400px;
@@ -2862,10 +2879,10 @@ h1 {
     background: var(--bg-surface-2);
 }
 .modal-site-footer button.ob-btn-danger {
-    background: #dc2626; color: white; border-color: #dc2626;
+    background: rgba(229, 62, 62, 0.08); color: var(--error); border: 1px solid rgba(229, 62, 62, 0.3);
 }
 .modal-site-footer button.ob-btn-danger:hover {
-    background: #b91c1c; border-color: #b91c1c; box-shadow: 0 2px 8px rgba(220,38,38,0.3);
+    background: rgba(229, 62, 62, 0.15); color: var(--error);
 }
 .modal-site-footer button:last-child {
     background: var(--accent);
@@ -3288,8 +3305,8 @@ h1 {
     transition: all 0.15s;
 }
 .cn-close:hover {
-    background: var(--bg-surface-3);
-    color: var(--text-primary);
+    background: var(--accent-dim);
+    color: var(--accent);
 }
 
 /* タブ */
@@ -3753,8 +3770,8 @@ h1 {
 .ob-btn-primary:hover { background: var(--accent-light); box-shadow: 0 2px 8px rgba(68,166,181,0.3); }
 .ob-btn-secondary { background: var(--bg-surface-2); color: var(--text-secondary); border: none; }
 .ob-btn-secondary:hover { background: var(--bg-surface-3); }
-.ob-btn-danger { background: #dc2626; color: white; }
-.ob-btn-danger:hover { background: #b91c1c; box-shadow: 0 2px 8px rgba(220,38,38,0.3); }
+.ob-btn-danger { background: rgba(229, 62, 62, 0.08); color: var(--error); border: 1px solid rgba(229, 62, 62, 0.3); }
+.ob-btn-danger:hover { background: rgba(229, 62, 62, 0.15); color: var(--error); }
 
 /* ── チップ選択フィールド ── */
 .ob-chip-field {

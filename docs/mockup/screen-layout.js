@@ -2646,21 +2646,26 @@
         }
 
         function selectSortItem(column, index) {
-            sortState.selected[column] = index;
+            var deselect = sortState.selected[column] === index;
+            sortState.selected[column] = deselect ? null : index;
             renderSortList(column);
 
             if (column === 'category') {
-                sortState.filterCategory = sortState.category[index] || null;
+                sortState.filterCategory = deselect ? null : (sortState.category[index] || null);
                 sortState.filterContractor = null;
                 sortState.selected.contractor = null;
                 sortState.selected.site = null;
                 renderSortList('contractor'); renderSortList('site');
                 updateSortFilters();
             } else if (column === 'contractor') {
-                let items = sortState.filterCategory
-                    ? (sortState.categoryContractorOrders[sortState.filterCategory] || [])
-                    : sortState.contractor;
-                sortState.filterContractor = items[index] || null;
+                if (deselect) {
+                    sortState.filterContractor = null;
+                } else {
+                    let items = sortState.filterCategory
+                        ? (sortState.categoryContractorOrders[sortState.filterCategory] || [])
+                        : sortState.contractor;
+                    sortState.filterContractor = items[index] || null;
+                }
                 sortState.selected.site = null;
                 renderSortList('site');
                 updateSortFilters();
@@ -2670,8 +2675,8 @@
         function updateSortFilters() {
             const contractorFilter = document.getElementById('sortContractorFilter');
             const siteFilter = document.getElementById('sortSiteFilter');
-            contractorFilter.textContent = sortState.filterCategory ? '▸ ' + sortState.filterCategory : '（区分を選択で絞込み）';
-            siteFilter.textContent = sortState.filterContractor ? '▸ ' + sortState.filterContractor : '（契約先を選択で絞込み）';
+            contractorFilter.textContent = sortState.filterCategory ? '▸ ' + sortState.filterCategory : '';
+            siteFilter.textContent = sortState.filterContractor ? '▸ ' + sortState.filterContractor : '';
         }
 
         function sortMoveUp(column) {

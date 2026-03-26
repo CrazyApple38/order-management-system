@@ -18,6 +18,7 @@
     --accent-dim: rgba(68, 166, 181, 0.12);
     --secondary: #B2D5E2;
     --divider: #B2D5E2;
+    --error: #E53E3E;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: thin; }
@@ -416,6 +417,7 @@ body {
 .ob-modal-footer {
     display: flex; justify-content: space-between; align-items: center;
     padding: 14px 20px; border-top: 1px solid var(--divider);
+    background: var(--bg-surface-2);
 }
 .ob-modal-footer-right {
     display: flex; gap: 10px;
@@ -894,8 +896,8 @@ body {
 .ob-btn-primary:disabled:hover { background: var(--accent); box-shadow: none; }
 .ob-btn-secondary { background: var(--bg-surface-2); color: var(--text-secondary); border: none; }
 .ob-btn-secondary:hover { background: var(--bg-surface-3); }
-.ob-btn-danger { background: #dc2626; color: white; }
-.ob-btn-danger:hover { background: #b91c1c; box-shadow: 0 2px 8px rgba(220,38,38,0.3); }
+.ob-btn-danger { background: rgba(229, 62, 62, 0.08); color: var(--error); border: 1px solid rgba(229, 62, 62, 0.3); }
+.ob-btn-danger:hover { background: rgba(229, 62, 62, 0.15); color: var(--error); }
 
 /* ソート設定 */
 .ob-sort-desc { font-size: 12px; color: var(--text-tertiary); margin-bottom: 10px; }
@@ -1105,7 +1107,7 @@ body {
     cursor: pointer; transition: all 0.15s;
 }
 .ob-btn-delete-site:hover {
-    background: #dc2626; color: white; border-color: #dc2626;
+    background: rgba(229, 62, 62, 0.15); color: var(--error);
 }
 
 /* ツールチップ内の配置先ヘッダー */
@@ -1476,7 +1478,7 @@ body {
     border-radius: 4px;
     transition: all 0.15s;
 }
-.ob-cn-close:hover { background: #edf2f7; color: #4a5568; }
+.ob-cn-close:hover { background: var(--accent-dim); color: var(--accent); }
 
 /* タブ */
 .ob-cn-tabs {
