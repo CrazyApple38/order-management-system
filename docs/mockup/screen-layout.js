@@ -61,10 +61,22 @@
             { name: '前田', company: 'zennihon', dept: 'zen-kotsu2' }
         ];
 
+        // 車両データ（ナンバー・車種・所有者）
+        // 【本番】DBの車両マスターから動的に取得
+        const vehiclesData = [
+            { plate: 'さ 3078', model: 'ハイエース', owner: 'touo' },
+            { plate: 'わ 2490', model: 'キャラバン', owner: 'touo' },
+            { plate: 'く 7521', model: 'プロボックス', owner: 'nikkei' },
+            { plate: 'あ 1234', model: 'ハイエース', owner: 'touo' },
+            { plate: 'か 5678', model: 'キャンター', owner: 'nikkei' },
+            { plate: 'た 9012', model: 'エルフ', owner: 'touo' },
+        ];
+
         // サイドパネル状態
         const spState = {
             activeTab: 'all',
-            expandedCompanies: new Set()
+            expandedCompanies: new Set(),
+            mainTab: 'employee'
         };
 
         // サンプルデータ（契約先/元請け先）
@@ -1652,10 +1664,12 @@
             return '#D3D0C8';
         }
 
-        // 車両ドロップゾーン（D&Dソースは後続で実装）
+        // 車両ドロップゾーン
         function removeVehicle(btn) {
+            pushUndo();
             const tag = btn.closest('.vehicle-tag');
             if (tag) tag.remove();
+            updateVehicleListStatus();
         }
 
         // 配置中の社員名を取得
@@ -1801,6 +1815,132 @@
             renderSidePanel();
         }
 
+        // ===== メインタブ切替（社員/車両） =====
+        function spSwitchMainTab(tab) {
+            spState.mainTab = tab;
+            var empPanel = document.getElementById('spEmployeePanel');
+            var vehPanel = document.getElementById('spVehiclePanel');
+            if (!empPanel || !vehPanel) return;
+            var tabs = document.querySelectorAll('.sp-tab');
+            tabs.forEach(function(t) {
+                t.classList.toggle('active', t.dataset.spMain === tab);
+            });
+            if (tab === 'employee') {
+                empPanel.style.display = '';
+                vehPanel.style.display = 'none';
+                renderSidePanel();
+            } else {
+                empPanel.style.display = 'none';
+                vehPanel.style.display = '';
+                renderVehiclePanel();
+            }
+        }
+
+        // ===== 車両リストレンダリング =====
+        function renderVehiclePanel() {
+            var content = document.getElementById('spVehicleContent');
+            var searchInput = document.getElementById('spVehicleSearchInput');
+            if (!content) return;
+            var searchTerm = searchInput ? searchInput.value.trim() : '';
+
+            var visibleCompanies = groupCompaniesData.filter(function(gc) {
+                return gcFilterState.selected.includes(gc.code);
+            });
+
+            // 配置済み車両ナンバーを取得
+            var assignedPlates = new Set();
+            document.querySelectorAll('.vehicle-drop-zone .vehicle-tag').forEach(function(tag) {
+                var text = tag.childNodes[0];
+                if (text) assignedPlates.add(text.textContent.trim());
+            });
+
+            // フィルタリング
+            var filtered = vehiclesData.filter(function(v) {
+                return visibleCompanies.some(function(gc) { return gc.code === v.owner; });
+            });
+            if (searchTerm) {
+                filtered = filtered.filter(function(v) {
+                    return v.plate.includes(searchTerm) || v.model.includes(searchTerm);
+                });
+            }
+
+            var html = '';
+            visibleCompanies.forEach(function(gc) {
+                var companyVehicles = filtered.filter(function(v) { return v.owner === gc.code; });
+                if (companyVehicles.length === 0) return;
+                html += '<div class="sp-gc-section-label">' + gc.shortName + '</div>';
+                companyVehicles.forEach(function(v) {
+                    var isAssigned = assignedPlates.has(v.plate);
+                    html += '<span class="vehicle-list-tag' + (isAssigned ? ' assigned' : '') + '"'
+                        + ' draggable="true" ondragstart="vehicleDrag(event)"'
+                        + ' data-plate="' + v.plate + '"'
+                        + ' data-model="' + v.model + '">'
+                        + v.plate + '<span class="vlt-model">' + v.model + '</span>'
+                        + '</span>';
+                });
+            });
+            content.innerHTML = html;
+
+            // ヘッダーカウント更新
+            var countEl = document.querySelector('.sp-vehicle-count');
+            if (countEl) {
+                var total = vehiclesData.filter(function(v) {
+                    return visibleCompanies.some(function(gc) { return gc.code === v.owner; });
+                }).length;
+                countEl.textContent = '全' + total + '台';
+            }
+
+            // dragendリスナー
+            content.querySelectorAll('.vehicle-list-tag').forEach(function(tag) {
+                tag.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                });
+            });
+        }
+
+        function updateVehicleListStatus() {
+            if (spState.mainTab === 'vehicle') renderVehiclePanel();
+        }
+
+        // ===== 車両D&D =====
+        function vehicleDrag(ev) {
+            ev.dataTransfer.setData('text/vehicle', ev.target.dataset.plate);
+            ev.dataTransfer.effectAllowed = 'copy';
+            ev.target.classList.add('dragging');
+        }
+
+        function vehicleAllowDrop(ev) {
+            if (ev.dataTransfer.types.includes('text/vehicle')) {
+                ev.preventDefault();
+                ev.currentTarget.classList.add('drag-over');
+            }
+        }
+
+        function vehicleDragLeave(ev) {
+            ev.currentTarget.classList.remove('drag-over');
+        }
+
+        function vehicleDrop(ev) {
+            ev.preventDefault();
+            var zone = ev.currentTarget;
+            zone.classList.remove('drag-over');
+            var plate = ev.dataTransfer.getData('text/vehicle');
+            if (!plate) return;
+
+            // 同一ゾーン内の重複チェック
+            var existing = zone.querySelectorAll('.vehicle-tag');
+            for (var i = 0; i < existing.length; i++) {
+                if (existing[i].childNodes[0].textContent.trim() === plate) return;
+            }
+
+            pushUndo();
+            var tag = document.createElement('span');
+            tag.className = 'vehicle-tag';
+            tag.innerHTML = plate + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
+            zone.appendChild(tag);
+            updateVehicleListStatus();
+        }
+
         function updateRowCount(zone) {
             const row = zone.closest('tr');
             if (!row) return;
@@ -1838,6 +1978,15 @@
                 if (zone) updateRowCount(zone);
                 updateEmployeeListStatus();
             }
+        }
+
+        // 行内の全配置社員を解除する
+        function releaseRowEmployees(row) {
+            var assigned = row.querySelectorAll('.assigned-employee');
+            for (var i = 0; i < assigned.length; i++) {
+                assigned[i].remove();
+            }
+            if (assigned.length > 0) updateEmployeeListStatus();
         }
 
         // ===== ミニマップ =====
@@ -1887,7 +2036,7 @@
 
             body.innerHTML = html;
             if (totalEl) {
-                totalEl.textContent = '必要: ' + totalRequired + ' / 配置: ' + totalAssigned;
+                totalEl.textContent = totalAssigned + '/' + totalRequired;
             }
         }
 
@@ -2121,6 +2270,16 @@
                 selectedGridRow.parentNode.insertBefore(next, selectedGridRow);
                 renumberRows();
             }
+        }
+
+        function deleteRow() {
+            if (!selectedGridRow) { alert('削除する行を選択してください'); return; }
+            if (!confirm('この行を削除しますか？\n配置中の社員は自動的に解除されます。')) return;
+            pushUndo();
+            releaseRowEmployees(selectedGridRow);
+            selectedGridRow.remove();
+            selectedGridRow = null;
+            renumberRows();
         }
 
         function renumberRows() {
@@ -2919,6 +3078,7 @@
               apply: function(self) {
                   var row = cnFindRow('県道〇号 夜間規制'); if (!row) return;
                   cnMarkPending(row, 'delete', function() {
+                      releaseRowEmployees(row);
                       row.remove(); cnRenumberRows();
                   });
               }},
@@ -3290,7 +3450,7 @@
                     cnShowRevertOverlay(row, 'modify', revertDiffs);
                 } else if (n.type === 'add') {
                     var row = n._row || cnFindRow(n.siteName);
-                    if (row) { cnPendingMap.delete(row); row.remove(); cnRenumberRows(); }
+                    if (row) { releaseRowEmployees(row); cnPendingMap.delete(row); row.remove(); cnRenumberRows(); }
                 } else if (n.type === 'delete') {
                     var row = n._row || cnFindRow(n.siteName);
                     if (!row) return;
@@ -3344,6 +3504,7 @@
                     n._deletedRowHtml = row.outerHTML;
                     n._deletedRowIndex = Array.from(row.parentNode.children).indexOf(row);
                     n._deletedRowParent = row.parentNode;
+                    releaseRowEmployees(row);
                     row.remove();
                     cnRenumberRows();
                 }
@@ -3385,7 +3546,7 @@
                 '<td><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
                 '<td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>' +
                 '<td class="col-map clickable-cell" onclick="openMapModal(this, ' + d.no + ')"></td>' +
-                '<td class="col-vt"><div class="vehicle-drop-zone"></div></td>' +
+                '<td class="col-vt"><div class="vehicle-drop-zone" ondrop="vehicleDrop(event)" ondragover="vehicleAllowDrop(event)" ondragleave="vehicleDragLeave(event)"></div></td>' +
                 '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"></td>';
             return tr;
         }
@@ -4124,7 +4285,7 @@
         // 削除ボタン
         // ============================================
         function smDeleteSite() {
-            if (!confirm('この現場情報を削除しますか？')) return;
+            if (!confirm('この現場情報を削除しますか？\n配置中の社員は自動的に解除されます。')) return;
             pushUndo();
             if (currentSiteCell) {
                 const siteNameDiv = currentSiteCell.querySelector('.site-name');
@@ -4133,6 +4294,8 @@
                 groupCompaniesData.forEach(g => delRow.classList.remove(g.rowClass));
                 currentSiteCell.removeAttribute('data-group-company');
                 currentSiteCell.removeAttribute('data-gc-name');
+                // 配置社員を自動解除
+                releaseRowEmployees(delRow);
             }
             closeSiteModal();
         }
@@ -4204,6 +4367,12 @@
         if (spSearchEl) {
             spSearchEl.addEventListener('input', function() {
                 renderSidePanel();
+            });
+        }
+        var spVehicleSearchEl = document.getElementById('spVehicleSearchInput');
+        if (spVehicleSearchEl) {
+            spVehicleSearchEl.addEventListener('input', function() {
+                renderVehiclePanel();
             });
         }
 
