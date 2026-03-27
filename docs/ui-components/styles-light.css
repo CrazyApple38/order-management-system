@@ -2139,7 +2139,12 @@ body {
     flex: 1;
     min-height: 0;
     background: #E9F1F6;
+    scrollbar-width: thin;
+    scrollbar-color: var(--divider) transparent;
 }
+.modal-site-body::-webkit-scrollbar { width: 5px; }
+.modal-site-body::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 3px; }
+.modal-site-body::-webkit-scrollbar-track { background: transparent; }
 .modal-site-footer {
     padding: 14px 24px;
     border-top: 1px solid var(--divider);
