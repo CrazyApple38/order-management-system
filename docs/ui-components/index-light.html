@@ -454,66 +454,73 @@
                         </div>
                         <div class="modal-site-body">
 
-                            <!-- 契約先 -->
-                            <div class="modal-section">
-                                <label>契約先（元請け）</label>
-                                <div class="combobox-container">
-                                    <input type="text" class="combobox-input" value="○○建設株式会社" autocomplete="off">
-                                    <button type="button" class="combobox-clear visible">✕</button>
-                                    <button type="button" class="combobox-toggle">▼</button>
-                                </div>
+                            <div class="modal-body-field">
+                                <div class="modal-body-field-value">Client / Site</div>
                             </div>
 
-                            <!-- 業務管理計画書 業務名（読み取り専用） -->
-                            <div class="ob-plan-name-row">
-                                <div class="ob-plan-name-label">業務管理計画書 業務名</div>
-                                <div class="ob-plan-name-value">○○ビル新築工事 <span class="ob-plan-arrow">→</span> 基礎・躯体工事</div>
-                            </div>
-
-                            <!-- 現場名 + 業務詳細 グループ -->
-                            <div class="sm-site-group">
+                            <!-- ━━ カード1: 契約情報 + 現場情報 ━━ -->
+                            <div class="modal-body-card">
                                 <div class="modal-section">
-                                    <label>現場名</label>
+                                    <label>契約先（元請け）</label>
                                     <div class="combobox-container">
-                                        <input type="text" class="combobox-input" value="○○ビル新築工事" autocomplete="off">
+                                        <input type="text" class="combobox-input" value="○○建設株式会社" autocomplete="off">
                                         <button type="button" class="combobox-clear visible">✕</button>
                                         <button type="button" class="combobox-toggle">▼</button>
                                     </div>
                                 </div>
-                                <div class="ob-sub-task-fields">
-                                    <div class="ob-sub-task-header">
-                                        <span class="ob-sub-task-title">業務詳細</span>
-                                        <button type="button" class="ob-btn-add-sub">+ 追加</button>
+
+                                <div class="sm-site-group">
+                                    <div class="modal-section">
+                                        <div class="sm-display-value">○○ビル新築工事　基礎掘削工事　配筋工事</div>
                                     </div>
-                                    <div class="ob-sub-task-entry">
-                                        <input type="text" class="ob-sub-label-input" value="作業名">
-                                        <input type="text" class="ob-sub-value-input" value="基礎掘削工事">
-                                        <button type="button" class="ob-btn-remove-sub">✕</button>
+                                    <div class="modal-section">
+                                        <label>現場名入力</label>
+                                        <div class="combobox-container">
+                                            <input type="text" class="combobox-input" value="○○ビル新築工事" autocomplete="off">
+                                            <button type="button" class="combobox-clear visible">✕</button>
+                                            <button type="button" class="combobox-toggle">▼</button>
+                                        </div>
                                     </div>
-                                    <div class="ob-sub-task-entry">
-                                        <input type="text" class="ob-sub-label-input" value="作業名">
-                                        <input type="text" class="ob-sub-value-input" value="配筋工事">
-                                        <button type="button" class="ob-btn-remove-sub">✕</button>
+                                    <div class="ob-sub-task-fields">
+                                        <div class="ob-sub-task-header">
+                                            <span class="ob-sub-task-title">業務詳細</span>
+                                            <button type="button" class="ob-btn-add-sub">+ 追加</button>
+                                        </div>
+                                        <div class="ob-sub-task-entry">
+                                            <input type="text" class="ob-sub-label-input" value="作業名">
+                                            <input type="text" class="ob-sub-value-input" value="基礎掘削工事">
+                                            <button type="button" class="ob-btn-remove-sub">✕</button>
+                                        </div>
+                                        <div class="ob-sub-task-entry">
+                                            <input type="text" class="ob-sub-label-input" value="作業名">
+                                            <input type="text" class="ob-sub-value-input" value="配筋工事">
+                                            <button type="button" class="ob-btn-remove-sub">✕</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <hr class="modal-site-divider">
+                            <div class="modal-body-field">
+                                <div class="modal-body-field-value">Category</div>
+                            </div>
 
-                            <!-- 区分 + 昼夜 -->
-                            <div class="modal-row">
-                                <div class="ob-chip-field" style="flex:2">
-                                    <div class="ob-chip-field-header">
-                                        <span class="ob-chip-field-title">区分</span>
-                                        <button type="button" class="ob-btn-add-chip">+ 追加</button>
-                                    </div>
-                                    <div class="ob-row-chips">
-                                        <span class="ob-row-chip ob-chip-active">土木</span>
-                                        <span class="ob-row-chip">建築</span>
-                                        <span class="ob-row-chip">電気</span>
-                                        <span class="ob-row-chip">管工事</span>
+                            <!-- ━━ カード2: 分類 ━━ -->
+                            <div class="modal-body-card">
+                                <div class="modal-row">
+                                    <div class="ob-chip-field" style="flex:2">
+                                        <div class="ob-chip-field-header">
+                                            <span class="ob-chip-field-title">区分</span>
+                                            <button type="button" class="ob-btn-add-chip">+ 追加</button>
+                                        </div>
+                                        <div class="ob-row-chips">
+                                            <span class="ob-row-chip ob-chip-active">土木</span>
+                                            <span class="ob-row-chip">建築</span>
+                                            <span class="ob-row-chip">電気</span>
+                                            <span class="ob-row-chip">管工事</span>
+                                        </div>
                                     </div>
                                 </div>
+
                                 <div class="ob-chip-field" style="flex:1">
                                     <div class="ob-chip-field-header">
                                         <span class="ob-chip-field-title">昼夜</span>
@@ -523,52 +530,54 @@
                                         <span class="ob-row-chip">夜</span>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- 会社（チップ） -->
-                            <div class="ob-chip-field">
-                                <div class="ob-chip-field-header">
-                                    <span class="ob-chip-field-title">会社</span>
-                                </div>
-                                <div class="ob-row-chips">
-                                    <span class="ob-row-chip ob-chip-active">本社</span>
-                                    <span class="ob-row-chip">東京支店</span>
-                                    <span class="ob-row-chip">大阪支店</span>
-                                </div>
-                            </div>
-
-                            <hr class="modal-site-divider">
-
-                            <!-- 現場監督 + 連絡先 -->
-                            <div class="modal-row">
-                                <div class="modal-section" style="flex:1">
-                                    <label>現場監督</label>
-                                    <input type="text" value="田中太郎">
-                                </div>
-                                <div class="modal-section" style="flex:1">
-                                    <label>連絡先（TEL）</label>
-                                    <input type="tel" value="090-1234-5678">
-                                </div>
-                            </div>
-
-                            <!-- 現場監督候補 -->
-                            <div class="ob-supervisor-candidates">
-                                <span class="ob-candidates-label">過去の入力:</span>
-                                <div class="ob-candidates-chips">
-                                    <div class="ob-sv-drag-item">
-                                        <span class="ob-sv-drag-grip">⠿</span>
-                                        <span class="ob-supervisor-chip">田中太郎</span>
-                                        <button type="button" class="ob-sv-delete-btn">✕</button>
+                                <div class="ob-chip-field">
+                                    <div class="ob-chip-field-header">
+                                        <span class="ob-chip-field-title">会社</span>
                                     </div>
-                                    <div class="ob-sv-drag-item">
-                                        <span class="ob-sv-drag-grip">⠿</span>
-                                        <span class="ob-supervisor-chip">鈴木一郎</span>
-                                        <button type="button" class="ob-sv-delete-btn">✕</button>
+                                    <div class="ob-row-chips">
+                                        <span class="ob-row-chip ob-chip-active">本社</span>
+                                        <span class="ob-row-chip">東京支店</span>
+                                        <span class="ob-row-chip">大阪支店</span>
                                     </div>
-                                    <div class="ob-sv-drag-item">
-                                        <span class="ob-sv-drag-grip">⠿</span>
-                                        <span class="ob-supervisor-chip">佐藤花子</span>
-                                        <button type="button" class="ob-sv-delete-btn">✕</button>
+                                </div>
+                            </div>
+
+                            <div class="modal-body-field">
+                                <div class="modal-body-field-value">Staff</div>
+                            </div>
+
+                            <!-- ━━ カード3: 担当者 ━━ -->
+                            <div class="modal-body-card">
+                                <div class="modal-row">
+                                    <div class="modal-section" style="flex:1">
+                                        <label>現場監督</label>
+                                        <input type="text" value="田中太郎">
+                                    </div>
+                                    <div class="modal-section" style="flex:1">
+                                        <label>連絡先（TEL）</label>
+                                        <input type="tel" value="090-1234-5678">
+                                    </div>
+                                </div>
+
+                                <div class="ob-supervisor-candidates">
+                                    <span class="ob-candidates-label">過去の入力:</span>
+                                    <div class="ob-candidates-chips">
+                                        <div class="ob-sv-drag-item">
+                                            <span class="ob-sv-drag-grip">⠿</span>
+                                            <span class="ob-supervisor-chip">田中太郎</span>
+                                            <button type="button" class="ob-sv-delete-btn">✕</button>
+                                        </div>
+                                        <div class="ob-sv-drag-item">
+                                            <span class="ob-sv-drag-grip">⠿</span>
+                                            <span class="ob-supervisor-chip">鈴木一郎</span>
+                                            <button type="button" class="ob-sv-delete-btn">✕</button>
+                                        </div>
+                                        <div class="ob-sv-drag-item">
+                                            <span class="ob-sv-drag-grip">⠿</span>
+                                            <span class="ob-supervisor-chip">佐藤花子</span>
+                                            <button type="button" class="ob-sv-delete-btn">✕</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -679,6 +688,8 @@
                             </div>
                             <div class="ob-cal-edit-panel-body">
                                 <div style="display: flex; flex-direction: column; gap: 14px;">
+
+                                    <div class="modal-section-bar">配置情報</div>
                                     <div class="modal-section" style="margin-bottom: 0;">
                                         <label>人数</label>
                                         <input type="number" value="5" style="width: 80px;">
@@ -694,6 +705,8 @@
                                             <button type="button" class="ob-btn-remove-sub">✕</button>
                                         </div>
                                     </div>
+
+                                    <div class="modal-section-bar">担当者</div>
                                     <div class="modal-row">
                                         <div class="modal-section" style="flex:1; margin-bottom: 0;">
                                             <label>現場監督</label>
@@ -704,6 +717,7 @@
                                             <input type="tel" value="090-1234-5678">
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
