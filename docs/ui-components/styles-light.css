@@ -31,6 +31,12 @@
     --shadow-sm: 0 2px 4px rgba(0,69,84,0.08);
     --shadow-md: 0 4px 12px rgba(0,69,84,0.12);
     --shadow-lg: 0 8px 24px rgba(0,69,84,0.15);
+    --shadow-medium: 0 4px 12px rgba(0,69,84,0.12);
+    --shadow-strong: 0 10px 40px rgba(0,69,84,0.15);
+    --error: #E53E3E;
+    --success: #38A169;
+    --success-text: #276749;
+    --warning-text: #92400e;
 }
 
 /* --- Reset & Base --- */
@@ -2031,4 +2037,591 @@ body {
 .web-tab.active {
     color: var(--accent);
     border-bottom-color: var(--accent);
+}
+
+/* ============================================================
+   MODAL: 現場詳細入力モーダル (from screen-layout.css)
+   ============================================================ */
+
+/* --- オーバーレイ・コンテナ基本 --- */
+.modal-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background: var(--bg-surface);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-strong);
+    min-width: 300px;
+    max-width: 90vw;
+    border: 1px solid var(--divider);
+}
+.modal-content h3 {
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--divider);
+}
+.modal-row {
+    display: flex;
+    gap: 12px;
+}
+.modal-section {
+    margin-bottom: 20px;
+}
+.modal-section label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+.modal-section select,
+.modal-section input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    font-size: 12px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+.modal-section input:focus,
+.modal-section select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+/* --- 現場詳細モーダル固有 --- */
+.modal-site-detail {
+    width: 90vw;
+    max-width: 500px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.modal-site-header {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.modal-site-header h3 {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-primary);
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.modal-site-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px 24px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+.modal-site-footer {
+    padding: 14px 24px;
+    border-top: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+.modal-site-footer-right {
+    display: flex;
+    gap: 10px;
+}
+.modal-site-divider {
+    border: none;
+    border-top: 1px solid var(--divider);
+    margin: 4px 0;
+}
+
+/* --- 閉じるボタン --- */
+.ob-modal-close {
+    background: none; border: none;
+    color: var(--text-tertiary); font-size: 18px;
+    cursor: pointer; padding: 2px 6px; border-radius: 4px;
+}
+.ob-modal-close:hover { background: var(--accent-dim); color: var(--accent); }
+
+/* --- ボタン共通 (ob-btn) --- */
+.ob-btn {
+    padding: 5px 10px; border: none; border-radius: 6px;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.ob-btn-primary { background: var(--accent); color: white; }
+.ob-btn-primary:hover { background: var(--accent-light); box-shadow: 0 2px 8px rgba(68,166,181,0.3); }
+.ob-btn-secondary { background: var(--bg-surface-2); color: var(--text-secondary); border: none; }
+.ob-btn-secondary:hover { background: var(--bg-surface-3); }
+.ob-btn-danger { background: rgba(229, 62, 62, 0.08); color: var(--error); border: 1px solid rgba(229, 62, 62, 0.3); }
+.ob-btn-danger:hover { background: rgba(229, 62, 62, 0.15); color: var(--error); }
+
+/* --- Combobox --- */
+.combobox-container { position: relative; }
+.combobox-input {
+    width: 100%; padding: 10px; padding-right: 35px;
+    border: 1px solid var(--divider); border-radius: 6px;
+    font-size: 12px; background: var(--bg-surface); color: var(--text-primary);
+}
+.combobox-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.combobox-input::placeholder { color: var(--text-disabled); }
+.combobox-toggle {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: var(--text-tertiary); font-size: 11px; padding: 5px;
+}
+.combobox-toggle:hover { color: var(--accent); }
+.combobox-clear {
+    position: absolute; right: 32px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: var(--text-disabled); font-size: 12px; padding: 5px; display: none;
+}
+.combobox-clear.visible { display: block; }
+.combobox-clear:hover { color: var(--error); }
+.combobox-dropdown {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: var(--bg-surface); border: 1px solid var(--divider);
+    border-top: none; border-radius: 0 0 6px 6px;
+    box-shadow: var(--shadow-medium); max-height: 200px; overflow-y: auto;
+    z-index: 100; display: none;
+}
+.combobox-dropdown.open { display: block; }
+.combobox-option {
+    padding: 10px 12px; cursor: pointer;
+    border-bottom: 1px solid var(--bg-surface-2);
+    display: flex; align-items: center; gap: 8px; color: var(--text-primary);
+}
+.combobox-option:hover,
+.combobox-option.highlighted { background: var(--accent-dim); }
+.combobox-option:last-child { border-bottom: none; }
+
+/* --- 計画書業務名行 --- */
+.ob-plan-name-row {
+    padding: 10px 14px;
+    background: rgba(68,166,181,0.06);
+    border: 1px solid var(--secondary);
+    border-radius: 6px;
+}
+.ob-plan-name-label {
+    font-size: 10px; font-weight: 600; color: var(--accent);
+    letter-spacing: 0.5px; margin-bottom: 4px;
+}
+.ob-plan-name-value {
+    font-size: 12px; font-weight: 600; color: var(--text-primary);
+    min-height: 20px; line-height: 1.4;
+}
+.ob-plan-name-value .ob-plan-arrow {
+    color: var(--text-disabled); margin: 0 4px; font-weight: 400;
+}
+.ob-plan-name-value.ob-plan-empty {
+    color: var(--text-disabled); font-style: italic; font-weight: 400;
+}
+
+/* --- 現場名+業務詳細グループ --- */
+.sm-site-group {
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    background: var(--bg-surface-2);
+    padding: 12px;
+}
+.sm-site-group .modal-section { margin-bottom: 8px; }
+.sm-site-group .ob-sub-task-fields { margin-top: 0; }
+
+/* --- 業務詳細（サブタスク） --- */
+.ob-sub-task-fields {
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 12px 14px;
+    background: rgba(68,166,181,0.05);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+}
+.ob-sub-task-header {
+    display: flex; align-items: center; justify-content: space-between;
+}
+.ob-sub-task-title {
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    letter-spacing: 0.5px;
+}
+.ob-btn-add-sub {
+    background: var(--accent-dim); border: 1px solid var(--accent);
+    color: var(--accent); padding: 4px 10px; border-radius: 4px;
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s;
+}
+.ob-btn-add-sub:hover { background: var(--accent); color: white; }
+.ob-sub-task-entry {
+    display: flex; align-items: center; gap: 6px; margin-top: 6px;
+}
+.ob-sub-label-input,
+.modal-site-body input.ob-sub-label-input {
+    width: 80px; flex-shrink: 0;
+    padding: 5px 8px; border: 1px dashed var(--divider);
+    border-radius: 4px; font-size: 11px;
+    background: rgba(68,166,181,0.04); color: var(--accent);
+    font-weight: 600; text-align: center;
+}
+.ob-sub-label-input:focus,
+.modal-site-body input.ob-sub-label-input:focus {
+    outline: none; border-color: var(--accent); border-style: solid;
+    box-shadow: 0 0 0 2px var(--accent-dim);
+}
+.ob-sub-value-input,
+.modal-site-body input.ob-sub-value-input {
+    flex: 1; width: auto;
+    padding: 6px 10px; border: 1px solid var(--divider);
+    border-radius: 5px; font-size: 12px;
+    background: var(--bg-surface); color: var(--text-primary);
+}
+.ob-sub-value-input:focus,
+.modal-site-body input.ob-sub-value-input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim);
+}
+.ob-btn-remove-sub {
+    background: none; border: 1px solid transparent;
+    color: var(--text-disabled); font-size: 16px;
+    cursor: pointer; padding: 2px 6px; border-radius: 4px;
+    transition: all 0.15s; flex-shrink: 0; line-height: 1;
+}
+.ob-btn-remove-sub:hover {
+    color: #dc2626; border-color: rgba(220,38,38,0.3);
+    background: rgba(220,38,38,0.06);
+}
+
+/* --- チップ選択フィールド --- */
+.ob-chip-field {
+    display: flex; flex-direction: column; gap: 5px;
+    padding: 6px 10px;
+    border: 1px solid var(--divider); border-radius: 6px;
+    background: rgba(68,166,181,0.03);
+}
+.ob-chip-field-header {
+    display: flex; align-items: center; justify-content: space-between;
+}
+.ob-chip-field-title {
+    font-size: 11px; font-weight: 600; color: var(--accent);
+    letter-spacing: 0.5px;
+}
+.ob-row-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.ob-row-chip {
+    display: inline-flex; align-items: center;
+    padding: 2px 10px; border-radius: 12px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface); color: var(--text-secondary);
+    font-size: 11px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; user-select: none;
+}
+.ob-row-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.ob-row-chip.ob-chip-active {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+}
+.ob-btn-add-chip {
+    align-self: flex-start;
+    padding: 4px 10px; border: 1px dashed var(--divider);
+    border-radius: 14px; background: transparent;
+    color: var(--text-tertiary); font-size: 11px;
+    cursor: pointer; transition: all 0.15s;
+}
+.ob-btn-add-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+
+/* --- コンフリクトバナー (screen-layout) --- */
+.cn-conflict-banner {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px;
+    background: rgba(214, 158, 46, 0.12);
+    border: 1px solid rgba(214, 158, 46, 0.4);
+    border-radius: 6px; margin-top: 10px;
+    width: 100%;
+}
+.cn-conflict-icon { font-size: 13px; flex-shrink: 0; }
+.cn-conflict-text { flex: 1; font-size: 11px; color: var(--warning-text); }
+.cn-conflict-close {
+    background: none; border: none; color: var(--warning-text);
+    font-size: 12px; cursor: pointer; padding: 2px 6px;
+    border-radius: 4px; opacity: 0.7; transition: opacity 0.15s;
+}
+.cn-conflict-close:hover { opacity: 1; }
+
+/* --- 現場監督候補 --- */
+.ob-supervisor-candidates {
+    display: flex; align-items: baseline; gap: 8px;
+    flex-wrap: wrap; padding: 2px 0 0;
+}
+.ob-candidates-label {
+    font-size: 11px; color: var(--text-tertiary);
+    white-space: nowrap; flex-shrink: 0;
+}
+.ob-candidates-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ob-sv-drag-item {
+    display: inline-flex; align-items: center; gap: 2px; border-radius: 14px;
+}
+.ob-sv-drag-grip {
+    font-size: 10px; color: var(--text-disabled);
+    cursor: grab; padding: 0 2px; user-select: none;
+}
+.ob-supervisor-chip {
+    padding: 4px 10px; border: 1px solid var(--divider);
+    border-radius: 14px; background: var(--bg-surface);
+    color: var(--text-secondary); font-size: 11px;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.ob-supervisor-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.ob-sv-delete-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    border: none; background: transparent;
+    color: var(--text-disabled); font-size: 9px;
+    cursor: pointer; transition: all 0.15s; padding: 0; line-height: 1;
+}
+.ob-sv-delete-btn:hover { background: #fee2e2; color: #dc2626; }
+.ob-sv-undo-bar {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; padding: 4px 10px;
+    background: #fef9c3; border-radius: 6px;
+    font-size: 11px; color: #92400e; margin-top: 4px;
+}
+.ob-badge-undo-btn {
+    background: rgba(68,166,181,0.1); border: 1px solid var(--accent);
+    color: var(--accent); padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 600; cursor: pointer;
+}
+
+/* ============================================================
+   MODAL: カレンダー入力モーダル (from order-book.css)
+   ============================================================ */
+
+/* --- オーバーレイ・コンテナ基本 --- */
+.ob-modal-overlay {
+    display: flex; align-items: center; justify-content: center;
+}
+.ob-modal {
+    background: var(--bg-surface); border-radius: 12px;
+    box-shadow: var(--shadow-strong);
+    width: 480px; max-height: 90vh;
+    display: flex; flex-direction: column;
+    overflow: hidden; border: 1px solid var(--divider);
+}
+.ob-modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+    background: var(--bg-surface-2); color: var(--text-primary);
+    border-bottom: 1px solid var(--divider);
+    border-radius: 12px 12px 0 0;
+}
+.ob-modal-header h3 { font-size: 13px; font-weight: 600; margin: 0; }
+.ob-modal-close {
+    background: none; border: none;
+    color: var(--text-tertiary); font-size: 18px;
+    cursor: pointer; padding: 2px 6px; border-radius: 4px;
+}
+.ob-modal-close:hover { background: var(--accent-dim); color: var(--accent); }
+.ob-modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+.ob-modal-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px; border-top: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+}
+.ob-modal-footer-right { display: flex; gap: 10px; }
+
+/* --- カレンダーモーダル固有 --- */
+.ob-modal-calendar { width: 500px; max-width: 95vw; max-height: 90vh; position: relative; }
+.ob-cal-close { position: absolute; top: 6px; right: 6px; z-index: 10; }
+
+/* ヘッダー */
+.ob-cal-header { flex-wrap: wrap; gap: 6px; padding-right: 36px; }
+.ob-cal-header-info { flex: 1; min-width: 150px; }
+.ob-cal-header-meta {
+    font-size: 12px; color: var(--text-secondary); margin-top: 3px;
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.ob-cal-meta-company { font-weight: 600; }
+.ob-cal-meta-task { font-weight: 500; }
+.ob-cal-meta-tags {
+    font-size: 12px; color: var(--text-tertiary);
+    padding: 1px 6px; background: var(--accent-dim); border-radius: 10px;
+}
+.ob-cal-month-nav-group {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.ob-cal-month-nav { display: flex; align-items: center; gap: 6px; }
+.ob-cal-sub-actions { display: flex; align-items: center; gap: 6px; }
+.ob-cal-undo-redo { display: flex; gap: 2px; }
+.ob-cal-nav-btn {
+    background: var(--bg-surface); border: 1px solid var(--divider);
+    color: var(--text-secondary); padding: 4px 8px; border-radius: 5px;
+    cursor: pointer; font-size: 11px; font-weight: 600; transition: all 0.15s;
+}
+.ob-cal-nav-btn:hover { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.ob-cal-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.ob-cal-month-label { font-size: 12px; font-weight: 600; color: var(--text-primary); min-width: 80px; text-align: center; }
+
+/* カレンダーボディ */
+.ob-cal-body { padding: 10px; }
+.ob-cal-grid {
+    display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px;
+}
+
+/* 曜日ヘッダー */
+.ob-cal-dow-header {
+    text-align: center; font-size: 10px; font-weight: 600;
+    color: var(--text-tertiary); padding: 4px 2px;
+    border-bottom: 1px solid var(--divider);
+}
+.ob-cal-dow-header.ob-cal-sun { color: #dc2626; }
+.ob-cal-dow-header.ob-cal-sat { color: var(--accent); }
+
+/* 日セル */
+.ob-cal-cell {
+    min-height: 56px; padding: 2px;
+    border: 1px solid rgba(178,213,226,0.25); border-radius: 3px;
+    display: flex; flex-direction: column; font-size: 11px;
+    transition: background 0.1s, border-color 0.1s; cursor: pointer;
+}
+.ob-cal-cell:hover:not(.ob-cal-outside) {
+    background: var(--accent-dim); border-color: var(--accent);
+}
+.ob-cal-day-num { font-size: 11px; font-weight: 600; margin-bottom: 1px; }
+
+/* 土日祝 */
+.ob-cal-cell.ob-cal-sun { background: rgba(220,120,120,0.06); }
+.ob-cal-cell.ob-cal-sun .ob-cal-day-num { color: #dc2626; }
+.ob-cal-cell.ob-cal-sat { background: rgba(68,166,181,0.06); }
+.ob-cal-cell.ob-cal-sat .ob-cal-day-num { color: var(--accent); }
+.ob-cal-cell.ob-cal-holiday { background: rgba(214,158,46,0.08); }
+.ob-cal-holiday-name { font-size: 8px; color: #b45309; font-weight: 500; line-height: 1; }
+
+/* 今日マーク */
+.ob-cal-cell.ob-cal-today .ob-cal-day-num {
+    background: var(--accent); color: white; border-radius: 50%;
+    width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+}
+
+/* 当月外 */
+.ob-cal-cell.ob-cal-outside {
+    background: rgba(0,0,0,0.02); cursor: default; opacity: 0.4;
+}
+
+/* エントリ表示 */
+.ob-cal-entries { flex: 1; display: flex; flex-direction: column; gap: 1px; margin-top: 1px; }
+.ob-cal-entry {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 1px 2px; border-radius: 2px; transition: background 0.1s;
+}
+.ob-cal-entry:hover { background: rgba(68,166,181,0.12); }
+.ob-cal-count { font-size: 13px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+.ob-cal-count.ob-cal-tentative-high { opacity: 0.5; }
+.ob-cal-count.ob-cal-tentative-low { opacity: 0.25; }
+.ob-cal-count.ob-cal-night { color: #B5524D; }
+.ob-cal-badge {
+    font-size: 7px; color: var(--accent);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+    line-height: 1;
+}
+
+/* 選択中セル */
+.ob-cal-cell.ob-cal-selected {
+    background: rgba(68,166,181,0.22) !important;
+    border: 2px solid var(--accent) !important;
+}
+.ob-cal-entry.ob-cal-entry-selected { background: var(--accent); border-radius: 3px; }
+.ob-cal-entry.ob-cal-entry-selected .ob-cal-count { color: white; }
+.ob-cal-entry.ob-cal-entry-selected .ob-cal-badge { color: rgba(255,255,255,0.85); }
+.ob-cal-entry + .ob-cal-entry { border-top: 1px solid rgba(178,213,226,0.3); padding-top: 1px; }
+
+/* バッジ表示ボタン */
+.ob-cal-badge-btn {
+    background: var(--bg-surface); border: 1px solid var(--divider);
+    color: var(--text-secondary); padding: 3px 8px; border-radius: 5px;
+    cursor: pointer; font-size: 10px; font-weight: 500; transition: all 0.15s;
+    display: flex; align-items: center; gap: 3px; white-space: nowrap;
+}
+.ob-cal-badge-btn .ob-icon { width: 11px; height: 11px; }
+.ob-cal-badge-btn:hover { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.ob-cal-badge-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+/* 編集アコーディオンパネル */
+.ob-cal-edit-panel { border-top: 2px solid var(--accent); }
+.ob-cal-edit-panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px; cursor: pointer;
+    background: var(--accent-dim);
+    font-size: 12px; font-weight: 600; color: var(--text-primary);
+    transition: background 0.15s;
+}
+.ob-cal-edit-panel-header:hover { background: rgba(68,166,181,0.18); }
+.ob-cal-edit-toggle {
+    font-size: 10px; color: var(--text-tertiary);
+    transition: transform 0.25s;
+}
+.ob-cal-edit-panel.collapsed .ob-cal-edit-toggle { transform: rotate(180deg); }
+.ob-cal-edit-panel-body {
+    overflow-y: auto; overflow-x: hidden;
+    max-height: 50vh;
+    padding: 16px;
+}
+.ob-cal-edit-panel.collapsed .ob-cal-edit-panel-body {
+    max-height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden;
+}
+
+/* フッター */
+.ob-cal-footer { gap: 12px; }
+.ob-cal-footer-btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
+/* 競合バナー (order-book) */
+.ob-cn-conflict-banner {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    background: #fffbeb; border: 1px solid #f6e05e;
+    border-radius: 6px; font-size: 11px; color: #744210;
+    margin: 0 8px; flex-shrink: 0;
+}
+.ob-cn-conflict-icon { font-size: 13px; }
+.ob-cn-conflict-text { flex: 1; font-size: 11px; }
+.ob-cn-conflict-close {
+    background: none; border: none; color: #d69e2e;
+    cursor: pointer; font-size: 12px; padding: 2px 4px;
+}
+.ob-cn-conflict-close:hover { color: #744210; }
+
+/* アイコン共通 */
+.ob-icon {
+    width: 1em; height: 1em;
+    vertical-align: -0.125em; display: inline-block; opacity: 0.7;
+}
+
+/* ============================================================
+   MODAL: UIコンポーネントページ用レイアウト補助
+   ============================================================ */
+.modal-demo-wrapper {
+    margin-bottom: 32px;
+}
+.modal-demo-label {
+    font-size: 12px; font-weight: 600; color: var(--text-secondary);
+    margin-bottom: 12px; padding-bottom: 4px;
+    border-bottom: 1px solid var(--divider);
 }

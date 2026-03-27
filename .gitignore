@@ -44,4 +44,6 @@ supabase/.temp/
 # Docs Assets
 docs/assets/icons/
 
-
+# Ignore Images and Logs
+*.png
+*.log

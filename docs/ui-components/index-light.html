@@ -23,6 +23,7 @@
             <h3>Web</h3>
             <ul>
                 <li><a href="#web-button">Button</a></li>
+                <li><a href="#web-modal">Modal</a></li>
             </ul>
         </div>
         <div class="sidebar-section">
@@ -427,6 +428,295 @@
                     <button class="web-tab">タイムライン</button>
                 </div>
                 <div class="web-btn-spec">.web-tab &nbsp; border-bottom: 2px solid transparent &nbsp; .active: color var(--accent), border-bottom var(--accent)</div>
+
+            </div>
+        </section>
+
+        <!-- Web Modal -->
+        <section class="comp-section" id="web-modal">
+            <div class="comp-title-bar"><h2>Modal</h2></div>
+            <div class="comp-body">
+
+                <!-- ===== 1. 現場詳細入力モーダル ===== -->
+                <div class="modal-demo-wrapper">
+                    <div class="modal-demo-label">1. 現場詳細入力モーダル（業務管理計画書）</div>
+
+                    <div class="modal-content modal-site-detail">
+                        <div class="modal-site-header">
+                            <h3>現場詳細入力</h3>
+                            <button class="ob-modal-close">✕</button>
+                            <!-- コンフリクト警告バナー -->
+                            <div class="cn-conflict-banner">
+                                <span class="cn-conflict-icon">⚠</span>
+                                <span class="cn-conflict-text">他のユーザーがこの現場を変更しました。最新のデータに更新されます。</span>
+                                <button class="cn-conflict-close">✕</button>
+                            </div>
+                        </div>
+                        <div class="modal-site-body">
+
+                            <!-- 契約先 -->
+                            <div class="modal-section">
+                                <label>契約先（元請け）</label>
+                                <div class="combobox-container">
+                                    <input type="text" class="combobox-input" value="○○建設株式会社" autocomplete="off">
+                                    <button type="button" class="combobox-clear visible">✕</button>
+                                    <button type="button" class="combobox-toggle">▼</button>
+                                </div>
+                            </div>
+
+                            <!-- 業務管理計画書 業務名（読み取り専用） -->
+                            <div class="ob-plan-name-row">
+                                <div class="ob-plan-name-label">業務管理計画書 業務名</div>
+                                <div class="ob-plan-name-value">○○ビル新築工事 <span class="ob-plan-arrow">→</span> 基礎・躯体工事</div>
+                            </div>
+
+                            <!-- 現場名 + 業務詳細 グループ -->
+                            <div class="sm-site-group">
+                                <div class="modal-section">
+                                    <label>現場名</label>
+                                    <div class="combobox-container">
+                                        <input type="text" class="combobox-input" value="○○ビル新築工事" autocomplete="off">
+                                        <button type="button" class="combobox-clear visible">✕</button>
+                                        <button type="button" class="combobox-toggle">▼</button>
+                                    </div>
+                                </div>
+                                <div class="ob-sub-task-fields">
+                                    <div class="ob-sub-task-header">
+                                        <span class="ob-sub-task-title">業務詳細</span>
+                                        <button type="button" class="ob-btn-add-sub">+ 追加</button>
+                                    </div>
+                                    <div class="ob-sub-task-entry">
+                                        <input type="text" class="ob-sub-label-input" value="作業名">
+                                        <input type="text" class="ob-sub-value-input" value="基礎掘削工事">
+                                        <button type="button" class="ob-btn-remove-sub">✕</button>
+                                    </div>
+                                    <div class="ob-sub-task-entry">
+                                        <input type="text" class="ob-sub-label-input" value="作業名">
+                                        <input type="text" class="ob-sub-value-input" value="配筋工事">
+                                        <button type="button" class="ob-btn-remove-sub">✕</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="modal-site-divider">
+
+                            <!-- 区分 + 昼夜 -->
+                            <div class="modal-row">
+                                <div class="ob-chip-field" style="flex:2">
+                                    <div class="ob-chip-field-header">
+                                        <span class="ob-chip-field-title">区分</span>
+                                        <button type="button" class="ob-btn-add-chip">+ 追加</button>
+                                    </div>
+                                    <div class="ob-row-chips">
+                                        <span class="ob-row-chip ob-chip-active">土木</span>
+                                        <span class="ob-row-chip">建築</span>
+                                        <span class="ob-row-chip">電気</span>
+                                        <span class="ob-row-chip">管工事</span>
+                                    </div>
+                                </div>
+                                <div class="ob-chip-field" style="flex:1">
+                                    <div class="ob-chip-field-header">
+                                        <span class="ob-chip-field-title">昼夜</span>
+                                    </div>
+                                    <div class="ob-row-chips">
+                                        <span class="ob-row-chip ob-chip-active">昼</span>
+                                        <span class="ob-row-chip">夜</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 会社（チップ） -->
+                            <div class="ob-chip-field">
+                                <div class="ob-chip-field-header">
+                                    <span class="ob-chip-field-title">会社</span>
+                                </div>
+                                <div class="ob-row-chips">
+                                    <span class="ob-row-chip ob-chip-active">本社</span>
+                                    <span class="ob-row-chip">東京支店</span>
+                                    <span class="ob-row-chip">大阪支店</span>
+                                </div>
+                            </div>
+
+                            <hr class="modal-site-divider">
+
+                            <!-- 現場監督 + 連絡先 -->
+                            <div class="modal-row">
+                                <div class="modal-section" style="flex:1">
+                                    <label>現場監督</label>
+                                    <input type="text" value="田中太郎">
+                                </div>
+                                <div class="modal-section" style="flex:1">
+                                    <label>連絡先（TEL）</label>
+                                    <input type="tel" value="090-1234-5678">
+                                </div>
+                            </div>
+
+                            <!-- 現場監督候補 -->
+                            <div class="ob-supervisor-candidates">
+                                <span class="ob-candidates-label">過去の入力:</span>
+                                <div class="ob-candidates-chips">
+                                    <div class="ob-sv-drag-item">
+                                        <span class="ob-sv-drag-grip">⠿</span>
+                                        <span class="ob-supervisor-chip">田中太郎</span>
+                                        <button type="button" class="ob-sv-delete-btn">✕</button>
+                                    </div>
+                                    <div class="ob-sv-drag-item">
+                                        <span class="ob-sv-drag-grip">⠿</span>
+                                        <span class="ob-supervisor-chip">鈴木一郎</span>
+                                        <button type="button" class="ob-sv-delete-btn">✕</button>
+                                    </div>
+                                    <div class="ob-sv-drag-item">
+                                        <span class="ob-sv-drag-grip">⠿</span>
+                                        <span class="ob-supervisor-chip">佐藤花子</span>
+                                        <button type="button" class="ob-sv-delete-btn">✕</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="modal-site-footer">
+                            <button class="ob-btn ob-btn-danger">削除</button>
+                            <div class="modal-site-footer-right">
+                                <button class="ob-btn ob-btn-secondary">キャンセル</button>
+                                <button class="ob-btn ob-btn-primary">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== 2. カレンダー入力＋セル編集モーダル ===== -->
+                <div class="modal-demo-wrapper">
+                    <div class="modal-demo-label">2. カレンダー入力 + セル編集モーダル（受注簿）</div>
+
+                    <div class="ob-modal ob-modal-calendar" style="position: relative;">
+                        <button class="ob-modal-close ob-cal-close">✕</button>
+                        <div class="ob-modal-header ob-cal-header">
+                            <div class="ob-cal-header-info">
+                                <h3>カレンダー入力</h3>
+                                <div class="ob-cal-header-meta">
+                                    <span class="ob-cal-meta-company">○○建設</span>
+                                    <span class="ob-cal-meta-task">基礎掘削工事</span>
+                                    <span class="ob-cal-meta-tags">土木 / 昼</span>
+                                </div>
+                            </div>
+                            <div class="ob-cal-month-nav-group">
+                                <div class="ob-cal-month-nav">
+                                    <button class="ob-cal-nav-btn">◀</button>
+                                    <span class="ob-cal-month-label">2024年 4月</span>
+                                    <button class="ob-cal-nav-btn">▶</button>
+                                </div>
+                                <div class="ob-cal-sub-actions">
+                                    <div class="ob-cal-undo-redo">
+                                        <button class="ob-cal-nav-btn" disabled title="戻る">↩</button>
+                                        <button class="ob-cal-nav-btn" disabled title="次へ">↪</button>
+                                    </div>
+                                    <button class="ob-cal-badge-btn active">
+                                        <span class="ob-icon" style="font-size: 11px;">🏷</span> バッジ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- カレンダーグリッド（静的スナップショット: 2024年4月） -->
+                        <div class="ob-modal-body ob-cal-body">
+                            <div class="ob-cal-grid">
+                                <!-- 曜日ヘッダー -->
+                                <div class="ob-cal-dow-header ob-cal-sun">日</div>
+                                <div class="ob-cal-dow-header">月</div>
+                                <div class="ob-cal-dow-header">火</div>
+                                <div class="ob-cal-dow-header">水</div>
+                                <div class="ob-cal-dow-header">木</div>
+                                <div class="ob-cal-dow-header">金</div>
+                                <div class="ob-cal-dow-header ob-cal-sat">土</div>
+                                <!-- Week 1 -->
+                                <div class="ob-cal-cell ob-cal-outside ob-cal-sun"><span class="ob-cal-day-num">31</span></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">1</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count">3</span><span class="ob-cal-badge">掘削</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">2</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count">3</span><span class="ob-cal-badge">掘削</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">3</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count">3</span><span class="ob-cal-badge">掘削</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">4</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count">3</span><span class="ob-cal-badge">掘削</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">5</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count">3</span><span class="ob-cal-badge">掘削</span></div></div></div>
+                                <div class="ob-cal-cell ob-cal-sat"><span class="ob-cal-day-num">6</span></div>
+                                <!-- Week 2 -->
+                                <div class="ob-cal-cell ob-cal-sun"><span class="ob-cal-day-num">7</span></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">8</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count">4</span><span class="ob-cal-badge">配筋</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">9</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count">4</span><span class="ob-cal-badge">配筋</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">10</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count">4</span><span class="ob-cal-badge">配筋</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">11</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count">4</span><span class="ob-cal-badge">配筋</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">12</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count">4</span><span class="ob-cal-badge">配筋</span></div></div></div>
+                                <div class="ob-cal-cell ob-cal-sat"><span class="ob-cal-day-num">13</span></div>
+                                <!-- Week 3 -->
+                                <div class="ob-cal-cell ob-cal-sun"><span class="ob-cal-day-num">14</span></div>
+                                <div class="ob-cal-cell ob-cal-selected"><span class="ob-cal-day-num">15</span><div class="ob-cal-entries"><div class="ob-cal-entry ob-cal-entry-selected"><span class="ob-cal-count">5</span><span class="ob-cal-badge">型枠</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">16</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count">5</span><span class="ob-cal-badge">型枠</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">17</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count">5</span><span class="ob-cal-badge">型枠</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">18</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count">5</span><span class="ob-cal-badge">型枠</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">19</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count">5</span><span class="ob-cal-badge">型枠</span></div></div></div>
+                                <div class="ob-cal-cell ob-cal-sat"><span class="ob-cal-day-num">20</span></div>
+                                <!-- Week 4 -->
+                                <div class="ob-cal-cell ob-cal-sun"><span class="ob-cal-day-num">21</span></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">22</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count ob-cal-tentative-high">3</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">23</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count ob-cal-tentative-high">3</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">24</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count ob-cal-tentative-high">3</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">25</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count ob-cal-tentative-high">3</span></div></div></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">26</span><div class="ob-cal-entries"><div class="ob-cal-entry"><span class="ob-cal-count ob-cal-tentative-high">3</span></div></div></div>
+                                <div class="ob-cal-cell ob-cal-sat"><span class="ob-cal-day-num">27</span></div>
+                                <!-- Week 5 -->
+                                <div class="ob-cal-cell ob-cal-sun ob-cal-holiday"><span class="ob-cal-day-num">28</span><span class="ob-cal-holiday-name">昭和の日</span></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">29</span></div>
+                                <div class="ob-cal-cell"><span class="ob-cal-day-num">30</span></div>
+                                <div class="ob-cal-cell ob-cal-outside"><span class="ob-cal-day-num">1</span></div>
+                                <div class="ob-cal-cell ob-cal-outside"><span class="ob-cal-day-num">2</span></div>
+                                <div class="ob-cal-cell ob-cal-outside"><span class="ob-cal-day-num">3</span></div>
+                                <div class="ob-cal-cell ob-cal-outside ob-cal-sat"><span class="ob-cal-day-num">4</span></div>
+                            </div>
+                        </div>
+
+                        <!-- セル編集アコーディオンパネル（展開状態） -->
+                        <div class="ob-cal-edit-panel">
+                            <div class="ob-cal-edit-panel-header">
+                                <span>セル編集 — 4月15日（月）</span>
+                                <span class="ob-cal-edit-toggle">▲</span>
+                            </div>
+                            <div class="ob-cal-edit-panel-body">
+                                <div style="display: flex; flex-direction: column; gap: 14px;">
+                                    <div class="modal-section" style="margin-bottom: 0;">
+                                        <label>人数</label>
+                                        <input type="number" value="5" style="width: 80px;">
+                                    </div>
+                                    <div class="ob-sub-task-fields">
+                                        <div class="ob-sub-task-header">
+                                            <span class="ob-sub-task-title">業務詳細</span>
+                                            <button type="button" class="ob-btn-add-sub">+ 追加</button>
+                                        </div>
+                                        <div class="ob-sub-task-entry">
+                                            <input type="text" class="ob-sub-label-input" value="作業名">
+                                            <input type="text" class="ob-sub-value-input" value="型枠組立">
+                                            <button type="button" class="ob-btn-remove-sub">✕</button>
+                                        </div>
+                                    </div>
+                                    <div class="modal-row">
+                                        <div class="modal-section" style="flex:1; margin-bottom: 0;">
+                                            <label>現場監督</label>
+                                            <input type="text" value="田中太郎">
+                                        </div>
+                                        <div class="modal-section" style="flex:1; margin-bottom: 0;">
+                                            <label>連絡先</label>
+                                            <input type="tel" value="090-1234-5678">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ob-modal-footer ob-cal-footer">
+                            <button class="ob-btn ob-btn-danger ob-cal-footer-btn">削除</button>
+                            <div class="ob-modal-footer-right">
+                                <button class="ob-btn ob-btn-secondary ob-cal-footer-btn">カレンダー表示</button>
+                                <button class="ob-btn ob-btn-primary ob-cal-footer-btn">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </section>
