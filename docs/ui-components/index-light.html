@@ -24,6 +24,7 @@
             <ul>
                 <li><a href="#web-button">Button</a></li>
                 <li><a href="#web-modal">Modal</a></li>
+                <li><a href="#modal-design-pattern">Modal Pattern</a></li>
             </ul>
         </div>
         <div class="sidebar-section">
@@ -891,6 +892,529 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- ===== 3. 打合せモーダル（sm + フラット型 + フッターB） ===== -->
+                <div class="modal-demo-wrapper">
+                    <div class="modal-demo-label">3. 打合せモーダル — sm + フラット型 + フッターB（業務管理計画書）</div>
+
+                    <div class="ob-modal ob-modal-sm" style="position: relative;">
+                        <div class="ob-modal-header">
+                            <h3>集合</h3>
+                            <button class="ob-modal-close" style="color: rgba(255,255,255,0.8);">✕</button>
+                        </div>
+                        <div class="ob-modal-body">
+                            <div class="ob-form-row">
+                                <label>集合時間</label>
+                                <div class="ob-time-picker-wrap">
+                                    <input type="text" class="ob-time-input" value="08:45" readonly>
+                                    <span class="ob-time-picker-icon" style="opacity:0.5;">🕐</span>
+                                </div>
+                            </div>
+                            <div class="ob-chip-field" style="margin-top: 14px;">
+                                <div class="ob-chip-field-header">
+                                    <span class="ob-chip-field-title">連絡</span>
+                                    <button type="button" class="ob-btn-add-chip">+ 追加</button>
+                                </div>
+                                <div class="ob-row-chips">
+                                    <span class="ob-row-chip">会社</span>
+                                    <span class="ob-row-chip ob-chip-active">直</span>
+                                    <span class="ob-row-chip">LINE</span>
+                                    <span class="ob-row-chip">迎え</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ob-modal-footer">
+                            <div></div>
+                            <div class="ob-modal-footer-right">
+                                <button class="ob-btn ob-btn-secondary">キャンセル</button>
+                                <button class="ob-btn ob-btn-primary">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== 4. 行編集モーダル（sm + チップ選択 + フッターB） ===== -->
+                <div class="modal-demo-wrapper">
+                    <div class="modal-demo-label">4. 行情報編集モーダル — sm + フラット型 + チップ選択（受注簿）</div>
+
+                    <div class="ob-modal ob-modal-sm" style="position: relative;">
+                        <div class="ob-modal-header">
+                            <h3>行情報編集</h3>
+                            <button class="ob-modal-close" style="color: rgba(255,255,255,0.8);">✕</button>
+                        </div>
+                        <div class="ob-modal-body">
+                            <div class="ob-chip-field">
+                                <div class="ob-chip-field-header">
+                                    <span class="ob-chip-field-title">会社</span>
+                                </div>
+                                <div class="ob-row-chips">
+                                    <span class="ob-row-chip ob-chip-active">東央</span>
+                                    <span class="ob-row-chip">Nikkei</span>
+                                    <span class="ob-row-chip">全日本</span>
+                                </div>
+                            </div>
+                            <div class="ob-chip-field">
+                                <div class="ob-chip-field-header">
+                                    <span class="ob-chip-field-title">区分</span>
+                                    <button type="button" class="ob-btn-add-chip">+ 追加</button>
+                                </div>
+                                <div class="ob-row-chips">
+                                    <span class="ob-row-chip ob-chip-active">土木</span>
+                                    <span class="ob-row-chip">建築</span>
+                                    <span class="ob-row-chip">電気</span>
+                                    <span class="ob-row-chip">管工事</span>
+                                </div>
+                            </div>
+                            <div class="ob-chip-field">
+                                <div class="ob-chip-field-header">
+                                    <span class="ob-chip-field-title">昼夜</span>
+                                </div>
+                                <div class="ob-row-chips">
+                                    <span class="ob-row-chip ob-chip-active">昼</span>
+                                    <span class="ob-row-chip">夜</span>
+                                </div>
+                            </div>
+                            <div class="ob-form-row">
+                                <label>契約先名</label>
+                                <input type="text" value="○○建設株式会社" style="padding:8px 12px; border:1px solid var(--divider); border-radius:6px; font-size:13px; background:var(--bg-surface); color:var(--text-primary);">
+                            </div>
+                            <div class="ob-form-row">
+                                <label>業務名</label>
+                                <input type="text" value="基礎掘削工事" placeholder="空欄で個別業務" style="padding:8px 12px; border:1px solid var(--divider); border-radius:6px; font-size:13px; background:var(--bg-surface); color:var(--text-primary);">
+                            </div>
+                            <div class="ob-row-dup-warning" style="color: #d32f2f; font-size: 12px; font-weight: 600; padding: 6px 0 0; display: none;">※ この組み合わせは既に存在します</div>
+                        </div>
+                        <div class="ob-modal-footer">
+                            <div></div>
+                            <div class="ob-modal-footer-right">
+                                <button class="ob-btn ob-btn-secondary">キャンセル</button>
+                                <button class="ob-btn ob-btn-primary">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== 5. ソートモーダル（lg + マルチカラム + フッターA） ===== -->
+                <div class="modal-demo-wrapper">
+                    <div class="modal-demo-label">5. ソート設定モーダル — lg + マルチカラムリスト + フッターA（業務管理計画書）</div>
+
+                    <div class="sort-modal" style="position: relative; max-width: 700px;">
+                        <div class="sort-modal-header">
+                            <h3>ソート設定</h3>
+                            <button class="sort-modal-close">✕</button>
+                        </div>
+                        <div class="sort-modal-body">
+                            <div class="sort-column">
+                                <div class="sort-column-header">区分</div>
+                                <div class="sort-column-list">
+                                    <div class="sort-list-item selected"><span class="sort-item-number">1</span><span class="sort-item-name">土木</span></div>
+                                    <div class="sort-list-item"><span class="sort-item-number">2</span><span class="sort-item-name">建築</span></div>
+                                    <div class="sort-list-item"><span class="sort-item-number">3</span><span class="sort-item-name">電気</span></div>
+                                    <div class="sort-list-item"><span class="sort-item-number">4</span><span class="sort-item-name">管工事</span></div>
+                                </div>
+                                <div class="sort-column-buttons">
+                                    <button>▲</button>
+                                    <button>▼</button>
+                                </div>
+                            </div>
+                            <div class="sort-column">
+                                <div class="sort-column-header">昼夜</div>
+                                <div class="sort-column-list">
+                                    <div class="sort-list-item selected"><span class="sort-item-number">1</span><span class="sort-item-name">昼</span></div>
+                                    <div class="sort-list-item"><span class="sort-item-number">2</span><span class="sort-item-name">夜</span></div>
+                                </div>
+                                <div class="sort-column-buttons">
+                                    <button>▲</button>
+                                    <button>▼</button>
+                                </div>
+                            </div>
+                            <div class="sort-column">
+                                <div class="sort-column-header">契約先<span class="sort-column-filter">全3件</span></div>
+                                <div class="sort-column-list">
+                                    <div class="sort-list-item"><span class="sort-item-number">1</span><span class="sort-item-name">○○建設</span></div>
+                                    <div class="sort-list-item"><span class="sort-item-number">2</span><span class="sort-item-name">△△工業</span></div>
+                                    <div class="sort-list-item"><span class="sort-item-number">3</span><span class="sort-item-name">□□組</span></div>
+                                </div>
+                                <div class="sort-column-buttons">
+                                    <button>▲</button>
+                                    <button>▼</button>
+                                </div>
+                            </div>
+                            <div class="sort-column">
+                                <div class="sort-column-header">現場名<span class="sort-column-filter">全5件</span></div>
+                                <div class="sort-column-list">
+                                    <div class="sort-list-item"><span class="sort-item-number">1</span><span class="sort-item-name">○○ビル新築工事</span></div>
+                                    <div class="sort-list-item"><span class="sort-item-number">2</span><span class="sort-item-name">△△橋補修工事</span></div>
+                                    <div class="sort-list-item"><span class="sort-item-number">3</span><span class="sort-item-name">□□マンション</span></div>
+                                </div>
+                                <div class="sort-column-buttons">
+                                    <button>▲</button>
+                                    <button>▼</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sort-modal-footer">
+                            <button class="ob-btn ob-btn-danger">リセット</button>
+                            <div style="margin-left: auto; display: flex; gap: 10px;">
+                                <button class="ob-btn ob-btn-secondary">キャンセル</button>
+                                <button class="ob-btn ob-btn-primary">ソート実行</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== 6. 変更通知モーダル（lg + タブ + フッターC） ===== -->
+                <div class="modal-demo-wrapper">
+                    <div class="modal-demo-label">6. 変更通知モーダル — lg + タブ + カードリスト/タイムライン + フッターC（受注簿）</div>
+
+                    <div class="ob-cn-modal" style="position: relative;">
+                        <div class="ob-cn-header">
+                            <div class="ob-cn-header-left">
+                                <h3>変更通知</h3>
+                            </div>
+                            <div class="ob-cn-header-right">
+                                <select class="ob-cn-filter-select">
+                                    <option>すべての業務</option>
+                                </select>
+                                <button class="ob-cn-close">✕</button>
+                            </div>
+                        </div>
+                        <div class="ob-cn-tabs">
+                            <button class="ob-cn-tab active">最新の変更</button>
+                            <button class="ob-cn-tab">変更履歴</button>
+                        </div>
+                        <div class="ob-cn-body">
+                            <!-- 最新の変更タブ: カードリスト -->
+                            <div class="ob-cn-card-list">
+                                <!-- 追加カード -->
+                                <div class="ob-cn-card ob-cn-card-add">
+                                    <div class="ob-cn-card-header">
+                                        <span class="ob-cn-type-badge ob-cn-type-badge-add">追加</span>
+                                        <span class="ob-cn-card-user">山田太郎</span>
+                                        <span class="ob-cn-card-time">2分前</span>
+                                    </div>
+                                    <div class="ob-cn-card-body">
+                                        <div class="ob-cn-card-site">○○ビル新築工事 — 基礎掘削</div>
+                                        <div class="ob-cn-diff-list">
+                                            <div class="ob-cn-diff-row">
+                                                <span class="ob-cn-diff-label">人数</span>
+                                                <span class="ob-cn-diff-new">5人</span>
+                                            </div>
+                                            <div class="ob-cn-diff-row">
+                                                <span class="ob-cn-diff-label">信頼度</span>
+                                                <span class="ob-cn-diff-new">確定</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="ob-cn-card-actions">
+                                        <button class="ob-cn-btn-revert">元に戻す</button>
+                                    </div>
+                                </div>
+                                <!-- 変更カード -->
+                                <div class="ob-cn-card ob-cn-card-modify">
+                                    <div class="ob-cn-card-header">
+                                        <span class="ob-cn-type-badge ob-cn-type-badge-modify">変更</span>
+                                        <span class="ob-cn-card-user">鈴木一郎</span>
+                                        <span class="ob-cn-card-time">15分前</span>
+                                    </div>
+                                    <div class="ob-cn-card-body">
+                                        <div class="ob-cn-card-site">△△橋補修工事 — 型枠組立</div>
+                                        <div class="ob-cn-diff-list">
+                                            <div class="ob-cn-diff-row">
+                                                <span class="ob-cn-diff-label">人数</span>
+                                                <span class="ob-cn-diff-old">3</span>
+                                                <span class="ob-cn-diff-arrow">→</span>
+                                                <span class="ob-cn-diff-new">5</span>
+                                            </div>
+                                            <div class="ob-cn-diff-row">
+                                                <span class="ob-cn-diff-label">信頼度</span>
+                                                <span class="ob-cn-diff-old">予定（高）</span>
+                                                <span class="ob-cn-diff-arrow">→</span>
+                                                <span class="ob-cn-diff-new">確定</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="ob-cn-card-actions">
+                                        <button class="ob-cn-btn-revert">元に戻す</button>
+                                        <button class="ob-cn-btn-reapprove">やっぱり反映</button>
+                                    </div>
+                                </div>
+                                <!-- 削除カード -->
+                                <div class="ob-cn-card ob-cn-card-delete">
+                                    <div class="ob-cn-card-header">
+                                        <span class="ob-cn-type-badge ob-cn-type-badge-delete">削除</span>
+                                        <span class="ob-cn-card-user">佐藤花子</span>
+                                        <span class="ob-cn-card-time">1時間前</span>
+                                    </div>
+                                    <div class="ob-cn-card-body">
+                                        <div class="ob-cn-card-site">□□マンション — 電気工事</div>
+                                        <div class="ob-cn-diff-list">
+                                            <div class="ob-cn-diff-row">
+                                                <span class="ob-cn-diff-label">人数</span>
+                                                <span class="ob-cn-diff-old">2人</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="ob-cn-card-actions">
+                                        <button class="ob-cn-btn-revert">元に戻す</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 変更履歴タブ: タイムライン（非表示、構造参照用） -->
+                            <div class="ob-cn-timeline" style="display: none;">
+                                <div class="ob-cn-timeline-item ob-cn-tl-add">
+                                    <div class="ob-cn-tl-header">
+                                        <span class="ob-cn-tl-time">10:32</span>
+                                        <span class="ob-cn-tl-user">山田太郎</span>
+                                        <span class="ob-cn-tl-type ob-cn-tl-type-add">追加</span>
+                                    </div>
+                                    <div class="ob-cn-tl-content">
+                                        <span class="ob-cn-tl-name">○○ビル新築工事</span>
+                                        <span class="ob-cn-tl-summary">5人 確定</span>
+                                    </div>
+                                </div>
+                                <div class="ob-cn-timeline-item ob-cn-tl-modify">
+                                    <div class="ob-cn-tl-header">
+                                        <span class="ob-cn-tl-time">10:15</span>
+                                        <span class="ob-cn-tl-user">鈴木一郎</span>
+                                        <span class="ob-cn-tl-type ob-cn-tl-type-modify">変更</span>
+                                    </div>
+                                    <div class="ob-cn-tl-content">
+                                        <span class="ob-cn-tl-name">△△橋補修工事</span>
+                                        <span class="ob-cn-tl-summary">人数 3→5, 信頼度変更</span>
+                                    </div>
+                                </div>
+                                <div class="ob-cn-timeline-item ob-cn-tl-delete">
+                                    <div class="ob-cn-tl-header">
+                                        <span class="ob-cn-tl-time">09:30</span>
+                                        <span class="ob-cn-tl-user">佐藤花子</span>
+                                        <span class="ob-cn-tl-type ob-cn-tl-type-delete">削除</span>
+                                    </div>
+                                    <div class="ob-cn-tl-content">
+                                        <span class="ob-cn-tl-name">□□マンション</span>
+                                        <span class="ob-cn-tl-summary">電気工事 2人</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ob-cn-footer">
+                            <button class="ob-cn-footer-btn">閉じる</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== 7. 送迎・備考モーダル（sm + アイテムベース + フッターB） ===== -->
+                <div class="modal-demo-wrapper">
+                    <div class="modal-demo-label">7. 送迎・備考モーダル — sm + アイテムベース編集 + フッターB（業務管理計画書）</div>
+
+                    <div class="ob-modal ob-modal-sm" style="position: relative;">
+                        <div class="ob-modal-header">
+                            <h3>送迎・備考</h3>
+                            <button class="ob-modal-close" style="color: rgba(255,255,255,0.8);">✕</button>
+                        </div>
+                        <div class="ob-modal-body">
+                            <div class="vt-preset-section">
+                                <div class="vt-preset-label">プリセットから追加</div>
+                                <div class="vt-preset-btns">
+                                    <button class="vt-preset-btn">＋ 送迎</button>
+                                    <button class="vt-preset-btn">＋ 集合場所</button>
+                                    <button class="vt-preset-btn">＋ 備考</button>
+                                </div>
+                            </div>
+                            <div class="vt-modal-items">
+                                <div class="vt-item-row">
+                                    <span class="vt-drag-handle">⠿</span>
+                                    <input type="text" value="送迎" style="flex: 0 0 70px;">
+                                    <input type="text" value="本社集合 7:00">
+                                    <input type="color" value="#975A16" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
+                                    <input type="color" value="#FFFFFF" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
+                                    <button class="vt-remove-btn">✕</button>
+                                </div>
+                                <div class="vt-item-row">
+                                    <span class="vt-drag-handle">⠿</span>
+                                    <input type="text" value="集合場所" style="flex: 0 0 70px;">
+                                    <input type="text" value="現場事務所前">
+                                    <input type="color" value="#44A6B5" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
+                                    <input type="color" value="#FFFFFF" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
+                                    <button class="vt-remove-btn">✕</button>
+                                </div>
+                                <div class="vt-item-row">
+                                    <span class="vt-drag-handle">⠿</span>
+                                    <input type="text" value="備考" style="flex: 0 0 70px;">
+                                    <input type="text" value="雨天中止">
+                                    <input type="color" value="#A0A0A0" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
+                                    <input type="color" value="#FFFFFF" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
+                                    <button class="vt-remove-btn">✕</button>
+                                </div>
+                            </div>
+                            <button class="vt-add-item-btn">＋ 項目を追加</button>
+                        </div>
+                        <div class="ob-modal-footer">
+                            <div></div>
+                            <div class="ob-modal-footer-right">
+                                <button class="ob-btn ob-btn-secondary">キャンセル</button>
+                                <button class="ob-btn ob-btn-primary">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Modal Design Pattern Specification -->
+        <section class="comp-section" id="modal-design-pattern">
+            <div class="comp-title-bar"><h2>Modal Design Pattern（確定仕様）</h2></div>
+            <div class="comp-body">
+
+                <!-- 1. CSS命名規則 -->
+                <h4>1. CSS命名規則</h4>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;">
+                    <code>modal-*</code> プレフィックスに統一（<code>ob-modal-*</code> は廃止）。画面固有でない共通パターンとしてシンプルな命名を採用。
+                </p>
+                <table class="pattern-table">
+                    <thead><tr><th>要素</th><th>クラス名</th><th>説明</th></tr></thead>
+                    <tbody>
+                        <tr><td>オーバーレイ</td><td><code>.modal-overlay</code></td><td>背景暗転レイヤー</td></tr>
+                        <tr><td>コンテナ</td><td><code>.modal</code></td><td>モーダル本体</td></tr>
+                        <tr><td>ヘッダー</td><td><code>.modal-header</code></td><td>タイトル＋閉じるボタン</td></tr>
+                        <tr><td>ボディ</td><td><code>.modal-body</code></td><td>スクロール可能な内容領域</td></tr>
+                        <tr><td>フッター</td><td><code>.modal-footer</code></td><td>アクションボタン領域</td></tr>
+                        <tr><td>閉じるボタン</td><td><code>.modal-close</code></td><td>✕ボタン（ヘッダー右上）</td></tr>
+                        <tr><td>セクション区切り</td><td><code>.modal-section-bar</code></td><td>テキスト＋横線の区切り</td></tr>
+                        <tr><td>カード</td><td><code>.modal-body-card</code></td><td>白背景のグループ化カード</td></tr>
+                        <tr><td>フィールド見出し</td><td><code>.modal-body-field</code></td><td>Usage Map風フィールド見出し</td></tr>
+                    </tbody>
+                </table>
+
+                <!-- 2. サイズバリアント -->
+                <h4 style="margin-top: 24px;">2. サイズバリアント（4段階）</h4>
+                <table class="pattern-table">
+                    <thead><tr><th>バリアント</th><th>クラス</th><th>幅</th><th>用途例</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>sm</strong></td><td><code>.modal-sm</code></td><td>380px</td><td>行編集、ソート、打合せ、作業時間、備考、地図</td></tr>
+                        <tr><td><strong>md</strong></td><td><code>.modal</code>（デフォルト）</td><td>480px</td><td>セル編集</td></tr>
+                        <tr><td><strong>lg</strong></td><td><code>.modal-lg</code></td><td>520px</td><td>現場詳細、カレンダー入力、変更通知</td></tr>
+                        <tr><td><strong>xl</strong></td><td><code>.modal-xl</code></td><td>600px+</td><td>将来の大型モーダル用</td></tr>
+                    </tbody>
+                </table>
+                <p style="font-size: 12px; color: var(--text-tertiary); margin-top: 6px;">全サイズ共通: <code>max-height: 85vh</code>、<code>max-width: 95vw</code></p>
+
+                <!-- 3. ヘッダー -->
+                <h4 style="margin-top: 24px;">3. ヘッダー（全モーダル統一）</h4>
+                <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px;">
+                    <div style="background: #5AB8C6; color: #FFFFFF; padding: 14px 24px; border-radius: 12px 12px 0 0; display: flex; align-items: center; justify-content: space-between; min-width: 300px; flex: 1;">
+                        <h3 style="margin: 0; font-size: 13px; font-weight: 600; color: #FFFFFF; border: none; padding: 0;">モーダルタイトル</h3>
+                        <button class="ob-modal-close" style="color: rgba(255,255,255,0.8);">✕</button>
+                    </div>
+                </div>
+                <ul style="font-size: 12px; color: var(--text-secondary); list-style: disc; padding-left: 20px; margin-bottom: 0;">
+                    <li>背景: <code>#5AB8C6</code>（アクセントカラー）</li>
+                    <li>文字色: <code>#FFFFFF</code></li>
+                    <li>閉じるボタン: <code>rgba(255,255,255,0.8)</code> → hover: <code>rgba(255,255,255,0.2)</code> 背景</li>
+                    <li>パディング: <code>14px 24px</code></li>
+                    <li>角丸: 上部のみ <code>border-radius: 12px 12px 0 0</code></li>
+                </ul>
+
+                <!-- 4. ボディ背景 -->
+                <h4 style="margin-top: 24px;">4. ボディ背景（2パターン）</h4>
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <p style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">A) カード型（情報量多いモーダル向き）</p>
+                        <div style="background: #E9F1F6; padding: 16px; border-radius: 0 0 12px 12px; min-height: 80px;">
+                            <div class="modal-body-card" style="padding: 12px;">
+                                <div class="modal-section-bar">セクション名</div>
+                                <p style="font-size: 11px; color: var(--text-secondary);">白カード内にフォーム要素を配置</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">用途: 現場詳細、カレンダー編集パネル</p>
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <p style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">B) フラット型（シンプルなモーダル向き）</p>
+                        <div style="background: var(--bg-surface); padding: 16px; border-radius: 0 0 12px 12px; min-height: 80px; border: 1px solid var(--divider); border-top: none;">
+                            <p style="font-size: 11px; color: var(--text-secondary);">bg-surface背景に直接フォーム要素を配置</p>
+                        </div>
+                        <p style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">用途: セル編集、行編集、打合せ、作業時間</p>
+                    </div>
+                </div>
+
+                <!-- 5. フッター配置 -->
+                <h4 style="margin-top: 24px;">5. フッター配置パターン（4種）</h4>
+                <table class="pattern-table">
+                    <thead><tr><th>パターン</th><th>レイアウト</th><th>用途</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>A) 削除あり型</strong></td><td><code>[Delete] ─── [Cancel] [Save]</code></td><td>現場詳細、カレンダー</td></tr>
+                        <tr><td><strong>B) 基本型</strong></td><td><code>─────── [Cancel] [Save]</code></td><td>打合せ、作業時間、備考等</td></tr>
+                        <tr><td><strong>C) 閉じるのみ型</strong></td><td><code>─────── [Close]</code></td><td>変更通知（読み取り専用）</td></tr>
+                        <tr><td><strong>D) フッターなし</strong></td><td>ヘッダーの✕ボタンのみ</td><td>ポップアップ、インライン編集</td></tr>
+                    </tbody>
+                </table>
+                <ul style="font-size: 12px; color: var(--text-secondary); list-style: disc; padding-left: 20px; margin-top: 6px;">
+                    <li>背景: <code>var(--bg-surface-2)</code></li>
+                    <li>配置: <code>display: flex; justify-content: space-between</code></li>
+                    <li>パディング: <code>14px 24px</code></li>
+                    <li>上部境界線: <code>1px solid var(--divider)</code></li>
+                </ul>
+
+                <!-- 6. オーバーレイ -->
+                <h4 style="margin-top: 24px;">6. オーバーレイ</h4>
+                <ul style="font-size: 12px; color: var(--text-secondary); list-style: disc; padding-left: 20px;">
+                    <li>背景色: <code>rgba(0, 69, 84, 0.35)</code>（アクセント色ベース）</li>
+                    <li>配置: <code>position: fixed; inset: 0; z-index: 1000</code></li>
+                    <li>センタリング: <code>display: flex; align-items: center; justify-content: center</code></li>
+                    <li>クリックで閉じる（モーダル本体へのクリックは伝播停止）</li>
+                </ul>
+
+                <!-- 7. アニメーション -->
+                <h4 style="margin-top: 24px;">7. 開閉アニメーション（Fade + Scale）</h4>
+                <table class="pattern-table">
+                    <thead><tr><th>対象</th><th>開く</th><th>duration</th></tr></thead>
+                    <tbody>
+                        <tr><td>オーバーレイ</td><td><code>opacity: 0 → 1</code></td><td>0.2s ease</td></tr>
+                        <tr><td>モーダル本体</td><td><code>scale(0.95) → scale(1)</code> + <code>opacity: 0 → 1</code></td><td>0.2s ease</td></tr>
+                    </tbody>
+                </table>
+
+                <!-- 8. 共通仕様 -->
+                <h4 style="margin-top: 24px;">8. 共通仕様</h4>
+                <table class="pattern-table">
+                    <thead><tr><th>項目</th><th>値</th></tr></thead>
+                    <tbody>
+                        <tr><td>角丸</td><td><code>border-radius: 12px</code></td></tr>
+                        <tr><td>影</td><td><code>var(--shadow-strong)</code></td></tr>
+                        <tr><td>枠線</td><td><code>1px solid var(--divider)</code></td></tr>
+                        <tr><td>max-height</td><td><code>85vh</code></td></tr>
+                        <tr><td>スクロールバー</td><td><code>scrollbar-width: thin; width: 5px</code></td></tr>
+                        <tr><td>レイアウト</td><td><code>display: flex; flex-direction: column; overflow: hidden</code></td></tr>
+                    </tbody>
+                </table>
+
+                <!-- 9. 追加要素 -->
+                <h4 style="margin-top: 24px;">9. 追加要素（モーダル関連パターン）</h4>
+                <table class="pattern-table">
+                    <thead><tr><th>要素</th><th>説明</th><th>適用箇所</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>iOSアラート</strong></td><td>確認ダイアログ（OK/Cancel、破壊的操作の確認）</td><td>削除確認等</td></tr>
+                        <tr><td><strong>iOSアクションシート</strong></td><td>アクション選択メニュー（グループ + Cancel）</td><td>操作選択</td></tr>
+                        <tr><td><strong>競合バナー</strong></td><td>ヘッダー下の黄色警告バナー（他ユーザーが編集中）</td><td>セル編集、カレンダー</td></tr>
+                        <tr><td><strong>トースト通知</strong></td><td>保存成功・エラー等の一時的フィードバック（自動消去）</td><td>全画面共通</td></tr>
+                        <tr><td><strong>ローディング状態</strong></td><td>モーダル内の処理中表示（スピナー or スケルトン）</td><td>データ読み込み、保存中</td></tr>
+                    </tbody>
+                </table>
+
+                <!-- 10. ボタン共通 -->
+                <h4 style="margin-top: 24px;">10. ボタン仕様（モーダル内共通）</h4>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px;">
+                    <button class="ob-btn ob-btn-primary">保存 (Primary)</button>
+                    <button class="ob-btn ob-btn-secondary">キャンセル (Secondary)</button>
+                    <button class="ob-btn ob-btn-danger">削除 (Danger)</button>
+                </div>
+                <ul style="font-size: 12px; color: var(--text-secondary); list-style: disc; padding-left: 20px;">
+                    <li>Primary: <code>var(--accent)</code> 背景、白文字</li>
+                    <li>Secondary: <code>var(--bg-surface-2)</code> 背景</li>
+                    <li>Danger: 赤系、枠線付き</li>
+                    <li>共通: <code>padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600</code></li>
+                </ul>
 
             </div>
         </section>

@@ -2743,3 +2743,342 @@ body {
     margin-bottom: 12px; padding-bottom: 4px;
     border-bottom: 1px solid var(--divider);
 }
+
+/* ============================================================
+   MODAL: デザインパターン仕様テーブル
+   ============================================================ */
+.pattern-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 12px; margin-bottom: 12px;
+}
+.pattern-table th {
+    background: var(--bg-surface-2); color: var(--text-primary);
+    font-weight: 600; text-align: left;
+    padding: 8px 12px; border-bottom: 2px solid var(--divider);
+}
+.pattern-table td {
+    padding: 6px 12px; border-bottom: 1px solid var(--divider);
+    color: var(--text-secondary); vertical-align: top;
+}
+.pattern-table code {
+    background: rgba(9,134,152,0.08); color: var(--accent);
+    padding: 1px 5px; border-radius: 3px; font-size: 11px;
+}
+
+/* ============================================================
+   MODAL: 打合せ・行編集用フォーム要素 (from order-book.css)
+   ============================================================ */
+.ob-form-row { display: flex; flex-direction: column; gap: 5px; }
+.ob-form-row label {
+    font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.ob-form-row input,
+.ob-form-row textarea {
+    padding: 8px 12px; border: 1px solid var(--divider);
+    border-radius: 6px; font-size: 13px; font-family: inherit;
+    transition: border-color 0.15s;
+    background: var(--bg-surface); color: var(--text-primary);
+}
+.ob-form-row input:focus,
+.ob-form-row textarea:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.ob-time-picker-wrap {
+    position: relative; display: flex; align-items: center; cursor: pointer;
+}
+.ob-time-input {
+    width: 100%; padding: 7px 30px 7px 10px; border: 1px solid var(--divider);
+    border-radius: 6px; font-size: 13px; font-weight: 500;
+    text-align: center; cursor: pointer;
+    background: var(--bg-surface); color: var(--text-primary);
+    font-family: inherit; transition: border-color 0.15s;
+}
+.ob-time-input:hover { border-color: var(--accent); }
+.ob-time-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.ob-time-picker-icon {
+    position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; line-height: 1; pointer-events: none; opacity: 0.6;
+}
+.ob-modal-sm { width: 380px; }
+
+/* ============================================================
+   MODAL: ソートモーダル (from screen-layout.css)
+   ============================================================ */
+.sort-modal {
+    background: var(--bg-surface); border-radius: 12px;
+    box-shadow: var(--shadow-strong);
+    width: 90vw; max-width: 900px; max-height: 85vh;
+    display: flex; flex-direction: column;
+    border: 1px solid var(--divider);
+}
+.sort-modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 24px;
+    background: #5AB8C6; color: #FFFFFF;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px 12px 0 0;
+}
+.sort-modal-header h3 {
+    font-size: 13px; font-weight: 600; margin: 0;
+    color: #FFFFFF; border: none; padding: 0;
+}
+.sort-modal-close {
+    background: none; border: none; font-size: 18px;
+    cursor: pointer; color: rgba(255,255,255,0.8);
+    padding: 2px 6px; border-radius: 4px;
+}
+.sort-modal-close:hover { background: rgba(255,255,255,0.2); color: #FFFFFF; }
+.sort-modal-body {
+    display: flex; gap: 0; flex: 1;
+    overflow: hidden; min-height: 0;
+}
+.sort-column {
+    flex: 1; display: flex; flex-direction: column;
+    border-right: 1px solid var(--divider); min-width: 0;
+}
+.sort-column:last-child { border-right: none; }
+.sort-column-header {
+    padding: 10px 12px; font-weight: 700;
+    font-size: 11px; color: var(--text-primary);
+    background: var(--bg-surface-2);
+    border-bottom: 2px solid var(--divider);
+    text-align: center;
+}
+.sort-column-filter {
+    display: block; font-size: 10px; font-weight: 400;
+    color: var(--accent); margin-top: 2px;
+}
+.sort-column-list {
+    flex: 1; overflow-y: auto;
+    min-height: 120px; max-height: 250px;
+}
+.sort-list-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; cursor: pointer;
+    border-bottom: 1px solid rgba(178,213,226,0.5);
+    font-size: 12px; transition: background 0.1s;
+    user-select: none; color: var(--text-primary);
+}
+.sort-list-item:hover { background: var(--bg-surface-2); }
+.sort-list-item.selected {
+    background: var(--accent-dim);
+    border-left: 3px solid var(--accent); padding-left: 9px;
+}
+.sort-list-item .sort-item-number {
+    color: var(--text-disabled); font-size: 10px;
+    font-weight: 600; min-width: 16px;
+}
+.sort-list-item .sort-item-name {
+    flex: 1; min-width: 0; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
+}
+.sort-column-buttons {
+    display: flex; justify-content: center; gap: 8px;
+    padding: 8px; border-top: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+}
+.sort-column-buttons button {
+    padding: 4px 14px; border: 1px solid var(--divider);
+    background: var(--bg-surface); border-radius: 4px;
+    cursor: pointer; font-size: 12px; transition: all 0.15s;
+    color: var(--text-primary);
+}
+.sort-column-buttons button:hover {
+    background: var(--accent); color: white; border-color: var(--accent);
+}
+.sort-modal-footer {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 24px; border-top: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+}
+
+/* ============================================================
+   MODAL: 変更通知モーダル (from order-book.css)
+   ============================================================ */
+.ob-cn-modal {
+    width: 520px; max-height: 85vh;
+    background: var(--bg-surface); border-radius: 12px;
+    display: flex; flex-direction: column;
+    box-shadow: var(--shadow-strong);
+    overflow: hidden; border: 1px solid var(--divider);
+}
+.ob-cn-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px;
+    background: #5AB8C6; color: #FFFFFF;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+.ob-cn-header-left { display: flex; align-items: baseline; gap: 12px; }
+.ob-cn-header-left h3 { margin: 0; font-size: 13px; font-weight: 600; color: #FFFFFF; }
+.ob-cn-header-right { display: flex; align-items: center; gap: 8px; }
+.ob-cn-filter-select {
+    font-size: 11px; padding: 4px 8px;
+    border: 1px solid rgba(255,255,255,0.3); border-radius: 6px;
+    background: rgba(255,255,255,0.15); color: #FFFFFF;
+    cursor: pointer; max-width: 160px;
+}
+.ob-cn-filter-select:focus { outline: none; border-color: rgba(255,255,255,0.6); }
+.ob-cn-close {
+    background: none; border: none; font-size: 18px;
+    color: rgba(255,255,255,0.8); cursor: pointer;
+    padding: 2px 6px; border-radius: 4px;
+}
+.ob-cn-close:hover { background: rgba(255,255,255,0.2); color: #FFFFFF; }
+
+/* タブ */
+.ob-cn-tabs {
+    display: flex; border-bottom: 1px solid var(--divider);
+    padding: 0 20px; background: var(--bg-surface-2);
+}
+.ob-cn-tab {
+    background: none; border: none; padding: 10px 16px;
+    font-size: 12px; color: var(--text-tertiary);
+    cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+.ob-cn-tab:hover { color: var(--text-primary); }
+.ob-cn-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+/* ボディ */
+.ob-cn-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+.ob-cn-empty { text-align: center; padding: 40px 0; color: var(--text-tertiary); font-size: 12px; }
+
+/* カードリスト */
+.ob-cn-card-list { display: flex; flex-direction: column; gap: 12px; }
+.ob-cn-card {
+    border: 1px solid var(--divider); border-radius: 8px;
+    border-left: 4px solid var(--divider);
+    overflow: hidden; transition: box-shadow 0.2s;
+}
+.ob-cn-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.ob-cn-card-add { border-left-color: #48bb78; }
+.ob-cn-card-modify { border-left-color: #ecc94b; }
+.ob-cn-card-delete { border-left-color: #f56565; }
+.ob-cn-card-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; background: var(--bg-surface-2);
+    border-bottom: 1px solid var(--divider); flex-wrap: wrap;
+}
+.ob-cn-type-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 8px;
+    border-radius: 4px; color: white;
+}
+.ob-cn-type-badge-add { background: #48bb78; }
+.ob-cn-type-badge-modify { background: #ecc94b; color: #744210; }
+.ob-cn-type-badge-delete { background: #f56565; }
+.ob-cn-card-user { font-size: 11px; color: var(--text-secondary); }
+.ob-cn-card-time { font-size: 11px; color: var(--text-tertiary); margin-left: auto; }
+.ob-cn-card-body { padding: 10px 12px; }
+.ob-cn-card-site {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px;
+}
+.ob-cn-diff-list { display: flex; flex-direction: column; gap: 4px; }
+.ob-cn-diff-row {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; padding: 3px 0;
+}
+.ob-cn-diff-label { font-weight: 600; color: var(--text-secondary); min-width: 50px; }
+.ob-cn-diff-old { text-decoration: line-through; color: var(--error); opacity: 0.8; }
+.ob-cn-diff-arrow { color: var(--text-tertiary); }
+.ob-cn-diff-new { color: var(--accent); font-weight: 600; }
+.ob-cn-card-actions {
+    display: flex; justify-content: flex-end;
+    padding: 6px 12px; border-top: 1px solid var(--divider); gap: 8px;
+}
+.ob-cn-btn-revert, .ob-cn-btn-reapprove {
+    font-size: 11px; padding: 4px 12px; border-radius: 4px;
+    border: 1px solid var(--divider); cursor: pointer; transition: all 0.15s;
+    background: var(--bg-surface);
+}
+.ob-cn-btn-revert { color: var(--error); }
+.ob-cn-btn-revert:hover { background: rgba(229,62,62,0.08); border-color: rgba(229,62,62,0.3); }
+.ob-cn-btn-reapprove { color: var(--accent); }
+.ob-cn-btn-reapprove:hover { background: var(--accent-dim); border-color: var(--accent); }
+
+/* タイムライン */
+.ob-cn-timeline { display: flex; flex-direction: column; gap: 0; position: relative; }
+.ob-cn-timeline::before {
+    content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px;
+    width: 2px; background: var(--divider);
+}
+.ob-cn-timeline-item { position: relative; padding: 8px 0 8px 28px; }
+.ob-cn-timeline-item::before {
+    content: ''; position: absolute; left: 3px; top: 14px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--divider); border: 2px solid var(--bg-surface);
+}
+.ob-cn-tl-add::before { background: #48bb78; }
+.ob-cn-tl-modify::before { background: #ecc94b; }
+.ob-cn-tl-delete::before { background: #f56565; }
+.ob-cn-tl-header { display: flex; align-items: center; gap: 8px; }
+.ob-cn-tl-time { font-size: 11px; color: var(--text-tertiary); font-family: monospace; }
+.ob-cn-tl-user { font-size: 11px; color: var(--text-secondary); }
+.ob-cn-tl-type { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 3px; }
+.ob-cn-tl-type-add { background: rgba(72,187,120,0.15); color: #22543d; }
+.ob-cn-tl-type-modify { background: rgba(236,201,75,0.2); color: #744210; }
+.ob-cn-tl-type-delete { background: rgba(245,101,101,0.15); color: #742a2a; }
+.ob-cn-tl-content {
+    font-size: 11px; color: var(--text-secondary); margin-top: 2px;
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.ob-cn-tl-name { font-weight: 600; }
+.ob-cn-tl-summary { color: var(--text-tertiary); font-size: 10px; }
+
+/* フッター */
+.ob-cn-footer {
+    padding: 12px 20px; border-top: 1px solid var(--divider);
+    text-align: center; background: var(--bg-surface-2);
+}
+.ob-cn-footer-btn {
+    padding: 5px 20px; border-radius: 6px;
+    border: 1px solid var(--divider); background: var(--bg-surface);
+    color: var(--text-secondary); cursor: pointer;
+    font-size: 12px; font-weight: 600; transition: all 0.15s;
+}
+.ob-cn-footer-btn:hover { background: var(--bg-surface-2); }
+
+/* ============================================================
+   MODAL: 送迎・備考アイテム編集 (from screen-layout.css)
+   ============================================================ */
+.vt-preset-section { margin-bottom: 12px; }
+.vt-preset-label { font-size: 11px; color: var(--text-tertiary); margin-bottom: 6px; }
+.vt-preset-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.vt-preset-btn {
+    padding: 4px 10px; border: 1px solid var(--divider);
+    background: var(--bg-surface); border-radius: 6px;
+    cursor: pointer; font-size: 11px; color: var(--text-primary);
+    transition: all 0.15s;
+}
+.vt-preset-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+.vt-modal-items { max-height: 300px; overflow-y: auto; }
+.vt-item-row {
+    display: flex; gap: 8px; align-items: center;
+    padding: 8px; border: 1px solid var(--divider);
+    border-radius: 6px; margin-bottom: 6px; transition: box-shadow 0.15s;
+}
+.vt-item-row .vt-drag-handle { cursor: grab; color: var(--text-tertiary); }
+.vt-item-row input[type="text"] {
+    flex: 1; padding: 6px 8px; border: 1px solid var(--divider);
+    border-radius: 4px; font-family: inherit; font-size: 12px;
+    color: var(--text-primary); background: var(--bg-surface);
+}
+.vt-item-row input[type="text"]:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim);
+}
+.vt-item-row .vt-remove-btn {
+    width: 26px; height: 26px; border: none; background: none;
+    color: var(--text-tertiary); font-size: 16px; cursor: pointer;
+    border-radius: 4px; flex-shrink: 0;
+}
+.vt-item-row .vt-remove-btn:hover { background: rgba(229,62,62,0.18); color: var(--error); }
+.vt-add-item-btn {
+    width: 100%; padding: 8px; border: 1px dashed var(--divider);
+    background: none; color: var(--text-secondary);
+    cursor: pointer; border-radius: 6px; transition: 0.15s;
+    margin-top: 4px; font-size: 12px;
+}
+.vt-add-item-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
