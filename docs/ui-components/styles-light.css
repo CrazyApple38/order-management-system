@@ -20,7 +20,7 @@
     --secondary: #B2D5E2;
     --ios-blue: #44A6B5;
     --ios-green: #38A169;
-    --ios-red: #E53E3E;
+    --ios-red: #DB577B;
     --ios-orange: #DD6B20;
     --ios-yellow: #D69E2E;
     --divider: #B2D5E2;
@@ -33,7 +33,7 @@
     --shadow-lg: 0 8px 24px rgba(0,69,84,0.15);
     --shadow-medium: 0 4px 12px rgba(0,69,84,0.12);
     --shadow-strong: 0 10px 40px rgba(0,69,84,0.15);
-    --error: #E53E3E;
+    --error: #DB577B;
     --success: #38A169;
     --success-text: #276749;
     --warning-text: #92400e;
@@ -1823,12 +1823,12 @@ body {
 }
 
 .web-btn-danger {
-    background: rgba(229, 62, 62, 0.08);
-    color: #E53E3E;
-    border: 1px solid rgba(229, 62, 62, 0.3);
+    background: rgba(219, 87, 123, 0.08);
+    color: #DB577B;
+    border: 1px solid rgba(219, 87, 123, 0.3);
 }
 .web-btn-danger:hover {
-    background: rgba(229, 62, 62, 0.15);
+    background: rgba(219, 87, 123, 0.15);
 }
 
 /* --- Toolbar Buttons (ツールバー用) --- */
@@ -1868,13 +1868,13 @@ body {
 }
 
 .web-tb-btn-danger {
-    background: rgba(229, 62, 62, 0.08);
-    color: #E53E3E;
-    border-color: rgba(229, 62, 62, 0.3);
+    background: rgba(219, 87, 123, 0.08);
+    color: #DB577B;
+    border-color: rgba(219, 87, 123, 0.3);
 }
 .web-tb-btn-danger:hover {
-    background: rgba(229, 62, 62, 0.15);
-    color: #E53E3E;
+    background: rgba(219, 87, 123, 0.15);
+    color: #DB577B;
 }
 
 /* --- Add Buttons (追加系) --- */
@@ -1981,12 +1981,12 @@ body {
     line-height: 1.4;
 }
 .web-inline-danger {
-    background: rgba(220, 38, 38, 0.06);
-    color: #dc2626;
-    border-color: rgba(220, 38, 38, 0.3);
+    background: rgba(219, 87, 123, 0.06);
+    color: #DB577B;
+    border-color: rgba(219, 87, 123, 0.3);
 }
 .web-inline-danger:hover {
-    background: rgba(229, 62, 62, 0.15);
+    background: rgba(219, 87, 123, 0.15);
 }
 .web-inline-undo {
     background: #fff;
@@ -2232,8 +2232,8 @@ body {
 .ob-btn-primary:hover { background: var(--accent-light); box-shadow: 0 2px 8px rgba(68,166,181,0.3); }
 .ob-btn-secondary { background: var(--bg-surface-2); color: var(--text-secondary); border: none; }
 .ob-btn-secondary:hover { background: var(--bg-surface-3); }
-.ob-btn-danger { background: rgba(229, 62, 62, 0.08); color: var(--error); border: 1px solid rgba(229, 62, 62, 0.3); }
-.ob-btn-danger:hover { background: rgba(229, 62, 62, 0.15); color: var(--error); }
+.ob-btn-danger { background: rgba(219, 87, 123, 0.08); color: var(--error); border: 1px solid rgba(219, 87, 123, 0.3); }
+.ob-btn-danger:hover { background: rgba(219, 87, 123, 0.15); color: var(--error); }
 
 /* --- Combobox --- */
 .combobox-container { position: relative; }
@@ -2371,8 +2371,8 @@ body {
     transition: all 0.15s; flex-shrink: 0; line-height: 1;
 }
 .ob-btn-remove-sub:hover {
-    color: #dc2626; border-color: rgba(220,38,38,0.3);
-    background: rgba(220,38,38,0.06);
+    color: #DB577B; border-color: rgba(219,87,123,0.3);
+    background: rgba(219,87,123,0.06);
 }
 
 /* --- チップ選択フィールド --- */
@@ -2469,7 +2469,7 @@ body {
     color: var(--text-disabled); font-size: 9px;
     cursor: pointer; transition: all 0.15s; padding: 0; line-height: 1;
 }
-.ob-sv-delete-btn:hover { background: #fee2e2; color: #dc2626; }
+.ob-sv-delete-btn:hover { background: rgba(219,87,123,0.1); color: #DB577B; }
 .ob-sv-undo-bar {
     display: flex; align-items: center; gap: 8px;
     width: 100%; padding: 4px 10px;
@@ -2714,17 +2714,17 @@ body {
 .ob-cn-conflict-banner {
     display: flex; align-items: center; gap: 8px;
     padding: 6px 12px;
-    background: #fffbeb; border: 1px solid #f6e05e;
-    border-radius: 6px; font-size: 11px; color: #744210;
+    background: rgba(212,186,168,0.15); border: 1px solid #DECCBE;
+    border-radius: 6px; font-size: 11px; color: #5C4A33;
     margin: 0 8px; flex-shrink: 0;
 }
 .ob-cn-conflict-icon { font-size: 13px; }
 .ob-cn-conflict-text { flex: 1; font-size: 11px; }
 .ob-cn-conflict-close {
-    background: none; border: none; color: #d69e2e;
+    background: none; border: none; color: #DECCBE;
     cursor: pointer; font-size: 12px; padding: 2px 4px;
 }
-.ob-cn-conflict-close:hover { color: #744210; }
+.ob-cn-conflict-close:hover { color: #5C4A33; }
 
 /* アイコン共通 */
 .ob-icon {
@@ -2953,9 +2953,9 @@ body {
     overflow: hidden; transition: box-shadow 0.2s;
 }
 .ob-cn-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-.ob-cn-card-add { border-left-color: #48bb78; }
-.ob-cn-card-modify { border-left-color: #ecc94b; }
-.ob-cn-card-delete { border-left-color: #f56565; }
+.ob-cn-card-add { border-left-color: #5AB8C6; }
+.ob-cn-card-modify { border-left-color: #DECCBE; }
+.ob-cn-card-delete { border-left-color: #DB577B; }
 .ob-cn-card-header {
     display: flex; align-items: center; gap: 8px;
     padding: 8px 12px; background: var(--bg-surface-2);
@@ -2965,9 +2965,9 @@ body {
     font-size: 10px; font-weight: 700; padding: 2px 8px;
     border-radius: 4px; color: white;
 }
-.ob-cn-type-badge-add { background: #48bb78; }
-.ob-cn-type-badge-modify { background: #ecc94b; color: #744210; }
-.ob-cn-type-badge-delete { background: #f56565; }
+.ob-cn-type-badge-add { background: #5AB8C6; }
+.ob-cn-type-badge-modify { background: #DECCBE; color: #5C4A33; }
+.ob-cn-type-badge-delete { background: #DB577B; }
 .ob-cn-card-user { font-size: 11px; color: var(--text-secondary); }
 .ob-cn-card-time { font-size: 11px; color: var(--text-tertiary); margin-left: auto; }
 .ob-cn-card-body { padding: 10px 12px; }
@@ -2981,7 +2981,7 @@ body {
     font-size: 11px; padding: 3px 0;
 }
 .ob-cn-diff-label { font-weight: 600; color: var(--text-secondary); min-width: 50px; }
-.ob-cn-diff-old { text-decoration: line-through; color: var(--error); opacity: 0.8; }
+.ob-cn-diff-old { text-decoration: line-through; color: #DB577B; opacity: 0.8; }
 .ob-cn-diff-arrow { color: var(--text-tertiary); }
 .ob-cn-diff-new { color: var(--accent); font-weight: 600; }
 .ob-cn-card-actions {
@@ -2993,8 +2993,8 @@ body {
     border: 1px solid var(--divider); cursor: pointer; transition: all 0.15s;
     background: var(--bg-surface);
 }
-.ob-cn-btn-revert { color: var(--error); }
-.ob-cn-btn-revert:hover { background: rgba(229,62,62,0.08); border-color: rgba(229,62,62,0.3); }
+.ob-cn-btn-revert { color: #DB577B; }
+.ob-cn-btn-revert:hover { background: rgba(219,87,123,0.1); border-color: rgba(219,87,123,0.3); }
 .ob-cn-btn-reapprove { color: var(--accent); }
 .ob-cn-btn-reapprove:hover { background: var(--accent-dim); border-color: var(--accent); }
 
@@ -3010,16 +3010,16 @@ body {
     width: 10px; height: 10px; border-radius: 50%;
     background: var(--divider); border: 2px solid var(--bg-surface);
 }
-.ob-cn-tl-add::before { background: #48bb78; }
-.ob-cn-tl-modify::before { background: #ecc94b; }
-.ob-cn-tl-delete::before { background: #f56565; }
+.ob-cn-tl-add::before { background: #5AB8C6; }
+.ob-cn-tl-modify::before { background: #DECCBE; }
+.ob-cn-tl-delete::before { background: #DB577B; }
 .ob-cn-tl-header { display: flex; align-items: center; gap: 8px; }
 .ob-cn-tl-time { font-size: 11px; color: var(--text-tertiary); font-family: monospace; }
 .ob-cn-tl-user { font-size: 11px; color: var(--text-secondary); }
 .ob-cn-tl-type { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 3px; }
-.ob-cn-tl-type-add { background: rgba(72,187,120,0.15); color: #22543d; }
-.ob-cn-tl-type-modify { background: rgba(236,201,75,0.2); color: #744210; }
-.ob-cn-tl-type-delete { background: rgba(245,101,101,0.15); color: #742a2a; }
+.ob-cn-tl-type-add { background: rgba(90,184,198,0.15); color: #004554; }
+.ob-cn-tl-type-modify { background: rgba(212,186,168,0.25); color: #5C4A33; }
+.ob-cn-tl-type-delete { background: rgba(219,87,123,0.15); color: #6B2040; }
 .ob-cn-tl-content {
     font-size: 11px; color: var(--text-secondary); margin-top: 2px;
     display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
@@ -3074,7 +3074,7 @@ body {
     color: var(--text-tertiary); font-size: 16px; cursor: pointer;
     border-radius: 4px; flex-shrink: 0;
 }
-.vt-item-row .vt-remove-btn:hover { background: rgba(229,62,62,0.18); color: var(--error); }
+.vt-item-row .vt-remove-btn:hover { background: rgba(219,87,123,0.15); color: var(--error); }
 .vt-add-item-btn {
     width: 100%; padding: 8px; border: 1px dashed var(--divider);
     background: none; color: var(--text-secondary);
@@ -3082,3 +3082,153 @@ body {
     margin-top: 4px; font-size: 12px;
 }
 .vt-add-item-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+
+/* ============================================================
+   SEMANTIC COLOR: 比較検討用コンポーネント
+   ============================================================ */
+.color-compare-group {
+    margin-bottom: 28px; padding: 20px;
+    background: var(--bg-surface); border: 1px solid var(--divider);
+    border-radius: 10px;
+}
+.color-compare-title {
+    font-size: 13px; font-weight: 700; color: var(--text-primary);
+    margin-bottom: 8px;
+}
+.color-compare-row {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.color-compare-base,
+.color-compare-item {
+    display: flex; align-items: center; gap: 10px;
+    min-width: 140px;
+}
+.color-compare-base { padding-right: 16px; border-right: 2px solid var(--divider); }
+.color-swatch {
+    width: 40px; height: 40px; border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.08); flex-shrink: 0;
+}
+.color-info { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+.color-info strong { color: var(--text-primary); font-size: 12px; }
+.color-info code {
+    background: rgba(9,134,152,0.08); color: var(--accent);
+    padding: 1px 4px; border-radius: 3px; font-size: 10px;
+}
+
+/* プレビューカード */
+.color-preview-cards {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.color-preview-card {
+    flex: 1; min-width: 160px;
+    padding: 10px 12px;
+    background: var(--bg-surface); border: 1px solid var(--divider);
+    border-radius: 8px; display: flex; align-items: center; gap: 8px;
+}
+.color-preview-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 8px;
+    border-radius: 4px; white-space: nowrap;
+}
+.color-preview-text {
+    font-size: 12px; font-weight: 600; color: var(--text-primary);
+}
+
+/* タイムラインプレビュー */
+.color-preview-timeline {
+    display: flex; flex-direction: column; gap: 0;
+    position: relative; padding-left: 20px;
+    border-left: 2px solid var(--divider); margin-left: 6px;
+}
+.color-tl-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 0; position: relative;
+}
+.color-tl-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    position: absolute; left: -26px;
+    border: 2px solid var(--bg-surface);
+}
+.color-tl-badge {
+    font-size: 10px; font-weight: 600;
+    padding: 1px 6px; border-radius: 3px; white-space: nowrap;
+}
+.color-tl-text {
+    font-size: 11px; color: var(--text-secondary);
+}
+
+/* 色見本グリッド */
+.color-swatch-grid {
+    display: flex; gap: 10px; flex-wrap: wrap;
+}
+.color-swatch-card {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    min-width: 80px;
+}
+.color-swatch-lg {
+    width: 64px; height: 44px; border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.08);
+}
+.color-swatch-card code {
+    font-size: 10px; background: rgba(9,134,152,0.08);
+    color: var(--accent); padding: 1px 4px; border-radius: 3px;
+}
+.color-swatch-name {
+    font-size: 9px; color: var(--text-tertiary); text-align: center;
+}
+
+/* カラー調整パネル */
+/* ============================================================
+   Applied Color Palette テーブル
+   ============================================================ */
+.applied-color-table {
+    width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 4px;
+}
+.applied-color-table th {
+    font-size: 10px; font-weight: 600; color: var(--text-tertiary);
+    text-align: left; padding: 4px 10px 4px 0;
+    border-bottom: 1px solid var(--divider);
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.applied-color-table th:first-child { width: 28px; }
+.applied-color-table td {
+    padding: 6px 10px 6px 0; border-bottom: 1px solid rgba(178,213,226,0.4);
+    color: var(--text-secondary); vertical-align: middle;
+}
+.applied-color-table td:first-child { padding-right: 4px; }
+.applied-color-table strong { color: var(--text-primary); font-size: 12px; }
+.applied-color-table code {
+    background: rgba(9,134,152,0.08); color: var(--accent);
+    padding: 1px 5px; border-radius: 3px; font-size: 10px;
+}
+.applied-dot {
+    display: inline-block; width: 18px; height: 18px;
+    border-radius: 4px; vertical-align: middle;
+}
+
+.cn-color-controls {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    padding: 12px 16px; margin-bottom: 12px;
+    background: var(--bg-surface-2); border-radius: 8px;
+    border: 1px solid var(--divider);
+}
+.cn-color-field {
+    display: flex; align-items: center; gap: 8px;
+}
+.cn-color-field label {
+    font-size: 11px; font-weight: 600; color: var(--text-secondary);
+    min-width: 28px;
+}
+.cn-color-field input[type="color"] {
+    width: 32px; height: 28px; padding: 1px; border: 1px solid var(--divider);
+    border-radius: 4px; cursor: pointer; background: var(--bg-surface);
+}
+.cn-color-field input[type="text"] {
+    width: 80px; padding: 4px 8px; border: 1px solid var(--divider);
+    border-radius: 4px; font-size: 11px; font-family: monospace;
+    color: var(--text-primary); background: var(--bg-surface);
+    text-transform: uppercase;
+}
+.cn-color-field input[type="text"]:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim);
+}

@@ -24,6 +24,7 @@
             <ul>
                 <li><a href="#web-button">Button</a></li>
                 <li><a href="#web-modal">Modal</a></li>
+
                 <li><a href="#modal-design-pattern">Modal Pattern</a></li>
             </ul>
         </div>
@@ -256,6 +257,132 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Applied Color Palette -->
+                <h4 style="margin-top: 24px;">Applied Color Palette</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 12px;">実際にUI要素に使用するカラーの一覧。基盤パレット(Coastal)からの導出関係を併記。</p>
+
+                <!-- UIクローム -->
+                <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin-bottom: 8px;">UI Chrome</h4>
+                <table class="applied-color-table">
+                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>由来</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#5AB8C6;"></span></td>
+                            <td><strong>Light Moonstone</strong></td>
+                            <td><code>#5AB8C6</code></td>
+                            <td>モーダルヘッダー背景、ホバー</td>
+                            <td>Primary Light</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#44A6B5;"></span></td>
+                            <td><strong>Moonstone</strong></td>
+                            <td><code>#44A6B5</code></td>
+                            <td>ボタンPrimary、アクティブ、リンク</td>
+                            <td>Primary Accent</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#F0EDE9;"></span></td>
+                            <td><strong>Timberwolf Light</strong></td>
+                            <td><code>#F0EDE9</code></td>
+                            <td>モーダルフッター背景、タブ背景</td>
+                            <td>Surface Variant</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:rgba(0,69,84,0.35);border:1px solid var(--divider);"></span></td>
+                            <td><strong>Overlay</strong></td>
+                            <td><code>rgba(0,69,84,0.35)</code></td>
+                            <td>モーダルオーバーレイ</td>
+                            <td>Midnight Green α35%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- セマンティック -->
+                <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: 16px 0 8px;">Semantic</h4>
+                <table class="applied-color-table">
+                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>由来</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#5AB8C6;"></span></td>
+                            <td><strong>Success / 追加</strong></td>
+                            <td><code>#5AB8C6</code></td>
+                            <td>追加カード左線、追加バッジ、タイムライン追加ドット</td>
+                            <td>Light Moonstone</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#DECCBE;"></span></td>
+                            <td><strong>Warning / 変更</strong></td>
+                            <td><code>#DECCBE</code></td>
+                            <td>変更カード左線、変更バッジ、競合バナー枠線</td>
+                            <td>Shell Beige（Timberwolf派生）</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#5C4A33;"></span></td>
+                            <td><strong>Warning Text</strong></td>
+                            <td><code>#5C4A33</code></td>
+                            <td>変更バッジ文字色、競合バナー文字色</td>
+                            <td>Shell Beige暗色</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#DB577B;"></span></td>
+                            <td><strong>Error / 削除</strong></td>
+                            <td><code>#DB577B</code></td>
+                            <td>削除カード左線、削除バッジ、取消線、元に戻すボタン</td>
+                            <td>Vivid Rose（新規）</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#6B2040;"></span></td>
+                            <td><strong>Error Text</strong></td>
+                            <td><code>#6B2040</code></td>
+                            <td>削除タイムラインバッジ文字色</td>
+                            <td>Vivid Rose暗色</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- コンテンツ -->
+                <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: 16px 0 8px;">Content</h4>
+                <table class="applied-color-table">
+                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>由来</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#E9F1F6;"></span></td>
+                            <td><strong>Alice Blue</strong></td>
+                            <td><code>#E9F1F6</code></td>
+                            <td>モーダルボディ背景（カード型）</td>
+                            <td>Page Background</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#FFFFFF;border:1px solid var(--divider);"></span></td>
+                            <td><strong>White</strong></td>
+                            <td><code>#FFFFFF</code></td>
+                            <td>モーダル内カード背景</td>
+                            <td>Surface</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#B2D5E2;"></span></td>
+                            <td><strong>Light Blue</strong></td>
+                            <td><code>#B2D5E2</code></td>
+                            <td>カード枠線、区切り線、セクションバー線</td>
+                            <td>Divider</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:rgba(68,166,181,0.12);border:1px solid var(--divider);"></span></td>
+                            <td><strong>Accent Dim</strong></td>
+                            <td><code>rgba(68,166,181,0.12)</code></td>
+                            <td>ホバー背景、チップ選択背景、閉じるボタンhover</td>
+                            <td>Moonstone α12%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:rgba(212,186,168,0.15);border:1px solid var(--divider);"></span></td>
+                            <td><strong>Shell Dim</strong></td>
+                            <td><code>rgba(222,204,190,0.15)</code></td>
+                            <td>競合バナー背景</td>
+                            <td>Shell Beige α15%</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
 
@@ -895,31 +1022,33 @@
 
                 <!-- ===== 3. 打合せモーダル（sm + フラット型 + フッターB） ===== -->
                 <div class="modal-demo-wrapper">
-                    <div class="modal-demo-label">3. 打合せモーダル — sm + フラット型 + フッターB（業務管理計画書）</div>
+                    <div class="modal-demo-label">3. 打合せモーダル — sm + カード型 + フッターB（業務管理計画書）</div>
 
                     <div class="ob-modal ob-modal-sm" style="position: relative;">
                         <div class="ob-modal-header">
                             <h3>集合</h3>
                             <button class="ob-modal-close" style="color: rgba(255,255,255,0.8);">✕</button>
                         </div>
-                        <div class="ob-modal-body">
-                            <div class="ob-form-row">
-                                <label>集合時間</label>
-                                <div class="ob-time-picker-wrap">
-                                    <input type="text" class="ob-time-input" value="08:45" readonly>
-                                    <span class="ob-time-picker-icon" style="opacity:0.5;">🕐</span>
+                        <div class="modal-site-body">
+                            <div class="modal-body-card">
+                                <div class="ob-form-row">
+                                    <label>集合時間</label>
+                                    <div class="ob-time-picker-wrap">
+                                        <input type="text" class="ob-time-input" value="08:45" readonly>
+                                        <span class="ob-time-picker-icon" style="opacity:0.5;">🕐</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="ob-chip-field" style="margin-top: 14px;">
-                                <div class="ob-chip-field-header">
-                                    <span class="ob-chip-field-title">連絡</span>
-                                    <button type="button" class="ob-btn-add-chip">+ 追加</button>
-                                </div>
-                                <div class="ob-row-chips">
-                                    <span class="ob-row-chip">会社</span>
-                                    <span class="ob-row-chip ob-chip-active">直</span>
-                                    <span class="ob-row-chip">LINE</span>
-                                    <span class="ob-row-chip">迎え</span>
+                                <div class="ob-chip-field" style="margin-top: 14px;">
+                                    <div class="ob-chip-field-header">
+                                        <span class="ob-chip-field-title">連絡</span>
+                                        <button type="button" class="ob-btn-add-chip">+ 追加</button>
+                                    </div>
+                                    <div class="ob-row-chips">
+                                        <span class="ob-row-chip">会社</span>
+                                        <span class="ob-row-chip ob-chip-active">直</span>
+                                        <span class="ob-row-chip">LINE</span>
+                                        <span class="ob-row-chip">迎え</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -935,54 +1064,58 @@
 
                 <!-- ===== 4. 行編集モーダル（sm + チップ選択 + フッターB） ===== -->
                 <div class="modal-demo-wrapper">
-                    <div class="modal-demo-label">4. 行情報編集モーダル — sm + フラット型 + チップ選択（受注簿）</div>
+                    <div class="modal-demo-label">4. 行情報編集モーダル — sm + カード型 + チップ選択（受注簿）</div>
 
                     <div class="ob-modal ob-modal-sm" style="position: relative;">
                         <div class="ob-modal-header">
                             <h3>行情報編集</h3>
                             <button class="ob-modal-close" style="color: rgba(255,255,255,0.8);">✕</button>
                         </div>
-                        <div class="ob-modal-body">
-                            <div class="ob-chip-field">
-                                <div class="ob-chip-field-header">
-                                    <span class="ob-chip-field-title">会社</span>
+                        <div class="modal-site-body">
+                            <div class="modal-body-card">
+                                <div class="ob-chip-field">
+                                    <div class="ob-chip-field-header">
+                                        <span class="ob-chip-field-title">会社</span>
+                                    </div>
+                                    <div class="ob-row-chips">
+                                        <span class="ob-row-chip ob-chip-active">東央</span>
+                                        <span class="ob-row-chip">Nikkei</span>
+                                        <span class="ob-row-chip">全日本</span>
+                                    </div>
                                 </div>
-                                <div class="ob-row-chips">
-                                    <span class="ob-row-chip ob-chip-active">東央</span>
-                                    <span class="ob-row-chip">Nikkei</span>
-                                    <span class="ob-row-chip">全日本</span>
+                                <div class="ob-chip-field">
+                                    <div class="ob-chip-field-header">
+                                        <span class="ob-chip-field-title">区分</span>
+                                        <button type="button" class="ob-btn-add-chip">+ 追加</button>
+                                    </div>
+                                    <div class="ob-row-chips">
+                                        <span class="ob-row-chip ob-chip-active">土木</span>
+                                        <span class="ob-row-chip">建築</span>
+                                        <span class="ob-row-chip">電気</span>
+                                        <span class="ob-row-chip">管工事</span>
+                                    </div>
+                                </div>
+                                <div class="ob-chip-field">
+                                    <div class="ob-chip-field-header">
+                                        <span class="ob-chip-field-title">昼夜</span>
+                                    </div>
+                                    <div class="ob-row-chips">
+                                        <span class="ob-row-chip ob-chip-active">昼</span>
+                                        <span class="ob-row-chip">夜</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="ob-chip-field">
-                                <div class="ob-chip-field-header">
-                                    <span class="ob-chip-field-title">区分</span>
-                                    <button type="button" class="ob-btn-add-chip">+ 追加</button>
+                            <div class="modal-body-card">
+                                <div class="ob-form-row">
+                                    <label>契約先名</label>
+                                    <input type="text" value="○○建設株式会社" style="padding:8px 12px; border:1px solid var(--divider); border-radius:6px; font-size:13px; background:var(--bg-surface); color:var(--text-primary);">
                                 </div>
-                                <div class="ob-row-chips">
-                                    <span class="ob-row-chip ob-chip-active">土木</span>
-                                    <span class="ob-row-chip">建築</span>
-                                    <span class="ob-row-chip">電気</span>
-                                    <span class="ob-row-chip">管工事</span>
+                                <div class="ob-form-row">
+                                    <label>業務名</label>
+                                    <input type="text" value="基礎掘削工事" placeholder="空欄で個別業務" style="padding:8px 12px; border:1px solid var(--divider); border-radius:6px; font-size:13px; background:var(--bg-surface); color:var(--text-primary);">
                                 </div>
+                                <div class="ob-row-dup-warning" style="color: #d32f2f; font-size: 12px; font-weight: 600; padding: 6px 0 0; display: none;">※ この組み合わせは既に存在します</div>
                             </div>
-                            <div class="ob-chip-field">
-                                <div class="ob-chip-field-header">
-                                    <span class="ob-chip-field-title">昼夜</span>
-                                </div>
-                                <div class="ob-row-chips">
-                                    <span class="ob-row-chip ob-chip-active">昼</span>
-                                    <span class="ob-row-chip">夜</span>
-                                </div>
-                            </div>
-                            <div class="ob-form-row">
-                                <label>契約先名</label>
-                                <input type="text" value="○○建設株式会社" style="padding:8px 12px; border:1px solid var(--divider); border-radius:6px; font-size:13px; background:var(--bg-surface); color:var(--text-primary);">
-                            </div>
-                            <div class="ob-form-row">
-                                <label>業務名</label>
-                                <input type="text" value="基礎掘削工事" placeholder="空欄で個別業務" style="padding:8px 12px; border:1px solid var(--divider); border-radius:6px; font-size:13px; background:var(--bg-surface); color:var(--text-primary);">
-                            </div>
-                            <div class="ob-row-dup-warning" style="color: #d32f2f; font-size: 12px; font-weight: 600; padding: 6px 0 0; display: none;">※ この組み合わせは既に存在します</div>
                         </div>
                         <div class="ob-modal-footer">
                             <div></div>
@@ -1067,7 +1200,26 @@
                 <div class="modal-demo-wrapper">
                     <div class="modal-demo-label">6. 変更通知モーダル — lg + タブ + カードリスト/タイムライン + フッターC（受注簿）</div>
 
-                    <div class="ob-cn-modal" style="position: relative;">
+                    <!-- カラー調整パネル -->
+                    <div class="cn-color-controls">
+                        <div class="cn-color-field">
+                            <label>追加</label>
+                            <input type="color" id="cnColorAdd" value="#5AB8C6">
+                            <input type="text" id="cnColorAddHex" value="#5AB8C6" maxlength="7" spellcheck="false">
+                        </div>
+                        <div class="cn-color-field">
+                            <label>変更</label>
+                            <input type="color" id="cnColorModify" value="#DECCBE">
+                            <input type="text" id="cnColorModifyHex" value="#DECCBE" maxlength="7" spellcheck="false">
+                        </div>
+                        <div class="cn-color-field">
+                            <label>削除</label>
+                            <input type="color" id="cnColorDelete" value="#DB577B">
+                            <input type="text" id="cnColorDeleteHex" value="#DB577B" maxlength="7" spellcheck="false">
+                        </div>
+                    </div>
+
+                    <div class="ob-cn-modal" id="cnDemoModal" style="position: relative;">
                         <div class="ob-cn-header">
                             <div class="ob-cn-header-left">
                                 <h3>変更通知</h3>
@@ -1205,49 +1357,51 @@
 
                 <!-- ===== 7. 送迎・備考モーダル（sm + アイテムベース + フッターB） ===== -->
                 <div class="modal-demo-wrapper">
-                    <div class="modal-demo-label">7. 送迎・備考モーダル — sm + アイテムベース編集 + フッターB（業務管理計画書）</div>
+                    <div class="modal-demo-label">7. 送迎・備考モーダル — sm + カード型 + アイテムベース編集 + フッターB（業務管理計画書）</div>
 
                     <div class="ob-modal ob-modal-sm" style="position: relative;">
                         <div class="ob-modal-header">
                             <h3>送迎・備考</h3>
                             <button class="ob-modal-close" style="color: rgba(255,255,255,0.8);">✕</button>
                         </div>
-                        <div class="ob-modal-body">
-                            <div class="vt-preset-section">
-                                <div class="vt-preset-label">プリセットから追加</div>
-                                <div class="vt-preset-btns">
-                                    <button class="vt-preset-btn">＋ 送迎</button>
-                                    <button class="vt-preset-btn">＋ 集合場所</button>
-                                    <button class="vt-preset-btn">＋ 備考</button>
+                        <div class="modal-site-body">
+                            <div class="modal-body-card">
+                                <div class="vt-preset-section">
+                                    <div class="vt-preset-label">プリセットから追加</div>
+                                    <div class="vt-preset-btns">
+                                        <button class="vt-preset-btn">＋ 送迎</button>
+                                        <button class="vt-preset-btn">＋ 集合場所</button>
+                                        <button class="vt-preset-btn">＋ 備考</button>
+                                    </div>
                                 </div>
+                                <div class="vt-modal-items">
+                                    <div class="vt-item-row">
+                                        <span class="vt-drag-handle">⠿</span>
+                                        <input type="text" value="送迎" style="flex: 0 0 70px;">
+                                        <input type="text" value="本社集合 7:00">
+                                        <input type="color" value="#975A16" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
+                                        <input type="color" value="#FFFFFF" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
+                                        <button class="vt-remove-btn">✕</button>
+                                    </div>
+                                    <div class="vt-item-row">
+                                        <span class="vt-drag-handle">⠿</span>
+                                        <input type="text" value="集合場所" style="flex: 0 0 70px;">
+                                        <input type="text" value="現場事務所前">
+                                        <input type="color" value="#44A6B5" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
+                                        <input type="color" value="#FFFFFF" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
+                                        <button class="vt-remove-btn">✕</button>
+                                    </div>
+                                    <div class="vt-item-row">
+                                        <span class="vt-drag-handle">⠿</span>
+                                        <input type="text" value="備考" style="flex: 0 0 70px;">
+                                        <input type="text" value="雨天中止">
+                                        <input type="color" value="#A0A0A0" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
+                                        <input type="color" value="#FFFFFF" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
+                                        <button class="vt-remove-btn">✕</button>
+                                    </div>
+                                </div>
+                                <button class="vt-add-item-btn">＋ 項目を追加</button>
                             </div>
-                            <div class="vt-modal-items">
-                                <div class="vt-item-row">
-                                    <span class="vt-drag-handle">⠿</span>
-                                    <input type="text" value="送迎" style="flex: 0 0 70px;">
-                                    <input type="text" value="本社集合 7:00">
-                                    <input type="color" value="#975A16" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
-                                    <input type="color" value="#FFFFFF" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
-                                    <button class="vt-remove-btn">✕</button>
-                                </div>
-                                <div class="vt-item-row">
-                                    <span class="vt-drag-handle">⠿</span>
-                                    <input type="text" value="集合場所" style="flex: 0 0 70px;">
-                                    <input type="text" value="現場事務所前">
-                                    <input type="color" value="#44A6B5" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
-                                    <input type="color" value="#FFFFFF" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
-                                    <button class="vt-remove-btn">✕</button>
-                                </div>
-                                <div class="vt-item-row">
-                                    <span class="vt-drag-handle">⠿</span>
-                                    <input type="text" value="備考" style="flex: 0 0 70px;">
-                                    <input type="text" value="雨天中止">
-                                    <input type="color" value="#A0A0A0" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
-                                    <input type="color" value="#FFFFFF" style="width:32px; height:32px; padding:1px; border:1px solid var(--divider); border-radius:4px; cursor:pointer;">
-                                    <button class="vt-remove-btn">✕</button>
-                                </div>
-                            </div>
-                            <button class="vt-add-item-btn">＋ 項目を追加</button>
                         </div>
                         <div class="ob-modal-footer">
                             <div></div>
@@ -1261,6 +1415,7 @@
 
             </div>
         </section>
+
 
         <!-- Modal Design Pattern Specification -->
         <section class="comp-section" id="modal-design-pattern">
@@ -1327,14 +1482,14 @@
                                 <p style="font-size: 11px; color: var(--text-secondary);">白カード内にフォーム要素を配置</p>
                             </div>
                         </div>
-                        <p style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">用途: 現場詳細、カレンダー編集パネル</p>
+                        <p style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">用途: 現場詳細、カレンダー、打合せ、行編集、備考等</p>
                     </div>
                     <div style="flex: 1; min-width: 200px;">
                         <p style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">B) フラット型（シンプルなモーダル向き）</p>
                         <div style="background: var(--bg-surface); padding: 16px; border-radius: 0 0 12px 12px; min-height: 80px; border: 1px solid var(--divider); border-top: none;">
                             <p style="font-size: 11px; color: var(--text-secondary);">bg-surface背景に直接フォーム要素を配置</p>
                         </div>
-                        <p style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">用途: セル編集、行編集、打合せ、作業時間</p>
+                        <p style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">用途: ソート、変更通知等の特殊レイアウト</p>
                     </div>
                 </div>
 
@@ -1983,5 +2138,90 @@
     </main>
 
     <script src="script-light.js"></script>
+    <script>
+    // 変更通知モーダル カラー調整
+    (function() {
+        const modal = document.getElementById('cnDemoModal');
+        if (!modal) return;
+
+        const ids = {
+            add:    { picker: 'cnColorAdd',    hex: 'cnColorAddHex' },
+            modify: { picker: 'cnColorModify', hex: 'cnColorModifyHex' },
+            delete: { picker: 'cnColorDelete', hex: 'cnColorDeleteHex' },
+        };
+
+        function hexToRgba(hex, alpha) {
+            const r = parseInt(hex.slice(1,3), 16);
+            const g = parseInt(hex.slice(3,5), 16);
+            const b = parseInt(hex.slice(5,7), 16);
+            return `rgba(${r},${g},${b},${alpha})`;
+        }
+
+        function darken(hex, factor) {
+            const r = Math.round(parseInt(hex.slice(1,3), 16) * factor);
+            const g = Math.round(parseInt(hex.slice(3,5), 16) * factor);
+            const b = Math.round(parseInt(hex.slice(5,7), 16) * factor);
+            return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+        }
+
+        function apply() {
+            const colors = {};
+            for (const [key, el] of Object.entries(ids)) {
+                colors[key] = document.getElementById(el.hex).value;
+            }
+            const c = colors;
+            const darkAdd = darken(c.add, 0.5);
+            const darkMod = darken(c.modify, 0.55);
+            const darkDel = darken(c.delete, 0.55);
+
+            // カード左ボーダー
+            modal.querySelectorAll('.ob-cn-card-add').forEach(el => el.style.borderLeftColor = c.add);
+            modal.querySelectorAll('.ob-cn-card-modify').forEach(el => el.style.borderLeftColor = c.modify);
+            modal.querySelectorAll('.ob-cn-card-delete').forEach(el => el.style.borderLeftColor = c.delete);
+
+            // バッジ
+            modal.querySelectorAll('.ob-cn-type-badge-add').forEach(el => { el.style.background = c.add; el.style.color = '#fff'; });
+            modal.querySelectorAll('.ob-cn-type-badge-modify').forEach(el => { el.style.background = c.modify; el.style.color = darkMod; });
+            modal.querySelectorAll('.ob-cn-type-badge-delete').forEach(el => { el.style.background = c.delete; el.style.color = '#fff'; });
+
+            // タイムライン
+            modal.querySelectorAll('.ob-cn-tl-add').forEach(el => el.style.setProperty('--tl-color', c.add));
+            modal.querySelectorAll('.ob-cn-tl-modify').forEach(el => el.style.setProperty('--tl-color', c.modify));
+            modal.querySelectorAll('.ob-cn-tl-delete').forEach(el => el.style.setProperty('--tl-color', c.delete));
+
+            // タイムラインドット (::before は直接変えられないのでCSS変数で)
+            const style = document.getElementById('cnDynamicStyle') || document.createElement('style');
+            style.id = 'cnDynamicStyle';
+            style.textContent = `
+                #cnDemoModal .ob-cn-tl-add::before { background: ${c.add} !important; }
+                #cnDemoModal .ob-cn-tl-modify::before { background: ${c.modify} !important; }
+                #cnDemoModal .ob-cn-tl-delete::before { background: ${c.delete} !important; }
+                #cnDemoModal .ob-cn-tl-type-add { background: ${hexToRgba(c.add, 0.15)} !important; color: ${darkAdd} !important; }
+                #cnDemoModal .ob-cn-tl-type-modify { background: ${hexToRgba(c.modify, 0.25)} !important; color: ${darkMod} !important; }
+                #cnDemoModal .ob-cn-tl-type-delete { background: ${hexToRgba(c.delete, 0.15)} !important; color: ${darkDel} !important; }
+                #cnDemoModal .ob-cn-diff-old { color: ${c.delete} !important; }
+                #cnDemoModal .ob-cn-btn-revert { color: ${c.delete} !important; }
+                #cnDemoModal .ob-cn-diff-new { color: ${c.add} !important; }
+            `;
+            if (!style.parentNode) document.head.appendChild(style);
+        }
+
+        // イベント登録
+        for (const [key, el] of Object.entries(ids)) {
+            const picker = document.getElementById(el.picker);
+            const hex = document.getElementById(el.hex);
+            picker.addEventListener('input', () => { hex.value = picker.value.toUpperCase(); apply(); });
+            hex.addEventListener('input', () => {
+                const v = hex.value;
+                if (/^#[0-9A-Fa-f]{6}$/.test(v)) { picker.value = v; apply(); }
+            });
+            hex.addEventListener('change', () => {
+                let v = hex.value.trim();
+                if (v[0] !== '#') v = '#' + v;
+                if (/^#[0-9A-Fa-f]{6}$/.test(v)) { hex.value = v.toUpperCase(); picker.value = v; apply(); }
+            });
+        }
+    })();
+    </script>
 </body>
 </html>
