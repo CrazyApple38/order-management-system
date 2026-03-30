@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plaster UI Components - Light Theme (Coastal)</title>
-    <link rel="stylesheet" href="styles-light.css">
+    <link rel="stylesheet" href="styles-light.css?v=2">
 </head>
 <body>
     <!-- Sidebar -->
@@ -689,32 +689,192 @@
                             <div class="ob-cal-edit-panel-body">
                                 <div style="display: flex; flex-direction: column; gap: 14px;">
 
-                                    <div class="modal-section-bar">配置情報</div>
-                                    <div class="modal-section" style="margin-bottom: 0;">
-                                        <label>人数</label>
-                                        <input type="number" value="5" style="width: 80px;">
-                                    </div>
-                                    <div class="ob-sub-task-fields">
-                                        <div class="ob-sub-task-header">
-                                            <span class="ob-sub-task-title">業務詳細</span>
-                                            <button type="button" class="ob-btn-add-sub">+ 追加</button>
+                                    <!-- ━━ カード: 配置先〜区分 ━━ -->
+                                    <div class="modal-body-field"><div class="modal-body-field-value">Placement / Details</div></div>
+                                    <div class="modal-body-card">
+                                        <!-- ── 1. 配置先タブ ── -->
+                                        <div class="ob-placement-tabs">
+                                            <button type="button" class="ob-placement-tab active">配置先1</button>
+                                            <button type="button" class="ob-placement-tab">配置先2</button>
+                                            <button type="button" class="ob-placement-tab ob-placement-tab-add">+ 追加</button>
                                         </div>
-                                        <div class="ob-sub-task-entry">
-                                            <input type="text" class="ob-sub-label-input" value="作業名">
-                                            <input type="text" class="ob-sub-value-input" value="型枠組立">
-                                            <button type="button" class="ob-btn-remove-sub">✕</button>
+
+                                        <!-- ── 2. 人数 + 信頼度 ── -->
+                                        <div class="modal-section-bar">配置情報</div>
+                                        <div class="modal-row" style="align-items: flex-end;">
+                                            <div class="modal-section" style="flex:0 0 auto; margin-bottom: 0;">
+                                                <label>人数</label>
+                                                <input type="number" value="5" style="width: 80px;">
+                                            </div>
+                                            <div class="ob-chip-field" style="flex:1;">
+                                                <span class="ob-chip-field-title">信頼度</span>
+                                                <div class="ob-row-chips">
+                                                    <span class="ob-row-chip">確定</span>
+                                                    <span class="ob-row-chip ob-chip-active">予定（高）</span>
+                                                    <span class="ob-row-chip">予定（低）</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- ── 3. 業務名（表示のみ） ── -->
+                                        <div class="ob-cal-display-value">24-1234 &gt; 〇〇橋補修工事 &gt; 型枠組立</div>
+
+                                        <!-- ── 4. 業務詳細 ── -->
+                                        <div class="modal-section-bar">業務詳細 <button type="button" class="ob-btn-add-sub">+ 追加</button></div>
+                                        <div class="ob-sub-task-fields">
+                                            <div class="ob-sub-task-entry">
+                                                <input type="text" class="ob-sub-label-input" value="工事名">
+                                                <input type="text" class="ob-sub-value-input" value="〇〇橋補修工事">
+                                                <button type="button" class="ob-btn-remove-sub">✕</button>
+                                            </div>
+                                            <div class="ob-sub-task-entry">
+                                                <input type="text" class="ob-sub-label-input" value="作業内容">
+                                                <input type="text" class="ob-sub-value-input" value="型枠組立">
+                                                <button type="button" class="ob-btn-remove-sub">✕</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <!-- ━━ カード2: 区分・作業内容・子バッジ ━━ -->
+                                    <div class="modal-body-field"><div class="modal-body-field-value">Category / Tasks</div></div>
+                                    <div class="modal-body-card">
+                                        <!-- ── 5. 区分バッジ ── -->
+                                        <div class="ob-chip-field">
+                                            <div class="ob-chip-field-header">
+                                                <span class="ob-chip-field-title">区分</span>
+                                            </div>
+                                            <div class="ob-row-chips">
+                                                <span class="ob-row-chip ob-chip-active">土木</span>
+                                                <span class="ob-row-chip">建築</span>
+                                                <span class="ob-row-chip">電気</span>
+                                                <span class="ob-row-chip">管工事</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- ── 6. 作業内容バッジ ── -->
+                                        <div class="modal-section-bar">作業内容 <button type="button" class="ob-btn-add-chip">+ 追加</button></div>
+                                        <div class="ob-chip-field">
+                                            <div class="ob-candidates-chips">
+                                                <div class="ob-sv-drag-item">
+                                                    <span class="ob-sv-drag-grip">⠿</span>
+                                                    <span class="ob-supervisor-chip">掘削</span>
+                                                    <button type="button" class="ob-sv-delete-btn">✕</button>
+                                                </div>
+                                                <div class="ob-sv-drag-item">
+                                                    <span class="ob-sv-drag-grip">⠿</span>
+                                                    <span class="ob-supervisor-chip">配筋</span>
+                                                    <button type="button" class="ob-sv-delete-btn">✕</button>
+                                                </div>
+                                                <div class="ob-sv-drag-item">
+                                                    <span class="ob-sv-drag-grip">⠿</span>
+                                                    <span class="ob-supervisor-chip ob-badge-selected">型枠</span>
+                                                    <button type="button" class="ob-sv-delete-btn">✕</button>
+                                                </div>
+                                                <div class="ob-sv-drag-item">
+                                                    <span class="ob-sv-drag-grip">⠿</span>
+                                                    <span class="ob-supervisor-chip">打設</span>
+                                                    <button type="button" class="ob-sv-delete-btn">✕</button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 子バッジ（選択中の作業内容「型枠」の子） -->
+                                        <div class="ob-chip-field" style="padding-left: 16px; border-left: 2px solid var(--accent);">
+                                            <div class="ob-chip-field-header">
+                                                <span class="ob-chip-field-title">子バッジ（型枠）</span>
+                                                <button type="button" class="ob-btn-add-chip">+ 追加</button>
+                                            </div>
+                                            <div class="ob-candidates-chips">
+                                                <div class="ob-sv-drag-item">
+                                                    <span class="ob-sv-drag-grip">⠿</span>
+                                                    <span class="ob-supervisor-chip">組立</span>
+                                                    <button type="button" class="ob-sv-delete-btn">✕</button>
+                                                </div>
+                                                <div class="ob-sv-drag-item">
+                                                    <span class="ob-sv-drag-grip">⠿</span>
+                                                    <span class="ob-supervisor-chip">解体</span>
+                                                    <button type="button" class="ob-sv-delete-btn">✕</button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div class="modal-section-bar">担当者</div>
-                                    <div class="modal-row">
-                                        <div class="modal-section" style="flex:1; margin-bottom: 0;">
-                                            <label>現場監督</label>
-                                            <input type="text" value="田中太郎">
+                                    <!-- ━━ カード3: 時間〜備考 ━━ -->
+                                    <div class="modal-body-field"><div class="modal-body-field-value">Schedule / Notes</div></div>
+                                    <div class="modal-body-card">
+                                        <!-- ── 7. 開始時間 + 終了時間 ── -->
+                                        <div class="modal-row">
+                                            <div class="modal-section" style="flex:1; margin-bottom: 0;">
+                                                <label>開始時間</label>
+                                                <input type="time" value="08:00">
+                                            </div>
+                                            <div class="modal-section" style="flex:1; margin-bottom: 0;">
+                                                <label>終了時間</label>
+                                                <input type="time" value="17:00">
+                                            </div>
                                         </div>
-                                        <div class="modal-section" style="flex:1; margin-bottom: 0;">
-                                            <label>連絡先</label>
-                                            <input type="tel" value="090-1234-5678">
+
+                                        <!-- ── 8. 現場監督 + 連絡先 + 過去の入力 ── -->
+                                        <div class="modal-section-bar">担当者</div>
+                                        <div class="modal-row">
+                                            <div class="modal-section" style="flex:1; margin-bottom: 0;">
+                                                <label>現場監督</label>
+                                                <input type="text" value="田中太郎">
+                                            </div>
+                                            <div class="modal-section" style="flex:1; margin-bottom: 0;">
+                                                <label>連絡先</label>
+                                                <input type="tel" value="090-1234-5678">
+                                            </div>
+                                        </div>
+                                        <div class="ob-supervisor-candidates">
+                                            <span class="ob-candidates-label">過去の入力:</span>
+                                            <div class="ob-candidates-chips">
+                                                <div class="ob-sv-drag-item">
+                                                    <span class="ob-sv-drag-grip">⠿</span>
+                                                    <span class="ob-supervisor-chip">田中太郎</span>
+                                                    <button type="button" class="ob-sv-delete-btn">✕</button>
+                                                </div>
+                                                <div class="ob-sv-drag-item">
+                                                    <span class="ob-sv-drag-grip">⠿</span>
+                                                    <span class="ob-supervisor-chip">鈴木一郎</span>
+                                                    <button type="button" class="ob-sv-delete-btn">✕</button>
+                                                </div>
+                                                <div class="ob-sv-drag-item">
+                                                    <span class="ob-sv-drag-grip">⠿</span>
+                                                    <span class="ob-supervisor-chip">佐藤花子</span>
+                                                    <button type="button" class="ob-sv-delete-btn">✕</button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- ── 9. 集合場所 + 集合時間 ── -->
+                                        <div class="modal-section-bar">集合</div>
+                                        <div class="modal-row">
+                                            <div class="modal-section" style="flex:2; margin-bottom: 0;">
+                                                <label>集合場所</label>
+                                                <input type="text" value="現場事務所前">
+                                            </div>
+                                            <div class="modal-section" style="flex:1; margin-bottom: 0;">
+                                                <label>集合時間</label>
+                                                <input type="time" value="07:30">
+                                            </div>
+                                        </div>
+
+                                        <!-- ── 10. 現場地図URL + プレビュー ── -->
+                                        <div class="modal-section-bar">地図</div>
+                                        <div class="modal-section" style="margin-bottom: 0;">
+                                            <label>現場地図URL</label>
+                                            <div style="display: flex; gap: 8px; align-items: flex-start;">
+                                                <input type="url" value="https://maps.google.com/..." placeholder="Googleマップ等のURL" style="flex: 1;">
+                                                <button type="button" class="web-inline-btn web-inline-action">プレビュー</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- ── 11. 備考 ── -->
+                                        <div class="modal-section-bar">備考</div>
+                                        <div class="modal-section" style="margin-bottom: 0;">
+                                            <textarea rows="2" style="width:100%; padding:10px; border:1px solid var(--divider); border-radius:6px; font-size:12px; background:var(--bg-surface); color:var(--text-primary); resize:vertical;">雨天の場合は中止。前日17時までに連絡。</textarea>
                                         </div>
                                     </div>
 

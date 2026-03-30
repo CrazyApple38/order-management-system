@@ -2326,7 +2326,7 @@ body {
     display: flex; align-items: center; justify-content: space-between;
 }
 .ob-sub-task-title {
-    font-size: 12px; font-weight: 600; color: var(--accent);
+    font-size: 11px; font-weight: 600; color: var(--accent);
     letter-spacing: 0.5px;
 }
 .ob-btn-add-sub {
@@ -2528,7 +2528,8 @@ body {
 .ob-modal-footer-right { display: flex; gap: 10px; }
 
 /* --- カレンダーモーダル固有 --- */
-.ob-modal-calendar { width: 500px; max-width: 95vw; max-height: 90vh; position: relative; }
+.ob-modal.ob-modal-calendar { width: 500px; max-width: 95vw; max-height: none; overflow: visible; position: relative; }
+.ob-modal.ob-modal-calendar > .ob-modal-body { overflow: visible; flex: none; }
 .ob-cal-close { position: absolute; top: 6px; right: 6px; z-index: 10; }
 
 /* ヘッダー */
@@ -2663,9 +2664,46 @@ body {
     max-height: 50vh;
     padding: 16px;
     background: #E9F1F6;
+    scrollbar-width: thin;
+    scrollbar-color: var(--divider) transparent;
 }
+.ob-cal-edit-panel-body::-webkit-scrollbar { width: 5px; }
+.ob-cal-edit-panel-body::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 3px; }
+.ob-cal-edit-panel-body::-webkit-scrollbar-track { background: transparent; }
 .ob-cal-edit-panel.collapsed .ob-cal-edit-panel-body {
     max-height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden;
+}
+
+/* 配置先タブ */
+.ob-placement-tabs {
+    display: flex; gap: 0; border-bottom: 2px solid var(--divider);
+}
+.ob-placement-tab {
+    padding: 6px 16px; border: none; background: transparent;
+    font-size: 12px; font-weight: 600; color: var(--text-secondary);
+    cursor: pointer; transition: all 0.15s;
+    border-bottom: 2px solid transparent; margin-bottom: -2px;
+}
+.ob-placement-tab:hover { color: var(--accent); }
+.ob-placement-tab.active {
+    color: var(--accent); border-bottom-color: var(--accent);
+}
+.ob-placement-tab-add {
+    color: var(--text-tertiary); font-size: 11px;
+}
+.ob-placement-tab-add:hover { color: var(--accent); }
+
+/* 業務名 表示のみ（sm-display-value準拠） */
+.ob-cal-display-value {
+    font-size: 15px; font-weight: 600;
+    color: var(--accent);
+    padding: 12px 0 8px;
+    border-bottom: 1px solid var(--divider);
+}
+
+/* 作業内容バッジ選択状態 */
+.ob-supervisor-chip.ob-badge-selected {
+    background: var(--accent); color: #fff; border-color: var(--accent);
 }
 
 /* フッター */
