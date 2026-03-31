@@ -17,6 +17,7 @@
             <h3>Foundation</h3>
             <ul>
                 <li><a href="#color-palette" class="active">Color Palette</a></li>
+                <li><a href="#applied-color-palette">Applied Color</a></li>
             </ul>
         </div>
         <div class="sidebar-section">
@@ -26,6 +27,8 @@
                 <li><a href="#web-modal">Modal</a></li>
 
                 <li><a href="#modal-design-pattern">Modal Pattern</a></li>
+                <li><a href="#web-badge-tag">Badge / Tag</a></li>
+                <li><a href="#web-form-input">Form Input</a></li>
             </ul>
         </div>
         <div class="sidebar-section">
@@ -258,9 +261,13 @@
                     </div>
                 </div>
 
-                <!-- Applied Color Palette -->
-                <h4 style="margin-top: 24px;">Applied Color Palette</h4>
-                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 12px;">実際にUI要素に使用するカラーの一覧。基盤パレット(Coastal)からの導出関係を併記。</p>
+            </div>
+        </section>
+
+        <section class="comp-section" id="applied-color-palette">
+            <div class="comp-title-bar"><h2>Applied Color Palette</h2></div>
+            <div class="comp-body">
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 12px;">実際にUI要素に使用するカラーの一覧。基盤パレット(Coastal)からの導出関係を併記。新しい色を使用する場合は、必ずここに登録してから使用すること。</p>
 
                 <!-- UIクローム -->
                 <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin-bottom: 8px;">UI Chrome</h4>
@@ -371,15 +378,51 @@
                             <td><span class="applied-dot" style="background:rgba(68,166,181,0.12);border:1px solid var(--divider);"></span></td>
                             <td><strong>Accent Dim</strong></td>
                             <td><code>rgba(68,166,181,0.12)</code></td>
-                            <td>ホバー背景、チップ選択背景、閉じるボタンhover</td>
+                            <td>ホバー背景、チップ選択背景、バッジ背景</td>
                             <td>Moonstone α12%</td>
                         </tr>
                         <tr>
                             <td><span class="applied-dot" style="background:rgba(212,186,168,0.15);border:1px solid var(--divider);"></span></td>
                             <td><strong>Shell Dim</strong></td>
                             <td><code>rgba(222,204,190,0.15)</code></td>
-                            <td>競合バナー背景</td>
+                            <td>競合バナー背景、予定（低）背景</td>
                             <td>Shell Beige α15%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- テキスト -->
+                <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: 16px 0 8px;">Text</h4>
+                <table class="applied-color-table">
+                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>由来</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#004554;"></span></td>
+                            <td><strong>Midnight Green</strong></td>
+                            <td><code>#004554</code></td>
+                            <td>本文テキスト、見出し</td>
+                            <td>Text Primary</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#2A6B7A;"></span></td>
+                            <td><strong>Deep Moonstone</strong></td>
+                            <td><code>#2A6B7A</code></td>
+                            <td>副テキスト、ラベル、バッジ文字</td>
+                            <td>Text Secondary</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#6B9AA8;"></span></td>
+                            <td><strong>Muted Moonstone</strong></td>
+                            <td><code>#6B9AA8</code></td>
+                            <td>補助テキスト、プレースホルダー</td>
+                            <td>Text Tertiary</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#A0BCC5;"></span></td>
+                            <td><strong>Pale Moonstone</strong></td>
+                            <td><code>#A0BCC5</code></td>
+                            <td>無効テキスト、ヒント</td>
+                            <td>Text Disabled</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1030,6 +1073,7 @@
                             <button class="ob-modal-close" style="color: rgba(255,255,255,0.8);">✕</button>
                         </div>
                         <div class="modal-site-body">
+                            <div class="modal-body-field"><div class="modal-body-field-value">Meeting / Contact</div></div>
                             <div class="modal-body-card">
                                 <div class="ob-form-row">
                                     <label>集合時間</label>
@@ -1072,6 +1116,7 @@
                             <button class="ob-modal-close" style="color: rgba(255,255,255,0.8);">✕</button>
                         </div>
                         <div class="modal-site-body">
+                            <div class="modal-body-field"><div class="modal-body-field-value">Classification</div></div>
                             <div class="modal-body-card">
                                 <div class="ob-chip-field">
                                     <div class="ob-chip-field-header">
@@ -1105,6 +1150,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="modal-body-field"><div class="modal-body-field-value">Contract / Task</div></div>
                             <div class="modal-body-card">
                                 <div class="ob-form-row">
                                     <label>契約先名</label>
@@ -1365,6 +1411,7 @@
                             <button class="ob-modal-close" style="color: rgba(255,255,255,0.8);">✕</button>
                         </div>
                         <div class="modal-site-body">
+                            <div class="modal-body-field"><div class="modal-body-field-value">Transport / Notes</div></div>
                             <div class="modal-body-card">
                                 <div class="vt-preset-section">
                                     <div class="vt-preset-label">プリセットから追加</div>
@@ -1573,6 +1620,282 @@
 
             </div>
         </section>
+
+        <!-- ========== BADGE / TAG SYSTEM ========== -->
+        <section class="comp-section" id="web-badge-tag">
+            <div class="comp-title-bar"><h2>Badge / Tag System</h2></div>
+            <div class="comp-body">
+
+                <!-- ── 1. 区分バッジ (Category) ── -->
+                <h4>1. 区分バッジ — Category</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">業務区分の表示。読み取り専用。全区分で同一色。<code>bt-badge bt-badge-md bt-cat</code></p>
+                <div class="bt-demo-row" style="margin-bottom: 20px;">
+                    <span class="bt-badge bt-badge-md bt-cat">施設</span>
+                    <span class="bt-badge bt-badge-md bt-cat">イベント</span>
+                    <span class="bt-badge bt-badge-md bt-cat">交通</span>
+                    <span class="bt-badge bt-badge-md bt-cat">高速道路</span>
+                    <span class="bt-badge bt-badge-md bt-cat">応援</span>
+                    <span class="bt-badge bt-badge-md bt-cat">研修</span>
+                    <span class="bt-badge bt-badge-md bt-cat">社内</span>
+                </div>
+
+                <!-- ── 2. シフトバッジ (Shift) ── -->
+                <h4>2. シフトバッジ — Shift</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">昼夜区分の表示。<code>bt-badge bt-badge-md bt-shift-*</code></p>
+                <div class="bt-demo-row" style="margin-bottom: 20px;">
+                    <span class="bt-badge bt-badge-md bt-shift-day">昼</span>
+                    <span class="bt-badge bt-badge-md bt-shift-night">夜</span>
+                </div>
+
+                <!-- ── 3. 連絡タイプバッジ (Contact) ── -->
+                <h4>3. 連絡タイプバッジ — Contact</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">連絡方法の表示。全タイプで同一色。<code>bt-badge bt-badge-sm bt-contact</code></p>
+                <div class="bt-demo-row" style="margin-bottom: 20px;">
+                    <span class="bt-badge bt-badge-sm bt-contact">会社</span>
+                    <span class="bt-badge bt-badge-sm bt-contact">直</span>
+                    <span class="bt-badge bt-badge-sm bt-contact">LINE</span>
+                    <span class="bt-badge bt-badge-sm bt-contact">迎え</span>
+                    <span class="bt-badge bt-badge-sm bt-contact">OP</span>
+                </div>
+
+                <!-- ── 4. ステータスバッジ (Status) ── -->
+                <h4>4. ステータスバッジ — Status</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">配置状況の表示。ドット付きピル型。<code>bt-status bt-status-*</code></p>
+                <div class="bt-demo-row" style="margin-bottom: 20px;">
+                    <span class="bt-status bt-status-confirmed"><span class="bt-status-dot"></span>確定</span>
+                    <span class="bt-status bt-status-high"><span class="bt-status-dot"></span>予定（高）</span>
+                    <span class="bt-status bt-status-low"><span class="bt-status-dot"></span>予定（低）</span>
+                    <span class="bt-status bt-status-empty"><span class="bt-status-dot"></span>未配置</span>
+                </div>
+
+                <!-- ── 5. 監督バッジ (Supervisor) ── -->
+                <h4>5. 監督バッジ — Supervisor</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">監督者の表示。枠線のみ。<code>bt-supervisor</code></p>
+                <div class="bt-demo-row" style="margin-bottom: 20px;">
+                    <span class="bt-supervisor">監督</span>
+                    <span class="bt-supervisor">副監督</span>
+                </div>
+
+                <!-- ── 6. 不足バッジ (Shortage) ── -->
+                <h4>6. 不足バッジ — Shortage</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">不足人数の警告表示。<code>bt-shortage</code></p>
+                <div class="bt-demo-row" style="margin-bottom: 20px;">
+                    <span class="bt-shortage">-2名不足</span>
+                    <span class="bt-shortage">-1名不足</span>
+                </div>
+
+                <!-- ── 7. カスタムカラータグ (Custom Color) ── -->
+                <h4>7. カスタムカラータグ — Custom Color</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">送迎・備考等。背景色＋文字色をユーザーがカスタマイズ可能。<code>bt-custom-tag</code> + inline style</p>
+                <div class="bt-demo-row" style="margin-bottom: 20px;">
+                    <span class="bt-custom-tag" style="background: #2A6B7A; color: #FFFFFF;">送迎</span>
+                    <span class="bt-custom-tag" style="background: #44A6B5; color: #FFFFFF;">集合場所</span>
+                    <span class="bt-custom-tag" style="background: #6B9AA8; color: #FFFFFF;">備考</span>
+                    <span class="bt-custom-tag" style="background: #DECCBE; color: #5C4A33;">注意</span>
+                    <span class="bt-custom-tag" style="background: #DB577B; color: #FFFFFF;">重要</span>
+                </div>
+
+                <!-- ── 8. セル表示タグ (Cell Display) ── -->
+                <h4>8. セル表示タグ — Cell Display</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">グリッドセル内の子バッジ・孫バッジ表示。<code>bt-cell-tag bt-cell-child / bt-cell-grandchild</code></p>
+                <div class="bt-demo-row" style="margin-bottom: 20px;">
+                    <span class="bt-cell-tag bt-cell-child">土木</span>
+                    <span class="bt-cell-tag bt-cell-child">建築</span>
+                    <span class="bt-cell-tag bt-cell-grandchild">基礎</span>
+                    <span class="bt-cell-tag bt-cell-grandchild">躯体</span>
+                </div>
+
+                <!-- ── 9. 選択チップ (Selectable Chip) ── -->
+                <h4>9. 選択チップ — Selectable Chip</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">モーダル内の単一／複数選択。クリックで切替。<code>bt-chip</code> / <code>bt-chip bt-chip-child</code></p>
+                <div class="bt-demo-group" style="margin-bottom: 20px;">
+                    <div class="bt-demo-label">親チップ (Parent)</div>
+                    <div class="bt-demo-row">
+                        <span class="bt-chip active">土木</span>
+                        <span class="bt-chip">建築</span>
+                        <span class="bt-chip">電気</span>
+                        <span class="bt-chip">管工事</span>
+                    </div>
+                    <div class="bt-demo-label" style="margin-top: 8px;">子チップ (Child)</div>
+                    <div class="bt-demo-row">
+                        <span class="bt-chip bt-chip-child active">基礎掘削</span>
+                        <span class="bt-chip bt-chip-child active">舗装工事</span>
+                        <span class="bt-chip bt-chip-child">管渠布設</span>
+                    </div>
+                </div>
+
+                <!-- ── 10. ドラッグ可能タグ (Draggable Tag) ── -->
+                <h4>10. ドラッグ可能タグ — Draggable Tag</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">社員・車両・ETCカードのD&D配置用。<code>bt-drag-tag</code></p>
+                <div class="bt-demo-group" style="margin-bottom: 8px;">
+                    <div class="bt-demo-label">社員タグ (Employee)</div>
+                    <div class="bt-demo-row">
+                        <span class="bt-drag-tag">山田 太郎</span>
+                        <span class="bt-drag-tag assigned">佐藤 花子</span>
+                    </div>
+                    <div class="bt-demo-label" style="margin-top: 8px;">車両タグ (Vehicle)</div>
+                    <div class="bt-demo-row">
+                        <span class="bt-drag-tag">品川 300 あ 1234 <span class="bt-drag-tag-sub">2tダンプ</span></span>
+                        <span class="bt-drag-tag assigned">足立 500 さ 5678 <span class="bt-drag-tag-sub">4tユニック</span></span>
+                    </div>
+                    <div class="bt-demo-label" style="margin-top: 8px;">ETCカードタグ (ETC)</div>
+                    <div class="bt-demo-row">
+                        <span class="bt-drag-tag">ETC-001</span>
+                        <span class="bt-drag-tag assigned">ETC-002</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ========== FORM INPUT SYSTEM ========== -->
+        <section class="comp-section" id="web-form-input">
+            <div class="comp-title-bar"><h2>Form Input</h2></div>
+            <div class="comp-body">
+
+                <!-- ── 1. テキスト入力 (Text Input) ── -->
+                <h4>1. テキスト入力 — Text Input</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">基本のテキスト入力。4つの状態を持つ。<code>fi-field</code> + <code>fi-label</code> + <code>fi-input</code></p>
+                <div class="fi-demo-grid" style="margin-bottom: 24px;">
+                    <div class="fi-field">
+                        <label class="fi-label">Default</label>
+                        <input type="text" class="fi-input" placeholder="入力してください">
+                    </div>
+                    <div class="fi-field">
+                        <label class="fi-label">With Value</label>
+                        <input type="text" class="fi-input" value="○○建設株式会社">
+                    </div>
+                    <div class="fi-field">
+                        <label class="fi-label">Error</label>
+                        <input type="text" class="fi-input fi-error" value="不正な値">
+                        <span class="fi-error-msg">※ この組み合わせは既に存在します</span>
+                    </div>
+                    <div class="fi-field">
+                        <label class="fi-label">Disabled</label>
+                        <input type="text" class="fi-input" value="変更不可" disabled>
+                    </div>
+                </div>
+
+                <!-- ── 2. 数値入力 (Number Input) ── -->
+                <h4>2. 数値入力 — Number Input</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">人数等の数値入力。幅80px固定。<code>fi-input fi-input-number</code></p>
+                <div class="fi-demo-grid" style="margin-bottom: 24px;">
+                    <div class="fi-field">
+                        <label class="fi-label">人数</label>
+                        <input type="number" class="fi-input fi-input-number" value="5">
+                    </div>
+                    <div class="fi-field">
+                        <label class="fi-label">台数</label>
+                        <input type="number" class="fi-input fi-input-number" value="2">
+                    </div>
+                </div>
+
+                <!-- ── 3. タイムピッカー (Time Picker) ── -->
+                <h4>3. タイムピッカー — Time Picker</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">集合時間等の時間入力。中央揃え + アイコン付き。<code>fi-time-wrap</code> + <code>fi-time</code></p>
+                <div class="fi-demo-grid" style="margin-bottom: 24px;">
+                    <div class="fi-field">
+                        <label class="fi-label">集合時間</label>
+                        <div class="fi-time-wrap">
+                            <input type="text" class="fi-time" value="08:45" readonly>
+                            <span class="fi-time-icon">🕐</span>
+                        </div>
+                    </div>
+                    <div class="fi-field">
+                        <label class="fi-label">開始時間</label>
+                        <div class="fi-time-wrap">
+                            <input type="text" class="fi-time" value="09:00" readonly>
+                            <span class="fi-time-icon">🕐</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── 4. テキストエリア (Textarea) ── -->
+                <h4>4. テキストエリア — Textarea</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">備考等の複数行入力。<code>fi-textarea</code></p>
+                <div style="max-width: 400px; margin-bottom: 24px;">
+                    <div class="fi-field">
+                        <label class="fi-label">備考</label>
+                        <textarea class="fi-textarea" placeholder="備考を入力してください">雨天中止の場合は前日17時までに連絡</textarea>
+                    </div>
+                </div>
+
+                <!-- ── 5. セレクト (Select) ── -->
+                <h4>5. セレクト — Select</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">固定選択肢からの選択。カスタム矢印付き。<code>fi-select</code></p>
+                <div class="fi-demo-grid" style="margin-bottom: 24px;">
+                    <div class="fi-field">
+                        <label class="fi-label">区分</label>
+                        <select class="fi-select">
+                            <option>土木</option>
+                            <option>建築</option>
+                            <option>電気</option>
+                            <option>管工事</option>
+                        </select>
+                    </div>
+                    <div class="fi-field">
+                        <label class="fi-label">Disabled</label>
+                        <select class="fi-select" disabled>
+                            <option>変更不可</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ── 6. コンボボックス (Combobox) ── -->
+                <h4>6. コンボボックス — Combobox</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">テキスト入力 + ドロップダウン候補。クリア＆トグルボタン付き。<code>fi-combo</code></p>
+                <div style="max-width: 400px; margin-bottom: 24px;">
+                    <div class="fi-field">
+                        <label class="fi-label">契約先（元請け）</label>
+                        <div class="fi-combo">
+                            <input type="text" class="fi-combo-input" value="○○建設株式会社" autocomplete="off">
+                            <button type="button" class="fi-combo-clear visible">✕</button>
+                            <button type="button" class="fi-combo-toggle">▼</button>
+                            <div class="fi-combo-dropdown open">
+                                <div class="fi-combo-option">○○建設株式会社</div>
+                                <div class="fi-combo-option">△△工業株式会社</div>
+                                <div class="fi-combo-option">□□ハウス株式会社</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── 7. フォーム行レイアウト (Form Row Layout) ── -->
+                <h4>7. フォーム行レイアウト — Row Layout</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">横並びレイアウト。<code>fi-row</code> で <code>fi-field</code> をラップ。</p>
+                <div style="max-width: 500px; margin-bottom: 24px;">
+                    <div class="fi-row">
+                        <div class="fi-field">
+                            <label class="fi-label">現場監督</label>
+                            <input type="text" class="fi-input" value="田中太郎">
+                        </div>
+                        <div class="fi-field">
+                            <label class="fi-label">連絡先（TEL）</label>
+                            <input type="tel" class="fi-input" value="090-1234-5678">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── 8. ヘルプテキスト (Help Text) ── -->
+                <h4>8. ヘルプテキスト — Help / Error Text</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">入力補助テキスト。<code>fi-help</code> / <code>fi-error-msg</code></p>
+                <div class="fi-demo-grid" style="margin-bottom: 8px;">
+                    <div class="fi-field">
+                        <label class="fi-label">業務名</label>
+                        <input type="text" class="fi-input" placeholder="空欄で個別業務">
+                        <span class="fi-help">空欄の場合は個別業務として扱います</span>
+                    </div>
+                    <div class="fi-field">
+                        <label class="fi-label">契約先名</label>
+                        <input type="text" class="fi-input fi-error" value="テスト">
+                        <span class="fi-error-msg">※ 必須項目です</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
 
         <!-- ========== ANDROID ========== -->
         <div class="platform-header">Android Light</div>

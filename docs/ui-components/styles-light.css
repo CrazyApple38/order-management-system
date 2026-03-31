@@ -3232,3 +3232,509 @@ body {
     outline: none; border-color: var(--accent);
     box-shadow: 0 0 0 2px var(--accent-dim);
 }
+
+/* ===========================
+   Badge / Tag System
+   =========================== */
+
+/* --- 共通バッジベース --- */
+.bt-badge {
+    display: inline-block;
+    font-weight: 600;
+    border-radius: 3px;
+    text-align: center;
+    white-space: nowrap;
+    line-height: 1.4;
+}
+.bt-badge-sm {
+    font-size: 0.65rem;
+    padding: 1px 6px;
+}
+.bt-badge-md {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    min-width: 50px;
+}
+
+/* --- 1. 区分バッジ (Category) — 全区分で同一色 --- */
+.bt-cat {
+    background: var(--accent-dim);        /* Moonstone α12% */
+    color: var(--text-secondary);         /* #2A6B7A */
+}
+
+/* --- 2. シフトバッジ (Shift) --- */
+.bt-shift-day {
+    background: var(--bg-surface-2);      /* Timberwolf #F0EDE9 */
+    color: var(--text-primary);           /* Midnight Green #004554 */
+}
+.bt-shift-night {
+    background: rgba(0,69,84,0.12);       /* Midnight Green α12% */
+    color: var(--text-primary);           /* Midnight Green #004554 */
+}
+
+/* --- 3. 連絡タイプバッジ (Contact) — 全タイプで同一色 --- */
+.bt-contact {
+    background: var(--accent-dim);        /* Moonstone α12% */
+    color: var(--text-secondary);         /* #2A6B7A */
+}
+
+/* --- 4. ステータスバッジ (Status) --- */
+.bt-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+.bt-status-confirmed {
+    background: var(--accent-dim);                            /* Moonstone α12% */
+    color: var(--text-secondary);                             /* #2A6B7A */
+    border: 1px solid rgba(68,166,181,0.25);                  /* Moonstone α25% */
+}
+.bt-status-high {
+    background: rgba(178,213,226,0.20);                       /* Light Blue α20% */
+    color: var(--text-tertiary);                              /* #6B9AA8 */
+    border: 1px solid rgba(178,213,226,0.40);                 /* Light Blue α40% */
+}
+.bt-status-low {
+    background: rgba(222,204,190,0.15);                       /* Shell Dim (Warning α15%) */
+    color: #5C4A33;                                           /* Warning Text */
+    border: 1px solid rgba(222,204,190,0.40);                 /* Shell Beige α40% */
+}
+.bt-status-empty {
+    background: rgba(219,87,123,0.08);                        /* Vivid Rose α8% */
+    color: #6B2040;                                           /* Error Text */
+    border: 1px solid rgba(219,87,123,0.25);                  /* Vivid Rose α25% */
+}
+.bt-status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+}
+.bt-status-confirmed .bt-status-dot { background: var(--accent);  }   /* Moonstone #44A6B5 */
+.bt-status-high .bt-status-dot      { background: var(--secondary); } /* Light Blue #B2D5E2 */
+.bt-status-low .bt-status-dot       { background: #DECCBE; }          /* Shell Beige (Warning) */
+.bt-status-empty .bt-status-dot     { background: var(--error); }     /* Vivid Rose #DB577B */
+
+/* --- 5. 監督バッジ (Supervisor) --- */
+.bt-supervisor {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--accent);
+    border: 1px solid rgba(68,166,181,0.25);
+    background: transparent;
+}
+
+/* --- 6. 不足バッジ (Shortage) --- */
+.bt-shortage {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: bold;
+    color: var(--error);
+    border: 1px solid var(--error);
+    padding: 0 3px;
+    border-radius: 3px;
+    line-height: 1.4;
+}
+
+/* --- 7. カスタムカラータグ (Custom Color) --- */
+.bt-custom-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+/* --- 8. セル表示タグ (Cell Display) --- */
+.bt-cell-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+.bt-cell-child {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid rgba(68,166,181,0.25);
+}
+.bt-cell-grandchild {
+    background: rgba(178,213,226,0.25);
+    color: var(--text-tertiary);
+    border: 1px solid rgba(178,213,226,0.4);
+    font-weight: 500;
+}
+
+/* --- 9. 選択チップ (Selectable Chip) — モーダル内 --- */
+.bt-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+}
+.bt-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);                            /* Moonstone α12% */
+}
+.bt-chip.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+.bt-chip-child {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 12px;
+}
+.bt-chip-child.active {
+    background: var(--secondary);
+    color: var(--text-primary);
+    border-color: var(--secondary);
+}
+
+/* --- 10. ドラッグ可能タグ (Draggable Tag) --- */
+.bt-drag-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--bg-surface-2);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    cursor: grab;
+    transition: all 0.2s;
+    user-select: none;
+    color: var(--text-primary);
+    font-size: 12px;
+}
+.bt-drag-tag:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+.bt-drag-tag.assigned {
+    background: var(--accent-dim);                            /* Moonstone α12% */
+    border-color: rgba(68,166,181,0.30);                      /* Moonstone α30% */
+    color: var(--text-secondary);                             /* #2A6B7A */
+}
+.bt-drag-tag-sub {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);                              /* #6B9AA8 */
+}
+.bt-drag-tag:hover .bt-drag-tag-sub {
+    color: rgba(255,255,255,0.7);
+}
+
+/* --- Badge/Tag デモ用レイアウト --- */
+.bt-demo-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+.bt-demo-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.bt-demo-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+/* ===========================
+   Form Input System
+   =========================== */
+
+/* --- 共通ラベル --- */
+.fi-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+/* --- フォーム行レイアウト --- */
+.fi-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.fi-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+}
+.fi-row > .fi-field { flex: 1; }
+
+/* --- テキスト入力 --- */
+.fi-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    transition: border-color 0.15s;
+}
+.fi-input:hover {
+    border-color: var(--accent);
+}
+.fi-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.fi-input::placeholder {
+    color: var(--text-disabled);
+}
+.fi-input:disabled {
+    background: var(--bg-surface-2);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+    border-color: var(--bg-surface-3);
+}
+.fi-input.fi-error {
+    border-color: var(--error);
+}
+.fi-input.fi-error:focus {
+    box-shadow: 0 0 0 3px rgba(219,87,123,0.12);
+}
+
+/* --- 数値入力 --- */
+.fi-input-number {
+    width: 80px;
+    text-align: center;
+    -moz-appearance: textfield;
+}
+.fi-input-number::-webkit-outer-spin-button,
+.fi-input-number::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* --- テキストエリア --- */
+.fi-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    transition: border-color 0.15s;
+    resize: vertical;
+    min-height: 60px;
+    line-height: 1.5;
+}
+.fi-textarea:hover { border-color: var(--accent); }
+.fi-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.fi-textarea::placeholder { color: var(--text-disabled); }
+.fi-textarea:disabled {
+    background: var(--bg-surface-2);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+}
+
+/* --- タイムピッカー --- */
+.fi-time-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.fi-time {
+    width: 100%;
+    padding: 7px 30px 7px 10px;
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-family: inherit;
+    transition: border-color 0.15s;
+}
+.fi-time:hover { border-color: var(--accent); }
+.fi-time:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.fi-time-icon {
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    line-height: 1;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* --- コンボボックス --- */
+.fi-combo {
+    position: relative;
+}
+.fi-combo-input {
+    width: 100%;
+    padding: 8px 60px 8px 12px;
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    transition: border-color 0.15s;
+}
+.fi-combo-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.fi-combo-input::placeholder { color: var(--text-disabled); }
+.fi-combo-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-tertiary);
+    font-size: 11px;
+    padding: 5px;
+}
+.fi-combo-toggle:hover { color: var(--accent); }
+.fi-combo-clear {
+    position: absolute;
+    right: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-disabled);
+    font-size: 12px;
+    padding: 5px;
+    display: none;
+}
+.fi-combo-clear.visible { display: block; }
+.fi-combo-clear:hover { color: var(--error); }
+.fi-combo-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    box-shadow: var(--shadow-medium);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+}
+.fi-combo-dropdown.open { display: block; }
+.fi-combo-option {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--bg-surface-2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-primary);
+    font-size: 13px;
+}
+.fi-combo-option:hover { background: var(--accent-dim); }
+.fi-combo-option:last-child { border-bottom: none; }
+
+/* --- セレクト --- */
+.fi-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: border-color 0.15s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236B9AA8'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 30px;
+}
+.fi-select:hover { border-color: var(--accent); }
+.fi-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.fi-select:disabled {
+    background: var(--bg-surface-2);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+}
+
+/* --- エラーメッセージ --- */
+.fi-error-msg {
+    font-size: 11px;
+    color: var(--error);
+    font-weight: 600;
+    padding: 2px 0 0;
+}
+
+/* --- ヘルプテキスト --- */
+.fi-help {
+    font-size: 11px;
+    color: var(--text-disabled);
+    padding: 2px 0 0;
+}
+
+/* --- デモ用 --- */
+.fi-demo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+.fi-demo-group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
