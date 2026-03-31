@@ -146,8 +146,8 @@ function _syncCalendarCache() {
 // touchstart/touchmove/touchend でドラッグ操作をシミュレート
 function enableTouchDrag(container, itemSelector, {
     onReorder,           // (srcIdx, destIdx) => void — 並べ替え確定時
-    draggingClass = 'ob-touch-dragging',
-    overClass = 'ob-touch-drag-over',
+    draggingClass = 'md-ob-touch-dragging',
+    overClass = 'md-ob-touch-drag-over',
     idxAttr = 'data-drag-idx',
     gripSelector = null, // グリップ要素のセレクタ（nullなら要素全体）
 } = {}) {
@@ -537,27 +537,27 @@ function renderGrid() {
     // === ヘッダー行 ===
     const frozenHeaders = ['会社', '区分', '昼夜', '契約先名'];
     frozenHeaders.forEach((h, i) => {
-        html += `<div class="ob-cell ob-header ob-frozen-${i}">${h}</div>`;
+        html += `<div class="md-ob-cell ob-header ob-frozen-${i}">${h}</div>`;
     });
-    html += '<div class="ob-cell ob-header ob-frozen-4"></div>';
-    html += '<div class="ob-cell ob-header ob-frozen-5">業務名</div>';
-    html += '<div class="ob-cell ob-header ob-frozen-6"></div>';
-    html += '<div class="ob-cell ob-header ob-frozen-7"><img src="mockup/icons/calendar.svg" alt="" style="width:14px;height:14px;opacity:0.7;"></div>';
-    html += '<div class="ob-cell ob-header ob-frozen-8"><img src="mockup/icons/bell.svg" alt="" style="width:13px;height:13px;opacity:0.5;"></div>';
+    html += '<div class="md-ob-cell ob-header ob-frozen-4"></div>';
+    html += '<div class="md-ob-cell ob-header ob-frozen-5">業務名</div>';
+    html += '<div class="md-ob-cell ob-header ob-frozen-6"></div>';
+    html += '<div class="md-ob-cell ob-header ob-frozen-7"><img src="mockup/icons/calendar.svg" alt="" style="width:14px;height:14px;opacity:0.7;"></div>';
+    html += '<div class="md-ob-cell ob-header ob-frozen-8"><img src="mockup/icons/bell.svg" alt="" style="width:13px;height:13px;opacity:0.5;"></div>';
     for (let d = 1; d <= daysInMonth; d++) {
         const dt = new Date(currentYear, currentMonth - 1, d);
         const dow = dt.getDay();
         const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        let cls = 'ob-cell ob-header ob-date-header';
+        let cls = 'md-ob-cell ob-header ob-date-header';
         if (weekendColorsEnabled) {
             if (holidays[dateStr]) cls += ' ob-holiday-head';
             else if (dow === 0) cls += ' ob-sun-head';
             else if (dow === 6) cls += ' ob-sat-head';
         }
-        html += `<div class="${cls}"><span class="ob-day-num">${d}</span><span class="ob-day-name">${dayNames[dow]}</span></div>`;
+        html += `<div class="${cls}"><span class="md-ob-day-num">${d}</span><span class="md-ob-day-name">${dayNames[dow]}</span></div>`;
     }
     // 合計列ヘッダー
-    html += '<div class="ob-cell ob-header ob-date-header"><span class="ob-day-num">計</span></div>';
+    html += '<div class="md-ob-cell ob-header ob-date-header"><span class="md-ob-day-num">計</span></div>';
 
     // === データ行 ===
     let visibleCount = 0;
@@ -571,8 +571,8 @@ function renderGrid() {
         if (!isFiltered(row)) return;
 
         let rowCls = '';
-        if (isHidden) rowCls = 'ob-row-hidden';
-        else if (isDimmed) rowCls = 'ob-row-dimmed';
+        if (isHidden) rowCls = 'md-ob-row-hidden';
+        else if (isDimmed) rowCls = 'md-ob-row-dimmed';
         if (row.shift === '夜') rowCls += ' ob-night';
 
         const isEven = (!isHidden) && (visibleRowIndex % 2 === 1);
@@ -581,23 +581,23 @@ function renderGrid() {
         if (!isHidden) { visibleCount++; visibleRowIndex++; }
 
         // Frozen cells（クリックで行編集モーダルを開く）
-        html += `<div class="ob-cell ob-frozen-0 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${obBranchShort(row.branch)}</div>`;
-        html += `<div class="ob-cell ob-frozen-1 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.category}</div>`;
-        html += `<div class="ob-cell ob-frozen-2 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.shift}</div>`;
-        html += `<div class="ob-cell ob-frozen-3 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.company}</div>`;
-        html += `<div class="ob-cell ob-frozen-4 ${rowCls}${evenCls}" data-ri="${ri}"><button class="ob-row-add-btn" onclick="event.stopPropagation(); addNewRowFromRow(${ri})" title="この現場を複製して追加">＋</button></div>`;
-        const taskLabel = row.task || '<span class="ob-individual-task">(個別)</span>';
-        html += `<div class="ob-cell ob-frozen-5 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${taskLabel}</div>`;
+        html += `<div class="md-ob-cell ob-frozen-0 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${obBranchShort(row.branch)}</div>`;
+        html += `<div class="md-ob-cell ob-frozen-1 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.category}</div>`;
+        html += `<div class="md-ob-cell ob-frozen-2 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.shift}</div>`;
+        html += `<div class="md-ob-cell ob-frozen-3 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.company}</div>`;
+        html += `<div class="md-ob-cell ob-frozen-4 ${rowCls}${evenCls}" data-ri="${ri}"><button class="md-ob-row-add-btn" onclick="event.stopPropagation(); addNewRowFromRow(${ri})" title="この現場を複製して追加">＋</button></div>`;
+        const taskLabel = row.task || '<span class="md-ob-individual-task">(個別)</span>';
+        html += `<div class="md-ob-cell ob-frozen-5 ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${taskLabel}</div>`;
         // 昼夜＋ボタン: 対になるシフトの行が無い場合のみ表示
         const oppositeShift = row.shift === '昼' ? '夜' : '昼';
         const hasPair = sampleRows.some((r, j) => j !== ri && r.branch === row.branch && r.category === row.category && r.company === row.company && r.task === row.task && r.shift === oppositeShift);
         if (hasPair) {
-            html += `<div class="ob-cell ob-frozen-6 ${rowCls}${evenCls}" data-ri="${ri}"></div>`;
+            html += `<div class="md-ob-cell ob-frozen-6 ${rowCls}${evenCls}" data-ri="${ri}"></div>`;
         } else {
-            html += `<div class="ob-cell ob-frozen-6 ${rowCls}${evenCls}" data-ri="${ri}"><button class="ob-row-add-btn" onclick="event.stopPropagation(); addShiftRow(${ri})" title="${oppositeShift}を追加">＋</button></div>`;
+            html += `<div class="md-ob-cell ob-frozen-6 ${rowCls}${evenCls}" data-ri="${ri}"><button class="md-ob-row-add-btn" onclick="event.stopPropagation(); addShiftRow(${ri})" title="${oppositeShift}を追加">＋</button></div>`;
         }
-        html += `<div class="ob-cell ob-frozen-7 ${rowCls}${evenCls}" data-ri="${ri}"><button class="ob-cal-open-btn" onclick="event.stopPropagation(); openCalendarModal(${ri})" title="カレンダー入力"><img src="mockup/icons/calendar.svg" alt="カレンダー"></button></div>`;
-        html += `<div class="ob-cell ob-frozen-8 ${rowCls}${evenCls}" data-ri="${ri}">${obCnGetRowBellHtml(ri)}</div>`;
+        html += `<div class="md-ob-cell ob-frozen-7 ${rowCls}${evenCls}" data-ri="${ri}"><button class="md-ob-cal-open-btn" onclick="event.stopPropagation(); openCalendarModal(${ri})" title="カレンダー入力"><img src="mockup/icons/calendar.svg" alt="カレンダー"></button></div>`;
+        html += `<div class="md-ob-cell ob-frozen-8 ${rowCls}${evenCls}" data-ri="${ri}">${obCnGetRowBellHtml(ri)}</div>`;
 
         // Date cells
         let rowTotalMin = 0; // 確定のみ
@@ -622,11 +622,11 @@ function renderGrid() {
             if (entries.length === 1) {
                 // 単一配置先: 従来通り
                 const entry = entries[0];
-                cellContent = `<span class="ob-cell-count">${entry.count}</span>`;
+                cellContent = `<span class="md-ob-cell-count">${entry.count}</span>`;
                 // 個別業務の場合、業務詳細テキストを表示
                 if (!row.task && entry.subTasks && entry.subTasks.length > 0) {
                     const subText = entry.subTasks.map(st => st.value).filter(Boolean).join('・');
-                    if (subText) cellContent += `<span class="ob-cell-subtask">${escapeHtml(subText)}</span>`;
+                    if (subText) cellContent += `<span class="md-ob-cell-subtask">${escapeHtml(subText)}</span>`;
                 }
                 if (showBadges && entry.badge && entry.badge.childIds && entry.badge.childIds.length > 0) {
                     const parent = badgeDefinitions.find(p => p.id === entry.badge.parentId);
@@ -636,7 +636,7 @@ function renderGrid() {
                             .filter(Boolean)
                             .map(c => c.name);
                         if (names.length > 0) {
-                            cellContent += `<span class="ob-cell-badge-text">${escapeHtml(names.join('・'))}</span>`;
+                            cellContent += `<span class="md-ob-cell-badge-text">${escapeHtml(names.join('・'))}</span>`;
                         }
                     }
                 }
@@ -655,16 +655,16 @@ function renderGrid() {
                                 .filter(Boolean)
                                 .map(c => c.name);
                             if (names.length > 0) {
-                                badgeHtml = `<span class="ob-cell-badge-text">${escapeHtml(names.join('・'))}</span>`;
+                                badgeHtml = `<span class="md-ob-cell-badge-text">${escapeHtml(names.join('・'))}</span>`;
                             }
                         }
                     }
                     let subTaskHtml = '';
                     if (!row.task && entry.subTasks && entry.subTasks.length > 0) {
                         const subText = entry.subTasks.map(st => st.value).filter(Boolean).join('・');
-                        if (subText) subTaskHtml = `<span class="ob-cell-subtask">${escapeHtml(subText)}</span>`;
+                        if (subText) subTaskHtml = `<span class="md-ob-cell-subtask">${escapeHtml(subText)}</span>`;
                     }
-                    return `<div class="ob-site-entry${confCls}" data-ri="${ri}" data-day="${d}" data-si="${si}" onclick="event.stopPropagation(); openCalendarWithEdit(${ri},${d},${si})" onmouseenter="showTooltip(event,${ri},${d},${si})" onmouseleave="hideTooltip()"><span class="ob-cell-count">${entry.count}</span>${subTaskHtml}${badgeHtml}</div>`;
+                    return `<div class="md-ob-site-entry${confCls}" data-ri="${ri}" data-day="${d}" data-si="${si}" onclick="event.stopPropagation(); openCalendarWithEdit(${ri},${d},${si})" onmouseenter="showTooltip(event,${ri},${d},${si})" onmouseleave="hideTooltip()"><span class="md-ob-cell-count">${entry.count}</span>${subTaskHtml}${badgeHtml}</div>`;
                 }).join('');
             }
             if (entries.length > 0 && !isHidden) {
@@ -683,30 +683,30 @@ function renderGrid() {
         }
 
         // Row total（最小～最大）
-        const rowTotalLabel = rowTotalMax === 0 ? '' : (rowTotalMin === rowTotalMax ? `${rowTotalMax}` : `${rowTotalMin}<span class="ob-total-max">~${rowTotalMax}</span>`);
-        html += `<div class="ob-cell ob-total-cell ${rowCls}${evenCls}" data-ri="${ri}">${rowTotalLabel}</div>`;
+        const rowTotalLabel = rowTotalMax === 0 ? '' : (rowTotalMin === rowTotalMax ? `${rowTotalMax}` : `${rowTotalMin}<span class="md-ob-total-max">~${rowTotalMax}</span>`);
+        html += `<div class="md-ob-cell ob-total-cell ${rowCls}${evenCls}" data-ri="${ri}">${rowTotalLabel}</div>`;
     });
 
     // === 合計行 ===
-    html += '<div class="ob-cell ob-total-row ob-frozen-0"></div>';
-    html += '<div class="ob-cell ob-total-row ob-frozen-1"></div>';
-    html += '<div class="ob-cell ob-total-row ob-frozen-2"></div>';
-    html += '<div class="ob-cell ob-total-row ob-frozen-3"></div>';
-    html += '<div class="ob-cell ob-total-row ob-frozen-4"></div>';
-    html += '<div class="ob-cell ob-total-row ob-frozen-5" style="justify-content:flex-end;">合計</div>';
-    html += '<div class="ob-cell ob-total-row ob-frozen-6"></div>';
-    html += '<div class="ob-cell ob-total-row ob-frozen-7"></div>';
-    html += '<div class="ob-cell ob-total-row ob-frozen-8"></div>';
+    html += '<div class="md-ob-cell ob-total-row ob-frozen-0"></div>';
+    html += '<div class="md-ob-cell ob-total-row ob-frozen-1"></div>';
+    html += '<div class="md-ob-cell ob-total-row ob-frozen-2"></div>';
+    html += '<div class="md-ob-cell ob-total-row ob-frozen-3"></div>';
+    html += '<div class="md-ob-cell ob-total-row ob-frozen-4"></div>';
+    html += '<div class="md-ob-cell ob-total-row ob-frozen-5" style="justify-content:flex-end;">合計</div>';
+    html += '<div class="md-ob-cell ob-total-row ob-frozen-6"></div>';
+    html += '<div class="md-ob-cell ob-total-row ob-frozen-7"></div>';
+    html += '<div class="md-ob-cell ob-total-row ob-frozen-8"></div>';
     let grandTotalMin = 0;
     let grandTotalMax = 0;
     for (let d = 0; d < daysInMonth; d++) {
         grandTotalMin += dailyTotalsMin[d];
         grandTotalMax += dailyTotalsMax[d];
-        const dayLabel = dailyTotalsMax[d] === 0 ? '' : (dailyTotalsMin[d] === dailyTotalsMax[d] ? `${dailyTotalsMax[d]}` : `${dailyTotalsMin[d]}<span class="ob-total-max">~${dailyTotalsMax[d]}</span>`);
-        html += `<div class="ob-cell ob-total-row">${dayLabel}</div>`;
+        const dayLabel = dailyTotalsMax[d] === 0 ? '' : (dailyTotalsMin[d] === dailyTotalsMax[d] ? `${dailyTotalsMax[d]}` : `${dailyTotalsMin[d]}<span class="md-ob-total-max">~${dailyTotalsMax[d]}</span>`);
+        html += `<div class="md-ob-cell ob-total-row">${dayLabel}</div>`;
     }
-    const grandLabel = grandTotalMin === grandTotalMax ? `${grandTotalMax}` : `${grandTotalMin}<span class="ob-total-max">~${grandTotalMax}</span>`;
-    html += `<div class="ob-cell ob-total-row ob-grand-total">${grandLabel}</div>`;
+    const grandLabel = grandTotalMin === grandTotalMax ? `${grandTotalMax}` : `${grandTotalMin}<span class="md-ob-total-max">~${grandTotalMax}</span>`;
+    html += `<div class="md-ob-cell ob-total-row ob-grand-total">${grandLabel}</div>`;
 
     grid.innerHTML = html;
     document.getElementById('summaryText').textContent = `全 ${sampleRows.length} 件 / 表示 ${visibleCount} 件`;
@@ -728,7 +728,7 @@ function isFiltered(row) {
 function toggleFilterRow() {
     filterBarVisible = !filterBarVisible;
     document.getElementById('filterBar').style.display = filterBarVisible ? 'flex' : 'none';
-    document.querySelector('.ob-tb-btn:nth-child(2)').classList.toggle('active', filterBarVisible);
+    document.querySelector('.md-ob-tb-btn:nth-child(2)').classList.toggle('active', filterBarVisible);
 }
 
 function applyFilters() { renderGrid(); }
@@ -755,7 +755,7 @@ function changeMonth(delta) {
 // --- 土日祝色トグル ---
 function toggleWeekendColors() {
     weekendColorsEnabled = !weekendColorsEnabled;
-    document.querySelector('.ob-tb-btn:nth-child(4)').classList.toggle('active', weekendColorsEnabled);
+    document.querySelector('.md-ob-tb-btn:nth-child(4)').classList.toggle('active', weekendColorsEnabled);
     renderGrid();
 }
 
@@ -778,7 +778,7 @@ function toggleCalBadgeDisplay() {
 // --- 表示/非表示トグル ---
 function toggleHiddenRows() {
     showHiddenRows = !showHiddenRows;
-    document.querySelector('.ob-tb-btn:nth-child(3)').classList.toggle('active', showHiddenRows);
+    document.querySelector('.md-ob-tb-btn:nth-child(3)').classList.toggle('active', showHiddenRows);
     renderGrid();
 }
 
@@ -798,26 +798,26 @@ function showTooltip(e, ri, day, siteIdx) {
         if (!entry) return;
         if (entries.length > 1) {
             const sLabel = (siteIdx !== undefined) ? `配置先 ${siteIdx + 1}/${entries.length}` : `配置先 ${(siteIdx !== undefined ? siteIdx : idx) + 1}`;
-            thtml += `<div class="ob-tt-site-header">${sLabel}</div>`;
+            thtml += `<div class="md-ob-tt-site-header">${sLabel}</div>`;
         }
 
         const dailyName = entry.dailyTaskName || buildDailyTaskName(row.task, entry.subTasks);
         const titleTask = dailyName
-            ? dailyName.replace(/ > /g, ' <span class="ob-tt-arrow">›</span> ')
+            ? dailyName.replace(/ > /g, ' <span class="md-ob-tt-arrow">›</span> ')
             : (row.task || '(個別業務)');
-        thtml += `<div class="ob-tt-title">${row.company} / ${titleTask}</div>`;
-        thtml += `<div class="ob-tt-row"><span class="ob-tt-label">日付:</span><span class="ob-tt-value">${dateStr}（${row.shift}）</span></div>`;
+        thtml += `<div class="md-ob-tt-title">${row.company} / ${titleTask}</div>`;
+        thtml += `<div class="md-ob-tt-row"><span class="md-ob-tt-label">日付:</span><span class="md-ob-tt-value">${dateStr}（${row.shift}）</span></div>`;
 
-        thtml += `<div class="ob-tt-row"><span class="ob-tt-label">時間:</span><span class="ob-tt-value">${entry.startTime} - ${entry.endTime}</span></div>`;
-        if (entry.supervisor) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">現場監督:</span><span class="ob-tt-value">${entry.supervisor}${entry.supervisorTel ? ' / ' + entry.supervisorTel : ''}</span></div>`;
-        if (entry.meetingPlace || entry.meetingTime) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">集合:</span><span class="ob-tt-value">${entry.meetingPlace || ''}${entry.meetingPlace && entry.meetingTime ? ' / ' : ''}${entry.meetingTime || ''}</span></div>`;
-        thtml += `<div class="ob-tt-row"><span class="ob-tt-label">人数:</span><span class="ob-tt-value">${entry.count}名</span></div>`;
+        thtml += `<div class="md-ob-tt-row"><span class="md-ob-tt-label">時間:</span><span class="md-ob-tt-value">${entry.startTime} - ${entry.endTime}</span></div>`;
+        if (entry.supervisor) thtml += `<div class="md-ob-tt-row"><span class="md-ob-tt-label">現場監督:</span><span class="md-ob-tt-value">${entry.supervisor}${entry.supervisorTel ? ' / ' + entry.supervisorTel : ''}</span></div>`;
+        if (entry.meetingPlace || entry.meetingTime) thtml += `<div class="md-ob-tt-row"><span class="md-ob-tt-label">集合:</span><span class="md-ob-tt-value">${entry.meetingPlace || ''}${entry.meetingPlace && entry.meetingTime ? ' / ' : ''}${entry.meetingTime || ''}</span></div>`;
+        thtml += `<div class="md-ob-tt-row"><span class="md-ob-tt-label">人数:</span><span class="md-ob-tt-value">${entry.count}名</span></div>`;
         const badgeText = getBadgeDisplayText(entry.badge);
-        if (badgeText) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">バッジ:</span><span class="ob-tt-value"><span class="ob-tt-badge">${escapeHtml(badgeText)}</span></span></div>`;
-        if (entry.mapUrl) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">地図:</span><span class="ob-tt-value ob-tt-map-link">あり</span></div>`;
-        if (entry.remarks) thtml += `<div class="ob-tt-row"><span class="ob-tt-label">備考:</span><span class="ob-tt-value">${entry.remarks}</span></div>`;
+        if (badgeText) thtml += `<div class="md-ob-tt-row"><span class="md-ob-tt-label">バッジ:</span><span class="md-ob-tt-value"><span class="md-ob-tt-badge">${escapeHtml(badgeText)}</span></span></div>`;
+        if (entry.mapUrl) thtml += `<div class="md-ob-tt-row"><span class="md-ob-tt-label">地図:</span><span class="md-ob-tt-value ob-tt-map-link">あり</span></div>`;
+        if (entry.remarks) thtml += `<div class="md-ob-tt-row"><span class="md-ob-tt-label">備考:</span><span class="md-ob-tt-value">${entry.remarks}</span></div>`;
 
-        if (idx < entriesToShow.length - 1) thtml += `<div class="ob-tt-divider"></div>`;
+        if (idx < entriesToShow.length - 1) thtml += `<div class="md-ob-tt-divider"></div>`;
     });
 
     const tooltip = document.getElementById('cellTooltip');
@@ -852,12 +852,12 @@ function renderSubTaskEntries(subTasks, category) {
     }
     subTasks.forEach((st, idx) => {
         const entry = document.createElement('div');
-        entry.className = 'ob-sub-task-entry';
+        entry.className = 'md-ob-sub-task-entry';
         entry.dataset.idx = idx;
         entry.innerHTML =
-            `<input type="text" class="ob-sub-label-input" value="${escapeHtml(st.label)}" placeholder="項目名" title="項目名を編集" oninput="updateDailyTaskNamePreview()">` +
-            `<input type="text" class="ob-sub-value-input" value="${escapeHtml(st.value)}" placeholder="内容を入力" oninput="updateDailyTaskNamePreview()">` +
-            `<button type="button" class="ob-btn-remove-sub" onclick="removeSubTaskEntry(${idx})" title="削除">×</button>`;
+            `<input type="text" class="md-ob-sub-label-input" value="${escapeHtml(st.label)}" placeholder="項目名" title="項目名を編集" oninput="updateDailyTaskNamePreview()">` +
+            `<input type="text" class="md-ob-sub-value-input" value="${escapeHtml(st.value)}" placeholder="内容を入力" oninput="updateDailyTaskNamePreview()">` +
+            `<button type="button" class="md-ob-btn-remove-sub" onclick="removeSubTaskEntry(${idx})" title="削除">×</button>`;
         list.appendChild(entry);
     });
 }
@@ -876,28 +876,28 @@ function addSubTaskEntry() {
 
     const idx = currentCount;
     const entry = document.createElement('div');
-    entry.className = 'ob-sub-task-entry';
+    entry.className = 'md-ob-sub-task-entry';
     entry.dataset.idx = idx;
     entry.innerHTML =
-        `<input type="text" class="ob-sub-label-input" value="${escapeHtml(defaultLabel)}" placeholder="項目名" title="項目名を編集" oninput="updateDailyTaskNamePreview()">` +
-        `<input type="text" class="ob-sub-value-input" value="" placeholder="内容を入力" oninput="updateDailyTaskNamePreview()">` +
-        `<button type="button" class="ob-btn-remove-sub" onclick="removeSubTaskEntry(${idx})" title="削除">×</button>`;
+        `<input type="text" class="md-ob-sub-label-input" value="${escapeHtml(defaultLabel)}" placeholder="項目名" title="項目名を編集" oninput="updateDailyTaskNamePreview()">` +
+        `<input type="text" class="md-ob-sub-value-input" value="" placeholder="内容を入力" oninput="updateDailyTaskNamePreview()">` +
+        `<button type="button" class="md-ob-btn-remove-sub" onclick="removeSubTaskEntry(${idx})" title="削除">×</button>`;
     list.appendChild(entry);
     // フォーカスを新しいエントリに移動
-    entry.querySelector('.ob-sub-value-input').focus();
+    entry.querySelector('.md-ob-sub-value-input').focus();
     updateDailyTaskNamePreview();
 }
 
 // サブタスクエントリを削除
 function removeSubTaskEntry(idx) {
     const list = document.getElementById('subTaskList');
-    const entries = list.querySelectorAll('.ob-sub-task-entry');
+    const entries = list.querySelectorAll('.md-ob-sub-task-entry');
     if (entries[idx]) {
         entries[idx].remove();
         // インデックスを再割り当て
-        list.querySelectorAll('.ob-sub-task-entry').forEach((entry, i) => {
+        list.querySelectorAll('.md-ob-sub-task-entry').forEach((entry, i) => {
             entry.dataset.idx = i;
-            entry.querySelector('.ob-btn-remove-sub').setAttribute('onclick', `removeSubTaskEntry(${i})`);
+            entry.querySelector('.md-ob-btn-remove-sub').setAttribute('onclick', `removeSubTaskEntry(${i})`);
         });
     }
     updateDailyTaskNamePreview();
@@ -906,11 +906,11 @@ function removeSubTaskEntry(idx) {
 // サブタスクエントリからデータを収集
 function collectSubTasks() {
     const list = document.getElementById('subTaskList');
-    const entries = list.querySelectorAll('.ob-sub-task-entry');
+    const entries = list.querySelectorAll('.md-ob-sub-task-entry');
     const subTasks = [];
     entries.forEach(entry => {
-        const label = entry.querySelector('.ob-sub-label-input').value.trim();
-        const value = entry.querySelector('.ob-sub-value-input').value.trim();
+        const label = entry.querySelector('.md-ob-sub-label-input').value.trim();
+        const value = entry.querySelector('.md-ob-sub-value-input').value.trim();
         subTasks.push({ label: label || '項目', value: value });
     });
     return subTasks;
@@ -924,10 +924,10 @@ function updateDailyTaskNamePreview() {
     const autoName = buildDailyTaskName(parentTask, subTasks);
     const el = document.getElementById('editDailyTaskName');
     if (autoName) {
-        el.className = 'ob-plan-name-value';
-        el.innerHTML = autoName.replace(/ > /g, ' <span class="ob-plan-arrow">›</span> ');
+        el.className = 'md-ob-plan-name-value';
+        el.innerHTML = autoName.replace(/ > /g, ' <span class="md-ob-plan-arrow">›</span> ');
     } else {
-        el.className = 'ob-plan-name-value ob-plan-empty';
+        el.className = 'md-ob-plan-name-value ob-plan-empty';
         el.textContent = '業務詳細を入力すると自動生成されます';
     }
 }
@@ -947,7 +947,7 @@ function renderConfidenceChips(value) {
     let html = '';
     confidenceOptions.forEach(opt => {
         const active = opt.value === selectedConfidence ? ` ob-conf-active-${opt.value}` : '';
-        html += `<button type="button" class="ob-confidence-chip${active}" onclick="selectConfidence('${opt.value}')">${escapeHtml(opt.label)}</button>`;
+        html += `<button type="button" class="md-ob-confidence-chip${active}" onclick="selectConfidence('${opt.value}')">${escapeHtml(opt.label)}</button>`;
     });
     container.innerHTML = html;
 }
@@ -981,10 +981,10 @@ function renderBadgeSection(category, childIds, grandchildMap) {
     const parent = badgeDefinitions.find(p => p.id === selectedParentBadge);
     if (parent) {
         display.textContent = parent.name;
-        display.className = 'ob-badge-parent-display';
+        display.className = 'md-ob-badge-parent-display';
     } else {
         display.textContent = category || '-';
-        display.className = 'ob-badge-parent-display ob-badge-parent-unknown';
+        display.className = 'md-ob-badge-parent-display ob-badge-parent-unknown';
     }
 
     renderChildBadges();
@@ -1006,7 +1006,7 @@ function renderChildBadges() {
     }
     const parent = badgeDefinitions.find(p => p.id === selectedParentBadge);
     if (!parent || parent.children.length === 0) {
-        container.innerHTML = '<span class="ob-badge-empty">バッジなし</span>';
+        container.innerHTML = '<span class="md-ob-badge-empty">バッジなし</span>';
         wrapper.style.display = 'flex';
         return;
     }
@@ -1014,10 +1014,10 @@ function renderChildBadges() {
     // 子バッジを横一列に表示
     parent.children.forEach((c, i) => {
         const sel = selectedChildBadges.includes(c.id) ? ' ob-badge-selected' : '';
-        html += `<div class="ob-badge-drag-item" draggable="true" data-badge-idx="${i}" data-badge-id="${c.id}" data-badge-level="child">`;
-        html += `<span class="ob-badge-drag-grip">☰</span>`;
-        html += `<button type="button" class="ob-badge-chip ob-badge-child${sel}" onclick="toggleChildBadge('${c.id}')">${escapeHtml(c.name)}</button>`;
-        html += `<button type="button" class="ob-badge-delete-btn" onclick="deleteBadge('child','${c.id}')" title="削除">✕</button>`;
+        html += `<div class="md-ob-badge-drag-item" draggable="true" data-badge-idx="${i}" data-badge-id="${c.id}" data-badge-level="child">`;
+        html += `<span class="md-ob-badge-drag-grip">☰</span>`;
+        html += `<button type="button" class="md-ob-badge-chip ob-badge-child${sel}" onclick="toggleChildBadge('${c.id}')">${escapeHtml(c.name)}</button>`;
+        html += `<button type="button" class="md-ob-badge-delete-btn" onclick="deleteBadge('child','${c.id}')" title="削除">✕</button>`;
         html += `</div>`;
     });
     // 孫バッジセクション: 選択済み子バッジの下にまとめて表示
@@ -1032,11 +1032,11 @@ function renderChildBadges() {
     initBadgeDragDrop('grandchild');
 
     // タッチドラッグ: 子バッジ
-    enableTouchDrag(container, '.ob-badge-drag-item:not(.ob-gc-drag-item)', {
+    enableTouchDrag(container, '.md-ob-badge-drag-item:not(.md-ob-gc-drag-item)', {
         idxAttr: 'data-badge-idx',
-        draggingClass: 'ob-badge-dragging',
-        overClass: 'ob-badge-drag-over',
-        gripSelector: '.ob-badge-drag-grip',
+        draggingClass: 'md-ob-badge-dragging',
+        overClass: 'md-ob-badge-drag-over',
+        gripSelector: '.md-ob-badge-drag-grip',
         onReorder(srcIdx, destIdx) {
             const p = badgeDefinitions.find(b => b.id === selectedParentBadge);
             if (!p) return;
@@ -1046,13 +1046,13 @@ function renderChildBadges() {
         },
     });
     // タッチドラッグ: 孫バッジ（各子バッジセクションごと）
-    container.querySelectorAll('.ob-grandchild-section').forEach(sec => {
+    container.querySelectorAll('.md-ob-grandchild-section').forEach(sec => {
         const childId = sec.dataset.childId;
-        enableTouchDrag(sec, '.ob-gc-drag-item', {
+        enableTouchDrag(sec, '.md-ob-gc-drag-item', {
             idxAttr: 'data-badge-idx',
-            draggingClass: 'ob-badge-dragging',
-            overClass: 'ob-badge-drag-over',
-            gripSelector: '.ob-badge-drag-grip',
+            draggingClass: 'md-ob-badge-dragging',
+            overClass: 'md-ob-badge-drag-over',
+            gripSelector: '.md-ob-badge-drag-grip',
             onReorder(srcIdx, destIdx) {
                 const p = badgeDefinitions.find(b => b.id === selectedParentBadge);
                 if (!p) return;
@@ -1068,29 +1068,29 @@ function renderChildBadges() {
 
 function renderGrandchildSection(childBadge) {
     const gcIds = selectedGrandchildBadges[childBadge.id] || [];
-    let html = `<div class="ob-grandchild-section" data-child-id="${childBadge.id}">`;
-    html += `<div class="ob-grandchild-header">`;
-    html += `<span class="ob-grandchild-label">${escapeHtml(childBadge.name)} <span class="ob-grandchild-arrow">›</span> 詳細</span>`;
-    html += `<button type="button" class="ob-btn-add-badge ob-btn-add-gc" onclick="addGrandchildBadge('${childBadge.id}')">+ 追加</button>`;
+    let html = `<div class="md-ob-grandchild-section" data-child-id="${childBadge.id}">`;
+    html += `<div class="md-ob-grandchild-header">`;
+    html += `<span class="md-ob-grandchild-label">${escapeHtml(childBadge.name)} <span class="md-ob-grandchild-arrow">›</span> 詳細</span>`;
+    html += `<button type="button" class="md-ob-btn-add-badge ob-btn-add-gc" onclick="addGrandchildBadge('${childBadge.id}')">+ 追加</button>`;
     html += `</div>`;
     if (!childBadge.children || childBadge.children.length === 0) {
-        html += `<div class="ob-grandchild-chips"><span class="ob-badge-empty">詳細なし</span></div>`;
+        html += `<div class="md-ob-grandchild-chips"><span class="md-ob-badge-empty">詳細なし</span></div>`;
     } else {
-        html += `<div class="ob-grandchild-chips">`;
+        html += `<div class="md-ob-grandchild-chips">`;
         childBadge.children.forEach((gc, gi) => {
             const sel = gcIds.includes(gc.id) ? ' ob-badge-selected' : '';
-            html += `<div class="ob-badge-drag-item ob-gc-drag-item" draggable="true" data-badge-idx="${gi}" data-badge-id="${gc.id}" data-badge-level="grandchild" data-parent-child="${childBadge.id}">`;
-            html += `<span class="ob-badge-drag-grip">☰</span>`;
-            html += `<button type="button" class="ob-badge-chip ob-badge-grandchild${sel}" onclick="toggleGrandchildBadge('${childBadge.id}','${gc.id}')">${escapeHtml(gc.name)}</button>`;
-            html += `<button type="button" class="ob-badge-delete-btn" onclick="deleteBadge('grandchild','${gc.id}','${childBadge.id}')" title="削除">✕</button>`;
+            html += `<div class="md-ob-badge-drag-item ob-gc-drag-item" draggable="true" data-badge-idx="${gi}" data-badge-id="${gc.id}" data-badge-level="grandchild" data-parent-child="${childBadge.id}">`;
+            html += `<span class="md-ob-badge-drag-grip">☰</span>`;
+            html += `<button type="button" class="md-ob-badge-chip ob-badge-grandchild${sel}" onclick="toggleGrandchildBadge('${childBadge.id}','${gc.id}')">${escapeHtml(gc.name)}</button>`;
+            html += `<button type="button" class="md-ob-badge-delete-btn" onclick="deleteBadge('grandchild','${gc.id}','${childBadge.id}')" title="削除">✕</button>`;
             html += `</div>`;
         });
         html += `</div>`;
     }
     // 孫バッジ用Undoバー
-    html += `<div class="ob-badge-undo-bar ob-gc-undo-bar" id="gcUndoBar_${childBadge.id}" style="display:none;">`;
+    html += `<div class="md-ob-badge-undo-bar ob-gc-undo-bar" id="gcUndoBar_${childBadge.id}" style="display:none;">`;
     html += `<span id="gcUndoMsg_${childBadge.id}"></span>`;
-    html += `<button type="button" class="ob-badge-undo-btn" onclick="undoDeleteBadge()">戻す</button>`;
+    html += `<button type="button" class="md-ob-badge-undo-btn" onclick="undoDeleteBadge()">戻す</button>`;
     html += `</div>`;
     html += `</div>`;
     return html;
@@ -1102,7 +1102,7 @@ let badgeDragLevel = null;
 let badgeDragParentChild = null;
 
 function initBadgeDragDrop(level) {
-    const selector = level === 'grandchild' ? '.ob-gc-drag-item' : '.ob-badge-drag-item:not(.ob-gc-drag-item)';
+    const selector = level === 'grandchild' ? '.md-ob-gc-drag-item' : '.md-ob-badge-drag-item:not(.md-ob-gc-drag-item)';
     const items = document.querySelectorAll(selector);
     items.forEach(item => {
         item.addEventListener('dragstart', onBadgeDragStart);
@@ -1118,7 +1118,7 @@ function onBadgeDragStart(e) {
     badgeDragSrcIdx = parseInt(e.currentTarget.dataset.badgeIdx);
     badgeDragLevel = e.currentTarget.dataset.badgeLevel;
     badgeDragParentChild = e.currentTarget.dataset.parentChild || null;
-    e.currentTarget.classList.add('ob-badge-dragging');
+    e.currentTarget.classList.add('md-ob-badge-dragging');
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', badgeDragSrcIdx);
 }
@@ -1133,16 +1133,16 @@ function onBadgeDragOver(e) {
 function onBadgeDragEnter(e) {
     if (e.currentTarget.dataset.badgeLevel !== badgeDragLevel) return;
     if (badgeDragLevel === 'grandchild' && e.currentTarget.dataset.parentChild !== badgeDragParentChild) return;
-    e.currentTarget.classList.add('ob-badge-drag-over');
+    e.currentTarget.classList.add('md-ob-badge-drag-over');
 }
 
 function onBadgeDragLeave(e) {
-    e.currentTarget.classList.remove('ob-badge-drag-over');
+    e.currentTarget.classList.remove('md-ob-badge-drag-over');
 }
 
 function onBadgeDrop(e) {
     e.preventDefault();
-    e.currentTarget.classList.remove('ob-badge-drag-over');
+    e.currentTarget.classList.remove('md-ob-badge-drag-over');
     if (e.currentTarget.dataset.badgeLevel !== badgeDragLevel) return;
     const destIdx = parseInt(e.currentTarget.dataset.badgeIdx);
     if (badgeDragSrcIdx === null || badgeDragSrcIdx === destIdx) return;
@@ -1167,8 +1167,8 @@ function onBadgeDragEnd() {
     badgeDragSrcIdx = null;
     badgeDragLevel = null;
     badgeDragParentChild = null;
-    document.querySelectorAll('.ob-badge-drag-item').forEach(el => {
-        el.classList.remove('ob-badge-dragging', 'ob-badge-drag-over');
+    document.querySelectorAll('.md-ob-badge-drag-item').forEach(el => {
+        el.classList.remove('md-ob-badge-dragging', 'md-ob-badge-drag-over');
     });
 }
 
@@ -1210,7 +1210,7 @@ function deleteBadge(level, id, childId) {
 
 function showBadgeUndoBar(name, barId) {
     // 全Undoバーを非表示
-    document.querySelectorAll('.ob-badge-undo-bar').forEach(b => b.style.display = 'none');
+    document.querySelectorAll('.md-ob-badge-undo-bar').forEach(b => b.style.display = 'none');
     const bar = document.getElementById(barId);
     if (!bar) return;
     const msg = bar.querySelector('span[id$="Msg"], span[id$="Msg_"]') || bar.querySelector('span');
@@ -1248,7 +1248,7 @@ function undoDeleteBadge() {
         }
     }
 
-    document.querySelectorAll('.ob-badge-undo-bar').forEach(b => b.style.display = 'none');
+    document.querySelectorAll('.md-ob-badge-undo-bar').forEach(b => b.style.display = 'none');
     if (badgeUndoTimer) clearTimeout(badgeUndoTimer);
     badgeUndoTimer = null;
     deletedBadgeInfo = null;
@@ -1366,7 +1366,7 @@ function openTimePicker(inputId, anchorEl) {
     let hhtml = '';
     for (let h = 0; h < 24; h++) {
         const sel = h === currentHour ? ' ob-time-selected' : '';
-        hhtml += `<div class="ob-time-option${sel}" data-value="${h}" onclick="selectTimeHour(${h})">${String(h).padStart(2, '0')}</div>`;
+        hhtml += `<div class="md-ob-time-option${sel}" data-value="${h}" onclick="selectTimeHour(${h})">${String(h).padStart(2, '0')}</div>`;
     }
     hoursEl.innerHTML = hhtml;
 
@@ -1375,7 +1375,7 @@ function openTimePicker(inputId, anchorEl) {
     let mhtml = '';
     for (let m = 0; m < 60; m += 10) {
         const sel = m === currentMin ? ' ob-time-selected' : '';
-        mhtml += `<div class="ob-time-option${sel}" data-value="${m}" onclick="selectTimeMinute(${m})">${String(m).padStart(2, '0')}</div>`;
+        mhtml += `<div class="md-ob-time-option${sel}" data-value="${m}" onclick="selectTimeMinute(${m})">${String(m).padStart(2, '0')}</div>`;
     }
     minsEl.innerHTML = mhtml;
 
@@ -1400,8 +1400,8 @@ function openTimePicker(inputId, anchorEl) {
 
 function selectTimeHour(h) {
     timePickerSelectedHour = h;
-    document.querySelectorAll('#timePickerHours .ob-time-option').forEach(el => {
-        el.classList.toggle('ob-time-selected', parseInt(el.dataset.value) === h);
+    document.querySelectorAll('#timePickerHours .md-ob-time-option').forEach(el => {
+        el.classList.toggle('md-ob-time-selected', parseInt(el.dataset.value) === h);
     });
 }
 
@@ -1424,7 +1424,7 @@ document.addEventListener('mousedown', function (e) {
     if (!dropdown || dropdown.style.display === 'none') return;
     if (dropdown.contains(e.target)) return;
     // 時間入力やボタンのクリックはopenTimePickerで処理するのでここでは閉じない
-    if (e.target.classList.contains('ob-time-input') || e.target.classList.contains('ob-time-picker-icon')) return;
+    if (e.target.classList.contains('md-ob-time-input') || e.target.classList.contains('md-ob-time-picker-icon')) return;
     closeTimePicker();
 });
 
@@ -1490,10 +1490,10 @@ function renderSvChips() {
     let html = '';
     svCandidateList.forEach((c, i) => {
         const label = c.tel ? `${escapeHtml(c.name)} / ${escapeHtml(c.tel)}` : escapeHtml(c.name);
-        html += `<div class="ob-sv-drag-item" draggable="true" data-sv-idx="${i}">`;
-        html += `<span class="ob-sv-drag-grip">☰</span>`;
-        html += `<button type="button" class="ob-supervisor-chip" onclick="selectSupervisorCandidate(${i})">${label}</button>`;
-        html += `<button type="button" class="ob-sv-delete-btn" onclick="deleteSupervisorCandidate(${i})" title="削除">✕</button>`;
+        html += `<div class="md-ob-sv-drag-item" draggable="true" data-sv-idx="${i}">`;
+        html += `<span class="md-ob-sv-drag-grip">☰</span>`;
+        html += `<button type="button" class="md-ob-supervisor-chip" onclick="selectSupervisorCandidate(${i})">${label}</button>`;
+        html += `<button type="button" class="md-ob-sv-delete-btn" onclick="deleteSupervisorCandidate(${i})" title="削除">✕</button>`;
         html += `</div>`;
     });
     chipsEl.innerHTML = html;
@@ -1543,20 +1543,20 @@ function undoDeleteSupervisor() {
 // --- 候補ドラッグ&ドロップ ---
 function initSvDragDrop() {
     const chipsEl = document.getElementById('supervisorCandidateChips');
-    document.querySelectorAll('.ob-sv-drag-item').forEach(item => {
+    document.querySelectorAll('.md-ob-sv-drag-item').forEach(item => {
         item.addEventListener('dragstart', onSvDragStart);
         item.addEventListener('dragover', onSvDragOver);
         item.addEventListener('drop', onSvDrop);
         item.addEventListener('dragend', onSvDragEnd);
-        item.addEventListener('dragenter', e => e.currentTarget.classList.add('ob-sv-drag-over'));
-        item.addEventListener('dragleave', e => e.currentTarget.classList.remove('ob-sv-drag-over'));
+        item.addEventListener('dragenter', e => e.currentTarget.classList.add('md-ob-sv-drag-over'));
+        item.addEventListener('dragleave', e => e.currentTarget.classList.remove('md-ob-sv-drag-over'));
     });
     // タッチドラッグ対応
-    enableTouchDrag(chipsEl, '.ob-sv-drag-item', {
+    enableTouchDrag(chipsEl, '.md-ob-sv-drag-item', {
         idxAttr: 'data-sv-idx',
-        draggingClass: 'ob-sv-dragging',
-        overClass: 'ob-sv-drag-over',
-        gripSelector: '.ob-sv-drag-grip',
+        draggingClass: 'md-ob-sv-dragging',
+        overClass: 'md-ob-sv-drag-over',
+        gripSelector: '.md-ob-sv-drag-grip',
         onReorder(srcIdx, destIdx) {
             const moved = svCandidateList.splice(srcIdx, 1)[0];
             svCandidateList.splice(destIdx, 0, moved);
@@ -1567,7 +1567,7 @@ function initSvDragDrop() {
 
 function onSvDragStart(e) {
     svDragSrcIdx = parseInt(e.currentTarget.dataset.svIdx);
-    e.currentTarget.classList.add('ob-sv-dragging');
+    e.currentTarget.classList.add('md-ob-sv-dragging');
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', svDragSrcIdx);
 }
@@ -1579,7 +1579,7 @@ function onSvDragOver(e) {
 
 function onSvDrop(e) {
     e.preventDefault();
-    e.currentTarget.classList.remove('ob-sv-drag-over');
+    e.currentTarget.classList.remove('md-ob-sv-drag-over');
     const destIdx = parseInt(e.currentTarget.dataset.svIdx);
     if (svDragSrcIdx === null || svDragSrcIdx === destIdx) return;
     const moved = svCandidateList.splice(svDragSrcIdx, 1)[0];
@@ -1589,8 +1589,8 @@ function onSvDrop(e) {
 
 function onSvDragEnd() {
     svDragSrcIdx = null;
-    document.querySelectorAll('.ob-sv-drag-item').forEach(el => {
-        el.classList.remove('ob-sv-dragging', 'ob-sv-drag-over');
+    document.querySelectorAll('.md-ob-sv-drag-item').forEach(el => {
+        el.classList.remove('md-ob-sv-dragging', 'md-ob-sv-drag-over');
     });
 }
 
@@ -1609,14 +1609,14 @@ function openEditModal(ri, day, siteIdx) {
     document.getElementById('editModalTitle').textContent = `セル編集 - ${dateStr}`;
     const editMeta = document.getElementById('editModalMeta');
     editMeta.innerHTML =
-        `<span class="ob-cal-meta-company">${escapeHtml(obBranchShort(row.branch))}</span>` +
-        `<span class="ob-cal-meta-task">${escapeHtml(row.company)} / ${escapeHtml(taskDisplay)}</span>` +
-        `<span class="ob-cal-meta-tags">${escapeHtml(row.category)} | ${escapeHtml(row.shift)}勤</span>`;
-    editMeta.classList.toggle('ob-night', row.shift === '夜');
+        `<span class="md-ob-cal-meta-company">${escapeHtml(obBranchShort(row.branch))}</span>` +
+        `<span class="md-ob-cal-meta-task">${escapeHtml(row.company)} / ${escapeHtml(taskDisplay)}</span>` +
+        `<span class="md-ob-cal-meta-tags">${escapeHtml(row.category)} | ${escapeHtml(row.shift)}勤</span>`;
+    editMeta.classList.toggle('md-ob-night', row.shift === '夜');
 
     // 夜勤スタイル切替
-    const modalBody = document.getElementById('editCount').closest('.ob-modal-body');
-    if (modalBody) modalBody.classList.toggle('ob-edit-night', row.shift === '夜');
+    const modalBody = document.getElementById('editCount').closest('.md-ob-modal-body');
+    if (modalBody) modalBody.classList.toggle('md-ob-edit-night', row.shift === '夜');
 
     // 配置先ナビゲーション更新
     updateSiteNav();
@@ -1992,9 +1992,9 @@ function renderRowChips(containerId, items, selectedValue, groupKey, disabledIte
         const active = item === selectedValue ? ' ob-chip-active' : '';
         const disabledCls = isDisabled ? ' ob-chip-disabled' : '';
         if (isDisabled) {
-            html += `<button type="button" class="ob-row-chip${disabledCls}" disabled>${escapeHtml(item)}</button>`;
+            html += `<button type="button" class="md-ob-row-chip${disabledCls}" disabled>${escapeHtml(item)}</button>`;
         } else {
-            html += `<button type="button" class="ob-row-chip${active}" onclick="selectRowChip('${groupKey}', '${escapeHtml(item)}')">${escapeHtml(item)}</button>`;
+            html += `<button type="button" class="md-ob-row-chip${active}" onclick="selectRowChip('${groupKey}', '${escapeHtml(item)}')">${escapeHtml(item)}</button>`;
         }
     });
     container.innerHTML = html;
@@ -2119,18 +2119,18 @@ function obCompanySuggest() {
 
     var html = '';
     if (exact.length > 0) {
-        html += '<div class="ob-cs-section">候補</div>';
+        html += '<div class="md-ob-cs-section">候補</div>';
         exact.forEach(function(s) {
-            html += '<div class="ob-cs-item" onmousedown="obCompanySelect(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\')">' +
+            html += '<div class="md-ob-cs-item" onmousedown="obCompanySelect(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\')">' +
                 escapeHtml(s.name) + '</div>';
         });
     }
     if (similar.length > 0) {
-        html += '<div class="ob-cs-section ob-cs-warn">もしかして？</div>';
+        html += '<div class="md-ob-cs-section ob-cs-warn">もしかして？</div>';
         similar.forEach(function(s) {
-            html += '<div class="ob-cs-item ob-cs-item-warn" onmousedown="obCompanySelect(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\')">' +
-                '<span class="ob-cs-name">' + escapeHtml(s.name) + '</span>' +
-                '<span class="ob-cs-reason">' + escapeHtml(s.reason) + '</span>' +
+            html += '<div class="md-ob-cs-item ob-cs-item-warn" onmousedown="obCompanySelect(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\')">' +
+                '<span class="md-ob-cs-name">' + escapeHtml(s.name) + '</span>' +
+                '<span class="md-ob-cs-reason">' + escapeHtml(s.reason) + '</span>' +
             '</div>';
         });
     }
@@ -2177,16 +2177,16 @@ function obTaskSuggest() {
 
     var html = '';
     if (exact.length > 0) {
-        html += '<div class="ob-cs-section">候補</div>';
+        html += '<div class="md-ob-cs-section">候補</div>';
         exact.forEach(function(t) {
-            html += '<div class="ob-cs-item" onmousedown="obTaskSelect(\'' + escapeHtml(t).replace(/'/g, "\\'") + '\')">' +
+            html += '<div class="md-ob-cs-item" onmousedown="obTaskSelect(\'' + escapeHtml(t).replace(/'/g, "\\'") + '\')">' +
                 escapeHtml(t) + '</div>';
         });
     }
     if (partial.length > 0) {
-        html += '<div class="ob-cs-section">部分一致</div>';
+        html += '<div class="md-ob-cs-section">部分一致</div>';
         partial.forEach(function(t) {
-            html += '<div class="ob-cs-item" onmousedown="obTaskSelect(\'' + escapeHtml(t).replace(/'/g, "\\'") + '\')">' +
+            html += '<div class="md-ob-cs-item" onmousedown="obTaskSelect(\'' + escapeHtml(t).replace(/'/g, "\\'") + '\')">' +
                 escapeHtml(t) + '</div>';
         });
     }
@@ -2456,9 +2456,9 @@ function initSortDrag() {
     // タッチドラッグ対応
     enableTouchDrag(list, 'li', {
         idxAttr: 'data-sort-idx',
-        draggingClass: 'ob-touch-dragging',
+        draggingClass: 'md-ob-touch-dragging',
         overClass: 'drag-over',
-        gripSelector: '.ob-sort-grip',
+        gripSelector: '.md-ob-sort-grip',
         onReorder(srcIdx, destIdx) {
             const items = [...list.children];
             const srcItem = items[srcIdx];
@@ -2476,7 +2476,7 @@ function applySort() {
     const list = document.getElementById('sortList');
     const sortKeys = [...list.children].map(li => ({
         key: li.dataset.key,
-        asc: li.querySelector('.ob-sort-dir').textContent === '▲',
+        asc: li.querySelector('.md-ob-sort-dir').textContent === '▲',
     }));
 
     sampleRows.sort((a, b) => {
@@ -2525,10 +2525,10 @@ function openCalendarModal(ri) {
     document.getElementById('calendarModalTitle').textContent = 'カレンダー入力';
     const calMeta = document.getElementById('calendarModalMeta');
     calMeta.innerHTML =
-        `<span class="ob-cal-meta-company">${escapeHtml(obBranchShort(row.branch))}</span>` +
-        `<span class="ob-cal-meta-task">${escapeHtml(row.company)} / ${escapeHtml(taskDisplay)}</span>` +
-        `<span class="ob-cal-meta-tags">${escapeHtml(row.category)} | ${escapeHtml(row.shift)}勤</span>`;
-    calMeta.classList.toggle('ob-night', row.shift === '夜');
+        `<span class="md-ob-cal-meta-company">${escapeHtml(obBranchShort(row.branch))}</span>` +
+        `<span class="md-ob-cal-meta-task">${escapeHtml(row.company)} / ${escapeHtml(taskDisplay)}</span>` +
+        `<span class="md-ob-cal-meta-tags">${escapeHtml(row.category)} | ${escapeHtml(row.shift)}勤</span>`;
+    calMeta.classList.toggle('md-ob-night', row.shift === '夜');
 
     // 現在月のデータ参照をキャッシュ（直接参照：同月編集は即時反映）
     const cacheKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
@@ -2675,7 +2675,7 @@ function renderCalendarGrid() {
 
     // 曜日ヘッダー
     dayNames.forEach((name, i) => {
-        let cls = 'ob-cal-dow-header';
+        let cls = 'md-ob-cal-dow-header';
         if (i === 0) cls += ' ob-cal-sun';
         if (i === 6) cls += ' ob-cal-sat';
         html += `<div class="${cls}">${name}</div>`;
@@ -2684,7 +2684,7 @@ function renderCalendarGrid() {
     // 前月末のグレーアウト日
     const prevMonthDays = new Date(calendarYear, calendarMonth - 1, 0).getDate();
     for (let i = firstDow - 1; i >= 0; i--) {
-        html += `<div class="ob-cal-cell ob-cal-outside"><div class="ob-cal-day-num">${prevMonthDays - i}</div></div>`;
+        html += `<div class="md-ob-cal-cell ob-cal-outside"><div class="md-ob-cal-day-num">${prevMonthDays - i}</div></div>`;
     }
 
     // 今日の日付
@@ -2698,20 +2698,20 @@ function renderCalendarGrid() {
         const dateStr = `${calendarYear}-${String(calendarMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const entries = rowData[d] ? (Array.isArray(rowData[d]) ? rowData[d] : [rowData[d]]) : [];
 
-        let cls = 'ob-cal-cell ob-cal-day';
+        let cls = 'md-ob-cal-cell ob-cal-day';
         if (dow === 0 || holidays[dateStr]) cls += ' ob-cal-sun';
         else if (dow === 6) cls += ' ob-cal-sat';
         if (holidays[dateStr]) cls += ' ob-cal-holiday';
         if (dt.getTime() === today.getTime()) cls += ' ob-cal-today';
         if (d === editingDay && calEditPanelActive) cls += ' ob-cal-selected';
 
-        let cellHtml = `<div class="ob-cal-day-num">${d}</div>`;
+        let cellHtml = `<div class="md-ob-cal-day-num">${d}</div>`;
         if (holidays[dateStr]) {
-            cellHtml += `<div class="ob-cal-holiday-name">${escapeHtml(holidays[dateStr])}</div>`;
+            cellHtml += `<div class="md-ob-cal-holiday-name">${escapeHtml(holidays[dateStr])}</div>`;
         }
 
         if (entries.length > 0) {
-            cellHtml += '<div class="ob-cal-entries">';
+            cellHtml += '<div class="md-ob-cal-entries">';
             const visibleCount = entries.length;
             for (let si = 0; si < visibleCount; si++) {
                 const entry = entries[si];
@@ -2720,12 +2720,12 @@ function renderCalendarGrid() {
                 else if (entry.confidence === 'tentative_low') confCls = ' ob-cal-tentative-low';
 
                 const nightCls = row.shift === '夜' ? ' ob-cal-night' : '';
-                let entryContent = `<span class="ob-cal-count${confCls}${nightCls}">${entry.count}</span>`;
+                let entryContent = `<span class="md-ob-cal-count${confCls}${nightCls}">${entry.count}</span>`;
 
                 // 業務詳細（個別業務の場合）
                 if (!row.task && entry.subTasks && entry.subTasks.length > 0) {
                     const subText = entry.subTasks.map(st => st.value).filter(Boolean).join('・');
-                    if (subText) entryContent += `<span class="ob-cal-badge">${escapeHtml(subText)}</span>`;
+                    if (subText) entryContent += `<span class="md-ob-cal-badge">${escapeHtml(subText)}</span>`;
                 }
 
                 // バッジ
@@ -2736,13 +2736,13 @@ function renderCalendarGrid() {
                             .map(cid => parent.children.find(c => c.id === cid))
                             .filter(Boolean).map(c => c.name);
                         if (names.length > 0) {
-                            entryContent += `<span class="ob-cal-badge">${escapeHtml(names.join('・'))}</span>`;
+                            entryContent += `<span class="md-ob-cal-badge">${escapeHtml(names.join('・'))}</span>`;
                         }
                     }
                 }
 
                 const isSelected = (d === editingDay && si === editingSiteIdx && calEditPanelActive);
-                const entryCls = 'ob-cal-entry' + (isSelected ? ' ob-cal-entry-selected' : '');
+                const entryCls = 'md-ob-cal-entry' + (isSelected ? ' ob-cal-entry-selected' : '');
                 const clickHandler = `event.stopPropagation(); onCalendarCellClick(${calendarRi},${d},${si})`;
                 cellHtml += `<div class="${entryCls}" onclick="${clickHandler}">${entryContent}</div>`;
             }
@@ -2758,7 +2758,7 @@ function renderCalendarGrid() {
     const totalCells = firstDow + daysInMonth;
     const remaining = (7 - totalCells % 7) % 7;
     for (let i = 1; i <= remaining; i++) {
-        html += `<div class="ob-cal-cell ob-cal-outside"><div class="ob-cal-day-num">${i}</div></div>`;
+        html += `<div class="md-ob-cal-cell ob-cal-outside"><div class="md-ob-cal-day-num">${i}</div></div>`;
     }
 
     document.getElementById('calendarGrid').innerHTML = html;
@@ -2828,8 +2828,8 @@ function openCalendarWithEdit(ri, day, siteIdx) {
 function _setupCalEditPanel() {
     if (calEditPanelActive) return; // 重複呼び出し防止
     const panelBody = document.getElementById('calEditPanelBody');
-    const editModal = document.querySelector('#editModalOverlay .ob-modal');
-    const modalBody = editModal.querySelector('.ob-modal-body');
+    const editModal = document.querySelector('#editModalOverlay .md-ob-modal');
+    const modalBody = editModal.querySelector('.md-ob-modal-body');
     // DOM移動（bodyのみ、footerはカレンダーフッターに固定）
     panelBody.appendChild(modalBody);
     document.getElementById('calEditPanel').style.display = '';
@@ -2838,9 +2838,9 @@ function _setupCalEditPanel() {
 
 function _teardownCalEditPanel() {
     const panelBody = document.getElementById('calEditPanelBody');
-    const editModal = document.querySelector('#editModalOverlay .ob-modal');
-    const modalBody = panelBody.querySelector('.ob-modal-body');
-    if (modalBody) editModal.insertBefore(modalBody, editModal.querySelector('.ob-modal-footer'));
+    const editModal = document.querySelector('#editModalOverlay .md-ob-modal');
+    const modalBody = panelBody.querySelector('.md-ob-modal-body');
+    if (modalBody) editModal.insertBefore(modalBody, editModal.querySelector('.md-ob-modal-footer'));
     _setCalFooterBtnsDisabled(true);
     document.getElementById('calEditPanel').style.display = 'none';
     document.getElementById('calEditPanel').classList.remove('collapsed');
@@ -2850,7 +2850,7 @@ function _teardownCalEditPanel() {
 }
 
 function _setCalFooterBtnsDisabled(disabled) {
-    document.querySelectorAll('.ob-cal-footer-btn').forEach(btn => {
+    document.querySelectorAll('.md-ob-cal-footer-btn').forEach(btn => {
         btn.disabled = disabled;
     });
 }
@@ -2981,10 +2981,10 @@ function obCnGetUnreadForRow(ri) {
 // 行ミニベルHTML生成
 function obCnGetRowBellHtml(ri) {
     const count = obCnGetUnreadForRow(ri);
-    const cls = count > 0 ? 'ob-row-bell has-unread' : 'ob-row-bell';
+    const cls = count > 0 ? 'md-ob-row-bell has-unread' : 'md-ob-row-bell';
     return '<span class="' + cls + '" onclick="event.stopPropagation(); obCnOpenModalForRow(' + ri + ')" title="この業務の変更通知">' +
-        '<img src="mockup/icons/bell.svg" class="ob-row-bell-img">' +
-        (count > 0 ? '<span class="ob-row-bell-dot"></span>' : '') +
+        '<img src="mockup/icons/bell.svg" class="md-ob-row-bell-img">' +
+        (count > 0 ? '<span class="md-ob-row-bell-dot"></span>' : '') +
     '</span>';
 }
 
@@ -2994,23 +2994,23 @@ function obCnShowToast(n) {
     const toast = document.createElement('div');
     const icons = { add: '🟢', modify: '🟡', delete: '🔴' };
     const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
-    toast.className = 'ob-cn-toast ob-cn-toast-' + n.type;
+    toast.className = 'md-cn-toast md-cn-toast-' + n.type;
     toast.innerHTML =
-        '<span class="ob-cn-toast-icon">' + icons[n.type] + '</span>' +
-        '<div class="ob-cn-toast-body">' +
-            '<div class="ob-cn-toast-title">' + typeLabels[n.type] + ' — ' + escapeHtml(n.user) + '</div>' +
-            '<div class="ob-cn-toast-desc">' + escapeHtml(n.taskName || n.siteName || '') + '</div>' +
+        '<span class="md-cn-toast-icon">' + icons[n.type] + '</span>' +
+        '<div class="md-cn-toast-body">' +
+            '<div class="md-cn-toast-title">' + typeLabels[n.type] + ' — ' + escapeHtml(n.user) + '</div>' +
+            '<div class="md-cn-toast-desc">' + escapeHtml(n.taskName || n.siteName || '') + '</div>' +
         '</div>' +
-        '<span class="ob-cn-toast-time">' + n.time + '</span>';
+        '<span class="md-cn-toast-time">' + n.time + '</span>';
     toast.onclick = function() {
-        toast.classList.add('ob-cn-toast-exit');
+        toast.classList.add('md-cn-toast-exit');
         setTimeout(function() { toast.remove(); }, 300);
         obCnOpenModal();
     };
     container.appendChild(toast);
     setTimeout(function() {
         if (toast.parentNode) {
-            toast.classList.add('ob-cn-toast-exit');
+            toast.classList.add('md-cn-toast-exit');
             setTimeout(function() { toast.remove(); }, 300);
         }
     }, 5000);
@@ -3050,14 +3050,14 @@ function obCnOpenModalForRow(ri) {
     document.getElementById('obCnFilterWrap').style.display = 'none';
     const info = document.getElementById('obCnRowInfo');
     if (row) {
-        var catClass = obCnCatClassMap[row.category] || 'ob-cn-cat-facility';
-        var shiftClass = obCnShiftClassMap[row.shift] || 'ob-cn-shift-day';
+        var catClass = obCnCatClassMap[row.category] || 'md-cn-cat-facility';
+        var shiftClass = obCnShiftClassMap[row.shift] || 'md-cn-shift-day';
         info.innerHTML =
-            '<span class="ob-cn-info-item">' + escapeHtml(row.branch) + '</span>' +
-            '<span class="ob-cn-category-badge ' + catClass + '">' + escapeHtml(row.category) + '</span>' +
-            '<span class="ob-cn-info-item">' + escapeHtml(row.company) + '</span>' +
-            '<span class="ob-cn-info-item">' + escapeHtml(row.task || '(個別)') + '</span>' +
-            '<span class="ob-cn-shift-badge ' + shiftClass + '">' + row.shift + '</span>';
+            '<span class="md-cn-info-item">' + escapeHtml(row.branch) + '</span>' +
+            '<span class="md-cn-category-badge ' + catClass + '">' + escapeHtml(row.category) + '</span>' +
+            '<span class="md-cn-info-item">' + escapeHtml(row.company) + '</span>' +
+            '<span class="md-cn-info-item">' + escapeHtml(row.task || '(個別)') + '</span>' +
+            '<span class="md-cn-shift-badge ' + shiftClass + '">' + row.shift + '</span>';
     } else {
         info.innerHTML = '';
     }
@@ -3074,10 +3074,10 @@ function obCnCloseModal() {
 // タブ切替
 function obCnSwitchTab(tabName) {
     obCnState.activeTab = tabName;
-    document.querySelectorAll('.ob-cn-tab').forEach(function(tab) {
+    document.querySelectorAll('.md-cn-tab').forEach(function(tab) {
         tab.classList.toggle('active', tab.dataset.tab === tabName);
     });
-    document.querySelectorAll('.ob-cn-tab-content').forEach(function(content) {
+    document.querySelectorAll('.md-cn-tab-content').forEach(function(content) {
         content.classList.toggle('active', content.id === (tabName === 'latest' ? 'obCnTabLatest' : 'obCnTabHistory'));
     });
 }
@@ -3086,25 +3086,25 @@ function obCnSwitchTab(tabName) {
 // si: サブインデックス（複数エントリセルで特定エントリだけハイライト）
 function obCnHighlightCells(ri, day, type, si) {
     // 既存のハイライトをクリア
-    document.querySelectorAll('[class*="ob-cn-cell-glow-"]').forEach(function(el) {
-        el.classList.remove('ob-cn-cell-glow-add', 'ob-cn-cell-glow-modify', 'ob-cn-cell-glow-delete');
+    document.querySelectorAll('[class*="md-cn-cell-glow-"]').forEach(function(el) {
+        el.classList.remove('md-cn-cell-glow-add', 'md-cn-cell-glow-modify', 'md-cn-cell-glow-delete');
     });
     var targets;
     if (day != null) {
         // 特定日セル — 複数エントリがある場合はサブエントリだけを対象にする
         var subEntry = si != null
-            ? document.querySelector('.ob-site-entry[data-ri="' + ri + '"][data-day="' + day + '"][data-si="' + si + '"]')
+            ? document.querySelector('.md-ob-site-entry[data-ri="' + ri + '"][data-day="' + day + '"][data-si="' + si + '"]')
             : null;
         if (subEntry) {
             targets = [subEntry];
         } else {
-            targets = document.querySelectorAll('.ob-cell[data-ri="' + ri + '"][data-day="' + day + '"]');
+            targets = document.querySelectorAll('.md-ob-cell[data-ri="' + ri + '"][data-day="' + day + '"]');
         }
     } else {
         // 行全体（frozen列 + 日付セル + 合計）
-        targets = document.querySelectorAll('.ob-cell[data-ri="' + ri + '"]');
+        targets = document.querySelectorAll('.md-ob-cell[data-ri="' + ri + '"]');
     }
-    var glowClass = 'ob-cn-cell-glow-' + (type || 'modify');
+    var glowClass = 'md-cn-cell-glow-' + (type || 'modify');
     if (targets.forEach) {
         targets.forEach(function(el) { el.classList.add(glowClass); });
     } else {
@@ -3134,11 +3134,11 @@ function obCnJumpToCard(notificationId) {
     obCnSwitchTab('latest');
     // カードにdata-nid属性で対象を探してスクロール＋ハイライト
     setTimeout(function() {
-        var card = document.querySelector('.ob-cn-card[data-nid="' + notificationId + '"]');
+        var card = document.querySelector('.md-cn-card[data-nid="' + notificationId + '"]');
         if (!card) return;
         card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        card.classList.add('ob-cn-card-highlight');
-        setTimeout(function() { card.classList.remove('ob-cn-card-highlight'); }, 1500);
+        card.classList.add('md-cn-card-highlight');
+        setTimeout(function() { card.classList.remove('md-cn-card-highlight'); }, 1500);
     }, 50);
 }
 
@@ -3170,11 +3170,11 @@ function obCnUpdateFilterSelect() {
 
 // カテゴリ→CSSクラス
 const obCnCatClassMap = {
-    '施設': 'ob-cn-cat-facility', 'イベント': 'ob-cn-cat-event',
-    '高速': 'ob-cn-cat-highway', '交通': 'ob-cn-cat-traffic',
-    '応援交通': 'ob-cn-cat-support'
+    '施設': 'md-cn-cat-facility', 'イベント': 'md-cn-cat-event',
+    '高速': 'md-cn-cat-highway', '交通': 'md-cn-cat-traffic',
+    '応援交通': 'md-cn-cat-support'
 };
-const obCnShiftClassMap = { '昼': 'ob-cn-shift-day', '夜': 'ob-cn-shift-night' };
+const obCnShiftClassMap = { '昼': 'md-cn-shift-day', '夜': 'md-cn-shift-night' };
 
 // 最新変更カード描画
 function obCnRenderLatest() {
@@ -3190,7 +3190,7 @@ function obCnRenderLatest() {
         });
     }
     if (filtered.length === 0) {
-        list.innerHTML = '<div class="ob-cn-empty">変更通知はありません</div>';
+        list.innerHTML = '<div class="md-cn-empty">変更通知はありません</div>';
         return;
     }
 
@@ -3199,10 +3199,10 @@ function obCnRenderLatest() {
     var isRowMode = obCnState.filterRowId >= 0;
 
     list.innerHTML = filtered.map(function(n) {
-        var cardClass = 'ob-cn-card ob-cn-card-' + n.type;
-        var badgeClass = 'ob-cn-type-badge ob-cn-type-badge-' + n.type;
-        var catClass = obCnCatClassMap[n.category] || 'ob-cn-cat-facility';
-        var shiftClass = obCnShiftClassMap[n.shift] || 'ob-cn-shift-day';
+        var cardClass = 'md-cn-card md-cn-card-' + n.type;
+        var badgeClass = 'md-cn-type-badge md-cn-type-badge-' + n.type;
+        var catClass = obCnCatClassMap[n.category] || 'md-cn-cat-facility';
+        var shiftClass = obCnShiftClassMap[n.shift] || 'md-cn-shift-day';
         var displayName = n.taskName || n.siteName || '(個別)';
 
         // 対象日の表示
@@ -3213,38 +3213,38 @@ function obCnRenderLatest() {
 
         var diffHtml = '';
         if (n.type === 'modify' && n.diffs) {
-            diffHtml = '<div class="ob-cn-diff-list">' +
+            diffHtml = '<div class="md-cn-diff-list">' +
                 n.diffs.map(function(d) {
-                    return '<div class="ob-cn-diff-row">' +
-                        '<span class="ob-cn-diff-label">' + escapeHtml(d.field) + '</span>' +
-                        '<span class="ob-cn-diff-old">' + escapeHtml(d.oldVal) + '</span>' +
-                        '<span class="ob-cn-diff-arrow">→</span>' +
-                        '<span class="ob-cn-diff-new">' + escapeHtml(d.newVal) + '</span>' +
+                    return '<div class="md-cn-diff-row">' +
+                        '<span class="md-cn-diff-label">' + escapeHtml(d.field) + '</span>' +
+                        '<span class="md-cn-diff-old">' + escapeHtml(d.oldVal) + '</span>' +
+                        '<span class="md-cn-diff-arrow">→</span>' +
+                        '<span class="md-cn-diff-new">' + escapeHtml(d.newVal) + '</span>' +
                     '</div>';
                 }).join('') +
             '</div>';
         } else if (n.type === 'add' && n.details) {
-            diffHtml = '<div class="ob-cn-diff-list">' +
+            diffHtml = '<div class="md-cn-diff-list">' +
                 n.details.map(function(d) {
-                    return '<div class="ob-cn-diff-row">' +
-                        '<span class="ob-cn-diff-label">' + escapeHtml(d.field) + '</span>' +
-                        '<span class="ob-cn-diff-new">' + escapeHtml(d.value) + '</span>' +
+                    return '<div class="md-cn-diff-row">' +
+                        '<span class="md-cn-diff-label">' + escapeHtml(d.field) + '</span>' +
+                        '<span class="md-cn-diff-new">' + escapeHtml(d.value) + '</span>' +
                     '</div>';
                 }).join('') +
             '</div>';
         } else if (n.type === 'delete') {
-            diffHtml = '<div class="ob-cn-diff-list"><div class="ob-cn-diff-row"><span class="ob-cn-diff-old">この行は削除されました</span></div></div>';
+            diffHtml = '<div class="md-cn-diff-list"><div class="md-cn-diff-row"><span class="md-cn-diff-old">この行は削除されました</span></div></div>';
         }
 
-        var stateClass = n.reverted ? ' ob-cn-card-reverted' : (n._approved ? ' ob-cn-card-approved' : '');
+        var stateClass = n.reverted ? ' md-cn-card-reverted' : (n._approved ? ' md-cn-card-approved' : '');
         var actionsHtml = '';
         if (n.reverted) {
-            actionsHtml = '<div class="ob-cn-card-actions">' +
-                '<button class="ob-cn-btn-reapprove" onclick="event.stopPropagation(); obCnReapprove(' + n.id + ')">適用する</button>' +
+            actionsHtml = '<div class="md-cn-card-actions">' +
+                '<button class="md-cn-btn-reapprove" onclick="event.stopPropagation(); obCnReapprove(' + n.id + ')">適用する</button>' +
             '</div>';
         } else {
-            actionsHtml = '<div class="ob-cn-card-actions">' +
-                '<button class="ob-cn-btn-revert" onclick="event.stopPropagation(); obCnRevert(' + n.id + ')">キャンセル</button>' +
+            actionsHtml = '<div class="md-cn-card-actions">' +
+                '<button class="md-cn-btn-revert" onclick="event.stopPropagation(); obCnRevert(' + n.id + ')">キャンセル</button>' +
             '</div>';
         }
 
@@ -3254,29 +3254,29 @@ function obCnRenderLatest() {
         if (isRowMode) {
             // 行ベルモード: 対象日のみ（あれば）
             if (dayLabel) {
-                siteHtml = '<div class="ob-cn-card-site">' +
-                    '<span class="ob-cn-day-badge">' + dayLabel + '</span>' +
+                siteHtml = '<div class="md-cn-card-site">' +
+                    '<span class="md-cn-day-badge">' + dayLabel + '</span>' +
                 '</div>';
             }
         } else {
             // 全体モード: 会社・区分・契約先名・業務名・昼夜・対象日
-            siteHtml = '<div class="ob-cn-card-site">' +
-                '<span class="ob-cn-info-item">' + escapeHtml(obBranchShort(n.branch || '')) + '</span>' +
-                '<span class="ob-cn-category-badge ' + catClass + '">' + n.category + '</span>' +
-                '<span class="ob-cn-info-item">' + escapeHtml(n.company || '') + '</span>' +
-                '<span class="ob-cn-info-item">' + escapeHtml(displayName) + '</span>' +
-                '<span class="ob-cn-shift-badge ' + shiftClass + '">' + n.shift + '</span>' +
-                (dayLabel ? '<span class="ob-cn-day-badge">' + dayLabel + '</span>' : '') +
+            siteHtml = '<div class="md-cn-card-site">' +
+                '<span class="md-cn-info-item">' + escapeHtml(obBranchShort(n.branch || '')) + '</span>' +
+                '<span class="md-cn-category-badge ' + catClass + '">' + n.category + '</span>' +
+                '<span class="md-cn-info-item">' + escapeHtml(n.company || '') + '</span>' +
+                '<span class="md-cn-info-item">' + escapeHtml(displayName) + '</span>' +
+                '<span class="md-cn-shift-badge ' + shiftClass + '">' + n.shift + '</span>' +
+                (dayLabel ? '<span class="md-cn-day-badge">' + dayLabel + '</span>' : '') +
             '</div>';
         }
 
         return '<div class="' + cardClass + stateClass + '" data-nid="' + n.id + '" onclick="obCnCardClick(' + n.id + ')">' +
-            '<div class="ob-cn-card-header">' +
+            '<div class="md-cn-card-header">' +
                 '<span class="' + badgeClass + '">' + typeLabels[n.type] + '</span>' +
-                '<span class="ob-cn-card-user">' + escapeHtml(n.user) + '</span>' +
-                '<span class="ob-cn-card-time">' + n.time + '</span>' +
+                '<span class="md-cn-card-user">' + escapeHtml(n.user) + '</span>' +
+                '<span class="md-cn-card-time">' + n.time + '</span>' +
             '</div>' +
-            '<div class="ob-cn-card-body">' +
+            '<div class="md-cn-card-body">' +
                 siteHtml +
                 diffHtml +
             '</div>' +
@@ -3299,7 +3299,7 @@ function obCnRenderHistory() {
         });
     }
     if (filtered.length === 0) {
-        timeline.innerHTML = '<div class="ob-cn-empty">変更履歴はありません</div>';
+        timeline.innerHTML = '<div class="md-cn-empty">変更履歴はありません</div>';
         return;
     }
 
@@ -3307,16 +3307,16 @@ function obCnRenderHistory() {
 
     timeline.innerHTML = filtered.map(function(h) {
         var displayName = escapeHtml(h.company ? h.company + ' / ' + (h.taskName || '(個別)') : (h.taskName || '(個別)'));
-        var dayBadge = h.day != null ? '<span class="ob-cn-day-badge">' + currentMonth + '月' + h.day + '日</span>' : '';
-        var summaryText = h.summary ? '<span class="ob-cn-tl-summary">(' + escapeHtml(h.summary) + ')</span>' : '';
-        return '<div class="ob-cn-timeline-item ob-cn-tl-' + h.type + ' ob-cn-tl-clickable" onclick="obCnJumpToCard(' + h.notificationId + ')">' +
-            '<div class="ob-cn-tl-header">' +
-                '<span class="ob-cn-tl-time">' + h.time + '</span>' +
-                '<span class="ob-cn-tl-user">' + escapeHtml(h.user) + '</span>' +
-                '<span class="ob-cn-tl-type ob-cn-tl-type-' + h.type + '">' + typeLabels[h.type] + '</span>' +
+        var dayBadge = h.day != null ? '<span class="md-cn-day-badge">' + currentMonth + '月' + h.day + '日</span>' : '';
+        var summaryText = h.summary ? '<span class="md-cn-tl-summary">(' + escapeHtml(h.summary) + ')</span>' : '';
+        return '<div class="md-cn-timeline-item md-cn-tl-' + h.type + ' md-cn-tl-clickable" onclick="obCnJumpToCard(' + h.notificationId + ')">' +
+            '<div class="md-cn-tl-header">' +
+                '<span class="md-cn-tl-time">' + h.time + '</span>' +
+                '<span class="md-cn-tl-user">' + escapeHtml(h.user) + '</span>' +
+                '<span class="md-cn-tl-type md-cn-tl-type-' + h.type + '">' + typeLabels[h.type] + '</span>' +
             '</div>' +
-            '<div class="ob-cn-tl-content">' +
-                '<span class="ob-cn-tl-name">' + displayName + '</span> ' +
+            '<div class="md-cn-tl-content">' +
+                '<span class="md-cn-tl-name">' + displayName + '</span> ' +
                 summaryText + ' ' +
                 dayBadge +
             '</div>' +

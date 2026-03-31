@@ -18,9 +18,9 @@
         // グループ会社データ
         // 【本番】DBのグループ会社マスターから動的に取得。背景色はユーザー設定テーブルから読み込み
         const groupCompaniesData = [
-            { id: 1, code: 'touo', name: '東央警備', shortName: '東央', rowClass: 'gc-row-touo' },
-            { id: 2, code: 'nikkei', name: 'Nikkeiホールディングス', shortName: 'Nikkei', rowClass: 'gc-row-nikkei' },
-            { id: 3, code: 'zennihon', name: '全日本エンタープライズ', shortName: 'AJE', rowClass: 'gc-row-zennihon' }
+            { id: 1, code: 'touo', name: '東央警備', shortName: '東央', rowClass: 'md-gc-row-touo' },
+            { id: 2, code: 'nikkei', name: 'Nikkeiホールディングス', shortName: 'Nikkei', rowClass: 'md-gc-row-nikkei' },
+            { id: 3, code: 'zennihon', name: '全日本エンタープライズ', shortName: 'AJE', rowClass: 'md-gc-row-zennihon' }
         ];
 
         // 部署データ（会社コード → 部署リスト）
@@ -235,10 +235,10 @@
         class Combobox {
             constructor(containerId, options = {}) {
                 this.container = document.getElementById(containerId);
-                this.input = this.container.querySelector('.combobox-input');
-                this.dropdown = this.container.querySelector('.combobox-dropdown');
-                this.toggle = this.container.querySelector('.combobox-toggle');
-                this.clear = this.container.querySelector('.combobox-clear');
+                this.input = this.container.querySelector('.md-cb-input');
+                this.dropdown = this.container.querySelector('.md-cb-dropdown');
+                this.toggle = this.container.querySelector('.md-cb-toggle');
+                this.clear = this.container.querySelector('.md-cb-clear');
 
                 this.items = options.items || [];
                 this.selectedItem = null;
@@ -285,18 +285,18 @@
                 );
 
                 if (filteredItems.length === 0 && !query) {
-                    html = '<div class="combobox-no-results">リストが空です</div>';
+                    html = '<div class="md-cb-no-results">リストが空です</div>';
                 } else if (filteredItems.length === 0) {
-                    html = '<div class="combobox-no-results">該当なし</div>';
+                    html = '<div class="md-cb-no-results">該当なし</div>';
                 } else {
                     filteredItems.forEach((item, index) => {
                         const isSelected = this.selectedItem && this.selectedItem.id === item.id;
                         const isHighlighted = index === this.highlightedIndex;
                         const displayName = query ? this.highlightMatch(item.name, query) : item.name;
 
-                        html += `<div class="combobox-option${isSelected ? ' selected' : ''}${isHighlighted ? ' highlighted' : ''}"
+                        html += `<div class="md-cb-option${isSelected ? ' selected' : ''}${isHighlighted ? ' highlighted' : ''}"
                                      data-id="${item.id}" data-index="${index}">
-                                    <span class="combobox-option-icon">${isSelected ? '✓' : ''}</span>
+                                    <span class="md-cb-option-icon">${isSelected ? '✓' : ''}</span>
                                     <span>${displayName}</span>
                                  </div>`;
                     });
@@ -304,8 +304,8 @@
 
                 // 新規追加オプション
                 if (this.allowAddNew && query && !filteredItems.some(item => item.name.toLowerCase() === query)) {
-                    html += `<div class="combobox-add-new" data-action="add-new">
-                                <span class="combobox-add-new-icon"><img src="mockup/icons/plus.svg" class="ob-icon"></span>
+                    html += `<div class="md-cb-add-new" data-action="add-new">
+                                <span class="md-cb-add-new-icon"><img src="mockup/icons/plus.svg" class="md-ob-icon"></span>
                                 <span>「${this.escapeHtml(this.input.value)}」を新規登録</span>
                              </div>`;
                 }
@@ -313,7 +313,7 @@
                 this.dropdown.innerHTML = html;
 
                 // クリックイベント
-                this.dropdown.querySelectorAll('.combobox-option').forEach(option => {
+                this.dropdown.querySelectorAll('.md-cb-option').forEach(option => {
                     option.addEventListener('click', () => {
                         const id = parseInt(option.dataset.id);
                         const item = this.items.find(i => i.id === id);
@@ -321,7 +321,7 @@
                     });
                 });
 
-                const addNewBtn = this.dropdown.querySelector('.combobox-add-new');
+                const addNewBtn = this.dropdown.querySelector('.md-cb-add-new');
                 if (addNewBtn) {
                     addNewBtn.addEventListener('click', () => this.addNew());
                 }
@@ -329,7 +329,7 @@
 
             highlightMatch(text, query) {
                 const regex = new RegExp(`(${this.escapeRegex(query)})`, 'gi');
-                return text.replace(regex, '<span class="combobox-match">$1</span>');
+                return text.replace(regex, '<span class="md-cb-match">$1</span>');
             }
 
             escapeHtml(text) {
@@ -400,7 +400,7 @@
             }
 
             onKeydown(e) {
-                const options = this.dropdown.querySelectorAll('.combobox-option');
+                const options = this.dropdown.querySelectorAll('.md-cb-option');
 
                 if (e.key === 'ArrowDown') {
                     e.preventDefault();
@@ -463,10 +463,10 @@
             const el = document.getElementById('smPlanTaskName');
             if (!el) return;
             if (parts.length > 0) {
-                el.className = 'ob-plan-name-value';
-                el.innerHTML = parts.join(' <span class="ob-plan-arrow">›</span> ');
+                el.className = 'md-ob-plan-name-value';
+                el.innerHTML = parts.join(' <span class="md-ob-plan-arrow">›</span> ');
             } else {
-                el.className = 'ob-plan-name-value ob-plan-empty';
+                el.className = 'md-ob-plan-name-value ob-plan-empty';
                 el.textContent = '現場名・業務詳細を入力すると自動生成されます';
             }
         }
@@ -478,18 +478,18 @@
             const sectionId = containerId + '_section';
 
             const section = document.createElement('div');
-            section.className = 'modal-section sub-item-section';
+            section.className = 'md-modal-section sub-item-section';
             section.id = sectionId;
             section.innerHTML =
                 '<div class="sub-item-header">' +
                     '<label>追加項目 ' + (level + 1) + '</label>' +
                     '<button type="button" class="sub-item-remove-btn" onclick="removeSubItemLevel(\'' + sectionId + '\', \'' + containerId + '\')" title="この追加項目を削除">✕</button>' +
                 '</div>' +
-                '<div class="combobox-container" id="' + containerId + '">' +
-                    '<input type="text" class="combobox-input" placeholder="入力して検索、またはリストから選択..." autocomplete="off">' +
-                    '<button type="button" class="combobox-clear">✕</button>' +
-                    '<button type="button" class="combobox-toggle">▼</button>' +
-                    '<div class="combobox-dropdown"></div>' +
+                '<div class="md-cb-container" id="' + containerId + '">' +
+                    '<input type="text" class="md-cb-input" placeholder="入力して検索、またはリストから選択..." autocomplete="off">' +
+                    '<button type="button" class="md-cb-clear">✕</button>' +
+                    '<button type="button" class="md-cb-toggle">▼</button>' +
+                    '<div class="md-cb-dropdown"></div>' +
                 '</div>';
 
             const container = document.getElementById('subItemsContainer');
@@ -1065,7 +1065,7 @@
             let html = '';
             employeeContactItems.forEach(item => {
                 const active = mtSelectedContact === item.name ? ' ob-chip-active' : '';
-                html += `<button type="button" class="ob-row-chip${active}" onclick="mtSelectContact('${escapeHtml(item.name)}')">${escapeHtml(item.name)}</button>`;
+                html += `<button type="button" class="md-ob-row-chip${active}" onclick="mtSelectContact('${escapeHtml(item.name)}')">${escapeHtml(item.name)}</button>`;
             });
             container.innerHTML = html;
         }
@@ -1722,19 +1722,19 @@
             // --- タブ列を構築 ---
             let tabsHtml = '';
             // 「すべて」タブ
-            tabsHtml += '<div class="sp-vtab' + (spState.activeTab === 'all' ? ' active' : '') + '"'
+            tabsHtml += '<div class="md-sp-vtab' + (spState.activeTab === 'all' ? ' active' : '') + '"'
                 + ' data-sp-tab="all" onclick="spSelectTab(\'all\')">すべて</div>';
 
             visibleCompanies.forEach(function(gc) {
                 const depts = departmentsData[gc.code] || [];
                 const isExpanded = spState.expandedCompanies.has(gc.code);
-                tabsHtml += '<div class="sp-gc-header' + (isExpanded ? ' expanded' : '') + '"'
+                tabsHtml += '<div class="md-sp-gc-header' + (isExpanded ? ' expanded' : '') + '"'
                     + ' data-sp-gc="' + gc.code + '"'
                     + ' onclick="spToggleCompany(\'' + gc.code + '\')">' + gc.shortName + '</div>';
-                tabsHtml += '<div class="sp-dept-group' + (isExpanded ? ' expanded' : '') + '"'
+                tabsHtml += '<div class="md-sp-dept-group' + (isExpanded ? ' expanded' : '') + '"'
                     + ' data-sp-gc-group="' + gc.code + '">';
                 depts.forEach(function(dept) {
-                    tabsHtml += '<div class="sp-vtab' + (spState.activeTab === dept.id ? ' active' : '') + '"'
+                    tabsHtml += '<div class="md-sp-vtab' + (spState.activeTab === dept.id ? ' active' : '') + '"'
                         + ' data-sp-tab="' + dept.id + '"'
                         + ' onclick="spSelectTab(\'' + dept.id + '\')">' + dept.name + '</div>';
                 });
@@ -1767,7 +1767,7 @@
                 visibleCompanies.forEach(function(gc) {
                     const companyEmps = filtered.filter(function(emp) { return emp.company === gc.code; });
                     if (companyEmps.length === 0) return;
-                    contentHtml += '<div class="sp-gc-section-label">' + gc.shortName + '</div>';
+                    contentHtml += '<div class="md-sp-gc-section-label">' + gc.shortName + '</div>';
                     companyEmps.forEach(function(emp) {
                         const isAssigned = assignedNames.has(emp.name);
                         contentHtml += '<span class="employee-tag' + (isAssigned ? ' assigned' : '') + '"'
@@ -1789,7 +1789,7 @@
             content.innerHTML = contentHtml;
 
             // ヘッダーのカウント更新
-            const countEl = document.querySelector('.sp-employee-count');
+            const countEl = document.querySelector('.md-sp-employee-count');
             if (countEl) {
                 const total = employeesData.filter(function(emp) {
                     return visibleCompanies.some(function(gc) { return gc.code === emp.company; });
@@ -1835,7 +1835,7 @@
             var empPanel = document.getElementById('spEmployeePanel');
             var vehPanel = document.getElementById('spVehiclePanel');
             if (!empPanel || !vehPanel) return;
-            var tabs = document.querySelectorAll('.sp-tab');
+            var tabs = document.querySelectorAll('.md-sp-tab');
             tabs.forEach(function(t) {
                 t.classList.toggle('active', t.dataset.spMain === tab);
             });
@@ -1900,7 +1900,7 @@
                 var companyVehicles = filtered.filter(function(v) { return v.owner === gc.code; });
                 var companyEtc = filteredEtc.filter(function(e) { return e.owner === gc.code; });
                 if (companyVehicles.length === 0 && companyEtc.length === 0) return;
-                html += '<div class="sp-gc-section-label">' + gc.shortName + '</div>';
+                html += '<div class="md-sp-gc-section-label">' + gc.shortName + '</div>';
                 companyVehicles.forEach(function(v) {
                     var isAssigned = assignedPlates.has(v.plate);
                     html += '<span class="vehicle-list-tag' + (isAssigned ? ' assigned' : '') + '"'
@@ -1911,7 +1911,7 @@
                         + '</span>';
                 });
                 if (companyEtc.length > 0) {
-                    html += '<div class="sp-etc-label">ETC</div>';
+                    html += '<div class="md-sp-etc-label">ETC</div>';
                     companyEtc.forEach(function(e) {
                         var isAssigned = assignedEtcs.has(e.label);
                         html += '<span class="etc-list-tag' + (isAssigned ? ' assigned' : '') + '"'
@@ -1925,7 +1925,7 @@
             content.innerHTML = html;
 
             // ヘッダーカウント更新
-            var countEl = document.querySelector('.sp-vehicle-count');
+            var countEl = document.querySelector('.md-sp-vehicle-count');
             if (countEl) {
                 var total = vehiclesData.filter(function(v) {
                     return visibleCompanies.some(function(gc) { return gc.code === v.owner; });
@@ -2466,7 +2466,7 @@
         let selectedGridRow = null;
 
         function selectRow(tr, event) {
-            if (event.target.closest('.modal-overlay, .contact-popup, .assigned-employee, .vehicle-drop-zone')) return;
+            if (event.target.closest('.md-modal-overlay, .contact-popup, .assigned-employee, .vehicle-drop-zone')) return;
             if (event.target.closest('.clickable-cell')) return;
 
             if (selectedGridRow === tr) {
@@ -2847,9 +2847,9 @@
 
         // --- ベース色のデフォルト値 ---
         const BASE_COLOR_DEFAULTS = {
-            '--gc-bg-touo': '#FFFFFF',
-            '--gc-bg-nikkei': '#F3F9F6',
-            '--gc-bg-zennihon': '#F2F4F8',
+            '--md-gc-bg-touo': '#FFFFFF',
+            '--md-gc-bg-nikkei': '#F3F9F6',
+            '--md-gc-bg-zennihon': '#F2F4F8',
             'cat-facility': '#44A6B5',
             'cat-event': '#44A6B5',
             'cat-traffic': '#44A6B5',
@@ -3015,21 +3015,21 @@
         function showChangeToast(notification) {
             const container = document.getElementById('cnToastContainer');
             const toast = document.createElement('div');
-            const typeClass = 'cn-toast-' + notification.type;
+            const typeClass = 'md-cn-toast-' + notification.type;
             const icons = { add: '🟢', modify: '🟡', delete: '🔴' };
             const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
 
-            toast.className = 'cn-toast ' + typeClass;
+            toast.className = 'md-cn-toast ' + typeClass;
             toast.innerHTML =
-                '<span class="cn-toast-icon">' + icons[notification.type] + '</span>' +
-                '<div class="cn-toast-body">' +
-                    '<div class="cn-toast-title">' + typeLabels[notification.type] + ' — ' + notification.user + '</div>' +
-                    '<div class="cn-toast-desc">' + escapeHtml(notification.siteName) + '</div>' +
+                '<span class="md-cn-toast-icon">' + icons[notification.type] + '</span>' +
+                '<div class="md-cn-toast-body">' +
+                    '<div class="md-cn-toast-title">' + typeLabels[notification.type] + ' — ' + notification.user + '</div>' +
+                    '<div class="md-cn-toast-desc">' + escapeHtml(notification.siteName) + '</div>' +
                 '</div>' +
-                '<span class="cn-toast-time">' + notification.time + '</span>';
+                '<span class="md-cn-toast-time">' + notification.time + '</span>';
 
             toast.onclick = function() {
-                toast.classList.add('cn-toast-exit');
+                toast.classList.add('md-cn-toast-exit');
                 setTimeout(function() { toast.remove(); }, 300);
                 openChangeNotifyModal();
             };
@@ -3038,7 +3038,7 @@
 
             setTimeout(function() {
                 if (toast.parentNode) {
-                    toast.classList.add('cn-toast-exit');
+                    toast.classList.add('md-cn-toast-exit');
                     setTimeout(function() { toast.remove(); }, 300);
                 }
             }, 5000);
@@ -3104,10 +3104,10 @@
 
         function switchCnTab(tabName) {
             cnState.activeTab = tabName;
-            document.querySelectorAll('.cn-tab').forEach(function(tab) {
+            document.querySelectorAll('.md-cn-tab').forEach(function(tab) {
                 tab.classList.toggle('active', tab.dataset.tab === tabName);
             });
-            document.querySelectorAll('.cn-tab-content').forEach(function(content) {
+            document.querySelectorAll('.md-cn-tab-content').forEach(function(content) {
                 content.classList.toggle('active', content.id === (tabName === 'latest' ? 'cnTabLatest' : 'cnTabHistory'));
             });
         }
@@ -3119,7 +3119,7 @@
                 filtered = filtered.filter(function(n) { return n._rowId === cnState.filterRowId; });
             }
             if (filtered.length === 0) {
-                list.innerHTML = '<div class="cn-empty">変更通知はありません</div>';
+                list.innerHTML = '<div class="md-cn-empty">変更通知はありません</div>';
                 return;
             }
 
@@ -3131,60 +3131,60 @@
             const smShiftClassMapLocal = { '昼': 'shift-day', '夜': 'shift-night' };
 
             list.innerHTML = filtered.map(function(n) {
-                var cardClass = 'cn-card cn-card-' + n.type;
-                var badgeClass = 'cn-type-badge cn-type-badge-' + n.type;
+                var cardClass = 'md-cn-card cn-card-' + n.type;
+                var badgeClass = 'md-cn-type-badge cn-type-badge-' + n.type;
                 var catClass = smCategoryClassMapLocal[n.category] || 'category-facility';
                 var shiftClass = smShiftClassMapLocal[n.shift] || 'shift-day';
 
                 var diffHtml = '';
                 if (n.type === 'modify' && n.diffs) {
-                    diffHtml = '<div class="cn-diff-list">' +
+                    diffHtml = '<div class="md-cn-diff-list">' +
                         n.diffs.map(function(d) {
-                            return '<div class="cn-diff-row">' +
-                                '<span class="cn-diff-label">' + d.field + '</span>' +
-                                '<span class="cn-diff-old">' + escapeHtml(d.oldVal) + '</span>' +
-                                '<span class="cn-diff-arrow">→</span>' +
-                                '<span class="cn-diff-new">' + escapeHtml(d.newVal) + '</span>' +
+                            return '<div class="md-cn-diff-row">' +
+                                '<span class="md-cn-diff-label">' + d.field + '</span>' +
+                                '<span class="md-cn-diff-old">' + escapeHtml(d.oldVal) + '</span>' +
+                                '<span class="md-cn-diff-arrow">→</span>' +
+                                '<span class="md-cn-diff-new">' + escapeHtml(d.newVal) + '</span>' +
                             '</div>';
                         }).join('') +
                     '</div>';
                 } else if (n.type === 'add' && n.details) {
-                    diffHtml = '<div class="cn-diff-list">' +
+                    diffHtml = '<div class="md-cn-diff-list">' +
                         n.details.map(function(d) {
-                            return '<div class="cn-diff-row">' +
-                                '<span class="cn-diff-label">' + d.field + '</span>' +
-                                '<span class="cn-diff-new">' + escapeHtml(d.value) + '</span>' +
+                            return '<div class="md-cn-diff-row">' +
+                                '<span class="md-cn-diff-label">' + d.field + '</span>' +
+                                '<span class="md-cn-diff-new">' + escapeHtml(d.value) + '</span>' +
                             '</div>';
                         }).join('') +
                     '</div>';
                 } else if (n.type === 'delete') {
-                    diffHtml = '<div class="cn-diff-list"><div class="cn-diff-row"><span class="cn-diff-old">この行は削除されました</span></div></div>';
+                    diffHtml = '<div class="md-cn-diff-list"><div class="md-cn-diff-row"><span class="md-cn-diff-old">この行は削除されました</span></div></div>';
                 }
 
                 var stateClass = n.reverted ? ' cn-card-reverted' : (n._approved ? ' cn-card-approved' : '');
                 var statusBadge = '';
                 var actionsHtml = '';
                 if (n.reverted) {
-                    statusBadge = '<span class="cn-reverted-badge">キャンセル</span>';
-                    actionsHtml = '<div class="cn-card-actions">' +
-                        '<button class="cn-btn-reapprove" onclick="cnReapproveNotification(' + n.id + ')">適用する</button>' +
+                    statusBadge = '<span class="md-cn-reverted-badge">キャンセル</span>';
+                    actionsHtml = '<div class="md-cn-card-actions">' +
+                        '<button class="md-cn-btn-reapprove" onclick="cnReapproveNotification(' + n.id + ')">適用する</button>' +
                     '</div>';
                 } else {
-                    if (n._approved) statusBadge = '<span class="cn-approved-badge">適用</span>';
-                    actionsHtml = '<div class="cn-card-actions">' +
-                        '<button class="cn-btn-revert" onclick="cnRevertNotification(' + n.id + ')">キャンセル</button>' +
+                    if (n._approved) statusBadge = '<span class="md-cn-approved-badge">適用</span>';
+                    actionsHtml = '<div class="md-cn-card-actions">' +
+                        '<button class="md-cn-btn-revert" onclick="cnRevertNotification(' + n.id + ')">キャンセル</button>' +
                     '</div>';
                 }
 
                 return '<div class="' + cardClass + stateClass + '">' +
-                    '<div class="cn-card-header">' +
+                    '<div class="md-cn-card-header">' +
                         '<span class="' + badgeClass + '">' + typeLabels[n.type] + '</span>' +
                         statusBadge +
-                        '<span class="cn-card-user">' + escapeHtml(n.user) + '</span>' +
-                        '<span class="cn-card-time">' + n.time + '</span>' +
+                        '<span class="md-cn-card-user">' + escapeHtml(n.user) + '</span>' +
+                        '<span class="md-cn-card-time">' + n.time + '</span>' +
                     '</div>' +
-                    '<div class="cn-card-body">' +
-                        '<div class="cn-card-site">' +
+                    '<div class="md-cn-card-body">' +
+                        '<div class="md-cn-card-site">' +
                             '<span class="shift-badge ' + shiftClass + '">' + n.shift + '</span>' +
                             '<span class="category-badge ' + catClass + '">' + n.category + '</span>' +
                             escapeHtml(n.siteName) +
@@ -3203,20 +3203,20 @@
                 filtered = filtered.filter(function(h) { return h.siteName === cnState.filterRowId; });
             }
             if (filtered.length === 0) {
-                timeline.innerHTML = '<div class="cn-empty">変更履歴はありません</div>';
+                timeline.innerHTML = '<div class="md-cn-empty">変更履歴はありません</div>';
                 return;
             }
 
             const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
 
             timeline.innerHTML = filtered.map(function(h) {
-                return '<div class="cn-timeline-item tl-' + h.type + '">' +
-                    '<div class="cn-tl-header">' +
-                        '<span class="cn-tl-time">' + h.time + '</span>' +
-                        '<span class="cn-tl-user">' + escapeHtml(h.user) + '</span>' +
-                        '<span class="cn-tl-type cn-tl-type-' + h.type + '">' + typeLabels[h.type] + '</span>' +
+                return '<div class="md-cn-timeline-item tl-' + h.type + '">' +
+                    '<div class="md-cn-tl-header">' +
+                        '<span class="md-cn-tl-time">' + h.time + '</span>' +
+                        '<span class="md-cn-tl-user">' + escapeHtml(h.user) + '</span>' +
+                        '<span class="md-cn-tl-type cn-tl-type-' + h.type + '">' + typeLabels[h.type] + '</span>' +
                     '</div>' +
-                    '<div class="cn-tl-content">' + escapeHtml(h.summary) + '</div>' +
+                    '<div class="md-cn-tl-content">' + escapeHtml(h.summary) + '</div>' +
                 '</div>';
             }).join('');
         }
@@ -3292,7 +3292,7 @@
               apply: function(self) {
                   var tbody = document.querySelector('.grid-table tbody');
                   var no = tbody.querySelectorAll('tr').length + 1;
-                  var tr = cnCreateRow({ no: no, gcClass: 'gc-row-touo', shiftClass: 'shift-night', shiftLabel: '夜',
+                  var tr = cnCreateRow({ no: no, gcClass: 'md-gc-row-touo', shiftClass: 'shift-night', shiftLabel: '夜',
                       categoryClass: 'category-facility', categoryLabel: '施設', company: '△△不動産',
                       siteName: '△△マンション 常駐警備', meetingTime: '19:30', meetingMethod: '直', meetingMethodClass: 'method-direct',
                       timeStart: '20:00', timeEnd: '08:00', count: '0/2', shortage: true });
@@ -3326,7 +3326,7 @@
               apply: function(self) {
                   var tbody = document.querySelector('.grid-table tbody');
                   var no = tbody.querySelectorAll('tr').length + 1;
-                  var tr = cnCreateRow({ no: no, gcClass: 'gc-row-nikkei', shiftClass: 'shift-day', shiftLabel: '昼',
+                  var tr = cnCreateRow({ no: no, gcClass: 'md-gc-row-nikkei', shiftClass: 'shift-day', shiftLabel: '昼',
                       categoryClass: 'category-event', categoryLabel: 'イベント', company: '□□イベント',
                       siteName: '□□公園 花火大会警備', meetingTime: '15:00', meetingMethod: '会社', meetingMethodClass: 'method-company',
                       timeStart: '16:00', timeEnd: '22:00', count: '0/5', shortage: true });
@@ -3351,18 +3351,18 @@
 
         // セル内差分表示ヘルパー
         function cnShowCellDiff(el, oldText, newText) {
-            el.innerHTML = '<span class="cn-cell-old">' + oldText + '</span><div class="cn-cell-new">' + newText + '</div>';
+            el.innerHTML = '<span class="md-cn-cell-old">' + oldText + '</span><div class="md-cn-cell-new">' + newText + '</div>';
         }
 
         function cnAddCellBadge(cell) {
             var badge = document.createElement('div');
-            badge.className = 'cn-cell-badge';
+            badge.className = 'md-cn-cell-badge';
             badge.textContent = '変更';
             cell.insertBefore(badge, cell.firstChild);
         }
 
         function cnCleanCellBadges(row) {
-            var els = row.querySelectorAll('.cn-cell-badge');
+            var els = row.querySelectorAll('.md-cn-cell-badge');
             for (var i = 0; i < els.length; i++) els[i].remove();
         }
 
@@ -3376,14 +3376,14 @@
         }
 
         function cnMarkPending(row, type, commitFn) {
-            row.classList.add('cn-pending');
+            row.classList.add('md-cn-pending');
             cnPendingMap.set(row, { type: type, commit: commitFn });
             // 追加・削除バッジ → No列に配置
             if (type === 'add' || type === 'delete') {
                 var noCell = row.querySelector('.col-no');
                 if (noCell) {
                     var badge = document.createElement('span');
-                    badge.className = 'cn-row-badge cn-row-badge-' + type;
+                    badge.className = 'md-cn-row-badge cn-row-badge-' + type;
                     badge.textContent = type === 'add' ? '追加' : '削除';
                     noCell.appendChild(badge);
                 }
@@ -3391,16 +3391,16 @@
             // セルグロー（box-shadow inset）
             if (type === 'modify') {
                 // 変更：cn-cell-badgeを持つセルのみ明滅
-                var badgeCells = row.querySelectorAll('.cn-cell-badge');
+                var badgeCells = row.querySelectorAll('.md-cn-cell-badge');
                 for (var j = 0; j < badgeCells.length; j++) {
                     var td = badgeCells[j].closest('td');
-                    if (td) td.classList.add('cn-cell-glow-modify');
+                    if (td) td.classList.add('md-cn-cell-glow-modify');
                 }
             } else {
                 // 追加・削除：行全体を明滅
                 var cells = row.querySelectorAll('td');
                 for (var j = 0; j < cells.length; j++) {
-                    cells[j].classList.add('cn-cell-glow-' + type);
+                    cells[j].classList.add('md-cn-cell-glow-' + type);
                 }
             }
             // 行クリックで承認（captureフェーズでインラインonclickより先に発火）
@@ -3427,13 +3427,13 @@
                 notif._deletedRowParent = row.parentNode;
             }
             pending.commit();
-            row.classList.remove('cn-pending');
+            row.classList.remove('md-cn-pending');
             // セルグロー除去
             var cells = row.querySelectorAll('td');
             for (var j = 0; j < cells.length; j++) {
-                cells[j].classList.remove('cn-cell-glow-add', 'cn-cell-glow-modify', 'cn-cell-glow-delete');
+                cells[j].classList.remove('md-cn-cell-glow-add', 'md-cn-cell-glow-modify', 'md-cn-cell-glow-delete');
             }
-            var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge');
+            var els = row.querySelectorAll('.md-cn-row-badge, .md-cn-cell-badge');
             for (var i = 0; i < els.length; i++) els[i].remove();
             // 行クリックハンドラ解除
             if (row._cnClickHandler) {
@@ -3446,8 +3446,8 @@
                 notif._read = true;
             }
             if (pending.type !== 'delete') {
-                row.classList.add('cn-flash-approve');
-                setTimeout(function() { row.classList.remove('cn-flash-approve'); }, 2000);
+                row.classList.add('md-cn-flash-approve');
+                setTimeout(function() { row.classList.remove('md-cn-flash-approve'); }, 2000);
             }
             // 未読数再計算 + ベル更新
             cnState.unreadCount = cnState.notifications.filter(function(n) { return !n._read; }).length;
@@ -3461,8 +3461,8 @@
         }
 
         function cnFlashRow(row, type) {
-            row.classList.add('cn-flash-' + type);
-            setTimeout(function() { row.classList.remove('cn-flash-' + type); }, 3000);
+            row.classList.add('md-cn-flash-' + type);
+            setTimeout(function() { row.classList.remove('md-cn-flash-' + type); }, 3000);
         }
 
         function cnRenumberRows() {
@@ -3470,7 +3470,7 @@
             for (var i = 0; i < rows.length; i++) {
                 var no = rows[i].querySelector('.col-no');
                 if (!no) continue;
-                // .cn-overlay等の子要素を破壊しないよう、テキストノードのみ更新
+                // .md-cn-overlay等の子要素を破壊しないよう、テキストノードのみ更新
                 var textNode = no.firstChild;
                 if (textNode && textNode.nodeType === 3) {
                     textNode.textContent = i + 1;
@@ -3498,10 +3498,10 @@
         function cnGetRowBellHtml(row) {
             var siteName = cnGetRowSiteName(row);
             var count = cnGetUnreadForSite(siteName);
-            var cls = count > 0 ? 'cn-row-bell has-unread' : 'cn-row-bell';
+            var cls = count > 0 ? 'md-cn-row-bell has-unread' : 'md-cn-row-bell';
             return '<span class="' + cls + '" onclick="event.stopPropagation(); cnOpenModalForRow(this)" title="この現場の変更通知">' +
-                '<img src="mockup/icons/bell.svg" class="cn-row-bell-img">' +
-                (count > 0 ? '<span class="cn-row-bell-dot"></span>' : '') +
+                '<img src="mockup/icons/bell.svg" class="md-cn-row-bell-img">' +
+                (count > 0 ? '<span class="md-cn-row-bell-dot"></span>' : '') +
             '</span>';
         }
 
@@ -3509,12 +3509,12 @@
             var rows = document.querySelectorAll('.grid-table tbody tr');
             for (var i = 0; i < rows.length; i++) {
                 var noCell = rows[i].querySelector('.col-no');
-                if (!noCell || noCell.querySelector('.cn-row-bell')) continue;
+                if (!noCell || noCell.querySelector('.md-cn-row-bell')) continue;
                 var bell = document.createElement('span');
-                bell.className = 'cn-row-bell';
+                bell.className = 'md-cn-row-bell';
                 bell.setAttribute('onclick', 'event.stopPropagation(); cnOpenModalForRow(this)');
                 bell.title = 'この現場の変更通知';
-                bell.innerHTML = '<img src="mockup/icons/bell.svg" class="cn-row-bell-img">';
+                bell.innerHTML = '<img src="mockup/icons/bell.svg" class="md-cn-row-bell-img">';
                 noCell.appendChild(bell);
             }
         }
@@ -3524,16 +3524,16 @@
             for (var i = 0; i < rows.length; i++) {
                 var noCell = rows[i].querySelector('.col-no');
                 if (!noCell) continue;
-                var bell = noCell.querySelector('.cn-row-bell');
+                var bell = noCell.querySelector('.md-cn-row-bell');
                 if (!bell) continue;
                 var siteName = cnGetRowSiteName(rows[i]);
                 var count = cnGetUnreadForSite(siteName);
-                var dot = bell.querySelector('.cn-row-bell-dot');
+                var dot = bell.querySelector('.md-cn-row-bell-dot');
                 if (count > 0) {
                     bell.classList.add('has-unread');
                     if (!dot) {
                         dot = document.createElement('span');
-                        dot.className = 'cn-row-bell-dot';
+                        dot.className = 'md-cn-row-bell-dot';
                         bell.appendChild(dot);
                     }
                 } else {
@@ -3551,7 +3551,7 @@
         // revert/reapprove後のオーバーレイ＋差分可視化
         function cnShowRevertOverlay(row, type, diffs) {
             // 既存の差分要素を先にクリーンアップ（重複防止）
-            var staleEls = row.querySelectorAll('.cn-row-badge, .cn-cell-badge, .cn-cell-old, .cn-cell-new');
+            var staleEls = row.querySelectorAll('.md-cn-row-badge, .md-cn-cell-badge, .md-cn-cell-old, .md-cn-cell-new');
             for (var i = 0; i < staleEls.length; i++) staleEls[i].remove();
 
             // 該当行の通知を未読に戻す
@@ -3565,12 +3565,12 @@
                 cnUpdateRowBells();
             }
 
-            row.classList.add('cn-pending');
+            row.classList.add('md-cn-pending');
             // バッジ
             var noCell = row.querySelector('.col-no');
             if (noCell && (type === 'add' || type === 'delete')) {
                 var badge = document.createElement('span');
-                badge.className = 'cn-row-badge cn-row-badge-' + (type === 'add' ? 'delete' : 'add');
+                badge.className = 'md-cn-row-badge cn-row-badge-' + (type === 'add' ? 'delete' : 'add');
                 badge.textContent = type === 'add' ? '削除' : '復元';
                 noCell.appendChild(badge);
             }
@@ -3597,13 +3597,13 @@
                 e.stopPropagation();
                 e.stopImmediatePropagation();
                 e.preventDefault();
-                row.classList.remove('cn-pending');
-                var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge');
+                row.classList.remove('md-cn-pending');
+                var els = row.querySelectorAll('.md-cn-row-badge, .md-cn-cell-badge');
                 for (var i = 0; i < els.length; i++) els[i].remove();
                 // modifyの場合、差分表示をクリーンアップ（現在値のみ表示）
-                var oldSpans = row.querySelectorAll('.cn-cell-old');
+                var oldSpans = row.querySelectorAll('.md-cn-cell-old');
                 for (var i = 0; i < oldSpans.length; i++) oldSpans[i].remove();
-                var newSpans = row.querySelectorAll('.cn-cell-new');
+                var newSpans = row.querySelectorAll('.md-cn-cell-new');
                 for (var i = 0; i < newSpans.length; i++) {
                     var parent = newSpans[i].parentElement;
                     var text = newSpans[i].textContent;
@@ -3627,8 +3627,8 @@
 
         function cnClearPending(row) {
             cnPendingMap.delete(row);
-            row.classList.remove('cn-pending');
-            var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge');
+            row.classList.remove('md-cn-pending');
+            var els = row.querySelectorAll('.md-cn-row-badge, .md-cn-cell-badge');
             for (var i = 0; i < els.length; i++) els[i].remove();
             if (row._cnClickHandler) {
                 row.removeEventListener('click', row._cnClickHandler, true);
@@ -3710,8 +3710,8 @@
                 var row = n._row || cnFindRow(n.siteName);
                 if (row && n._modifyData) {
                     // revert状態をクリア
-                    row.classList.remove('cn-pending');
-                    var els = row.querySelectorAll('.cn-row-badge, .cn-cell-badge');
+                    row.classList.remove('md-cn-pending');
+                    var els = row.querySelectorAll('.md-cn-row-badge, .md-cn-cell-badge');
                     for (var i = 0; i < els.length; i++) els[i].remove();
                     if (row._cnClickHandler) {
                         row.removeEventListener('click', row._cnClickHandler, true);
@@ -3761,8 +3761,8 @@
             var countClass = d.shortage ? 'count-display count-shortage' : 'count-display count-ok';
             tr.innerHTML =
                 '<td class="col-no">' + d.no +
-                    '<span class="cn-row-bell" onclick="event.stopPropagation(); cnOpenModalForRow(this)" title="この現場の変更通知">' +
-                        '<img src="mockup/icons/bell.svg" class="cn-row-bell-img">' +
+                    '<span class="md-cn-row-bell" onclick="event.stopPropagation(); cnOpenModalForRow(this)" title="この現場の変更通知">' +
+                        '<img src="mockup/icons/bell.svg" class="md-cn-row-bell-img">' +
                     '</span></td>' +
                 '<td class="col-site-info clickable-cell" onclick="openSiteModal(this)">' +
                   '<div class="site-info"><div class="site-badges">' +
@@ -3813,9 +3813,9 @@
                 // modify: 不変のテキスト値と要素参照を保存（DOM状態に依存しない）
                 if (n.type === 'modify') {
                     var modifyData = [];
-                    row.querySelectorAll('.cn-cell-old').forEach(function(el) {
+                    row.querySelectorAll('.md-cn-cell-old').forEach(function(el) {
                         var parent = el.parentElement;
-                        var newSpan = parent.querySelector('.cn-cell-new');
+                        var newSpan = parent.querySelector('.md-cn-cell-new');
                         modifyData.push({
                             el: parent,
                             td: parent.closest('td'),
@@ -3890,7 +3890,7 @@
             let hhtml = '';
             for (let h = 0; h < 24; h++) {
                 const sel = h === currentHour ? ' ob-time-selected' : '';
-                hhtml += `<div class="ob-time-option${sel}" data-value="${h}" onclick="selectTimeHour(${h})">${String(h).padStart(2, '0')}</div>`;
+                hhtml += `<div class="md-ob-time-option${sel}" data-value="${h}" onclick="selectTimeHour(${h})">${String(h).padStart(2, '0')}</div>`;
             }
             hoursEl.innerHTML = hhtml;
 
@@ -3898,7 +3898,7 @@
             let mhtml = '';
             for (let m = 0; m < 60; m += 10) {
                 const sel = m === currentMin ? ' ob-time-selected' : '';
-                mhtml += `<div class="ob-time-option${sel}" data-value="${m}" onclick="selectTimeMinute(${m})">${String(m).padStart(2, '0')}</div>`;
+                mhtml += `<div class="md-ob-time-option${sel}" data-value="${m}" onclick="selectTimeMinute(${m})">${String(m).padStart(2, '0')}</div>`;
             }
             minsEl.innerHTML = mhtml;
 
@@ -3921,8 +3921,8 @@
 
         function selectTimeHour(h) {
             timePickerSelectedHour = h;
-            document.querySelectorAll('#timePickerHours .ob-time-option').forEach(el => {
-                el.classList.toggle('ob-time-selected', parseInt(el.dataset.value) === h);
+            document.querySelectorAll('#timePickerHours .md-ob-time-option').forEach(el => {
+                el.classList.toggle('md-ob-time-selected', parseInt(el.dataset.value) === h);
             });
         }
 
@@ -3944,7 +3944,7 @@
             const dropdown = document.getElementById('timePickerDropdown');
             if (!dropdown || dropdown.style.display === 'none') return;
             if (dropdown.contains(e.target)) return;
-            if (e.target.classList.contains('ob-time-input') || e.target.classList.contains('ob-time-picker-icon')) return;
+            if (e.target.classList.contains('md-ob-time-input') || e.target.classList.contains('md-ob-time-picker-icon')) return;
             closeTimePicker();
         });
 
@@ -4050,7 +4050,7 @@
             let html = '';
             items.forEach(item => {
                 const active = item === selectedValue ? ' ob-chip-active' : '';
-                html += `<button type="button" class="ob-row-chip${active}" onclick="smSelectChip('${groupKey}', '${escapeHtml(item)}')">${escapeHtml(item)}</button>`;
+                html += `<button type="button" class="md-ob-row-chip${active}" onclick="smSelectChip('${groupKey}', '${escapeHtml(item)}')">${escapeHtml(item)}</button>`;
             });
             container.innerHTML = html;
         }
@@ -4090,12 +4090,12 @@
             if (!subTasks || subTasks.length === 0) return;
             subTasks.forEach((st, idx) => {
                 const entry = document.createElement('div');
-                entry.className = 'ob-sub-task-entry';
+                entry.className = 'md-ob-sub-task-entry';
                 entry.dataset.idx = idx;
                 entry.innerHTML =
-                    `<input type="text" class="ob-sub-label-input" value="${escapeHtml(st.label)}" placeholder="項目名" oninput="smUpdatePlanTaskName()">` +
-                    `<input type="text" class="ob-sub-value-input" value="${escapeHtml(st.value)}" placeholder="内容を入力" oninput="smUpdatePlanTaskName()">` +
-                    `<button type="button" class="ob-btn-remove-sub" onclick="smRemoveSubTask(${idx})" title="削除">×</button>`;
+                    `<input type="text" class="md-ob-sub-label-input" value="${escapeHtml(st.label)}" placeholder="項目名" oninput="smUpdatePlanTaskName()">` +
+                    `<input type="text" class="md-ob-sub-value-input" value="${escapeHtml(st.value)}" placeholder="内容を入力" oninput="smUpdatePlanTaskName()">` +
+                    `<button type="button" class="md-ob-btn-remove-sub" onclick="smRemoveSubTask(${idx})" title="削除">×</button>`;
                 list.appendChild(entry);
             });
             smUpdatePlanTaskName();
@@ -4110,25 +4110,25 @@
             const defaultLabel = smDefaultSubTaskPrefix + num;
             const idx = currentCount;
             const entry = document.createElement('div');
-            entry.className = 'ob-sub-task-entry';
+            entry.className = 'md-ob-sub-task-entry';
             entry.dataset.idx = idx;
             entry.innerHTML =
-                `<input type="text" class="ob-sub-label-input" value="${escapeHtml(defaultLabel)}" placeholder="項目名" oninput="smUpdatePlanTaskName()">` +
-                `<input type="text" class="ob-sub-value-input" value="" placeholder="内容を入力" oninput="smUpdatePlanTaskName()">` +
-                `<button type="button" class="ob-btn-remove-sub" onclick="smRemoveSubTask(${idx})" title="削除">×</button>`;
+                `<input type="text" class="md-ob-sub-label-input" value="${escapeHtml(defaultLabel)}" placeholder="項目名" oninput="smUpdatePlanTaskName()">` +
+                `<input type="text" class="md-ob-sub-value-input" value="" placeholder="内容を入力" oninput="smUpdatePlanTaskName()">` +
+                `<button type="button" class="md-ob-btn-remove-sub" onclick="smRemoveSubTask(${idx})" title="削除">×</button>`;
             list.appendChild(entry);
-            entry.querySelector('.ob-sub-value-input').focus();
+            entry.querySelector('.md-ob-sub-value-input').focus();
             smUpdatePlanTaskName();
         }
 
         function smRemoveSubTask(idx) {
             const list = document.getElementById('smSubTaskList');
             if (!list) return;
-            const entries = list.querySelectorAll('.ob-sub-task-entry');
+            const entries = list.querySelectorAll('.md-ob-sub-task-entry');
             if (entries[idx]) entries[idx].remove();
-            list.querySelectorAll('.ob-sub-task-entry').forEach((entry, i) => {
+            list.querySelectorAll('.md-ob-sub-task-entry').forEach((entry, i) => {
                 entry.dataset.idx = i;
-                entry.querySelector('.ob-btn-remove-sub').setAttribute('onclick', `smRemoveSubTask(${i})`);
+                entry.querySelector('.md-ob-btn-remove-sub').setAttribute('onclick', `smRemoveSubTask(${i})`);
             });
             smUpdatePlanTaskName();
         }
@@ -4136,11 +4136,11 @@
         function smCollectSubTasks() {
             const list = document.getElementById('smSubTaskList');
             if (!list) return [];
-            const entries = list.querySelectorAll('.ob-sub-task-entry');
+            const entries = list.querySelectorAll('.md-ob-sub-task-entry');
             const subTasks = [];
             entries.forEach(entry => {
-                const label = entry.querySelector('.ob-sub-label-input').value.trim();
-                const value = entry.querySelector('.ob-sub-value-input').value.trim();
+                const label = entry.querySelector('.md-ob-sub-label-input').value.trim();
+                const value = entry.querySelector('.md-ob-sub-value-input').value.trim();
                 subTasks.push({ label: label || '項目', value });
             });
             return subTasks;
@@ -4160,10 +4160,10 @@
             const parent = smBadgeDefinitions.find(p => p.id === smSelectedParentBadge);
             if (parent) {
                 display.textContent = parent.name;
-                display.className = 'ob-badge-parent-display';
+                display.className = 'md-ob-badge-parent-display';
             } else {
                 display.textContent = category || '-';
-                display.className = 'ob-badge-parent-display ob-badge-parent-unknown';
+                display.className = 'md-ob-badge-parent-display ob-badge-parent-unknown';
             }
             smRenderChildBadges();
         }
@@ -4179,7 +4179,7 @@
             }
             const parent = smBadgeDefinitions.find(p => p.id === smSelectedParentBadge);
             if (!parent || parent.children.length === 0) {
-                container.innerHTML = '<span class="ob-badge-empty">バッジなし</span>';
+                container.innerHTML = '<span class="md-ob-badge-empty">バッジなし</span>';
                 wrapper.style.display = 'flex';
                 return;
             }
@@ -4187,10 +4187,10 @@
             let html = '';
             parent.children.forEach((c, i) => {
                 const sel = smSelectedChildBadges.includes(c.id) ? ' ob-badge-selected' : '';
-                html += `<div class="ob-badge-drag-item" draggable="true" data-badge-idx="${i}" data-badge-id="${c.id}" data-badge-level="child">`;
-                html += `<span class="ob-badge-drag-grip">☰</span>`;
-                html += `<button type="button" class="ob-badge-chip ob-badge-child${sel}" onclick="smToggleChildBadge('${c.id}')">${escapeHtml(c.name)}</button>`;
-                html += `<button type="button" class="ob-badge-delete-btn" onclick="smDeleteBadge('child','${c.id}')" title="削除">✕</button>`;
+                html += `<div class="md-ob-badge-drag-item" draggable="true" data-badge-idx="${i}" data-badge-id="${c.id}" data-badge-level="child">`;
+                html += `<span class="md-ob-badge-drag-grip">☰</span>`;
+                html += `<button type="button" class="md-ob-badge-chip ob-badge-child${sel}" onclick="smToggleChildBadge('${c.id}')">${escapeHtml(c.name)}</button>`;
+                html += `<button type="button" class="md-ob-badge-delete-btn" onclick="smDeleteBadge('child','${c.id}')" title="削除">✕</button>`;
                 html += `</div>`;
             });
 
@@ -4209,28 +4209,28 @@
 
         function smRenderGrandchildSection(childBadge) {
             const gcIds = smSelectedGrandchildBadges[childBadge.id] || [];
-            let html = `<div class="ob-grandchild-section" data-child-id="${childBadge.id}">`;
-            html += `<div class="ob-grandchild-header">`;
-            html += `<span class="ob-grandchild-label">${escapeHtml(childBadge.name)} <span class="ob-grandchild-arrow">›</span> 詳細</span>`;
-            html += `<button type="button" class="ob-btn-add-badge ob-btn-add-gc" onclick="smAddGrandchildBadge('${childBadge.id}')">+ 追加</button>`;
+            let html = `<div class="md-ob-grandchild-section" data-child-id="${childBadge.id}">`;
+            html += `<div class="md-ob-grandchild-header">`;
+            html += `<span class="md-ob-grandchild-label">${escapeHtml(childBadge.name)} <span class="md-ob-grandchild-arrow">›</span> 詳細</span>`;
+            html += `<button type="button" class="md-ob-btn-add-badge md-ob-btn-add-gc" onclick="smAddGrandchildBadge('${childBadge.id}')">+ 追加</button>`;
             html += `</div>`;
             if (!childBadge.children || childBadge.children.length === 0) {
-                html += `<div class="ob-grandchild-chips"><span class="ob-badge-empty">詳細なし</span></div>`;
+                html += `<div class="md-ob-grandchild-chips"><span class="md-ob-badge-empty">詳細なし</span></div>`;
             } else {
-                html += `<div class="ob-grandchild-chips">`;
+                html += `<div class="md-ob-grandchild-chips">`;
                 childBadge.children.forEach((gc, gi) => {
                     const sel = gcIds.includes(gc.id) ? ' ob-badge-selected' : '';
-                    html += `<div class="ob-badge-drag-item ob-gc-drag-item" draggable="true" data-badge-idx="${gi}" data-badge-id="${gc.id}" data-badge-level="grandchild" data-parent-child="${childBadge.id}">`;
-                    html += `<span class="ob-badge-drag-grip">☰</span>`;
-                    html += `<button type="button" class="ob-badge-chip ob-badge-grandchild${sel}" onclick="smToggleGrandchildBadge('${childBadge.id}','${gc.id}')">${escapeHtml(gc.name)}</button>`;
-                    html += `<button type="button" class="ob-badge-delete-btn" onclick="smDeleteBadge('grandchild','${gc.id}','${childBadge.id}')" title="削除">✕</button>`;
+                    html += `<div class="md-ob-badge-drag-item ob-gc-drag-item" draggable="true" data-badge-idx="${gi}" data-badge-id="${gc.id}" data-badge-level="grandchild" data-parent-child="${childBadge.id}">`;
+                    html += `<span class="md-ob-badge-drag-grip">☰</span>`;
+                    html += `<button type="button" class="md-ob-badge-chip ob-badge-grandchild${sel}" onclick="smToggleGrandchildBadge('${childBadge.id}','${gc.id}')">${escapeHtml(gc.name)}</button>`;
+                    html += `<button type="button" class="md-ob-badge-delete-btn" onclick="smDeleteBadge('grandchild','${gc.id}','${childBadge.id}')" title="削除">✕</button>`;
                     html += `</div>`;
                 });
                 html += `</div>`;
             }
-            html += `<div class="ob-badge-undo-bar ob-gc-undo-bar" id="smGcUndoBar_${childBadge.id}" style="display:none;">`;
+            html += `<div class="md-ob-badge-undo-bar ob-gc-undo-bar" id="smGcUndoBar_${childBadge.id}" style="display:none;">`;
             html += `<span id="smGcUndoMsg_${childBadge.id}"></span>`;
-            html += `<button type="button" class="ob-badge-undo-btn" onclick="smUndoDeleteBadge()">戻す</button>`;
+            html += `<button type="button" class="md-ob-badge-undo-btn" onclick="smUndoDeleteBadge()">戻す</button>`;
             html += `</div>`;
             html += `</div>`;
             return html;
@@ -4305,7 +4305,7 @@
                 if (child) child.children.splice(smDeletedBadgeInfo.index, 0, smDeletedBadgeInfo.badge);
             }
             // undo barを非表示
-            document.querySelectorAll('#workModal .ob-badge-undo-bar').forEach(b => b.style.display = 'none');
+            document.querySelectorAll('#workModal .md-ob-badge-undo-bar').forEach(b => b.style.display = 'none');
             if (smBadgeUndoTimer) { clearTimeout(smBadgeUndoTimer); smBadgeUndoTimer = null; }
             smDeletedBadgeInfo = null;
             smRenderChildBadges();
@@ -4374,26 +4374,26 @@
 
         function smInitBadgeDragDrop(level) {
             const selector = level === 'child'
-                ? '#smBadgeChildList > .ob-badge-drag-item[data-badge-level="child"]'
-                : '#smBadgeChildList .ob-gc-drag-item[data-badge-level="grandchild"]';
+                ? '#smBadgeChildList > .md-ob-badge-drag-item[data-badge-level="child"]'
+                : '#smBadgeChildList .md-ob-gc-drag-item[data-badge-level="grandchild"]';
             document.querySelectorAll(selector).forEach(item => {
                 item.addEventListener('dragstart', e => {
                     smBadgeDragSrcIdx = parseInt(item.dataset.badgeIdx);
                     smBadgeDragLevel = level;
                     smBadgeDragChildId = item.dataset.parentChild || null;
-                    item.classList.add('ob-badge-dragging');
+                    item.classList.add('md-ob-badge-dragging');
                     e.dataTransfer.effectAllowed = 'move';
                 });
                 item.addEventListener('dragover', e => {
                     e.preventDefault();
                     if (smBadgeDragLevel !== level) return;
                     if (level === 'grandchild' && smBadgeDragChildId !== item.dataset.parentChild) return;
-                    item.classList.add('ob-badge-drag-over');
+                    item.classList.add('md-ob-badge-drag-over');
                 });
-                item.addEventListener('dragleave', () => item.classList.remove('ob-badge-drag-over'));
+                item.addEventListener('dragleave', () => item.classList.remove('md-ob-badge-drag-over'));
                 item.addEventListener('drop', e => {
                     e.preventDefault();
-                    item.classList.remove('ob-badge-drag-over');
+                    item.classList.remove('md-ob-badge-drag-over');
                     const targetIdx = parseInt(item.dataset.badgeIdx);
                     if (smBadgeDragSrcIdx === null || smBadgeDragSrcIdx === targetIdx) return;
                     const parent = smBadgeDefinitions.find(p => p.id === smSelectedParentBadge);
@@ -4411,7 +4411,7 @@
                     smRenderChildBadges();
                 });
                 item.addEventListener('dragend', () => {
-                    item.classList.remove('ob-badge-dragging');
+                    item.classList.remove('md-ob-badge-dragging');
                     smBadgeDragSrcIdx = null;
                     smBadgeDragLevel = null;
                     smBadgeDragChildId = null;
@@ -4440,10 +4440,10 @@
             let html = '';
             smSvCandidateList.forEach((c, i) => {
                 const label = c.tel ? `${escapeHtml(c.name)} / ${escapeHtml(c.tel)}` : escapeHtml(c.name);
-                html += `<div class="ob-sv-drag-item" draggable="true" data-sv-idx="${i}">`;
-                html += `<span class="ob-sv-drag-grip">☰</span>`;
-                html += `<button type="button" class="ob-supervisor-chip" onclick="smSelectSupervisorCandidate(${i})">${label}</button>`;
-                html += `<button type="button" class="ob-sv-delete-btn" onclick="smDeleteSupervisorCandidate(${i})" title="削除">✕</button>`;
+                html += `<div class="md-ob-sv-drag-item" draggable="true" data-sv-idx="${i}">`;
+                html += `<span class="md-ob-sv-drag-grip">☰</span>`;
+                html += `<button type="button" class="md-ob-supervisor-chip" onclick="smSelectSupervisorCandidate(${i})">${label}</button>`;
+                html += `<button type="button" class="md-ob-sv-delete-btn" onclick="smDeleteSupervisorCandidate(${i})" title="削除">✕</button>`;
                 html += `</div>`;
             });
             chipsEl.innerHTML = html;
@@ -4493,20 +4493,20 @@
         }
 
         function smInitSvDragDrop() {
-            document.querySelectorAll('#smSvCandidateChips .ob-sv-drag-item').forEach(item => {
+            document.querySelectorAll('#smSvCandidateChips .md-ob-sv-drag-item').forEach(item => {
                 item.addEventListener('dragstart', e => {
                     smSvDragSrcIdx = parseInt(item.dataset.svIdx);
-                    item.classList.add('ob-sv-dragging');
+                    item.classList.add('md-ob-sv-dragging');
                     e.dataTransfer.effectAllowed = 'move';
                 });
                 item.addEventListener('dragover', e => {
                     e.preventDefault();
-                    item.classList.add('ob-sv-drag-over');
+                    item.classList.add('md-ob-sv-drag-over');
                 });
-                item.addEventListener('dragleave', () => item.classList.remove('ob-sv-drag-over'));
+                item.addEventListener('dragleave', () => item.classList.remove('md-ob-sv-drag-over'));
                 item.addEventListener('drop', e => {
                     e.preventDefault();
-                    item.classList.remove('ob-sv-drag-over');
+                    item.classList.remove('md-ob-sv-drag-over');
                     const targetIdx = parseInt(item.dataset.svIdx);
                     if (smSvDragSrcIdx === null || smSvDragSrcIdx === targetIdx) return;
                     const moved = smSvCandidateList.splice(smSvDragSrcIdx, 1)[0];
@@ -4514,7 +4514,7 @@
                     smRenderSvChips();
                 });
                 item.addEventListener('dragend', () => {
-                    item.classList.remove('ob-sv-dragging');
+                    item.classList.remove('md-ob-sv-dragging');
                     smSvDragSrcIdx = null;
                 });
             });
