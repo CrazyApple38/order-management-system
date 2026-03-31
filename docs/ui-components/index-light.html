@@ -18,17 +18,18 @@
             <ul>
                 <li><a href="#color-palette" class="active">Color Palette</a></li>
                 <li><a href="#applied-color-palette">Applied Color</a></li>
+                <li><a href="#typography">Typography</a></li>
             </ul>
         </div>
         <div class="sidebar-section">
             <h3>Web</h3>
             <ul>
-                <li><a href="#web-button">Button</a></li>
-                <li><a href="#web-modal">Modal</a></li>
+                <li><a href="#md-button">Button</a></li>
+                <li><a href="#md-modal">Modal</a></li>
 
                 <li><a href="#modal-design-pattern">Modal Pattern</a></li>
-                <li><a href="#web-badge-tag">Badge / Tag</a></li>
-                <li><a href="#web-form-input">Form Input</a></li>
+                <li><a href="#md-badge-tag">Badge / Tag</a></li>
+                <li><a href="#md-form-input">Form Input</a></li>
             </ul>
         </div>
         <div class="sidebar-section">
@@ -429,11 +430,191 @@
             </div>
         </section>
 
+        <!-- ========== TYPOGRAPHY ========== -->
+        <section class="comp-section" id="typography">
+            <div class="comp-title-bar"><h2>Typography</h2></div>
+            <div class="comp-body">
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 12px;">システム全体で使用するフォントスケール。基本フォント: <code>-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif</code>　ベースサイズ: <code>14px</code>　行間: <code>1.5</code></p>
+
+                <!-- ── Type Scale ── -->
+                <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin-bottom: 8px;">Type Scale</h4>
+                <div class="md-typo-scale-list">
+                    <div class="md-typo-scale-row">
+                        <span class="md-typo-sample" style="font-size: 20px; font-weight: 700;">業務管理計画書</span>
+                        <div class="md-typo-meta">
+                            <span class="md-typo-name">Display</span>
+                            <code>20px / 700</code>
+                            <span class="md-typo-use">アプリロゴ、ランディングタイトル</span>
+                        </div>
+                    </div>
+                    <div class="md-typo-scale-row">
+                        <span class="md-typo-sample" style="font-size: 18px; font-weight: 700;">受注簿</span>
+                        <div class="md-typo-meta">
+                            <span class="md-typo-name">Page Title</span>
+                            <code>18px / 700</code>
+                            <span class="md-typo-use">ページヘッダーのH1</span>
+                        </div>
+                    </div>
+                    <div class="md-typo-scale-row">
+                        <span class="md-typo-sample" style="font-size: 16px; font-weight: 600;">2026年3月</span>
+                        <div class="md-typo-meta">
+                            <span class="md-typo-name">Section Title</span>
+                            <code>16px / 600</code>
+                            <span class="md-typo-use">月ラベル、セクション見出し</span>
+                        </div>
+                    </div>
+                    <div class="md-typo-scale-row">
+                        <span class="md-typo-sample" style="font-size: 15px; font-weight: 600;">現場詳細入力</span>
+                        <div class="md-typo-meta">
+                            <span class="md-typo-name">Modal Title</span>
+                            <code>15px / 600</code>
+                            <span class="md-typo-use">モーダルヘッダーのH3</span>
+                        </div>
+                    </div>
+                    <div class="md-typo-scale-row">
+                        <span class="md-typo-sample" style="font-size: 13px; font-weight: 700;">契約先名</span>
+                        <div class="md-typo-meta">
+                            <span class="md-typo-name">Heading</span>
+                            <code>13px / 700</code>
+                            <span class="md-typo-use">グリッドヘッダー、カード見出し、日付番号</span>
+                        </div>
+                    </div>
+                    <div class="md-typo-scale-row">
+                        <span class="md-typo-sample" style="font-size: 13px; font-weight: 500;">○○建設株式会社</span>
+                        <div class="md-typo-meta">
+                            <span class="md-typo-name">Body</span>
+                            <code>13px / 500</code>
+                            <span class="md-typo-use">フォーム入力値、グリッドセル（固定列）、本文</span>
+                        </div>
+                    </div>
+                    <div class="md-typo-scale-row">
+                        <span class="md-typo-sample" style="font-size: 12px; font-weight: 600;">区分</span>
+                        <div class="md-typo-meta">
+                            <span class="md-typo-name">Label</span>
+                            <code>12px / 600</code>
+                            <span class="md-typo-use">フォームラベル、ツールバーボタン、サマリー</span>
+                        </div>
+                    </div>
+                    <div class="md-typo-scale-row">
+                        <span class="md-typo-sample" style="font-size: 11px; font-weight: 500;">基礎掘削工事</span>
+                        <div class="md-typo-meta">
+                            <span class="md-typo-name">Small</span>
+                            <code>11px / 500</code>
+                            <span class="md-typo-use">グリッドセル（データ列）、バッジテキスト、チップ</span>
+                        </div>
+                    </div>
+                    <div class="md-typo-scale-row">
+                        <span class="md-typo-sample" style="font-size: 10px; font-weight: 600; color: var(--text-tertiary);">セクションヘッダー</span>
+                        <div class="md-typo-meta">
+                            <span class="md-typo-name">Caption</span>
+                            <code>10px / 600</code>
+                            <span class="md-typo-use">セクション区切りラベル、信頼度表示、ヒント</span>
+                        </div>
+                    </div>
+                    <div class="md-typo-scale-row">
+                        <span class="md-typo-sample" style="font-size: 9px; font-weight: 400; color: var(--text-tertiary);">月</span>
+                        <div class="md-typo-meta">
+                            <span class="md-typo-name">Micro</span>
+                            <code>9px / 400</code>
+                            <span class="md-typo-use">曜日略称、グリッド内補助、バッジカウンター</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── 数値強調 ── -->
+                <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: 24px 0 8px;">Numeric Emphasis</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 12px;">人数・合計など数値を強調表示するスタイル</p>
+                <div class="md-typo-scale-list">
+                    <div class="md-typo-scale-row">
+                        <span class="md-typo-sample" style="font-size: 18px; font-weight: 700;">5</span>
+                        <div class="md-typo-meta">
+                            <span class="md-typo-name">Number Large</span>
+                            <code>18px / 700</code>
+                            <span class="md-typo-use">セル編集モーダルの人数入力</span>
+                        </div>
+                    </div>
+                    <div class="md-typo-scale-row">
+                        <span class="md-typo-sample" style="font-size: 14px; font-weight: 700;">12</span>
+                        <div class="md-typo-meta">
+                            <span class="md-typo-name">Number Medium</span>
+                            <code>14px / 700</code>
+                            <span class="md-typo-use">合計行の数値、サマリー数値</span>
+                        </div>
+                    </div>
+                    <div class="md-typo-scale-row">
+                        <span class="md-typo-sample" style="font-size: 11px; font-weight: 700;">3</span>
+                        <div class="md-typo-meta">
+                            <span class="md-typo-name">Number Small</span>
+                            <code>11px / 700</code>
+                            <span class="md-typo-use">グリッドセル内の人数、カレンダーバッジ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── テキストカラーとの組み合わせ ── -->
+                <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: 24px 0 8px;">Text Color Hierarchy</h4>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 12px;">テキストカラー4段階と代表的なサイズの組み合わせ</p>
+                <div class="md-typo-color-grid">
+                    <div class="md-typo-color-card">
+                        <span class="md-typo-color-sample" style="color: var(--text-primary); font-size: 15px; font-weight: 600;">現場詳細入力</span>
+                        <span class="md-typo-color-sample" style="color: var(--text-primary); font-size: 13px; font-weight: 500;">○○建設株式会社</span>
+                        <div class="md-typo-color-label">Primary <code>#004554</code></div>
+                        <div class="md-typo-color-use">見出し、本文、入力値</div>
+                    </div>
+                    <div class="md-typo-color-card">
+                        <span class="md-typo-color-sample" style="color: var(--text-secondary); font-size: 12px; font-weight: 600;">区分</span>
+                        <span class="md-typo-color-sample" style="color: var(--text-secondary); font-size: 12px; font-weight: 500;">ツールバー操作</span>
+                        <div class="md-typo-color-label">Secondary <code>#2A6B7A</code></div>
+                        <div class="md-typo-color-use">ラベル、副テキスト、ナビ</div>
+                    </div>
+                    <div class="md-typo-color-card">
+                        <span class="md-typo-color-sample" style="color: var(--text-tertiary); font-size: 11px; font-weight: 500;">補助テキスト</span>
+                        <span class="md-typo-color-sample" style="color: var(--text-tertiary); font-size: 10px; font-weight: 600;">SECTION LABEL</span>
+                        <div class="md-typo-color-label">Tertiary <code>#6B9AA8</code></div>
+                        <div class="md-typo-color-use">キャプション、プレースホルダー、ヘルプ</div>
+                    </div>
+                    <div class="md-typo-color-card">
+                        <span class="md-typo-color-sample" style="color: var(--text-disabled); font-size: 11px; font-weight: 500;">変更不可</span>
+                        <span class="md-typo-color-sample" style="color: var(--text-disabled); font-size: 9px; font-weight: 400;">hint</span>
+                        <div class="md-typo-color-label">Disabled <code>#A0BCC5</code></div>
+                        <div class="md-typo-color-use">無効状態、空セルヒント</div>
+                    </div>
+                </div>
+
+                <!-- ── 特殊スタイル ── -->
+                <h4 style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: 24px 0 8px;">Special Styles</h4>
+                <div class="md-typo-special-grid">
+                    <div class="md-typo-special-card">
+                        <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; color: var(--text-tertiary);">SECTION HEADER</span>
+                        <div class="md-typo-special-label">Uppercase Label — <code>10px / 600 / uppercase / letter-spacing: 2px</code></div>
+                        <div class="md-typo-special-use">サイドバーセクション名、Applied Color見出し</div>
+                    </div>
+                    <div class="md-typo-special-card">
+                        <span style="font-size: 11px; font-weight: 500; color: #B5524D;">夜勤データ</span>
+                        <div class="md-typo-special-label">Night Shift — <code>inherit size / color: #B5524D (受注簿) or #D05050 (計画書)</code></div>
+                        <div class="md-typo-special-use">夜勤行の文字色変更（サイズは継承、色のみ変更）</div>
+                    </div>
+                    <div class="md-typo-special-card">
+                        <span style="font-size: 13px; font-weight: 500; opacity: 0.5;">予定（信頼:高）</span>
+                        <span style="font-size: 13px; font-weight: 500; opacity: 0.25; margin-left: 16px;">予定（信頼:低）</span>
+                        <div class="md-typo-special-label">Confidence Fade — <code>opacity: 0.5 (高) / 0.25 (低)</code></div>
+                        <div class="md-typo-special-use">受注簿の信頼度によるフェード表示</div>
+                    </div>
+                    <div class="md-typo-special-card">
+                        <span style="font-size: 13px; font-weight: 500; text-decoration: line-through; color: var(--error);">削除された現場</span>
+                        <div class="md-typo-special-label">Strikethrough — <code>text-decoration: line-through / color: var(--error)</code></div>
+                        <div class="md-typo-special-use">変更通知モーダルでの削除項目表示</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
         <!-- ========== WEB ========== -->
         <div class="platform-header">Web Light</div>
 
         <!-- Web Button -->
-        <section class="comp-section" id="web-button">
+        <section class="comp-section" id="md-button">
             <div class="comp-title-bar"><h2>Button</h2></div>
             <div class="comp-body">
 
@@ -443,39 +624,39 @@
 
                 <h4 style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">Primary（保存・確定）</h4>
                 <div class="comp-row">
-                    <button class="web-btn web-btn-primary">保存</button>
-                    <button class="web-btn web-btn-primary hover">ソート実行</button>
-                    <button class="web-btn web-btn-primary" disabled>保存</button>
+                    <button class="md-btn md-btn-primary">保存</button>
+                    <button class="md-btn md-btn-primary hover">ソート実行</button>
+                    <button class="md-btn md-btn-primary" disabled>保存</button>
                 </div>
-                <div class="web-btn-spec">.web-btn .web-btn-primary &nbsp; bg: var(--accent) &nbsp; color: white</div>
+                <div class="md-btn-spec">.md-btn .md-btn-primary &nbsp; bg: var(--accent) &nbsp; color: white</div>
 
                 <h4 style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-top: 16px;">Secondary（キャンセル・閉じる）</h4>
                 <div class="comp-row">
-                    <button class="web-btn web-btn-secondary">キャンセル</button>
-                    <button class="web-btn web-btn-secondary">カレンダー表示</button>
-                    <button class="web-btn web-btn-secondary" disabled>キャンセル</button>
+                    <button class="md-btn md-btn-secondary">キャンセル</button>
+                    <button class="md-btn md-btn-secondary">カレンダー表示</button>
+                    <button class="md-btn md-btn-secondary" disabled>キャンセル</button>
                 </div>
-                <div class="web-btn-spec">.web-btn .web-btn-secondary &nbsp; bg: var(--bg-surface-2) &nbsp; color: var(--text-secondary)</div>
+                <div class="md-btn-spec">.md-btn .md-btn-secondary &nbsp; bg: var(--bg-surface-2) &nbsp; color: var(--text-secondary)</div>
 
                 <h4 style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-top: 16px;">Danger（削除・リセット）</h4>
                 <div class="comp-row">
-                    <button class="web-btn web-btn-danger">削除</button>
-                    <button class="web-btn web-btn-danger">リセット</button>
-                    <button class="web-btn web-btn-danger" disabled>削除</button>
+                    <button class="md-btn md-btn-danger">削除</button>
+                    <button class="md-btn md-btn-danger">リセット</button>
+                    <button class="md-btn md-btn-danger" disabled>削除</button>
                 </div>
-                <div class="web-btn-spec">.web-btn .web-btn-danger &nbsp; bg: rgba(229,62,62,0.08) &nbsp; color: #E53E3E &nbsp; border: 1px solid rgba(229,62,62,0.3)</div>
+                <div class="md-btn-spec">.md-btn .md-btn-danger &nbsp; bg: rgba(229,62,62,0.08) &nbsp; color: #E53E3E &nbsp; border: 1px solid rgba(229,62,62,0.3)</div>
 
                 <!-- Footer Layout Demo -->
                 <h4 style="margin-top: 24px;">Modal Footer Layout</h4>
                 <p style="font-size: 12px; color: var(--text-tertiary); margin-bottom: 12px;">モーダルフッターでのボタン配置パターン</p>
-                <div class="web-btn-group footer-demo">
-                    <button class="web-btn web-btn-danger">削除</button>
-                    <div class="web-btn-group-right">
-                        <button class="web-btn web-btn-secondary">キャンセル</button>
-                        <button class="web-btn web-btn-primary">保存</button>
+                <div class="md-btn-group footer-demo">
+                    <button class="md-btn md-btn-danger">削除</button>
+                    <div class="md-btn-group-right">
+                        <button class="md-btn md-btn-secondary">キャンセル</button>
+                        <button class="md-btn md-btn-primary">保存</button>
                     </div>
                 </div>
-                <div class="web-btn-spec">左: Danger &nbsp; 右: Secondary + Primary</div>
+                <div class="md-btn-spec">左: Danger &nbsp; 右: Secondary + Primary</div>
 
                 <!-- Toolbar Buttons -->
                 <h4 style="margin-top: 32px;">Toolbar Buttons</h4>
@@ -483,44 +664,44 @@
 
                 <h4 style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">Default</h4>
                 <div class="comp-row">
-                    <button class="web-tb-btn">戻す</button>
-                    <button class="web-tb-btn">やり直す</button>
-                    <button class="web-tb-btn">行挿入</button>
-                    <button class="web-tb-btn">上へ</button>
-                    <button class="web-tb-btn">下へ</button>
-                    <button class="web-tb-btn" disabled>戻す</button>
+                    <button class="md-tb-btn">戻す</button>
+                    <button class="md-tb-btn">やり直す</button>
+                    <button class="md-tb-btn">行挿入</button>
+                    <button class="md-tb-btn">上へ</button>
+                    <button class="md-tb-btn">下へ</button>
+                    <button class="md-tb-btn" disabled>戻す</button>
                 </div>
-                <div class="web-btn-spec">.web-tb-btn &nbsp; bg: var(--bg-surface) &nbsp; border: 1px solid var(--divider)</div>
+                <div class="md-btn-spec">.md-tb-btn &nbsp; bg: var(--bg-surface) &nbsp; border: 1px solid var(--divider)</div>
 
                 <h4 style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-top: 16px;">Primary</h4>
                 <div class="comp-row">
-                    <button class="web-tb-btn web-tb-btn-primary">ソート設定</button>
-                    <button class="web-tb-btn web-tb-btn-primary">カラー設定</button>
-                    <button class="web-tb-btn web-tb-btn-primary" disabled>ソート設定</button>
+                    <button class="md-tb-btn md-tb-btn-primary">ソート設定</button>
+                    <button class="md-tb-btn md-tb-btn-primary">カラー設定</button>
+                    <button class="md-tb-btn md-tb-btn-primary" disabled>ソート設定</button>
                 </div>
-                <div class="web-btn-spec">.web-tb-btn .web-tb-btn-primary &nbsp; bg: var(--accent) &nbsp; color: white</div>
+                <div class="md-btn-spec">.md-tb-btn .md-tb-btn-primary &nbsp; bg: var(--accent) &nbsp; color: white</div>
 
                 <h4 style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-top: 16px;">Danger</h4>
                 <div class="comp-row">
-                    <button class="web-tb-btn web-tb-btn-danger">行削除</button>
-                    <button class="web-tb-btn web-tb-btn-danger" disabled>行削除</button>
+                    <button class="md-tb-btn md-tb-btn-danger">行削除</button>
+                    <button class="md-tb-btn md-tb-btn-danger" disabled>行削除</button>
                 </div>
-                <div class="web-btn-spec">.web-tb-btn .web-tb-btn-danger &nbsp; bg: rgba(229,62,62,0.08) &nbsp; color: #E53E3E &nbsp; border: rgba(229,62,62,0.3)</div>
+                <div class="md-btn-spec">.md-tb-btn .md-tb-btn-danger &nbsp; bg: rgba(229,62,62,0.08) &nbsp; color: #E53E3E &nbsp; border: rgba(229,62,62,0.3)</div>
 
                 <!-- Toolbar Layout Demo -->
                 <h4 style="margin-top: 24px;">Toolbar Layout</h4>
                 <p style="font-size: 12px; color: var(--text-tertiary); margin-bottom: 12px;">ツールバーでの配置パターン</p>
-                <div class="web-toolbar-demo">
-                    <button class="web-tb-btn" disabled>戻す</button>
-                    <button class="web-tb-btn" disabled>やり直す</button>
-                    <button class="web-tb-btn">行挿入</button>
-                    <button class="web-tb-btn web-tb-btn-danger">行削除</button>
+                <div class="md-toolbar-demo">
+                    <button class="md-tb-btn" disabled>戻す</button>
+                    <button class="md-tb-btn" disabled>やり直す</button>
+                    <button class="md-tb-btn">行挿入</button>
+                    <button class="md-tb-btn md-tb-btn-danger">行削除</button>
                     <span class="tb-separator"></span>
-                    <button class="web-tb-btn">上へ</button>
-                    <button class="web-tb-btn">下へ</button>
+                    <button class="md-tb-btn">上へ</button>
+                    <button class="md-tb-btn">下へ</button>
                     <span class="tb-separator"></span>
-                    <button class="web-tb-btn web-tb-btn-primary">ソート設定</button>
-                    <button class="web-tb-btn web-tb-btn-primary">カラー設定</button>
+                    <button class="md-tb-btn md-tb-btn-primary">ソート設定</button>
+                    <button class="md-tb-btn md-tb-btn-primary">カラー設定</button>
                 </div>
 
                 <!-- Add Buttons -->
@@ -529,18 +710,18 @@
 
                 <h4 style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">Dashed（追加）</h4>
                 <div class="comp-row">
-                    <button class="web-btn-add-dashed">+ 配置先を追加</button>
-                    <button class="web-btn-add-dashed">+ 作業内容追加</button>
-                    <button class="web-btn-add-dashed">+ 追加</button>
+                    <button class="md-btn-add-dashed">+ 配置先を追加</button>
+                    <button class="md-btn-add-dashed">+ 作業内容追加</button>
+                    <button class="md-btn-add-dashed">+ 追加</button>
                 </div>
-                <div class="web-btn-spec">.web-btn-add-dashed &nbsp; border: 1px dashed var(--accent) &nbsp; bg: var(--accent-dim)</div>
+                <div class="md-btn-spec">.md-btn-add-dashed &nbsp; border: 1px dashed var(--accent) &nbsp; bg: var(--accent-dim)</div>
 
                 <h4 style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-top: 16px;">Solid（新規追加）</h4>
                 <div class="comp-row">
-                    <button class="web-btn-add-solid">+ 新規追加</button>
-                    <button class="web-btn-add-solid">+ 追加</button>
+                    <button class="md-btn-add-solid">+ 新規追加</button>
+                    <button class="md-btn-add-solid">+ 追加</button>
                 </div>
-                <div class="web-btn-spec">.web-btn-add-solid &nbsp; border: 1px solid var(--accent) &nbsp; bg: var(--accent-dim)</div>
+                <div class="md-btn-spec">.md-btn-add-solid &nbsp; border: 1px solid var(--accent) &nbsp; bg: var(--accent-dim)</div>
 
                 <!-- Close Buttons -->
                 <h4 style="margin-top: 32px;">Close Buttons</h4>
@@ -549,19 +730,19 @@
                     <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
                         <div style="background: var(--bg-surface); border: 1px solid var(--divider); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 12px;">
                             <span style="font-weight: 600; color: var(--text-primary);">Modal Title</span>
-                            <button class="web-close-btn">&#10005;</button>
+                            <button class="md-close-btn">&#10005;</button>
                         </div>
-                        <span class="web-btn-spec">Normal</span>
+                        <span class="md-btn-spec">Normal</span>
                     </div>
                     <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
                         <div style="background: var(--bg-surface); border: 1px solid var(--divider); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 12px;">
                             <span style="font-weight: 600; color: var(--text-primary);">Modal Title</span>
-                            <button class="web-close-btn hover">&#10005;</button>
+                            <button class="md-close-btn hover">&#10005;</button>
                         </div>
-                        <span class="web-btn-spec">Hover</span>
+                        <span class="md-btn-spec">Hover</span>
                     </div>
                 </div>
-                <div class="web-btn-spec">.web-close-btn &nbsp; bg: none &nbsp; color: var(--text-tertiary) &nbsp; hover: bg var(--accent-dim), color var(--accent)</div>
+                <div class="md-btn-spec">.md-close-btn &nbsp; bg: none &nbsp; color: var(--text-tertiary) &nbsp; hover: bg var(--accent-dim), color var(--accent)</div>
 
                 <!-- Inline Small Buttons -->
                 <h4 style="margin-top: 32px;">Inline Small Buttons</h4>
@@ -569,42 +750,42 @@
 
                 <h4 style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">Inline Danger（配置先削除等）</h4>
                 <div class="comp-row">
-                    <button class="web-inline-btn web-inline-danger">この配置先を削除</button>
-                    <button class="web-inline-btn web-inline-danger">削除</button>
+                    <button class="md-inline-btn md-inline-danger">この配置先を削除</button>
+                    <button class="md-inline-btn md-inline-danger">削除</button>
                 </div>
-                <div class="web-btn-spec">.web-inline-btn .web-inline-danger &nbsp; bg: rgba(229,62,62,0.06) &nbsp; color: #dc2626 &nbsp; border: rgba(220,38,38,0.3)</div>
+                <div class="md-btn-spec">.md-inline-btn .md-inline-danger &nbsp; bg: rgba(229,62,62,0.06) &nbsp; color: #dc2626 &nbsp; border: rgba(220,38,38,0.3)</div>
 
                 <h4 style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-top: 16px;">Inline Undo（戻す）</h4>
                 <div class="comp-row">
                     <div style="display: flex; align-items: center; gap: 8px; padding: 5px 12px; background: #fef3c7; border: 1px solid #fcd34d; border-radius: 6px; font-size: 11px; color: #92400e;">
                         取り消しました
-                        <button class="web-inline-btn web-inline-undo">戻す</button>
+                        <button class="md-inline-btn md-inline-undo">戻す</button>
                     </div>
                 </div>
-                <div class="web-btn-spec">.web-inline-btn .web-inline-undo &nbsp; bg: #fff &nbsp; color: #d97706 &nbsp; border: #f59e0b &nbsp; hover: bg #f59e0b</div>
+                <div class="md-btn-spec">.md-inline-btn .md-inline-undo &nbsp; bg: #fff &nbsp; color: #d97706 &nbsp; border: #f59e0b &nbsp; hover: bg #f59e0b</div>
 
                 <h4 style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-top: 16px;">Inline Action（プレビュー・表示等）</h4>
                 <div class="comp-row">
-                    <button class="web-inline-btn web-inline-action">プレビュー</button>
-                    <button class="web-inline-btn web-inline-action">表示</button>
+                    <button class="md-inline-btn md-inline-action">プレビュー</button>
+                    <button class="md-inline-btn md-inline-action">表示</button>
                 </div>
-                <div class="web-btn-spec">.web-inline-btn .web-inline-action &nbsp; bg: var(--accent-dim) &nbsp; color: var(--accent) &nbsp; border: var(--accent)</div>
+                <div class="md-btn-spec">.md-inline-btn .md-inline-action &nbsp; bg: var(--accent-dim) &nbsp; color: var(--accent) &nbsp; border: var(--accent)</div>
 
                 <!-- Tab Buttons -->
                 <h4 style="margin-top: 32px;">Tab Buttons</h4>
                 <p style="font-size: 12px; color: var(--text-tertiary); margin-bottom: 12px;">モーダル内のタブ切り替え</p>
-                <div class="web-tab-demo">
-                    <button class="web-tab active">最新の変更</button>
-                    <button class="web-tab">変更履歴</button>
-                    <button class="web-tab">タイムライン</button>
+                <div class="md-tab-demo">
+                    <button class="md-tab active">最新の変更</button>
+                    <button class="md-tab">変更履歴</button>
+                    <button class="md-tab">タイムライン</button>
                 </div>
-                <div class="web-btn-spec">.web-tab &nbsp; border-bottom: 2px solid transparent &nbsp; .active: color var(--accent), border-bottom var(--accent)</div>
+                <div class="md-btn-spec">.md-tab &nbsp; border-bottom: 2px solid transparent &nbsp; .active: color var(--accent), border-bottom var(--accent)</div>
 
             </div>
         </section>
 
         <!-- Web Modal -->
-        <section class="comp-section" id="web-modal">
+        <section class="comp-section" id="md-modal">
             <div class="comp-title-bar"><h2>Modal</h2></div>
             <div class="comp-body">
 
@@ -1038,7 +1219,7 @@
                                             <label>現場地図URL</label>
                                             <div style="display: flex; gap: 8px; align-items: flex-start;">
                                                 <input type="url" value="https://maps.google.com/..." placeholder="Googleマップ等のURL" style="flex: 1;">
-                                                <button type="button" class="web-inline-btn web-inline-action">プレビュー</button>
+                                                <button type="button" class="md-inline-btn md-inline-action">プレビュー</button>
                                             </div>
                                         </div>
 
@@ -1622,7 +1803,7 @@
         </section>
 
         <!-- ========== BADGE / TAG SYSTEM ========== -->
-        <section class="comp-section" id="web-badge-tag">
+        <section class="comp-section" id="md-badge-tag">
             <div class="comp-title-bar"><h2>Badge / Tag System</h2></div>
             <div class="comp-body">
 
@@ -1750,93 +1931,93 @@
 
 
         <!-- ========== FORM INPUT SYSTEM ========== -->
-        <section class="comp-section" id="web-form-input">
+        <section class="comp-section" id="md-form-input">
             <div class="comp-title-bar"><h2>Form Input</h2></div>
             <div class="comp-body">
 
                 <!-- ── 1. テキスト入力 (Text Input) ── -->
                 <h4>1. テキスト入力 — Text Input</h4>
-                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">基本のテキスト入力。4つの状態を持つ。<code>fi-field</code> + <code>fi-label</code> + <code>fi-input</code></p>
-                <div class="fi-demo-grid" style="margin-bottom: 24px;">
-                    <div class="fi-field">
-                        <label class="fi-label">Default</label>
-                        <input type="text" class="fi-input" placeholder="入力してください">
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">基本のテキスト入力。4つの状態を持つ。<code>md-fi-field</code> + <code>md-fi-label</code> + <code>md-fi-input</code></p>
+                <div class="md-fi-demo-grid" style="margin-bottom: 24px;">
+                    <div class="md-fi-field">
+                        <label class="md-fi-label">Default</label>
+                        <input type="text" class="md-fi-input" placeholder="入力してください">
                     </div>
-                    <div class="fi-field">
-                        <label class="fi-label">With Value</label>
-                        <input type="text" class="fi-input" value="○○建設株式会社">
+                    <div class="md-fi-field">
+                        <label class="md-fi-label">With Value</label>
+                        <input type="text" class="md-fi-input" value="○○建設株式会社">
                     </div>
-                    <div class="fi-field">
-                        <label class="fi-label">Error</label>
-                        <input type="text" class="fi-input fi-error" value="不正な値">
-                        <span class="fi-error-msg">※ この組み合わせは既に存在します</span>
+                    <div class="md-fi-field">
+                        <label class="md-fi-label">Error</label>
+                        <input type="text" class="md-fi-input md-fi-error" value="不正な値">
+                        <span class="md-fi-error-msg">※ この組み合わせは既に存在します</span>
                     </div>
-                    <div class="fi-field">
-                        <label class="fi-label">Disabled</label>
-                        <input type="text" class="fi-input" value="変更不可" disabled>
+                    <div class="md-fi-field">
+                        <label class="md-fi-label">Disabled</label>
+                        <input type="text" class="md-fi-input" value="変更不可" disabled>
                     </div>
                 </div>
 
                 <!-- ── 2. 数値入力 (Number Input) ── -->
                 <h4>2. 数値入力 — Number Input</h4>
-                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">人数等の数値入力。幅80px固定。<code>fi-input fi-input-number</code></p>
-                <div class="fi-demo-grid" style="margin-bottom: 24px;">
-                    <div class="fi-field">
-                        <label class="fi-label">人数</label>
-                        <input type="number" class="fi-input fi-input-number" value="5">
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">人数等の数値入力。幅80px固定。<code>md-fi-input md-fi-input-number</code></p>
+                <div class="md-fi-demo-grid" style="margin-bottom: 24px;">
+                    <div class="md-fi-field">
+                        <label class="md-fi-label">人数</label>
+                        <input type="number" class="md-fi-input md-fi-input-number" value="5">
                     </div>
-                    <div class="fi-field">
-                        <label class="fi-label">台数</label>
-                        <input type="number" class="fi-input fi-input-number" value="2">
+                    <div class="md-fi-field">
+                        <label class="md-fi-label">台数</label>
+                        <input type="number" class="md-fi-input md-fi-input-number" value="2">
                     </div>
                 </div>
 
                 <!-- ── 3. タイムピッカー (Time Picker) ── -->
                 <h4>3. タイムピッカー — Time Picker</h4>
-                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">集合時間等の時間入力。中央揃え + アイコン付き。<code>fi-time-wrap</code> + <code>fi-time</code></p>
-                <div class="fi-demo-grid" style="margin-bottom: 24px;">
-                    <div class="fi-field">
-                        <label class="fi-label">集合時間</label>
-                        <div class="fi-time-wrap">
-                            <input type="text" class="fi-time" value="08:45" readonly>
-                            <span class="fi-time-icon">🕐</span>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">集合時間等の時間入力。中央揃え + アイコン付き。<code>md-fi-time-wrap</code> + <code>md-fi-time</code></p>
+                <div class="md-fi-demo-grid" style="margin-bottom: 24px;">
+                    <div class="md-fi-field">
+                        <label class="md-fi-label">集合時間</label>
+                        <div class="md-fi-time-wrap">
+                            <input type="text" class="md-fi-time" value="08:45" readonly>
+                            <span class="md-fi-time-icon">🕐</span>
                         </div>
                     </div>
-                    <div class="fi-field">
-                        <label class="fi-label">開始時間</label>
-                        <div class="fi-time-wrap">
-                            <input type="text" class="fi-time" value="09:00" readonly>
-                            <span class="fi-time-icon">🕐</span>
+                    <div class="md-fi-field">
+                        <label class="md-fi-label">開始時間</label>
+                        <div class="md-fi-time-wrap">
+                            <input type="text" class="md-fi-time" value="09:00" readonly>
+                            <span class="md-fi-time-icon">🕐</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- ── 4. テキストエリア (Textarea) ── -->
                 <h4>4. テキストエリア — Textarea</h4>
-                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">備考等の複数行入力。<code>fi-textarea</code></p>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">備考等の複数行入力。<code>md-fi-textarea</code></p>
                 <div style="max-width: 400px; margin-bottom: 24px;">
-                    <div class="fi-field">
-                        <label class="fi-label">備考</label>
-                        <textarea class="fi-textarea" placeholder="備考を入力してください">雨天中止の場合は前日17時までに連絡</textarea>
+                    <div class="md-fi-field">
+                        <label class="md-fi-label">備考</label>
+                        <textarea class="md-fi-textarea" placeholder="備考を入力してください">雨天中止の場合は前日17時までに連絡</textarea>
                     </div>
                 </div>
 
                 <!-- ── 5. セレクト (Select) ── -->
                 <h4>5. セレクト — Select</h4>
-                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">固定選択肢からの選択。カスタム矢印付き。<code>fi-select</code></p>
-                <div class="fi-demo-grid" style="margin-bottom: 24px;">
-                    <div class="fi-field">
-                        <label class="fi-label">区分</label>
-                        <select class="fi-select">
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">固定選択肢からの選択。カスタム矢印付き。<code>md-fi-select</code></p>
+                <div class="md-fi-demo-grid" style="margin-bottom: 24px;">
+                    <div class="md-fi-field">
+                        <label class="md-fi-label">区分</label>
+                        <select class="md-fi-select">
                             <option>土木</option>
                             <option>建築</option>
                             <option>電気</option>
                             <option>管工事</option>
                         </select>
                     </div>
-                    <div class="fi-field">
-                        <label class="fi-label">Disabled</label>
-                        <select class="fi-select" disabled>
+                    <div class="md-fi-field">
+                        <label class="md-fi-label">Disabled</label>
+                        <select class="md-fi-select" disabled>
                             <option>変更不可</option>
                         </select>
                     </div>
@@ -1844,18 +2025,18 @@
 
                 <!-- ── 6. コンボボックス (Combobox) ── -->
                 <h4>6. コンボボックス — Combobox</h4>
-                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">テキスト入力 + ドロップダウン候補。クリア＆トグルボタン付き。<code>fi-combo</code></p>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">テキスト入力 + ドロップダウン候補。クリア＆トグルボタン付き。<code>md-fi-combo</code></p>
                 <div style="max-width: 400px; margin-bottom: 24px;">
-                    <div class="fi-field">
-                        <label class="fi-label">契約先（元請け）</label>
-                        <div class="fi-combo">
-                            <input type="text" class="fi-combo-input" value="○○建設株式会社" autocomplete="off">
-                            <button type="button" class="fi-combo-clear visible">✕</button>
-                            <button type="button" class="fi-combo-toggle">▼</button>
-                            <div class="fi-combo-dropdown open">
-                                <div class="fi-combo-option">○○建設株式会社</div>
-                                <div class="fi-combo-option">△△工業株式会社</div>
-                                <div class="fi-combo-option">□□ハウス株式会社</div>
+                    <div class="md-fi-field">
+                        <label class="md-fi-label">契約先（元請け）</label>
+                        <div class="md-fi-combo">
+                            <input type="text" class="md-fi-combo-input" value="○○建設株式会社" autocomplete="off">
+                            <button type="button" class="md-fi-combo-clear visible">✕</button>
+                            <button type="button" class="md-fi-combo-toggle">▼</button>
+                            <div class="md-fi-combo-dropdown open">
+                                <div class="md-fi-combo-option">○○建設株式会社</div>
+                                <div class="md-fi-combo-option">△△工業株式会社</div>
+                                <div class="md-fi-combo-option">□□ハウス株式会社</div>
                             </div>
                         </div>
                     </div>
@@ -1863,33 +2044,33 @@
 
                 <!-- ── 7. フォーム行レイアウト (Form Row Layout) ── -->
                 <h4>7. フォーム行レイアウト — Row Layout</h4>
-                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">横並びレイアウト。<code>fi-row</code> で <code>fi-field</code> をラップ。</p>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">横並びレイアウト。<code>md-fi-row</code> で <code>md-fi-field</code> をラップ。</p>
                 <div style="max-width: 500px; margin-bottom: 24px;">
-                    <div class="fi-row">
-                        <div class="fi-field">
-                            <label class="fi-label">現場監督</label>
-                            <input type="text" class="fi-input" value="田中太郎">
+                    <div class="md-fi-row">
+                        <div class="md-fi-field">
+                            <label class="md-fi-label">現場監督</label>
+                            <input type="text" class="md-fi-input" value="田中太郎">
                         </div>
-                        <div class="fi-field">
-                            <label class="fi-label">連絡先（TEL）</label>
-                            <input type="tel" class="fi-input" value="090-1234-5678">
+                        <div class="md-fi-field">
+                            <label class="md-fi-label">連絡先（TEL）</label>
+                            <input type="tel" class="md-fi-input" value="090-1234-5678">
                         </div>
                     </div>
                 </div>
 
                 <!-- ── 8. ヘルプテキスト (Help Text) ── -->
                 <h4>8. ヘルプテキスト — Help / Error Text</h4>
-                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">入力補助テキスト。<code>fi-help</code> / <code>fi-error-msg</code></p>
-                <div class="fi-demo-grid" style="margin-bottom: 8px;">
-                    <div class="fi-field">
-                        <label class="fi-label">業務名</label>
-                        <input type="text" class="fi-input" placeholder="空欄で個別業務">
-                        <span class="fi-help">空欄の場合は個別業務として扱います</span>
+                <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 8px;">入力補助テキスト。<code>md-fi-help</code> / <code>md-fi-error-msg</code></p>
+                <div class="md-fi-demo-grid" style="margin-bottom: 8px;">
+                    <div class="md-fi-field">
+                        <label class="md-fi-label">業務名</label>
+                        <input type="text" class="md-fi-input" placeholder="空欄で個別業務">
+                        <span class="md-fi-help">空欄の場合は個別業務として扱います</span>
                     </div>
-                    <div class="fi-field">
-                        <label class="fi-label">契約先名</label>
-                        <input type="text" class="fi-input fi-error" value="テスト">
-                        <span class="fi-error-msg">※ 必須項目です</span>
+                    <div class="md-fi-field">
+                        <label class="md-fi-label">契約先名</label>
+                        <input type="text" class="md-fi-input md-fi-error" value="テスト">
+                        <span class="md-fi-error-msg">※ 必須項目です</span>
                     </div>
                 </div>
 
@@ -1957,36 +2138,36 @@
             <div class="comp-body">
                 <h4>Flat</h4>
                 <div class="comp-row">
-                    <button class="md-btn flat">Normal</button>
-                    <button class="md-btn flat hover">Hover</button>
-                    <button class="md-btn flat pressed">Pressed</button>
-                    <button class="md-btn flat" disabled>Disabled</button>
+                    <button class="mat-btn flat">Normal</button>
+                    <button class="mat-btn flat hover">Hover</button>
+                    <button class="mat-btn flat pressed">Pressed</button>
+                    <button class="mat-btn flat" disabled>Disabled</button>
                 </div>
                 <h4>Raised</h4>
                 <div class="comp-row">
-                    <button class="md-btn raised">Normal</button>
-                    <button class="md-btn raised hover">Hover</button>
-                    <button class="md-btn raised pressed">Pressed</button>
-                    <button class="md-btn raised" disabled>Disabled</button>
+                    <button class="mat-btn raised">Normal</button>
+                    <button class="mat-btn raised hover">Hover</button>
+                    <button class="mat-btn raised pressed">Pressed</button>
+                    <button class="mat-btn raised" disabled>Disabled</button>
                 </div>
                 <h4>Icon + Button</h4>
                 <div class="comp-row">
-                    <button class="md-btn raised icon-btn"><span class="btn-icon">&#9733;</span> Normal</button>
-                    <button class="md-btn raised icon-btn hover"><span class="btn-icon">&#9733;</span> Hover</button>
-                    <button class="md-btn raised icon-btn pressed"><span class="btn-icon">&#9733;</span> Pressed</button>
-                    <button class="md-btn raised icon-btn" disabled><span class="btn-icon">&#9733;</span> Disabled</button>
+                    <button class="mat-btn raised icon-btn"><span class="btn-icon">&#9733;</span> Normal</button>
+                    <button class="mat-btn raised icon-btn hover"><span class="btn-icon">&#9733;</span> Hover</button>
+                    <button class="mat-btn raised icon-btn pressed"><span class="btn-icon">&#9733;</span> Pressed</button>
+                    <button class="mat-btn raised icon-btn" disabled><span class="btn-icon">&#9733;</span> Disabled</button>
                 </div>
                 <h4>FAB</h4>
                 <div class="comp-row">
-                    <button class="md-fab sm">&#9733;</button>
-                    <button class="md-fab">&#9733;</button>
-                    <button class="md-fab lg">&#9733;</button>
+                    <button class="mat-fab sm">&#9733;</button>
+                    <button class="mat-fab">&#9733;</button>
+                    <button class="mat-fab lg">&#9733;</button>
                 </div>
                 <h4>FAB + Caption</h4>
                 <div class="comp-row">
-                    <div class="fab-caption-wrap"><button class="md-fab sm">&#9733;</button><span class="fab-cap">FAB</span></div>
-                    <div class="fab-caption-wrap"><button class="md-fab">&#9733;</button><span class="fab-cap">FAB</span></div>
-                    <div class="fab-caption-wrap"><button class="md-fab lg">&#9733;</button><span class="fab-cap">FAB</span></div>
+                    <div class="fab-caption-wrap"><button class="mat-fab sm">&#9733;</button><span class="fab-cap">FAB</span></div>
+                    <div class="fab-caption-wrap"><button class="mat-fab">&#9733;</button><span class="fab-cap">FAB</span></div>
+                    <div class="fab-caption-wrap"><button class="mat-fab lg">&#9733;</button><span class="fab-cap">FAB</span></div>
                 </div>
             </div>
         </section>
@@ -1997,23 +2178,23 @@
             <div class="comp-body">
                 <h4>Large</h4>
                 <div class="comp-row cards">
-                    <div class="md-card lg"><div class="md-card-media"></div><div class="md-card-content"><h5>Title</h5><p>This is a really long two-line secondary text example</p></div><div class="md-card-actions"><button class="md-btn flat">Button</button><button class="md-btn flat">Button</button></div></div>
-                    <div class="md-card lg"><div class="md-card-media"></div><div class="md-card-content"><h5>Title</h5><p>This is a really long two-line secondary text example</p></div></div>
-                    <div class="md-card lg"><div class="md-card-media overlay"><div class="md-card-overlay"><h5>This is a really long</h5><p>Two-line title text example</p></div></div></div>
-                    <div class="md-card lg"><div class="md-card-media overlay-full"><p>This is a really long two-line secondary text example</p></div></div>
+                    <div class="mat-card lg"><div class="mat-card-media"></div><div class="mat-card-content"><h5>Title</h5><p>This is a really long two-line secondary text example</p></div><div class="mat-card-actions"><button class="mat-btn flat">Button</button><button class="mat-btn flat">Button</button></div></div>
+                    <div class="mat-card lg"><div class="mat-card-media"></div><div class="mat-card-content"><h5>Title</h5><p>This is a really long two-line secondary text example</p></div></div>
+                    <div class="mat-card lg"><div class="mat-card-media overlay"><div class="mat-card-overlay"><h5>This is a really long</h5><p>Two-line title text example</p></div></div></div>
+                    <div class="mat-card lg"><div class="mat-card-media overlay-full"><p>This is a really long two-line secondary text example</p></div></div>
                 </div>
                 <h4>Medium</h4>
                 <div class="comp-row cards">
-                    <div class="md-card md horiz"><div class="md-card-content"><h5>Title</h5><p>This is a really long three-line secondary text example</p><div class="md-card-actions"><button class="md-btn flat">Button</button><button class="md-btn flat">Button</button></div></div><div class="md-card-media-sm"></div></div>
-                    <div class="md-card md horiz"><div class="md-card-content"><h5>Title</h5><p>This is a really long two-line secondary text example</p></div><div class="md-card-media-sm"></div></div>
-                    <div class="md-card md horiz"><div class="md-card-content"><h5>Title</h5><p>This is a really long two-line secondary example</p><div class="md-card-actions"><button class="md-btn flat">Button</button><button class="md-btn flat">Button</button></div></div><div class="md-card-media-sm"></div></div>
+                    <div class="mat-card md horiz"><div class="mat-card-content"><h5>Title</h5><p>This is a really long three-line secondary text example</p><div class="mat-card-actions"><button class="mat-btn flat">Button</button><button class="mat-btn flat">Button</button></div></div><div class="mat-card-media-sm"></div></div>
+                    <div class="mat-card md horiz"><div class="mat-card-content"><h5>Title</h5><p>This is a really long two-line secondary text example</p></div><div class="mat-card-media-sm"></div></div>
+                    <div class="mat-card md horiz"><div class="mat-card-content"><h5>Title</h5><p>This is a really long two-line secondary example</p><div class="mat-card-actions"><button class="mat-btn flat">Button</button><button class="mat-btn flat">Button</button></div></div><div class="mat-card-media-sm"></div></div>
                 </div>
                 <h4>Small</h4>
                 <div class="comp-row cards">
-                    <div class="md-card sm"><div class="md-card-media"></div><div class="md-card-content"><h5>Title</h5></div></div>
-                    <div class="md-card sm"><div class="md-card-media"></div><div class="md-card-content"><h5>Title</h5><p>Secondary text</p></div></div>
-                    <div class="md-card sm"><div class="md-card-media"></div><div class="md-card-content"><h5>Title</h5></div><div class="md-card-actions icons">&#9733; &#9733; &#9733;</div></div>
-                    <div class="md-card sm"><div class="md-card-media"></div><div class="md-card-content"><h5>Title</h5></div><div class="md-card-actions icons">&#9733; &#9733; &#9733;</div></div>
+                    <div class="mat-card sm"><div class="mat-card-media"></div><div class="mat-card-content"><h5>Title</h5></div></div>
+                    <div class="mat-card sm"><div class="mat-card-media"></div><div class="mat-card-content"><h5>Title</h5><p>Secondary text</p></div></div>
+                    <div class="mat-card sm"><div class="mat-card-media"></div><div class="mat-card-content"><h5>Title</h5></div><div class="mat-card-actions icons">&#9733; &#9733; &#9733;</div></div>
+                    <div class="mat-card sm"><div class="mat-card-media"></div><div class="mat-card-content"><h5>Title</h5></div><div class="mat-card-actions icons">&#9733; &#9733; &#9733;</div></div>
                 </div>
             </div>
         </section>
@@ -2024,19 +2205,19 @@
             <div class="comp-body">
                 <h4>Text</h4>
                 <div class="comp-row">
-                    <span class="md-chip">Chip text</span>
-                    <span class="md-chip closable">Chip text <span class="chip-close">&times;</span></span>
+                    <span class="mat-chip">Chip text</span>
+                    <span class="mat-chip closable">Chip text <span class="chip-close">&times;</span></span>
                 </div>
                 <h4>Contact</h4>
                 <div class="comp-row">
-                    <span class="md-chip contact"><span class="chip-avatar"></span>Chip text</span>
-                    <span class="md-chip contact closable"><span class="chip-avatar"></span>Chip text <span class="chip-close">&times;</span></span>
+                    <span class="mat-chip contact"><span class="chip-avatar"></span>Chip text</span>
+                    <span class="mat-chip contact closable"><span class="chip-avatar"></span>Chip text <span class="chip-close">&times;</span></span>
                 </div>
                 <h4>Activated</h4>
                 <div class="comp-row">
                     <div class="chip-activated"><div class="chip-activated-header"><span class="chip-avatar lg"></span><div><strong>Username</strong><br><small>example@gmail.com</small></div><span class="chip-close">&times;</span></div><div class="chip-dropdown"><div class="chip-dropdown-item"><span class="chip-avatar sm"></span> Username</div><div class="chip-dropdown-item"><span class="chip-avatar sm"></span> Username</div></div></div>
-                    <span class="md-chip contact activated"><span class="chip-avatar"></span><div><strong>Username</strong><br><small>example@gmail.com</small></div><span class="chip-close">&times;</span></span>
-                    <span class="md-chip contact"><span class="chip-avatar"></span>Username</span>
+                    <span class="mat-chip contact activated"><span class="chip-avatar"></span><div><strong>Username</strong><br><small>example@gmail.com</small></div><span class="chip-close">&times;</span></span>
+                    <span class="mat-chip contact"><span class="chip-avatar"></span>Username</span>
                 </div>
             </div>
         </section>
@@ -2046,9 +2227,9 @@
             <div class="comp-title-bar"><h2>Grid</h2></div>
             <div class="comp-body">
                 <h4>Image Grid</h4>
-                <div class="md-grid g3"><div class="md-grid-item"></div><div class="md-grid-item"></div><div class="md-grid-item"></div><div class="md-grid-item"></div><div class="md-grid-item"></div><div class="md-grid-item"></div></div>
+                <div class="mat-grid g3"><div class="mat-grid-item"></div><div class="mat-grid-item"></div><div class="mat-grid-item"></div><div class="mat-grid-item"></div><div class="mat-grid-item"></div><div class="mat-grid-item"></div></div>
                 <h4>Single Column</h4>
-                <div class="md-grid g1"><div class="md-grid-item wide"></div><div class="md-grid-item wide"></div></div>
+                <div class="mat-grid g1"><div class="mat-grid-item wide"></div><div class="mat-grid-item wide"></div></div>
             </div>
         </section>
 
@@ -2057,11 +2238,11 @@
             <div class="comp-title-bar"><h2>List</h2></div>
             <div class="comp-body">
                 <h4>Single line</h4>
-                <div class="md-list"><div class="md-list-item"><span class="list-avatar"></span><span class="list-text">Single-line item</span></div><div class="md-list-item"><span class="list-avatar"></span><span class="list-text">Single-line item</span></div><div class="md-list-item"><span class="list-avatar"></span><span class="list-text">Single-line item</span></div></div>
+                <div class="mat-list"><div class="mat-list-item"><span class="list-avatar"></span><span class="list-text">Single-line item</span></div><div class="mat-list-item"><span class="list-avatar"></span><span class="list-text">Single-line item</span></div><div class="mat-list-item"><span class="list-avatar"></span><span class="list-text">Single-line item</span></div></div>
                 <h4>Two line</h4>
-                <div class="md-list"><div class="md-list-item two"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Two-line item</span><span class="list-secondary">Secondary text</span></div></div><div class="md-list-item two"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Two-line item</span><span class="list-secondary">Secondary text</span></div></div><div class="md-list-item two"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Two-line item</span><span class="list-secondary">Secondary text</span></div></div></div>
+                <div class="mat-list"><div class="mat-list-item two"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Two-line item</span><span class="list-secondary">Secondary text</span></div></div><div class="mat-list-item two"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Two-line item</span><span class="list-secondary">Secondary text</span></div></div><div class="mat-list-item two"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Two-line item</span><span class="list-secondary">Secondary text</span></div></div></div>
                 <h4>Three line</h4>
-                <div class="md-list"><div class="md-list-item three"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Three-line item</span><span class="list-secondary">Secondary text that is long enough to span two lines</span></div></div><div class="md-list-item three"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Three-line item</span><span class="list-secondary">Secondary text that is long enough to span two lines</span></div></div></div>
+                <div class="mat-list"><div class="mat-list-item three"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Three-line item</span><span class="list-secondary">Secondary text that is long enough to span two lines</span></div></div><div class="mat-list-item three"><span class="list-avatar"></span><div class="list-text-wrap"><span class="list-text">Three-line item</span><span class="list-secondary">Secondary text that is long enough to span two lines</span></div></div></div>
             </div>
         </section>
 
@@ -2070,9 +2251,9 @@
             <div class="comp-title-bar"><h2>Menu</h2></div>
             <div class="comp-body">
                 <div class="comp-row menus">
-                    <div class="md-menu"><div class="md-menu-item">Menu item 1</div><div class="md-menu-item">Menu item 2</div><div class="md-menu-item">Menu item 3</div><div class="md-menu-item disabled">Menu item 4</div></div>
-                    <div class="md-menu icons"><div class="md-menu-item"><span class="menu-icon">&#9733;</span>Menu item 1</div><div class="md-menu-item"><span class="menu-icon">&#9733;</span>Menu item 2</div><div class="md-menu-item"><span class="menu-icon">&#9733;</span>Menu item 3</div></div>
-                    <div class="md-menu checkmarks"><div class="md-menu-item"><span class="menu-check">&#10003;</span>Menu item 1</div><div class="md-menu-item">Menu item 2</div><div class="md-menu-item"><span class="menu-check">&#10003;</span>Menu item 3</div></div>
+                    <div class="mat-menu"><div class="mat-menu-item">Menu item 1</div><div class="mat-menu-item">Menu item 2</div><div class="mat-menu-item">Menu item 3</div><div class="mat-menu-item disabled">Menu item 4</div></div>
+                    <div class="mat-menu icons"><div class="mat-menu-item"><span class="menu-icon">&#9733;</span>Menu item 1</div><div class="mat-menu-item"><span class="menu-icon">&#9733;</span>Menu item 2</div><div class="mat-menu-item"><span class="menu-icon">&#9733;</span>Menu item 3</div></div>
+                    <div class="mat-menu checkmarks"><div class="mat-menu-item"><span class="menu-check">&#10003;</span>Menu item 1</div><div class="mat-menu-item">Menu item 2</div><div class="mat-menu-item"><span class="menu-check">&#10003;</span>Menu item 3</div></div>
                 </div>
             </div>
         </section>
@@ -2082,8 +2263,8 @@
             <div class="comp-title-bar"><h2>Notifications</h2></div>
             <div class="comp-body">
                 <div class="comp-row notifs">
-                    <div class="md-notif"><div class="notif-header"><span class="notif-icon">&#9733;</span><span class="notif-app">App name</span><span class="notif-time">10m ago</span></div><div class="notif-body"><strong>Title</strong><p>Notification text that can span multiple lines</p></div></div>
-                    <div class="md-notif expanded"><div class="notif-header"><span class="notif-icon">&#9733;</span><span class="notif-app">App name</span><span class="notif-time">10m ago</span></div><div class="notif-body"><strong>Title</strong><p>Expanded notification with more detail text here</p></div><div class="notif-actions"><button class="md-btn flat">Action 1</button><button class="md-btn flat">Action 2</button></div></div>
+                    <div class="mat-notif"><div class="notif-header"><span class="notif-icon">&#9733;</span><span class="notif-app">App name</span><span class="notif-time">10m ago</span></div><div class="notif-body"><strong>Title</strong><p>Notification text that can span multiple lines</p></div></div>
+                    <div class="mat-notif expanded"><div class="notif-header"><span class="notif-icon">&#9733;</span><span class="notif-app">App name</span><span class="notif-time">10m ago</span></div><div class="notif-body"><strong>Title</strong><p>Expanded notification with more detail text here</p></div><div class="notif-actions"><button class="mat-btn flat">Action 1</button><button class="mat-btn flat">Action 2</button></div></div>
                 </div>
             </div>
         </section>
@@ -2093,8 +2274,8 @@
             <div class="comp-title-bar"><h2>Picker</h2></div>
             <div class="comp-body">
                 <div class="comp-row pickers">
-                    <div class="md-picker date"><div class="picker-header"><span class="picker-label">SELECT DATE</span><span class="picker-value">Mon, Jun 15</span></div><div class="picker-calendar"><div class="picker-month">&lt; June 2026 &gt;</div><div class="picker-grid"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span></span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span class="selected">15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span></div><div class="picker-actions"><button class="md-btn flat">Cancel</button><button class="md-btn flat">OK</button></div></div></div>
-                    <div class="md-picker time"><div class="picker-header"><span class="picker-label">SELECT TIME</span><span class="picker-value time-val"><span class="time-active">12</span>:<span>00</span></span></div><div class="picker-clock"><div class="clock-face"><span class="clock-num t12">12</span><span class="clock-num t1">1</span><span class="clock-num t2">2</span><span class="clock-num t3">3</span><span class="clock-num t4">4</span><span class="clock-num t5">5</span><span class="clock-num t6">6</span><span class="clock-num t7">7</span><span class="clock-num t8">8</span><span class="clock-num t9">9</span><span class="clock-num t10">10</span><span class="clock-num t11">11</span></div><div class="picker-actions"><button class="md-btn flat">Cancel</button><button class="md-btn flat">OK</button></div></div></div>
+                    <div class="mat-picker date"><div class="picker-header"><span class="picker-label">SELECT DATE</span><span class="picker-value">Mon, Jun 15</span></div><div class="picker-calendar"><div class="picker-month">&lt; June 2026 &gt;</div><div class="picker-grid"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span></span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span class="selected">15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span></div><div class="picker-actions"><button class="mat-btn flat">Cancel</button><button class="mat-btn flat">OK</button></div></div></div>
+                    <div class="mat-picker time"><div class="picker-header"><span class="picker-label">SELECT TIME</span><span class="picker-value time-val"><span class="time-active">12</span>:<span>00</span></span></div><div class="picker-clock"><div class="clock-face"><span class="clock-num t12">12</span><span class="clock-num t1">1</span><span class="clock-num t2">2</span><span class="clock-num t3">3</span><span class="clock-num t4">4</span><span class="clock-num t5">5</span><span class="clock-num t6">6</span><span class="clock-num t7">7</span><span class="clock-num t8">8</span><span class="clock-num t9">9</span><span class="clock-num t10">10</span><span class="clock-num t11">11</span></div><div class="picker-actions"><button class="mat-btn flat">Cancel</button><button class="mat-btn flat">OK</button></div></div></div>
                 </div>
             </div>
         </section>
@@ -2105,27 +2286,27 @@
             <div class="comp-body">
                 <h4>Progress Bar</h4>
                 <div class="comp-row progress-row">
-                    <div class="md-progress"><div class="md-progress-fill" style="width:0%"></div></div>
-                    <div class="md-progress"><div class="md-progress-fill" style="width:30%"></div></div>
-                    <div class="md-progress"><div class="md-progress-fill" style="width:60%"></div></div>
-                    <div class="md-progress"><div class="md-progress-fill" style="width:100%"></div></div>
+                    <div class="mat-progress"><div class="mat-progress-fill" style="width:0%"></div></div>
+                    <div class="mat-progress"><div class="mat-progress-fill" style="width:30%"></div></div>
+                    <div class="mat-progress"><div class="mat-progress-fill" style="width:60%"></div></div>
+                    <div class="mat-progress"><div class="mat-progress-fill" style="width:100%"></div></div>
                 </div>
                 <h4>Stepper</h4>
                 <div class="comp-row">
-                    <div class="md-stepper"><span class="step-arrow">&lt;</span><span class="step-dots">&#9679; &#9679; &#9675; &#9675;</span><span class="step-arrow">&gt;</span></div>
-                    <div class="md-stepper"><span class="step-label">Back</span><span class="step-dots">&#9679; &#9675;</span><span class="step-label">Next</span></div>
+                    <div class="mat-stepper"><span class="step-arrow">&lt;</span><span class="step-dots">&#9679; &#9679; &#9675; &#9675;</span><span class="step-arrow">&gt;</span></div>
+                    <div class="mat-stepper"><span class="step-label">Back</span><span class="step-dots">&#9679; &#9675;</span><span class="step-label">Next</span></div>
                 </div>
                 <h4>Dots</h4>
                 <div class="comp-row dots-row">
-                    <span class="md-dots">&#9679; &#9675; &#9675; &#9675; &#9675;</span>
-                    <span class="md-dots">&#9675; &#9679; &#9675; &#9675; &#9675;</span>
-                    <span class="md-dots">&#9679; &#9675; &#9675;</span>
-                    <span class="md-dots">&#9679; &#9675;</span>
+                    <span class="mat-dots">&#9679; &#9675; &#9675; &#9675; &#9675;</span>
+                    <span class="mat-dots">&#9675; &#9679; &#9675; &#9675; &#9675;</span>
+                    <span class="mat-dots">&#9679; &#9675; &#9675;</span>
+                    <span class="mat-dots">&#9679; &#9675;</span>
                 </div>
                 <h4>Loader</h4>
                 <div class="comp-row">
-                    <div class="md-loader"><div class="loader-ring"></div></div>
-                    <div class="md-loader sm"><div class="loader-ring"></div></div>
+                    <div class="mat-loader"><div class="loader-ring"></div></div>
+                    <div class="mat-loader sm"><div class="loader-ring"></div></div>
                 </div>
             </div>
         </section>
@@ -2136,17 +2317,17 @@
             <div class="comp-body">
                 <h4>Regular</h4>
                 <div class="comp-col sliders">
-                    <input type="range" class="md-slider" min="0" max="100" value="0">
-                    <input type="range" class="md-slider" min="0" max="100" value="30">
-                    <input type="range" class="md-slider" min="0" max="100" value="60">
-                    <input type="range" class="md-slider" min="0" max="100" value="100">
+                    <input type="range" class="mat-slider" min="0" max="100" value="0">
+                    <input type="range" class="mat-slider" min="0" max="100" value="30">
+                    <input type="range" class="mat-slider" min="0" max="100" value="60">
+                    <input type="range" class="mat-slider" min="0" max="100" value="100">
                 </div>
                 <h4>Disabled</h4>
                 <div class="comp-col sliders">
-                    <input type="range" class="md-slider" min="0" max="100" value="0" disabled>
-                    <input type="range" class="md-slider" min="0" max="100" value="30" disabled>
-                    <input type="range" class="md-slider" min="0" max="100" value="60" disabled>
-                    <input type="range" class="md-slider" min="0" max="100" value="100" disabled>
+                    <input type="range" class="mat-slider" min="0" max="100" value="0" disabled>
+                    <input type="range" class="mat-slider" min="0" max="100" value="30" disabled>
+                    <input type="range" class="mat-slider" min="0" max="100" value="60" disabled>
+                    <input type="range" class="mat-slider" min="0" max="100" value="100" disabled>
                 </div>
             </div>
         </section>
@@ -2156,9 +2337,9 @@
             <div class="comp-title-bar"><h2>Snackbar</h2></div>
             <div class="comp-body">
                 <div class="comp-col snackbars">
-                    <div class="md-snackbar">Single-line snackbar message</div>
-                    <div class="md-snackbar action">Single-line snackbar message<button class="md-btn flat accent">Action</button></div>
-                    <div class="md-snackbar multiline">Two-line snackbar message that spans across multiple lines<button class="md-btn flat accent">Action</button></div>
+                    <div class="mat-snackbar">Single-line snackbar message</div>
+                    <div class="mat-snackbar action">Single-line snackbar message<button class="mat-btn flat accent">Action</button></div>
+                    <div class="mat-snackbar multiline">Two-line snackbar message that spans across multiple lines<button class="mat-btn flat accent">Action</button></div>
                 </div>
             </div>
         </section>
@@ -2169,15 +2350,15 @@
             <div class="comp-body">
                 <h4>Text tabs</h4>
                 <div class="comp-row tabs-row">
-                    <div class="md-tabs"><span class="md-tab active">Tab 1</span><span class="md-tab">Tab 2</span><span class="md-tab">Tab 3</span></div>
+                    <div class="mat-tabs"><span class="mat-tab active">Tab 1</span><span class="mat-tab">Tab 2</span><span class="mat-tab">Tab 3</span></div>
                 </div>
                 <h4>Icon tabs</h4>
                 <div class="comp-row tabs-row">
-                    <div class="md-tabs icon"><span class="md-tab active">&#9733;<br>Tab 1</span><span class="md-tab">&#9733;<br>Tab 2</span><span class="md-tab">&#9733;<br>Tab 3</span></div>
+                    <div class="mat-tabs icon"><span class="mat-tab active">&#9733;<br>Tab 1</span><span class="mat-tab">&#9733;<br>Tab 2</span><span class="mat-tab">&#9733;<br>Tab 3</span></div>
                 </div>
                 <h4>Scrollable</h4>
                 <div class="comp-row tabs-row">
-                    <div class="md-tabs scrollable"><span class="md-tab active">Tab 1</span><span class="md-tab">Tab 2</span><span class="md-tab">Tab 3</span><span class="md-tab">Tab 4</span><span class="md-tab">Tab 5</span><span class="md-tab">Tab 6</span></div>
+                    <div class="mat-tabs scrollable"><span class="mat-tab active">Tab 1</span><span class="mat-tab">Tab 2</span><span class="mat-tab">Tab 3</span><span class="mat-tab">Tab 4</span><span class="mat-tab">Tab 5</span><span class="mat-tab">Tab 6</span></div>
                 </div>
             </div>
         </section>
@@ -2188,27 +2369,27 @@
             <div class="comp-body">
                 <h4>Lined</h4>
                 <div class="comp-row fields">
-                    <div class="md-field lined"><label>Label</label><input type="text" placeholder="Normal"><span class="field-caption">Caption</span></div>
-                    <div class="md-field lined hover"><label>Label</label><input type="text" value="Hover"><span class="field-caption">Caption</span></div>
-                    <div class="md-field lined focus"><label>Label</label><input type="text" value="Typing"><span class="field-caption">Caption</span></div>
-                    <div class="md-field lined pressed"><label>Label</label><input type="text" value="Pressed"><span class="field-caption">Caption</span></div>
-                    <div class="md-field lined disabled"><label>Label</label><input type="text" value="Disabled" disabled><span class="field-caption"></span></div>
+                    <div class="mat-field lined"><label>Label</label><input type="text" placeholder="Normal"><span class="field-caption">Caption</span></div>
+                    <div class="mat-field lined hover"><label>Label</label><input type="text" value="Hover"><span class="field-caption">Caption</span></div>
+                    <div class="mat-field lined focus"><label>Label</label><input type="text" value="Typing"><span class="field-caption">Caption</span></div>
+                    <div class="mat-field lined pressed"><label>Label</label><input type="text" value="Pressed"><span class="field-caption">Caption</span></div>
+                    <div class="mat-field lined disabled"><label>Label</label><input type="text" value="Disabled" disabled><span class="field-caption"></span></div>
                 </div>
                 <h4>Filled</h4>
                 <div class="comp-row fields">
-                    <div class="md-field filled"><input type="text" placeholder="Normal"><span class="field-caption">Caption</span></div>
-                    <div class="md-field filled hover"><input type="text" value="Hover"><span class="field-caption">Caption</span></div>
-                    <div class="md-field filled focus"><label>Label</label><input type="text" value="Typing"><span class="field-caption">Caption</span></div>
-                    <div class="md-field filled pressed"><label>Label</label><input type="text" value="Pressed"><span class="field-caption">Caption</span></div>
-                    <div class="md-field filled disabled"><input type="text" value="Disabled" disabled></div>
+                    <div class="mat-field filled"><input type="text" placeholder="Normal"><span class="field-caption">Caption</span></div>
+                    <div class="mat-field filled hover"><input type="text" value="Hover"><span class="field-caption">Caption</span></div>
+                    <div class="mat-field filled focus"><label>Label</label><input type="text" value="Typing"><span class="field-caption">Caption</span></div>
+                    <div class="mat-field filled pressed"><label>Label</label><input type="text" value="Pressed"><span class="field-caption">Caption</span></div>
+                    <div class="mat-field filled disabled"><input type="text" value="Disabled" disabled></div>
                 </div>
                 <h4>Outlined</h4>
                 <div class="comp-row fields">
-                    <div class="md-field outlined"><input type="text" placeholder="Normal"><span class="field-caption">Caption</span></div>
-                    <div class="md-field outlined hover"><input type="text" value="Hover"><span class="field-caption">Caption</span></div>
-                    <div class="md-field outlined focus"><label>Label</label><input type="text" value="Typing"><span class="field-caption">Caption</span></div>
-                    <div class="md-field outlined pressed"><label>Label</label><input type="text" value="Pressed"><span class="field-caption">Caption</span></div>
-                    <div class="md-field outlined disabled"><input type="text" value="Disabled" disabled></div>
+                    <div class="mat-field outlined"><input type="text" placeholder="Normal"><span class="field-caption">Caption</span></div>
+                    <div class="mat-field outlined hover"><input type="text" value="Hover"><span class="field-caption">Caption</span></div>
+                    <div class="mat-field outlined focus"><label>Label</label><input type="text" value="Typing"><span class="field-caption">Caption</span></div>
+                    <div class="mat-field outlined pressed"><label>Label</label><input type="text" value="Pressed"><span class="field-caption">Caption</span></div>
+                    <div class="mat-field outlined disabled"><input type="text" value="Disabled" disabled></div>
                 </div>
             </div>
         </section>
@@ -2219,27 +2400,27 @@
             <div class="comp-body">
                 <h4>Checkbox</h4>
                 <div class="comp-row toggles">
-                    <label class="md-checkbox"><input type="checkbox" checked><span class="check-box"></span></label>
-                    <label class="md-checkbox hover"><input type="checkbox" checked><span class="check-box"></span></label>
-                    <label class="md-checkbox"><input type="checkbox" checked disabled><span class="check-box"></span></label>
-                    <label class="md-checkbox"><input type="checkbox"><span class="check-box"></span></label>
-                    <label class="md-checkbox"><input type="checkbox" disabled><span class="check-box"></span></label>
+                    <label class="mat-checkbox"><input type="checkbox" checked><span class="check-box"></span></label>
+                    <label class="mat-checkbox hover"><input type="checkbox" checked><span class="check-box"></span></label>
+                    <label class="mat-checkbox"><input type="checkbox" checked disabled><span class="check-box"></span></label>
+                    <label class="mat-checkbox"><input type="checkbox"><span class="check-box"></span></label>
+                    <label class="mat-checkbox"><input type="checkbox" disabled><span class="check-box"></span></label>
                 </div>
                 <h4>Radio</h4>
                 <div class="comp-row toggles">
-                    <label class="md-radio"><input type="radio" name="r1" checked><span class="radio-dot"></span></label>
-                    <label class="md-radio hover"><input type="radio" name="r2" checked><span class="radio-dot"></span></label>
-                    <label class="md-radio"><input type="radio" checked disabled><span class="radio-dot"></span></label>
-                    <label class="md-radio"><input type="radio" name="r3"><span class="radio-dot"></span></label>
-                    <label class="md-radio"><input type="radio" disabled><span class="radio-dot"></span></label>
+                    <label class="mat-radio"><input type="radio" name="r1" checked><span class="radio-dot"></span></label>
+                    <label class="mat-radio hover"><input type="radio" name="r2" checked><span class="radio-dot"></span></label>
+                    <label class="mat-radio"><input type="radio" checked disabled><span class="radio-dot"></span></label>
+                    <label class="mat-radio"><input type="radio" name="r3"><span class="radio-dot"></span></label>
+                    <label class="mat-radio"><input type="radio" disabled><span class="radio-dot"></span></label>
                 </div>
                 <h4>Switch</h4>
                 <div class="comp-row toggles">
-                    <label class="md-switch"><input type="checkbox" checked><span class="switch-track"><span class="switch-thumb"></span></span></label>
-                    <label class="md-switch hover"><input type="checkbox" checked><span class="switch-track"><span class="switch-thumb"></span></span></label>
-                    <label class="md-switch"><input type="checkbox" checked disabled><span class="switch-track"><span class="switch-thumb"></span></span></label>
-                    <label class="md-switch"><input type="checkbox"><span class="switch-track"><span class="switch-thumb"></span></span></label>
-                    <label class="md-switch"><input type="checkbox" disabled><span class="switch-track"><span class="switch-thumb"></span></span></label>
+                    <label class="mat-switch"><input type="checkbox" checked><span class="switch-track"><span class="switch-thumb"></span></span></label>
+                    <label class="mat-switch hover"><input type="checkbox" checked><span class="switch-track"><span class="switch-thumb"></span></span></label>
+                    <label class="mat-switch"><input type="checkbox" checked disabled><span class="switch-track"><span class="switch-thumb"></span></span></label>
+                    <label class="mat-switch"><input type="checkbox"><span class="switch-track"><span class="switch-thumb"></span></span></label>
+                    <label class="mat-switch"><input type="checkbox" disabled><span class="switch-track"><span class="switch-thumb"></span></span></label>
                 </div>
             </div>
         </section>
@@ -2249,10 +2430,10 @@
             <div class="comp-title-bar"><h2>Tooltip</h2></div>
             <div class="comp-body">
                 <div class="comp-row tooltips-demo">
-                    <div class="md-tooltip top">Tooltip text<span class="tooltip-arrow bottom"></span></div>
-                    <div class="md-tooltip bottom">Tooltip text<span class="tooltip-arrow top"></span></div>
-                    <div class="md-tooltip left">Tooltip text<span class="tooltip-arrow right"></span></div>
-                    <div class="md-tooltip right">Tooltip text<span class="tooltip-arrow left"></span></div>
+                    <div class="mat-tooltip top">Tooltip text<span class="tooltip-arrow bottom"></span></div>
+                    <div class="mat-tooltip bottom">Tooltip text<span class="tooltip-arrow top"></span></div>
+                    <div class="mat-tooltip left">Tooltip text<span class="tooltip-arrow right"></span></div>
+                    <div class="mat-tooltip right">Tooltip text<span class="tooltip-arrow left"></span></div>
                 </div>
             </div>
         </section>
