@@ -19,6 +19,7 @@
     --secondary: #B2D5E2;
     --divider: #B2D5E2;
     --error: #E53E3E;
+    --night-text: #D05050;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: thin; }
@@ -270,7 +271,7 @@ body {
 
 /* 夜勤 */
 .md-ob-cell.md-ob-night {
-    color: #B5524D;
+    color: var(--night-text);
 }
 .md-ob-night.md-ob-frozen-2 { font-weight: 700; }
 
@@ -1151,8 +1152,8 @@ body {
     padding: 1px 6px; background: var(--accent-dim); border-radius: 10px;
 }
 .md-ob-night .md-ob-cal-meta-company,
-.md-ob-night .md-ob-cal-meta-task { color: #B5524D; }
-.md-ob-night .md-ob-cal-meta-tags { color: #B5524D; background: rgba(181,82,77,0.1); }
+.md-ob-night .md-ob-cal-meta-task { color: var(--night-text); }
+.md-ob-night .md-ob-cal-meta-tags { color: var(--night-text); background: rgba(208,80,80,0.1); }
 .md-ob-cal-month-nav-group {
     display: flex; flex-direction: column; align-items: center; gap: 4px;
 }
@@ -1223,16 +1224,16 @@ body {
 .md-ob-cal-count { font-size: 13px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
 .md-ob-cal-count.md-ob-cal-tentative-high { opacity: 0.5; }
 .md-ob-cal-count.md-ob-cal-tentative-low { opacity: 0.25; }
-.md-ob-cal-count.md-ob-cal-night { color: #B5524D; }
+.md-ob-cal-count.md-ob-cal-night { color: var(--night-text); }
 
 /* 夜勤セル編集モーダル */
-.md-ob-edit-night #editCount { color: #B5524D; }
-.md-ob-edit-night .md-ob-sub-label-input { color: #B5524D; }
-.md-ob-edit-night .md-ob-sub-value-input { color: #B5524D; }
-.md-ob-edit-night .md-ob-plan-name-value { color: #B5524D; }
-.md-ob-edit-night .md-ob-plan-name-value.md-ob-plan-empty { color: #B5524D; opacity: 0.6; }
+.md-ob-edit-night #editCount { color: var(--night-text); }
+.md-ob-edit-night .md-ob-sub-label-input { color: var(--night-text); }
+.md-ob-edit-night .md-ob-sub-value-input { color: var(--night-text); }
+.md-ob-edit-night .md-ob-plan-name-value { color: var(--night-text); }
+.md-ob-edit-night .md-ob-plan-name-value.md-ob-plan-empty { color: var(--night-text); opacity: 0.6; }
 .md-ob-edit-night #editStartTime,
-.md-ob-edit-night #editEndTime { color: #B5524D; }
+.md-ob-edit-night #editEndTime { color: var(--night-text); }
 .md-ob-cal-badge {
     font-size: 7px; color: var(--accent);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;

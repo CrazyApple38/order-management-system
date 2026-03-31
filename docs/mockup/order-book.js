@@ -607,7 +607,7 @@ function renderGrid() {
             const dow = dt.getDay();
             const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
             const entries = getCellEntries(ri, d);
-            let cls = `ob-cell md-ob-date-cell ${rowCls}${evenCls}`;
+            let cls = `md-ob-cell md-ob-date-cell ${rowCls}${evenCls}`;
             if (weekendColorsEnabled) {
                 if (holidays[dateStr]) cls += ' md-ob-holiday';
                 else if (dow === 0) cls += ' md-ob-sun';
