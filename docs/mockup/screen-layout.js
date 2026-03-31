@@ -466,7 +466,7 @@
                 el.className = 'md-ob-plan-name-value';
                 el.innerHTML = parts.join(' <span class="md-ob-plan-arrow">›</span> ');
             } else {
-                el.className = 'md-ob-plan-name-value ob-plan-empty';
+                el.className = 'md-ob-plan-name-value md-ob-plan-empty';
                 el.textContent = '現場名・業務詳細を入力すると自動生成されます';
             }
         }
@@ -1064,7 +1064,7 @@
             const container = document.getElementById('mtContactChips');
             let html = '';
             employeeContactItems.forEach(item => {
-                const active = mtSelectedContact === item.name ? ' ob-chip-active' : '';
+                const active = mtSelectedContact === item.name ? ' md-ob-chip-active' : '';
                 html += `<button type="button" class="md-ob-row-chip${active}" onclick="mtSelectContact('${escapeHtml(item.name)}')">${escapeHtml(item.name)}</button>`;
             });
             container.innerHTML = html;
@@ -3131,8 +3131,8 @@
             const smShiftClassMapLocal = { '昼': 'shift-day', '夜': 'shift-night' };
 
             list.innerHTML = filtered.map(function(n) {
-                var cardClass = 'md-cn-card cn-card-' + n.type;
-                var badgeClass = 'md-cn-type-badge cn-type-badge-' + n.type;
+                var cardClass = 'md-cn-card md-cn-card-' + n.type;
+                var badgeClass = 'md-cn-type-badge md-cn-type-badge-' + n.type;
                 var catClass = smCategoryClassMapLocal[n.category] || 'category-facility';
                 var shiftClass = smShiftClassMapLocal[n.shift] || 'shift-day';
 
@@ -3161,7 +3161,7 @@
                     diffHtml = '<div class="md-cn-diff-list"><div class="md-cn-diff-row"><span class="md-cn-diff-old">この行は削除されました</span></div></div>';
                 }
 
-                var stateClass = n.reverted ? ' cn-card-reverted' : (n._approved ? ' cn-card-approved' : '');
+                var stateClass = n.reverted ? ' md-cn-card-reverted' : (n._approved ? ' md-cn-card-approved' : '');
                 var statusBadge = '';
                 var actionsHtml = '';
                 if (n.reverted) {
@@ -3214,7 +3214,7 @@
                     '<div class="md-cn-tl-header">' +
                         '<span class="md-cn-tl-time">' + h.time + '</span>' +
                         '<span class="md-cn-tl-user">' + escapeHtml(h.user) + '</span>' +
-                        '<span class="md-cn-tl-type cn-tl-type-' + h.type + '">' + typeLabels[h.type] + '</span>' +
+                        '<span class="md-cn-tl-type md-cn-tl-type-' + h.type + '">' + typeLabels[h.type] + '</span>' +
                     '</div>' +
                     '<div class="md-cn-tl-content">' + escapeHtml(h.summary) + '</div>' +
                 '</div>';
@@ -3383,7 +3383,7 @@
                 var noCell = row.querySelector('.col-no');
                 if (noCell) {
                     var badge = document.createElement('span');
-                    badge.className = 'md-cn-row-badge cn-row-badge-' + type;
+                    badge.className = 'md-cn-row-badge md-cn-row-badge-' + type;
                     badge.textContent = type === 'add' ? '追加' : '削除';
                     noCell.appendChild(badge);
                 }
@@ -3570,7 +3570,7 @@
             var noCell = row.querySelector('.col-no');
             if (noCell && (type === 'add' || type === 'delete')) {
                 var badge = document.createElement('span');
-                badge.className = 'md-cn-row-badge cn-row-badge-' + (type === 'add' ? 'delete' : 'add');
+                badge.className = 'md-cn-row-badge md-cn-row-badge-' + (type === 'add' ? 'delete' : 'add');
                 badge.textContent = type === 'add' ? '削除' : '復元';
                 noCell.appendChild(badge);
             }
@@ -3889,7 +3889,7 @@
             const hoursEl = document.getElementById('timePickerHours');
             let hhtml = '';
             for (let h = 0; h < 24; h++) {
-                const sel = h === currentHour ? ' ob-time-selected' : '';
+                const sel = h === currentHour ? ' md-ob-time-selected' : '';
                 hhtml += `<div class="md-ob-time-option${sel}" data-value="${h}" onclick="selectTimeHour(${h})">${String(h).padStart(2, '0')}</div>`;
             }
             hoursEl.innerHTML = hhtml;
@@ -3897,7 +3897,7 @@
             const minsEl = document.getElementById('timePickerMinutes');
             let mhtml = '';
             for (let m = 0; m < 60; m += 10) {
-                const sel = m === currentMin ? ' ob-time-selected' : '';
+                const sel = m === currentMin ? ' md-ob-time-selected' : '';
                 mhtml += `<div class="md-ob-time-option${sel}" data-value="${m}" onclick="selectTimeMinute(${m})">${String(m).padStart(2, '0')}</div>`;
             }
             minsEl.innerHTML = mhtml;
@@ -4049,7 +4049,7 @@
             if (!container) return;
             let html = '';
             items.forEach(item => {
-                const active = item === selectedValue ? ' ob-chip-active' : '';
+                const active = item === selectedValue ? ' md-ob-chip-active' : '';
                 html += `<button type="button" class="md-ob-row-chip${active}" onclick="smSelectChip('${groupKey}', '${escapeHtml(item)}')">${escapeHtml(item)}</button>`;
             });
             container.innerHTML = html;
@@ -4163,7 +4163,7 @@
                 display.className = 'md-ob-badge-parent-display';
             } else {
                 display.textContent = category || '-';
-                display.className = 'md-ob-badge-parent-display ob-badge-parent-unknown';
+                display.className = 'md-ob-badge-parent-display md-ob-badge-parent-unknown';
             }
             smRenderChildBadges();
         }
@@ -4186,10 +4186,10 @@
 
             let html = '';
             parent.children.forEach((c, i) => {
-                const sel = smSelectedChildBadges.includes(c.id) ? ' ob-badge-selected' : '';
+                const sel = smSelectedChildBadges.includes(c.id) ? ' md-ob-badge-selected' : '';
                 html += `<div class="md-ob-badge-drag-item" draggable="true" data-badge-idx="${i}" data-badge-id="${c.id}" data-badge-level="child">`;
                 html += `<span class="md-ob-badge-drag-grip">☰</span>`;
-                html += `<button type="button" class="md-ob-badge-chip ob-badge-child${sel}" onclick="smToggleChildBadge('${c.id}')">${escapeHtml(c.name)}</button>`;
+                html += `<button type="button" class="md-ob-badge-chip md-ob-badge-child${sel}" onclick="smToggleChildBadge('${c.id}')">${escapeHtml(c.name)}</button>`;
                 html += `<button type="button" class="md-ob-badge-delete-btn" onclick="smDeleteBadge('child','${c.id}')" title="削除">✕</button>`;
                 html += `</div>`;
             });
@@ -4219,16 +4219,16 @@
             } else {
                 html += `<div class="md-ob-grandchild-chips">`;
                 childBadge.children.forEach((gc, gi) => {
-                    const sel = gcIds.includes(gc.id) ? ' ob-badge-selected' : '';
-                    html += `<div class="md-ob-badge-drag-item ob-gc-drag-item" draggable="true" data-badge-idx="${gi}" data-badge-id="${gc.id}" data-badge-level="grandchild" data-parent-child="${childBadge.id}">`;
+                    const sel = gcIds.includes(gc.id) ? ' md-ob-badge-selected' : '';
+                    html += `<div class="md-ob-badge-drag-item md-ob-gc-drag-item" draggable="true" data-badge-idx="${gi}" data-badge-id="${gc.id}" data-badge-level="grandchild" data-parent-child="${childBadge.id}">`;
                     html += `<span class="md-ob-badge-drag-grip">☰</span>`;
-                    html += `<button type="button" class="md-ob-badge-chip ob-badge-grandchild${sel}" onclick="smToggleGrandchildBadge('${childBadge.id}','${gc.id}')">${escapeHtml(gc.name)}</button>`;
+                    html += `<button type="button" class="md-ob-badge-chip md-ob-badge-grandchild${sel}" onclick="smToggleGrandchildBadge('${childBadge.id}','${gc.id}')">${escapeHtml(gc.name)}</button>`;
                     html += `<button type="button" class="md-ob-badge-delete-btn" onclick="smDeleteBadge('grandchild','${gc.id}','${childBadge.id}')" title="削除">✕</button>`;
                     html += `</div>`;
                 });
                 html += `</div>`;
             }
-            html += `<div class="md-ob-badge-undo-bar ob-gc-undo-bar" id="smGcUndoBar_${childBadge.id}" style="display:none;">`;
+            html += `<div class="md-ob-badge-undo-bar md-ob-gc-undo-bar" id="smGcUndoBar_${childBadge.id}" style="display:none;">`;
             html += `<span id="smGcUndoMsg_${childBadge.id}"></span>`;
             html += `<button type="button" class="md-ob-badge-undo-btn" onclick="smUndoDeleteBadge()">戻す</button>`;
             html += `</div>`;
