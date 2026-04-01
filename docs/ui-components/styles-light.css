@@ -2692,7 +2692,7 @@ body {
     color: var(--text-tertiary); padding: 4px 2px;
     border-bottom: 1px solid var(--divider);
 }
-.ob-cal-dow-header.ob-cal-sun { color: #dc2626; }
+.ob-cal-dow-header.ob-cal-sun { color: #DB577B; }
 .ob-cal-dow-header.ob-cal-sat { color: var(--accent); }
 
 /* 日セル */
@@ -2709,7 +2709,7 @@ body {
 
 /* 土日祝 */
 .ob-cal-cell.ob-cal-sun { background: rgba(220,120,120,0.06); }
-.ob-cal-cell.ob-cal-sun .ob-cal-day-num { color: #dc2626; }
+.ob-cal-cell.ob-cal-sun .ob-cal-day-num { color: #DB577B; }
 .ob-cal-cell.ob-cal-sat { background: rgba(68,166,181,0.06); }
 .ob-cal-cell.ob-cal-sat .ob-cal-day-num { color: var(--accent); }
 .ob-cal-cell.ob-cal-holiday { background: rgba(214,158,46,0.08); }
@@ -2736,7 +2736,7 @@ body {
 .ob-cal-count { font-size: 13px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
 .ob-cal-count.ob-cal-tentative-high { opacity: 0.5; }
 .ob-cal-count.ob-cal-tentative-low { opacity: 0.25; }
-.ob-cal-count.ob-cal-night { color: #B5524D; }
+.ob-cal-count.ob-cal-night { color: #DB577B; }
 .ob-cal-badge {
     font-size: 7px; color: var(--accent);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;

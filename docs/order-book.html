@@ -123,40 +123,37 @@
                 <button class="md-ob-modal-close" onclick="closeEditModal()">✕</button>
             </div>
             <div class="md-ob-modal-body">
-                <!-- 配置先ナビゲーション -->
-                <div class="md-ob-site-nav" id="siteNavBar">
-                    <div class="md-ob-site-nav-top">
-                        <button type="button" class="md-ob-site-nav-btn" id="siteNavPrev" onclick="navigateSite(-1)">◀</button>
-                        <span class="md-ob-site-nav-label" id="siteNavLabel"></span>
-                        <button type="button" class="md-ob-site-nav-btn" id="siteNavNext" onclick="navigateSite(1)">▶</button>
-                        <button type="button" class="md-ob-btn-add-site" onclick="addSiteEntry()">+ 配置先を追加</button>
-                        <button type="button" class="md-ob-btn-delete-site" id="btnDeleteSite" onclick="deleteSiteEntry()" style="display:none;">この配置先を削除</button>
+                <!-- ━━ Placement / Details ━━ -->
+                <div class="md-modal-body-field"><div class="md-modal-body-field-value">Placement / Details</div></div>
+                <div class="md-modal-body-card">
+                    <!-- 配置先タブ -->
+                    <div class="md-ob-placement-tabs" id="siteNavBar"></div>
+                    <div class="md-ob-edit-form">
+                        <!-- 人数 + 信頼度 -->
+                        <div class="md-modal-section-bar">配置情報</div>
+                        <div class="md-ob-count-confidence-row">
+                            <div class="md-ob-form-row">
+                                <label>人数</label>
+                                <input type="number" id="editCount" min="0" max="99">
+                            </div>
+                            <div class="md-ob-confidence-field">
+                                <label>信頼度</label>
+                                <div class="md-ob-confidence-chips" id="confidenceChips"></div>
+                            </div>
+                        </div>
+                        <!-- 業務名表示 -->
+                        <div class="md-ob-cal-display-value" id="editDailyTaskName">-</div>
+                        <!-- 業務詳細 -->
+                        <div class="md-modal-section-bar">業務詳細 <button type="button" class="md-ob-btn-add-sub" onclick="addSubTaskEntry()">+ 追加</button></div>
+                        <div class="md-ob-sub-task-fields" id="subTaskFields">
+                            <div id="subTaskList"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="md-ob-edit-form">
-                    <div class="md-ob-count-confidence-row">
-                        <div class="md-ob-form-row">
-                            <label>人数</label>
-                            <input type="number" id="editCount" min="0" max="99">
-                        </div>
-                        <div class="md-ob-confidence-field">
-                            <label>信頼度</label>
-                            <div class="md-ob-confidence-chips" id="confidenceChips"></div>
-                        </div>
-                    </div>
-                    <div class="md-ob-sub-task-fields" id="subTaskFields">
-                        <div class="md-ob-sub-task-header">
-                            <span class="md-ob-sub-task-title">業務詳細</span>
-                            <button type="button" class="md-ob-btn-add-sub" onclick="addSubTaskEntry()">+ 追加</button>
-                        </div>
-                        <div id="subTaskList">
-                            <!-- JSで動的に描画 -->
-                        </div>
-                    </div>
-                    <div class="md-ob-plan-name-row">
-                        <div class="md-ob-plan-name-label">業務管理計画書 業務名</div>
-                        <div class="md-ob-plan-name-value" id="editDailyTaskName">-</div>
-                    </div>
+
+                <!-- ━━ Category / Tasks ━━ -->
+                <div class="md-modal-body-field"><div class="md-modal-body-field-value">Category / Tasks</div></div>
+                <div class="md-modal-body-card">
                     <div class="md-ob-badge-section">
                         <div class="md-ob-badge-group">
                             <div class="md-ob-badge-group-header">
@@ -168,9 +165,7 @@
                             <div class="md-ob-badge-group-header">
                                 <span class="md-ob-badge-group-subtitle">作業内容</span>
                             </div>
-                            <div class="md-ob-badge-chips" id="badgeChildList">
-                                <!-- JSで動的に描画 -->
-                            </div>
+                            <div class="md-ob-badge-chips" id="badgeChildList"></div>
                             <div class="md-ob-badge-undo-bar" id="badgeUndoBar" style="display:none;">
                                 <span id="badgeUndoMsg"></span>
                                 <button type="button" class="md-ob-badge-undo-btn" onclick="undoDeleteBadge()">戻す</button>
@@ -178,67 +173,83 @@
                             <button type="button" class="md-ob-btn-add-badge" onclick="addChildBadge()">+ 作業内容追加</button>
                         </div>
                     </div>
-                    <div class="md-ob-form-row md-ob-form-row-half">
-                        <div>
-                            <label>開始時間</label>
-                            <div class="md-ob-time-picker-wrap" onclick="openTimePicker('editStartTime', this)">
-                                <input type="text" id="editStartTime" class="md-ob-time-input" readonly placeholder="--:--">
-                                <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
+                </div>
+
+                <!-- ━━ Schedule / Notes ━━ -->
+                <div class="md-modal-body-field"><div class="md-modal-body-field-value">Schedule / Notes</div></div>
+                <div class="md-modal-body-card">
+                    <div class="md-ob-edit-form">
+                        <!-- 開始/終了時間 -->
+                        <div class="md-ob-form-row md-ob-form-row-half">
+                            <div>
+                                <label>開始時間</label>
+                                <div class="md-ob-time-picker-wrap" onclick="openTimePicker('editStartTime', this)">
+                                    <input type="text" id="editStartTime" class="md-ob-time-input" readonly placeholder="--:--">
+                                    <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
+                                </div>
+                            </div>
+                            <div>
+                                <label>終了時間</label>
+                                <div class="md-ob-time-picker-wrap" onclick="openTimePicker('editEndTime', this)">
+                                    <input type="text" id="editEndTime" class="md-ob-time-input" readonly placeholder="--:--">
+                                    <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
+                                </div>
                             </div>
                         </div>
-                        <div>
-                            <label>終了時間</label>
-                            <div class="md-ob-time-picker-wrap" onclick="openTimePicker('editEndTime', this)">
-                                <input type="text" id="editEndTime" class="md-ob-time-input" readonly placeholder="--:--">
-                                <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
+                        <!-- 担当者 -->
+                        <div class="md-modal-section-bar">担当者</div>
+                        <div class="md-ob-form-row md-ob-form-row-half">
+                            <div>
+                                <label>現場監督</label>
+                                <input type="text" id="editSupervisor" placeholder="氏名">
+                            </div>
+                            <div>
+                                <label>連絡先</label>
+                                <input type="tel" id="editSupervisorTel" placeholder="電話番号">
                             </div>
                         </div>
-                    </div>
-                    <div class="md-ob-form-row md-ob-form-row-half">
-                        <div>
-                            <label>現場監督</label>
-                            <input type="text" id="editSupervisor" placeholder="氏名">
-                        </div>
-                        <div>
-                            <label>連絡先</label>
-                            <input type="tel" id="editSupervisorTel" placeholder="電話番号">
-                        </div>
-                    </div>
-                    <div class="md-ob-supervisor-candidates" id="supervisorCandidates" style="display:none;">
-                        <span class="md-ob-candidates-label">過去の入力:</span>
-                        <div class="md-ob-candidates-chips" id="supervisorCandidateChips"></div>
-                        <div class="md-ob-sv-undo-bar" id="svUndoBar" style="display:none;">
-                            <span id="svUndoMsg"></span>
-                            <button type="button" class="md-ob-badge-undo-btn" onclick="undoDeleteSupervisor()">戻す</button>
-                        </div>
-                    </div>
-                    <div class="md-ob-form-row md-ob-form-row-half">
-                        <div>
-                            <label>集合場所</label>
-                            <input type="text" id="editMeetingPlace" placeholder="集合場所を入力">
-                        </div>
-                        <div>
-                            <label>集合時間</label>
-                            <div class="md-ob-time-picker-wrap" onclick="openTimePicker('editMeetingTime', this)">
-                                <input type="text" id="editMeetingTime" class="md-ob-time-input" readonly placeholder="--:--">
-                                <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
+                        <div class="md-ob-supervisor-candidates" id="supervisorCandidates" style="display:none;">
+                            <span class="md-ob-candidates-label">過去の入力:</span>
+                            <div class="md-ob-candidates-chips" id="supervisorCandidateChips"></div>
+                            <div class="md-ob-sv-undo-bar" id="svUndoBar" style="display:none;">
+                                <span id="svUndoMsg"></span>
+                                <button type="button" class="md-ob-badge-undo-btn" onclick="undoDeleteSupervisor()">戻す</button>
                             </div>
                         </div>
-                    </div>
-                    <div class="md-ob-map-section">
-                        <label>現場地図</label>
-                        <div class="md-ob-map-url-row">
-                            <input type="url" id="editMapUrl" placeholder="Google Maps等のURLを入力">
-                            <button type="button" class="md-ob-btn-map-preview" onclick="previewMap()">プレビュー</button>
+                        <!-- 集合 -->
+                        <div class="md-modal-section-bar">集合</div>
+                        <div class="md-ob-form-row md-ob-form-row-half">
+                            <div>
+                                <label>集合場所</label>
+                                <input type="text" id="editMeetingPlace" placeholder="集合場所を入力">
+                            </div>
+                            <div>
+                                <label>集合時間</label>
+                                <div class="md-ob-time-picker-wrap" onclick="openTimePicker('editMeetingTime', this)">
+                                    <input type="text" id="editMeetingTime" class="md-ob-time-input" readonly placeholder="--:--">
+                                    <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="md-ob-map-preview" id="mapPreviewContainer" style="display:none;">
-                            <iframe id="mapPreviewFrame" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>
-                            <button type="button" class="md-ob-btn-map-clear" onclick="clearMapPreview()" title="プレビューを閉じる">✕</button>
+                        <!-- 地図 -->
+                        <div class="md-modal-section-bar">地図</div>
+                        <div class="md-ob-map-section">
+                            <label>現場地図</label>
+                            <div class="md-ob-map-url-row">
+                                <input type="url" id="editMapUrl" placeholder="Google Maps等のURLを入力">
+                                <button type="button" class="md-ob-btn-map-preview" onclick="previewMap()">プレビュー</button>
+                            </div>
+                            <div class="md-ob-map-preview" id="mapPreviewContainer" style="display:none;">
+                                <iframe id="mapPreviewFrame" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>
+                                <button type="button" class="md-ob-btn-map-clear" onclick="clearMapPreview()" title="プレビューを閉じる">✕</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="md-ob-form-row">
-                        <label>備考</label>
-                        <textarea id="editRemarks" rows="2"></textarea>
+                        <!-- 備考 -->
+                        <div class="md-modal-section-bar">備考</div>
+                        <div class="md-ob-form-row">
+                            <label>備考</label>
+                            <textarea id="editRemarks" rows="2"></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -259,46 +270,55 @@
                 <span id="rowEditModalTitle">行情報編集</span>
             </div>
             <div class="md-ob-modal-body">
-                <div class="md-ob-chip-field">
-                    <div class="md-ob-chip-field-header">
-                        <span class="md-ob-chip-field-title">会社</span>
+                <!-- ━━ Row Information ━━ -->
+                <div class="md-modal-body-field"><div class="md-modal-body-field-value">Row Information</div></div>
+                <div class="md-modal-body-card">
+                    <div class="md-ob-chip-field">
+                        <div class="md-ob-chip-field-header">
+                            <span class="md-ob-chip-field-title">会社</span>
+                        </div>
+                        <div class="md-ob-row-chips" id="rowEditBranchChips"></div>
                     </div>
-                    <div class="md-ob-row-chips" id="rowEditBranchChips"></div>
-                </div>
-                <div class="md-ob-chip-field">
-                    <div class="md-ob-chip-field-header">
-                        <span class="md-ob-chip-field-title">区分</span>
-                        <button type="button" class="md-ob-btn-add-chip" onclick="addRowCategory()">+ 追加</button>
+                    <div class="md-ob-chip-field">
+                        <div class="md-ob-chip-field-header">
+                            <span class="md-ob-chip-field-title">区分</span>
+                            <button type="button" class="md-ob-btn-add-chip" onclick="addRowCategory()">+ 追加</button>
+                        </div>
+                        <div class="md-ob-row-chips" id="rowEditCategoryChips"></div>
                     </div>
-                    <div class="md-ob-row-chips" id="rowEditCategoryChips"></div>
-                </div>
-                <div class="md-ob-chip-field">
-                    <div class="md-ob-chip-field-header">
-                        <span class="md-ob-chip-field-title">昼夜</span>
-                    </div>
-                    <div class="md-ob-row-chips" id="rowEditShiftChips"></div>
-                </div>
-                <div class="md-ob-form-row md-ob-company-field">
-                    <label>契約先名</label>
-                    <input type="text" id="rowEditCompany" oninput="checkRowDuplicate(); obCompanySuggest()" autocomplete="off">
-                    <div class="md-ob-company-suggest" id="obCompanySuggest" style="display:none;"></div>
-                </div>
-                <div class="md-ob-form-row md-ob-task-field">
-                    <label>業務名</label>
-                    <input type="text" id="rowEditTask" placeholder="空欄で個別業務" oninput="checkRowDuplicate(); obTaskSuggest()" autocomplete="off">
-                    <div class="md-ob-company-suggest" id="obTaskSuggest" style="display:none;"></div>
-                </div>
-                <div class="md-ob-form-row-half">
-                    <div>
-                        <label>開始時間（プリセット）</label>
-                        <input type="time" id="rowEditPresetStart">
-                    </div>
-                    <div>
-                        <label>終了時間（プリセット）</label>
-                        <input type="time" id="rowEditPresetEnd">
+                    <div class="md-ob-chip-field">
+                        <div class="md-ob-chip-field-header">
+                            <span class="md-ob-chip-field-title">昼夜</span>
+                        </div>
+                        <div class="md-ob-row-chips" id="rowEditShiftChips"></div>
                     </div>
                 </div>
-                <div class="md-ob-row-dup-warning" id="rowDupWarning" style="display:none;">※ この組み合わせは既に存在します</div>
+
+                <!-- ━━ Fields ━━ -->
+                <div class="md-modal-body-field"><div class="md-modal-body-field-value">Fields</div></div>
+                <div class="md-modal-body-card">
+                    <div class="md-ob-form-row md-ob-company-field">
+                        <label>契約先名</label>
+                        <input type="text" id="rowEditCompany" oninput="checkRowDuplicate(); obCompanySuggest()" autocomplete="off">
+                        <div class="md-ob-company-suggest" id="obCompanySuggest" style="display:none;"></div>
+                    </div>
+                    <div class="md-ob-form-row md-ob-task-field">
+                        <label>業務名</label>
+                        <input type="text" id="rowEditTask" placeholder="空欄で個別業務" oninput="checkRowDuplicate(); obTaskSuggest()" autocomplete="off">
+                        <div class="md-ob-company-suggest" id="obTaskSuggest" style="display:none;"></div>
+                    </div>
+                    <div class="md-ob-form-row-half">
+                        <div>
+                            <label>開始時間（プリセット）</label>
+                            <input type="time" id="rowEditPresetStart">
+                        </div>
+                        <div>
+                            <label>終了時間（プリセット）</label>
+                            <input type="time" id="rowEditPresetEnd">
+                        </div>
+                    </div>
+                    <div class="md-ob-row-dup-warning" id="rowDupWarning" style="display:none;">※ この組み合わせは既に存在します</div>
+                </div>
             </div>
             <div class="md-ob-modal-footer">
                 <div></div>
@@ -318,14 +338,17 @@
                 <button class="md-ob-modal-close" onclick="closeSortModal()">✕</button>
             </div>
             <div class="md-ob-modal-body">
-                <p class="md-ob-sort-desc">ドラッグで優先順位を変更できます</p>
-                <ul class="md-ob-sort-list" id="sortList">
-                    <li draggable="true" data-key="branch"><span class="md-ob-sort-grip">☰</span> 会社 <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
-                    <li draggable="true" data-key="category"><span class="md-ob-sort-grip">☰</span> 区分カテゴリ <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
-                    <li draggable="true" data-key="company"><span class="md-ob-sort-grip">☰</span> 契約先名 <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
-                    <li draggable="true" data-key="task"><span class="md-ob-sort-grip">☰</span> 業務名 <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
-                    <li draggable="true" data-key="shift"><span class="md-ob-sort-grip">☰</span> 昼/夜 <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
-                </ul>
+                <div class="md-modal-body-field"><div class="md-modal-body-field-value">Sort Order</div></div>
+                <div class="md-modal-body-card">
+                    <p class="md-ob-sort-desc">ドラッグで優先順位を変更できます</p>
+                    <ul class="md-ob-sort-list" id="sortList">
+                        <li draggable="true" data-key="branch"><span class="md-ob-sort-grip">☰</span> 会社 <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
+                        <li draggable="true" data-key="category"><span class="md-ob-sort-grip">☰</span> 区分カテゴリ <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
+                        <li draggable="true" data-key="company"><span class="md-ob-sort-grip">☰</span> 契約先名 <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
+                        <li draggable="true" data-key="task"><span class="md-ob-sort-grip">☰</span> 業務名 <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
+                        <li draggable="true" data-key="shift"><span class="md-ob-sort-grip">☰</span> 昼/夜 <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
+                    </ul>
+                </div>
             </div>
             <div class="md-ob-modal-footer">
                 <button class="md-ob-btn md-ob-btn-secondary" onclick="closeSortModal()">キャンセル</button>

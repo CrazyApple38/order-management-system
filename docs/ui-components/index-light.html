@@ -590,8 +590,8 @@
                         <div class="md-typo-special-use">サイドバーセクション名、Applied Color見出し</div>
                     </div>
                     <div class="md-typo-special-card">
-                        <span style="font-size: 11px; font-weight: 500; color: #B5524D;">夜勤データ</span>
-                        <div class="md-typo-special-label">Night Shift — <code>inherit size / color: #B5524D (受注簿) or #D05050 (計画書)</code></div>
+                        <span style="font-size: 11px; font-weight: 500; color: #DB577B;">夜勤データ</span>
+                        <div class="md-typo-special-label">Night Shift — <code>inherit size / color: #DB577B (var(--night-text))</code></div>
                         <div class="md-typo-special-use">夜勤行の文字色変更（サイズは継承、色のみ変更）</div>
                     </div>
                     <div class="md-typo-special-card">
@@ -644,7 +644,7 @@
                     <button class="md-btn md-btn-danger">リセット</button>
                     <button class="md-btn md-btn-danger" disabled>削除</button>
                 </div>
-                <div class="md-btn-spec">.md-btn .md-btn-danger &nbsp; bg: rgba(229,62,62,0.08) &nbsp; color: #E53E3E &nbsp; border: 1px solid rgba(229,62,62,0.3)</div>
+                <div class="md-btn-spec">.md-btn .md-btn-danger &nbsp; bg: rgba(219,87,123,0.08) &nbsp; color: #DB577B &nbsp; border: 1px solid rgba(219,87,123,0.3)</div>
 
                 <!-- Footer Layout Demo -->
                 <h4 style="margin-top: 24px;">Modal Footer Layout</h4>
@@ -686,7 +686,7 @@
                     <button class="md-tb-btn md-tb-btn-danger">行削除</button>
                     <button class="md-tb-btn md-tb-btn-danger" disabled>行削除</button>
                 </div>
-                <div class="md-btn-spec">.md-tb-btn .md-tb-btn-danger &nbsp; bg: rgba(229,62,62,0.08) &nbsp; color: #E53E3E &nbsp; border: rgba(229,62,62,0.3)</div>
+                <div class="md-btn-spec">.md-tb-btn .md-tb-btn-danger &nbsp; bg: rgba(219,87,123,0.08) &nbsp; color: #DB577B &nbsp; border: rgba(219,87,123,0.3)</div>
 
                 <!-- Toolbar Layout Demo -->
                 <h4 style="margin-top: 24px;">Toolbar Layout</h4>
@@ -753,7 +753,7 @@
                     <button class="md-inline-btn md-inline-danger">この配置先を削除</button>
                     <button class="md-inline-btn md-inline-danger">削除</button>
                 </div>
-                <div class="md-btn-spec">.md-inline-btn .md-inline-danger &nbsp; bg: rgba(229,62,62,0.06) &nbsp; color: #dc2626 &nbsp; border: rgba(220,38,38,0.3)</div>
+                <div class="md-btn-spec">.md-inline-btn .md-inline-danger &nbsp; bg: rgba(219,87,123,0.06) &nbsp; color: #DB577B &nbsp; border: rgba(219,87,123,0.3)</div>
 
                 <h4 style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-top: 16px;">Inline Undo（戻す）</h4>
                 <div class="comp-row">
@@ -1667,6 +1667,8 @@
                         <tr><td>セクション区切り</td><td><code>.modal-section-bar</code></td><td>テキスト＋横線の区切り</td></tr>
                         <tr><td>カード</td><td><code>.modal-body-card</code></td><td>白背景のグループ化カード</td></tr>
                         <tr><td>フィールド見出し</td><td><code>.modal-body-field</code></td><td>Usage Map風フィールド見出し</td></tr>
+                        <tr><td>配置先タブ</td><td><code>.ob-placement-tabs</code></td><td>マルチサイト配置先のタブ切り替え</td></tr>
+                        <tr><td>業務名表示</td><td><code>.ob-cal-display-value</code></td><td>読み取り専用の業務名表示（下線付き）</td></tr>
                     </tbody>
                 </table>
 
@@ -1692,11 +1694,12 @@
                     </div>
                 </div>
                 <ul style="font-size: 12px; color: var(--text-secondary); list-style: disc; padding-left: 20px; margin-bottom: 0;">
-                    <li>背景: <code>#5AB8C6</code>（アクセントカラー）</li>
-                    <li>文字色: <code>#FFFFFF</code></li>
+                    <li>背景: <code>#5AB8C6</code>（var(--accent-light)）</li>
+                    <li>タイトル: <code>font-size: 13px; color: #FFFFFF</code>（font-weight は継承、明示不要）</li>
                     <li>閉じるボタン: <code>rgba(255,255,255,0.8)</code> → hover: <code>rgba(255,255,255,0.2)</code> 背景</li>
                     <li>パディング: <code>14px 24px</code></li>
                     <li>角丸: 上部のみ <code>border-radius: 12px 12px 0 0</code></li>
+                    <li>夜勤対応: ヘッダー内のメタ情報（現場名・バッジ等）は夜勤行でも白系にオーバーライド</li>
                 </ul>
 
                 <!-- 4. ボディ背景 -->
@@ -1710,7 +1713,7 @@
                                 <p style="font-size: 11px; color: var(--text-secondary);">白カード内にフォーム要素を配置</p>
                             </div>
                         </div>
-                        <p style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">用途: 現場詳細、カレンダー、打合せ、行編集、備考等</p>
+                        <p style="font-size: 11px; color: var(--text-tertiary); margin-top: 4px;">用途: 現場詳細、カレンダー+セル編集、打合せ、行編集、送迎・備考、地図、作業時間</p>
                     </div>
                     <div style="flex: 1; min-width: 200px;">
                         <p style="font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">B) フラット型（シンプルなモーダル向き）</p>
@@ -1772,8 +1775,47 @@
                     </tbody>
                 </table>
 
-                <!-- 9. 追加要素 -->
-                <h4 style="margin-top: 24px;">9. 追加要素（モーダル関連パターン）</h4>
+                <!-- 9. カード型ボディ構成要素の値 -->
+                <h4 style="margin-top: 24px;">9. カード型ボディ構成要素（値定義）</h4>
+                <table class="pattern-table">
+                    <thead><tr><th>要素</th><th>プロパティ</th><th>値</th></tr></thead>
+                    <tbody>
+                        <tr><td rowspan="4"><strong>カード</strong><br><code>.modal-body-card</code></td><td>背景</td><td><code>#FFFFFF</code></td></tr>
+                        <tr><td>枠線</td><td><code>1px solid #B2D5E2</code></td></tr>
+                        <tr><td>角丸</td><td><code>8px</code></td></tr>
+                        <tr><td>パディング / gap</td><td><code>16px</code> / <code>14px</code></td></tr>
+                        <tr><td rowspan="3"><strong>フィールド見出し</strong><br><code>.modal-body-field-value</code></td><td>フォント</td><td><code>10px / 600 / uppercase / letter-spacing: 1px</code></td></tr>
+                        <tr><td>色</td><td><code>var(--accent)</code></td></tr>
+                        <tr><td>下線</td><td><code>border-bottom: 2px solid var(--accent)</code></td></tr>
+                        <tr><td rowspan="3"><strong>セクションバー</strong><br><code>.modal-section-bar</code></td><td>フォント</td><td><code>11px / 700 / var(--accent) / letter-spacing: 0.5px</code></td></tr>
+                        <tr><td>横線</td><td><code>::after { flex:1; height:1px; bg: var(--divider) }</code></td></tr>
+                        <tr><td>マージン</td><td><code>0</code>（カード内ではカードのgapで制御）</td></tr>
+                        <tr><td rowspan="2"><strong>業務名表示</strong><br><code>.ob-cal-display-value</code></td><td>フォント</td><td><code>15px / 600 / var(--accent)</code></td></tr>
+                        <tr><td>下線</td><td><code>border-bottom: 1px solid var(--divider); padding: 12px 0 8px</code></td></tr>
+                        <tr><td rowspan="2"><strong>配置先タブ</strong><br><code>.ob-placement-tabs</code></td><td>タブ</td><td><code>12px / 600 / padding: 6px 16px / border-bottom: 2px</code></td></tr>
+                        <tr><td>追加タブ</td><td><code>11px / text-tertiary</code>、削除: <code>margin-left: auto / var(--error)</code></td></tr>
+                    </tbody>
+                </table>
+
+                <!-- 10. フォーム要素（モーダル内） -->
+                <h4 style="margin-top: 24px;">10. フォーム要素（モーダル内共通）</h4>
+                <table class="pattern-table">
+                    <thead><tr><th>要素</th><th>プロパティ</th><th>値</th></tr></thead>
+                    <tbody>
+                        <tr><td rowspan="3"><strong>ラベル</strong></td><td>フォント</td><td><code>11px / 600</code></td></tr>
+                        <tr><td>色</td><td><code>var(--text-secondary)</code></td></tr>
+                        <tr><td>余白</td><td><code>margin-bottom: 8px</code></td></tr>
+                        <tr><td rowspan="4"><strong>テキスト入力</strong></td><td>フォント</td><td><code>12px</code></td></tr>
+                        <tr><td>パディング</td><td><code>10px</code></td></tr>
+                        <tr><td>枠線</td><td><code>1px solid var(--divider) / border-radius: 6px</code></td></tr>
+                        <tr><td>フォーカス</td><td><code>border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim)</code></td></tr>
+                        <tr><td rowspan="2"><strong>チップフィールド</strong></td><td>背景・枠</td><td><code>transparent / border: none / padding: 0</code></td></tr>
+                        <tr><td>タイトル</td><td><code>11px / 600 / var(--accent) / letter-spacing: 0.5px</code></td></tr>
+                    </tbody>
+                </table>
+
+                <!-- 11. 追加要素 -->
+                <h4 style="margin-top: 24px;">11. 追加要素（モーダル関連パターン）</h4>
                 <table class="pattern-table">
                     <thead><tr><th>要素</th><th>説明</th><th>適用箇所</th></tr></thead>
                     <tbody>
@@ -1785,18 +1827,19 @@
                     </tbody>
                 </table>
 
-                <!-- 10. ボタン共通 -->
-                <h4 style="margin-top: 24px;">10. ボタン仕様（モーダル内共通）</h4>
+                <!-- 12. ボタン共通 -->
+                <h4 style="margin-top: 24px;">12. ボタン仕様（モーダル内共通）</h4>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px;">
                     <button class="ob-btn ob-btn-primary">保存 (Primary)</button>
                     <button class="ob-btn ob-btn-secondary">キャンセル (Secondary)</button>
                     <button class="ob-btn ob-btn-danger">削除 (Danger)</button>
                 </div>
                 <ul style="font-size: 12px; color: var(--text-secondary); list-style: disc; padding-left: 20px;">
-                    <li>Primary: <code>var(--accent)</code> 背景、白文字</li>
-                    <li>Secondary: <code>var(--bg-surface-2)</code> 背景</li>
-                    <li>Danger: 赤系、枠線付き</li>
+                    <li>Primary: <code>background: var(--accent); color: white</code></li>
+                    <li>Secondary: <code>background: var(--bg-surface-2); color: var(--text-secondary)</code></li>
+                    <li>Danger: <code>background: rgba(219,87,123,0.08); color: #DB577B; border: 1px solid rgba(219,87,123,0.3)</code></li>
                     <li>共通: <code>padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600</code></li>
+                    <li>夜勤テキスト・エラーカラーは全て <code>#DB577B</code>（var(--error) / var(--night-text)）に統一</li>
                 </ul>
 
             </div>

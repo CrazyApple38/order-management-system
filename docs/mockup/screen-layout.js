@@ -463,10 +463,10 @@
             const el = document.getElementById('smPlanTaskName');
             if (!el) return;
             if (parts.length > 0) {
-                el.className = 'md-ob-plan-name-value';
-                el.innerHTML = parts.join(' <span class="md-ob-plan-arrow">›</span> ');
+                el.className = 'md-sm-display-value';
+                el.innerHTML = parts.join('　');
             } else {
-                el.className = 'md-ob-plan-name-value md-ob-plan-empty';
+                el.className = 'md-sm-display-value md-sm-display-empty';
                 el.textContent = '現場名・業務詳細を入力すると自動生成されます';
             }
         }
@@ -3847,7 +3847,7 @@
                 cnDemoIndex = 0;
                 cnDemoRunning = true;
                 btn.textContent = '⏹ デモ停止';
-                btn.style.background = '#e53e3e';
+                btn.style.background = '#DB577B';
                 btn.style.color = '#fff';
                 sendDemoNotification();
                 cnDemoInterval = setInterval(sendDemoNotification, 3000);

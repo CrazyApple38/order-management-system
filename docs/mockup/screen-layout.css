@@ -46,16 +46,16 @@
     --shadow-color: rgba(0, 69, 84, 0.08);
     --shadow-medium: rgba(0, 69, 84, 0.12);
     --shadow-strong: rgba(0, 69, 84, 0.15);
-    --error: #E53E3E;
-    --error-light: #fc8181;
-    --error-bg: rgba(229, 62, 62, 0.12);
+    --error: #DB577B;
+    --error-light: #E88AA5;
+    --error-bg: rgba(219, 87, 123, 0.12);
     --success: #38A169;
     --success-text: #276749;
     --success-bg: rgba(56, 161, 105, 0.1);
     --warning: #D69E2E;
     --warning-text: #975A16;
     --warning-bg: rgba(214, 158, 46, 0.1);
-    --night-text: #D05050;
+    --night-text: #DB577B;
     --tooltip-bg: rgba(0, 69, 84, 0.95);
     --tooltip-color: white;
     --header-btn-bg: rgba(255, 255, 255, 0.15);
@@ -98,16 +98,16 @@
     --shadow-color: rgba(0, 0, 0, 0.3);
     --shadow-medium: rgba(0, 0, 0, 0.2);
     --shadow-strong: rgba(0, 0, 0, 0.4);
-    --error: #fc8181;
-    --error-light: #feb2b2;
-    --error-bg: rgba(252, 129, 129, 0.2);
+    --error: #E88AA5;
+    --error-light: #F0B0C2;
+    --error-bg: rgba(232, 138, 165, 0.2);
     --success: #68d391;
     --success-text: #68d391;
     --success-bg: rgba(72, 187, 120, 0.2);
     --warning: #ecc94b;
     --warning-text: #ecc94b;
     --warning-bg: rgba(236, 201, 75, 0.2);
-    --night-text: #fc8181;
+    --night-text: #E88AA5;
     --tooltip-bg: rgba(20, 24, 28, 0.95);
     --tooltip-color: #D9D4D1;
     --header-btn-bg: rgba(255, 255, 255, 0.08);
@@ -158,12 +158,12 @@ h1 {
 .description h2 {
     color: var(--accent);
     margin-bottom: 10px;
-    font-size: 1.1rem;
+    font-size: 18px;
 }
 
 .description p {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 14px;
     line-height: 1.6;
 }
 
@@ -210,7 +210,7 @@ h1 {
     padding: 10px 8px;
     text-align: center;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 13px;
     background: rgba(0, 0, 0, 0.15);
     transition: background 0.2s;
     white-space: nowrap;
@@ -239,7 +239,7 @@ h1 {
     background: var(--bg-surface-2);
     border: 1px solid var(--divider);
     border-radius: 6px;
-    font-size: 0.8rem;
+    font-size: 13px;
     cursor: grab;
     transition: all 0.2s;
     user-select: none;
@@ -259,7 +259,7 @@ h1 {
 }
 .vehicle-list-tag.assigned .vlt-model { color: var(--success-text); opacity: 0.7; }
 .vlt-model {
-    font-size: 0.7rem;
+    font-size: 11px;
     color: var(--text-tertiary);
 }
 
@@ -272,7 +272,7 @@ h1 {
     background: rgba(214, 158, 46, 0.1);
     border: 1px solid rgba(214, 158, 46, 0.3);
     border-radius: 4px;
-    font-size: 0.78rem;
+    font-size: 12px;
     cursor: grab;
     transition: all 0.15s;
     user-select: none;
@@ -291,7 +291,7 @@ h1 {
 }
 
 .md-sp-etc-label {
-    font-size: 0.68rem;
+    font-size: 11px;
     color: var(--text-tertiary);
     margin-top: 6px;
     margin-bottom: 2px;
@@ -312,7 +312,7 @@ h1 {
     background: var(--accent);
     cursor: pointer;
     user-select: none;
-    font-size: 0.75rem;
+    font-size: 12px;
     font-weight: 600;
     color: white;
     border-bottom: 1px solid var(--divider);
@@ -339,7 +339,7 @@ h1 {
 }
 
 .minimap-total {
-    font-size: 0.68rem;
+    font-size: 11px;
     font-weight: 400;
     color: rgba(255, 255, 255, 0.85);
 }
@@ -360,7 +360,7 @@ h1 {
     align-items: center;
     gap: 4px;
     padding: 3px 10px;
-    font-size: 0.68rem;
+    font-size: 11px;
     cursor: pointer;
     border-bottom: 1px solid var(--divider);
     transition: background 0.15s;
@@ -371,7 +371,7 @@ h1 {
 
 .minimap-shift {
     flex-shrink: 0;
-    font-size: 0.6rem;
+    font-size: 10px;
     font-weight: 600;
     padding: 1px 4px;
     border-radius: 2px;
@@ -420,7 +420,7 @@ h1 {
     padding: 8px 10px;
     border: 1px solid var(--divider);
     border-radius: 4px;
-    font-size: 0.85rem;
+    font-size: 14px;
     background: var(--bg-surface);
     color: var(--text-primary);
 }
@@ -436,7 +436,7 @@ h1 {
 }
 
 /* === サイドパネル 縦タブレイアウト === */
-.md-sp-employee-count { font-size: 0.8rem; opacity: 0.8; }
+.md-sp-employee-count { font-size: 13px; opacity: 0.8; }
 
 .side-panel-body {
     flex: 1;
@@ -463,7 +463,7 @@ h1 {
     writing-mode: vertical-rl;
     text-orientation: mixed;
     padding: 10px 5px;
-    font-size: 0.7rem;
+    font-size: 11px;
     color: var(--text-tertiary);
     cursor: pointer;
     border: none;
@@ -493,7 +493,7 @@ h1 {
     writing-mode: vertical-rl;
     text-orientation: mixed;
     padding: 8px 5px 12px;
-    font-size: 0.62rem;
+    font-size: 10px;
     font-weight: 700;
     color: var(--text-secondary);
     background: var(--bg-surface-3);
@@ -545,7 +545,7 @@ h1 {
 
 /* 「すべて」タブでの会社セクション見出し */
 .md-sp-gc-section-label {
-    font-size: 0.68rem;
+    font-size: 11px;
     font-weight: 600;
     color: var(--text-secondary);
     padding: 6px 4px 2px;
@@ -565,7 +565,7 @@ h1 {
     background: var(--bg-surface-2);
     border: 1px solid var(--divider);
     border-radius: 6px;
-    font-size: 0.8rem;
+    font-size: 13px;
     cursor: grab;
     transition: all 0.2s;
     user-select: none;
@@ -628,7 +628,7 @@ h1 {
 }
 
 .date-display {
-    font-size: 1.2rem;
+    font-size: 19px;
     font-weight: bold;
 }
 
@@ -651,7 +651,7 @@ h1 {
     border: 1px solid rgba(255,255,255,0.2);
     background: rgba(255,255,255,0.12);
     color: white;
-    font-size: 0.85rem;
+    font-size: 14px;
     cursor: pointer;
     transition: background 0.15s;
 }
@@ -661,7 +661,7 @@ h1 {
 }
 
 .md-gc-filter-arrow {
-    font-size: 0.65rem;
+    font-size: 10px;
     opacity: 0.7;
 }
 
@@ -676,7 +676,7 @@ h1 {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.9rem;
+    font-size: 14px;
     color: var(--text-primary);
     cursor: pointer;
 }
@@ -709,7 +709,7 @@ h1 {
     border-radius: 6px;
     color: white;
     font-family: inherit;
-    font-size: 0.85rem;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
@@ -742,7 +742,7 @@ h1 {
     background: var(--bg-surface);
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 13px;
     transition: all 0.15s;
     color: var(--text-primary);
     white-space: nowrap;
@@ -765,13 +765,13 @@ h1 {
 }
 
 .toolbar button.danger {
-    background: rgba(229, 62, 62, 0.08);
+    background: rgba(219, 87, 123, 0.08);
     color: var(--error);
-    border-color: rgba(229, 62, 62, 0.3);
+    border-color: rgba(219, 87, 123, 0.3);
 }
 
 .toolbar button.danger:hover {
-    background: rgba(229, 62, 62, 0.15);
+    background: rgba(219, 87, 123, 0.15);
     color: var(--error);
 }
 
@@ -798,7 +798,7 @@ h1 {
 .grid-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.85rem;
+    font-size: 14px;
 }
 
 .grid-table th,
@@ -841,7 +841,7 @@ h1 {
 }
 .work-time-start, .work-time-end {
     display: block;
-    font-size: 0.8rem;
+    font-size: 13px;
     font-weight: 500;
     color: var(--text-primary);
     line-height: 1.4;
@@ -868,7 +868,7 @@ h1 {
 
 /* 備考セル内表示 */
 .notes-place, .notes-memo {
-    font-size: 0.75rem;
+    font-size: 12px;
     line-height: 1.4;
     white-space: nowrap;
     overflow: hidden;
@@ -885,7 +885,7 @@ h1 {
 }
 .notes-label {
     display: inline-block;
-    font-size: 0.65rem;
+    font-size: 10px;
     font-weight: 600;
     padding: 0 4px;
     border-radius: 3px;
@@ -914,7 +914,7 @@ h1 {
     color: white;
     padding: 3px 8px;
     border-radius: 4px;
-    font-size: 0.75rem;
+    font-size: 12px;
     font-weight: bold;
     cursor: pointer;
     text-decoration: none;
@@ -969,7 +969,7 @@ h1 {
     background: rgba(56, 161, 105, 0.08);
     border: 1px solid rgba(56, 161, 105, 0.25);
     border-radius: 4px;
-    font-size: 0.8rem;
+    font-size: 13px;
     color: var(--success-text);
     cursor: grab;
     transition: opacity 0.15s, transform 0.15s;
@@ -991,7 +991,7 @@ h1 {
     border-radius: 50%;
     background: var(--error);
     color: white;
-    font-size: 0.6rem;
+    font-size: 10px;
     font-weight: bold;
     cursor: pointer;
     display: none;
@@ -1044,7 +1044,7 @@ h1 {
 }
 
 .contact-popup-title {
-    font-size: 0.75rem;
+    font-size: 12px;
     color: var(--text-tertiary);
     margin-bottom: 6px;
     padding: 0 2px;
@@ -1062,7 +1062,7 @@ h1 {
     border: 1px solid var(--divider);
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 13px;
     font-weight: 500;
     transition: all 0.15s;
     background: var(--bg-surface-2);
@@ -1087,7 +1087,7 @@ h1 {
     border-radius: 50%;
     background: var(--error);
     color: white;
-    font-size: 0.55rem;
+    font-size: 9px;
     line-height: 14px;
     text-align: center;
     cursor: pointer;
@@ -1100,10 +1100,10 @@ h1 {
 }
 
 .contact-popup-btn.opt-clear {
-    border-color: rgba(229, 62, 62, 0.3);
+    border-color: rgba(219, 87, 123, 0.3);
     color: var(--error);
-    font-size: 0.75rem;
-    background: rgba(229, 62, 62, 0.06);
+    font-size: 12px;
+    background: rgba(219, 87, 123, 0.06);
 }
 .contact-popup-btn.opt-clear:hover {
     background: var(--error-bg);
@@ -1125,7 +1125,7 @@ h1 {
     padding: 3px 6px;
     border: 1px solid var(--divider);
     border-radius: 4px;
-    font-size: 0.75rem;
+    font-size: 12px;
     min-width: 0;
     background: var(--bg-surface);
     color: var(--text-primary);
@@ -1143,7 +1143,7 @@ h1 {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.75rem;
+    font-size: 12px;
     white-space: nowrap;
 }
 
@@ -1194,7 +1194,7 @@ h1 {
 }
 
 .category-badge {
-    font-size: 0.7rem;
+    font-size: 11px;
     font-weight: bold;
     padding: 2px 6px;
     border-radius: 3px;
@@ -1203,7 +1203,7 @@ h1 {
 }
 
 .shift-badge {
-    font-size: 0.7rem;
+    font-size: 11px;
     padding: 2px 6px;
     border-radius: 3px;
     text-align: center;
@@ -1267,7 +1267,7 @@ h1 {
     color: var(--tooltip-color);
     padding: 3px 8px;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 11px;
     white-space: nowrap;
     pointer-events: none;
     z-index: 10;
@@ -1277,7 +1277,7 @@ h1 {
 
 .site-info .company {
     color: var(--text-tertiary);
-    font-size: 0.8rem;
+    font-size: 13px;
 }
 
 .site-info .site-name {
@@ -1288,7 +1288,7 @@ h1 {
     margin-top: 6px;
     padding: 1px 6px;
     border-radius: 8px;
-    font-size: 0.7rem;
+    font-size: 11px;
     line-height: 1.4;
     white-space: nowrap;
     overflow: hidden;
@@ -1309,7 +1309,7 @@ h1 {
     display: inline-block;
     padding: 1px 6px;
     border-radius: 8px;
-    font-size: 0.65rem;
+    font-size: 10px;
     font-weight: 600;
     line-height: 1.4;
     white-space: nowrap;
@@ -1349,7 +1349,7 @@ h1 {
 
 /* 連絡バッジ */
 .contact-badge {
-    font-size: 0.65rem;
+    font-size: 10px;
     font-weight: bold;
     padding: 1px 5px;
     border-radius: 3px;
@@ -1378,12 +1378,12 @@ h1 {
 }
 
 .count-ok { color: var(--success-text); }
-.count-shortage { color: var(--error); background: rgba(229, 62, 62, 0.08); }
+.count-shortage { color: var(--error); background: rgba(219, 87, 123, 0.08); }
 
 .count-shortage-badge {
     display: block;
     margin-top: 2px;
-    font-size: 0.6rem;
+    font-size: 10px;
     font-weight: bold;
     color: var(--error);
     border: 1px solid var(--error);
@@ -1402,7 +1402,7 @@ h1 {
 .count-excess-badge {
     display: block;
     margin-top: 2px;
-    font-size: 0.6rem;
+    font-size: 10px;
     font-weight: bold;
     color: #718096;
     border: 1px solid #718096;
@@ -1534,7 +1534,7 @@ h1 {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    font-size: 0.65rem;
+    font-size: 10px;
 }
 
 .indicator-continuous {
@@ -1556,7 +1556,7 @@ h1 {
 }
 
 .continuous-badge {
-    font-size: 0.6rem;
+    font-size: 10px;
     line-height: 1;
     color: var(--warning-text);
 }
@@ -1575,7 +1575,7 @@ h1 {
     background: var(--bg-surface-2);
     padding: 2px 6px;
     border-radius: 3px;
-    font-size: 0.75rem;
+    font-size: 12px;
     color: var(--text-secondary);
 }
 
@@ -1603,7 +1603,7 @@ h1 {
 
 .vehicle-drop-zone:empty::before {
     content: '車両';
-    font-size: 0.65rem;
+    font-size: 10px;
     color: var(--text-disabled);
     width: 100%;
     text-align: center;
@@ -1626,7 +1626,7 @@ h1 {
 
 .etc-drop-zone:empty::before {
     content: 'ETC';
-    font-size: 0.6rem;
+    font-size: 10px;
     color: var(--text-disabled);
     width: 100%;
     text-align: center;
@@ -1653,7 +1653,7 @@ h1 {
     background: rgba(214, 158, 46, 0.12);
     border: 1px solid rgba(214, 158, 46, 0.35);
     border-radius: 3px;
-    font-size: 0.7rem;
+    font-size: 11px;
     color: #8B6914;
     cursor: default;
 }
@@ -1664,11 +1664,11 @@ h1 {
     right: -5px;
     width: 14px;
     height: 14px;
-    background: rgba(229, 62, 62, 0.1);
+    background: rgba(219, 87, 123, 0.1);
     color: var(--error);
     border: none;
     border-radius: 50%;
-    font-size: 0.65rem;
+    font-size: 10px;
     font-weight: bold;
     cursor: pointer;
     display: none;
@@ -1700,7 +1700,7 @@ h1 {
     background: rgba(68,166,181,0.12);
     border: 1px solid rgba(68,166,181,0.3);
     border-radius: 3px;
-    font-size: 0.75rem;
+    font-size: 12px;
     color: #2A6B7A;
     cursor: default;
 }
@@ -1711,11 +1711,11 @@ h1 {
     right: -5px;
     width: 14px;
     height: 14px;
-    background: rgba(229, 62, 62, 0.1);
+    background: rgba(219, 87, 123, 0.1);
     color: var(--error);
     border: none;
     border-radius: 50%;
-    font-size: 0.65rem;
+    font-size: 10px;
     font-weight: bold;
     cursor: pointer;
     display: none;
@@ -1757,7 +1757,7 @@ h1 {
 .vt-drag-handle {
     cursor: grab;
     color: var(--text-disabled);
-    font-size: 1rem;
+    font-size: 16px;
     flex-shrink: 0;
     user-select: none;
     padding: 0 2px;
@@ -1776,7 +1776,7 @@ h1 {
     padding: 6px 8px;
     border: 1px solid var(--divider);
     border-radius: 4px;
-    font-size: 0.85rem;
+    font-size: 14px;
     background: var(--bg-surface);
     color: var(--text-primary);
 }
@@ -1792,7 +1792,7 @@ h1 {
     padding: 6px 8px;
     border: 1px solid var(--divider);
     border-radius: 4px;
-    font-size: 0.85rem;
+    font-size: 14px;
     background: var(--bg-surface);
     color: var(--text-primary);
 }
@@ -1817,16 +1817,16 @@ h1 {
     width: 26px;
     height: 26px;
     border: none;
-    background: rgba(229, 62, 62, 0.08);
+    background: rgba(219, 87, 123, 0.08);
     color: var(--error);
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 14px;
     flex-shrink: 0;
 }
 
 .vt-item-row .vt-remove-btn:hover {
-    background: rgba(229, 62, 62, 0.18);
+    background: rgba(219, 87, 123, 0.18);
     color: var(--error);
 }
 
@@ -1840,7 +1840,7 @@ h1 {
     border-radius: 6px;
     color: var(--accent);
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 14px;
     margin-top: 4px;
 }
 
@@ -1854,7 +1854,7 @@ h1 {
 }
 
 .vt-preset-label {
-    font-size: 0.75rem;
+    font-size: 12px;
     color: var(--text-tertiary);
     margin-bottom: 6px;
 }
@@ -1871,7 +1871,7 @@ h1 {
     background: var(--bg-surface);
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 13px;
     transition: all 0.15s;
     color: var(--text-primary);
 }
@@ -1887,7 +1887,7 @@ h1 {
     color: var(--warning-text);
     padding: 1px 5px;
     border-radius: 3px;
-    font-size: 0.7rem;
+    font-size: 11px;
 }
 
 /* ポップアップモーダル */
@@ -1952,10 +1952,10 @@ h1 {
 .md-modal-section select,
 .md-modal-section input {
     width: 100%;
-    padding: 10px;
+    padding: 8px 12px;
     border: 1px solid var(--divider);
     border-radius: 6px;
-    font-size: 0.95rem;
+    font-size: 13px;
     background: var(--bg-surface);
     color: var(--text-primary);
 }
@@ -1978,7 +1978,7 @@ h1 {
     padding: 10px 20px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 14px;
 }
 
 .md-modal-buttons .btn-cancel {
@@ -1988,14 +1988,14 @@ h1 {
 }
 
 .md-modal-buttons .btn-danger {
-    background: rgba(229, 62, 62, 0.08);
-    border: 1px solid rgba(229, 62, 62, 0.3);
+    background: rgba(219, 87, 123, 0.08);
+    border: 1px solid rgba(219, 87, 123, 0.3);
     color: var(--error);
     margin-right: auto;
     transition: background 0.15s;
 }
 .md-modal-buttons .btn-danger:hover {
-    background: rgba(229, 62, 62, 0.15);
+    background: rgba(219, 87, 123, 0.15);
 }
 
 .md-modal-buttons .btn-save {
@@ -2017,7 +2017,7 @@ h1 {
     background: var(--bg-surface);
     border: none;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 14px;
     font-weight: 600;
     color: var(--text-secondary);
     text-align: left;
@@ -2031,7 +2031,7 @@ h1 {
 .footer-toggle-icon {
     display: inline-block;
     transition: transform 0.2s;
-    font-size: 0.75rem;
+    font-size: 12px;
 }
 
 .footer-toggle-icon.open {
@@ -2062,7 +2062,7 @@ h1 {
 .legend h3 {
     color: var(--accent);
     margin-bottom: 15px;
-    font-size: 1rem;
+    font-size: 16px;
 }
 
 .legend-grid {
@@ -2073,7 +2073,7 @@ h1 {
 
 .legend-section h4 {
     color: var(--text-tertiary);
-    font-size: 0.85rem;
+    font-size: 14px;
     margin-bottom: 8px;
 }
 
@@ -2081,7 +2081,7 @@ h1 {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.85rem;
+    font-size: 14px;
     color: var(--text-secondary);
     margin-bottom: 5px;
 }
@@ -2123,7 +2123,7 @@ h1 {
 .layout-area h4 {
     color: var(--accent);
     margin-bottom: 10px;
-    font-size: 0.95rem;
+    font-size: 15px;
 }
 
 .layout-area ul {
@@ -2134,7 +2134,7 @@ h1 {
 .layout-area li {
     padding: 5px 0;
     color: var(--text-secondary);
-    font-size: 0.85rem;
+    font-size: 14px;
     border-bottom: 1px dashed var(--divider);
 }
 
@@ -2179,7 +2179,7 @@ h1 {
 
 .action-item span {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 14px;
 }
 
 /* ドラッグ中のスタイル */
@@ -2198,7 +2198,7 @@ h1 {
     padding-right: 35px;
     border: 1px solid var(--divider);
     border-radius: 6px;
-    font-size: 0.95rem;
+    font-size: 15px;
     background: var(--bg-surface);
     color: var(--text-primary);
 }
@@ -2222,7 +2222,7 @@ h1 {
     border: none;
     cursor: pointer;
     color: var(--text-tertiary);
-    font-size: 0.8rem;
+    font-size: 13px;
     padding: 5px;
 }
 
@@ -2239,7 +2239,7 @@ h1 {
     border: none;
     cursor: pointer;
     color: var(--text-disabled);
-    font-size: 1rem;
+    font-size: 16px;
     padding: 5px;
     display: none;
 }
@@ -2299,7 +2299,7 @@ h1 {
 
 .md-cb-option-icon {
     color: var(--text-tertiary);
-    font-size: 0.85rem;
+    font-size: 14px;
 }
 
 .md-cb-add-new {
@@ -2319,7 +2319,7 @@ h1 {
 }
 
 .md-cb-add-new-icon {
-    font-size: 1.1rem;
+    font-size: 18px;
 }
 
 .md-cb-no-results {
@@ -2359,7 +2359,7 @@ h1 {
 }
 
 .sort-modal-header h3 {
-    font-size: 1.1rem;
+    font-size: 18px;
     color: var(--text-primary);
     margin: 0;
     border: none;
@@ -2369,7 +2369,7 @@ h1 {
 .sort-modal-close {
     background: none;
     border: none;
-    font-size: 1.3rem;
+    font-size: 21px;
     cursor: pointer;
     color: var(--text-tertiary);
     padding: 4px 8px;
@@ -2404,7 +2404,7 @@ h1 {
 .sort-column-header {
     padding: 10px 12px;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 14px;
     color: var(--text-primary);
     background: var(--bg-surface-2);
     border-bottom: 2px solid var(--divider);
@@ -2413,7 +2413,7 @@ h1 {
 
 .sort-column-filter {
     display: block;
-    font-size: 0.7rem;
+    font-size: 11px;
     font-weight: 400;
     color: var(--accent);
     margin-top: 2px;
@@ -2433,7 +2433,7 @@ h1 {
     padding: 10px 12px;
     cursor: pointer;
     border-bottom: 1px solid rgba(178, 213, 226, 0.5);
-    font-size: 0.85rem;
+    font-size: 14px;
     transition: background 0.1s;
     user-select: none;
     color: var(--text-primary);
@@ -2451,7 +2451,7 @@ h1 {
 
 .sort-list-item .sort-item-number {
     color: var(--text-disabled);
-    font-size: 0.75rem;
+    font-size: 12px;
     font-weight: 600;
     min-width: 20px;
 }
@@ -2479,7 +2479,7 @@ h1 {
     background: var(--bg-surface);
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 14px;
     transition: all 0.15s;
     color: var(--text-primary);
 }
@@ -2510,7 +2510,7 @@ h1 {
     padding: 8px 18px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 14px;
     font-weight: 500;
     border: 1px solid var(--divider);
     transition: all 0.15s;
@@ -2522,13 +2522,13 @@ h1 {
 }
 
 .sort-btn-reset {
-    background: rgba(229, 62, 62, 0.08);
+    background: rgba(219, 87, 123, 0.08);
     color: var(--error);
-    border-color: rgba(229, 62, 62, 0.3);
+    border-color: rgba(219, 87, 123, 0.3);
 }
 
 .sort-btn-reset:hover {
-    background: rgba(229, 62, 62, 0.15);
+    background: rgba(219, 87, 123, 0.15);
     color: var(--error);
 }
 
@@ -2575,7 +2575,7 @@ h1 {
     background: var(--bg-sidebar);
     color: white;
     font-weight: bold;
-    font-size: 0.95rem;
+    font-size: 15px;
     position: sticky;
     top: 0;
     z-index: 1;
@@ -2584,7 +2584,7 @@ h1 {
     background: none;
     border: none;
     color: white;
-    font-size: 1.4rem;
+    font-size: 22px;
     cursor: pointer;
     line-height: 1;
     padding: 0 4px;
@@ -2597,7 +2597,7 @@ h1 {
 }
 .color-settings-label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 12px;
     font-weight: bold;
     color: var(--text-secondary);
     margin-bottom: 6px;
@@ -2644,11 +2644,11 @@ h1 {
 }
 .color-setting-name {
     flex: 1;
-    font-size: 0.82rem;
+    font-size: 13px;
     color: var(--text-primary);
 }
 .color-setting-hex {
-    font-size: 0.72rem;
+    font-size: 12px;
     color: var(--text-secondary);
     font-family: monospace;
     width: 68px;
@@ -2689,7 +2689,7 @@ h1 {
     transform: scale(1.05);
 }
 .color-palette-hint {
-    font-size: 0.68rem;
+    font-size: 11px;
     color: var(--text-disabled);
     margin-top: 4px;
 }
@@ -2705,7 +2705,7 @@ h1 {
     padding: 5px 8px;
     border: 1px solid var(--divider);
     border-radius: 4px;
-    font-size: 0.82rem;
+    font-size: 13px;
     color: var(--text-primary);
     background: var(--bg-surface);
 }
@@ -2715,7 +2715,7 @@ h1 {
     border-radius: 4px;
     padding: 4px 7px;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 14px;
     line-height: 1;
 }
 .color-preset-btn:hover {
@@ -2730,7 +2730,7 @@ h1 {
     border: 1px solid var(--divider);
     border-radius: 6px;
     color: var(--text-secondary);
-    font-size: 0.82rem;
+    font-size: 13px;
     cursor: pointer;
     transition: background 0.2s;
 }
@@ -2754,7 +2754,7 @@ h1 {
     width: 100%;
     resize: vertical;
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 14px;
     padding: 8px 10px;
     border: 1px solid var(--divider);
     border-radius: 6px;
@@ -2792,7 +2792,7 @@ h1 {
     width: 100%;
     resize: vertical;
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 14px;
     padding: 8px 10px;
     border: 1px solid var(--divider);
     border-radius: 6px;
@@ -2813,17 +2813,20 @@ h1 {
 }
 .md-modal-site-header {
     padding: 14px 24px;
-    border-bottom: 1px solid var(--divider);
-    background: var(--bg-surface-2);
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    background: var(--accent-light);
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
 }
 .md-modal-site-header h3 {
     margin: 0;
-    font-size: 1.1rem;
-    color: var(--text-primary);
+    font-size: 13px;
+    color: #FFFFFF;
+    border-bottom: none;
+    padding-bottom: 0;
 }
 .md-modal-site-body {
     display: flex;
@@ -2833,6 +2836,36 @@ h1 {
     overflow-y: auto;
     flex: 1;
     min-height: 0;
+    background: #E9F1F6;
+    scrollbar-width: thin;
+    scrollbar-color: var(--divider) transparent;
+}
+.md-modal-site-body::-webkit-scrollbar { width: 5px; }
+.md-modal-site-body::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 3px; }
+.md-modal-site-body::-webkit-scrollbar-track { background: transparent; }
+
+/* カード型ボディ内フィールド（英語サブタイトル + 下線） */
+.md-modal-body-field {
+    margin-bottom: 4px;
+}
+.md-modal-body-field-value {
+    padding: 6px 0;
+    border-bottom: 2px solid var(--accent);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    font-weight: 600;
+}
+/* モーダル内カード */
+.md-modal-body-card {
+    background: #FFFFFF;
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid #B2D5E2;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
 }
 .md-modal-site-col {
     flex: 1;
@@ -2842,7 +2875,7 @@ h1 {
     gap: 12px;
 }
 .md-modal-col-title {
-    font-size: 0.85rem;
+    font-size: 14px;
     font-weight: 700;
     color: var(--accent);
     padding-bottom: 6px;
@@ -2864,12 +2897,13 @@ h1 {
     gap: 10px;
 }
 .md-modal-site-footer button {
-    padding: 8px 24px;
+    padding: 5px 10px;
     border: 1px solid var(--divider);
     border-radius: 6px;
-    font-size: 0.9rem;
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: all 0.15s;
 }
 .md-modal-site-footer button:first-child {
     background: var(--bg-surface);
@@ -2879,10 +2913,10 @@ h1 {
     background: var(--bg-surface-2);
 }
 .md-modal-site-footer button.md-ob-btn-danger {
-    background: rgba(229, 62, 62, 0.08); color: var(--error); border: 1px solid rgba(229, 62, 62, 0.3);
+    background: rgba(219, 87, 123, 0.08); color: var(--error); border: 1px solid rgba(219, 87, 123, 0.3);
 }
 .md-modal-site-footer button.md-ob-btn-danger:hover {
-    background: rgba(229, 62, 62, 0.15); color: var(--error);
+    background: rgba(219, 87, 123, 0.15); color: var(--error);
 }
 .md-modal-site-footer button:last-child {
     background: var(--accent);
@@ -2917,7 +2951,7 @@ h1 {
     margin-bottom: 4px;
 }
 .sub-item-header label {
-    font-size: 0.82rem;
+    font-size: 13px;
     font-weight: 600;
     color: var(--text-secondary);
 }
@@ -2925,7 +2959,7 @@ h1 {
     background: none;
     border: none;
     color: var(--text-disabled);
-    font-size: 1rem;
+    font-size: 16px;
     cursor: pointer;
     padding: 2px 6px;
     border-radius: 4px;
@@ -2933,7 +2967,7 @@ h1 {
     transition: all 0.15s;
 }
 .sub-item-remove-btn:hover {
-    background: rgba(229, 62, 62, 0.08);
+    background: rgba(219, 87, 123, 0.08);
     color: var(--error);
 }
 .add-sub-item-btn {
@@ -2947,7 +2981,7 @@ h1 {
     border-radius: 6px;
     background: var(--bg-surface);
     color: var(--text-tertiary);
-    font-size: 0.85rem;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.15s;
 }
@@ -2963,20 +2997,20 @@ h1 {
 }
 .md-modal-site-body label {
     display: block;
-    font-size: 0.82rem;
+    font-size: 11px;
     font-weight: 600;
     color: var(--text-secondary);
-    margin-bottom: 3px;
+    margin-bottom: 8px;
 }
 .md-modal-site-body input[type="text"],
 .md-modal-site-body input[type="number"],
 .md-modal-site-body select,
 .md-modal-site-body textarea {
     width: 100%;
-    padding: 6px 10px;
+    padding: 10px;
     border: 1px solid var(--divider);
-    border-radius: 5px;
-    font-size: 0.88rem;
+    border-radius: 6px;
+    font-size: 12px;
     box-sizing: border-box;
     background: var(--bg-surface);
     color: var(--text-primary);
@@ -2992,7 +3026,7 @@ h1 {
 }
 .md-modal-site-body .time-range span {
     color: var(--text-tertiary);
-    font-size: 0.85rem;
+    font-size: 14px;
 }
 
 /* スクロールバー */
@@ -3020,7 +3054,7 @@ h1 {
     border: 1px solid var(--divider);
     border-radius: 6px;
     padding: 4px 10px;
-    font-size: 1.1rem;
+    font-size: 18px;
     cursor: pointer;
     transition: all 0.2s;
     line-height: 1;
@@ -3035,7 +3069,7 @@ h1 {
     right: -6px;
     background: var(--error);
     color: white;
-    font-size: 0.65rem;
+    font-size: 10px;
     font-weight: 700;
     min-width: 16px;
     height: 16px;
@@ -3068,7 +3102,7 @@ h1 {
     display: block;
     padding: 1px 2px;
     border-radius: 3px;
-    font-size: 0.55rem;
+    font-size: 9px;
     font-weight: 700;
     position: relative;
     z-index: 25;
@@ -3078,7 +3112,7 @@ h1 {
     line-height: 1.2;
 }
 .md-cn-row-badge-add { background: #c6f6d5; color: #22543d; }
-.md-cn-row-badge-delete { background: #fed7d7; color: #742a2a; }
+.md-cn-row-badge-delete { background: #fed7d7; color: #6B2040; }
 
 /* 行ミニベルアイコン */
 .col-no { position: relative; }
@@ -3116,7 +3150,7 @@ h1 {
 
 /* 行フィルタラベル */
 .md-cn-row-filter-label {
-    font-size: 0.85rem;
+    font-size: 14px;
     font-weight: 600;
     color: var(--text-primary);
     padding: 4px 10px;
@@ -3130,7 +3164,7 @@ h1 {
     display: block;
     padding: 1px 6px;
     border-radius: 3px;
-    font-size: 0.55rem;
+    font-size: 9px;
     font-weight: 700;
     background: #fefcbf;
     color: #744210;
@@ -3232,7 +3266,7 @@ h1 {
 }
 
 .md-cn-toast-icon {
-    font-size: 1.2rem;
+    font-size: 19px;
     flex-shrink: 0;
     line-height: 1;
 }
@@ -3241,20 +3275,20 @@ h1 {
     min-width: 0;
 }
 .md-cn-toast-title {
-    font-size: 0.82rem;
+    font-size: 13px;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 2px;
 }
 .md-cn-toast-desc {
-    font-size: 0.75rem;
+    font-size: 12px;
     color: var(--text-tertiary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 .md-cn-toast-time {
-    font-size: 0.7rem;
+    font-size: 11px;
     color: var(--text-disabled);
     flex-shrink: 0;
     margin-top: 2px;
@@ -3287,18 +3321,18 @@ h1 {
 }
 .md-cn-header h3 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 18px;
     color: var(--text-primary);
 }
 .md-cn-header-date {
-    font-size: 0.82rem;
+    font-size: 13px;
     color: var(--text-tertiary);
 }
 .md-cn-close {
     background: none;
     border: none;
     color: var(--text-tertiary);
-    font-size: 1.2rem;
+    font-size: 19px;
     cursor: pointer;
     padding: 4px 8px;
     border-radius: 4px;
@@ -3322,7 +3356,7 @@ h1 {
     border: none;
     background: none;
     color: var(--text-tertiary);
-    font-size: 0.85rem;
+    font-size: 14px;
     cursor: pointer;
     border-bottom: 2px solid transparent;
     transition: all 0.2s;
@@ -3351,7 +3385,7 @@ h1 {
 .md-cn-empty {
     text-align: center;
     color: var(--text-disabled);
-    font-size: 0.85rem;
+    font-size: 14px;
     padding: 40px 0;
 }
 
@@ -3379,7 +3413,7 @@ h1 {
     background: var(--bg-surface-2);
 }
 .md-cn-type-badge {
-    font-size: 0.72rem;
+    font-size: 12px;
     font-weight: 700;
     padding: 2px 8px;
     border-radius: 4px;
@@ -3387,15 +3421,15 @@ h1 {
 }
 .md-cn-type-badge-add { background: rgba(56,161,105,0.15); color: var(--success-text); }
 .md-cn-type-badge-modify { background: rgba(214,158,46,0.15); color: var(--warning-text); }
-.md-cn-type-badge-delete { background: rgba(229,62,62,0.15); color: var(--error); }
+.md-cn-type-badge-delete { background: rgba(219,87,123,0.15); color: var(--error); }
 
 .md-cn-card-user {
-    font-size: 0.8rem;
+    font-size: 13px;
     color: var(--text-secondary);
     font-weight: 600;
 }
 .md-cn-card-time {
-    font-size: 0.72rem;
+    font-size: 12px;
     color: var(--text-disabled);
     margin-left: auto;
 }
@@ -3404,7 +3438,7 @@ h1 {
     padding: 10px 14px;
 }
 .md-cn-card-site {
-    font-size: 0.85rem;
+    font-size: 14px;
     color: var(--text-primary);
     margin-bottom: 6px;
     display: flex;
@@ -3413,7 +3447,7 @@ h1 {
 }
 .md-cn-card-site .shift-badge,
 .md-cn-card-site .category-badge {
-    font-size: 0.65rem;
+    font-size: 10px;
     padding: 1px 5px;
 }
 
@@ -3427,7 +3461,7 @@ h1 {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.8rem;
+    font-size: 13px;
     padding: 3px 0;
 }
 .md-cn-diff-label {
@@ -3488,26 +3522,26 @@ h1 {
     margin-bottom: 4px;
 }
 .md-cn-tl-time {
-    font-size: 0.75rem;
+    font-size: 12px;
     color: var(--text-disabled);
     font-family: monospace;
 }
 .md-cn-tl-user {
-    font-size: 0.8rem;
+    font-size: 13px;
     color: var(--text-secondary);
     font-weight: 600;
 }
 .md-cn-tl-type {
-    font-size: 0.7rem;
+    font-size: 11px;
     padding: 1px 6px;
     border-radius: 3px;
 }
 .md-cn-tl-type-add { background: rgba(56,161,105,0.15); color: var(--success-text); }
 .md-cn-tl-type-modify { background: rgba(214,158,46,0.15); color: var(--warning-text); }
-.md-cn-tl-type-delete { background: rgba(229,62,62,0.15); color: var(--error); }
+.md-cn-tl-type-delete { background: rgba(219,87,123,0.15); color: var(--error); }
 
 .md-cn-tl-content {
-    font-size: 0.8rem;
+    font-size: 13px;
     color: var(--text-tertiary);
     line-height: 1.5;
 }
@@ -3527,7 +3561,7 @@ h1 {
     border-radius: 6px;
     background: var(--bg-surface);
     color: var(--text-secondary);
-    font-size: 0.85rem;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.15s;
 }
@@ -3547,7 +3581,7 @@ h1 {
 .md-cn-btn-reapprove {
     padding: 5px 16px;
     border-radius: 5px;
-    font-size: 0.78rem;
+    font-size: 12px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.15s;
@@ -3577,7 +3611,7 @@ h1 {
 /* 取消済カード（通常表示 — 要注意のため薄くしない） */
 .md-cn-card-reverted {}
 .md-cn-reverted-badge {
-    font-size: 0.7rem;
+    font-size: 11px;
     font-weight: 700;
     padding: 2px 8px;
     border-radius: 4px;
@@ -3598,7 +3632,7 @@ h1 {
     background: var(--bg-surface-3);
 }
 .md-cn-approved-badge {
-    font-size: 0.7rem;
+    font-size: 11px;
     font-weight: 700;
     padding: 2px 8px;
     border-radius: 4px;
@@ -3624,19 +3658,19 @@ h1 {
     to { opacity: 1; transform: translateY(0); }
 }
 .md-cn-conflict-icon {
-    font-size: 1.1rem;
+    font-size: 18px;
     flex-shrink: 0;
 }
 .md-cn-conflict-text {
     flex: 1;
-    font-size: 0.8rem;
+    font-size: 13px;
     color: var(--warning-text);
 }
 .md-cn-conflict-close {
     background: none;
     border: none;
     color: var(--warning-text);
-    font-size: 1rem;
+    font-size: 16px;
     cursor: pointer;
     padding: 2px 6px;
     border-radius: 4px;
@@ -3725,19 +3759,34 @@ h1 {
     cursor: pointer; padding: 2px 6px; border-radius: 4px;
 }
 .md-ob-modal-close:hover { background: var(--accent-dim); color: var(--accent); }
+.md-modal-site-header .md-ob-modal-close { color: rgba(255,255,255,0.8); }
+.md-modal-site-header .md-ob-modal-close:hover { background: rgba(255,255,255,0.2); color: #FFFFFF; }
 
 /* 現場名 + 業務詳細グループ */
 .md-sm-site-group {
-    border: 1px solid var(--divider);
-    border-radius: 8px;
-    background: var(--bg-surface-2);
-    padding: 12px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    padding: 0;
 }
 .md-sm-site-group .md-modal-section {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 .md-sm-site-group .md-ob-sub-task-fields {
     margin-top: 0;
+}
+.md-sm-display-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+    padding: 4px 0;
+    border-bottom: 1px solid var(--divider);
+    padding-bottom: 8px;
+}
+.md-sm-display-value.md-sm-display-empty {
+    color: var(--text-disabled);
+    font-style: italic;
+    font-weight: 400;
 }
 
 /* セクション区切り */
@@ -3763,22 +3812,22 @@ h1 {
 
 /* ボタン共通 */
 .md-ob-btn {
-    padding: 9px 22px; border: none; border-radius: 6px;
-    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    padding: 5px 10px; border: none; border-radius: 6px;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
 }
 .md-ob-btn-primary { background: var(--accent); color: white; }
 .md-ob-btn-primary:hover { background: var(--accent-light); box-shadow: 0 2px 8px rgba(68,166,181,0.3); }
 .md-ob-btn-secondary { background: var(--bg-surface-2); color: var(--text-secondary); border: none; }
 .md-ob-btn-secondary:hover { background: var(--bg-surface-3); }
-.md-ob-btn-danger { background: rgba(229, 62, 62, 0.08); color: var(--error); border: 1px solid rgba(229, 62, 62, 0.3); }
-.md-ob-btn-danger:hover { background: rgba(229, 62, 62, 0.15); color: var(--error); }
+.md-ob-btn-danger { background: rgba(219, 87, 123, 0.08); color: var(--error); border: 1px solid rgba(219, 87, 123, 0.3); }
+.md-ob-btn-danger:hover { background: rgba(219, 87, 123, 0.15); color: var(--error); }
 
 /* ── チップ選択フィールド ── */
 .md-ob-chip-field {
     display: flex; flex-direction: column; gap: 5px;
-    padding: 6px 10px;
-    border: 1px solid var(--divider); border-radius: 6px;
-    background: rgba(68,166,181,0.03);
+    padding: 0;
+    border: none; border-radius: 0;
+    background: transparent;
 }
 .md-ob-chip-field-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -3824,14 +3873,14 @@ h1 {
     display: flex; flex-direction: column; gap: 10px;
     padding: 12px 14px;
     background: rgba(68,166,181,0.05);
-    border-left: 3px solid var(--accent);
+    border-left: 1.5px solid var(--accent);
     border-radius: 0 6px 6px 0;
 }
 .md-ob-sub-task-header {
     display: flex; align-items: center; justify-content: space-between;
 }
 .md-ob-sub-task-title {
-    font-size: 12px; font-weight: 600; color: var(--accent);
+    font-size: 11px; font-weight: 600; color: var(--accent);
     letter-spacing: 0.5px;
 }
 .md-ob-btn-add-sub {
@@ -3882,8 +3931,8 @@ h1 {
     line-height: 1;
 }
 .md-ob-btn-remove-sub:hover {
-    color: #dc2626; border-color: rgba(220,38,38,0.3);
-    background: rgba(220,38,38,0.06);
+    color: #DB577B; border-color: rgba(219,87,123,0.3);
+    background: rgba(219,87,123,0.06);
 }
 
 /* 計画書業務名行（読み取り専用） */
@@ -3997,12 +4046,12 @@ h1 {
 .md-ob-badge-delete-btn {
     display: inline-flex; align-items: center; justify-content: center;
     width: 16px; height: 16px; border-radius: 50%;
-    border: none; background: rgba(220, 38, 38, 0.1);
-    color: #e53e3e; font-size: 9px;
+    border: none; background: rgba(219, 87, 123, 0.1);
+    color: #DB577B; font-size: 9px;
     cursor: pointer; transition: all 0.15s;
     padding: 0; line-height: 1;
 }
-.md-ob-badge-delete-btn:hover { background: rgba(220, 38, 38, 0.25); color: #c53030; }
+.md-ob-badge-delete-btn:hover { background: rgba(219, 87, 123, 0.25); color: #DB577B; }
 
 /* バッジ削除復元バー */
 .md-ob-badge-undo-bar {
@@ -4100,7 +4149,7 @@ h1 {
     cursor: pointer; transition: all 0.15s;
     padding: 0; line-height: 1;
 }
-.md-ob-sv-delete-btn:hover { background: #fee2e2; color: #dc2626; }
+.md-ob-sv-delete-btn:hover { background: #fee2e2; color: #DB577B; }
 .md-ob-sv-undo-bar {
     display: flex; align-items: center; gap: 8px;
     width: 100%; padding: 4px 10px;

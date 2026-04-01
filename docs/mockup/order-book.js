@@ -924,12 +924,19 @@ function updateDailyTaskNamePreview() {
     const autoName = buildDailyTaskName(parentTask, subTasks);
     const el = document.getElementById('editDailyTaskName');
     if (autoName) {
-        el.className = 'md-ob-plan-name-value';
-        el.innerHTML = autoName.replace(/ > /g, ' <span class="md-ob-plan-arrow">›</span> ');
+        el.className = 'md-ob-cal-display-value';
+        el.textContent = autoName;
     } else {
-        el.className = 'md-ob-plan-name-value md-ob-plan-empty';
+        el.className = 'md-ob-cal-display-value';
         el.textContent = '業務詳細を入力すると自動生成されます';
+        el.style.color = 'var(--text-disabled)';
+        el.style.fontStyle = 'italic';
+        el.style.fontWeight = '400';
+        return;
     }
+    el.style.color = '';
+    el.style.fontStyle = '';
+    el.style.fontWeight = '';
 }
 
 // --- 信頼度選択 ---
@@ -1669,22 +1676,14 @@ function updateSiteNav() {
     const nav = document.getElementById('siteNavBar');
     if (!nav) return;
 
-    if (total <= 1 && entries.length <= 1) {
-        // 単一配置先の場合はナビを簡易表示（追加ボタンのみ）
-        nav.style.display = 'flex';
-        document.getElementById('siteNavLabel').textContent = '';
-        document.getElementById('siteNavPrev').style.display = 'none';
-        document.getElementById('siteNavNext').style.display = 'none';
-        document.getElementById('btnDeleteSite').style.display = 'none';
-    } else {
-        nav.style.display = 'flex';
-        document.getElementById('siteNavLabel').textContent = `配置先 ${editingSiteIdx + 1}/${total}`;
-        document.getElementById('siteNavPrev').style.display = '';
-        document.getElementById('siteNavNext').style.display = '';
-        document.getElementById('siteNavPrev').disabled = editingSiteIdx <= 0;
-        document.getElementById('siteNavNext').disabled = editingSiteIdx >= total - 1;
-        document.getElementById('btnDeleteSite').style.display = '';
+    let html = '';
+    for (let i = 0; i < total; i++) {
+        const cls = i === editingSiteIdx ? 'md-ob-placement-tab active' : 'md-ob-placement-tab';
+        html += `<button type="button" class="${cls}" onclick="navigateSiteTab(${i})">配置先${i + 1}</button>`;
     }
+    html += `<button type="button" class="md-ob-placement-tab md-ob-placement-tab-add" onclick="addSiteEntry()">+ 追加</button>`;
+    html += `<button type="button" class="md-ob-placement-tab md-ob-placement-tab-delete" onclick="deleteSiteEntry()">この配置先を削除</button>`;
+    nav.innerHTML = html;
 }
 
 function navigateSite(delta) {
@@ -1694,6 +1693,14 @@ function navigateSite(delta) {
     const newIdx = editingSiteIdx + delta;
     if (newIdx < 0 || newIdx >= entries.length) return;
     editingSiteIdx = newIdx;
+    loadSiteToModal();
+}
+
+function navigateSiteTab(idx) {
+    saveSiteToData();
+    const entries = getCellEntries(editingRi, editingDay);
+    if (idx < 0 || idx >= entries.length) return;
+    editingSiteIdx = idx;
     loadSiteToModal();
 }
 
@@ -1803,6 +1810,8 @@ function addSiteEntry() {
     }
 
     loadSiteToModal();
+    if (typeof renderCalendarGrid === 'function') renderCalendarGrid();
+    if (typeof renderGrid === 'function') renderGrid();
 }
 
 // --- 配置先削除 ---
@@ -1819,6 +1828,8 @@ function deleteSiteEntry() {
         editingSiteIdx = entries.length - 1;
     }
     loadSiteToModal();
+    if (typeof renderCalendarGrid === 'function') renderCalendarGrid();
+    if (typeof renderGrid === 'function') renderGrid();
 }
 
 function closeEditModal(e) {
@@ -3723,7 +3734,7 @@ function obCnToggleDemo() {
         obCnDemoIndex = 0;
         obCnDemoRunning = true;
         btn.textContent = '⏹ デモ停止';
-        btn.style.background = '#e53e3e';
+        btn.style.background = '#DB577B';
         btn.style.color = '#fff';
         obCnSendDemoNotification();
         obCnDemoInterval = setInterval(obCnSendDemoNotification, 3000);
