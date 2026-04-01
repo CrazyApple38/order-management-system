@@ -1750,8 +1750,9 @@
                 if (name) assignedNames.add(name);
             });
 
-            // フィルタリング
+            // フィルタリング（非表示社員を除外）
             let filtered = employeesData.filter(function(emp) {
+                if (emp.hidden) return false;
                 return visibleCompanies.some(function(gc) { return gc.code === emp.company; });
             });
             if (spState.activeTab !== 'all') {
@@ -1792,6 +1793,7 @@
             const countEl = document.querySelector('.md-sp-employee-count');
             if (countEl) {
                 const total = employeesData.filter(function(emp) {
+                    if (emp.hidden) return false;
                     return visibleCompanies.some(function(gc) { return gc.code === emp.company; });
                 }).length;
                 countEl.textContent = spState.activeTab === 'all'
@@ -1868,8 +1870,9 @@
                 if (text) assignedPlates.add(text.textContent.trim());
             });
 
-            // フィルタリング
+            // フィルタリング（非表示を除外）
             var filtered = vehiclesData.filter(function(v) {
+                if (v.hidden) return false;
                 return visibleCompanies.some(function(gc) { return gc.code === v.owner; });
             });
             if (searchTerm) {
@@ -1885,8 +1888,9 @@
                 if (text) assignedEtcs.add(text.textContent.trim());
             });
 
-            // ETCフィルタリング
+            // ETCフィルタリング（非表示を除外）
             var filteredEtc = etcCardsData.filter(function(e) {
+                if (e.hidden) return false;
                 return visibleCompanies.some(function(gc) { return gc.code === e.owner; });
             });
             if (searchTerm) {
@@ -1928,6 +1932,7 @@
             var countEl = document.querySelector('.md-sp-vehicle-count');
             if (countEl) {
                 var total = vehiclesData.filter(function(v) {
+                    if (v.hidden) return false;
                     return visibleCompanies.some(function(gc) { return gc.code === v.owner; });
                 }).length;
                 countEl.textContent = '全' + total + '台';
@@ -4677,4 +4682,329 @@
             renderMinimap();
 
             closeGcFilterModal();
+        }
+
+        // ===== 社員リスト編集モーダル =====
+        // 編集用の一時データ（保存まで元データに反映しない）
+        var seEditData = [];
+        var seDragItem = null;
+        var sePlaceholder = null;
+
+        function openStaffEditModal() {
+            // employeesDataのディープコピーを作成
+            seEditData = employeesData.map(function(emp, i) {
+                return {
+                    name: emp.name,
+                    company: emp.company,
+                    dept: emp.dept,
+                    hidden: emp.hidden || false,
+                    _origIndex: i
+                };
+            });
+            seRender();
+            document.getElementById('staffEditModal').classList.add('active');
+        }
+
+        function closeStaffEditModal() {
+            document.getElementById('staffEditModal').classList.remove('active');
+            seEditData = [];
+        }
+
+        function saveStaffEditModal() {
+            // 編集データを元データに反映
+            // 1. hidden状態を反映
+            seEditData.forEach(function(ed) {
+                var orig = employeesData.find(function(e) { return e.name === ed.name; });
+                if (orig) {
+                    orig.hidden = ed.hidden;
+                    orig.dept = ed.dept;
+                }
+            });
+            // 2. 並び順を反映（seEditDataの順序で employeesData を再構築）
+            var newOrder = [];
+            seEditData.forEach(function(ed) {
+                var orig = employeesData.find(function(e) { return e.name === ed.name; });
+                if (orig) newOrder.push(orig);
+            });
+            employeesData.length = 0;
+            newOrder.forEach(function(e) { employeesData.push(e); });
+
+            renderSidePanel();
+            renderMinimap();
+            closeStaffEditModal();
+        }
+
+        function seRender() {
+            var container = document.getElementById('staffEditContent');
+            if (!container) return;
+            var html = '';
+
+            groupCompaniesData.forEach(function(gc) {
+                var depts = departmentsData[gc.code] || [];
+                // この会社に所属する社員がいるか
+                var companyEmps = seEditData.filter(function(e) { return e.company === gc.code; });
+                if (companyEmps.length === 0) return;
+
+                html += '<div class="md-modal-body-card se-company-section" data-se-company="' + gc.code + '">';
+                html += '<div class="se-company-header">' + gc.shortName + '</div>';
+
+                depts.forEach(function(dept) {
+                    html += '<div class="se-dept-zone" data-se-dept="' + dept.id + '" data-se-company="' + gc.code + '">';
+                    html += '<div class="se-dept-label">' + dept.name + '</div>';
+                    html += '<div class="se-chips">';
+                    var deptEmps = seEditData.filter(function(e) {
+                        return e.company === gc.code && e.dept === dept.id;
+                    });
+                    deptEmps.forEach(function(emp) {
+                        var cls = 'se-chip' + (emp.hidden ? ' se-hidden' : '');
+                        html += '<div class="' + cls + '" draggable="true"'
+                            + ' data-se-name="' + emp.name + '"'
+                            + ' data-se-company="' + emp.company + '"'
+                            + ' data-se-dept="' + emp.dept + '">'
+                            + emp.name + '</div>';
+                    });
+                    html += '</div></div>';
+                });
+
+                html += '</div>';
+            });
+
+            container.innerHTML = html;
+            seBindEvents();
+        }
+
+        function seBindEvents() {
+            // クリックで表示/非表示トグル
+            document.querySelectorAll('.se-chip').forEach(function(chip) {
+                chip.addEventListener('click', function(e) {
+                    if (seDragItem) return; // ドラッグ中はトグルしない
+                    var name = this.getAttribute('data-se-name');
+                    var emp = seEditData.find(function(ed) { return ed.name === name; });
+                    if (emp) {
+                        emp.hidden = !emp.hidden;
+                        this.classList.toggle('se-hidden');
+                    }
+                });
+
+                // ドラッグ開始
+                chip.addEventListener('dragstart', function(e) {
+                    seDragItem = this;
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', this.getAttribute('data-se-name'));
+
+                    // プレースホルダー作成
+                    sePlaceholder = document.createElement('div');
+                    sePlaceholder.className = 'se-placeholder';
+                    sePlaceholder.textContent = this.textContent;
+                });
+
+                chip.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                    // プレースホルダー除去
+                    if (sePlaceholder && sePlaceholder.parentNode) {
+                        sePlaceholder.parentNode.removeChild(sePlaceholder);
+                    }
+                    seDragItem = null;
+                    sePlaceholder = null;
+                    // ゾーンハイライト除去
+                    document.querySelectorAll('.se-dept-zone').forEach(function(z) {
+                        z.classList.remove('se-drag-over');
+                    });
+                });
+            });
+
+            // ドロップゾーン（課エリア）
+            document.querySelectorAll('.se-dept-zone').forEach(function(zone) {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    if (!seDragItem) return;
+                    // 同一会社のみ許可
+                    var dragCompany = seDragItem.getAttribute('data-se-company');
+                    var zoneCompany = this.getAttribute('data-se-company');
+                    if (dragCompany !== zoneCompany) return;
+
+                    e.dataTransfer.dropEffect = 'move';
+                    this.classList.add('se-drag-over');
+
+                    // チップ間の挿入位置を計算
+                    var chipsContainer = this.querySelector('.se-chips');
+                    var afterEl = seGetDragAfterElement(chipsContainer, e.clientX, e.clientY);
+                    if (sePlaceholder) {
+                        if (afterEl) {
+                            chipsContainer.insertBefore(sePlaceholder, afterEl);
+                        } else {
+                            chipsContainer.appendChild(sePlaceholder);
+                        }
+                    }
+                });
+
+                zone.addEventListener('dragleave', function(e) {
+                    // 子要素への移動では除去しない
+                    if (!this.contains(e.relatedTarget)) {
+                        this.classList.remove('se-drag-over');
+                        if (sePlaceholder && sePlaceholder.parentNode === this.querySelector('.se-chips')) {
+                            sePlaceholder.parentNode.removeChild(sePlaceholder);
+                        }
+                    }
+                });
+
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('se-drag-over');
+                    if (!seDragItem) return;
+
+                    var dragCompany = seDragItem.getAttribute('data-se-company');
+                    var zoneCompany = this.getAttribute('data-se-company');
+                    if (dragCompany !== zoneCompany) return;
+
+                    var empName = seDragItem.getAttribute('data-se-name');
+                    var newDept = this.getAttribute('data-se-dept');
+                    var chipsContainer = this.querySelector('.se-chips');
+
+                    // プレースホルダーの位置にチップを挿入
+                    if (sePlaceholder && sePlaceholder.parentNode) {
+                        chipsContainer.insertBefore(seDragItem, sePlaceholder);
+                        sePlaceholder.parentNode.removeChild(sePlaceholder);
+                    } else {
+                        chipsContainer.appendChild(seDragItem);
+                    }
+
+                    // data属性を更新
+                    seDragItem.setAttribute('data-se-dept', newDept);
+
+                    // seEditDataを更新（課の変更 + 並び順の反映）
+                    var emp = seEditData.find(function(ed) { return ed.name === empName; });
+                    if (emp) {
+                        emp.dept = newDept;
+                    }
+                    seUpdateOrderFromDOM();
+                });
+            });
+        }
+
+        // DOM上のチップ順序からseEditDataの並び順を再構築
+        function seUpdateOrderFromDOM() {
+            var newOrder = [];
+            document.querySelectorAll('.se-dept-zone').forEach(function(zone) {
+                zone.querySelectorAll('.se-chip').forEach(function(chip) {
+                    var name = chip.getAttribute('data-se-name');
+                    var emp = seEditData.find(function(ed) { return ed.name === name; });
+                    if (emp) newOrder.push(emp);
+                });
+            });
+            seEditData = newOrder;
+        }
+
+        // ドラッグ中の挿入位置を特定
+        function seGetDragAfterElement(container, x, y) {
+            var chips = Array.from(container.querySelectorAll('.se-chip:not(.dragging)'));
+            var closest = null;
+            var closestDist = Number.POSITIVE_INFINITY;
+
+            chips.forEach(function(chip) {
+                var box = chip.getBoundingClientRect();
+                var cx = box.left + box.width / 2;
+                var cy = box.top + box.height / 2;
+                var dist = Math.sqrt(Math.pow(x - cx, 2) + Math.pow(y - cy, 2));
+                // ドラッグ位置より後ろにあるチップのうち最も近いものを返す
+                var isAfter = (y < cy) || (Math.abs(y - cy) < box.height / 2 && x < cx);
+                if (isAfter && dist < closestDist) {
+                    closestDist = dist;
+                    closest = chip;
+                }
+            });
+            return closest;
+        }
+
+        // ===== 車両リスト編集モーダル =====
+        var veEditVehicles = [];
+        var veEditEtc = [];
+
+        function openVehicleEditModal() {
+            veEditVehicles = vehiclesData.map(function(v) {
+                return { plate: v.plate, model: v.model, owner: v.owner, hidden: v.hidden || false };
+            });
+            veEditEtc = etcCardsData.map(function(e) {
+                return { label: e.label, owner: e.owner, hidden: e.hidden || false };
+            });
+            veRender();
+            document.getElementById('vehicleEditModal').classList.add('active');
+        }
+
+        function closeVehicleEditModal() {
+            document.getElementById('vehicleEditModal').classList.remove('active');
+        }
+
+        function saveVehicleEditModal() {
+            veEditVehicles.forEach(function(ve) {
+                var orig = vehiclesData.find(function(v) { return v.plate === ve.plate; });
+                if (orig) orig.hidden = ve.hidden;
+            });
+            veEditEtc.forEach(function(ve) {
+                var orig = etcCardsData.find(function(e) { return e.label === ve.label; });
+                if (orig) orig.hidden = ve.hidden;
+            });
+            renderVehiclePanel();
+            closeVehicleEditModal();
+        }
+
+        function veRender() {
+            var container = document.getElementById('vehicleEditContent');
+            if (!container) return;
+            var html = '';
+
+            groupCompaniesData.forEach(function(gc) {
+                var compVeh = veEditVehicles.filter(function(v) { return v.owner === gc.code; });
+                var compEtc = veEditEtc.filter(function(e) { return e.owner === gc.code; });
+                if (compVeh.length === 0 && compEtc.length === 0) return;
+
+                html += '<div class="md-modal-body-card se-company-section">';
+                html += '<div class="se-company-header">' + gc.shortName + '</div>';
+
+                if (compVeh.length > 0) {
+                    html += '<div class="se-dept-zone">';
+                    html += '<div class="se-dept-label">車両</div>';
+                    html += '<div class="se-chips">';
+                    compVeh.forEach(function(v) {
+                        var cls = 'se-chip ve-chip' + (v.hidden ? ' se-hidden' : '');
+                        html += '<div class="' + cls + '" data-ve-plate="' + v.plate + '">'
+                            + v.plate + ' <span style="font-size:10px;color:var(--text-tertiary)">' + v.model + '</span></div>';
+                    });
+                    html += '</div></div>';
+                }
+
+                if (compEtc.length > 0) {
+                    html += '<div class="se-dept-zone">';
+                    html += '<div class="se-dept-label">ETC</div>';
+                    html += '<div class="se-chips">';
+                    compEtc.forEach(function(e) {
+                        var cls = 'se-chip ve-chip' + (e.hidden ? ' se-hidden' : '');
+                        html += '<div class="' + cls + '" data-ve-label="' + e.label + '">'
+                            + e.label + '</div>';
+                    });
+                    html += '</div></div>';
+                }
+
+                html += '</div>';
+            });
+
+            container.innerHTML = html;
+            veBindEvents();
+        }
+
+        function veBindEvents() {
+            document.querySelectorAll('#vehicleEditContent .ve-chip').forEach(function(chip) {
+                chip.addEventListener('click', function() {
+                    var plate = this.getAttribute('data-ve-plate');
+                    var label = this.getAttribute('data-ve-label');
+                    if (plate) {
+                        var v = veEditVehicles.find(function(ve) { return ve.plate === plate; });
+                        if (v) { v.hidden = !v.hidden; this.classList.toggle('se-hidden'); }
+                    } else if (label) {
+                        var e = veEditEtc.find(function(ve) { return ve.label === label; });
+                        if (e) { e.hidden = !e.hidden; this.classList.toggle('se-hidden'); }
+                    }
+                });
+            });
         }

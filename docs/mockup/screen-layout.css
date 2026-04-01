@@ -269,7 +269,7 @@ h1 {
     align-items: center;
     padding: 4px 10px;
     margin: 2px 4px 2px 0;
-    background: rgba(214, 158, 46, 0.1);
+    background: #F0EDE9;
     border: 1px solid rgba(214, 158, 46, 0.3);
     border-radius: 4px;
     font-size: 12px;
@@ -413,10 +413,14 @@ h1 {
 .side-panel-search {
     padding: 10px;
     border-bottom: 1px solid var(--divider);
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .side-panel-search input {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     padding: 8px 10px;
     border: 1px solid var(--divider);
     border-radius: 4px;
@@ -427,6 +431,32 @@ h1 {
 
 .side-panel-search input::placeholder {
     color: var(--text-disabled);
+}
+.sp-edit-btn {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    padding: 5px;
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    background: var(--bg-surface);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.sp-edit-btn:hover {
+    background: var(--bg-surface-2);
+    border-color: var(--accent);
+}
+.sp-edit-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+}
+.sp-edit-btn:hover .sp-edit-icon {
+    opacity: 1;
 }
 
 .side-panel-content {
@@ -1650,7 +1680,7 @@ h1 {
     align-items: center;
     gap: 4px;
     padding: 2px 6px;
-    background: rgba(214, 158, 46, 0.12);
+    background: #F0EDE9;
     border: 1px solid rgba(214, 158, 46, 0.35);
     border-radius: 3px;
     font-size: 11px;
@@ -2782,6 +2812,11 @@ h1 {
     width: 400px;
     max-width: 400px;
 }
+.md-modal-work-detail .md-ob-badge-section {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
 .md-modal-meeting-detail,
 .md-modal-work-time-detail {
     width: 300px;
@@ -2895,6 +2930,7 @@ h1 {
 .md-modal-site-footer-right {
     display: flex;
     gap: 10px;
+    margin-left: auto;
 }
 .md-modal-site-footer button {
     padding: 5px 10px;
@@ -4170,4 +4206,106 @@ h1 {
 .header-section .md-ob-icon {
     filter: brightness(0) invert(1);
     opacity: 0.9;
+}
+
+/* ===== 社員リスト編集モーダル ===== */
+.md-modal-staff-edit {
+    width: 520px;
+    max-width: 520px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+/* 会社セクション */
+.se-company-section {
+    margin-bottom: 12px;
+}
+.se-company-section:last-child {
+    margin-bottom: 0;
+}
+.se-company-header {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--divider);
+    margin-bottom: 8px;
+}
+/* 課エリア（ドロップ先） */
+.se-dept-zone {
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 8px;
+    min-height: 44px;
+    transition: all 0.2s;
+}
+.se-dept-zone:last-child {
+    margin-bottom: 0;
+}
+.se-dept-zone.se-drag-over {
+    border-color: var(--accent);
+    background: rgba(68, 166, 181, 0.06);
+}
+.se-dept-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+/* 社員チップ */
+.se-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.se-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    background: var(--bg-surface-2);
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: grab;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: all 0.15s;
+}
+.se-chip:hover {
+    border-color: var(--accent);
+}
+.se-chip:active {
+    cursor: grabbing;
+}
+.se-chip.dragging {
+    opacity: 0.4;
+}
+/* 非表示状態 */
+.se-chip.se-hidden {
+    opacity: 0.4;
+    text-decoration: line-through;
+    background: transparent;
+    border-style: dashed;
+}
+.se-chip.se-hidden:hover {
+    opacity: 0.7;
+}
+/* ドラッグプレースホルダー */
+.se-placeholder {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border: 2px dashed var(--accent);
+    border-radius: 4px;
+    font-size: 12px;
+    color: transparent;
+    background: rgba(68, 166, 181, 0.08);
+    pointer-events: none;
 }

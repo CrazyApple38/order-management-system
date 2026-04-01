@@ -48,8 +48,10 @@ MCP設定: `docs/mcp-servers.md` を参照
 
 ## Project Rules
 
-- **Confirmation Rule**: When responding to user requests, confirm step-by-step until understanding exceeds 90%. If there are better approaches or improvements, propose them step-by-step for user confirmation.
-- **Naming Consistency Rule**: 用語・名付けについて、整合性が取れないものや判断が必要なものがある場合、ユーザーにステップバイステップで確認すること。自己判断で用語を統一しない。
+- **会話言語**: 会話は日本語で行うこと。
+- **確認ルール**: ユーザーの会話や指示について、理解度が90%を超えるまでステップバイステップで質問・確認を行うこと。また、より良いアイデアや提案があればステップバイステップで確認を行うこと。
+- **誤り指摘ルール**: ユーザーの意見や認識に誤りがある場合は、指摘して説明すること。
+- **命名整合性ルール**: 用語・名付けについて、整合性が取れないものや判断が必要なものがある場合、ユーザーにステップバイステップで確認すること。自己判断で用語を統一しない。
 
 ## Context Optimization Rules（厳守）
 

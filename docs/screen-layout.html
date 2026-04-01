@@ -469,6 +469,9 @@
                 <div class="md-sp-main-panel" id="spEmployeePanel">
                     <div class="side-panel-search">
                         <input type="text" id="spSearchInput" placeholder="社員検索...">
+                        <button type="button" class="sp-edit-btn" onclick="openStaffEditModal()" title="社員リスト編集">
+                            <img src="assets/icons/business/im-12032-shimpuru-na-shomei-keiyaku.svg" alt="編集" class="sp-edit-icon">
+                        </button>
                     </div>
                     <div class="side-panel-body">
                         <div class="md-sp-vtabs" id="spVtabs"><!-- JS動的生成 --></div>
@@ -479,6 +482,9 @@
                 <div class="md-sp-main-panel" id="spVehiclePanel" style="display:none">
                     <div class="side-panel-search">
                         <input type="text" id="spVehicleSearchInput" placeholder="車両検索...">
+                        <button type="button" class="sp-edit-btn" onclick="openVehicleEditModal()" title="車両リスト編集">
+                            <img src="assets/icons/business/im-12032-shimpuru-na-shomei-keiyaku.svg" alt="編集" class="sp-edit-icon">
+                        </button>
                     </div>
                     <div class="side-panel-body md-sp-vehicle-body">
                         <div class="md-sp-content" id="spVehicleContent"><!-- JS動的生成 --></div>
@@ -525,6 +531,50 @@
                     <div class="md-modal-site-footer-right">
                         <button class="md-ob-btn md-ob-btn-secondary" onclick="closeGcFilterModal()">キャンセル</button>
                         <button class="md-ob-btn md-ob-btn-primary" onclick="applyGcFilter()">適用</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 車両リスト編集モーダル -->
+        <div class="md-modal-overlay" id="vehicleEditModal" onclick="if(event.target===this)closeVehicleEditModal()">
+            <div class="md-modal-content md-modal-staff-edit">
+                <div class="md-modal-site-header">
+                    <h3>車両リスト編集</h3>
+                    <button type="button" class="md-ob-modal-close" onclick="closeVehicleEditModal()">✕</button>
+                </div>
+                <div class="md-modal-site-body">
+                    <div class="md-modal-body-field"><div class="md-modal-body-field-value">Vehicle & ETC Visibility</div></div>
+                    <div id="vehicleEditContent">
+                        <!-- JS動的生成：会社別の車両・ETCチップ -->
+                    </div>
+                </div>
+                <div class="md-modal-site-footer">
+                    <div class="md-modal-site-footer-right">
+                        <button type="button" class="md-ob-btn md-ob-btn-secondary" onclick="closeVehicleEditModal()">キャンセル</button>
+                        <button type="button" class="md-ob-btn md-ob-btn-primary" onclick="saveVehicleEditModal()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 社員リスト編集モーダル -->
+        <div class="md-modal-overlay" id="staffEditModal" onclick="if(event.target===this)closeStaffEditModal()">
+            <div class="md-modal-content md-modal-staff-edit">
+                <div class="md-modal-site-header">
+                    <h3>社員リスト編集</h3>
+                    <button type="button" class="md-ob-modal-close" onclick="closeStaffEditModal()">✕</button>
+                </div>
+                <div class="md-modal-site-body">
+                    <div class="md-modal-body-field"><div class="md-modal-body-field-value">Staff Visibility & Order</div></div>
+                    <div id="staffEditContent">
+                        <!-- JS動的生成：会社別 > 課別の社員チップ -->
+                    </div>
+                </div>
+                <div class="md-modal-site-footer">
+                    <div class="md-modal-site-footer-right">
+                        <button type="button" class="md-ob-btn md-ob-btn-secondary" onclick="closeStaffEditModal()">キャンセル</button>
+                        <button type="button" class="md-ob-btn md-ob-btn-primary" onclick="saveStaffEditModal()">保存</button>
                     </div>
                 </div>
             </div>
