@@ -2018,6 +2018,205 @@ function selectRowChip(groupKey, value) {
     else if (groupKey === 'category') renderRowChips('rowEditCategoryChips', getCategoryList(), value, 'category');
     else if (groupKey === 'shift') renderRowChips('rowEditShiftChips', shiftList, value, 'shift', rowEditDisabledShifts);
     checkRowDuplicate();
+    // 会社・区分・昼夜変更時にアコーディオンの過去データを更新
+    if (groupKey === 'branch' || groupKey === 'category' || groupKey === 'shift') {
+        historySelectedCompany = null;
+        historySelectedTask = null;
+        updateHistoryBadges();
+    }
+}
+
+// --- 過去データ簡易入力アコーディオン ---
+// 【モックアップ専用】本番環境ではDBの過去受注データから取得
+const historyDbRecords = [
+    // 東央警備
+    { branch: '東央警備', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '東名SA巡回' },
+    { branch: '東央警備', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '新東名PA清掃' },
+    { branch: '東央警備', category: '高速', shift: '昼', company: '△△建設(株)',  task: '中央道補修' },
+    { branch: '東央警備', category: '高速', shift: '昼', company: '△△建設(株)',  task: '東名高速舗装' },
+    { branch: '東央警備', category: '高速', shift: '夜', company: '(株)〇〇高速', task: '東名SA巡回' },
+    { branch: '東央警備', category: '高速', shift: '夜', company: '(株)〇〇高速', task: '中央道PA巡回' },
+    { branch: '東央警備', category: '高速', shift: '夜', company: '△△建設(株)',  task: '東名高速補修' },
+    { branch: '東央警備', category: '交通', shift: '昼', company: '(株)丸山建設', task: '〇〇ビル巡回' },
+    { branch: '東央警備', category: '交通', shift: '昼', company: '(株)丸山建設', task: '△△マンション' },
+    { branch: '東央警備', category: '交通', shift: '昼', company: '(株)丸山建設', task: '' },
+    { branch: '東央警備', category: '交通', shift: '昼', company: '(株)丸山建設', task: '〇〇公園前' },
+    { branch: '東央警備', category: '交通', shift: '昼', company: '□□警備(株)',  task: '県道45号線' },
+    { branch: '東央警備', category: '交通', shift: '夜', company: '□□警備(株)',  task: '国道1号線' },
+    { branch: '東央警備', category: '交通', shift: '夜', company: '(株)丸山建設', task: '〇〇駅前整備' },
+    { branch: '東央警備', category: '施設', shift: '昼', company: '全日本エンタープライズ', task: '商業施設A' },
+    { branch: '東央警備', category: '施設', shift: '昼', company: '全日本エンタープライズ', task: 'オフィスビルD' },
+    { branch: '東央警備', category: '施設', shift: '夜', company: '全日本エンタープライズ', task: '商業施設A' },
+    // Nikkeiホールディングス
+    { branch: 'Nikkeiホールディングス', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '名神SA巡回' },
+    { branch: 'Nikkeiホールディングス', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '北陸道SA巡回' },
+    { branch: 'Nikkeiホールディングス', category: '高速', shift: '昼', company: '△△建設(株)',  task: '東名高速補修' },
+    { branch: 'Nikkeiホールディングス', category: '高速', shift: '昼', company: '△△建設(株)',  task: '名神高速舗装' },
+    { branch: 'Nikkeiホールディングス', category: '高速', shift: '夜', company: '(株)〇〇高速', task: '名神SA巡回' },
+    { branch: 'Nikkeiホールディングス', category: '交通', shift: '昼', company: '(株)丸山建設', task: '□□公園整備' },
+    { branch: 'Nikkeiホールディングス', category: '交通', shift: '昼', company: '(株)丸山建設', task: '△△駅前工事' },
+    { branch: 'Nikkeiホールディングス', category: '交通', shift: '夜', company: '□□警備(株)',  task: '県道12号線' },
+    { branch: 'Nikkeiホールディングス', category: '交通', shift: '夜', company: '□□警備(株)',  task: '国道8号線' },
+    { branch: 'Nikkeiホールディングス', category: '施設', shift: '昼', company: '全日本エンタープライズ', task: '商業施設B' },
+    { branch: 'Nikkeiホールディングス', category: '施設', shift: '昼', company: '全日本エンタープライズ', task: '物流倉庫E' },
+    { branch: 'Nikkeiホールディングス', category: '施設', shift: '夜', company: '全日本エンタープライズ', task: '商業施設B' },
+    // 全日本エンタープライズ
+    { branch: '全日本エンタープライズ', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '新東名SA巡回' },
+    { branch: '全日本エンタープライズ', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '東名PA管理' },
+    { branch: '全日本エンタープライズ', category: '高速', shift: '夜', company: '(株)〇〇高速', task: '新東名SA巡回' },
+    { branch: '全日本エンタープライズ', category: '交通', shift: '昼', company: '(株)丸山建設', task: '〇〇交差点' },
+    { branch: '全日本エンタープライズ', category: '交通', shift: '昼', company: '(株)丸山建設', task: '□□橋梁工事' },
+    { branch: '全日本エンタープライズ', category: '交通', shift: '夜', company: '□□警備(株)',  task: '国道246号線' },
+    { branch: '全日本エンタープライズ', category: '交通', shift: '夜', company: '(株)丸山建設', task: '〇〇交差点' },
+    { branch: '全日本エンタープライズ', category: '施設', shift: '昼', company: '全日本エンタープライズ', task: '商業施設C' },
+    { branch: '全日本エンタープライズ', category: '施設', shift: '昼', company: '全日本エンタープライズ', task: '研修センターF' },
+    { branch: '全日本エンタープライズ', category: '施設', shift: '夜', company: '全日本エンタープライズ', task: '商業施設C' },
+];
+
+// sampleRowsに既に存在する(branch,category,shift,company,task)の組を除外したリストを返す
+function getAvailableHistoryRecords(branch, category, shift) {
+    const existingKeys = {};
+    sampleRows.forEach(function(r) {
+        const key = r.branch + '\t' + r.category + '\t' + r.shift + '\t' + r.company + '\t' + (r.task || '');
+        existingKeys[key] = true;
+    });
+    return historyDbRecords.filter(function(r) {
+        if (r.branch !== branch || r.category !== category || r.shift !== shift) return false;
+        const key = r.branch + '\t' + r.category + '\t' + r.shift + '\t' + r.company + '\t' + (r.task || '');
+        return !existingKeys[key];
+    });
+}
+
+let historySelectedCompany = null;
+let historySelectedTask = null;
+
+function toggleHistoryAccordion() {
+    const panel = document.getElementById('historyAccordionPanel');
+    const icon = document.getElementById('historyAccordionIcon');
+    const isOpen = panel.style.display !== 'none';
+    panel.style.display = isOpen ? 'none' : '';
+    icon.classList.toggle('md-ob-expanded', !isOpen);
+    if (!isOpen) {
+        historySelectedCompany = null;
+        historySelectedTask = null;
+        updateHistoryBadges();
+    }
+}
+
+function updateHistoryBadges() {
+    const panel = document.getElementById('historyAccordionPanel');
+    if (panel.style.display === 'none') return;
+
+    const branch = rowEditSelected.branch;
+    const category = rowEditSelected.category;
+    const shift = rowEditSelected.shift;
+    const hint = document.getElementById('historyHint');
+    const compSection = document.getElementById('historyCompanySection');
+    const taskSection = document.getElementById('historyTaskSection');
+
+    // 会社・区分・昼夜すべて選択されるまでヒント表示
+    if (!branch || !category || !shift) {
+        const missing = [];
+        if (!branch) missing.push('会社');
+        if (!category) missing.push('区分');
+        if (!shift) missing.push('昼夜');
+        hint.textContent = missing.join('と') + 'を選択してください';
+        hint.style.display = '';
+        compSection.style.display = 'none';
+        taskSection.style.display = 'none';
+        return;
+    }
+
+    // 過去データから、既に受注簿に存在する組み合わせを除外して契約先名を収集
+    const available = getAvailableHistoryRecords(branch, category, shift);
+    const companySet = {};
+    available.forEach(function(r) {
+        if (r.company) companySet[r.company] = true;
+    });
+    const companies = Object.keys(companySet);
+
+    if (companies.length === 0) {
+        hint.textContent = '該当する過去データがありません';
+        hint.style.display = '';
+        compSection.style.display = 'none';
+        taskSection.style.display = 'none';
+        return;
+    }
+
+    hint.style.display = 'none';
+    compSection.style.display = '';
+
+    // 契約先名バッジ描画
+    let html = '';
+    companies.forEach(function(c) {
+        const active = c === historySelectedCompany ? ' md-ob-hb-active' : '';
+        html += '<button type="button" class="md-ob-history-badge' + active + '" onclick="selectHistoryCompany(\'' + escapeHtml(c).replace(/'/g, "\\'") + '\')">' + escapeHtml(c) + '</button>';
+    });
+    document.getElementById('historyCompanyBadges').innerHTML = html;
+
+    // 業務名バッジ更新
+    updateHistoryTaskBadges();
+}
+
+function selectHistoryCompany(company) {
+    historySelectedCompany = company;
+    historySelectedTask = null;
+    // 契約先名をFieldsに反映
+    document.getElementById('rowEditCompany').value = company;
+    document.getElementById('obCompanySuggest').style.display = 'none';
+    checkRowDuplicate();
+    updateHistoryBadges();
+}
+
+function updateHistoryTaskBadges() {
+    const taskSection = document.getElementById('historyTaskSection');
+    if (!historySelectedCompany) {
+        taskSection.style.display = 'none';
+        return;
+    }
+
+    const branch = rowEditSelected.branch;
+    const category = rowEditSelected.category;
+    const shift = rowEditSelected.shift;
+
+    // 過去データから、既に受注簿に存在する組み合わせを除外して業務名を収集
+    const available = getAvailableHistoryRecords(branch, category, shift);
+    const taskSet = {};
+    available.forEach(function(r) {
+        if (r.company === historySelectedCompany) {
+            taskSet[r.task || '（個別業務）'] = r.task;
+        }
+    });
+    const tasks = Object.keys(taskSet);
+
+    if (tasks.length === 0) {
+        taskSection.style.display = 'none';
+        return;
+    }
+
+    taskSection.style.display = '';
+    let html = '';
+    tasks.forEach(function(label) {
+        const value = taskSet[label];
+        const active = value === historySelectedTask ? ' md-ob-hb-active' : '';
+        html += '<button type="button" class="md-ob-history-badge' + active + '" onclick="selectHistoryTask(\'' + escapeHtml(value).replace(/'/g, "\\'") + '\')">' + escapeHtml(label) + '</button>';
+    });
+    document.getElementById('historyTaskBadges').innerHTML = html;
+}
+
+function selectHistoryTask(task) {
+    historySelectedTask = task;
+    document.getElementById('rowEditTask').value = task;
+    document.getElementById('obTaskSuggest').style.display = 'none';
+    checkRowDuplicate();
+    updateHistoryTaskBadges();
+}
+
+function resetHistoryAccordion() {
+    historySelectedCompany = null;
+    historySelectedTask = null;
+    document.getElementById('historyAccordionPanel').style.display = 'none';
+    document.getElementById('historyAccordionIcon').classList.remove('md-ob-expanded');
 }
 
 function checkRowDuplicate() {
@@ -2275,6 +2474,7 @@ function addShiftRow(ri) {
     document.getElementById('rowEditTask').value = row.task || '';
     document.getElementById('rowEditPresetStart').value = row.presetStartTime || '';
     document.getElementById('rowEditPresetEnd').value = row.presetEndTime || '';
+    resetHistoryAccordion();
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
 }
@@ -2298,6 +2498,7 @@ function addNewRowFromRow(ri) {
     document.getElementById('rowEditTask').value = '';
     document.getElementById('rowEditPresetStart').value = '';
     document.getElementById('rowEditPresetEnd').value = '';
+    resetHistoryAccordion();
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
 }
@@ -2320,6 +2521,7 @@ function addNewRow() {
     document.getElementById('rowEditTask').value = '';
     document.getElementById('rowEditPresetStart').value = '';
     document.getElementById('rowEditPresetEnd').value = '';
+    resetHistoryAccordion();
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
 }
@@ -2341,6 +2543,7 @@ function openRowEditModal(ri) {
     document.getElementById('rowEditTask').value = row.task;
     document.getElementById('rowEditPresetStart').value = row.presetStartTime || '';
     document.getElementById('rowEditPresetEnd').value = row.presetEndTime || '';
+    resetHistoryAccordion();
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
 }

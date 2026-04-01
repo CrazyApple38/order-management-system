@@ -1015,6 +1015,55 @@ body {
     color: #d32f2f; font-size: 12px; font-weight: 600;
     padding: 6px 0 0; margin-top: 4px;
 }
+/* 過去データ簡易入力アコーディオン */
+.md-ob-history-accordion {
+    border-top: 1px solid var(--divider); padding-top: 10px; margin-top: 2px;
+}
+.md-ob-history-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: none; border: none; cursor: pointer;
+    font-size: 11px; font-weight: 600; color: var(--text-secondary);
+    padding: 2px 0; transition: color 0.15s;
+}
+.md-ob-history-toggle:hover { color: var(--accent); }
+.md-ob-history-toggle-icon {
+    font-size: 9px; transition: transform 0.2s;
+    display: inline-block;
+}
+.md-ob-history-toggle-icon.md-ob-expanded { transform: rotate(90deg); }
+.md-ob-history-panel {
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 10px 0 0;
+}
+.md-ob-history-hint {
+    font-size: 11px; color: var(--text-tertiary); font-style: italic;
+}
+.md-ob-history-section {
+    display: flex; flex-direction: column; gap: 6px;
+}
+.md-ob-history-label {
+    font-size: 11px; font-weight: 600; color: var(--text-secondary);
+}
+.md-ob-history-badges {
+    display: flex; flex-wrap: wrap; gap: 6px;
+}
+.md-ob-history-badge {
+    display: inline-flex; align-items: center;
+    padding: 4px 12px; border-radius: 14px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface); color: var(--text-secondary);
+    font-size: 11px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    -webkit-user-select: none; user-select: none;
+}
+.md-ob-history-badge:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.md-ob-history-badge.md-ob-hb-active {
+    background: var(--accent); color: #fff;
+    border-color: var(--accent);
+}
 /* 現場監督・連絡先 候補チップ */
 .md-ob-supervisor-candidates {
     display: flex; align-items: baseline; gap: 8px;

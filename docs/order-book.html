@@ -292,6 +292,24 @@
                         </div>
                         <div class="md-ob-row-chips" id="rowEditShiftChips"></div>
                     </div>
+                    <!-- 過去データから簡易入力アコーディオン -->
+                    <div class="md-ob-history-accordion">
+                        <button type="button" class="md-ob-history-toggle" id="historyAccordionToggle" onclick="toggleHistoryAccordion()">
+                            <span class="md-ob-history-toggle-icon" id="historyAccordionIcon">▶</span>
+                            <span>過去データから入力</span>
+                        </button>
+                        <div class="md-ob-history-panel" id="historyAccordionPanel" style="display:none;">
+                            <div class="md-ob-history-hint" id="historyHint">会社と昼夜を選択してください</div>
+                            <div class="md-ob-history-section" id="historyCompanySection" style="display:none;">
+                                <div class="md-ob-history-label">契約先名</div>
+                                <div class="md-ob-history-badges" id="historyCompanyBadges"></div>
+                            </div>
+                            <div class="md-ob-history-section" id="historyTaskSection" style="display:none;">
+                                <div class="md-ob-history-label">業務名</div>
+                                <div class="md-ob-history-badges" id="historyTaskBadges"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- ━━ Fields ━━ -->
