@@ -2212,11 +2212,12 @@ function selectHistoryTask(task) {
     updateHistoryTaskBadges();
 }
 
-function resetHistoryAccordion() {
+function resetHistoryAccordion(show) {
     historySelectedCompany = null;
     historySelectedTask = null;
     document.getElementById('historyAccordionPanel').style.display = 'none';
     document.getElementById('historyAccordionIcon').classList.remove('md-ob-expanded');
+    document.querySelector('.md-ob-history-accordion').style.display = show ? '' : 'none';
 }
 
 function checkRowDuplicate() {
@@ -2474,7 +2475,7 @@ function addShiftRow(ri) {
     document.getElementById('rowEditTask').value = row.task || '';
     document.getElementById('rowEditPresetStart').value = row.presetStartTime || '';
     document.getElementById('rowEditPresetEnd').value = row.presetEndTime || '';
-    resetHistoryAccordion();
+    resetHistoryAccordion(false);
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
 }
@@ -2498,7 +2499,7 @@ function addNewRowFromRow(ri) {
     document.getElementById('rowEditTask').value = '';
     document.getElementById('rowEditPresetStart').value = '';
     document.getElementById('rowEditPresetEnd').value = '';
-    resetHistoryAccordion();
+    resetHistoryAccordion(false);
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
 }
@@ -2521,7 +2522,7 @@ function addNewRow() {
     document.getElementById('rowEditTask').value = '';
     document.getElementById('rowEditPresetStart').value = '';
     document.getElementById('rowEditPresetEnd').value = '';
-    resetHistoryAccordion();
+    resetHistoryAccordion(true);
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
 }
@@ -2543,7 +2544,7 @@ function openRowEditModal(ri) {
     document.getElementById('rowEditTask').value = row.task;
     document.getElementById('rowEditPresetStart').value = row.presetStartTime || '';
     document.getElementById('rowEditPresetEnd').value = row.presetEndTime || '';
-    resetHistoryAccordion();
+    resetHistoryAccordion(false);
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
 }

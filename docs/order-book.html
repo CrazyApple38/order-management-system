@@ -280,10 +280,7 @@
                         <div class="md-ob-row-chips" id="rowEditBranchChips"></div>
                     </div>
                     <div class="md-ob-chip-field">
-                        <div class="md-ob-chip-field-header">
-                            <span class="md-ob-chip-field-title">区分</span>
-                            <button type="button" class="md-ob-btn-add-chip" onclick="addRowCategory()">+ 追加</button>
-                        </div>
+                        <div class="md-modal-section-bar">区分 <button type="button" class="md-ob-btn-add-sub" onclick="addRowCategory()">+ 追加</button></div>
                         <div class="md-ob-row-chips" id="rowEditCategoryChips"></div>
                     </div>
                     <div class="md-ob-chip-field">
@@ -325,14 +322,20 @@
                         <input type="text" id="rowEditTask" placeholder="空欄で個別業務" oninput="checkRowDuplicate(); obTaskSuggest()" autocomplete="off">
                         <div class="md-ob-company-suggest" id="obTaskSuggest" style="display:none;"></div>
                     </div>
-                    <div class="md-ob-form-row-half">
+                    <div class="md-ob-form-row md-ob-form-row-half">
                         <div>
                             <label>開始時間（プリセット）</label>
-                            <input type="time" id="rowEditPresetStart">
+                            <div class="md-ob-time-picker-wrap" onclick="openTimePicker('rowEditPresetStart', this)">
+                                <input type="text" id="rowEditPresetStart" class="md-ob-time-input" readonly placeholder="--:--">
+                                <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
+                            </div>
                         </div>
                         <div>
                             <label>終了時間（プリセット）</label>
-                            <input type="time" id="rowEditPresetEnd">
+                            <div class="md-ob-time-picker-wrap" onclick="openTimePicker('rowEditPresetEnd', this)">
+                                <input type="text" id="rowEditPresetEnd" class="md-ob-time-input" readonly placeholder="--:--">
+                                <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
+                            </div>
                         </div>
                     </div>
                     <div class="md-ob-row-dup-warning" id="rowDupWarning" style="display:none;">※ この組み合わせは既に存在します</div>
