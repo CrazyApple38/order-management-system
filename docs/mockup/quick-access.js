@@ -10,46 +10,46 @@ const qaClients = [
         id: 1, name: '鈴木建設株式会社', categories: ['交通', '高速'],
         lastOrderDate: '2026-03-28', orderCount: 15,
         sites: [
-            { id: 101, name: '国道16号 拡幅工事現場', address: '埼玉県さいたま市大宮区', lastOrderDate: '2026-03-28' },
-            { id: 102, name: '東名高速 補修工事', address: '神奈川県厚木市', lastOrderDate: '2026-03-20' },
+            { id: 101, name: '国道16号 拡幅工事現場', lastOrderDate: '2026-03-28' },
+            { id: 102, name: '東名高速 補修工事', lastOrderDate: '2026-03-20' },
         ]
     },
     {
         id: 2, name: '東京イベントサービス', categories: ['イベント'],
         lastOrderDate: '2026-03-25', orderCount: 8,
         sites: [
-            { id: 201, name: '東京ドーム コンサート警備', address: '東京都文京区後楽1-3-61', lastOrderDate: '2026-03-25' },
-            { id: 202, name: '幕張メッセ 展示会', address: '千葉県千葉市美浜区中瀬2-1', lastOrderDate: '2026-03-10' },
+            { id: 201, name: '東京ドーム コンサート警備', lastOrderDate: '2026-03-25' },
+            { id: 202, name: '幕張メッセ 展示会', lastOrderDate: '2026-03-10' },
         ]
     },
     {
         id: 3, name: 'ABCマンション管理組合', categories: ['施設'],
         lastOrderDate: '2026-03-22', orderCount: 30,
         sites: [
-            { id: 301, name: 'ABCマンション 常駐警備', address: '東京都港区芝公園3-4-5', lastOrderDate: '2026-03-22' },
+            { id: 301, name: 'ABCマンション 常駐警備', lastOrderDate: '2026-03-22' },
         ]
     },
     {
         id: 4, name: '関東道路サービス', categories: ['高速'],
         lastOrderDate: '2026-03-18', orderCount: 22,
         sites: [
-            { id: 401, name: '首都高速 中央環状線 車線規制', address: '東京都板橋区', lastOrderDate: '2026-03-18' },
-            { id: 402, name: '東北自動車道 路肩規制', address: '埼玉県蓮田市', lastOrderDate: '2026-03-12' },
-            { id: 403, name: '常磐自動車道 保安業務', address: '茨城県守谷市', lastOrderDate: '2026-03-05' },
+            { id: 401, name: '首都高速 中央環状線 車線規制', lastOrderDate: '2026-03-18' },
+            { id: 402, name: '東北自動車道 路肩規制', lastOrderDate: '2026-03-12' },
+            { id: 403, name: '常磐自動車道 保安業務', lastOrderDate: '2026-03-05' },
         ]
     },
     {
         id: 5, name: '市川市役所', categories: ['交通'],
         lastOrderDate: '2026-03-15', orderCount: 5,
         sites: [
-            { id: 501, name: '市川駅前 歩行者天国', address: '千葉県市川市市川1丁目', lastOrderDate: '2026-03-15' },
+            { id: 501, name: '市川駅前 歩行者天国', lastOrderDate: '2026-03-15' },
         ]
     },
     {
         id: 6, name: 'グローバル警備応援', categories: ['応援交通'],
         lastOrderDate: '2026-03-10', orderCount: 3,
         sites: [
-            { id: 601, name: '横浜市内 交通誘導', address: '神奈川県横浜市西区', lastOrderDate: '2026-03-10' },
+            { id: 601, name: '横浜市内 交通誘導', lastOrderDate: '2026-03-10' },
         ]
     },
 ];
@@ -154,8 +154,7 @@ function qaRenderClients() {
                     <div class="qa-site-info">
                         <div class="qa-site-name">${escHtml(site.name)}</div>
                         <div class="qa-site-detail">
-                            <span>${escHtml(site.address)}</span>
-                            <span>最終: ${formatDate(site.lastOrderDate)}</span>
+                            <span>最終受注: ${formatDate(site.lastOrderDate)}</span>
                         </div>
                     </div>
                     <span class="qa-site-go">▶</span>
@@ -214,7 +213,7 @@ function qaAddSite(clientId, btn) {
     if (!client) return;
     const newSiteId = Math.floor(Math.random() * 10000) + 1000;
     client.sites.unshift({
-        id: newSiteId, name: name, address: '住所未登録', lastOrderDate: '—'
+        id: newSiteId, name: name, lastOrderDate: '—'
     });
     input.value = '';
     btn.classList.remove('visible');
@@ -387,6 +386,37 @@ function qaShowAllCalendarCells() {
     }
 }
 
+// セル内の配置先エントリHTMLを生成
+// day: 当月日（当月セル用）、outsideArgs: 前月/次月クリック用引数文字列
+function qaCalEntriesHtml(data, day, outsideArgs) {
+    if (!data) return '';
+    // 旧形式（{ count: N }）との互換
+    if (!data.entries) {
+        if (data.count) {
+            const click = outsideArgs
+                ? `event.stopPropagation(); qaSelectOutsideDayEntry(${outsideArgs}, 0)`
+                : `event.stopPropagation(); qaSelectDayEntry(${day}, 0)`;
+            return `<div class="qa-cal-entries"><div class="qa-cal-entry" onclick="${click}"><span class="qa-cal-count">${data.count}</span></div></div>`;
+        }
+        return '';
+    }
+    if (data.entries.length === 0) return '';
+    let html = '<div class="qa-cal-entries">';
+    for (let si = 0; si < data.entries.length; si++) {
+        const entry = data.entries[si];
+        let confCls = '';
+        if (entry.reliability === '仮(高)') confCls = ' qa-cal-tentative-high';
+        else if (entry.reliability === '仮(低)') confCls = ' qa-cal-tentative-low';
+        const selCls = (day === qaSelectedDay && si === qaActivePlacement && document.getElementById('qaCalEditPanel')?.classList.contains('active')) ? ' qa-cal-entry-selected' : '';
+        const click = outsideArgs
+            ? `event.stopPropagation(); qaSelectOutsideDayEntry(${outsideArgs}, ${si})`
+            : `event.stopPropagation(); qaSelectDayEntry(${day}, ${si})`;
+        html += `<div class="qa-cal-entry${selCls}" onclick="${click}"><span class="qa-cal-count${confCls}">${entry.count}</span></div>`;
+    }
+    html += '</div>';
+    return html;
+}
+
 function qaRenderCalendar() {
     const year = qaCalendarYear;
     const month = qaCalendarMonth;
@@ -416,9 +446,9 @@ function qaRenderCalendar() {
         if (prevDow === 6) cls += ' qa-cal-sat';
         const prevKey = `${prevDt.getFullYear()}-${String(prevDt.getMonth() + 1).padStart(2, '0')}-${String(prevDay).padStart(2, '0')}`;
         const prevData = qaCalendarData[prevKey];
-        const prevCountHtml = prevData ? `<span class="qa-cal-count">${prevData.count}</span>` : '';
-        html += `<div class="${cls}" onclick="qaSelectOutsideDay(${prevDt.getFullYear()}, ${prevDt.getMonth()}, ${prevDay})">
-            <span class="qa-cal-day-num">${prevDay}</span>${prevCountHtml}
+        const prevOutArgs = `${prevDt.getFullYear()}, ${prevDt.getMonth()}, ${prevDay}`;
+        html += `<div class="${cls}" onclick="qaSelectOutsideDay(${prevOutArgs})">
+            <span class="qa-cal-day-num">${prevDay}</span>${qaCalEntriesHtml(prevData, null, prevOutArgs)}
         </div>`;
     }
 
@@ -434,10 +464,9 @@ function qaRenderCalendar() {
 
         const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const data = qaCalendarData[key];
-        const countHtml = data ? `<span class="qa-cal-count">${data.count}</span>` : '';
 
         html += `<div class="${cls}" onclick="qaSelectDay(${d})">
-            <span class="qa-cal-day-num">${d}</span>${countHtml}
+            <span class="qa-cal-day-num">${d}</span>${qaCalEntriesHtml(data, d)}
         </div>`;
     }
 
@@ -452,9 +481,9 @@ function qaRenderCalendar() {
         if (nextDow === 6) cls += ' qa-cal-sat';
         const nextKey = `${nextDt.getFullYear()}-${String(nextDt.getMonth() + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
         const nextData = qaCalendarData[nextKey];
-        const nextCountHtml = nextData ? `<span class="qa-cal-count">${nextData.count}</span>` : '';
-        html += `<div class="${cls}" onclick="qaSelectOutsideDay(${nextDt.getFullYear()}, ${nextDt.getMonth()}, ${i})">
-            <span class="qa-cal-day-num">${i}</span>${nextCountHtml}
+        const nextOutArgs = `${nextDt.getFullYear()}, ${nextDt.getMonth()}, ${i}`;
+        html += `<div class="${cls}" onclick="qaSelectOutsideDay(${nextOutArgs})">
+            <span class="qa-cal-day-num">${i}</span>${qaCalEntriesHtml(nextData, null, nextOutArgs)}
         </div>`;
     }
 
@@ -670,8 +699,36 @@ function qaSelectOutsideDay(year, month, day) {
     qaSelectDay(day);
 }
 
+// --- エントリ直接選択（配置先指定付き） ---
+function qaSelectDayEntry(day, siteIdx) {
+    const panel = document.getElementById('qaCalEditPanel');
+    if (qaSelectedDay === day && panel.classList.contains('active')) {
+        // 同じ日が既に開いている → 配置先タブ切り替え＋アコーディオン展開
+        qaSavePlacementData();
+        qaSelectPlacement(siteIdx);
+        if (panel.classList.contains('collapsed')) {
+            panel.classList.remove('collapsed');
+            qaEnterWeekMode();
+            qaShowSelectedWeekOnly(day);
+        }
+        qaRenderCalendar();
+        return;
+    }
+    // 別の日 → 通常のセル選択後に配置先を指定
+    qaSelectDay(day, siteIdx);
+}
+
+function qaSelectOutsideDayEntry(year, month, day, siteIdx) {
+    if (qaSelectedDay) qaSavePlacementData();
+    qaCalendarYear = year;
+    qaCalendarMonth = month;
+    qaSelectedDay = null;
+    qaRenderCalendar();
+    qaSelectDay(day, siteIdx);
+}
+
 // --- セル選択 ---
-function qaSelectDay(day) {
+function qaSelectDay(day, initialSiteIdx) {
     // 切り替え前に現在のデータを保存
     if (qaSelectedDay) {
         qaSavePlacementData();
@@ -707,10 +764,13 @@ function qaSelectDay(day) {
         for (let i = 1; i <= maxPlacement; i++) {
             qaAddPlacement();
         }
-        qaSelectPlacement(0);
     }
 
+    // 指定された配置先タブを選択
+    const targetIdx = (typeof initialSiteIdx === 'number' && initialSiteIdx < qaPlacementCount) ? initialSiteIdx : 0;
+    qaSelectPlacement(targetIdx);
     qaLoadPlacementData();
+    qaRenderCalendar();
 }
 
 function qaSelectReliability(el) {
@@ -749,14 +809,20 @@ function qaSaveEntry() {
     // 現在の配置先データを保存
     qaSavePlacementData();
 
-    // カレンダー表示用の合計人数を集計
+    // カレンダー表示用 — 配置先ごとのエントリ配列を保存
     const dayKey = `${qaCalendarYear}-${String(qaCalendarMonth + 1).padStart(2, '0')}-${String(qaSelectedDay).padStart(2, '0')}`;
-    let totalCount = 0;
+    const entries = [];
     for (let i = 0; i < qaPlacementCount; i++) {
         const pd = qaPlacementData[`${dayKey}-${i}`];
-        if (pd) totalCount += parseInt(pd.count) || 0;
+        if (pd && parseInt(pd.count) > 0) {
+            entries.push({ count: parseInt(pd.count), reliability: pd.reliability || '確定' });
+        }
     }
-    qaCalendarData[dayKey] = { count: totalCount };
+    if (entries.length === 0) {
+        delete qaCalendarData[dayKey];
+    } else {
+        qaCalendarData[dayKey] = { entries };
+    }
     // アコーディオンを折りたたむ
     document.getElementById('qaCalEditPanel').classList.add('collapsed');
     qaExitWeekMode();
