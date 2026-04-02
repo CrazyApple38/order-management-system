@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quick Access — 受注クイック入力</title>
+    <link rel="stylesheet" href="mockup/quick-access.css">
+</head>
+<body>
+
+    <!-- ========== 画面1: ログイン ========== -->
+    <div class="qa-login-screen" id="qaLoginScreen">
+        <div class="qa-login-card">
+            <div class="qa-login-logo">
+                <div class="qa-login-logo-icon">
+                    <img src="mockup/icons/shield.svg" alt=""
+                         onerror="this.style.display='none'; this.parentElement.textContent='🛡️'">
+                </div>
+                <h1>受注管理システム</h1>
+                <p>Quick Access</p>
+            </div>
+            <div class="qa-login-form">
+                <div class="qa-login-field">
+                    <label>メールアドレス</label>
+                    <input type="email" id="qaEmail" placeholder="example@company.co.jp" value="tanaka@example.com">
+                </div>
+                <div class="qa-login-field">
+                    <label>パスワード</label>
+                    <input type="password" id="qaPassword" placeholder="パスワード" value="demo1234">
+                </div>
+                <div class="qa-login-error" id="qaLoginError"></div>
+                <button class="qa-login-btn" onclick="qaLogin()">ログイン</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 画面2: 契約先選択（ホーム） ========== -->
+    <div class="qa-home-screen" id="qaHomeScreen">
+
+        <!-- ヘッダー -->
+        <div class="qa-header">
+            <div class="qa-header-top">
+                <h1>Quick Access</h1>
+                <div class="qa-header-user">
+                    <div class="qa-header-avatar" id="qaUserInitials"></div>
+                    <span id="qaUserName"></span>
+                    <button class="qa-logout-btn" onclick="qaLogout()">ログアウト</button>
+                </div>
+            </div>
+            <!-- カテゴリタブ -->
+            <div class="qa-tabs" id="qaTabs"></div>
+        </div>
+
+        <!-- コンテンツ -->
+        <div class="qa-content">
+            <!-- 新規契約先ボタン -->
+            <button class="qa-add-client-btn" id="qaAddClientBtn" onclick="qaShowAddClient()">＋ 新規契約先を追加</button>
+
+            <!-- 新規契約先入力フォーム -->
+            <div class="qa-add-client-form" id="qaAddClientForm">
+                <h3>新規契約先を登録</h3>
+                <div class="qa-add-client-input-row">
+                    <input type="text" class="qa-add-client-input" id="qaNewClientName" placeholder="契約先名を入力…">
+                    <button class="qa-add-client-submit" onclick="qaSubmitNewClient()">登録</button>
+                    <button class="qa-add-client-cancel" onclick="qaHideAddClient()">取消</button>
+                </div>
+            </div>
+
+            <!-- 契約先カード一覧 -->
+            <div id="qaClientList"></div>
+        </div>
+    </div>
+
+    <!-- ========== 画面3: カレンダー入力 ========== -->
+    <div class="qa-calendar-screen" id="qaCalendarScreen">
+
+        <!-- カレンダーヘッダー -->
+        <div class="qa-cal-header">
+            <div class="qa-cal-header-top">
+                <button class="qa-cal-back-btn" onclick="qaCloseCalendar()">◀</button>
+                <div class="qa-cal-header-info">
+                    <div class="qa-cal-client-name" id="qaCalClientName"></div>
+                    <div class="qa-cal-site-name" id="qaCalSiteName"></div>
+                </div>
+            </div>
+            <div class="qa-cal-month-nav">
+                <button class="qa-cal-nav-btn" id="qaCalNavPrev" onclick="qaChangeMonth(-1)">◀ 前月</button>
+                <span class="qa-cal-month-label" id="qaCalMonthLabel"></span>
+                <button class="qa-cal-nav-btn" id="qaCalNavNext" onclick="qaChangeMonth(1)">次月 ▶</button>
+            </div>
+        </div>
+
+        <!-- カレンダーボディ -->
+        <div class="qa-cal-body" id="qaCalBody">
+            <div class="qa-cal-grid" id="qaCalGrid"></div>
+        </div>
+
+        <!-- 編集パネル（アコーディオン） -->
+        <div class="qa-cal-edit-panel" id="qaCalEditPanel">
+            <!-- アコーディオンヘッダー（クリックで折りたたみ） -->
+            <div class="qa-cal-edit-accordion-header" onclick="qaToggleEditPanel()">
+                <div class="qa-cal-edit-accordion-left">
+                    <span class="qa-cal-edit-date" id="qaCalEditDate"></span>
+                    <span class="qa-cal-edit-toggle" id="qaCalEditToggle">▼</span>
+                </div>
+                <div class="qa-cal-edit-header-actions">
+                    <button type="button" class="qa-header-delete-btn" onclick="event.stopPropagation(); qaDeletePlacement()">削除</button>
+                    <button type="button" class="qa-header-save-btn" onclick="event.stopPropagation(); qaSaveEntry()">保存</button>
+                    <button type="button" class="qa-cal-edit-close" onclick="event.stopPropagation(); qaCloseEditPanel()">✕</button>
+                </div>
+            </div>
+            <!-- アコーディオンボディ -->
+            <div class="qa-cal-edit-body" id="qaCalEditBody">
+
+                <!-- ━━ Placement / Details ━━ -->
+                <div class="qa-card-label"><div class="qa-card-label-text">Placement / Details</div></div>
+                <div class="qa-card">
+                    <!-- 配置先タブ -->
+                    <div class="qa-placement-tabs" id="qaPlacementTabs">
+                        <button type="button" class="qa-placement-tab active" data-idx="0" onclick="qaSelectPlacement(0)">配置先1</button>
+                        <button type="button" class="qa-placement-add" onclick="qaAddPlacement()">+ 追加</button>
+                    </div>
+                    <!-- 人数 + 信頼度（1行） -->
+                    <div class="qa-card-section-bar">配置情報</div>
+                    <div class="qa-count-confidence-row">
+                        <label class="qa-count-inline-label">人数</label>
+                        <input type="number" id="qaEditCount" class="qa-count-inline-input" min="0" max="99" placeholder="0" inputmode="numeric">
+                        <label class="qa-confidence-inline-label">信頼度</label>
+                        <div class="qa-reliability-chips">
+                            <div class="qa-reliability-chip active" data-value="確定" onclick="qaSelectReliability(this)">確定</div>
+                            <div class="qa-reliability-chip" data-value="予定（高）" onclick="qaSelectReliability(this)">予定（高）</div>
+                            <div class="qa-reliability-chip" data-value="予定（低）" onclick="qaSelectReliability(this)">予定（低）</div>
+                        </div>
+                    </div>
+                    <!-- 業務詳細 -->
+                    <div class="qa-card-section-bar">業務詳細 <button type="button" class="qa-section-bar-btn" onclick="qaAddSubTask()">+ 追加</button></div>
+                    <div id="qaSubTaskList">
+                        <div class="qa-sub-task-row" data-idx="0">
+                            <input type="text" class="qa-sub-label" placeholder="ラベル" value="工事名1">
+                            <input type="text" class="qa-sub-value" placeholder="内容を入力…">
+                            <button type="button" class="qa-sub-delete" onclick="qaRemoveSubTask(this)" title="削除">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ━━ Category / Badge ━━ -->
+                <div class="qa-card-label"><div class="qa-card-label-text">Category / Badge</div></div>
+                <div class="qa-card">
+                    <div class="qa-badge-section">
+                        <div class="qa-badge-group">
+                            <span class="qa-badge-group-label">区分</span>
+                            <span class="qa-badge-parent" id="qaBadgeParent">交通</span>
+                        </div>
+                        <div class="qa-badge-group" id="qaBadgeChildSection">
+                            <span class="qa-badge-group-label">作業内容</span>
+                            <div class="qa-badge-chips" id="qaBadgeChildChips">
+                                <!-- 【モックアップ専用】デモ用バッジ -->
+                                <div class="qa-badge-chip" onclick="qaToggleBadge(this)">片側交互</div>
+                                <div class="qa-badge-chip" onclick="qaToggleBadge(this)">通行止め</div>
+                            </div>
+                            <button type="button" class="qa-badge-add-btn" onclick="qaAddBadge()">+ 作業内容追加</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ━━ Schedule / Notes ━━ -->
+                <div class="qa-card-label"><div class="qa-card-label-text">Schedule / Notes</div></div>
+                <div class="qa-card">
+                    <!-- 時間 -->
+                    <div class="qa-card-section-bar">時間</div>
+                    <div class="qa-cal-edit-row">
+                        <div class="qa-cal-edit-field">
+                            <label>開始時間</label>
+                            <div class="qa-time-select-row" id="qaEditStartTime">
+                                <select class="qa-time-hour" title="開始時間（時）"></select>
+                                <span class="qa-time-colon">:</span>
+                                <select class="qa-time-min" title="開始時間（分）"></select>
+                            </div>
+                        </div>
+                        <div class="qa-cal-edit-field">
+                            <label>終了時間</label>
+                            <div class="qa-time-select-row" id="qaEditEndTime">
+                                <select class="qa-time-hour" title="終了時間（時）"></select>
+                                <span class="qa-time-colon">:</span>
+                                <select class="qa-time-min" title="終了時間（分）"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 担当者 -->
+                    <div class="qa-card-section-bar">担当者</div>
+                    <div class="qa-cal-edit-row">
+                        <div class="qa-cal-edit-field">
+                            <label>現場監督</label>
+                            <input type="text" id="qaEditSupervisor" placeholder="氏名">
+                        </div>
+                        <div class="qa-cal-edit-field">
+                            <label>連絡先</label>
+                            <input type="tel" id="qaEditSupervisorTel" placeholder="電話番号" inputmode="tel">
+                        </div>
+                    </div>
+                    <!-- 集合 -->
+                    <div class="qa-card-section-bar">集合</div>
+                    <div class="qa-cal-edit-row">
+                        <div class="qa-cal-edit-field">
+                            <label>集合場所</label>
+                            <input type="text" id="qaEditMeetingPlace" placeholder="集合場所を入力">
+                        </div>
+                        <div class="qa-cal-edit-field">
+                            <label>集合時間</label>
+                            <div class="qa-time-select-row" id="qaEditMeetingTime">
+                                <select class="qa-time-hour" title="集合時間（時）"></select>
+                                <span class="qa-time-colon">:</span>
+                                <select class="qa-time-min" title="集合時間（分）"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 地図 -->
+                    <div class="qa-card-section-bar">地図</div>
+                    <div class="qa-cal-edit-field">
+                        <label>現場地図</label>
+                        <div class="qa-map-url-row">
+                            <input type="url" id="qaEditMapUrl" placeholder="Google Maps等のURLを入力">
+                            <button type="button" class="qa-map-preview-btn" onclick="qaPreviewMap()">開く</button>
+                        </div>
+                    </div>
+                    <!-- 備考 -->
+                    <div class="qa-card-section-bar">備考</div>
+                    <div class="qa-cal-edit-field">
+                        <label>備考</label>
+                        <textarea id="qaEditRemarks" rows="2" placeholder="備考を入力…"></textarea>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- トースト -->
+    <div class="qa-toast" id="qaToast"></div>
+
+    <script src="mockup/quick-access.js"></script>
+</body>
+</html>
