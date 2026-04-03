@@ -132,6 +132,8 @@
                             <div class="qa-reliability-chip" data-value="予定（低）" onclick="qaSelectReliability(this)">予定（低）</div>
                         </div>
                     </div>
+                    <!-- 業務名表示 -->
+                    <div class="qa-daily-task-name" id="qaDailyTaskName">-</div>
                     <!-- 業務詳細 -->
                     <div class="qa-card-section-bar">業務詳細 <button type="button" class="qa-section-bar-btn" onclick="qaAddSubTask()">+ 追加</button></div>
                     <div id="qaSubTaskList">
@@ -232,6 +234,50 @@
                 </div>
 
 
+            </div>
+        </div>
+    </div>
+
+    <!-- 現場情報編集モーダル -->
+    <div class="qa-modal-overlay" id="qaSiteModalOverlay" style="display:none;" onclick="qaCloseSiteModal(event)">
+        <div class="qa-modal" onclick="event.stopPropagation()">
+            <div class="qa-modal-header">
+                <span id="qaSiteModalTitle">現場情報</span>
+            </div>
+            <div class="qa-modal-body">
+                <div class="qa-modal-field">
+                    <label>現場名</label>
+                    <input type="text" id="qaSiteModalName" placeholder="空欄で個別業務">
+                </div>
+                <div class="qa-card-section-bar">会社</div>
+                <div class="qa-modal-chips" id="qaSiteModalBranch"></div>
+                <div class="qa-card-section-bar">区分</div>
+                <div class="qa-modal-chips" id="qaSiteModalCategory"></div>
+                <div class="qa-card-section-bar">昼夜</div>
+                <div class="qa-modal-chips" id="qaSiteModalShift"></div>
+                <div class="qa-card-section-bar">プリセット時間</div>
+                <div class="qa-cal-edit-row">
+                    <div class="qa-cal-edit-field">
+                        <label>開始時間</label>
+                        <div class="qa-time-select-row" id="qaSiteModalStart">
+                            <select class="qa-time-hour" title="開始時間（時）"></select>
+                            <span class="qa-time-colon">:</span>
+                            <select class="qa-time-min" title="開始時間（分）"></select>
+                        </div>
+                    </div>
+                    <div class="qa-cal-edit-field">
+                        <label>終了時間</label>
+                        <div class="qa-time-select-row" id="qaSiteModalEnd">
+                            <select class="qa-time-hour" title="終了時間（時）"></select>
+                            <span class="qa-time-colon">:</span>
+                            <select class="qa-time-min" title="終了時間（分）"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="qa-modal-footer">
+                <button type="button" class="qa-modal-btn qa-modal-btn-cancel" onclick="qaCloseSiteModal()">キャンセル</button>
+                <button type="button" class="qa-modal-btn qa-modal-btn-save" id="qaSiteModalSaveBtn" onclick="qaSaveSiteModal()">保存</button>
             </div>
         </div>
     </div>

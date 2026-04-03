@@ -3,58 +3,63 @@
    =========================== */
 
 // --- モックデータ ---
-const qaCurrentUser = { name: '田中 太郎', email: 'tanaka@example.com', initials: '田' };
+const qaCurrentUser = { name: '田中 太郎', email: 'tanaka@example.com', initials: '田', branch: '東央警備' };
 
 const qaClients = [
     {
         id: 1, name: '鈴木建設株式会社', categories: ['交通', '高速'],
         lastOrderDate: '2026-03-28', orderCount: 15,
         sites: [
-            { id: 101, name: '国道16号 拡幅工事現場', lastOrderDate: '2026-03-28' },
-            { id: 102, name: '東名高速 補修工事', lastOrderDate: '2026-03-20' },
+            { id: 101, name: '国道16号 拡幅工事現場', lastOrderDate: '2026-03-28', branch: '東央警備', category: '交通', shift: '昼', presetStart: '08:00', presetEnd: '17:00' },
+            { id: 102, name: '東名高速 補修工事', lastOrderDate: '2026-03-20', branch: '東央警備', category: '高速', shift: '夜', presetStart: '20:00', presetEnd: '05:00' },
         ]
     },
     {
         id: 2, name: '東京イベントサービス', categories: ['イベント'],
         lastOrderDate: '2026-03-25', orderCount: 8,
         sites: [
-            { id: 201, name: '東京ドーム コンサート警備', lastOrderDate: '2026-03-25' },
-            { id: 202, name: '幕張メッセ 展示会', lastOrderDate: '2026-03-10' },
+            { id: 201, name: '東京ドーム コンサート警備', lastOrderDate: '2026-03-25', branch: 'Nikkeiホールディングス', category: 'イベント', shift: '昼', presetStart: '09:00', presetEnd: '18:00' },
+            { id: 202, name: '幕張メッセ 展示会', lastOrderDate: '2026-03-10', branch: 'Nikkeiホールディングス', category: 'イベント', shift: '昼', presetStart: '08:00', presetEnd: '17:00' },
         ]
     },
     {
         id: 3, name: 'ABCマンション管理組合', categories: ['施設'],
         lastOrderDate: '2026-03-22', orderCount: 30,
         sites: [
-            { id: 301, name: 'ABCマンション 常駐警備', lastOrderDate: '2026-03-22' },
+            { id: 301, name: 'ABCマンション 常駐警備', lastOrderDate: '2026-03-22', branch: '全日本エンタープライズ', category: '施設', shift: '昼', presetStart: '08:00', presetEnd: '17:00' },
         ]
     },
     {
         id: 4, name: '関東道路サービス', categories: ['高速'],
         lastOrderDate: '2026-03-18', orderCount: 22,
         sites: [
-            { id: 401, name: '首都高速 中央環状線 車線規制', lastOrderDate: '2026-03-18' },
-            { id: 402, name: '東北自動車道 路肩規制', lastOrderDate: '2026-03-12' },
-            { id: 403, name: '常磐自動車道 保安業務', lastOrderDate: '2026-03-05' },
+            { id: 401, name: '首都高速 中央環状線 車線規制', lastOrderDate: '2026-03-18', branch: '東央警備', category: '高速', shift: '夜', presetStart: '20:00', presetEnd: '05:00' },
+            { id: 402, name: '東北自動車道 路肩規制', lastOrderDate: '2026-03-12', branch: '東央警備', category: '高速', shift: '昼', presetStart: '08:00', presetEnd: '17:00' },
+            { id: 403, name: '常磐自動車道 保安業務', lastOrderDate: '2026-03-05', branch: 'Nikkeiホールディングス', category: '高速', shift: '昼', presetStart: '07:00', presetEnd: '16:00' },
         ]
     },
     {
         id: 5, name: '市川市役所', categories: ['交通'],
         lastOrderDate: '2026-03-15', orderCount: 5,
         sites: [
-            { id: 501, name: '市川駅前 歩行者天国', lastOrderDate: '2026-03-15' },
+            { id: 501, name: '市川駅前 歩行者天国', lastOrderDate: '2026-03-15', branch: '全日本エンタープライズ', category: '交通', shift: '昼', presetStart: '08:00', presetEnd: '17:00' },
         ]
     },
     {
         id: 6, name: 'グローバル警備応援', categories: ['応援交通'],
         lastOrderDate: '2026-03-10', orderCount: 3,
         sites: [
-            { id: 601, name: '横浜市内 交通誘導', lastOrderDate: '2026-03-10' },
+            { id: 601, name: '横浜市内 交通誘導', lastOrderDate: '2026-03-10', branch: '東央警備', category: '応援交通', shift: '昼', presetStart: '08:00', presetEnd: '17:00' },
         ]
     },
 ];
 
 const qaCategories = ['すべて', '施設', 'イベント', '高速', '交通', '応援交通'];
+
+// マスタリスト（受注簿と同期）
+const qaBranchList = ['東央警備', 'Nikkeiホールディングス', '全日本エンタープライズ'];
+const qaCategoryList = ['施設', 'イベント', '高速', '交通', '応援交通'];
+const qaShiftList = ['昼', '夜'];
 
 // カレンダー用モックデータ（セルに入った受注データ）
 let qaCalendarData = {};
@@ -117,7 +122,10 @@ function qaRenderClients() {
     const container = document.getElementById('qaClientList');
     const filtered = qaActiveTab === 'すべて'
         ? qaClients
-        : qaClients.filter(c => c.categories.includes(qaActiveTab));
+        : qaClients.filter(c =>
+            c.categories.includes(qaActiveTab) ||
+            c.sites.some(s => s.category === qaActiveTab)
+        );
 
     if (filtered.length === 0) {
         container.innerHTML = '<div style="text-align:center;color:var(--text-tertiary);padding:32px 0;font-size:13px;">該当する契約先がありません</div>';
@@ -127,6 +135,10 @@ function qaRenderClients() {
     container.innerHTML = filtered.map(client => {
         const expanded = qaExpandedClientId === client.id;
         const initials = client.name.charAt(0);
+        // タブに応じて現場をフィルタ（「すべて」は全件表示）
+        const visibleSites = qaActiveTab === 'すべて'
+            ? client.sites
+            : client.sites.filter(s => s.category === qaActiveTab || (!s.category && client.categories.includes(qaActiveTab)));
         return `
         <div class="qa-client-card${expanded ? ' expanded' : ''}" data-client-id="${client.id}">
             <div class="qa-client-card-header" onclick="qaToggleClient(${client.id})">
@@ -135,29 +147,33 @@ function qaRenderClients() {
                     <div class="qa-client-name">${escHtml(client.name)}</div>
                     <div class="qa-client-meta">
                         <span class="qa-client-meta-item">最終受注: ${formatDate(client.lastOrderDate)}</span>
-                        <span class="qa-client-meta-item">現場: ${client.sites.length}件</span>
+                        <span class="qa-client-meta-item">現場: ${visibleSites.length}件</span>
                     </div>
                 </div>
                 <span class="qa-client-arrow">▶</span>
             </div>
             <div class="qa-site-list">
-                <div class="qa-add-site-row">
+                <div class="qa-add-site-row" onclick="qaAddSiteModal(${client.id})">
                     <div class="qa-add-site-icon">＋</div>
-                    <input type="text" class="qa-add-site-input" placeholder="新規現場名を入力…"
-                           oninput="qaOnSiteInput(this)" data-client-id="${client.id}">
-                    <button class="qa-add-site-submit" onclick="qaAddSite(${client.id}, this)">追加</button>
+                    <span class="qa-add-site-label">新規現場を追加</span>
                 </div>
-                ${client.sites.map(site => `
-                <div class="qa-site-item" onclick="qaOpenCalendar(${client.id}, ${site.id})">
-                    <div class="qa-site-icon"><img src="mockup/icons/map-pin.svg" alt=""
-                        onerror="this.parentElement.innerHTML='<span style=\\'font-size:12px;color:var(--text-tertiary)\\'>📍</span>'"></div>
-                    <div class="qa-site-info">
-                        <div class="qa-site-name">${escHtml(site.name)}</div>
-                        <div class="qa-site-detail">
-                            <span>最終受注: ${formatDate(site.lastOrderDate)}</span>
+                ${visibleSites.map(site => `
+                <div class="qa-site-item" data-site-id="${site.id}">
+                    <div class="qa-site-main" onclick="qaOpenCalendar(${client.id}, ${site.id})">
+                        <div class="qa-site-info">
+                            <div class="qa-site-name">${site.name === '(個別業務)' ? '<span class="qa-individual-task">(個別業務)</span>' : escHtml(site.name)}</div>
+                            <div class="qa-site-detail">
+                                <span>最終受注: ${formatDate(site.lastOrderDate)}</span>
+                                ${site.branch ? `<span>${escHtml(site.branch)}</span>` : ''}
+                                ${site.shift ? `<span>${escHtml(site.shift)}</span>` : ''}
+                            </div>
                         </div>
+                        <span class="qa-site-go">▶</span>
                     </div>
-                    <span class="qa-site-go">▶</span>
+                    <div class="qa-site-actions">
+                        <button class="qa-site-action-btn qa-site-edit" onclick="event.stopPropagation(); qaEditSite(${client.id}, ${site.id})" title="修正">修正</button>
+                        <button class="qa-site-action-btn qa-site-delete" onclick="event.stopPropagation(); qaDeleteSite(${client.id}, ${site.id})" title="削除">削除</button>
+                    </div>
                 </div>
                 `).join('')}
             </div>
@@ -199,29 +215,213 @@ function qaSubmitNewClient() {
     qaShowToast(`${name} を登録しました`);
 }
 
-// --- 新規現場 ---
-function qaOnSiteInput(input) {
-    const btn = input.nextElementSibling;
-    btn.classList.toggle('visible', input.value.trim().length > 0);
+// --- 新規現場（モーダルを開く） ---
+function qaAddSiteModal(clientId) {
+    qaOpenSiteModal(clientId, null);
 }
 
-function qaAddSite(clientId, btn) {
-    const input = btn.previousElementSibling;
-    const name = input.value.trim();
-    if (!name) return;
+// --- 現場の修正（モーダルを開く） ---
+function qaEditSite(clientId, siteId) {
+    qaOpenSiteModal(clientId, siteId);
+}
+
+// --- 現場情報モーダル ---
+let qaSiteModalState = { clientId: null, siteId: null, branch: null, category: null, shift: null };
+
+function qaOpenSiteModal(clientId, siteId) {
     const client = qaClients.find(c => c.id === clientId);
     if (!client) return;
-    const newSiteId = Math.floor(Math.random() * 10000) + 1000;
-    client.sites.unshift({
-        id: newSiteId, name: name, lastOrderDate: '—'
+    const site = siteId ? client.sites.find(s => s.id === siteId) : null;
+
+    qaSiteModalState = {
+        clientId,
+        siteId,
+        branch: site?.branch || (siteId ? null : qaCurrentUser.branch),
+        category: site?.category || null,
+        shift: site?.shift || null
+    };
+
+    document.getElementById('qaSiteModalTitle').textContent = site ? '現場情報 編集' : '新規現場 追加';
+    document.getElementById('qaSiteModalName').value = site ? site.name : '';
+
+    // チップレンダリング
+    qaRenderSiteModalChips('qaSiteModalBranch', qaBranchList, qaSiteModalState.branch, 'branch');
+    qaRenderSiteModalChips('qaSiteModalCategory', qaCategoryList, qaSiteModalState.category, 'category');
+    qaRenderSiteModalChips('qaSiteModalShift', qaShiftList, qaSiteModalState.shift, 'shift');
+
+    // タイムセレクト初期化
+    qaInitModalTimeSelects();
+    qaSetTimeValue('qaSiteModalStart', site?.presetStart || '');
+    qaSetTimeValue('qaSiteModalEnd', site?.presetEnd || '');
+
+    document.getElementById('qaSiteModalOverlay').style.display = 'flex';
+    document.getElementById('qaSiteModalName').focus();
+}
+
+function qaCloseSiteModal(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('qaSiteModalOverlay').style.display = 'none';
+}
+
+function qaRenderSiteModalChips(containerId, list, selected, group) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = list.map(item => {
+        const cls = item === selected ? 'qa-modal-chip active' : 'qa-modal-chip';
+        return `<div class="${cls}" onclick="qaSelectSiteModalChip(this, '${group}')">${escHtml(item)}</div>`;
+    }).join('');
+}
+
+function qaSelectSiteModalChip(el, group) {
+    el.parentElement.querySelectorAll('.qa-modal-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    qaSiteModalState[group] = el.textContent;
+}
+
+function qaInitModalTimeSelects() {
+    ['qaSiteModalStart', 'qaSiteModalEnd'].forEach(id => {
+        const row = document.getElementById(id);
+        const hourSel = row.querySelector('.qa-time-hour');
+        const minSel = row.querySelector('.qa-time-min');
+        hourSel.innerHTML = '<option value="">--</option>';
+        for (let h = 0; h < 24; h++) {
+            hourSel.innerHTML += `<option value="${h}">${String(h).padStart(2, '0')}</option>`;
+        }
+        minSel.innerHTML = '<option value="">--</option>';
+        for (let m = 0; m < 60; m += 10) {
+            minSel.innerHTML += `<option value="${m}">${String(m).padStart(2, '0')}</option>`;
+        }
     });
-    input.value = '';
-    btn.classList.remove('visible');
-    qaRenderClients();
-    // 再展開
+}
+
+function qaSaveSiteModal() {
+    const nameInput = document.getElementById('qaSiteModalName').value.trim();
+    const name = nameInput || '(個別業務)';
+
+    const { clientId, siteId } = qaSiteModalState;
+    const client = qaClients.find(c => c.id === clientId);
+    if (!client) return;
+
+    const siteData = {
+        name,
+        branch: qaSiteModalState.branch,
+        category: qaSiteModalState.category,
+        shift: qaSiteModalState.shift,
+        presetStart: qaGetTimeValue('qaSiteModalStart'),
+        presetEnd: qaGetTimeValue('qaSiteModalEnd'),
+    };
+
+    if (siteId) {
+        // 修正
+        if (!confirm(`現場情報を保存します。よろしいですか？`)) return;
+        const site = client.sites.find(s => s.id === siteId);
+        if (site) Object.assign(site, siteData);
+        qaShowToast('現場情報を更新しました');
+    } else {
+        // 新規追加
+        const newSiteId = Math.floor(Math.random() * 10000) + 1000;
+        client.sites.unshift({ id: newSiteId, lastOrderDate: '—', ...siteData });
+        qaShowToast(`${name} を追加しました`);
+    }
+
+    qaCloseSiteModal();
     qaExpandedClientId = clientId;
     qaRenderClients();
-    qaShowToast(`${name} を追加しました`);
+}
+
+function qaDeleteSite(clientId, siteId) {
+    const client = qaClients.find(c => c.id === clientId);
+    const site = client?.sites.find(s => s.id === siteId);
+    if (!client || !site) return;
+
+    if (!confirm(`「${site.name}」を削除します。よろしいですか？`)) return;
+
+    client.sites = client.sites.filter(s => s.id !== siteId);
+    qaRenderClients();
+    qaShowToast('現場を削除しました');
+}
+
+// --- ダミーデータ生成 ---
+function qaGenerateDummyData() {
+    qaCalendarData = {};
+    qaPlacementData = {};
+    const year = qaCalendarYear;
+    const month = qaCalendarMonth;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+
+    const supervisors = ['山田太郎', '佐藤次郎', '鈴木三郎'];
+    const tels = ['090-1234-5678', '080-9876-5432', '070-1111-2222'];
+    const reliabilities = ['確定', '予定（高）', '予定（低）'];
+    const subTaskSamples = [
+        [{ label: '工事名①', value: '路面切削工' }, { label: '工事名②', value: '舗装工' }],
+        [{ label: '工事名①', value: '車線規制' }],
+        [{ label: '工事名①', value: '交通誘導警備' }, { label: '工事名②', value: '歩行者誘導' }, { label: '工事名③', value: '資材搬入' }],
+        [{ label: '工事名①', value: '巡回警備' }],
+    ];
+    const meetingPlaces = ['現場事務所前', '正門前', '駐車場入口', '交差点北側', ''];
+    const meetingTimes = ['07:00', '07:30', '08:00', '19:00', ''];
+    const remarksSamples = ['', '', '', '雨天中止の可能性あり', '資材搬入あり', '夜間作業注意'];
+
+    for (let d = 1; d <= daysInMonth; d++) {
+        if (Math.random() > 0.55) continue; // 約55%の日にデータあり
+
+        const dayKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const cellDate = new Date(year, month, d);
+        const isFuture = cellDate >= today;
+
+        // 配置先1
+        const count1 = Math.floor(Math.random() * 5) + 1;
+        const rel1 = isFuture ? reliabilities[Math.floor(Math.random() * 3)] : '確定';
+        const startH1 = 7 + Math.floor(Math.random() * 2);
+        const endH1 = 16 + Math.floor(Math.random() * 2);
+        const supIdx1 = Math.floor(Math.random() * supervisors.length);
+        const sub1 = subTaskSamples[Math.floor(Math.random() * subTaskSamples.length)];
+
+        qaPlacementData[`${dayKey}-0`] = {
+            count: String(count1),
+            reliability: rel1,
+            subTasks: JSON.parse(JSON.stringify(sub1)),
+            badges: [],
+            startTime: String(startH1).padStart(2, '0') + ':00',
+            endTime: String(endH1).padStart(2, '0') + ':00',
+            supervisor: supervisors[supIdx1],
+            supervisorTel: tels[supIdx1],
+            meetingPlace: meetingPlaces[Math.floor(Math.random() * meetingPlaces.length)],
+            meetingTime: meetingTimes[Math.floor(Math.random() * meetingTimes.length)],
+            mapUrl: '',
+            remarks: remarksSamples[Math.floor(Math.random() * remarksSamples.length)]
+        };
+
+        const entries = [{ count: count1, reliability: rel1 }];
+
+        // 約25%の確率で配置先2を追加
+        if (Math.random() < 0.25 && count1 >= 2) {
+            const count2 = Math.floor(Math.random() * 3) + 1;
+            const rel2 = isFuture ? reliabilities[Math.floor(Math.random() * 3)] : '確定';
+            const startH2 = 8 + Math.floor(Math.random() * 2);
+            const endH2 = 17 + Math.floor(Math.random() * 2);
+            const supIdx2 = Math.floor(Math.random() * supervisors.length);
+            const sub2 = subTaskSamples[Math.floor(Math.random() * subTaskSamples.length)];
+
+            qaPlacementData[`${dayKey}-1`] = {
+                count: String(count2),
+                reliability: rel2,
+                subTasks: JSON.parse(JSON.stringify(sub2)),
+                badges: [],
+                startTime: String(startH2).padStart(2, '0') + ':00',
+                endTime: String(endH2).padStart(2, '0') + ':00',
+                supervisor: supervisors[supIdx2],
+                supervisorTel: tels[supIdx2],
+                meetingPlace: meetingPlaces[Math.floor(Math.random() * meetingPlaces.length)],
+                meetingTime: meetingTimes[Math.floor(Math.random() * meetingTimes.length)],
+                mapUrl: '',
+                remarks: ''
+            };
+            entries.push({ count: count2, reliability: rel2 });
+        }
+
+        qaCalendarData[dayKey] = { entries };
+    }
 }
 
 // --- カレンダー画面 ---
@@ -243,6 +443,8 @@ function qaOpenCalendar(clientId, siteId) {
     const panel = document.getElementById('qaCalEditPanel');
     panel.classList.remove('active', 'collapsed');
 
+    // 【モックアップ専用】ダミーデータを生成
+    qaGenerateDummyData();
     qaRenderCalendar();
 }
 
@@ -271,6 +473,7 @@ function qaNavMonth(delta) {
     qaSelectedDay = null;
     document.getElementById('qaCalEditPanel').classList.remove('active');
     qaExitWeekMode();
+    qaGenerateDummyData();
     qaRenderCalendar();
 }
 
@@ -405,8 +608,8 @@ function qaCalEntriesHtml(data, day, outsideArgs) {
     for (let si = 0; si < data.entries.length; si++) {
         const entry = data.entries[si];
         let confCls = '';
-        if (entry.reliability === '仮(高)') confCls = ' qa-cal-tentative-high';
-        else if (entry.reliability === '仮(低)') confCls = ' qa-cal-tentative-low';
+        if (entry.reliability === '予定（高）') confCls = ' qa-cal-tentative-high';
+        else if (entry.reliability === '予定（低）') confCls = ' qa-cal-tentative-low';
         const selCls = (day === qaSelectedDay && si === qaActivePlacement && document.getElementById('qaCalEditPanel')?.classList.contains('active')) ? ' qa-cal-entry-selected' : '';
         const click = outsideArgs
             ? `event.stopPropagation(); qaSelectOutsideDayEntry(${outsideArgs}, ${si})`
@@ -620,6 +823,30 @@ function qaLoadPlacementData() {
     } else {
         qaRenderSubTasks([{ label: '工事名1', value: '' }]);
     }
+
+    qaUpdateDailyTaskName();
+}
+
+// --- 業務名プレビュー ---
+function qaUpdateDailyTaskName() {
+    const el = document.getElementById('qaDailyTaskName');
+    if (!el) return;
+    const parts = [];
+    if (qaCurrentSiteName) parts.push(qaCurrentSiteName);
+    document.querySelectorAll('.qa-sub-task-row .qa-sub-value').forEach(input => {
+        if (input.value.trim()) parts.push(input.value.trim());
+    });
+    if (parts.length > 0) {
+        el.textContent = parts.join(' > ');
+        el.style.color = '';
+        el.style.fontStyle = '';
+        el.style.fontWeight = '';
+    } else {
+        el.textContent = '業務詳細を入力すると自動生成されます';
+        el.style.color = 'var(--text-disabled)';
+        el.style.fontStyle = 'italic';
+        el.style.fontWeight = '400';
+    }
 }
 
 // --- 業務詳細サブタスク ---
@@ -628,7 +855,7 @@ function qaRenderSubTasks(tasks) {
     container.innerHTML = tasks.map((t, i) => `
         <div class="qa-sub-task-row" data-idx="${i}">
             <input type="text" class="qa-sub-label" placeholder="ラベル" value="${escHtml(t.label)}">
-            <input type="text" class="qa-sub-value" placeholder="内容を入力…" value="${escHtml(t.value)}">
+            <input type="text" class="qa-sub-value" placeholder="内容を入力…" value="${escHtml(t.value)}" oninput="qaUpdateDailyTaskName()">
             <button type="button" class="qa-sub-delete" onclick="qaRemoveSubTask(this)" title="削除">✕</button>
         </div>
     `).join('');
@@ -646,7 +873,7 @@ function qaAddSubTask() {
     row.dataset.idx = nextNum - 1;
     row.innerHTML = `
         <input type="text" class="qa-sub-label" placeholder="ラベル" value="${qaSubTaskLabel(nextNum)}">
-        <input type="text" class="qa-sub-value" placeholder="内容を入力…">
+        <input type="text" class="qa-sub-value" placeholder="内容を入力…" oninput="qaUpdateDailyTaskName()">
         <button type="button" class="qa-sub-delete" onclick="qaRemoveSubTask(this)" title="削除">✕</button>
     `;
     container.appendChild(row);
@@ -661,6 +888,7 @@ function qaRemoveSubTask(btn) {
         return;
     }
     row.remove();
+    qaUpdateDailyTaskName();
 }
 
 // --- バッジ ---

@@ -241,7 +241,7 @@ body {
 .qa-add-client-form {
     display: none;
     background: var(--bg-surface);
-    border: 1.5px solid var(--accent);
+    border: 1px solid var(--divider);
     border-radius: 12px;
     padding: 14px;
     margin-bottom: 12px;
@@ -260,35 +260,36 @@ body {
 }
 .qa-add-client-input {
     flex: 1;
-    padding: 10px 12px;
-    border: 1.5px solid var(--divider);
-    border-radius: 8px;
-    font-size: 14px;
+    padding: 6px 10px;
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    font-size: 13px;
     outline: none;
     color: var(--text-primary);
 }
 .qa-add-client-input:focus {
     border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(68,166,181,0.12);
 }
 .qa-add-client-submit {
-    padding: 10px 18px;
+    padding: 6px 14px;
     background: var(--accent);
     color: #fff;
     border: none;
-    border-radius: 8px;
-    font-size: 13px;
+    border-radius: 6px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
 }
 .qa-add-client-submit:hover { background: var(--accent-light); }
 .qa-add-client-cancel {
-    padding: 10px 12px;
+    padding: 6px 10px;
     background: var(--bg-surface-2);
     color: var(--text-secondary);
-    border: none;
-    border-radius: 8px;
-    font-size: 13px;
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    font-size: 12px;
     cursor: pointer;
 }
 
@@ -373,7 +374,7 @@ body {
     display: block;
 }
 
-/* 新規現場入力 */
+/* 新規現場追加ボタン */
 .qa-add-site-row {
     display: flex;
     align-items: center;
@@ -381,7 +382,10 @@ body {
     padding: 10px 16px;
     border-bottom: 1px solid rgba(178,213,226,0.4);
     background: var(--bg-surface);
+    cursor: pointer;
+    transition: background 0.15s;
 }
+.qa-add-site-row:hover { background: rgba(68,166,181,0.06); }
 .qa-add-site-icon {
     width: 28px; height: 28px;
     background: var(--accent-dim);
@@ -395,62 +399,34 @@ body {
     font-weight: 700;
     flex-shrink: 0;
 }
-.qa-add-site-input {
-    flex: 1;
-    padding: 8px 10px;
-    border: 1px solid var(--divider);
-    border-radius: 8px;
+.qa-add-site-label {
     font-size: 13px;
-    color: var(--text-primary);
-    outline: none;
-    background: var(--bg-surface);
-}
-.qa-add-site-input:focus {
-    border-color: var(--accent);
-}
-.qa-add-site-input::placeholder {
-    color: var(--text-disabled);
-}
-.qa-add-site-submit {
-    padding: 8px 14px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 12px;
     font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    display: none;
+    color: var(--accent);
 }
-.qa-add-site-submit.visible { display: block; }
 
 /* 現場アイテム */
 .qa-site-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
+    gap: 0;
+    padding: 0;
     border-bottom: 1px solid rgba(178,213,226,0.3);
-    cursor: pointer;
     transition: background 0.15s;
 }
 .qa-site-item:last-child { border-bottom: none; }
-.qa-site-item:hover { background: rgba(68,166,181,0.06); }
-.qa-site-item:active { background: rgba(68,166,181,0.12); }
-.qa-site-icon {
-    width: 28px; height: 28px;
-    background: var(--bg-surface-2);
-    border-radius: 8px;
+.qa-site-main {
     display: flex;
     align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    gap: 12px;
+    padding: 12px 8px 12px 16px;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+    transition: background 0.15s;
 }
-.qa-site-icon img {
-    width: 14px; height: 14px;
-    opacity: 0.5;
-}
+.qa-site-main:hover { background: rgba(68,166,181,0.06); }
+.qa-site-main:active { background: rgba(68,166,181,0.12); }
 .qa-site-info {
     flex: 1;
     min-width: 0;
@@ -459,6 +435,11 @@ body {
     font-size: 14px;
     font-weight: 600;
     color: var(--text-primary);
+}
+.qa-individual-task {
+    color: var(--text-disabled);
+    font-style: italic;
+    font-weight: 400;
 }
 .qa-site-detail {
     font-size: 11px;
@@ -471,6 +452,156 @@ body {
     color: var(--text-disabled);
     font-size: 12px;
     flex-shrink: 0;
+}
+.qa-site-actions {
+    display: flex;
+    gap: 4px;
+    padding: 0 10px;
+    flex-shrink: 0;
+}
+.qa-site-action-btn {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+.qa-site-action-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.qa-site-action-btn.qa-site-delete {
+    color: var(--error);
+    border-color: rgba(220,120,120,0.3);
+}
+.qa-site-action-btn.qa-site-delete:hover {
+    color: white;
+    background: var(--error);
+    border-color: var(--error);
+}
+
+/* ========== 現場情報モーダル ========== */
+.qa-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9000;
+    padding: 16px;
+}
+.qa-modal {
+    background: var(--bg-surface);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 420px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    overflow: hidden;
+}
+.qa-modal-header {
+    padding: 16px 20px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--divider);
+}
+.qa-modal-body {
+    padding: 16px 20px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.qa-modal-field label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    display: block;
+}
+.qa-modal-field input {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    outline: none;
+    color: var(--text-primary);
+    background: white;
+    box-sizing: border-box;
+}
+.qa-modal-field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(68,166,181,0.12);
+}
+.qa-modal-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+.qa-modal-chip {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 16px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.qa-modal-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.qa-modal-chip.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+.qa-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+}
+.qa-modal-btn {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--divider);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.qa-modal-btn-cancel {
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+}
+.qa-modal-btn-cancel:hover {
+    background: var(--bg-surface-2);
+}
+.qa-modal-btn-save {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+.qa-modal-btn-save:hover {
+    opacity: 0.85;
 }
 
 /* ========== カレンダー入力画面 ========== */
@@ -788,6 +919,15 @@ body {
 .qa-card input,
 .qa-card textarea {
     min-width: 0;
+}
+
+/* 業務名表示（受注簿の md-ob-cal-display-value に準拠） */
+.qa-daily-task-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+    padding: 12px 0 8px;
+    border-bottom: 1px solid var(--divider);
 }
 
 /* カード内セクションバー（受注簿のmd-modal-section-barに準拠） */

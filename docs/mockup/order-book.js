@@ -586,7 +586,7 @@ function renderGrid() {
         html += `<div class="md-ob-cell md-ob-frozen-2 md-ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.shift}</div>`;
         html += `<div class="md-ob-cell md-ob-frozen-3 md-ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.company}</div>`;
         html += `<div class="md-ob-cell md-ob-frozen-4 ${rowCls}${evenCls}" data-ri="${ri}"><button class="md-ob-row-add-btn" onclick="event.stopPropagation(); addNewRowFromRow(${ri})" title="この現場を複製して追加">＋</button></div>`;
-        const taskLabel = row.task || '<span class="md-ob-individual-task">(個別)</span>';
+        const taskLabel = row.task || '<span class="md-ob-individual-task">(個別業務)</span>';
         html += `<div class="md-ob-cell md-ob-frozen-5 md-ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${taskLabel}</div>`;
         // 昼夜＋ボタン: 対になるシフトの行が無い場合のみ表示
         const oppositeShift = row.shift === '昼' ? '夜' : '昼';
@@ -804,7 +804,7 @@ function showTooltip(e, ri, day, siteIdx) {
         const dailyName = entry.dailyTaskName || buildDailyTaskName(row.task, entry.subTasks);
         const titleTask = dailyName
             ? dailyName.replace(/ > /g, ' <span class="md-ob-tt-arrow">›</span> ')
-            : (row.task || '(個別業務)');
+            : (row.task || '<span class="md-ob-individual-task">(個別業務)</span>');
         thtml += `<div class="md-ob-tt-title">${row.company} / ${titleTask}</div>`;
         thtml += `<div class="md-ob-tt-row"><span class="md-ob-tt-label">日付:</span><span class="md-ob-tt-value">${dateStr}（${row.shift}）</span></div>`;
 
@@ -1612,12 +1612,12 @@ function openEditModal(ri, day, siteIdx) {
     const entry = entries[editingSiteIdx] || null;
     const dateStr = `${currentYear}年${currentMonth}月${day}日`;
 
-    const taskDisplay = row.task || '(個別業務)';
+    const taskDisplay = row.task ? escapeHtml(row.task) : '<span class="md-ob-individual-task">(個別業務)</span>';
     document.getElementById('editModalTitle').textContent = `セル編集 - ${dateStr}`;
     const editMeta = document.getElementById('editModalMeta');
     editMeta.innerHTML =
         `<span class="md-ob-cal-meta-company">${escapeHtml(obBranchShort(row.branch))}</span>` +
-        `<span class="md-ob-cal-meta-task">${escapeHtml(row.company)} / ${escapeHtml(taskDisplay)}</span>` +
+        `<span class="md-ob-cal-meta-task">${escapeHtml(row.company)} / ${taskDisplay}</span>` +
         `<span class="md-ob-cal-meta-tags">${escapeHtml(row.category)} | ${escapeHtml(row.shift)}勤</span>`;
     editMeta.classList.toggle('md-ob-night', row.shift === '夜');
 
@@ -2736,12 +2736,12 @@ function openCalendarModal(ri) {
     updateCalUndoRedoButtons();
 
     const row = sampleRows[ri];
-    const taskDisplay = row.task || '(個別業務)';
+    const taskDisplay = row.task ? escapeHtml(row.task) : '<span class="md-ob-individual-task">(個別業務)</span>';
     document.getElementById('calendarModalTitle').textContent = 'カレンダー入力';
     const calMeta = document.getElementById('calendarModalMeta');
     calMeta.innerHTML =
         `<span class="md-ob-cal-meta-company">${escapeHtml(obBranchShort(row.branch))}</span>` +
-        `<span class="md-ob-cal-meta-task">${escapeHtml(row.company)} / ${escapeHtml(taskDisplay)}</span>` +
+        `<span class="md-ob-cal-meta-task">${escapeHtml(row.company)} / ${taskDisplay}</span>` +
         `<span class="md-ob-cal-meta-tags">${escapeHtml(row.category)} | ${escapeHtml(row.shift)}勤</span>`;
     calMeta.classList.toggle('md-ob-night', row.shift === '夜');
 
@@ -3271,7 +3271,7 @@ function obCnOpenModalForRow(ri) {
             '<span class="md-cn-info-item">' + escapeHtml(row.branch) + '</span>' +
             '<span class="md-cn-category-badge ' + catClass + '">' + escapeHtml(row.category) + '</span>' +
             '<span class="md-cn-info-item">' + escapeHtml(row.company) + '</span>' +
-            '<span class="md-cn-info-item">' + escapeHtml(row.task || '(個別)') + '</span>' +
+            '<span class="md-cn-info-item">' + escapeHtml(row.task || '(個別業務)') + '</span>' +
             '<span class="md-cn-shift-badge ' + shiftClass + '">' + row.shift + '</span>';
     } else {
         info.innerHTML = '';
@@ -3418,7 +3418,7 @@ function obCnRenderLatest() {
         var badgeClass = 'md-cn-type-badge md-cn-type-badge-' + n.type;
         var catClass = obCnCatClassMap[n.category] || 'md-cn-cat-facility';
         var shiftClass = obCnShiftClassMap[n.shift] || 'md-cn-shift-day';
-        var displayName = n.taskName || n.siteName || '(個別)';
+        var displayName = n.taskName || n.siteName || '(個別業務)';
 
         // 対象日の表示
         var dayLabel = '';
@@ -3521,7 +3521,7 @@ function obCnRenderHistory() {
     const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
 
     timeline.innerHTML = filtered.map(function(h) {
-        var displayName = escapeHtml(h.company ? h.company + ' / ' + (h.taskName || '(個別)') : (h.taskName || '(個別)'));
+        var displayName = escapeHtml(h.company ? h.company + ' / ' + (h.taskName || '(個別業務)') : (h.taskName || '(個別業務)'));
         var dayBadge = h.day != null ? '<span class="md-cn-day-badge">' + currentMonth + '月' + h.day + '日</span>' : '';
         var summaryText = h.summary ? '<span class="md-cn-tl-summary">(' + escapeHtml(h.summary) + ')</span>' : '';
         return '<div class="md-cn-timeline-item md-cn-tl-' + h.type + ' md-cn-tl-clickable" onclick="obCnJumpToCard(' + h.notificationId + ')">' +
