@@ -42,6 +42,10 @@
             <div class="qa-header-top">
                 <h1>Quick Access</h1>
                 <div class="qa-header-user">
+                    <button type="button" class="md-cn-notify-btn qa-cn-btn" id="qaCnNotifyBtn" onclick="qaCnOpenModal()" title="変更通知">
+                        <img src="mockup/icons/bell.svg" class="md-cn-bell-icon" alt="通知">
+                        <span class="md-cn-badge qa-cn-badge" id="qaCnBadge" style="display:none;">0</span>
+                    </button>
                     <div class="qa-header-avatar" id="qaUserInitials"></div>
                     <span id="qaUserName"></span>
                     <button class="qa-logout-btn" onclick="qaLogout()">ログアウト</button>
@@ -53,8 +57,11 @@
 
         <!-- コンテンツ -->
         <div class="qa-content">
-            <!-- 新規契約先ボタン -->
-            <button class="qa-add-client-btn" id="qaAddClientBtn" onclick="qaShowAddClient()">＋ 新規契約先を追加</button>
+            <!-- ツールバー（新規契約先 + デモ） -->
+            <div class="qa-content-toolbar">
+                <button class="qa-add-client-btn" id="qaAddClientBtn" onclick="qaShowAddClient()">＋ 新規契約先を追加</button>
+                <button class="qa-cn-demo-btn" id="qaCnDemoBtn" onclick="qaCnToggleDemo()">▶ デモ</button>
+            </div>
 
             <!-- 新規契約先入力フォーム -->
             <div class="qa-add-client-form" id="qaAddClientForm">
@@ -82,6 +89,10 @@
                     <div class="qa-cal-client-name" id="qaCalClientName"></div>
                     <div class="qa-cal-site-name" id="qaCalSiteName"></div>
                 </div>
+                <button type="button" class="md-cn-notify-btn qa-cn-btn" id="qaCnNotifyBtnCal" onclick="qaCnOpenModal()" title="変更通知">
+                    <img src="mockup/icons/bell.svg" class="md-cn-bell-icon" alt="通知">
+                    <span class="md-cn-badge qa-cn-badge" id="qaCnBadgeCal" style="display:none;">0</span>
+                </button>
             </div>
             <div class="qa-cal-month-nav">
                 <button class="qa-cal-nav-btn" id="qaCalNavPrev" onclick="qaChangeMonth(-1)">◀ 前月</button>
@@ -284,6 +295,45 @@
 
     <!-- トースト -->
     <div class="qa-toast" id="qaToast"></div>
+
+    <!-- 変更通知トーストコンテナ -->
+    <div id="qaCnToastContainer"></div>
+
+    <!-- 変更通知モーダル -->
+    <div class="qa-modal-overlay qa-cn-modal-overlay" id="qaCnModalOverlay" style="display:none;" onclick="if(event.target===this)qaCnCloseModal()">
+        <div class="md-cn-modal qa-cn-modal" onclick="event.stopPropagation()">
+            <div class="md-cn-header">
+                <div class="md-cn-header-left">
+                    <h3>変更通知</h3>
+                </div>
+                <div class="md-cn-header-right">
+                    <select class="md-cn-filter-select" id="qaCnFilterSelect" onchange="qaCnSetFilter(this.value)">
+                        <option value="">すべての現場</option>
+                    </select>
+                    <button type="button" class="md-cn-close" onclick="qaCnCloseModal()">✕</button>
+                </div>
+            </div>
+            <div class="md-cn-tabs">
+                <button type="button" class="md-cn-tab active" data-tab="latest" onclick="qaCnSwitchTab('latest')">最新の変更</button>
+                <button type="button" class="md-cn-tab" data-tab="history" onclick="qaCnSwitchTab('history')">変更履歴</button>
+            </div>
+            <div class="md-cn-body">
+                <div class="md-cn-tab-content active" id="qaCnTabLatest">
+                    <div class="md-cn-card-list" id="qaCnCardList">
+                        <div class="md-cn-empty">変更通知はありません</div>
+                    </div>
+                </div>
+                <div class="md-cn-tab-content" id="qaCnTabHistory">
+                    <div class="md-cn-timeline" id="qaCnTimeline">
+                        <div class="md-cn-empty">変更履歴はありません</div>
+                    </div>
+                </div>
+            </div>
+            <div class="md-cn-footer">
+                <button type="button" class="md-cn-footer-btn" onclick="qaCnCloseModal()">閉じる</button>
+            </div>
+        </div>
+    </div>
 
     <script src="mockup/quick-access.js"></script>
 </body>

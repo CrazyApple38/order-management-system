@@ -3351,6 +3351,22 @@
                       if (mtEl) mtEl.textContent = '08:30';
                       cnCleanCellBadges(row);
                   });
+              }},
+            { type: 'modify', user: '田中 太郎（自分）', siteName: '〇〇ビル 夜間警備', category: '施設', shift: '夜',
+              diffs: [{ field: '人数', oldVal: '', newVal: '' }],
+              apply: function(self) {
+                  var row = cnFindRow('〇〇ビル 夜間警備'); if (!row) return;
+                  var countEl = row.querySelector('.count-display');
+                  var countCell = countEl ? countEl.closest('td') : null;
+                  var oldVal = countEl ? countEl.textContent.trim() : '0/2';
+                  self.diffs[0].oldVal = oldVal;
+                  self.diffs[0].newVal = '2/2';
+                  if (countEl) cnShowCellDiff(countEl, oldVal, '2/2');
+                  if (countCell) cnAddCellBadge(countCell);
+                  cnMarkPending(row, 'modify', function() {
+                      if (countEl) { countEl.textContent = '2/2'; countEl.className = 'count-display count-full'; }
+                      cnCleanCellBadges(row);
+                  });
               }}
         ];
 
@@ -3381,6 +3397,11 @@
         }
 
         function cnMarkPending(row, type, commitFn) {
+            // 既存のpendingハンドラがあれば先に解除（同一行への重複登録を防止）
+            if (row._cnClickHandler) {
+                row.removeEventListener('click', row._cnClickHandler, true);
+                row._cnClickHandler = null;
+            }
             row.classList.add('md-cn-pending');
             cnPendingMap.set(row, { type: type, commit: commitFn });
             // 追加・削除バッジ → No列に配置

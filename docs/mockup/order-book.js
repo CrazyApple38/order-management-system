@@ -3941,6 +3941,27 @@ const obCnDemoSequence = [
             renderGrid();
             return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, subIndex: 0, rowIndex: ri, rowId: sampleRows[ri]._rowId };
         }
+    },
+    {
+        type: 'modify', user: '田中 太郎（自分）',
+        diffs: [{ field: '人数', oldVal: '', newVal: '' }],
+        apply: function() {
+            var ri = sampleRows.findIndex(function(r) { return r.task === '〇〇ビル巡回' && r.shift === '昼'; });
+            if (ri === -1) return null;
+            var day = 8;
+            var entries = getCellEntries(ri, day);
+            var oldCount = entries.length > 0 ? entries[0].count : 0;
+            var newCount = 3;
+            this.diffs[0].oldVal = oldCount + '名';
+            this.diffs[0].newVal = newCount + '名';
+            this._snapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri] && cellData[ri][day] ? cellData[ri][day] : [])) };
+            if (!cellData[ri]) cellData[ri] = {};
+            if (!cellData[ri][day]) cellData[ri][day] = [{ count: 0, subTasks: [], startTime: '08:00', endTime: '17:00', supervisor: '', supervisorTel: '', assignment: '', badge: { parentId: 'traffic', childIds: [], grandchildMap: {} }, confidence: 'confirmed', remarks: '' }];
+            cellData[ri][day][0].count = newCount;
+            this._newSnapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri][day])) };
+            renderGrid();
+            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, subIndex: 0, rowIndex: ri, rowId: sampleRows[ri]._rowId };
+        }
     }
 ];
 

@@ -1131,3 +1131,674 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Enter') qaSubmitNewClient();
     });
 });
+
+// ==================== 変更通知システム ====================
+
+const qaCnState = {
+    notifications: [],
+    history: [],
+    unreadCount: 0,
+    activeTab: 'latest',
+    nextId: 1,
+    filterSite: ''
+};
+
+const qaCnCatClassMap = {
+    '施設': 'md-cn-cat-facility', 'イベント': 'md-cn-cat-event',
+    '高速': 'md-cn-cat-highway', '交通': 'md-cn-cat-traffic',
+    '応援交通': 'md-cn-cat-support'
+};
+const qaCnShiftClassMap = { '昼': 'md-cn-shift-day', '夜': 'md-cn-shift-night' };
+
+function qaCnTimeNow() {
+    var d = new Date();
+    return (d.getMonth() + 1) + '月' + d.getDate() + '日 ' +
+        d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+}
+
+// バッジ更新（ホーム + カレンダー両方）
+function qaCnUpdateBadge() {
+    ['qaCnBadge', 'qaCnBadgeCal'].forEach(function(id) {
+        var badge = document.getElementById(id);
+        if (!badge) return;
+        if (qaCnState.unreadCount > 0) {
+            badge.textContent = qaCnState.unreadCount;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    });
+}
+
+// トースト表示（コンパクト1行・1件のみ・横スワイプで消去）
+function qaCnShowToast(n) {
+    var container = document.getElementById('qaCnToastContainer');
+    if (!container) return;
+    // 既存のトーストを即座に除去
+    var existing = container.querySelectorAll('.md-cn-toast');
+    for (var i = 0; i < existing.length; i++) existing[i].remove();
+    var toast = document.createElement('div');
+    var icons = { add: '🟢', modify: '🟡', delete: '🔴' };
+    var typeLabels = { add: '追加', modify: '変更', delete: '削除' };
+    toast.className = 'md-cn-toast md-cn-toast-' + n.type;
+    toast.innerHTML =
+        '<span class="md-cn-toast-icon">' + icons[n.type] + '</span>' +
+        '<div class="md-cn-toast-body">' +
+            '<span class="md-cn-toast-title">' + typeLabels[n.type] + '</span>' +
+            '<span class="md-cn-toast-desc">' + escHtml(n.user) + ' — ' + escHtml(n.siteName || '') + '</span>' +
+        '</div>';
+    // タップで通知モーダルを開く
+    toast.onclick = function() {
+        qaCnDismissToast(toast);
+        qaCnOpenModal();
+    };
+    // 横スワイプで消去
+    qaCnAddSwipeToDismiss(toast);
+    container.appendChild(toast);
+    // 3秒後に自動消去
+    setTimeout(function() {
+        if (toast.parentNode) {
+            qaCnDismissToast(toast);
+        }
+    }, 3000);
+}
+
+function qaCnDismissToast(toast) {
+    if (!toast.parentNode) return;
+    toast.classList.add('md-cn-toast-exit');
+    setTimeout(function() { toast.remove(); }, 250);
+}
+
+function qaCnAddSwipeToDismiss(toast) {
+    var startX = 0;
+    var currentX = 0;
+    var swiping = false;
+    toast.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+        currentX = startX;
+        swiping = true;
+        toast.style.transition = 'none';
+    }, { passive: true });
+    toast.addEventListener('touchmove', function(e) {
+        if (!swiping) return;
+        currentX = e.touches[0].clientX;
+        var dx = currentX - startX;
+        if (dx > 0) {
+            toast.style.transform = 'translateX(' + dx + 'px)';
+            toast.style.opacity = Math.max(0, 1 - dx / 150);
+        }
+    }, { passive: true });
+    toast.addEventListener('touchend', function() {
+        if (!swiping) return;
+        swiping = false;
+        var dx = currentX - startX;
+        toast.style.transition = '';
+        if (dx > 60) {
+            qaCnDismissToast(toast);
+        } else {
+            toast.style.transform = '';
+            toast.style.opacity = '';
+        }
+    });
+}
+
+// モーダル開閉
+function qaCnOpenModal() {
+    var modal = document.getElementById('qaCnModalOverlay');
+    modal.style.display = 'flex';
+    // 全既読
+    qaCnState.notifications.forEach(function(n) { n._read = true; });
+    qaCnState.unreadCount = 0;
+    qaCnUpdateBadge();
+    qaCnUpdateFilterSelect();
+    qaCnRenderLatest();
+    qaCnRenderHistory();
+}
+
+function qaCnCloseModal() {
+    document.getElementById('qaCnModalOverlay').style.display = 'none';
+}
+
+// タブ切替
+function qaCnSwitchTab(tabName) {
+    qaCnState.activeTab = tabName;
+    document.querySelectorAll('#qaCnModalOverlay .md-cn-tab').forEach(function(tab) {
+        tab.classList.toggle('active', tab.dataset.tab === tabName);
+    });
+    document.getElementById('qaCnTabLatest').classList.toggle('active', tabName === 'latest');
+    document.getElementById('qaCnTabHistory').classList.toggle('active', tabName === 'history');
+}
+
+// フィルタ
+function qaCnSetFilter(site) {
+    qaCnState.filterSite = site;
+    qaCnRenderLatest();
+    qaCnRenderHistory();
+}
+
+function qaCnUpdateFilterSelect() {
+    var sel = document.getElementById('qaCnFilterSelect');
+    var current = qaCnState.filterSite;
+    var sites = [];
+    qaCnState.notifications.forEach(function(n) {
+        if (n.siteName && sites.indexOf(n.siteName) === -1) sites.push(n.siteName);
+    });
+    sites.sort();
+    sel.innerHTML = '<option value="">すべての現場</option>';
+    sites.forEach(function(s) {
+        var opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        if (s === current) opt.selected = true;
+        sel.appendChild(opt);
+    });
+}
+
+// セル明滅ハイライト
+function qaCnHighlightCell(dayKey, type) {
+    // 既存のハイライトをクリア
+    document.querySelectorAll('.qa-cal-cell[class*="md-cn-cell-glow-"]').forEach(function(el) {
+        el.classList.remove('md-cn-cell-glow-add', 'md-cn-cell-glow-modify', 'md-cn-cell-glow-delete');
+    });
+    // dayKeyからday番号を取得
+    var parts = dayKey.split('-');
+    var targetYear = parseInt(parts[0]);
+    var targetMonth = parseInt(parts[1]) - 1; // 0-indexed
+    var targetDay = parseInt(parts[2]);
+    // 現在表示中のカレンダーと一致するか
+    if (targetYear !== qaCalendarYear || targetMonth !== qaCalendarMonth) return;
+    // セルを探す
+    var cells = document.querySelectorAll('.qa-cal-cell');
+    cells.forEach(function(cell) {
+        if (cell.classList.contains('qa-cal-outside')) return;
+        var dayNum = cell.querySelector('.qa-cal-day-num');
+        if (dayNum && parseInt(dayNum.textContent) === targetDay) {
+            var glowClass = 'md-cn-cell-glow-' + (type || 'modify');
+            cell.classList.add(glowClass);
+            setTimeout(function() { cell.classList.remove(glowClass); }, 5000);
+        }
+    });
+}
+
+// カードクリック→モーダルを閉じてセルハイライト
+function qaCnCardClick(notificationId) {
+    var n = qaCnState.notifications.find(function(x) { return x.id === notificationId; });
+    if (!n || !n.dayKey) return;
+    qaCnCloseModal();
+    setTimeout(function() { qaCnHighlightCell(n.dayKey, n.type); }, 100);
+}
+
+// 履歴→カードジャンプ
+function qaCnJumpToCard(notificationId) {
+    qaCnSwitchTab('latest');
+    setTimeout(function() {
+        var card = document.querySelector('#qaCnCardList .md-cn-card[data-nid="' + notificationId + '"]');
+        if (!card) return;
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('md-cn-card-highlight');
+        setTimeout(function() { card.classList.remove('md-cn-card-highlight'); }, 1500);
+    }, 50);
+}
+
+// 最新変更カード描画
+function qaCnRenderLatest() {
+    var list = document.getElementById('qaCnCardList');
+    var filtered = qaCnState.notifications;
+    if (qaCnState.filterSite !== '') {
+        filtered = filtered.filter(function(n) { return n.siteName === qaCnState.filterSite; });
+    }
+    if (filtered.length === 0) {
+        list.innerHTML = '<div class="md-cn-empty">変更通知はありません</div>';
+        return;
+    }
+    var typeLabels = { add: '追加', modify: '変更', delete: '削除' };
+
+    list.innerHTML = filtered.map(function(n) {
+        var cardClass = 'md-cn-card md-cn-card-' + n.type;
+        var badgeClass = 'md-cn-type-badge md-cn-type-badge-' + n.type;
+        var catClass = qaCnCatClassMap[n.category] || 'md-cn-cat-facility';
+        var shiftClass = qaCnShiftClassMap[n.shift] || 'md-cn-shift-day';
+
+        var diffHtml = '';
+        if (n.type === 'modify' && n.diffs) {
+            diffHtml = '<div class="md-cn-diff-list">' +
+                n.diffs.map(function(d) {
+                    return '<div class="md-cn-diff-row">' +
+                        '<span class="md-cn-diff-label">' + escHtml(d.field) + '</span>' +
+                        '<span class="md-cn-diff-old">' + escHtml(d.oldVal) + '</span>' +
+                        '<span class="md-cn-diff-arrow">→</span>' +
+                        '<span class="md-cn-diff-new">' + escHtml(d.newVal) + '</span>' +
+                    '</div>';
+                }).join('') +
+            '</div>';
+        } else if (n.type === 'add' && n.details) {
+            diffHtml = '<div class="md-cn-diff-list">' +
+                n.details.map(function(d) {
+                    return '<div class="md-cn-diff-row">' +
+                        '<span class="md-cn-diff-label">' + escHtml(d.field) + '</span>' +
+                        '<span class="md-cn-diff-new">' + escHtml(d.value) + '</span>' +
+                    '</div>';
+                }).join('') +
+            '</div>';
+        } else if (n.type === 'delete') {
+            diffHtml = '<div class="md-cn-diff-list"><div class="md-cn-diff-row"><span class="md-cn-diff-old">この配置は削除されました</span></div></div>';
+        }
+
+        var stateClass = n.reverted ? ' md-cn-card-reverted' : (n._approved ? ' md-cn-card-approved' : '');
+        var actionsHtml = '';
+        if (n.reverted) {
+            actionsHtml = '<div class="md-cn-card-actions">' +
+                '<button type="button" class="md-cn-btn-reapprove" onclick="event.stopPropagation(); qaCnReapprove(' + n.id + ')">適用する</button>' +
+            '</div>';
+        } else {
+            actionsHtml = '<div class="md-cn-card-actions">' +
+                '<button type="button" class="md-cn-btn-revert" onclick="event.stopPropagation(); qaCnRevert(' + n.id + ')">キャンセル</button>' +
+            '</div>';
+        }
+
+        var siteHtml = '<div class="md-cn-card-site">' +
+            '<span class="md-cn-info-item">' + escHtml(n.clientName || '') + '</span>' +
+            '<span class="md-cn-category-badge ' + catClass + '">' + escHtml(n.category || '') + '</span>' +
+            '<span class="md-cn-info-item">' + escHtml(n.siteName || '') + '</span>' +
+            '<span class="md-cn-shift-badge ' + shiftClass + '">' + escHtml(n.shift || '') + '</span>' +
+            (n.dayLabel ? '<span class="md-cn-day-badge">' + n.dayLabel + '</span>' : '') +
+        '</div>';
+
+        return '<div class="' + cardClass + stateClass + '" data-nid="' + n.id + '" onclick="qaCnCardClick(' + n.id + ')">' +
+            '<div class="md-cn-card-header">' +
+                '<span class="' + badgeClass + '">' + typeLabels[n.type] + '</span>' +
+                '<span class="md-cn-card-user">' + escHtml(n.user) + '</span>' +
+                '<span class="md-cn-card-time">' + n.time + '</span>' +
+            '</div>' +
+            '<div class="md-cn-card-body">' +
+                siteHtml +
+                diffHtml +
+            '</div>' +
+            actionsHtml +
+        '</div>';
+    }).join('');
+}
+
+// 変更履歴タイムライン描画
+function qaCnRenderHistory() {
+    var timeline = document.getElementById('qaCnTimeline');
+    var filtered = qaCnState.history;
+    if (qaCnState.filterSite !== '') {
+        filtered = filtered.filter(function(h) { return h.siteName === qaCnState.filterSite; });
+    }
+    if (filtered.length === 0) {
+        timeline.innerHTML = '<div class="md-cn-empty">変更履歴はありません</div>';
+        return;
+    }
+    var typeLabels = { add: '追加', modify: '変更', delete: '削除' };
+    timeline.innerHTML = filtered.map(function(h) {
+        var displayName = escHtml(h.clientName ? h.clientName + ' / ' + (h.siteName || '') : (h.siteName || ''));
+        var dayBadge = h.dayLabel ? '<span class="md-cn-day-badge">' + h.dayLabel + '</span>' : '';
+        var summaryText = h.summary ? '<span class="md-cn-tl-summary">(' + escHtml(h.summary) + ')</span>' : '';
+        return '<div class="md-cn-timeline-item md-cn-tl-' + h.type + ' md-cn-tl-clickable" onclick="qaCnJumpToCard(' + h.notificationId + ')">' +
+            '<div class="md-cn-tl-header">' +
+                '<span class="md-cn-tl-time">' + h.time + '</span>' +
+                '<span class="md-cn-tl-user">' + escHtml(h.user) + '</span>' +
+                '<span class="md-cn-tl-type md-cn-tl-type-' + h.type + '">' + typeLabels[h.type] + '</span>' +
+            '</div>' +
+            '<div class="md-cn-tl-content">' +
+                '<span class="md-cn-tl-name">' + displayName + '</span> ' +
+                summaryText + ' ' +
+                dayBadge +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+// QA登録現場かどうか判定
+function qaCnIsRegisteredSite(siteName) {
+    for (var i = 0; i < qaClients.length; i++) {
+        for (var j = 0; j < qaClients[i].sites.length; j++) {
+            if (qaClients[i].sites[j].name === siteName) return true;
+        }
+    }
+    return false;
+}
+
+// 通知受信（QA登録現場のみ受信）
+function qaCnReceive(n) {
+    if (!qaCnIsRegisteredSite(n.siteName)) {
+        // QA未登録の現場 → 通知を無視
+        return;
+    }
+    n.id = qaCnState.nextId++;
+    n.reverted = false;
+    n._read = false;
+    n._approved = true;
+    qaCnState.notifications.unshift(n);
+    qaCnState.history.unshift({
+        notificationId: n.id,
+        type: n.type,
+        user: n.user,
+        time: n.time,
+        siteName: n.siteName || '',
+        clientName: n.clientName || '',
+        dayLabel: n.dayLabel || '',
+        summary: (n.type === 'modify' && n.diffs
+            ? n.diffs.map(function(d) { return d.field; }).join('・')
+            : '')
+    });
+    qaCnState.unreadCount++;
+    qaCnUpdateBadge();
+    qaCnShowToast(n);
+    // カレンダー表示中ならセルハイライト
+    if (n.dayKey && document.getElementById('qaCalendarScreen').classList.contains('active')) {
+        qaRenderCalendar();
+        setTimeout(function() { qaCnHighlightCell(n.dayKey, n.type); }, 100);
+    }
+}
+
+// --- 元に戻す / やっぱり反映 ---
+
+function qaCnRevert(id) {
+    var n = qaCnState.notifications.find(function(x) { return x.id === id; });
+    if (!n || n.reverted) return;
+
+    if (n.type === 'modify' && n._snapshot) {
+        // 配置データを復元
+        var snap = n._snapshot;
+        if (snap.placementEntry !== undefined) {
+            qaPlacementData[snap.placementKey] = JSON.parse(JSON.stringify(snap.placementEntry));
+        }
+        if (snap.calendarData !== undefined) {
+            if (snap.calendarData === null) {
+                delete qaCalendarData[snap.dayKey];
+            } else {
+                qaCalendarData[snap.dayKey] = JSON.parse(JSON.stringify(snap.calendarData));
+            }
+        }
+        qaRenderCalendar();
+    } else if (n.type === 'add' && n._addedKey) {
+        // 追加された配置を削除
+        delete qaPlacementData[n._addedKey];
+        // カレンダーエントリからも削除
+        var dayKey = n.dayKey;
+        var calEntry = qaCalendarData[dayKey];
+        if (calEntry && calEntry.entries) {
+            var pIdx = n._addedPlacementIdx;
+            calEntry.entries.splice(pIdx, 1);
+            if (calEntry.entries.length === 0) delete qaCalendarData[dayKey];
+        }
+        qaRenderCalendar();
+    } else if (n.type === 'delete' && n._deletedSnapshot) {
+        // 削除された配置を復元
+        var snap = n._deletedSnapshot;
+        qaPlacementData[snap.placementKey] = JSON.parse(JSON.stringify(snap.placementEntry));
+        if (snap.calendarData) {
+            qaCalendarData[snap.dayKey] = JSON.parse(JSON.stringify(snap.calendarData));
+        }
+        qaRenderCalendar();
+    }
+
+    n.reverted = true;
+    n._approved = false;
+    if (n._read) {
+        n._read = false;
+        qaCnState.unreadCount++;
+        qaCnUpdateBadge();
+    }
+    qaCnRenderLatest();
+}
+
+function qaCnReapprove(id) {
+    var n = qaCnState.notifications.find(function(x) { return x.id === id; });
+    if (!n || !n.reverted) return;
+
+    if (n.type === 'modify' && n._newSnapshot) {
+        // 変更を再適用
+        var snap = n._newSnapshot;
+        qaPlacementData[snap.placementKey] = JSON.parse(JSON.stringify(snap.placementEntry));
+        qaCalendarData[snap.dayKey] = JSON.parse(JSON.stringify(snap.calendarData));
+        qaRenderCalendar();
+    } else if (n.type === 'add' && n._addedData) {
+        // 配置を再追加
+        qaPlacementData[n._addedKey] = JSON.parse(JSON.stringify(n._addedData));
+        var dayKey = n.dayKey;
+        if (!qaCalendarData[dayKey]) qaCalendarData[dayKey] = { entries: [] };
+        qaCalendarData[dayKey].entries.push(JSON.parse(JSON.stringify(n._addedCalEntry)));
+        n._addedPlacementIdx = qaCalendarData[dayKey].entries.length - 1;
+        qaRenderCalendar();
+    } else if (n.type === 'delete' && n._deletedSnapshot) {
+        // 配置を再削除
+        var snap = n._deletedSnapshot;
+        delete qaPlacementData[snap.placementKey];
+        var calEntry = qaCalendarData[snap.dayKey];
+        if (calEntry && calEntry.entries) {
+            calEntry.entries.splice(snap.placementIdx, 1);
+            if (calEntry.entries.length === 0) delete qaCalendarData[snap.dayKey];
+        }
+        qaRenderCalendar();
+    }
+
+    n.reverted = false;
+    n._approved = true;
+    if (!n._read) {
+        n._read = true;
+        qaCnState.unreadCount = Math.max(0, qaCnState.unreadCount - 1);
+        qaCnUpdateBadge();
+    }
+    qaCnRenderLatest();
+}
+
+// --- デモシミュレーション ---
+var qaCnDemoInterval = null;
+var qaCnDemoRunning = false;
+var qaCnDemoIndex = 0;
+
+// デモで使うサイト情報を取得するヘルパー
+function qaCnGetSiteInfo(clientId, siteId) {
+    var client = qaClients.find(function(c) { return c.id === clientId; });
+    var site = client ? client.sites.find(function(s) { return s.id === siteId; }) : null;
+    return { client: client, site: site, clientName: client ? client.name : '', siteName: site ? site.name : '', category: site ? site.category : '', shift: site ? site.shift : '', branch: site ? site.branch : '' };
+}
+
+// デモ: 特定日のkeyを生成
+function qaCnDemoDayKey(day) {
+    return qaCalendarYear + '-' + String(qaCalendarMonth + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+}
+
+var qaCnDemoSequence = [
+    {
+        type: 'modify', user: '山田（現場管理）', clientId: 1, siteId: 101, day: 5,
+        diffs: [{ field: '人数', oldVal: '', newVal: '' }],
+        apply: function() {
+            var info = qaCnGetSiteInfo(this.clientId, this.siteId);
+            var dayKey = qaCnDemoDayKey(this.day);
+            var pKey = dayKey + '-0';
+            // スナップショット保存
+            var oldPlacement = qaPlacementData[pKey] ? JSON.parse(JSON.stringify(qaPlacementData[pKey])) : null;
+            var oldCal = qaCalendarData[dayKey] ? JSON.parse(JSON.stringify(qaCalendarData[dayKey])) : null;
+            var oldCount = oldPlacement ? oldPlacement.count : '0';
+            var newCount = '5';
+            this.diffs[0].oldVal = oldCount + '名';
+            this.diffs[0].newVal = newCount + '名';
+            // データ変更
+            if (!qaPlacementData[pKey]) qaPlacementData[pKey] = { count: '0', reliability: '確定', subTasks: [{ label: '工事名1', value: '' }], badges: [], startTime: '08:00', endTime: '17:00', supervisor: '', supervisorTel: '', meetingPlace: '', meetingTime: '', mapUrl: '', remarks: '' };
+            qaPlacementData[pKey].count = newCount;
+            if (!qaCalendarData[dayKey]) qaCalendarData[dayKey] = { entries: [{ count: parseInt(oldCount) || 0, reliability: '確定' }] };
+            qaCalendarData[dayKey].entries[0].count = parseInt(newCount);
+            var newPlacement = JSON.parse(JSON.stringify(qaPlacementData[pKey]));
+            var newCal = JSON.parse(JSON.stringify(qaCalendarData[dayKey]));
+            return {
+                siteName: info.siteName, clientName: info.clientName, category: info.category, shift: info.shift, branch: info.branch,
+                dayKey: dayKey, dayLabel: (qaCalendarMonth + 1) + '月' + this.day + '日',
+                _snapshot: { placementKey: pKey, placementEntry: oldPlacement, dayKey: dayKey, calendarData: oldCal },
+                _newSnapshot: { placementKey: pKey, placementEntry: newPlacement, dayKey: dayKey, calendarData: newCal }
+            };
+        }
+    },
+    {
+        type: 'add', user: '鈴木（受注担当）', clientId: 1, siteId: 102, day: 12,
+        details: [{ field: '現場', value: '東名高速 補修工事' }, { field: '区分', value: '高速（夜）' }, { field: '人数', value: '3名' }],
+        apply: function() {
+            var info = qaCnGetSiteInfo(this.clientId, this.siteId);
+            var dayKey = qaCnDemoDayKey(this.day);
+            // 新しい配置を追加
+            if (!qaCalendarData[dayKey]) qaCalendarData[dayKey] = { entries: [] };
+            var pIdx = qaCalendarData[dayKey].entries.length;
+            var pKey = dayKey + '-' + pIdx;
+            var newEntry = { count: 3, reliability: '確定' };
+            var newPlacement = { count: '3', reliability: '確定', subTasks: [{ label: '工事名1', value: '補修工' }], badges: [], startTime: '20:00', endTime: '05:00', supervisor: '佐藤次郎', supervisorTel: '080-9876-5432', meetingPlace: '現場事務所前', meetingTime: '19:30', mapUrl: '', remarks: '' };
+            qaCalendarData[dayKey].entries.push(newEntry);
+            qaPlacementData[pKey] = newPlacement;
+            return {
+                siteName: info.siteName, clientName: info.clientName, category: info.category, shift: info.shift, branch: info.branch,
+                dayKey: dayKey, dayLabel: (qaCalendarMonth + 1) + '月' + this.day + '日',
+                _addedKey: pKey, _addedPlacementIdx: pIdx,
+                _addedData: JSON.parse(JSON.stringify(newPlacement)),
+                _addedCalEntry: JSON.parse(JSON.stringify(newEntry))
+            };
+        }
+    },
+    {
+        type: 'modify', user: '田中 太郎（自分）', clientId: 2, siteId: 201, day: 8,
+        diffs: [{ field: '開始時間', oldVal: '', newVal: '' }],
+        apply: function() {
+            var info = qaCnGetSiteInfo(this.clientId, this.siteId);
+            var dayKey = qaCnDemoDayKey(this.day);
+            var pKey = dayKey + '-0';
+            var oldPlacement = qaPlacementData[pKey] ? JSON.parse(JSON.stringify(qaPlacementData[pKey])) : null;
+            var oldCal = qaCalendarData[dayKey] ? JSON.parse(JSON.stringify(qaCalendarData[dayKey])) : null;
+            var oldTime = oldPlacement ? (oldPlacement.startTime || '09:00') : '09:00';
+            var newTime = '10:30';
+            this.diffs[0].oldVal = oldTime;
+            this.diffs[0].newVal = newTime;
+            if (!qaPlacementData[pKey]) qaPlacementData[pKey] = { count: '2', reliability: '確定', subTasks: [{ label: '工事名1', value: '' }], badges: [], startTime: oldTime, endTime: '18:00', supervisor: '', supervisorTel: '', meetingPlace: '', meetingTime: '', mapUrl: '', remarks: '' };
+            qaPlacementData[pKey].startTime = newTime;
+            if (!qaCalendarData[dayKey]) qaCalendarData[dayKey] = { entries: [{ count: 2, reliability: '確定' }] };
+            var newPlacement = JSON.parse(JSON.stringify(qaPlacementData[pKey]));
+            var newCal = JSON.parse(JSON.stringify(qaCalendarData[dayKey]));
+            return {
+                siteName: info.siteName, clientName: info.clientName, category: info.category, shift: info.shift, branch: info.branch,
+                dayKey: dayKey, dayLabel: (qaCalendarMonth + 1) + '月' + this.day + '日',
+                _snapshot: { placementKey: pKey, placementEntry: oldPlacement, dayKey: dayKey, calendarData: oldCal },
+                _newSnapshot: { placementKey: pKey, placementEntry: newPlacement, dayKey: dayKey, calendarData: newCal }
+            };
+        }
+    },
+    {
+        // QA未登録の現場 → qaCnReceive でフィルタされ通知されない
+        type: 'modify', user: '佐藤（営業部）', clientId: null, siteId: null, day: 7,
+        diffs: [{ field: '人数', oldVal: '2名', newVal: '4名' }],
+        apply: function() {
+            return {
+                siteName: '△△工場 夜間巡回', clientName: '△△工業株式会社',
+                category: '施設', shift: '夜', branch: '東央警備',
+                dayKey: qaCnDemoDayKey(this.day), dayLabel: (qaCalendarMonth + 1) + '月' + this.day + '日'
+            };
+        }
+    },
+    {
+        type: 'delete', user: '高橋（管理部）', clientId: 3, siteId: 301, day: 15,
+        apply: function() {
+            var info = qaCnGetSiteInfo(this.clientId, this.siteId);
+            var dayKey = qaCnDemoDayKey(this.day);
+            var pKey = dayKey + '-0';
+            var oldPlacement = qaPlacementData[pKey] ? JSON.parse(JSON.stringify(qaPlacementData[pKey])) : { count: '2', reliability: '確定', subTasks: [{ label: '工事名1', value: '常駐警備' }], badges: [], startTime: '08:00', endTime: '17:00', supervisor: '山田太郎', supervisorTel: '090-1234-5678', meetingPlace: '正門前', meetingTime: '07:30', mapUrl: '', remarks: '' };
+            var oldCal = qaCalendarData[dayKey] ? JSON.parse(JSON.stringify(qaCalendarData[dayKey])) : { entries: [{ count: 2, reliability: '確定' }] };
+            // データ削除
+            delete qaPlacementData[pKey];
+            delete qaCalendarData[dayKey];
+            return {
+                siteName: info.siteName, clientName: info.clientName, category: info.category, shift: info.shift, branch: info.branch,
+                dayKey: dayKey, dayLabel: (qaCalendarMonth + 1) + '月' + this.day + '日',
+                _deletedSnapshot: { placementKey: pKey, placementEntry: oldPlacement, dayKey: dayKey, calendarData: oldCal, placementIdx: 0 }
+            };
+        }
+    },
+    {
+        type: 'modify', user: '田中 太郎（自分）', clientId: 4, siteId: 401, day: 10,
+        diffs: [{ field: '備考', oldVal: '', newVal: '' }],
+        apply: function() {
+            var info = qaCnGetSiteInfo(this.clientId, this.siteId);
+            var dayKey = qaCnDemoDayKey(this.day);
+            var pKey = dayKey + '-0';
+            var oldPlacement = qaPlacementData[pKey] ? JSON.parse(JSON.stringify(qaPlacementData[pKey])) : null;
+            var oldCal = qaCalendarData[dayKey] ? JSON.parse(JSON.stringify(qaCalendarData[dayKey])) : null;
+            var oldRemarks = oldPlacement ? (oldPlacement.remarks || '(なし)') : '(なし)';
+            var newRemarks = '夜間作業注意・安全帯必須';
+            this.diffs[0].oldVal = oldRemarks;
+            this.diffs[0].newVal = newRemarks;
+            if (!qaPlacementData[pKey]) qaPlacementData[pKey] = { count: '3', reliability: '確定', subTasks: [{ label: '工事名1', value: '' }], badges: [], startTime: '20:00', endTime: '05:00', supervisor: '', supervisorTel: '', meetingPlace: '', meetingTime: '', mapUrl: '', remarks: '' };
+            qaPlacementData[pKey].remarks = newRemarks;
+            if (!qaCalendarData[dayKey]) qaCalendarData[dayKey] = { entries: [{ count: 3, reliability: '確定' }] };
+            var newPlacement = JSON.parse(JSON.stringify(qaPlacementData[pKey]));
+            var newCal = JSON.parse(JSON.stringify(qaCalendarData[dayKey]));
+            return {
+                siteName: info.siteName, clientName: info.clientName, category: info.category, shift: info.shift, branch: info.branch,
+                dayKey: dayKey, dayLabel: (qaCalendarMonth + 1) + '月' + this.day + '日',
+                _snapshot: { placementKey: pKey, placementEntry: oldPlacement, dayKey: dayKey, calendarData: oldCal },
+                _newSnapshot: { placementKey: pKey, placementEntry: newPlacement, dayKey: dayKey, calendarData: newCal }
+            };
+        }
+    }
+];
+
+function qaCnSendDemoNotification() {
+    if (qaCnDemoIndex >= qaCnDemoSequence.length) {
+        qaCnToggleDemo();
+        return;
+    }
+    var item = qaCnDemoSequence[qaCnDemoIndex];
+    qaCnDemoIndex++;
+    var result = item.apply();
+    if (!result) { qaCnSendDemoNotification(); return; }
+    var n = {
+        type: item.type,
+        user: item.user,
+        siteName: result.siteName,
+        clientName: result.clientName,
+        category: result.category,
+        shift: result.shift,
+        branch: result.branch,
+        dayKey: result.dayKey,
+        dayLabel: result.dayLabel,
+        time: qaCnTimeNow(),
+        diffs: item.diffs ? item.diffs.map(function(d) { return { field: d.field, oldVal: d.oldVal, newVal: d.newVal }; }) : null,
+        details: item.details ? item.details.map(function(d) { return { field: d.field, value: d.value }; }) : null
+    };
+    // スナップショット保存
+    if (item.type === 'modify') {
+        n._snapshot = result._snapshot;
+        n._newSnapshot = result._newSnapshot;
+    } else if (item.type === 'add') {
+        n._addedKey = result._addedKey;
+        n._addedPlacementIdx = result._addedPlacementIdx;
+        n._addedData = result._addedData;
+        n._addedCalEntry = result._addedCalEntry;
+    } else if (item.type === 'delete') {
+        n._deletedSnapshot = result._deletedSnapshot;
+    }
+    qaCnReceive(n);
+}
+
+function qaCnToggleDemo() {
+    var btn = document.getElementById('qaCnDemoBtn');
+    if (qaCnDemoRunning) {
+        clearInterval(qaCnDemoInterval);
+        qaCnDemoInterval = null;
+        qaCnDemoRunning = false;
+        btn.textContent = '▶ デモ';
+        btn.style.background = '';
+        btn.style.color = '';
+    } else {
+        qaCnState.notifications = [];
+        qaCnState.history = [];
+        qaCnState.unreadCount = 0;
+        qaCnState.nextId = 1;
+        qaCnState.filterSite = '';
+        qaCnUpdateBadge();
+        qaCnDemoIndex = 0;
+        qaCnDemoRunning = true;
+        btn.textContent = '⏹ 停止';
+        btn.style.background = '#DB577B';
+        btn.style.color = '#fff';
+        qaCnSendDemoNotification();
+        qaCnDemoInterval = setInterval(qaCnSendDemoNotification, 3000);
+    }
+}
