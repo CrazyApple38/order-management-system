@@ -42,7 +42,6 @@
             <button class="md-ob-tb-btn" onclick="openSortModal()">⇅ ソート</button>
             <button class="md-ob-tb-btn" onclick="toggleFilterRow()"><img src="mockup/icons/search.svg" class="md-ob-icon"> フィルタ</button>
             <button class="md-ob-tb-btn" onclick="toggleHiddenRows()"><img src="mockup/icons/eye.svg" class="md-ob-icon"> 表示/非表示</button>
-            <button class="md-ob-tb-btn" onclick="toggleWeekendColors()"><img src="mockup/icons/palette.svg" class="md-ob-icon"> 土日祝色</button>
             <button class="md-ob-tb-btn" id="btnToggleBadges" onclick="toggleBadgeDisplay()"><img src="mockup/icons/tag.svg" class="md-ob-icon"> バッジ</button>
             <span class="md-ob-toolbar-sep"></span>
             <button class="md-ob-tb-btn" id="obCnDemoBtn" onclick="obCnToggleDemo()">▶ デモ開始</button>
@@ -55,23 +54,28 @@
     <!-- フィルタ行（トグル表示） -->
     <!-- 【モックアップ専用】フィルタの選択肢は本番ではDBから動的に生成 -->
     <div class="md-ob-filter-bar" id="filterBar" style="display:none;">
-        <label>会社:
-            <select id="filterBranch" onchange="applyFilters()">
-                <option value="">すべて</option>
-                <option>東央警備</option>
-                <option>Nikkeiホールディングス</option>
-            </select>
-        </label>
-        <label>区分:
-            <select id="filterCategory" onchange="applyFilters()">
-                <option value="">すべて</option>
-                <option>施設</option>
-                <option>イベント</option>
-                <option>高速</option>
-                <option>交通</option>
-                <option>応援交通</option>
-            </select>
-        </label>
+        <label>会社:</label>
+        <div class="md-ob-filter-dd" id="filterBranchDD">
+            <button type="button" class="md-ob-filter-dd-btn" onclick="toggleBranchDD()">
+                <span id="filterBranchLabel">すべて</span>
+                <span class="md-ob-filter-dd-arrow">▼</span>
+            </button>
+            <div class="md-ob-filter-dd-panel" id="filterBranchPanel"></div>
+        </div>
+        <label>区分:</label>
+        <div class="md-ob-filter-dd" id="filterCategoryDD">
+            <button type="button" class="md-ob-filter-dd-btn" onclick="toggleCategoryDD()">
+                <span id="filterCategoryLabel">すべて</span>
+                <span class="md-ob-filter-dd-arrow">▼</span>
+            </button>
+            <div class="md-ob-filter-dd-panel" id="filterCategoryPanel">
+                <label class="md-ob-filter-dd-item"><input type="checkbox" value="施設" onchange="onCategoryCheck()"> 施設</label>
+                <label class="md-ob-filter-dd-item"><input type="checkbox" value="イベント" onchange="onCategoryCheck()"> イベント</label>
+                <label class="md-ob-filter-dd-item"><input type="checkbox" value="高速" onchange="onCategoryCheck()"> 高速</label>
+                <label class="md-ob-filter-dd-item"><input type="checkbox" value="交通" onchange="onCategoryCheck()"> 交通</label>
+                <label class="md-ob-filter-dd-item"><input type="checkbox" value="応援交通" onchange="onCategoryCheck()"> 応援交通</label>
+            </div>
+        </div>
         <label>昼/夜:
             <select id="filterShift" onchange="applyFilters()">
                 <option value="">すべて</option>

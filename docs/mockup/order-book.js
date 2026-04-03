@@ -518,6 +518,7 @@ function applyAutoConfidence() {
 
 // 【モックアップ専用】本番ではサーバーサイドで信頼度を計算済みのデータを返却
 applyAutoConfidence();
+buildBranchPanel();
 
 // --- グリッド描画 ---
 function renderGrid() {
@@ -713,13 +714,76 @@ function renderGrid() {
 }
 
 // --- フィルタ ---
+
+// 汎用: ドロップダウンチェックの選択値取得
+function getFilterDDSelected(panelId) {
+    var checks = document.querySelectorAll('#' + panelId + ' input[type="checkbox"]:checked');
+    var arr = [];
+    for (var i = 0; i < checks.length; i++) arr.push(checks[i].value);
+    return arr;
+}
+
+// 汎用: ドロップダウンチェックのラベル更新
+function updateFilterDDLabel(labelId, selected) {
+    var label = document.getElementById(labelId);
+    if (selected.length === 0) {
+        label.innerHTML = 'すべて';
+    } else {
+        label.innerHTML = '<span class="md-ob-filter-dd-badge">' + selected.length + '</span> ' + selected.join(', ');
+    }
+}
+
+// 汎用: ドロップダウン開閉トグル（他を閉じる）
+function toggleFilterDD(ddId) {
+    var allDDs = document.querySelectorAll('.md-ob-filter-dd');
+    for (var i = 0; i < allDDs.length; i++) {
+        if (allDDs[i].id !== ddId) allDDs[i].classList.remove('open');
+    }
+    document.getElementById(ddId).classList.toggle('open');
+}
+
+// 会社フィルタ
+function toggleBranchDD() { toggleFilterDD('filterBranchDD'); }
+function onBranchCheck() {
+    updateFilterDDLabel('filterBranchLabel', getFilterDDSelected('filterBranchPanel'));
+    applyFilters();
+}
+
+// 区分フィルタ
+function toggleCategoryDD() { toggleFilterDD('filterCategoryDD'); }
+function onCategoryCheck() {
+    updateFilterDDLabel('filterCategoryLabel', getFilterDDSelected('filterCategoryPanel'));
+    applyFilters();
+}
+
+// sampleRowsから会社パネルを動的生成
+function buildBranchPanel() {
+    var branches = [];
+    sampleRows.forEach(function(r) {
+        if (r.branch && branches.indexOf(r.branch) === -1) branches.push(r.branch);
+    });
+    branches.sort();
+    var panel = document.getElementById('filterBranchPanel');
+    panel.innerHTML = branches.map(function(b) {
+        return '<label class="md-ob-filter-dd-item"><input type="checkbox" value="' + escapeHtml(b) + '" onchange="onBranchCheck()"> ' + escapeHtml(b) + '</label>';
+    }).join('');
+}
+
+// パネル外クリックで閉じる
+document.addEventListener('click', function(e) {
+    var allDDs = document.querySelectorAll('.md-ob-filter-dd');
+    for (var i = 0; i < allDDs.length; i++) {
+        if (!allDDs[i].contains(e.target)) allDDs[i].classList.remove('open');
+    }
+});
+
 function isFiltered(row) {
-    const fb = document.getElementById('filterBranch').value;
-    const fc = document.getElementById('filterCategory').value;
+    const branches = getFilterDDSelected('filterBranchPanel');
+    const cats = getFilterDDSelected('filterCategoryPanel');
     const fs = document.getElementById('filterShift').value;
     const fco = document.getElementById('filterCompany').value.trim();
-    if (fb && row.branch !== fb) return false;
-    if (fc && row.category !== fc) return false;
+    if (branches.length > 0 && branches.indexOf(row.branch) === -1) return false;
+    if (cats.length > 0 && cats.indexOf(row.category) === -1) return false;
     if (fs && row.shift !== fs) return false;
     if (fco && !row.company.includes(fco)) return false;
     return true;
@@ -734,8 +798,12 @@ function toggleFilterRow() {
 function applyFilters() { renderGrid(); }
 
 function clearFilters() {
-    document.getElementById('filterBranch').value = '';
-    document.getElementById('filterCategory').value = '';
+    var allChecks = document.querySelectorAll('.md-ob-filter-dd-panel input[type="checkbox"]');
+    for (var i = 0; i < allChecks.length; i++) allChecks[i].checked = false;
+    document.getElementById('filterBranchLabel').innerHTML = 'すべて';
+    document.getElementById('filterCategoryLabel').innerHTML = 'すべて';
+    var allDDs = document.querySelectorAll('.md-ob-filter-dd');
+    for (var i = 0; i < allDDs.length; i++) allDDs[i].classList.remove('open');
     document.getElementById('filterShift').value = '';
     document.getElementById('filterCompany').value = '';
     renderGrid();
