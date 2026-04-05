@@ -486,6 +486,8 @@ body {
     background: var(--accent-light); color: #FFFFFF;
     border-bottom: 1px solid rgba(0,0,0,0.1);
     border-radius: 12px 12px 0 0;
+    flex-wrap: wrap; gap: 6px;
+    position: relative;
 }
 .md-ob-modal-header h3 { font-size: 15px; font-weight: 600; color: #FFFFFF; }
 .md-ob-modal-close {
@@ -1981,34 +1983,46 @@ body {
     border: 1px solid white;
 }
 
-/* --- 競合バナー --- */
+/* --- コンフリクト警告バナー --- */
 .md-cn-conflict-banner {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 12px;
-    background: var(--warning-bg);
-    border: 1px solid var(--warning);
+    padding: 8px 16px;
+    background: rgba(214, 158, 46, 0.12);
+    border: 1px solid rgba(214, 158, 46, 0.4);
     border-radius: 6px;
-    font-size: 13px;
-    color: var(--warning-text);
+    margin-top: 10px;
     animation: md-cn-conflict-slide 0.3s ease-out;
-    margin: 0 8px;
+    width: 100%;
+    order: 10;
+    box-sizing: border-box;
+}
+.md-cn-conflict-icon {
+    font-size: 18px;
     flex-shrink: 0;
 }
-.md-cn-conflict-icon { font-size: 16px; }
-.md-cn-conflict-text { flex: 1; }
+.md-cn-conflict-text {
+    flex: 1;
+    font-size: 13px;
+    color: var(--warning-text);
+}
 .md-cn-conflict-close {
     background: none;
     border: none;
-    color: var(--warning);
+    color: var(--warning-text);
+    font-size: 16px;
     cursor: pointer;
-    font-size: 14px;
-    padding: 2px 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    opacity: 0.7;
+    transition: opacity 0.15s;
 }
-.md-cn-conflict-close:hover { color: var(--warning-text); }
+.md-cn-conflict-close:hover {
+    opacity: 1;
+}
 @keyframes md-cn-conflict-slide {
-    from { opacity: 0; transform: translateY(-8px); }
+    from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 

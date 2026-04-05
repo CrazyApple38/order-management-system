@@ -30,6 +30,8 @@
                 <li><a href="#modal-design-pattern">Modal Pattern</a></li>
                 <li><a href="#md-badge-tag">Badge / Tag</a></li>
                 <li><a href="#md-form-input">Form Input</a></li>
+                <li><a href="#custom-toast">Change Toast</a></li>
+                <li><a href="#custom-conflict-banner">Conflict Banner</a></li>
             </ul>
         </div>
         <div class="sidebar-section">
@@ -2117,6 +2119,104 @@
                     </div>
                 </div>
 
+            </div>
+        </section>
+
+
+        <!-- Change Notification Toast -->
+        <section class="comp-section" id="custom-toast">
+            <div class="comp-title-bar"><h2>Change Notification Toast</h2></div>
+            <div class="comp-body">
+                <p style="color:var(--text-tertiary);font-size:13px;margin-bottom:16px;">変更通知トースト — 他ユーザーや自分のデータ変更をリアルタイムに通知するコンポーネント。</p>
+
+                <h4>Standard (受注簿 / 業務管理計画書)</h4>
+                <p style="color:var(--text-tertiary);font-size:12px;margin-bottom:8px;">位置: 画面右上 (top: 20px, right: 20px) / 表示時間: 5秒 / 右方向にスライドアウト</p>
+                <div class="comp-col cn-toasts">
+                    <div class="plst-cn-toast plst-cn-toast-add">
+                        <span class="plst-cn-toast-icon">🟢</span>
+                        <div class="plst-cn-toast-body">
+                            <div class="plst-cn-toast-title">追加 — 田中（営業部）</div>
+                            <div class="plst-cn-toast-desc">名神SA巡回</div>
+                        </div>
+                        <span class="plst-cn-toast-time">4月6日 09:15</span>
+                    </div>
+                    <div class="plst-cn-toast plst-cn-toast-modify">
+                        <span class="plst-cn-toast-icon">🟡</span>
+                        <div class="plst-cn-toast-body">
+                            <div class="plst-cn-toast-title">変更 — 佐藤（営業部）</div>
+                            <div class="plst-cn-toast-desc">□□公園整備</div>
+                        </div>
+                        <span class="plst-cn-toast-time">4月6日 09:12</span>
+                    </div>
+                    <div class="plst-cn-toast plst-cn-toast-delete">
+                        <span class="plst-cn-toast-icon">🔴</span>
+                        <div class="plst-cn-toast-body">
+                            <div class="plst-cn-toast-title">削除 — 高橋（管理部）</div>
+                            <div class="plst-cn-toast-desc">中央道補修</div>
+                        </div>
+                        <span class="plst-cn-toast-time">4月6日 09:10</span>
+                    </div>
+                </div>
+
+                <h4 style="margin-top:24px;">Compact (Quick Access)</h4>
+                <p style="color:var(--text-tertiary);font-size:12px;margin-bottom:8px;">位置: 画面右下 (bottom: 24px, right: 12px) / 表示時間: 3秒 / 左方向にスライドアウト / 横スワイプで消去対応</p>
+                <div class="comp-col cn-toasts-compact">
+                    <div class="plst-cn-toast-compact plst-cn-toast-add">
+                        <span class="plst-cn-toast-icon">🟢</span>
+                        <div class="plst-cn-toast-body">
+                            <span class="plst-cn-toast-title">追加</span>
+                            <span class="plst-cn-toast-desc">佐藤 — 〇〇ビル巡回</span>
+                        </div>
+                    </div>
+                    <div class="plst-cn-toast-compact plst-cn-toast-modify">
+                        <span class="plst-cn-toast-icon">🟡</span>
+                        <div class="plst-cn-toast-body">
+                            <span class="plst-cn-toast-title">変更</span>
+                            <span class="plst-cn-toast-desc">高橋 — △△公園整備</span>
+                        </div>
+                    </div>
+                    <div class="plst-cn-toast-compact plst-cn-toast-delete">
+                        <span class="plst-cn-toast-icon">🔴</span>
+                        <div class="plst-cn-toast-body">
+                            <span class="plst-cn-toast-title">削除</span>
+                            <span class="plst-cn-toast-desc">田中 — 国道1号線</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Conflict Warning Banner -->
+        <section class="comp-section" id="custom-conflict-banner">
+            <div class="comp-title-bar"><h2>Conflict Warning Banner</h2></div>
+            <div class="comp-body">
+                <p style="color:var(--text-tertiary);font-size:13px;margin-bottom:16px;">コンフリクト警告バナー — 編集中に他ユーザーが同じデータを変更した際、モーダルヘッダー内に表示される警告。</p>
+
+                <h4>Standalone</h4>
+                <div class="comp-col cn-banners">
+                    <div class="plst-cn-conflict-banner">
+                        <span class="plst-cn-conflict-icon">⚠</span>
+                        <span class="plst-cn-conflict-text">田中 太郎（自分）が「中央道補修」を変更しました。最新のデータに更新されます。</span>
+                        <button class="plst-cn-conflict-close">✕</button>
+                    </div>
+                </div>
+
+                <h4 style="margin-top:24px;">In Modal Header</h4>
+                <p style="color:var(--text-tertiary);font-size:12px;margin-bottom:8px;">モーダルヘッダー内に flex-wrap で全幅折り返し配置。ヘッダーの accent カラーに自然に馴染む。</p>
+                <div class="comp-col cn-banners">
+                    <div class="plst-sample-header">
+                        <h4>現場詳細入力</h4>
+                        <button class="plst-sample-header-close">✕</button>
+                        <div class="plst-cn-conflict-banner in-header">
+                            <span class="plst-cn-conflict-icon">⚠</span>
+                            <span class="plst-cn-conflict-text">佐藤（営業部）が「□□公園整備」を変更しました。最新のデータに更新されます。</span>
+                            <button class="plst-cn-conflict-close">✕</button>
+                        </div>
+                    </div>
+                    <div style="background:var(--bg-surface);padding:24px;border-radius:0 0 8px 8px;border:1px solid var(--divider);border-top:none;">
+                        <span style="color:var(--text-tertiary);font-size:12px;">(Modal body content...)</span>
+                    </div>
+                </div>
             </div>
         </section>
 

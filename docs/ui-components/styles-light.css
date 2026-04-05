@@ -36,7 +36,9 @@
     --error: #DB577B;
     --success: #38A169;
     --success-text: #276749;
+    --warning: #D69E2E;
     --warning-text: #92400e;
+    --warning-bg: rgba(214, 158, 46, 0.1);
 }
 
 /* --- Reset & Base --- */
@@ -3857,4 +3859,98 @@ body {
     display: flex;
     flex-direction: column;
     gap: 14px;
+}
+
+/* ===========================
+   Custom: Change Notification Toast & Conflict Banner
+   =========================== */
+
+/* --- Change Notification Toast (様式: 受注簿・業務管理計画書) --- */
+.comp-col.cn-toasts { width: 400px; gap: 12px; }
+.comp-col.cn-toasts-compact { width: 320px; gap: 10px; }
+.plst-cn-toast {
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    padding: 12px 16px;
+    min-width: 300px;
+    max-width: 400px;
+    box-shadow: 0 4px 16px rgba(0,69,84,0.08);
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+.plst-cn-toast-add { border-left: 4px solid var(--success); }
+.plst-cn-toast-modify { border-left: 4px solid var(--warning); }
+.plst-cn-toast-delete { border-left: 4px solid var(--error); }
+.plst-cn-toast-icon { font-size: 19px; flex-shrink: 0; line-height: 1; }
+.plst-cn-toast-body { flex: 1; min-width: 0; }
+.plst-cn-toast-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+.plst-cn-toast-desc { font-size: 12px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.plst-cn-toast-time { font-size: 11px; color: var(--text-disabled); flex-shrink: 0; margin-top: 2px; }
+
+/* --- Change Notification Toast (様式: Quick Access) --- */
+.plst-cn-toast-compact {
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: 20px;
+    padding: 6px 14px;
+    max-width: 100%;
+    box-shadow: 0 2px 12px rgba(0,69,84,0.08);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.plst-cn-toast-compact.plst-cn-toast-add { border-left: 3px solid var(--success); }
+.plst-cn-toast-compact.plst-cn-toast-modify { border-left: 3px solid var(--warning); }
+.plst-cn-toast-compact.plst-cn-toast-delete { border-left: 3px solid var(--error); }
+.plst-cn-toast-compact .plst-cn-toast-icon { font-size: 14px; }
+.plst-cn-toast-compact .plst-cn-toast-body { display: flex; align-items: center; gap: 4px; overflow: hidden; }
+.plst-cn-toast-compact .plst-cn-toast-title { font-size: 12px; margin-bottom: 0; flex-shrink: 0; }
+.plst-cn-toast-compact .plst-cn-toast-desc { font-size: 12px; }
+
+/* --- Conflict Warning Banner (standalone) --- */
+.comp-col.cn-banners { width: 460px; gap: 12px; }
+.plst-cn-conflict-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #F0EDE9;
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+}
+.plst-cn-conflict-icon { font-size: 14px; flex-shrink: 0; color: var(--text-primary); }
+.plst-cn-conflict-text { flex: 1; font-size: 12.5px; color: var(--text-primary); font-weight: 500; }
+.plst-cn-conflict-close {
+    background: none; border: none;
+    color: var(--warning-text); font-size: 12px;
+    cursor: pointer; padding: 2px 6px;
+    border-radius: 4px; opacity: 0.7;
+    transition: opacity 0.15s;
+}
+.plst-cn-conflict-close:hover { opacity: 1; }
+/* ヘッダー内配置バリアント */
+.plst-cn-conflict-banner.in-header {
+    background: #F0EDE9;
+    border: 1px solid var(--divider);
+    width: 100%;
+    margin-top: 10px;
+}
+/* ヘッダーサンプル */
+.plst-sample-header {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 6px;
+    padding: 14px 24px;
+    background: var(--accent-light); color: #fff;
+    border-radius: 8px 8px 0 0;
+}
+.plst-sample-header h4 { font-size: 14px; font-weight: 600; color: #fff; margin: 0; }
+.plst-sample-header-close {
+    background: none; border: none;
+    color: rgba(255,255,255,0.8); font-size: 16px; cursor: pointer;
 }
