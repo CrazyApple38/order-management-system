@@ -1016,6 +1016,8 @@ let qaActivePlacement = 0;
 let qaPlacementData = {}; // key: "dayKey-placementIdx"
 
 function qaSelectPlacement(idx) {
+    // 切替前に現在の配置先データを保存
+    qaSavePlacementData();
     qaActivePlacement = idx;
     document.querySelectorAll('.qa-placement-tab').forEach(t => {
         t.classList.toggle('active', parseInt(t.dataset.idx) === idx);
@@ -1097,6 +1099,9 @@ function qaGetPlacementKey() {
 function qaSavePlacementData() {
     const pk = qaGetPlacementKey();
     if (!pk) return;
+    // 編集パネルが開かれていない場合はフォームデータを保存しない
+    const panel = document.getElementById('qaCalEditPanel');
+    if (!panel || !panel.classList.contains('active')) return;
     const activeChip = document.querySelector('.qa-reliability-chip.active');
     const activeBadges = Array.from(document.querySelectorAll('.qa-badge-chip.active')).map(c => c.textContent);
     const subTasks = Array.from(document.querySelectorAll('.qa-sub-task-row')).map(row => ({
@@ -1328,7 +1333,7 @@ function qaSelectDay(day, initialSiteIdx) {
     const dowNames = ['日', '月', '火', '水', '木', '金', '土'];
     document.getElementById('qaCalEditDate').textContent = `${dateStr}（${dowNames[dt.getDay()]}）`;
 
-    // 既存の配置先タブを復元
+    // 既存の配置先タブを復元（データを上書きしないようカウントのみ増やす）
     const dayKey = `${qaCalendarYear}-${String(qaCalendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     let maxPlacement = 0;
     Object.keys(qaPlacementData).forEach(k => {
@@ -1337,15 +1342,15 @@ function qaSelectDay(day, initialSiteIdx) {
             if (idx > maxPlacement) maxPlacement = idx;
         }
     });
-    if (maxPlacement > 0) {
-        for (let i = 1; i <= maxPlacement; i++) {
-            qaAddPlacement();
-        }
-    }
+    qaPlacementCount = maxPlacement + 1;
+    qaRenderPlacementTabs();
 
-    // 指定された配置先タブを選択
+    // 指定された配置先タブを選択（保存せずにロードのみ）
     const targetIdx = (typeof initialSiteIdx === 'number' && initialSiteIdx < qaPlacementCount) ? initialSiteIdx : 0;
-    qaSelectPlacement(targetIdx);
+    qaActivePlacement = targetIdx;
+    document.querySelectorAll('.qa-placement-tab').forEach(t => {
+        t.classList.toggle('active', parseInt(t.dataset.idx) === targetIdx);
+    });
     qaLoadPlacementData();
     qaRenderCalendar();
 }
