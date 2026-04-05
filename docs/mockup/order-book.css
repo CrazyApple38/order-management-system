@@ -1988,9 +1988,9 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 16px;
-    background: rgba(214, 158, 46, 0.12);
-    border: 1px solid rgba(214, 158, 46, 0.4);
+    padding: 10px 16px;
+    background: #F0EDE9;
+    border: 1px solid var(--divider);
     border-radius: 6px;
     margin-top: 10px;
     animation: md-cn-conflict-slide 0.3s ease-out;
@@ -1999,19 +1999,21 @@ body {
     box-sizing: border-box;
 }
 .md-cn-conflict-icon {
-    font-size: 18px;
+    font-size: 14px;
     flex-shrink: 0;
+    color: var(--text-primary);
 }
 .md-cn-conflict-text {
     flex: 1;
-    font-size: 13px;
-    color: var(--warning-text);
+    font-size: 12.5px;
+    color: var(--text-primary);
+    font-weight: 500;
 }
 .md-cn-conflict-close {
     background: none;
     border: none;
     color: var(--warning-text);
-    font-size: 16px;
+    font-size: 12px;
     cursor: pointer;
     padding: 2px 6px;
     border-radius: 4px;
