@@ -1602,30 +1602,100 @@
             }
         });
 
-        // 地図モーダル
+        // 地図モーダル（タブ式・複数地図対応）
         let currentMapCell = null;
+        let smMapEntries = [];      // [{label, url}, ...]
+        let smMapActiveTab = 0;
 
-        function openMapModal(cell, rowId) {
+        function openMapModal(cell, rowId, tabIdx) {
             currentMapCell = cell;
-            const currentUrl = cell.getAttribute('data-map-url') || '';
-            document.getElementById('mapUrlInput').value = currentUrl;
+            try {
+                smMapEntries = JSON.parse(cell.getAttribute('data-maps') || '[]');
+            } catch(e) {
+                smMapEntries = [];
+            }
+            if (smMapEntries.length === 0) {
+                smMapEntries = [{ label: '現場地図', url: '' }];
+            }
+            var idx = (typeof tabIdx === 'number' && tabIdx >= 0 && tabIdx < smMapEntries.length) ? tabIdx : 0;
+            smMapActiveTab = idx;
+            smRenderMapTabs();
+            smLoadMapTab(idx);
             document.getElementById('mapModal').classList.add('active');
-            updateMapPreview();
-            document.getElementById('mapUrlInput').focus();
+            document.getElementById('smMapUrlInput').focus();
+        }
+
+        function smRenderMapTabs() {
+            var bar = document.getElementById('smMapTabBar');
+            var html = '';
+            smMapEntries.forEach(function(m, i) {
+                var cls = i === smMapActiveTab ? 'sm-map-tab active' : 'sm-map-tab';
+                var label = escapeHtml(m.label || '(無題)');
+                html += '<button class="' + cls + '" onclick="smSwitchMapTab(' + i + ')" title="' + label + '">' + label + '</button>';
+            });
+            html += '<button class="sm-map-tab-add" onclick="smAddMapTab()" title="追加">＋</button>';
+            bar.innerHTML = html;
+        }
+
+        function smSaveCurrentTabData() {
+            if (smMapActiveTab < smMapEntries.length) {
+                smMapEntries[smMapActiveTab].label = document.getElementById('smMapLabelInput').value.trim();
+                smMapEntries[smMapActiveTab].url = document.getElementById('smMapUrlInput').value.trim();
+            }
+        }
+
+        function smLoadMapTab(idx) {
+            smMapActiveTab = idx;
+            var entry = smMapEntries[idx] || { label: '', url: '' };
+            document.getElementById('smMapLabelInput').value = entry.label || '';
+            document.getElementById('smMapUrlInput').value = entry.url || '';
+            smUpdateMapPreview();
+            // タブのactive状態を更新
+            document.querySelectorAll('#smMapTabBar .sm-map-tab').forEach(function(tab, i) {
+                tab.classList.toggle('active', i === idx);
+            });
+        }
+
+        function smSwitchMapTab(idx) {
+            smSaveCurrentTabData();
+            smRenderMapTabs();
+            smLoadMapTab(idx);
+        }
+
+        function smAddMapTab() {
+            smSaveCurrentTabData();
+            smMapEntries.push({ label: '', url: '' });
+            smMapActiveTab = smMapEntries.length - 1;
+            smRenderMapTabs();
+            smLoadMapTab(smMapActiveTab);
+            document.getElementById('smMapLabelInput').focus();
+        }
+
+        function smDeleteMapTab() {
+            if (smMapEntries.length <= 1) {
+                // 最後の1つは中身をクリアして削除扱い
+                smMapEntries = [];
+                saveMapModal();
+                return;
+            }
+            smMapEntries.splice(smMapActiveTab, 1);
+            if (smMapActiveTab >= smMapEntries.length) smMapActiveTab = smMapEntries.length - 1;
+            smRenderMapTabs();
+            smLoadMapTab(smMapActiveTab);
         }
 
         function closeMapModal() {
             document.getElementById('mapModal').classList.remove('active');
-            document.getElementById('mapPreviewFrame').src = '';
-            document.getElementById('mapPreviewSection').style.display = 'none';
+            document.getElementById('smMapPreviewFrame').src = '';
+            document.getElementById('smMapPreviewSection').style.display = 'none';
             currentMapCell = null;
+            smMapEntries = [];
         }
 
-        function updateMapPreview() {
-            const url = document.getElementById('mapUrlInput').value.trim();
-            const previewSection = document.getElementById('mapPreviewSection');
-            const iframe = document.getElementById('mapPreviewFrame');
-
+        function smUpdateMapPreview() {
+            var url = document.getElementById('smMapUrlInput').value.trim();
+            var previewSection = document.getElementById('smMapPreviewSection');
+            var iframe = document.getElementById('smMapPreviewFrame');
             if (url) {
                 iframe.src = url;
                 previewSection.style.display = 'block';
@@ -1635,22 +1705,25 @@
             }
         }
 
-        function saveMapModal() {
-            const url = document.getElementById('mapUrlInput').value.trim();
-            if (currentMapCell) {
-                currentMapCell.setAttribute('data-map-url', url);
-                if (url) {
-                    currentMapCell.innerHTML = '<span class="map-link">MAP</span>';
-                } else {
-                    currentMapCell.innerHTML = '<span class="map-empty">＋</span>';
-                }
+        function smUpdateMapCellDisplay(cell, maps) {
+            if (!maps || maps.length === 0) {
+                cell.innerHTML = '<span class="map-empty">＋</span>';
+            } else {
+                cell.innerHTML = maps.map(function(m, i) {
+                    return '<span class="map-tag" data-map-index="' + i + '" onclick="event.stopPropagation(); openMapModal(this.closest(\'.col-map\'), 0, ' + i + ')">' + escapeHtml(m.label || '(無題)') + '</span>';
+                }).join('');
             }
-            closeMapModal();
         }
 
-        function clearMapUrl() {
-            document.getElementById('mapUrlInput').value = '';
-            saveMapModal();
+        function saveMapModal() {
+            smSaveCurrentTabData();
+            // 空エントリ（タイトルもURLも空）を除外
+            var filtered = smMapEntries.filter(function(m) { return m.label || m.url; });
+            if (currentMapCell) {
+                currentMapCell.setAttribute('data-maps', JSON.stringify(filtered));
+                smUpdateMapCellDisplay(currentMapCell, filtered);
+            }
+            closeMapModal();
         }
 
         document.getElementById('mapModal').addEventListener('click', function(e) {
@@ -3810,7 +3883,7 @@
                   (d.shortage ? '<span class="count-shortage-badge">不足</span>' : '') + '</td>' +
                 '<td><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
                 '<td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>' +
-                '<td class="col-map clickable-cell" onclick="openMapModal(this, ' + d.no + ')"></td>' +
+                '<td class="col-map clickable-cell" onclick="openMapModal(this, ' + d.no + ')" data-maps=\'[]\'><span class="map-empty">＋</span></td>' +
                 '<td class="col-vt"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div><div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div></div></td>' +
                 '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"></td>';
             return tr;
@@ -4626,6 +4699,14 @@
         gcFilterState.selected.forEach(function(code) { spState.expandedCompanies.add(code); });
         renderSidePanel();
         renderMinimap();
+
+        // 地図セルの初期表示を data-maps から再描画（onclick ハンドラ付与）
+        document.querySelectorAll('td.col-map[data-maps]').forEach(function(cell) {
+            try {
+                var maps = JSON.parse(cell.getAttribute('data-maps') || '[]');
+                smUpdateMapCellDisplay(cell, maps);
+            } catch(e) {}
+        });
 
         // 検索入力でリアルタイムフィルタ
         var spSearchEl = document.getElementById('spSearchInput');

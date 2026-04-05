@@ -934,10 +934,29 @@ h1 {
     background: rgba(160,160,160,0.15);
     color: var(--text-tertiary);
 }
-.col-map { width: 50px; }
+.col-map { width: 80px; text-align: center; vertical-align: middle; }
 .col-vt { width: 140px; }
 
-/* 地図リンク */
+/* 地図タグ（セル内表示） */
+.map-tag {
+    display: block;
+    background: var(--accent);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin: 1px auto;
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.map-tag:hover { background: var(--accent-light); }
+
 .map-link {
     display: inline-block;
     background: var(--accent);
@@ -2807,6 +2826,66 @@ h1 {
 .md-modal-map-detail {
     width: 550px;
     max-width: 90vw;
+}
+/* 地図モーダル タブバー */
+.sm-map-tab-bar {
+    display: flex; gap: 0; border-bottom: 2px solid var(--divider);
+    margin: -2px -16px 12px -16px; padding: 0 16px;
+}
+.sm-map-tab {
+    padding: 7px 14px; border: none; background: transparent;
+    font-size: 12px; font-weight: 600; color: var(--text-secondary);
+    cursor: pointer; transition: all 0.15s;
+    border-bottom: 2px solid transparent; margin-bottom: -2px;
+    max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sm-map-tab:hover { color: var(--accent); }
+.sm-map-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.sm-map-tab-add {
+    padding: 7px 10px; border: none; background: transparent;
+    color: var(--text-tertiary); font-size: 14px; cursor: pointer;
+    margin-bottom: -2px; transition: color 0.15s;
+}
+.sm-map-tab-add:hover { color: var(--accent); }
+/* 地図モーダル フォーム */
+.sm-map-tab-title-row {
+    display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px;
+}
+.sm-map-title-input {
+    padding: 7px 10px; border: 1px dashed var(--divider); border-radius: 6px;
+    font-size: 13px; font-weight: 600; color: var(--accent);
+    background: rgba(68,166,181,0.04); transition: border-color 0.15s;
+}
+.sm-map-title-input:focus {
+    outline: none; border-color: var(--accent); border-style: solid;
+    box-shadow: 0 0 0 2px rgba(68,166,181,0.15);
+}
+.sm-map-url-row { display: flex; gap: 8px; }
+.sm-map-url-row input {
+    flex: 1; padding: 7px 10px; border: 1px solid var(--divider);
+    border-radius: 6px; font-size: 13px; background: var(--bg-primary);
+    color: var(--text-primary);
+}
+.sm-map-url-row input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(68,166,181,0.15);
+}
+.sm-map-preview-btn {
+    padding: 5px 12px; background: var(--accent); color: white;
+    border: none; border-radius: 6px; cursor: pointer;
+    font-size: 12px; font-weight: 600; white-space: nowrap;
+    transition: background 0.15s;
+}
+.sm-map-preview-btn:hover { background: var(--accent-light); }
+.sm-map-hint {
+    color: var(--text-tertiary); font-size: 10px; margin-top: 5px;
+}
+.sm-map-preview-frame-wrap {
+    border: 1px solid var(--divider); border-radius: 6px;
+    overflow: hidden; background: var(--bg-surface-2);
+}
+.sm-map-preview-frame-wrap iframe {
+    width: 100%; height: 300px; border: none; display: block;
 }
 .md-modal-work-detail {
     width: 400px;

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>業務管理計画書 - 画面レイアウト設計</title>
-    <link rel="stylesheet" href="mockup/screen-layout.css?v=7">
+    <link rel="stylesheet" href="mockup/screen-layout.css?v=8">
 </head>
 <body>
     <div class="container">
@@ -119,7 +119,7 @@
                                     </div>
                                 </td>
                                 <td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>
-                                <td class="col-map clickable-cell" onclick="openMapModal(this, 1)" data-map-url="https://maps.google.com/?q=33.8,130.8"><span class="map-link">MAP</span></td>
+                                <td class="col-map clickable-cell" onclick="openMapModal(this, 1)" data-maps='[{"label":"現場地図","url":"https://maps.google.com/?q=33.8,130.8"}]'><span class="map-tag">現場地図</span></td>
                                 <td class="col-vt">
                                     <div class="vt-split-zone">
                                         <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
@@ -172,7 +172,7 @@
                                     </div>
                                 </td>
                                 <td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>
-                                <td class="col-map clickable-cell" onclick="openMapModal(this, 2)" data-map-url="https://maps.google.com/?q=33.8,130.8"><span class="map-link">MAP</span></td>
+                                <td class="col-map clickable-cell" onclick="openMapModal(this, 2)" data-maps='[{"label":"現場地図","url":"https://maps.google.com/?q=33.8,130.8"}]'><span class="map-tag">現場地図</span></td>
                                 <td class="col-vt">
                                     <div class="vt-split-zone">
                                         <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
@@ -222,7 +222,7 @@
                                     </div>
                                 </td>
                                 <td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>
-                                <td class="col-map clickable-cell" onclick="openMapModal(this, 3)" data-map-url=""><span class="map-empty">＋</span></td>
+                                <td class="col-map clickable-cell" onclick="openMapModal(this, 3)" data-maps='[]'><span class="map-empty">＋</span></td>
                                 <td class="col-vt">
                                     <div class="vt-split-zone">
                                         <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
@@ -293,7 +293,7 @@
                                         <span class="badge-tag badge-child-tag">片側交互</span>
                                     </div>
                                 </td>
-                                <td class="col-map clickable-cell" onclick="openMapModal(this, 4)" data-map-url="https://maps.google.com/?q=33.9,130.9"><span class="map-link">MAP</span></td>
+                                <td class="col-map clickable-cell" onclick="openMapModal(this, 4)" data-maps='[{"label":"現場地図","url":"https://maps.google.com/?q=33.9,130.9"},{"label":"迂回路","url":"https://maps.google.com/?q=33.85,130.85"}]'><span class="map-tag">現場地図</span><span class="map-tag">迂回路</span></td>
                                 <td class="col-vt">
                                     <div class="vt-split-zone">
                                         <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)">
@@ -363,7 +363,7 @@
                                         <span class="badge-tag badge-gc-tag">規制材</span>
                                     </div>
                                 </td>
-                                <td class="col-map clickable-cell" onclick="openMapModal(this, 5)" data-map-url=""><span class="map-empty">＋</span></td>
+                                <td class="col-map clickable-cell" onclick="openMapModal(this, 5)" data-maps='[]'><span class="map-empty">＋</span></td>
                                 <td class="col-vt">
                                     <div class="vt-split-zone">
                                         <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)">
@@ -430,7 +430,7 @@
                                         <span class="badge-tag badge-gc-tag">保安灯</span>
                                     </div>
                                 </td>
-                                <td class="col-map clickable-cell" onclick="openMapModal(this, 6)" data-map-url=""><span class="map-empty">＋</span></td>
+                                <td class="col-map clickable-cell" onclick="openMapModal(this, 6)" data-maps='[]'><span class="map-empty">＋</span></td>
                                 <td class="col-vt">
                                     <div class="vt-split-zone">
                                         <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)">
@@ -971,26 +971,30 @@
                     <button class="md-ob-modal-close" onclick="closeMapModal()">✕</button>
                 </div>
                 <div class="md-modal-site-body">
-                    <div class="md-modal-body-field"><div class="md-modal-body-field-value">Map</div></div>
-                    <div class="md-modal-body-card">
+                    <div class="md-modal-body-card" id="smMapTabContent">
+                    <div class="sm-map-tab-bar" id="smMapTabBar"></div>
+                        <div class="sm-map-tab-title-row">
+                            <label>タイトル</label>
+                            <input type="text" id="smMapLabelInput" class="sm-map-title-input" placeholder="地図タイトル">
+                        </div>
                         <div class="md-modal-section">
                             <label>Google Maps URL</label>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="url" id="mapUrlInput" placeholder="https://maps.google.com/..." style="flex: 1;" oninput="updateMapPreview()">
-                                <button type="button" onclick="updateMapPreview()" style="padding: 5px 10px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap;">表示</button>
+                            <div class="sm-map-url-row">
+                                <input type="url" id="smMapUrlInput" placeholder="https://maps.google.com/..." oninput="smUpdateMapPreview()">
+                                <button type="button" class="sm-map-preview-btn" onclick="smUpdateMapPreview()">表示</button>
                             </div>
-                            <p style="color: var(--text-tertiary); font-size: 10px; margin-top: 5px;">Google Mapsで場所を開き、URLをコピーして貼り付けてください</p>
+                            <p class="sm-map-hint">Google Mapsで場所を開き、URLをコピーして貼り付けてください</p>
                         </div>
-                        <div class="md-modal-section" id="mapPreviewSection" style="display: none;">
+                        <div class="md-modal-section" id="smMapPreviewSection" style="display: none;">
                             <label>プレビュー</label>
-                            <div style="border: 1px solid var(--divider); border-radius: 6px; overflow: hidden; background: var(--bg-surface-2);">
-                                <iframe id="mapPreviewFrame" src="" style="width: 100%; height: 300px; border: none;"></iframe>
+                            <div class="sm-map-preview-frame-wrap">
+                                <iframe id="smMapPreviewFrame" src=""></iframe>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="md-modal-site-footer">
-                    <button class="md-ob-btn md-ob-btn-danger" onclick="clearMapUrl()">削除</button>
+                    <button class="md-ob-btn md-ob-btn-danger" onclick="smDeleteMapTab()">このタブを削除</button>
                     <div class="md-modal-site-footer-right">
                         <button class="md-ob-btn md-ob-btn-secondary" onclick="closeMapModal()">キャンセル</button>
                         <button class="md-ob-btn md-ob-btn-primary" onclick="saveMapModal()">保存</button>
@@ -1325,6 +1329,6 @@
         </div>
     </div>
 
-    <script src="mockup/screen-layout.js?v=7"></script>
+    <script src="mockup/screen-layout.js?v=8"></script>
 </body>
 </html>
