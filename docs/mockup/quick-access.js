@@ -1309,6 +1309,9 @@ function qaSelectOutsideDayEntry(year, month, day, siteIdx) {
     qaSelectDay(day, siteIdx);
 }
 
+// 通知用：セル選択時のスナップショット（oninputでcalendarDataが更新されるため保存時比較用）
+let qaEntrySnapshot = null;
+
 // --- セル選択 ---
 function qaSelectDay(day, initialSiteIdx) {
     // 切り替え前に現在のデータを保存
@@ -1317,6 +1320,10 @@ function qaSelectDay(day, initialSiteIdx) {
     }
 
     qaSelectedDay = day;
+
+    // 通知用スナップショットを保存
+    const snapDayKey = `${qaCalendarYear}-${String(qaCalendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    qaEntrySnapshot = qaCalendarData[snapDayKey] ? JSON.parse(JSON.stringify(qaCalendarData[snapDayKey])) : null;
     qaActivePlacement = 0;
     qaResetPlacementTabs();
     qaRenderCalendar();
@@ -1402,8 +1409,8 @@ function qaSaveEntry() {
     }
 
     const dayKey = `${qaCalendarYear}-${String(qaCalendarMonth + 1).padStart(2, '0')}-${String(qaSelectedDay).padStart(2, '0')}`;
-    // 保存前のスナップショット（通知用）
-    const oldEntries = qaCalendarData[dayKey] ? JSON.parse(JSON.stringify(qaCalendarData[dayKey])) : null;
+    // セル選択時のスナップショットを通知比較用に使う（oninputでcalendarDataが先に更新されるため）
+    const oldEntries = qaEntrySnapshot;
 
     // 現在の配置先データを保存
     qaSavePlacementData();
