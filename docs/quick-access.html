@@ -67,10 +67,11 @@
             <div class="qa-add-client-form" id="qaAddClientForm">
                 <h3>新規契約先を登録</h3>
                 <div class="qa-add-client-input-row">
-                    <input type="text" class="qa-add-client-input" id="qaNewClientName" placeholder="契約先名を入力…">
+                    <input type="text" class="qa-add-client-input" id="qaNewClientName" placeholder="契約先名を入力…" autocomplete="off" oninput="qaClientSuggest(this.value)">
                     <button class="qa-add-client-submit" onclick="qaSubmitNewClient()">登録</button>
                     <button class="qa-add-client-cancel" onclick="qaHideAddClient()">取消</button>
                 </div>
+                <div class="qa-client-suggest" id="qaClientSuggest"></div>
             </div>
 
             <!-- 契約先カード一覧 -->
@@ -135,7 +136,7 @@
                     <div class="qa-card-section-bar">配置情報</div>
                     <div class="qa-count-confidence-row">
                         <label class="qa-count-inline-label">人数</label>
-                        <input type="number" id="qaEditCount" class="qa-count-inline-input" min="0" max="99" placeholder="0" inputmode="numeric">
+                        <input type="number" id="qaEditCount" class="qa-count-inline-input" min="0" max="99" placeholder="0" inputmode="numeric" oninput="qaLiveUpdateCalendar()">
                         <label class="qa-confidence-inline-label">信頼度</label>
                         <div class="qa-reliability-chips">
                             <div class="qa-reliability-chip active" data-value="確定" onclick="qaSelectReliability(this)">確定</div>
@@ -249,6 +250,25 @@
         </div>
     </div>
 
+    <!-- 契約先名 編集モーダル -->
+    <div class="qa-modal-overlay" id="qaClientEditOverlay" style="display:none;" onclick="qaCloseClientEditModal(event)">
+        <div class="qa-modal qa-modal-sm" onclick="event.stopPropagation()">
+            <div class="qa-modal-header">
+                <span>契約先名の修正</span>
+            </div>
+            <div class="qa-modal-body">
+                <div class="qa-modal-field">
+                    <label>契約先名</label>
+                    <input type="text" id="qaClientEditName" placeholder="契約先名を入力…" autocomplete="off">
+                </div>
+            </div>
+            <div class="qa-modal-footer">
+                <button type="button" class="qa-modal-btn qa-modal-btn-cancel" onclick="qaCloseClientEditModal()">キャンセル</button>
+                <button type="button" class="qa-modal-btn qa-modal-btn-save" onclick="qaSaveClientEdit()">保存</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 現場情報編集モーダル -->
     <div class="qa-modal-overlay" id="qaSiteModalOverlay" style="display:none;" onclick="qaCloseSiteModal(event)">
         <div class="qa-modal" onclick="event.stopPropagation()">
@@ -260,11 +280,11 @@
                     <label>現場名</label>
                     <input type="text" id="qaSiteModalName" placeholder="空欄で個別業務">
                 </div>
-                <div class="qa-card-section-bar">会社</div>
+                <div class="qa-card-section-bar" id="qaSiteModalBranchLabel">会社<span class="qa-field-warn" id="qaSiteModalBranchWarn">⚠ 未選択</span></div>
                 <div class="qa-modal-chips" id="qaSiteModalBranch"></div>
-                <div class="qa-card-section-bar">区分</div>
+                <div class="qa-card-section-bar" id="qaSiteModalCategoryLabel">区分<span class="qa-field-warn" id="qaSiteModalCategoryWarn">⚠ 未選択</span></div>
                 <div class="qa-modal-chips" id="qaSiteModalCategory"></div>
-                <div class="qa-card-section-bar">昼夜</div>
+                <div class="qa-card-section-bar" id="qaSiteModalShiftLabel">昼夜<span class="qa-field-warn" id="qaSiteModalShiftWarn">⚠ 未選択</span></div>
                 <div class="qa-modal-chips" id="qaSiteModalShift"></div>
                 <div class="qa-card-section-bar">プリセット時間</div>
                 <div class="qa-cal-edit-row">

@@ -188,9 +188,18 @@ body {
     overflow-x: auto;
     padding: 10px 16px 0;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.15) transparent;
 }
-.qa-tabs::-webkit-scrollbar { display: none; }
+.qa-tabs::-webkit-scrollbar { height: 3px; }
+.qa-tabs::-webkit-scrollbar-track { background: transparent; }
+.qa-tabs::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.15);
+    border-radius: 3px;
+}
+.qa-tabs::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.3);
+}
 .qa-tab {
     flex-shrink: 0;
     padding: 8px 16px;
@@ -206,6 +215,78 @@ body {
 .qa-tab.active {
     color: #FFFFFF;
     border-bottom-color: var(--accent-light);
+}
+.qa-tab.qa-tab-hidden {
+    color: rgba(255,255,255,0.5);
+    font-style: italic;
+    margin-left: auto;
+}
+.qa-tab.qa-tab-hidden.active {
+    color: #FFFFFF;
+    border-bottom-color: #ffc107;
+}
+
+/* 非表示リスト */
+.qa-hidden-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    letter-spacing: 0.5px;
+    padding: 12px 0 6px;
+}
+.qa-hidden-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--bg-surface);
+    border-radius: 10px;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 4px rgba(0,69,84,0.06);
+}
+.qa-hidden-item-icon {
+    width: 34px; height: 34px;
+    background: var(--bg-surface-2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.qa-hidden-item-icon span {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+}
+.qa-hidden-item-info {
+    flex: 1;
+    min-width: 0;
+}
+.qa-hidden-item-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.qa-hidden-item-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 1px;
+}
+.qa-hidden-restore-btn {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    background: rgba(68,166,181,0.08);
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.qa-hidden-restore-btn:hover {
+    background: var(--accent);
+    color: #fff;
 }
 
 /* コンテンツ */
@@ -317,6 +398,59 @@ body {
     cursor: pointer;
 }
 
+/* 契約先サジェスト */
+.qa-client-suggest {
+    display: none;
+    margin-top: 8px;
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    background: var(--bg-surface);
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,69,84,0.08);
+}
+.qa-client-suggest.active { display: block; }
+.qa-client-suggest-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text-primary);
+    cursor: pointer;
+    border-bottom: 1px solid var(--divider);
+    transition: background 0.15s;
+}
+.qa-client-suggest-item:last-child { border-bottom: none; }
+.qa-client-suggest-item:hover { background: var(--bg-surface-2); }
+.qa-client-suggest-item .suggest-name { flex: 1; }
+.qa-client-suggest-item .suggest-name mark {
+    background: rgba(68,166,181,0.18);
+    color: var(--accent);
+    border-radius: 2px;
+    padding: 0 1px;
+}
+.qa-client-suggest-item .suggest-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.qa-client-suggest-item .suggest-badge.warn {
+    background: #fff3cd;
+    color: #856404;
+}
+.qa-client-suggest-item .suggest-badge.exact {
+    background: #f8d7da;
+    color: #721c24;
+}
+.qa-client-suggest-hint {
+    padding: 6px 12px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    background: var(--bg-surface-2);
+}
+
 /* 契約先カード */
 .qa-client-card {
     background: var(--bg-surface);
@@ -362,9 +496,7 @@ body {
     font-size: 15px;
     font-weight: 700;
     color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    word-break: break-word;
 }
 .qa-client-meta {
     display: flex;
@@ -386,6 +518,64 @@ body {
 }
 .qa-client-card.expanded .qa-client-arrow {
     transform: rotate(90deg);
+}
+
+/* 契約先右カラム（ボタン + 矢印） */
+.qa-client-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+/* 契約先アクションボタン行 */
+.qa-client-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.qa-client-action-btn {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    font-size: 10px;
+    text-align: center;
+}
+.qa-client-action-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.qa-client-action-btn.qa-client-hide {
+    color: var(--text-tertiary);
+    border-color: rgba(178,213,226,0.5);
+}
+.qa-client-action-btn.qa-client-hide:hover {
+    color: #856404;
+    background: #fff3cd;
+    border-color: #ffc107;
+}
+
+/* 小さいモーダル */
+.qa-modal.qa-modal-sm { max-width: 360px; }
+
+/* 現場の非表示ボタン */
+.qa-site-action-btn.qa-site-hide {
+    color: var(--text-tertiary);
+    border-color: rgba(178,213,226,0.5);
+}
+.qa-site-action-btn.qa-site-hide:hover {
+    color: #856404;
+    background: #fff3cd;
+    border-color: #ffc107;
 }
 
 /* 現場リスト（アコーディオン） */
@@ -970,6 +1160,23 @@ body {
     flex: 1;
     height: 1px;
     background: var(--divider);
+}
+
+/* フィールド未選択警告 */
+.qa-field-warn {
+    display: none;
+    font-size: 11px;
+    font-weight: 600;
+    color: #c0392b;
+    margin-left: 4px;
+    animation: qaWarnPulse 0.4s ease;
+}
+.qa-field-warn.active { display: inline; }
+.qa-card-section-bar.warn { color: #c0392b; }
+.qa-card-section-bar.warn::after { background: #c0392b40; }
+@keyframes qaWarnPulse {
+    0% { opacity: 0; transform: translateX(-4px); }
+    100% { opacity: 1; transform: translateX(0); }
 }
 .qa-cal-edit-field {
     display: flex;

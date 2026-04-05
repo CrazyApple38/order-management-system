@@ -5,7 +5,7 @@
 // --- モックデータ ---
 const qaCurrentUser = { name: '田中 太郎', email: 'tanaka@example.com', initials: '田', branch: '東央警備' };
 
-const qaClients = [
+let qaClients = [
     {
         id: 1, name: '鈴木建設株式会社', categories: ['交通', '高速'],
         lastOrderDate: '2026-03-28', orderCount: 15,
@@ -64,12 +64,18 @@ const qaShiftList = ['昼', '夜'];
 // カレンダー用モックデータ（セルに入った受注データ）
 let qaCalendarData = {};
 
+// --- 非表示リスト ---
+let qaHiddenClients = [];   // { ...client } 丸ごと保持
+let qaHiddenSites = [];     // { clientId, clientName, site }
+
 // --- 状態 ---
 let qaActiveTab = 'すべて';
 let qaExpandedClientId = null;
 let qaCalendarYear = 2026;
 let qaCalendarMonth = 3; // 0-indexed → April = 3
 let qaSelectedDay = null;
+let qaCurrentClientId = null;
+let qaCurrentSiteId = null;
 let qaCurrentClientName = '';
 let qaCurrentSiteName = '';
 
@@ -106,20 +112,36 @@ function qaRenderHome() {
 
 function qaRenderTabs() {
     const container = document.getElementById('qaTabs');
+    const hiddenCount = qaHiddenClients.length + qaHiddenSites.length;
     container.innerHTML = qaCategories.map(cat =>
         `<div class="qa-tab${qaActiveTab === cat ? ' active' : ''}" onclick="qaSelectTab('${cat}')">${cat}</div>`
-    ).join('');
+    ).join('')
+    + (hiddenCount > 0
+        ? `<div class="qa-tab qa-tab-hidden${qaActiveTab === '非表示' ? ' active' : ''}" onclick="qaSelectTab('非表示')">非表示 (${hiddenCount})</div>`
+        : '');
 }
 
 function qaSelectTab(cat) {
     qaActiveTab = cat;
     qaExpandedClientId = null;
+    // 非表示タブではツールバーを隠す
+    const toolbar = document.getElementById('qaAddClientBtn')?.closest('.qa-content-toolbar');
+    if (toolbar) toolbar.style.display = cat === '非表示' ? 'none' : '';
+    const addForm = document.getElementById('qaAddClientForm');
+    if (cat === '非表示' && addForm) addForm.classList.remove('active');
     qaRenderTabs();
     qaRenderClients();
 }
 
 function qaRenderClients() {
     const container = document.getElementById('qaClientList');
+
+    // 非表示タブ
+    if (qaActiveTab === '非表示') {
+        qaRenderHiddenList(container);
+        return;
+    }
+
     const filtered = qaActiveTab === 'すべて'
         ? qaClients
         : qaClients.filter(c =>
@@ -150,14 +172,22 @@ function qaRenderClients() {
                         <span class="qa-client-meta-item">現場: ${visibleSites.length}件</span>
                     </div>
                 </div>
-                <span class="qa-client-arrow">▶</span>
+                <div class="qa-client-right">
+                    <div class="qa-client-actions">
+                        <button class="qa-client-action-btn" onclick="event.stopPropagation(); qaOpenClientEditModal(${client.id})" title="契約先名を修正">修正</button>
+                        <button class="qa-client-action-btn qa-client-hide" onclick="event.stopPropagation(); qaHideClient(${client.id})" title="このリストから非表示にする">非表示</button>
+                    </div>
+                    <span class="qa-client-arrow">▶</span>
+                </div>
             </div>
             <div class="qa-site-list">
                 <div class="qa-add-site-row" onclick="qaAddSiteModal(${client.id})">
                     <div class="qa-add-site-icon">＋</div>
                     <span class="qa-add-site-label">新規現場を追加</span>
                 </div>
-                ${visibleSites.map(site => `
+                ${visibleSites.map(site => {
+                    const hasOrders = site.lastOrderDate && site.lastOrderDate !== '—';
+                    return `
                 <div class="qa-site-item" data-site-id="${site.id}">
                     <div class="qa-site-main" onclick="qaOpenCalendar(${client.id}, ${site.id})">
                         <div class="qa-site-info">
@@ -172,10 +202,13 @@ function qaRenderClients() {
                     </div>
                     <div class="qa-site-actions">
                         <button class="qa-site-action-btn qa-site-edit" onclick="event.stopPropagation(); qaEditSite(${client.id}, ${site.id})" title="修正">修正</button>
-                        <button class="qa-site-action-btn qa-site-delete" onclick="event.stopPropagation(); qaDeleteSite(${client.id}, ${site.id})" title="削除">削除</button>
+                        ${hasOrders
+                            ? `<button class="qa-site-action-btn qa-site-hide" onclick="event.stopPropagation(); qaHideSite(${client.id}, ${site.id})" title="このリストから非表示にする">非表示</button>`
+                            : `<button class="qa-site-action-btn qa-site-delete" onclick="event.stopPropagation(); qaDeleteSite(${client.id}, ${site.id})" title="削除">削除</button>`
+                        }
                     </div>
-                </div>
-                `).join('')}
+                </div>`;
+                }).join('')}
             </div>
         </div>`;
     }).join('');
@@ -197,11 +230,96 @@ function qaHideAddClient() {
     document.getElementById('qaAddClientForm').classList.remove('active');
     document.getElementById('qaAddClientBtn').style.display = 'flex';
     document.getElementById('qaNewClientName').value = '';
+    document.getElementById('qaClientSuggest').classList.remove('active');
+    document.getElementById('qaClientSuggest').innerHTML = '';
+}
+
+// --- 契約先名 曖昧検索サジェスト ---
+function qaClientSuggest(query) {
+    const el = document.getElementById('qaClientSuggest');
+    const q = query.trim();
+    if (!q) { el.classList.remove('active'); el.innerHTML = ''; return; }
+
+    const qLower = q.toLowerCase();
+    const scored = qaClients.map(c => {
+        const name = c.name;
+        const nLower = name.toLowerCase();
+        let score = 0;
+        // 完全一致
+        if (nLower === qLower) score = 100;
+        // 前方一致
+        else if (nLower.startsWith(qLower)) score = 80;
+        // 部分一致
+        else if (nLower.includes(qLower)) score = 60;
+        // 各文字が順序通りに含まれる（曖昧一致）
+        else {
+            let idx = 0;
+            for (let i = 0; i < nLower.length && idx < qLower.length; i++) {
+                if (nLower[i] === qLower[idx]) idx++;
+            }
+            if (idx === qLower.length) score = 30;
+        }
+        return { client: c, name, score };
+    }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+
+    if (scored.length === 0) { el.classList.remove('active'); el.innerHTML = ''; return; }
+
+    let html = '<div class="qa-client-suggest-hint">💡 既存の契約先に一致する候補があります（クリックで移動）</div>';
+    scored.forEach(({ client, name, score }) => {
+        const badgeClass = score === 100 ? 'exact' : 'warn';
+        const badgeText = score === 100 ? '完全一致' : score >= 60 ? '類似' : 'あいまい一致';
+        const highlighted = qaHighlightMatch(name, q);
+        html += `<div class="qa-client-suggest-item" onclick="qaJumpToClient(${client.id})">
+            <span class="suggest-name">${highlighted}</span>
+            <span class="suggest-badge ${badgeClass}">${badgeText}</span>
+        </div>`;
+    });
+    el.innerHTML = html;
+    el.classList.add('active');
+}
+
+function qaHighlightMatch(text, query) {
+    const qLower = query.toLowerCase();
+    const tLower = text.toLowerCase();
+    // 部分一致の場合はその範囲をハイライト
+    const idx = tLower.indexOf(qLower);
+    if (idx >= 0) {
+        return text.slice(0, idx) + '<mark>' + text.slice(idx, idx + query.length) + '</mark>' + text.slice(idx + query.length);
+    }
+    // 曖昧一致：各マッチ文字をハイライト
+    let result = '';
+    let qi = 0;
+    for (let i = 0; i < text.length; i++) {
+        if (qi < qLower.length && tLower[i] === qLower[qi]) {
+            result += '<mark>' + text[i] + '</mark>';
+            qi++;
+        } else {
+            result += text[i];
+        }
+    }
+    return result;
+}
+
+function qaJumpToClient(clientId) {
+    document.getElementById('qaClientSuggest').classList.remove('active');
+    document.getElementById('qaClientSuggest').innerHTML = '';
+    qaHideAddClient();
+    qaExpandedClientId = clientId;
+    qaRenderClients();
+    // スクロールして該当カードを表示
+    setTimeout(() => {
+        const card = document.querySelector(`[data-client-id="${clientId}"]`);
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
 }
 
 function qaSubmitNewClient() {
     const name = document.getElementById('qaNewClientName').value.trim();
     if (!name) return;
+    const duplicate = qaClients.find(c => c.name.toLowerCase() === name.toLowerCase());
+    if (duplicate) {
+        if (!confirm(`「${duplicate.name}」は既に登録されています。\nそれでも新規登録しますか？`)) return;
+    }
     const newId = Math.max(...qaClients.map(c => c.id)) + 1;
     const cat = qaActiveTab === 'すべて' ? '交通' : qaActiveTab;
     qaClients.unshift({
@@ -213,6 +331,138 @@ function qaSubmitNewClient() {
     qaExpandedClientId = newId;
     qaRenderClients();
     qaShowToast(`${name} を登録しました`);
+    qaCnSelfNotify('add', {
+        clientId: newId, clientName: name,
+        details: [{ field: '契約先名', value: name }, { field: '区分', value: cat }]
+    });
+}
+
+// --- 契約先名 編集モーダル ---
+let qaClientEditId = null;
+
+function qaOpenClientEditModal(clientId) {
+    const client = qaClients.find(c => c.id === clientId);
+    if (!client) return;
+    qaClientEditId = clientId;
+    document.getElementById('qaClientEditName').value = client.name;
+    document.getElementById('qaClientEditOverlay').style.display = 'flex';
+    document.getElementById('qaClientEditName').focus();
+}
+
+function qaCloseClientEditModal(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('qaClientEditOverlay').style.display = 'none';
+    qaClientEditId = null;
+}
+
+function qaSaveClientEdit() {
+    const name = document.getElementById('qaClientEditName').value.trim();
+    if (!name) return;
+    const client = qaClients.find(c => c.id === qaClientEditId);
+    if (!client) return;
+    const oldName = client.name;
+    client.name = name;
+    qaCloseClientEditModal();
+    qaRenderClients();
+    qaShowToast('契約先名を更新しました');
+    if (oldName !== name) {
+        qaCnSelfNotify('modify', {
+            clientId: client.id, clientName: name,
+            diffs: [{ field: '契約先名', oldVal: oldName, newVal: name }]
+        });
+    }
+}
+
+// --- 契約先の非表示 ---
+function qaHideClient(clientId) {
+    const idx = qaClients.findIndex(c => c.id === clientId);
+    if (idx === -1) return;
+    const client = qaClients[idx];
+    qaHiddenClients.push(JSON.parse(JSON.stringify(client)));
+    qaClients.splice(idx, 1);
+    if (qaExpandedClientId === clientId) qaExpandedClientId = null;
+    qaRenderTabs();
+    qaRenderClients();
+    qaShowToast(`${client.name} を非表示にしました`);
+}
+
+// --- 現場の非表示（受注実績あり） ---
+function qaHideSite(clientId, siteId) {
+    const client = qaClients.find(c => c.id === clientId);
+    const site = client?.sites.find(s => s.id === siteId);
+    if (!client || !site) return;
+    qaHiddenSites.push({ clientId, clientName: client.name, site: JSON.parse(JSON.stringify(site)) });
+    client.sites = client.sites.filter(s => s.id !== siteId);
+    qaRenderTabs();
+    qaRenderClients();
+    qaShowToast(`${site.name} を非表示にしました`);
+}
+
+// --- 非表示リスト描画 ---
+function qaRenderHiddenList(container) {
+    if (qaHiddenClients.length === 0 && qaHiddenSites.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:var(--text-tertiary);padding:32px 0;font-size:13px;">非表示にした項目はありません</div>';
+        return;
+    }
+    let html = '';
+    if (qaHiddenClients.length > 0) {
+        html += '<div class="qa-hidden-section-title">契約先</div>';
+        html += qaHiddenClients.map((c, i) => `
+            <div class="qa-hidden-item">
+                <div class="qa-hidden-item-icon"><span>${c.name.charAt(0)}</span></div>
+                <div class="qa-hidden-item-info">
+                    <div class="qa-hidden-item-name">${escHtml(c.name)}</div>
+                    <div class="qa-hidden-item-meta">現場 ${c.sites.length}件</div>
+                </div>
+                <button class="qa-hidden-restore-btn" onclick="qaRestoreClient(${i})">再表示</button>
+            </div>
+        `).join('');
+    }
+    if (qaHiddenSites.length > 0) {
+        html += '<div class="qa-hidden-section-title">現場</div>';
+        html += qaHiddenSites.map((entry, i) => `
+            <div class="qa-hidden-item">
+                <div class="qa-hidden-item-info">
+                    <div class="qa-hidden-item-name">${escHtml(entry.site.name)}</div>
+                    <div class="qa-hidden-item-meta">${escHtml(entry.clientName)}</div>
+                </div>
+                <button class="qa-hidden-restore-btn" onclick="qaRestoreSite(${i})">再表示</button>
+            </div>
+        `).join('');
+    }
+    container.innerHTML = html;
+}
+
+// --- 再表示 ---
+function qaRestoreClient(index) {
+    const client = qaHiddenClients.splice(index, 1)[0];
+    qaClients.unshift(client);
+    qaAfterRestore(`${client.name} を再表示しました`);
+}
+
+function qaRestoreSite(index) {
+    const entry = qaHiddenSites.splice(index, 1)[0];
+    const client = qaClients.find(c => c.id === entry.clientId);
+    if (client) {
+        client.sites.unshift(entry.site);
+    } else {
+        const hiddenClient = qaHiddenClients.find(c => c.id === entry.clientId);
+        if (hiddenClient) {
+            hiddenClient.sites.unshift(entry.site);
+        }
+    }
+    qaAfterRestore(`${entry.site.name} を再表示しました`);
+}
+
+function qaAfterRestore(msg) {
+    // 非表示リストが空になったら「すべて」に戻る
+    if (qaHiddenClients.length === 0 && qaHiddenSites.length === 0 && qaActiveTab === '非表示') {
+        qaSelectTab('すべて');
+    } else {
+        qaRenderTabs();
+        qaRenderClients();
+    }
+    qaShowToast(msg);
 }
 
 // --- 新規現場（モーダルを開く） ---
@@ -254,6 +504,7 @@ function qaOpenSiteModal(clientId, siteId) {
     qaSetTimeValue('qaSiteModalStart', site?.presetStart || '');
     qaSetTimeValue('qaSiteModalEnd', site?.presetEnd || '');
 
+    qaClearSiteModalWarnings();
     document.getElementById('qaSiteModalOverlay').style.display = 'flex';
     document.getElementById('qaSiteModalName').focus();
 }
@@ -275,6 +526,12 @@ function qaSelectSiteModalChip(el, group) {
     el.parentElement.querySelectorAll('.qa-modal-chip').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
     qaSiteModalState[group] = el.textContent;
+    // 選択されたら警告を消す
+    const key = group.charAt(0).toUpperCase() + group.slice(1);
+    const warn = document.getElementById(`qaSiteModal${key}Warn`);
+    if (warn) { warn.classList.remove('active'); }
+    const label = document.getElementById(`qaSiteModal${key}Label`);
+    if (label) { label.classList.remove('warn'); }
 }
 
 function qaInitModalTimeSelects() {
@@ -293,6 +550,13 @@ function qaInitModalTimeSelects() {
     });
 }
 
+function qaClearSiteModalWarnings() {
+    ['Branch', 'Category', 'Shift'].forEach(key => {
+        document.getElementById(`qaSiteModal${key}Warn`).classList.remove('active');
+        document.getElementById(`qaSiteModal${key}Label`).classList.remove('warn');
+    });
+}
+
 function qaSaveSiteModal() {
     const nameInput = document.getElementById('qaSiteModalName').value.trim();
     const name = nameInput || '(個別業務)';
@@ -300,6 +564,22 @@ function qaSaveSiteModal() {
     const { clientId, siteId } = qaSiteModalState;
     const client = qaClients.find(c => c.id === clientId);
     if (!client) return;
+
+    // 新規追加時のみ必須チェック（会社・区分・昼夜）
+    if (!siteId) {
+        qaClearSiteModalWarnings();
+        const missing = [];
+        if (!qaSiteModalState.branch) missing.push('Branch');
+        if (!qaSiteModalState.category) missing.push('Category');
+        if (!qaSiteModalState.shift) missing.push('Shift');
+        if (missing.length > 0) {
+            missing.forEach(key => {
+                document.getElementById(`qaSiteModal${key}Warn`).classList.add('active');
+                document.getElementById(`qaSiteModal${key}Label`).classList.add('warn');
+            });
+            return;
+        }
+    }
 
     const siteData = {
         name,
@@ -312,15 +592,40 @@ function qaSaveSiteModal() {
 
     if (siteId) {
         // 修正
-        if (!confirm(`現場情報を保存します。よろしいですか？`)) return;
         const site = client.sites.find(s => s.id === siteId);
-        if (site) Object.assign(site, siteData);
+        if (!site) return;
+        const oldData = { name: site.name, branch: site.branch, category: site.category, shift: site.shift, presetStart: site.presetStart, presetEnd: site.presetEnd };
+        Object.assign(site, siteData);
         qaShowToast('現場情報を更新しました');
+        // 変���差分を生成
+        const diffs = [];
+        const labels = { name: '現場名', branch: '会社', category: '区分', shift: '昼夜', presetStart: '開始時間', presetEnd: '終了時間' };
+        for (const key of Object.keys(labels)) {
+            if ((oldData[key] || '') !== (siteData[key] || '')) {
+                diffs.push({ field: labels[key], oldVal: oldData[key] || '—', newVal: siteData[key] || '—' });
+            }
+        }
+        if (diffs.length > 0) {
+            qaCnSelfNotify('modify', {
+                clientId, siteId, clientName: client.name, siteName: siteData.name,
+                category: siteData.category, shift: siteData.shift, branch: siteData.branch,
+                diffs: diffs
+            });
+        }
     } else {
         // 新規追加
         const newSiteId = Math.floor(Math.random() * 10000) + 1000;
         client.sites.unshift({ id: newSiteId, lastOrderDate: '—', ...siteData });
         qaShowToast(`${name} を追加しました`);
+        qaCnSelfNotify('add', {
+            clientId, siteId: newSiteId, clientName: client.name, siteName: name,
+            category: siteData.category, shift: siteData.shift, branch: siteData.branch,
+            details: [
+                { field: '現場名', value: name },
+                { field: '会社', value: siteData.branch || '—' },
+                { field: '区分', value: (siteData.category || '') + (siteData.shift ? '（' + siteData.shift + '）' : '') }
+            ]
+        });
     }
 
     qaCloseSiteModal();
@@ -338,6 +643,11 @@ function qaDeleteSite(clientId, siteId) {
     client.sites = client.sites.filter(s => s.id !== siteId);
     qaRenderClients();
     qaShowToast('現場を削除しました');
+    qaCnSelfNotify('delete', {
+        clientId, siteId, clientName: client.name, siteName: site.name,
+        category: site.category, shift: site.shift, branch: site.branch,
+        details: [{ field: '操作', value: '現場を削除' }]
+    });
 }
 
 // --- ダミーデータ生成 ---
@@ -430,6 +740,8 @@ function qaOpenCalendar(clientId, siteId) {
     const site = client?.sites.find(s => s.id === siteId);
     if (!client || !site) return;
 
+    qaCurrentClientId = clientId;
+    qaCurrentSiteId = siteId;
     qaCurrentClientName = client.name;
     qaCurrentSiteName = site.name;
     qaSelectedDay = null;
@@ -733,7 +1045,8 @@ function qaAddPlacement() {
 
 function qaDeletePlacement() {
     if (qaPlacementCount <= 1) {
-        qaShowToast('配置先が1つしかないため削除できません');
+        // 最後の1件 → 日全体を削除
+        qaDeleteEntry();
         return;
     }
     const dayKey = `${qaCalendarYear}-${String(qaCalendarMonth + 1).padStart(2, '0')}-${String(qaSelectedDay).padStart(2, '0')}`;
@@ -750,6 +1063,20 @@ function qaDeletePlacement() {
     }
     qaPlacementCount--;
     if (qaActivePlacement >= qaPlacementCount) qaActivePlacement = qaPlacementCount - 1;
+    // カレンダー表示用データを即時更新
+    const entries = [];
+    for (let i = 0; i < qaPlacementCount; i++) {
+        const pd = qaPlacementData[`${dayKey}-${i}`];
+        if (pd && parseInt(pd.count) > 0) {
+            entries.push({ count: parseInt(pd.count), reliability: pd.reliability || '確定' });
+        }
+    }
+    if (entries.length === 0) {
+        delete qaCalendarData[dayKey];
+    } else {
+        qaCalendarData[dayKey] = { entries };
+    }
+    qaRenderCalendar();
     qaRenderPlacementTabs();
     qaLoadPlacementData();
     qaShowToast('配置先を削除しました');
@@ -790,6 +1117,28 @@ function qaSavePlacementData() {
         mapUrl: document.getElementById('qaEditMapUrl').value,
         remarks: document.getElementById('qaEditRemarks').value
     };
+}
+
+// 人数入力時にカレンダーセルをリアルタイム更新
+function qaLiveUpdateCalendar() {
+    if (!qaSelectedDay) return;
+    // 現在の編集中データをplacementDataに一時保存
+    qaSavePlacementData();
+    // カレンダー表示用データを更新
+    const dayKey = `${qaCalendarYear}-${String(qaCalendarMonth + 1).padStart(2, '0')}-${String(qaSelectedDay).padStart(2, '0')}`;
+    const entries = [];
+    for (let i = 0; i < qaPlacementCount; i++) {
+        const pd = qaPlacementData[`${dayKey}-${i}`];
+        if (pd && parseInt(pd.count) > 0) {
+            entries.push({ count: parseInt(pd.count), reliability: pd.reliability || '確定' });
+        }
+    }
+    if (entries.length === 0) {
+        delete qaCalendarData[dayKey];
+    } else {
+        qaCalendarData[dayKey] = { entries };
+    }
+    qaRenderCalendar();
 }
 
 function qaLoadPlacementData() {
@@ -1024,6 +1373,19 @@ function qaDeleteEntry() {
     delete qaCalendarData[dayKey];
     qaCloseEditPanel();
     qaShowToast('削除しました');
+
+    // 変更通知を送信
+    const site = qaCurrentSiteId ? (function() {
+        var c = qaClients.find(function(x) { return x.id === qaCurrentClientId; });
+        return c ? c.sites.find(function(s) { return s.id === qaCurrentSiteId; }) : null;
+    })() : null;
+    const dayLabel = (qaCalendarMonth + 1) + '月' + qaSelectedDay + '日';
+    qaCnSelfNotify('delete', {
+        clientId: qaCurrentClientId, siteId: qaCurrentSiteId,
+        clientName: qaCurrentClientName, siteName: qaCurrentSiteName,
+        category: site?.category || '', shift: site?.shift || '', branch: site?.branch || '',
+        dayKey: dayKey, dayLabel: dayLabel
+    });
 }
 
 function qaSaveEntry() {
@@ -1034,11 +1396,14 @@ function qaSaveEntry() {
         return;
     }
 
+    const dayKey = `${qaCalendarYear}-${String(qaCalendarMonth + 1).padStart(2, '0')}-${String(qaSelectedDay).padStart(2, '0')}`;
+    // 保存前のスナップショット（通知用）
+    const oldEntries = qaCalendarData[dayKey] ? JSON.parse(JSON.stringify(qaCalendarData[dayKey])) : null;
+
     // 現在の配置先データを保存
     qaSavePlacementData();
 
     // カレンダー表示用 — 配置先ごとのエントリ配列を保存
-    const dayKey = `${qaCalendarYear}-${String(qaCalendarMonth + 1).padStart(2, '0')}-${String(qaSelectedDay).padStart(2, '0')}`;
     const entries = [];
     for (let i = 0; i < qaPlacementCount; i++) {
         const pd = qaPlacementData[`${dayKey}-${i}`];
@@ -1057,6 +1422,41 @@ function qaSaveEntry() {
     qaRenderCalendar();
     document.getElementById('qaCalendarScreen').scrollTop = 0;
     qaShowToast('保存しました');
+
+    // 変更通知を送信
+    const site = qaCurrentSiteId ? (function() {
+        var c = qaClients.find(function(x) { return x.id === qaCurrentClientId; });
+        return c ? c.sites.find(function(s) { return s.id === qaCurrentSiteId; }) : null;
+    })() : null;
+    const dayLabel = (qaCalendarMonth + 1) + '月' + qaSelectedDay + '日';
+    const isNew = !oldEntries;
+    const totalCount = entries.reduce(function(sum, e) { return sum + e.count; }, 0);
+    if (isNew) {
+        qaCnSelfNotify('add', {
+            clientId: qaCurrentClientId, siteId: qaCurrentSiteId,
+            clientName: qaCurrentClientName, siteName: qaCurrentSiteName,
+            category: site?.category || '', shift: site?.shift || '', branch: site?.branch || '',
+            dayKey: dayKey, dayLabel: dayLabel,
+            details: [
+                { field: '人数', value: totalCount + '名' },
+                { field: '配置先数', value: entries.length + '件' }
+            ]
+        });
+    } else {
+        const oldTotal = oldEntries.entries ? oldEntries.entries.reduce(function(sum, e) { return sum + e.count; }, 0) : 0;
+        const diffs = [];
+        if (oldTotal !== totalCount) diffs.push({ field: '人数', oldVal: oldTotal + '名', newVal: totalCount + '名' });
+        if (oldEntries.entries && oldEntries.entries.length !== entries.length) diffs.push({ field: '配置先数', oldVal: oldEntries.entries.length + '件', newVal: entries.length + '件' });
+        if (diffs.length > 0) {
+            qaCnSelfNotify('modify', {
+                clientId: qaCurrentClientId, siteId: qaCurrentSiteId,
+                clientName: qaCurrentClientName, siteName: qaCurrentSiteName,
+                category: site?.category || '', shift: site?.shift || '', branch: site?.branch || '',
+                dayKey: dayKey, dayLabel: dayLabel,
+                diffs: diffs
+            });
+        }
+    }
 }
 
 // --- ユーティリティ ---
@@ -1320,12 +1720,35 @@ function qaCnHighlightCell(dayKey, type) {
     });
 }
 
-// カードクリック→モーダルを閉じてセルハイライト
+// カードクリック→該当カレンダー画面へ遷移してセルハイライト
 function qaCnCardClick(notificationId) {
     var n = qaCnState.notifications.find(function(x) { return x.id === notificationId; });
     if (!n || !n.dayKey) return;
     qaCnCloseModal();
-    setTimeout(function() { qaCnHighlightCell(n.dayKey, n.type); }, 100);
+
+    // カレンダー画面が開いていない or 別の現場を表示中なら遷移
+    var calScreen = document.getElementById('qaCalendarScreen');
+    var isCalOpen = calScreen && calScreen.classList.contains('active');
+    var isSameSite = qaCurrentClientName === n.clientName && qaCurrentSiteName === n.siteName;
+
+    if (!isCalOpen || !isSameSite) {
+        // 該当の現場のカレンダーを開く
+        if (n.clientId && n.siteId) {
+            qaOpenCalendar(n.clientId, n.siteId);
+        }
+    }
+
+    // dayKeyの年月に合わせてカレンダーを移動
+    var parts = n.dayKey.split('-');
+    var targetYear = parseInt(parts[0]);
+    var targetMonth = parseInt(parts[1]) - 1;
+    if (qaCalendarYear !== targetYear || qaCalendarMonth !== targetMonth) {
+        qaCalendarYear = targetYear;
+        qaCalendarMonth = targetMonth;
+        qaRenderCalendar();
+    }
+
+    setTimeout(function() { qaCnHighlightCell(n.dayKey, n.type); }, 200);
 }
 
 // 履歴→カードジャンプ
@@ -1460,9 +1883,31 @@ function qaCnIsRegisteredSite(siteName) {
     return false;
 }
 
-// 通知受信（QA登録現場のみ受信）
+// 自分の操作を変更通知として送信
+function qaCnSelfNotify(type, opts) {
+    var n = {
+        type: type,
+        user: qaCurrentUser.name,
+        clientId: opts.clientId || null,
+        siteId: opts.siteId || null,
+        siteName: opts.siteName || '',
+        clientName: opts.clientName || '',
+        category: opts.category || '',
+        shift: opts.shift || '',
+        branch: opts.branch || '',
+        dayKey: opts.dayKey || null,
+        dayLabel: opts.dayLabel || '',
+        time: qaCnTimeNow(),
+        diffs: opts.diffs || null,
+        details: opts.details || null,
+        _selfAction: true
+    };
+    qaCnReceive(n);
+}
+
+// 通知受信（QA登録現場のみ受信 — 自分の操作は常に受信）
 function qaCnReceive(n) {
-    if (!qaCnIsRegisteredSite(n.siteName)) {
+    if (!n._selfAction && !qaCnIsRegisteredSite(n.siteName)) {
         // QA未登録の現場 → 通知を無視
         return;
     }
@@ -1751,6 +2196,8 @@ function qaCnSendDemoNotification() {
     var n = {
         type: item.type,
         user: item.user,
+        clientId: item.clientId,
+        siteId: item.siteId,
         siteName: result.siteName,
         clientName: result.clientName,
         category: result.category,
