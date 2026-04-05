@@ -1371,6 +1371,7 @@ function qaCloseEditPanel() {
 function qaDeleteEntry() {
     if (!qaSelectedDay) return;
     const dayKey = `${qaCalendarYear}-${String(qaCalendarMonth + 1).padStart(2, '0')}-${String(qaSelectedDay).padStart(2, '0')}`;
+    const dayLabel = (qaCalendarMonth + 1) + '月' + qaSelectedDay + '日';
     // 該当日の全配置先データを削除
     Object.keys(qaPlacementData).forEach(k => {
         if (k.startsWith(dayKey + '-')) delete qaPlacementData[k];
@@ -1384,7 +1385,6 @@ function qaDeleteEntry() {
         var c = qaClients.find(function(x) { return x.id === qaCurrentClientId; });
         return c ? c.sites.find(function(s) { return s.id === qaCurrentSiteId; }) : null;
     })() : null;
-    const dayLabel = (qaCalendarMonth + 1) + '月' + qaSelectedDay + '日';
     qaCnSelfNotify('delete', {
         clientId: qaCurrentClientId, siteId: qaCurrentSiteId,
         clientName: qaCurrentClientName, siteName: qaCurrentSiteName,
