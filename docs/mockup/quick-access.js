@@ -1082,6 +1082,28 @@ function qaDeletePlacement() {
     qaRenderPlacementTabs();
     qaLoadPlacementData();
     qaShowToast('配置先を削除しました');
+
+    // 変更通知を送信（スナップショットと比較）
+    const site = qaCurrentSiteId ? (function() {
+        var c = qaClients.find(function(x) { return x.id === qaCurrentClientId; });
+        return c ? c.sites.find(function(s) { return s.id === qaCurrentSiteId; }) : null;
+    })() : null;
+    const dayLabel = (qaCalendarMonth + 1) + '月' + qaSelectedDay + '日';
+    const oldTotal = qaEntrySnapshot && qaEntrySnapshot.entries ? qaEntrySnapshot.entries.reduce(function(sum, e) { return sum + e.count; }, 0) : 0;
+    const newTotal = entries.reduce(function(sum, e) { return sum + e.count; }, 0);
+    const diffs = [];
+    if (oldTotal !== newTotal) diffs.push({ field: '人数', oldVal: oldTotal + '名', newVal: newTotal + '名' });
+    const oldCount = qaEntrySnapshot && qaEntrySnapshot.entries ? qaEntrySnapshot.entries.length : 0;
+    if (oldCount !== entries.length) diffs.push({ field: '配置先数', oldVal: oldCount + '件', newVal: entries.length + '件' });
+    if (diffs.length > 0) {
+        qaCnSelfNotify('modify', {
+            clientId: qaCurrentClientId, siteId: qaCurrentSiteId,
+            clientName: qaCurrentClientName, siteName: qaCurrentSiteName,
+            category: site?.category || '', shift: site?.shift || '', branch: site?.branch || '',
+            dayKey: dayKey, dayLabel: dayLabel,
+            diffs: diffs
+        });
+    }
 }
 
 function qaResetPlacementTabs() {
