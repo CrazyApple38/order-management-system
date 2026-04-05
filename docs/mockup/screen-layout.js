@@ -796,6 +796,30 @@
         function saveSiteModal() {
             pushUndo();
 
+            // --- 変更通知: 旧データキャプチャ ---
+            var _cnOld = {};
+            if (currentSiteCell) {
+                var _cnRow = currentSiteCell.closest('tr');
+                var _cnInfo = cnGetRowInfo(_cnRow);
+                _cnOld.siteName = _cnInfo.siteName;
+                _cnOld.category = _cnInfo.category;
+                _cnOld.shift = _cnInfo.shift;
+                var _cnCompEl = currentSiteCell.querySelector('.company');
+                _cnOld.company = _cnCompEl ? _cnCompEl.textContent.trim() : '';
+                _cnOld.meetingPlace = currentSiteCell.dataset.meetingPlace || '';
+                _cnOld.supervisor = currentSiteCell.dataset.supervisor || '';
+                _cnOld.requiredCount = '';
+                if (_cnRow) {
+                    var _cnCountEl = _cnRow.querySelector('.count-display');
+                    if (_cnCountEl) { var _m = _cnCountEl.textContent.trim().match(/\d+\/(\d+)/); _cnOld.requiredCount = _m ? _m[1] : ''; }
+                    var _cnMeetCell = _cnRow.querySelectorAll('td')[2];
+                    var _cnTimeDisp = _cnMeetCell ? _cnMeetCell.querySelector('.time-display') : null;
+                    _cnOld.meetingTime = _cnTimeDisp ? _cnTimeDisp.textContent.trim() : '';
+                    var _cnContactEl = _cnMeetCell ? _cnMeetCell.querySelector('.contact-badge') : null;
+                    _cnOld.contact = _cnContactEl ? _cnContactEl.textContent.trim() : '';
+                }
+            }
+
             // チップからの取得
             const branch = smChipSelected.branch;
             const category = smChipSelected.category;
@@ -1018,16 +1042,29 @@
             // バッジスナップショットをクリア（保存成功）
             smBadgeSnapshot = null;
 
-            console.log('保存データ:', {
-                branch, category, shift, meetingTime, meetingPlace,
-                requiredCount, supervisor, supervisorTel,
-                contact: contact ? contact.name : null,
-                company: company ? company.name : null,
-                site: site ? site.name : null,
-                subItems: subItems.map(s => s.name),
-                displayName,
-                subTasks, badgeData, notes
-            });
+            // --- 変更通知: diff生成 ---
+            var _cnDiffs = [];
+            var _cnNewSiteName = displayName || '';
+            var _cnNewCompany = company ? company.name : '';
+            var _cnNewCategory = category || '';
+            var _cnNewShift = shift || '';
+            if (_cnOld.company !== _cnNewCompany) _cnDiffs.push({ field: '契約先', oldVal: _cnOld.company, newVal: _cnNewCompany });
+            if (_cnOld.siteName !== _cnNewSiteName) _cnDiffs.push({ field: '現場名', oldVal: _cnOld.siteName, newVal: _cnNewSiteName });
+            if (_cnOld.category !== _cnNewCategory) _cnDiffs.push({ field: '区分', oldVal: _cnOld.category, newVal: _cnNewCategory });
+            if (_cnOld.shift !== _cnNewShift) _cnDiffs.push({ field: 'シフト', oldVal: _cnOld.shift, newVal: _cnNewShift });
+            if (_cnOld.meetingTime !== meetingTime) _cnDiffs.push({ field: '集合時間', oldVal: _cnOld.meetingTime, newVal: meetingTime });
+            if (_cnOld.contact !== (contact ? contact.name : '')) _cnDiffs.push({ field: '連絡先', oldVal: _cnOld.contact, newVal: contact ? contact.name : '' });
+            if (_cnOld.requiredCount !== (requiredCount || '')) _cnDiffs.push({ field: '人数', oldVal: _cnOld.requiredCount, newVal: requiredCount || '' });
+            if (_cnOld.meetingPlace !== meetingPlace) _cnDiffs.push({ field: '集合場所', oldVal: _cnOld.meetingPlace, newVal: meetingPlace });
+            if (_cnOld.supervisor !== supervisor) _cnDiffs.push({ field: '現場監督', oldVal: _cnOld.supervisor, newVal: supervisor });
+            if (_cnDiffs.length > 0) {
+                cnSelfNotify('modify', {
+                    siteName: _cnNewSiteName || _cnOld.siteName,
+                    category: _cnNewCategory || _cnOld.category,
+                    shift: _cnNewShift || _cnOld.shift,
+                    diffs: _cnDiffs
+                });
+            }
 
             document.getElementById('siteModal').classList.remove('active');
             closeTimePicker();
@@ -1108,6 +1145,13 @@
             const row = currentMeetingCell.closest('tr');
             const siteCell = row ? row.querySelector('.col-site-info') : null;
 
+            // --- 変更通知: 旧データキャプチャ ---
+            var _cnInfo = cnGetRowInfo(row);
+            var _cnOldTimeEl = currentMeetingCell.querySelector('.time-display');
+            var _cnOldTime = _cnOldTimeEl ? _cnOldTimeEl.textContent.trim() : '';
+            var _cnOldContactEl = currentMeetingCell.querySelector('.contact-badge');
+            var _cnOldContact = _cnOldContactEl ? _cnOldContactEl.textContent.trim() : '';
+
             const meetingTime = document.getElementById('mtMeetingTime').value;
 
             // time-display 更新
@@ -1138,6 +1182,14 @@
                 if (empContact) contactEl.classList.add(empContact.cssClass);
             } else if (contactEl) {
                 contactEl.remove();
+            }
+
+            // --- 変更通知: diff生成 ---
+            var _cnDiffs = [];
+            if (_cnOldTime !== meetingTime) _cnDiffs.push({ field: '集合時間', oldVal: _cnOldTime, newVal: meetingTime });
+            if (_cnOldContact !== (mtSelectedContact || '')) _cnDiffs.push({ field: '連絡先', oldVal: _cnOldContact, newVal: mtSelectedContact || '' });
+            if (_cnDiffs.length > 0) {
+                cnSelfNotify('modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift, diffs: _cnDiffs });
             }
 
             closeMeetingModal();
@@ -1190,6 +1242,10 @@
             const row = currentWorkCell.closest('tr');
             const siteCell = row ? row.querySelector('.col-site-info') : null;
 
+            // --- 変更通知: 旧データキャプチャ ---
+            var _cnInfo = cnGetRowInfo(row);
+            var _cnOldBadgeText = currentWorkCell.textContent.trim();
+
             // バッジデータ保存
             const badgeData = smGetSelectedBadgeData();
             if (siteCell) {
@@ -1202,6 +1258,13 @@
 
             // スナップショットクリア（保存成功）
             smBadgeSnapshot = null;
+
+            // --- 変更通知: diff生成 ---
+            var _cnNewBadgeText = currentWorkCell.textContent.trim();
+            if (_cnOldBadgeText !== _cnNewBadgeText) {
+                cnSelfNotify('modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
+                    diffs: [{ field: '作業内容', oldVal: _cnOldBadgeText, newVal: _cnNewBadgeText }] });
+            }
 
             document.getElementById('workModal').classList.remove('active');
             currentWorkCell = null;
@@ -1262,6 +1325,10 @@
             const row = currentNotesCell.closest('tr');
             const siteCell = row ? row.querySelector('.col-site-info') : null;
 
+            // --- 変更通知: 旧データキャプチャ ---
+            var _cnInfo = cnGetRowInfo(row);
+            var _cnOldNotesText = currentNotesCell.textContent.trim();
+
             syncVtItemsFromDom();
             const validVtItems = vtItems.filter(item => item.label && item.value);
 
@@ -1276,6 +1343,13 @@
 
             // セル表示更新
             ntRenderNotesCell(currentNotesCell, validVtItems);
+
+            // --- 変更通知: diff生成 ---
+            var _cnNewNotesText = currentNotesCell.textContent.trim();
+            if (_cnOldNotesText !== _cnNewNotesText) {
+                cnSelfNotify('modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
+                    diffs: [{ field: '備考', oldVal: _cnOldNotesText, newVal: _cnNewNotesText }] });
+            }
 
             document.getElementById('notesModal').classList.remove('active');
             currentNotesCell = null;
@@ -1717,12 +1791,30 @@
 
         function saveMapModal() {
             smSaveCurrentTabData();
+
+            // --- 変更通知: 旧データキャプチャ ---
+            var _cnOldMaps = '';
+            var _cnInfo = { siteName: '', category: '', shift: '' };
+            if (currentMapCell) {
+                try { var _om = JSON.parse(currentMapCell.getAttribute('data-maps') || '[]'); _cnOldMaps = _om.map(function(m) { return m.label; }).join(', '); } catch(e) {}
+                var _cnRow = currentMapCell.closest('tr');
+                _cnInfo = cnGetRowInfo(_cnRow);
+            }
+
             // 空エントリ（タイトルもURLも空）を除外
             var filtered = smMapEntries.filter(function(m) { return m.label || m.url; });
             if (currentMapCell) {
                 currentMapCell.setAttribute('data-maps', JSON.stringify(filtered));
                 smUpdateMapCellDisplay(currentMapCell, filtered);
             }
+
+            // --- 変更通知: diff生成 ---
+            var _cnNewMaps = filtered.map(function(m) { return m.label; }).join(', ');
+            if (_cnOldMaps !== _cnNewMaps) {
+                cnSelfNotify('modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
+                    diffs: [{ field: '地図', oldVal: _cnOldMaps, newVal: _cnNewMaps }] });
+            }
+
             closeMapModal();
         }
 
@@ -2581,6 +2673,11 @@
             if (!selectedGridRow) { alert('削除する行を選択してください'); return; }
             if (!confirm('この行を削除しますか？\n配置中の社員は自動的に解除されます。')) return;
             pushUndo();
+            // --- 変更通知: 削除通知 ---
+            var _cnInfo = cnGetRowInfo(selectedGridRow);
+            if (_cnInfo.siteName) {
+                cnSelfNotify('delete', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift });
+            }
             releaseRowEmployees(selectedGridRow);
             selectedGridRow.remove();
             selectedGridRow = null;
@@ -3340,6 +3437,38 @@
 
             showChangeToast(notification);
             cnUpdateRowBells();
+        }
+
+        // --- 自分の操作を変更通知として送信 ---
+        const cnCurrentUser = '自分';
+
+        function cnGetRowInfo(row) {
+            if (!row) return { siteName: '', category: '', shift: '' };
+            var siteCell = row.querySelector('.col-site-info');
+            var sn = row.querySelector('.site-name');
+            var catBadge = siteCell ? siteCell.querySelector('.category-badge') : null;
+            var shiftBadge = siteCell ? siteCell.querySelector('.shift-badge') : null;
+            return {
+                siteName: sn ? sn.textContent.trim() : '',
+                category: catBadge ? catBadge.textContent.trim() : '',
+                shift: shiftBadge ? shiftBadge.textContent.trim() : ''
+            };
+        }
+
+        function cnSelfNotify(type, opts) {
+            var n = {
+                type: type,
+                user: cnCurrentUser,
+                siteName: opts.siteName || '',
+                category: opts.category || '',
+                shift: opts.shift || '',
+                time: cnTimeNow(),
+                diffs: opts.diffs || null,
+                details: opts.details || null,
+                _selfAction: true,
+                _approved: true
+            };
+            receiveChangeNotification(n);
         }
 
         // --- デモシミュレーション（承認方式） ---
@@ -4666,6 +4795,13 @@
         function saveWorkTimeModal() {
             if (!currentWorkTimeCell) return;
             pushUndo();
+
+            // --- 変更通知: 旧データキャプチャ ---
+            var _cnRow = currentWorkTimeCell.closest('tr');
+            var _cnInfo = cnGetRowInfo(_cnRow);
+            var _cnOldStart = currentWorkTimeCell.dataset.startTime || '';
+            var _cnOldEnd = currentWorkTimeCell.dataset.endTime || '';
+
             const startTime = document.getElementById('wtStartTime').value;
             const endTime = document.getElementById('wtEndTime').value;
             currentWorkTimeCell.dataset.startTime = startTime;
@@ -4684,6 +4820,15 @@
             }
             startEl.textContent = startTime || '';
             endEl.textContent = endTime || '';
+
+            // --- 変更通知: diff生成 ---
+            var _cnDiffs = [];
+            if (_cnOldStart !== startTime) _cnDiffs.push({ field: '開始時間', oldVal: _cnOldStart, newVal: startTime });
+            if (_cnOldEnd !== endTime) _cnDiffs.push({ field: '終了時間', oldVal: _cnOldEnd, newVal: endTime });
+            if (_cnDiffs.length > 0) {
+                cnSelfNotify('modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift, diffs: _cnDiffs });
+            }
+
             closeWorkTimeModal();
         }
 
