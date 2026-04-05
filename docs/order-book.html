@@ -236,16 +236,23 @@
                             </div>
                         </div>
                         <!-- 地図 -->
-                        <div class="md-modal-section-bar">地図</div>
-                        <div class="md-ob-map-section">
-                            <label>現場地図</label>
-                            <div class="md-ob-map-url-row">
-                                <input type="url" id="editMapUrl" placeholder="Google Maps等のURLを入力">
-                                <button type="button" class="md-ob-btn-map-preview" onclick="previewMap()">プレビュー</button>
-                            </div>
-                            <div class="md-ob-map-preview" id="mapPreviewContainer" style="display:none;">
-                                <iframe id="mapPreviewFrame" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>
-                                <button type="button" class="md-ob-btn-map-clear" onclick="clearMapPreview()" title="プレビューを閉じる">✕</button>
+                        <div class="md-modal-section-bar">地図 <button type="button" class="md-ob-btn-add-sub" onclick="addMapEntry()">+ 追加</button></div>
+                        <div class="md-ob-map-fields" id="mapFields">
+                            <div id="mapEntryList">
+                                <div class="md-ob-map-entry" data-idx="0">
+                                    <div class="md-ob-map-entry-header">
+                                        <input type="text" class="md-ob-sub-label-input md-ob-map-label-input" value="現場地図" placeholder="タイトル" title="タイトルを編集">
+                                        <button type="button" class="md-ob-btn-remove-sub" onclick="removeMapEntry(0)" title="削除">×</button>
+                                    </div>
+                                    <div class="md-ob-map-url-row">
+                                        <input type="url" class="md-ob-map-url-input" placeholder="Google Maps等のURLを入力">
+                                        <button type="button" class="md-ob-btn-map-preview" onclick="previewMap(this)">プレビュー</button>
+                                    </div>
+                                    <div class="md-ob-map-preview" style="display:none;">
+                                        <iframe sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>
+                                        <button type="button" class="md-ob-btn-map-clear" onclick="clearMapPreview(this)" title="プレビューを閉じる">✕</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <!-- 備考 -->

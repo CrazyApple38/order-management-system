@@ -1467,7 +1467,23 @@ body {
 }
 .qa-badge-add-btn:hover { background: var(--accent-dim); }
 
-/* 地図URLセクション */
+/* 地図セクション（複数エントリ対応） */
+.qa-map-fields {
+    display: flex; flex-direction: column; gap: 8px;
+}
+.qa-map-entry {
+    display: flex; flex-direction: column; gap: 6px;
+}
+.qa-map-entry + .qa-map-entry {
+    padding-top: 8px;
+    border-top: 1px dashed var(--divider);
+}
+.qa-map-entry-header {
+    display: flex; align-items: center; gap: 6px;
+}
+.qa-map-label {
+    width: 100px;
+}
 .qa-map-url-row {
     display: flex;
     gap: 8px;

@@ -1314,7 +1314,7 @@ h1 {
     color: var(--text-secondary);
 }
 .supervisor-badge {
-    display: inline-block;
+    display: none;
     margin-top: 6px;
     padding: 1px 6px;
     border-radius: 8px;

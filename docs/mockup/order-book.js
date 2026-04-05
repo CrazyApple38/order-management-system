@@ -1519,21 +1519,113 @@ document.addEventListener('mousedown', function (e) {
     closeTimePicker();
 });
 
-// --- 現場地図プレビュー ---
-function previewMap() {
-    const url = document.getElementById('editMapUrl').value.trim();
+// --- 現場地図 複数エントリ管理 ---
+function addMapEntry() {
+    const list = document.getElementById('mapEntryList');
+    const idx = list.children.length;
+    const entry = document.createElement('div');
+    entry.className = 'md-ob-map-entry';
+    entry.dataset.idx = idx;
+    entry.innerHTML =
+        `<div class="md-ob-map-entry-header">` +
+            `<input type="text" class="md-ob-sub-label-input md-ob-map-label-input" value="" placeholder="タイトル" title="タイトルを編集">` +
+            `<button type="button" class="md-ob-btn-remove-sub" onclick="removeMapEntry(${idx})" title="削除">×</button>` +
+        `</div>` +
+        `<div class="md-ob-map-url-row">` +
+            `<input type="url" class="md-ob-map-url-input" placeholder="Google Maps等のURLを入力">` +
+            `<button type="button" class="md-ob-btn-map-preview" onclick="previewMap(this)">プレビュー</button>` +
+        `</div>` +
+        `<div class="md-ob-map-preview" style="display:none;">` +
+            `<iframe sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>` +
+            `<button type="button" class="md-ob-btn-map-clear" onclick="clearMapPreview(this)" title="プレビューを閉じる">✕</button>` +
+        `</div>`;
+    list.appendChild(entry);
+    entry.querySelector('.md-ob-map-label-input').focus();
+}
+
+function removeMapEntry(idx) {
+    const list = document.getElementById('mapEntryList');
+    const entries = list.querySelectorAll('.md-ob-map-entry');
+    if (entries[idx]) {
+        entries[idx].remove();
+        list.querySelectorAll('.md-ob-map-entry').forEach((entry, i) => {
+            entry.dataset.idx = i;
+            entry.querySelector('.md-ob-btn-remove-sub').setAttribute('onclick', `removeMapEntry(${i})`);
+        });
+    }
+}
+
+function previewMap(btn) {
+    const entry = btn.closest('.md-ob-map-entry');
+    const url = entry.querySelector('.md-ob-map-url-input').value.trim();
     if (!url) return;
-    const container = document.getElementById('mapPreviewContainer');
-    const iframe = document.getElementById('mapPreviewFrame');
+    const container = entry.querySelector('.md-ob-map-preview');
+    const iframe = container.querySelector('iframe');
     iframe.src = url;
     container.style.display = 'block';
 }
 
-function clearMapPreview() {
-    const container = document.getElementById('mapPreviewContainer');
-    const iframe = document.getElementById('mapPreviewFrame');
+function clearMapPreview(btn) {
+    const container = btn.closest('.md-ob-map-preview');
+    const iframe = container.querySelector('iframe');
     iframe.src = '';
     container.style.display = 'none';
+}
+
+// 全地図エントリをリセット
+function clearAllMapEntries() {
+    const list = document.getElementById('mapEntryList');
+    list.querySelectorAll('.md-ob-map-preview').forEach(c => {
+        c.querySelector('iframe').src = '';
+        c.style.display = 'none';
+    });
+}
+
+// 地図エントリを描画（データ復元用）
+function renderMapEntries(maps) {
+    const list = document.getElementById('mapEntryList');
+    list.innerHTML = '';
+    if (!maps || maps.length === 0) {
+        maps = [{ label: '現場地図', url: '' }];
+    }
+    maps.forEach((m, i) => {
+        const entry = document.createElement('div');
+        entry.className = 'md-ob-map-entry';
+        entry.dataset.idx = i;
+        entry.innerHTML =
+            `<div class="md-ob-map-entry-header">` +
+                `<input type="text" class="md-ob-sub-label-input md-ob-map-label-input" value="${escapeHtml(m.label || '')}" placeholder="タイトル" title="タイトルを編集">` +
+                `<button type="button" class="md-ob-btn-remove-sub" onclick="removeMapEntry(${i})" title="削除">×</button>` +
+            `</div>` +
+            `<div class="md-ob-map-url-row">` +
+                `<input type="url" class="md-ob-map-url-input" value="${escapeHtml(m.url || '')}" placeholder="Google Maps等のURLを入力">` +
+                `<button type="button" class="md-ob-btn-map-preview" onclick="previewMap(this)">プレビュー</button>` +
+            `</div>` +
+            `<div class="md-ob-map-preview" style="display:none;">` +
+                `<iframe sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>` +
+                `<button type="button" class="md-ob-btn-map-clear" onclick="clearMapPreview(this)" title="プレビューを閉じる">✕</button>` +
+            `</div>`;
+        list.appendChild(entry);
+        // URLがあれば自動プレビュー
+        if (m.url) {
+            const container = entry.querySelector('.md-ob-map-preview');
+            container.querySelector('iframe').src = m.url;
+            container.style.display = 'block';
+        }
+    });
+}
+
+// 地図エントリからデータを収集
+function collectMapEntries() {
+    const list = document.getElementById('mapEntryList');
+    const entries = list.querySelectorAll('.md-ob-map-entry');
+    const maps = [];
+    entries.forEach(entry => {
+        const label = entry.querySelector('.md-ob-map-label-input').value.trim();
+        const url = entry.querySelector('.md-ob-map-url-input').value.trim();
+        if (label || url) maps.push({ label, url });
+    });
+    return maps;
 }
 
 // --- 同一業務名の現場監督・連絡先 候補管理 ---
@@ -1722,17 +1814,11 @@ function openEditModal(ri, day, siteIdx) {
     document.getElementById('editSupervisorTel').value = entry ? (entry.supervisorTel || '') : '';
     document.getElementById('editMeetingPlace').value = entry ? (entry.meetingPlace || '') : '';
     document.getElementById('editMeetingTime').value = entry ? (entry.meetingTime || '') : '';
-    document.getElementById('editMapUrl').value = entry ? (entry.mapUrl || '') : '';
     document.getElementById('editRemarks').value = entry ? entry.remarks : '';
 
-    // 地図プレビューをリセット（URLがあれば自動表示）
-    const mapUrl = entry ? (entry.mapUrl || '') : '';
-    if (mapUrl) {
-        document.getElementById('mapPreviewFrame').src = mapUrl;
-        document.getElementById('mapPreviewContainer').style.display = 'block';
-    } else {
-        clearMapPreview();
-    }
+    // 地図エントリを描画
+    const maps = entry ? (entry.maps || (entry.mapUrl ? [{ label: '現場地図', url: entry.mapUrl }] : null)) : null;
+    renderMapEntries(maps);
 
     // 動的サブタスクエントリを描画
     const subTasks = entry ? (entry.subTasks || []) : [];
@@ -1809,7 +1895,7 @@ function saveSiteToData() {
         supervisorTel: document.getElementById('editSupervisorTel').value,
         meetingPlace: document.getElementById('editMeetingPlace').value,
         meetingTime: document.getElementById('editMeetingTime').value,
-        mapUrl: document.getElementById('editMapUrl').value.trim(),
+        maps: collectMapEntries(),
         badge: getSelectedBadgeData(),
         remarks: document.getElementById('editRemarks').value,
     };
@@ -1839,16 +1925,11 @@ function loadSiteToModal() {
     document.getElementById('editSupervisorTel').value = entry ? (entry.supervisorTel || '') : '';
     document.getElementById('editMeetingPlace').value = entry ? (entry.meetingPlace || '') : '';
     document.getElementById('editMeetingTime').value = entry ? (entry.meetingTime || '') : '';
-    document.getElementById('editMapUrl').value = entry ? (entry.mapUrl || '') : '';
     document.getElementById('editRemarks').value = entry ? entry.remarks : '';
 
-    const mapUrl = entry ? (entry.mapUrl || '') : '';
-    if (mapUrl) {
-        document.getElementById('mapPreviewFrame').src = mapUrl;
-        document.getElementById('mapPreviewContainer').style.display = 'block';
-    } else {
-        clearMapPreview();
-    }
+    // 地図エントリを描画
+    const maps = entry ? (entry.maps || (entry.mapUrl ? [{ label: '現場地図', url: entry.mapUrl }] : null)) : null;
+    renderMapEntries(maps);
 
     const subTasks = entry ? (entry.subTasks || []) : [];
     renderSubTaskEntries(subTasks, row.category);
@@ -1977,7 +2058,7 @@ function _commitEditData() {
             supervisorTel: document.getElementById('editSupervisorTel').value,
             meetingPlace: document.getElementById('editMeetingPlace').value,
             meetingTime: document.getElementById('editMeetingTime').value,
-            mapUrl: document.getElementById('editMapUrl').value.trim(),
+            maps: collectMapEntries(),
             badge: getSelectedBadgeData(),
             remarks: document.getElementById('editRemarks').value,
         };
@@ -3756,6 +3837,16 @@ function _obCnBuildCellDiffs(oldEntry, newEntry) {
     var newSt = (newEntry.subTasks || []).map(function(s) { return s.name || ''; }).join(',');
     if (oldSt !== newSt)
         diffs.push({ field: 'サブタスク', oldVal: oldSt || '(なし)', newVal: newSt || '(なし)' });
+    // 地図の変更検出
+    var oldMaps = oldEntry.maps || (oldEntry.mapUrl ? [{ label: '現場地図', url: oldEntry.mapUrl }] : []);
+    var newMaps = newEntry.maps || (newEntry.mapUrl ? [{ label: '現場地図', url: newEntry.mapUrl }] : []);
+    var oldMapStr = oldMaps.map(function(m) { return (m.label || '') + ':' + (m.url || ''); }).join('|');
+    var newMapStr = newMaps.map(function(m) { return (m.label || '') + ':' + (m.url || ''); }).join('|');
+    if (oldMapStr !== newMapStr) {
+        var oldLabels = oldMaps.map(function(m) { return m.label || '(無題)'; }).join(', ') || '(なし)';
+        var newLabels = newMaps.map(function(m) { return m.label || '(無題)'; }).join(', ') || '(なし)';
+        diffs.push({ field: '地図', oldVal: oldLabels, newVal: newLabels });
+    }
     return diffs;
 }
 

@@ -229,12 +229,19 @@
                         </div>
                     </div>
                     <!-- 地図 -->
-                    <div class="qa-card-section-bar">地図</div>
-                    <div class="qa-cal-edit-field">
-                        <label>現場地図</label>
-                        <div class="qa-map-url-row">
-                            <input type="url" id="qaEditMapUrl" placeholder="Google Maps等のURLを入力">
-                            <button type="button" class="qa-map-preview-btn" onclick="qaPreviewMap()">開く</button>
+                    <div class="qa-card-section-bar">地図 <button type="button" class="qa-section-bar-btn" onclick="qaAddMapEntry()">+ 追加</button></div>
+                    <div class="qa-map-fields" id="qaMapFields">
+                        <div id="qaMapEntryList">
+                            <div class="qa-map-entry" data-idx="0">
+                                <div class="qa-map-entry-header">
+                                    <input type="text" class="qa-sub-label qa-map-label" value="現場地図" placeholder="タイトル">
+                                    <button type="button" class="qa-sub-delete" onclick="qaRemoveMapEntry(0)" title="削除">×</button>
+                                </div>
+                                <div class="qa-map-url-row">
+                                    <input type="url" class="qa-map-url-input" placeholder="Google Maps等のURLを入力">
+                                    <button type="button" class="qa-map-preview-btn" onclick="qaPreviewMap(this)">開く</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <!-- 備考 -->

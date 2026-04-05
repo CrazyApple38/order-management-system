@@ -698,7 +698,7 @@ function qaGenerateDummyData() {
             supervisorTel: tels[supIdx1],
             meetingPlace: meetingPlaces[Math.floor(Math.random() * meetingPlaces.length)],
             meetingTime: meetingTimes[Math.floor(Math.random() * meetingTimes.length)],
-            mapUrl: '',
+            maps: [],
             remarks: remarksSamples[Math.floor(Math.random() * remarksSamples.length)]
         };
 
@@ -724,7 +724,7 @@ function qaGenerateDummyData() {
                 supervisorTel: tels[supIdx2],
                 meetingPlace: meetingPlaces[Math.floor(Math.random() * meetingPlaces.length)],
                 meetingTime: meetingTimes[Math.floor(Math.random() * meetingTimes.length)],
-                mapUrl: '',
+                maps: [],
                 remarks: ''
             };
             entries.push({ count: count2, reliability: rel2 });
@@ -1141,7 +1141,7 @@ function qaSavePlacementData() {
         supervisorTel: document.getElementById('qaEditSupervisorTel').value,
         meetingPlace: document.getElementById('qaEditMeetingPlace').value,
         meetingTime: qaGetTimeValue('qaEditMeetingTime'),
-        mapUrl: document.getElementById('qaEditMapUrl').value,
+        maps: qaCollectMapEntries(),
         remarks: document.getElementById('qaEditRemarks').value
     };
 }
@@ -1178,7 +1178,9 @@ function qaLoadPlacementData() {
     document.getElementById('qaEditSupervisorTel').value = data?.supervisorTel || '';
     document.getElementById('qaEditMeetingPlace').value = data?.meetingPlace || '';
     qaSetTimeValue('qaEditMeetingTime', data?.meetingTime || '');
-    document.getElementById('qaEditMapUrl').value = data?.mapUrl || '';
+    // 地図エントリを描画
+    const maps = data ? (data.maps || (data.mapUrl ? [{ label: '現場地図', url: data.mapUrl }] : null)) : null;
+    qaRenderMapEntries(maps);
     document.getElementById('qaEditRemarks').value = data?.remarks || '';
 
     // 信頼度
@@ -1283,14 +1285,83 @@ function qaAddBadge() {
     qaShowToast(`${name.trim()} を追加しました`);
 }
 
-// --- 地図プレビュー ---
-function qaPreviewMap() {
-    const url = document.getElementById('qaEditMapUrl').value.trim();
+// --- 地図 複数エントリ管理 ---
+function qaAddMapEntry() {
+    const list = document.getElementById('qaMapEntryList');
+    const idx = list.children.length;
+    const entry = document.createElement('div');
+    entry.className = 'qa-map-entry';
+    entry.dataset.idx = idx;
+    entry.innerHTML =
+        `<div class="qa-map-entry-header">` +
+            `<input type="text" class="qa-sub-label qa-map-label" value="" placeholder="タイトル">` +
+            `<button type="button" class="qa-sub-delete" onclick="qaRemoveMapEntry(${idx})" title="削除">×</button>` +
+        `</div>` +
+        `<div class="qa-map-url-row">` +
+            `<input type="url" class="qa-map-url-input" placeholder="Google Maps等のURLを入力">` +
+            `<button type="button" class="qa-map-preview-btn" onclick="qaPreviewMap(this)">開く</button>` +
+        `</div>`;
+    list.appendChild(entry);
+    entry.querySelector('.qa-map-label').focus();
+}
+
+function qaRemoveMapEntry(idx) {
+    const list = document.getElementById('qaMapEntryList');
+    const entries = list.querySelectorAll('.qa-map-entry');
+    if (entries[idx]) {
+        entries[idx].remove();
+        list.querySelectorAll('.qa-map-entry').forEach((entry, i) => {
+            entry.dataset.idx = i;
+            entry.querySelector('.qa-sub-delete').setAttribute('onclick', `qaRemoveMapEntry(${i})`);
+        });
+    }
+}
+
+function qaPreviewMap(btn) {
+    const entry = btn.closest('.qa-map-entry');
+    const url = entry.querySelector('.qa-map-url-input').value.trim();
     if (!url) {
         qaShowToast('URLを入力してください');
         return;
     }
     window.open(url, '_blank');
+}
+
+function qaRenderMapEntries(maps) {
+    const list = document.getElementById('qaMapEntryList');
+    list.innerHTML = '';
+    if (!maps || maps.length === 0) {
+        maps = [{ label: '現場地図', url: '' }];
+    }
+    maps.forEach((m, i) => {
+        const entry = document.createElement('div');
+        entry.className = 'qa-map-entry';
+        entry.dataset.idx = i;
+        const safeLabel = (m.label || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        const safeUrl = (m.url || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        entry.innerHTML =
+            `<div class="qa-map-entry-header">` +
+                `<input type="text" class="qa-sub-label qa-map-label" value="${safeLabel}" placeholder="タイトル">` +
+                `<button type="button" class="qa-sub-delete" onclick="qaRemoveMapEntry(${i})" title="削除">×</button>` +
+            `</div>` +
+            `<div class="qa-map-url-row">` +
+                `<input type="url" class="qa-map-url-input" value="${safeUrl}" placeholder="Google Maps等のURLを入力">` +
+                `<button type="button" class="qa-map-preview-btn" onclick="qaPreviewMap(this)">開く</button>` +
+            `</div>`;
+        list.appendChild(entry);
+    });
+}
+
+function qaCollectMapEntries() {
+    const list = document.getElementById('qaMapEntryList');
+    const entries = list.querySelectorAll('.qa-map-entry');
+    const maps = [];
+    entries.forEach(entry => {
+        const label = entry.querySelector('.qa-map-label').value.trim();
+        const url = entry.querySelector('.qa-map-url-input').value.trim();
+        if (label || url) maps.push({ label, url });
+    });
+    return maps;
 }
 
 // --- 月外セル選択（前月・次月の日をクリック） ---
@@ -1333,6 +1404,7 @@ function qaSelectOutsideDayEntry(year, month, day, siteIdx) {
 
 // 通知用：セル選択時のスナップショット（oninputでcalendarDataが更新されるため保存時比較用）
 let qaEntrySnapshot = null;
+let qaPlacementSnapshot = {};  // 配置先データのスナップショット（地図等の詳細比較用）
 
 // --- セル選択 ---
 function qaSelectDay(day, initialSiteIdx) {
@@ -1346,6 +1418,13 @@ function qaSelectDay(day, initialSiteIdx) {
     // 通知用スナップショットを保存
     const snapDayKey = `${qaCalendarYear}-${String(qaCalendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     qaEntrySnapshot = qaCalendarData[snapDayKey] ? JSON.parse(JSON.stringify(qaCalendarData[snapDayKey])) : null;
+    // 配置先データのスナップショットも保存
+    qaPlacementSnapshot = {};
+    Object.keys(qaPlacementData).forEach(k => {
+        if (k.startsWith(snapDayKey + '-')) {
+            qaPlacementSnapshot[k] = JSON.parse(JSON.stringify(qaPlacementData[k]));
+        }
+    });
     qaActivePlacement = 0;
     qaResetPlacementTabs();
     qaRenderCalendar();
@@ -1481,6 +1560,24 @@ function qaSaveEntry() {
         const diffs = [];
         if (oldTotal !== totalCount) diffs.push({ field: '人数', oldVal: oldTotal + '名', newVal: totalCount + '名' });
         if (oldEntries.entries && oldEntries.entries.length !== entries.length) diffs.push({ field: '配置先数', oldVal: oldEntries.entries.length + '件', newVal: entries.length + '件' });
+        // 配置先ごとの詳細差分（地図等）
+        for (let i = 0; i < qaPlacementCount; i++) {
+            const pk = `${dayKey}-${i}`;
+            const oldPd = qaPlacementSnapshot[pk];
+            const newPd = qaPlacementData[pk];
+            if (oldPd && newPd) {
+                var oldMaps = oldPd.maps || (oldPd.mapUrl ? [{ label: '現場地図', url: oldPd.mapUrl }] : []);
+                var newMaps = newPd.maps || (newPd.mapUrl ? [{ label: '現場地図', url: newPd.mapUrl }] : []);
+                var oldMapStr = oldMaps.map(function(m) { return (m.label || '') + ':' + (m.url || ''); }).join('|');
+                var newMapStr = newMaps.map(function(m) { return (m.label || '') + ':' + (m.url || ''); }).join('|');
+                if (oldMapStr !== newMapStr) {
+                    var oldLabels = oldMaps.map(function(m) { return m.label || '(無題)'; }).join(', ') || '(なし)';
+                    var newLabels = newMaps.map(function(m) { return m.label || '(無題)'; }).join(', ') || '(なし)';
+                    diffs.push({ field: '地図', oldVal: oldLabels, newVal: newLabels });
+                    break;  // 1件でも差分があれば十分
+                }
+            }
+        }
         if (diffs.length > 0) {
             qaCnSelfNotify('modify', {
                 clientId: qaCurrentClientId, siteId: qaCurrentSiteId,

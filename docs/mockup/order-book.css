@@ -902,11 +902,25 @@ body {
 }
 
 /* 現場地図セクション */
-.md-ob-map-section {
+.md-ob-map-fields {
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 12px 14px;
+    background: rgba(68,166,181,0.05);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+}
+.md-ob-map-entry {
     display: flex; flex-direction: column; gap: 6px;
 }
-.md-ob-map-section > label {
-    font-size: 12px; font-weight: 600; color: var(--text-secondary);
+.md-ob-map-entry + .md-ob-map-entry {
+    padding-top: 10px;
+    border-top: 1px dashed var(--divider);
+}
+.md-ob-map-entry-header {
+    display: flex; align-items: center; gap: 6px;
+}
+.md-ob-map-label-input {
+    width: 100px;
 }
 .md-ob-map-url-row {
     display: flex; gap: 6px;
