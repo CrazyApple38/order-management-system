@@ -1096,12 +1096,19 @@ function qaDeletePlacement() {
     const oldCount = qaEntrySnapshot && qaEntrySnapshot.entries ? qaEntrySnapshot.entries.length : 0;
     if (oldCount !== entries.length) diffs.push({ field: '配置先数', oldVal: oldCount + '件', newVal: entries.length + '件' });
     if (diffs.length > 0) {
+        var _cnOldSnap = { dayKey: dayKey, calendarData: qaEntrySnapshot ? JSON.parse(JSON.stringify(qaEntrySnapshot)) : null, placements: qaPlacementSnapshot ? JSON.parse(JSON.stringify(qaPlacementSnapshot)) : {} };
+        var _cnNewPlacements = {};
+        Object.keys(qaPlacementData).forEach(function(k) {
+            if (k.startsWith(dayKey + '-')) _cnNewPlacements[k] = JSON.parse(JSON.stringify(qaPlacementData[k]));
+        });
+        var _cnNewSnap = { dayKey: dayKey, calendarData: qaCalendarData[dayKey] ? JSON.parse(JSON.stringify(qaCalendarData[dayKey])) : null, placements: _cnNewPlacements };
         qaCnSelfNotify('modify', {
             clientId: qaCurrentClientId, siteId: qaCurrentSiteId,
             clientName: qaCurrentClientName, siteName: qaCurrentSiteName,
             category: site?.category || '', shift: site?.shift || '', branch: site?.branch || '',
             dayKey: dayKey, dayLabel: dayLabel,
-            diffs: diffs
+            diffs: diffs,
+            _snapshot: _cnOldSnap, _newSnapshot: _cnNewSnap
         });
     }
 }
@@ -1480,6 +1487,11 @@ function qaDeleteEntry() {
     if (!qaSelectedDay) return;
     const dayKey = `${qaCalendarYear}-${String(qaCalendarMonth + 1).padStart(2, '0')}-${String(qaSelectedDay).padStart(2, '0')}`;
     const dayLabel = (qaCalendarMonth + 1) + '月' + qaSelectedDay + '日';
+    // 復元用スナップショット（削除前）
+    var _cnDelSnap = { dayKey: dayKey, calendarData: qaCalendarData[dayKey] ? JSON.parse(JSON.stringify(qaCalendarData[dayKey])) : null, placements: {} };
+    Object.keys(qaPlacementData).forEach(function(k) {
+        if (k.startsWith(dayKey + '-')) _cnDelSnap.placements[k] = JSON.parse(JSON.stringify(qaPlacementData[k]));
+    });
     // 該当日の全配置先データを削除
     Object.keys(qaPlacementData).forEach(k => {
         if (k.startsWith(dayKey + '-')) delete qaPlacementData[k];
@@ -1497,7 +1509,8 @@ function qaDeleteEntry() {
         clientId: qaCurrentClientId, siteId: qaCurrentSiteId,
         clientName: qaCurrentClientName, siteName: qaCurrentSiteName,
         category: site?.category || '', shift: site?.shift || '', branch: site?.branch || '',
-        dayKey: dayKey, dayLabel: dayLabel
+        dayKey: dayKey, dayLabel: dayLabel,
+        _deletedSnapshot: _cnDelSnap
     });
 }
 
@@ -1544,6 +1557,14 @@ function qaSaveEntry() {
     const dayLabel = (qaCalendarMonth + 1) + '月' + qaSelectedDay + '日';
     const isNew = !oldEntries;
     const totalCount = entries.reduce(function(sum, e) { return sum + e.count; }, 0);
+
+    // 復元用スナップショット（新しい状態）
+    var _cnNewPlacements = {};
+    Object.keys(qaPlacementData).forEach(function(k) {
+        if (k.startsWith(dayKey + '-')) _cnNewPlacements[k] = JSON.parse(JSON.stringify(qaPlacementData[k]));
+    });
+    var _cnNewCalSnap = qaCalendarData[dayKey] ? JSON.parse(JSON.stringify(qaCalendarData[dayKey])) : null;
+
     if (isNew) {
         qaCnSelfNotify('add', {
             clientId: qaCurrentClientId, siteId: qaCurrentSiteId,
@@ -1553,7 +1574,10 @@ function qaSaveEntry() {
             details: [
                 { field: '人数', value: totalCount + '名' },
                 { field: '配置先数', value: entries.length + '件' }
-            ]
+            ],
+            _addedKey: dayKey,
+            _addedData: _cnNewPlacements,
+            _addedCalEntry: _cnNewCalSnap
         });
     } else {
         const oldTotal = oldEntries.entries ? oldEntries.entries.reduce(function(sum, e) { return sum + e.count; }, 0) : 0;
@@ -1579,12 +1603,16 @@ function qaSaveEntry() {
             }
         }
         if (diffs.length > 0) {
+            // 復元用スナップショット（変更前の状態）
+            var _cnOldSnap = { dayKey: dayKey, calendarData: oldEntries ? JSON.parse(JSON.stringify(oldEntries)) : null, placements: qaPlacementSnapshot ? JSON.parse(JSON.stringify(qaPlacementSnapshot)) : {} };
+            var _cnNewSnap = { dayKey: dayKey, calendarData: _cnNewCalSnap, placements: _cnNewPlacements };
             qaCnSelfNotify('modify', {
                 clientId: qaCurrentClientId, siteId: qaCurrentSiteId,
                 clientName: qaCurrentClientName, siteName: qaCurrentSiteName,
                 category: site?.category || '', shift: site?.shift || '', branch: site?.branch || '',
                 dayKey: dayKey, dayLabel: dayLabel,
-                diffs: diffs
+                diffs: diffs,
+                _snapshot: _cnOldSnap, _newSnapshot: _cnNewSnap
             });
         }
     }
@@ -2033,6 +2061,17 @@ function qaCnSelfNotify(type, opts) {
         details: opts.details || null,
         _selfAction: true
     };
+    // スナップショット（復元用）
+    if (opts._snapshot) n._snapshot = opts._snapshot;
+    if (opts._newSnapshot) n._newSnapshot = opts._newSnapshot;
+    if (opts._addedKey) n._addedKey = opts._addedKey;
+    if (opts._addedData) n._addedData = opts._addedData;
+    if (opts._addedCalEntry) n._addedCalEntry = opts._addedCalEntry;
+    if (opts._addedPlacementIdx !== undefined) n._addedPlacementIdx = opts._addedPlacementIdx;
+    if (opts._deletedSnapshot) n._deletedSnapshot = opts._deletedSnapshot;
+    // 契約先/現場の復元用
+    if (opts._clientSnapshot) n._clientSnapshot = opts._clientSnapshot;
+    if (opts._siteSnapshot) n._siteSnapshot = opts._siteSnapshot;
     qaCnReceive(n);
 }
 
@@ -2071,13 +2110,27 @@ function qaCnReceive(n) {
 
 // --- 元に戻す / やっぱり反映 ---
 
-function qaCnRevert(id) {
-    var n = qaCnState.notifications.find(function(x) { return x.id === id; });
-    if (!n || n.reverted) return;
-
-    if (n.type === 'modify' && n._snapshot) {
-        // 配置データを復元
-        var snap = n._snapshot;
+// スナップショットからカレンダー＋配置データを一括復元するヘルパー
+function _qaCnRestoreSnapshot(snap) {
+    if (!snap) return;
+    // 新形式（自己通知）: placements オブジェクト + dayKey
+    if (snap.placements) {
+        var dayKey = snap.dayKey;
+        // 該当日の既存配置データを削除してから復元
+        Object.keys(qaPlacementData).forEach(function(k) {
+            if (k.startsWith(dayKey + '-')) delete qaPlacementData[k];
+        });
+        Object.keys(snap.placements).forEach(function(k) {
+            qaPlacementData[k] = JSON.parse(JSON.stringify(snap.placements[k]));
+        });
+        if (snap.calendarData) {
+            qaCalendarData[dayKey] = JSON.parse(JSON.stringify(snap.calendarData));
+        } else {
+            delete qaCalendarData[dayKey];
+        }
+    }
+    // 旧形式（デモ通知）: placementKey + placementEntry
+    if (snap.placementKey !== undefined) {
         if (snap.placementEntry !== undefined) {
             qaPlacementData[snap.placementKey] = JSON.parse(JSON.stringify(snap.placementEntry));
         }
@@ -2088,26 +2141,36 @@ function qaCnRevert(id) {
                 qaCalendarData[snap.dayKey] = JSON.parse(JSON.stringify(snap.calendarData));
             }
         }
+    }
+}
+
+function qaCnRevert(id) {
+    var n = qaCnState.notifications.find(function(x) { return x.id === id; });
+    if (!n || n.reverted) return;
+
+    if (n.type === 'modify' && n._snapshot) {
+        _qaCnRestoreSnapshot(n._snapshot);
         qaRenderCalendar();
     } else if (n.type === 'add' && n._addedKey) {
-        // 追加された配置を削除
-        delete qaPlacementData[n._addedKey];
-        // カレンダーエントリからも削除
-        var dayKey = n.dayKey;
-        var calEntry = qaCalendarData[dayKey];
-        if (calEntry && calEntry.entries) {
-            var pIdx = n._addedPlacementIdx;
-            calEntry.entries.splice(pIdx, 1);
-            if (calEntry.entries.length === 0) delete qaCalendarData[dayKey];
+        // 追加されたデータを削除
+        var dayKey = n.dayKey || n._addedKey;
+        if (n._addedData && typeof n._addedData === 'object' && !Array.isArray(n._addedData)) {
+            // 新形式: 複数配置キーを削除
+            Object.keys(n._addedData).forEach(function(k) { delete qaPlacementData[k]; });
+            delete qaCalendarData[dayKey];
+        } else {
+            // 旧形式: 単一キー
+            delete qaPlacementData[n._addedKey];
+            var calEntry = qaCalendarData[dayKey];
+            if (calEntry && calEntry.entries) {
+                var pIdx = n._addedPlacementIdx;
+                calEntry.entries.splice(pIdx, 1);
+                if (calEntry.entries.length === 0) delete qaCalendarData[dayKey];
+            }
         }
         qaRenderCalendar();
     } else if (n.type === 'delete' && n._deletedSnapshot) {
-        // 削除された配置を復元
-        var snap = n._deletedSnapshot;
-        qaPlacementData[snap.placementKey] = JSON.parse(JSON.stringify(snap.placementEntry));
-        if (snap.calendarData) {
-            qaCalendarData[snap.dayKey] = JSON.parse(JSON.stringify(snap.calendarData));
-        }
+        _qaCnRestoreSnapshot(n._deletedSnapshot);
         qaRenderCalendar();
     }
 
@@ -2127,26 +2190,41 @@ function qaCnReapprove(id) {
 
     if (n.type === 'modify' && n._newSnapshot) {
         // 変更を再適用
-        var snap = n._newSnapshot;
-        qaPlacementData[snap.placementKey] = JSON.parse(JSON.stringify(snap.placementEntry));
-        qaCalendarData[snap.dayKey] = JSON.parse(JSON.stringify(snap.calendarData));
+        _qaCnRestoreSnapshot(n._newSnapshot);
         qaRenderCalendar();
     } else if (n.type === 'add' && n._addedData) {
         // 配置を再追加
-        qaPlacementData[n._addedKey] = JSON.parse(JSON.stringify(n._addedData));
-        var dayKey = n.dayKey;
-        if (!qaCalendarData[dayKey]) qaCalendarData[dayKey] = { entries: [] };
-        qaCalendarData[dayKey].entries.push(JSON.parse(JSON.stringify(n._addedCalEntry)));
-        n._addedPlacementIdx = qaCalendarData[dayKey].entries.length - 1;
+        if (typeof n._addedData === 'object' && !Array.isArray(n._addedData) && n._addedCalEntry) {
+            // 新形式: 複数配置キーを復元
+            var dayKey = n.dayKey || n._addedKey;
+            Object.keys(n._addedData).forEach(function(k) {
+                qaPlacementData[k] = JSON.parse(JSON.stringify(n._addedData[k]));
+            });
+            qaCalendarData[dayKey] = JSON.parse(JSON.stringify(n._addedCalEntry));
+        } else {
+            // 旧形式
+            qaPlacementData[n._addedKey] = JSON.parse(JSON.stringify(n._addedData));
+            var dayKey = n.dayKey;
+            if (!qaCalendarData[dayKey]) qaCalendarData[dayKey] = { entries: [] };
+            qaCalendarData[dayKey].entries.push(JSON.parse(JSON.stringify(n._addedCalEntry)));
+            n._addedPlacementIdx = qaCalendarData[dayKey].entries.length - 1;
+        }
         qaRenderCalendar();
     } else if (n.type === 'delete' && n._deletedSnapshot) {
         // 配置を再削除
         var snap = n._deletedSnapshot;
-        delete qaPlacementData[snap.placementKey];
-        var calEntry = qaCalendarData[snap.dayKey];
-        if (calEntry && calEntry.entries) {
-            calEntry.entries.splice(snap.placementIdx, 1);
-            if (calEntry.entries.length === 0) delete qaCalendarData[snap.dayKey];
+        if (snap.placements) {
+            // 新形式
+            Object.keys(snap.placements).forEach(function(k) { delete qaPlacementData[k]; });
+            delete qaCalendarData[snap.dayKey];
+        } else {
+            // 旧形式
+            delete qaPlacementData[snap.placementKey];
+            var calEntry = qaCalendarData[snap.dayKey];
+            if (calEntry && calEntry.entries) {
+                calEntry.entries.splice(snap.placementIdx, 1);
+                if (calEntry.entries.length === 0) delete qaCalendarData[snap.dayKey];
+            }
         }
         qaRenderCalendar();
     }

@@ -1946,6 +1946,8 @@ function addSiteEntry() {
     pushUndo();
     saveSiteToData();
     if (!cellData[editingRi]) cellData[editingRi] = {};
+    // 変更通知用: 追加前スナップショット
+    var _cnOldSnapshot = { rowIndex: editingRi, day: editingDay, cellEntries: JSON.parse(JSON.stringify(cellData[editingRi][editingDay] || [])) };
     const entries = getCellEntries(editingRi, editingDay);
 
     const row = sampleRows[editingRi];
@@ -1975,9 +1977,11 @@ function addSiteEntry() {
     }
 
     // 変更通知: 配置先追加
+    var _cnNewSnapshot = { rowIndex: editingRi, day: editingDay, cellEntries: JSON.parse(JSON.stringify(cellData[editingRi][editingDay])) };
     obCnSelfNotify('add', {
         rowIndex: editingRi, day: editingDay, subIndex: editingSiteIdx,
-        details: [{ field: '配置先追加', value: '1名' }]
+        details: [{ field: '配置先追加', value: '1名' }],
+        _snapshot: _cnOldSnapshot, _newSnapshot: _cnNewSnapshot
     });
 
     loadSiteToModal();
@@ -2003,7 +2007,8 @@ function deleteSiteEntry() {
         editingSiteIdx = entries.length - 1;
     }
 
-    obCnSelfNotify('delete', { rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi, _snapshot: _cnOldSnapshot });
+    var _cnNewSnapshot = { rowIndex: _cnRi, day: _cnDay, cellEntries: JSON.parse(JSON.stringify(cellData[_cnRi][_cnDay])) };
+    obCnSelfNotify('delete', { rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi, _snapshot: _cnOldSnapshot, _newSnapshot: _cnNewSnapshot });
 
     loadSiteToModal();
     if (typeof renderCalendarGrid === 'function') renderCalendarGrid();
@@ -2102,9 +2107,10 @@ function saveEdit() {
         }
     } else if (_cnOldEntry && (!_cnNewEntry || _cnNewEntry.count === 0)) {
         // count=0 → 削除された
+        var _cnDelNewSnapshot = { rowIndex: _cnRi, day: _cnDay, cellEntries: JSON.parse(JSON.stringify(cellData[_cnRi] && cellData[_cnRi][_cnDay] ? cellData[_cnRi][_cnDay] : [])) };
         obCnSelfNotify('delete', {
             rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi,
-            _snapshot: _cnOldSnapshot
+            _snapshot: _cnOldSnapshot, _newSnapshot: _cnDelNewSnapshot
         });
     }
 
@@ -2133,7 +2139,8 @@ function deleteCell() {
     if (entries.length > 1) {
         entries.splice(editingSiteIdx, 1);
         if (editingSiteIdx >= entries.length) editingSiteIdx = entries.length - 1;
-        obCnSelfNotify('delete', { rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi, _snapshot: _cnOldSnapshot });
+        var _cnNewSnap1 = { rowIndex: _cnRi, day: _cnDay, cellEntries: JSON.parse(JSON.stringify(cellData[_cnRi][_cnDay])) };
+        obCnSelfNotify('delete', { rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi, _snapshot: _cnOldSnapshot, _newSnapshot: _cnNewSnap1 });
         loadSiteToModal();
         if (calEditPanelActive) { renderCalendarGrid(); return; }
         renderGrid();
@@ -2142,7 +2149,8 @@ function deleteCell() {
     if (cellData[editingRi]) {
         delete cellData[editingRi][editingDay];
     }
-    obCnSelfNotify('delete', { rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi, _snapshot: _cnOldSnapshot });
+    var _cnNewSnap2 = { rowIndex: _cnRi, day: _cnDay, cellEntries: [] };
+    obCnSelfNotify('delete', { rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi, _snapshot: _cnOldSnapshot, _newSnapshot: _cnNewSnap2 });
     if (calEditPanelActive) {
         collapseCalEditPanel();
         editingDay = null;
@@ -3971,8 +3979,8 @@ function obCnRevert(id) {
     var n = obCnState.notifications.find(function(x) { return x.id === id; });
     if (!n || n.reverted) return;
 
-    if (n.type === 'modify' && n._snapshot) {
-        // セルデータを復元
+    if ((n.type === 'modify' || ((n.type === 'delete' || n.type === 'add') && !n._deletedRow && !n._addedRowIndex)) && n._snapshot) {
+        // セルデータを復元（modify / セルレベルのdelete・add）
         var snap = n._snapshot;
         if (snap.cellEntries !== undefined) {
             if (!cellData[snap.rowIndex]) cellData[snap.rowIndex] = {};
@@ -4037,8 +4045,8 @@ function obCnReapprove(id) {
     var n = obCnState.notifications.find(function(x) { return x.id === id; });
     if (!n || !n.reverted) return;
 
-    if (n.type === 'modify' && n._newSnapshot) {
-        // 変更を再適用
+    if ((n.type === 'modify' || ((n.type === 'delete' || n.type === 'add') && !n._deletedRow && !n._addedRow)) && n._newSnapshot) {
+        // 変更を再適用（modify / セルレベルのdelete・add）
         var snap = n._newSnapshot;
         if (snap.cellEntries !== undefined) {
             if (!cellData[n.rowIndex]) cellData[n.rowIndex] = {};

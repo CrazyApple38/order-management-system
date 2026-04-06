@@ -3336,7 +3336,53 @@
                 _selfAction: true,
                 _approved: true
             };
+            // 行参照を保存（キャンセル時の復元用）
+            var row = cnFindRow(n.siteName);
+            if (row) {
+                n._row = row;
+                // 削除通知: 行HTML・位置を保存（復元用）
+                if (type === 'delete') {
+                    n._deletedRowHtml = row.outerHTML;
+                    n._deletedRowIndex = Array.from(row.parentNode.children).indexOf(row);
+                    n._deletedRowParent = row.parentNode;
+                }
+            }
             receiveChangeNotification(n);
+        }
+
+        // フィールド名 → セル要素のマッピング（diffs から DOM を逆引き）
+        var cnFieldCellMap = {
+            '集合時間':   function(row) { return row.querySelector('.time-display'); },
+            '連絡先':     function(row) { return row.querySelector('.contact-badge'); },
+            '人数':       function(row) { return row.querySelector('.count-display'); },
+            '開始時間':   function(row) { return row.querySelector('.work-time-start'); },
+            '終了時間':   function(row) { return row.querySelector('.work-time-end'); },
+            '現場名':     function(row) { var si = row.querySelector('.col-site-info'); return si ? si.querySelector('.site-name') : null; },
+            '区分':       function(row) { var si = row.querySelector('.col-site-info'); return si ? si.querySelector('.category-badge') : null; },
+            'シフト':     function(row) { var si = row.querySelector('.col-site-info'); return si ? si.querySelector('.shift-badge') : null; },
+            '契約先':     function(row) { var si = row.querySelector('.col-site-info'); return si ? si.querySelector('.company') : null; },
+            '作業内容':   function(row) { return row.querySelector('.col-badge'); },
+            '備考':       function(row) { return row.querySelector('.col-notes'); },
+            '地図':       function(row) { return row.querySelector('.col-map'); }
+        };
+
+        // diffs から _modifyData 相当の配列を生成（復元用）
+        function cnBuildModifyDataFromDiffs(row, diffs) {
+            if (!row || !diffs) return [];
+            var result = [];
+            diffs.forEach(function(d) {
+                var resolver = cnFieldCellMap[d.field];
+                if (!resolver) return;
+                var el = resolver(row);
+                if (!el) return;
+                result.push({
+                    el: el,
+                    td: el.closest('td'),
+                    originalText: d.oldVal || '',
+                    changedText: d.newVal || ''
+                });
+            });
+            return result;
         }
 
         // --- デモシミュレーション（承認方式） ---
@@ -3740,11 +3786,13 @@
                 // --- 承認済みからのrevert ---
                 if (n.type === 'modify') {
                     var row = n._row || cnFindRow(n.siteName);
-                    if (row && n._modifyData) {
+                    // _modifyData がなければ diffs から生成（自己変更通知用）
+                    var modData = n._modifyData || cnBuildModifyDataFromDiffs(row, n.diffs);
+                    if (row && modData.length > 0) {
                         // セルをクリーン状態にして元の値を復元
-                        n._modifyData.forEach(function(d) { d.el.textContent = d.originalText; });
+                        modData.forEach(function(d) { d.el.textContent = d.originalText; });
                         // 差分可視化（変更後B → 元の値A）
-                        var diffs = n._modifyData.map(function(d) {
+                        var diffs = modData.map(function(d) {
                             return { el: d.el, td: d.td, oldText: d.changedText, newText: d.originalText };
                         });
                         cnShowRevertOverlay(row, 'modify', diffs);
@@ -3774,12 +3822,13 @@
                 // --- 未承認（pending）からのrevert ---
                 if (n.type === 'modify') {
                     var row = n._row || cnFindRow(n.siteName);
-                    if (!row || !n._modifyData) return;
+                    var modData = n._modifyData || cnBuildModifyDataFromDiffs(row, n.diffs);
+                    if (!row || modData.length === 0) return;
                     // セルをクリーン状態にして元の値を復元
-                    n._modifyData.forEach(function(d) { d.el.textContent = d.originalText; });
+                    modData.forEach(function(d) { d.el.textContent = d.originalText; });
                     cnClearPending(row);
                     // 差分可視化（変更後B → 元の値A）
-                    var revertDiffs = n._modifyData.map(function(d) {
+                    var revertDiffs = modData.map(function(d) {
                         return { el: d.el, td: d.td, oldText: d.changedText, newText: d.originalText };
                     });
                     cnShowRevertOverlay(row, 'modify', revertDiffs);
@@ -3804,7 +3853,8 @@
 
             if (n.type === 'modify') {
                 var row = n._row || cnFindRow(n.siteName);
-                if (row && n._modifyData) {
+                var modData = n._modifyData || cnBuildModifyDataFromDiffs(row, n.diffs);
+                if (row && modData.length > 0) {
                     // revert状態をクリア
                     row.classList.remove('md-cn-pending');
                     var els = row.querySelectorAll('.md-cn-row-badge, .md-cn-cell-badge');
@@ -3814,9 +3864,9 @@
                         row._cnClickHandler = null;
                     }
                     // セルをクリーン状態にして変更後の値を再設定
-                    n._modifyData.forEach(function(d) { d.el.textContent = d.changedText; });
+                    modData.forEach(function(d) { d.el.textContent = d.changedText; });
                     // 差分可視化（元の値A → 変更後B）
-                    var diffs = n._modifyData.map(function(d) {
+                    var diffs = modData.map(function(d) {
                         return { el: d.el, td: d.td, oldText: d.originalText, newText: d.changedText };
                     });
                     cnShowRevertOverlay(row, 'modify', diffs);
