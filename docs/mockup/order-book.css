@@ -1111,6 +1111,10 @@ body {
     color: #d32f2f; font-size: 12px; font-weight: 600;
     padding: 6px 0 0; margin-top: 4px;
 }
+.md-ob-field-warning {
+    color: #e65100; font-size: 11px; font-weight: 500;
+    padding: 3px 0 0; margin-top: 2px;
+}
 /* 過去データ簡易入力アコーディオン */
 .md-ob-history-accordion {
     border-top: 1px solid var(--divider); padding-top: 10px; margin-top: 2px;

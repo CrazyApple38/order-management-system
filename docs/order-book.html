@@ -289,16 +289,19 @@
                             <span class="md-ob-chip-field-title">会社</span>
                         </div>
                         <div class="md-ob-row-chips" id="rowEditBranchChips"></div>
+                        <div class="md-ob-field-warning" id="warnBranch" style="display:none;">会社を選択してください</div>
                     </div>
                     <div class="md-ob-chip-field">
                         <div class="md-modal-section-bar">区分 <button type="button" class="md-ob-btn-add-sub" onclick="addRowCategory()">+ 追加</button></div>
                         <div class="md-ob-row-chips" id="rowEditCategoryChips"></div>
+                        <div class="md-ob-field-warning" id="warnCategory" style="display:none;">区分を選択してください</div>
                     </div>
                     <div class="md-ob-chip-field">
                         <div class="md-ob-chip-field-header">
                             <span class="md-ob-chip-field-title">昼夜</span>
                         </div>
                         <div class="md-ob-row-chips" id="rowEditShiftChips"></div>
+                        <div class="md-ob-field-warning" id="warnShift" style="display:none;">昼夜を選択してください</div>
                     </div>
                     <!-- 過去データから簡易入力アコーディオン -->
                     <div class="md-ob-history-accordion">
@@ -325,8 +328,9 @@
                 <div class="md-modal-body-card">
                     <div class="md-ob-form-row md-ob-company-field">
                         <label>契約先名</label>
-                        <input type="text" id="rowEditCompany" oninput="checkRowDuplicate(); obCompanySuggest()" autocomplete="off">
+                        <input type="text" id="rowEditCompany" oninput="checkRowDuplicate(); obCompanySuggest(); updateFieldWarnings()" autocomplete="off">
                         <div class="md-ob-company-suggest" id="obCompanySuggest" style="display:none;"></div>
+                        <div class="md-ob-field-warning" id="warnCompany" style="display:none;">契約先名を入力してください</div>
                     </div>
                     <div class="md-ob-form-row md-ob-task-field">
                         <label>業務名</label>

@@ -2234,17 +2234,56 @@ function renderRowChips(containerId, items, selectedValue, groupKey, disabledIte
 }
 
 function selectRowChip(groupKey, value) {
+    // 同じ値をクリックしたらトグル解除
+    if (rowEditSelected[groupKey] === value) value = null;
     rowEditSelected[groupKey] = value;
     // 対応するチップコンテナを再描画
     if (groupKey === 'branch') renderRowChips('rowEditBranchChips', branchList, value, 'branch');
     else if (groupKey === 'category') renderRowChips('rowEditCategoryChips', getCategoryList(), value, 'category');
     else if (groupKey === 'shift') renderRowChips('rowEditShiftChips', shiftList, value, 'shift', rowEditDisabledShifts);
     checkRowDuplicate();
+    updateFieldWarnings();
     // 会社・区分・昼夜変更時にアコーディオンの過去データを更新
     if (groupKey === 'branch' || groupKey === 'category' || groupKey === 'shift') {
         historySelectedCompany = null;
         historySelectedTask = null;
         updateHistoryBadges();
+        // 会社+区分が揃ったらアコーディオンを自動展開
+        autoOpenHistoryAccordion();
+    }
+}
+
+// --- フィールド警告表示 ---
+function updateFieldWarnings() {
+    // 新規追加モード以外では警告を非表示
+    if (editingRowRi !== -1) {
+        document.getElementById('warnBranch').style.display = 'none';
+        document.getElementById('warnCategory').style.display = 'none';
+        document.getElementById('warnShift').style.display = 'none';
+        document.getElementById('warnCompany').style.display = 'none';
+        return;
+    }
+    document.getElementById('warnBranch').style.display = rowEditSelected.branch ? 'none' : '';
+    document.getElementById('warnCategory').style.display = rowEditSelected.category ? 'none' : '';
+    document.getElementById('warnShift').style.display = rowEditSelected.shift ? 'none' : '';
+    const company = document.getElementById('rowEditCompany').value.trim();
+    document.getElementById('warnCompany').style.display = company ? 'none' : '';
+}
+
+// --- アコーディオン自動展開 ---
+function autoOpenHistoryAccordion() {
+    if (editingRowRi !== -1) return;
+    const accordion = document.querySelector('.md-ob-history-accordion');
+    if (!accordion || accordion.style.display === 'none') return;
+    const panel = document.getElementById('historyAccordionPanel');
+    const icon = document.getElementById('historyAccordionIcon');
+    if (rowEditSelected.branch && rowEditSelected.category) {
+        // 閉じていたら開く
+        if (panel.style.display === 'none') {
+            panel.style.display = '';
+            icon.classList.add('md-ob-expanded');
+            updateHistoryBadges();
+        }
     }
 }
 
@@ -2296,6 +2335,7 @@ const historyDbRecords = [
 ];
 
 // sampleRowsに既に存在する(branch,category,shift,company,task)の組を除外したリストを返す
+// shiftは未選択(falsy)の場合、昼夜を問わず全件を対象にする
 function getAvailableHistoryRecords(branch, category, shift) {
     const existingKeys = {};
     sampleRows.forEach(function(r) {
@@ -2303,7 +2343,8 @@ function getAvailableHistoryRecords(branch, category, shift) {
         existingKeys[key] = true;
     });
     return historyDbRecords.filter(function(r) {
-        if (r.branch !== branch || r.category !== category || r.shift !== shift) return false;
+        if (r.branch !== branch || r.category !== category) return false;
+        if (shift && r.shift !== shift) return false;
         const key = r.branch + '\t' + r.category + '\t' + r.shift + '\t' + r.company + '\t' + (r.task || '');
         return !existingKeys[key];
     });
@@ -2336,12 +2377,11 @@ function updateHistoryBadges() {
     const compSection = document.getElementById('historyCompanySection');
     const taskSection = document.getElementById('historyTaskSection');
 
-    // 会社・区分・昼夜すべて選択されるまでヒント表示
-    if (!branch || !category || !shift) {
+    // 会社・区分が選択されるまでヒント表示（昼夜はオプション）
+    if (!branch || !category) {
         const missing = [];
         if (!branch) missing.push('会社');
         if (!category) missing.push('区分');
-        if (!shift) missing.push('昼夜');
         hint.textContent = missing.join('と') + 'を選択してください';
         hint.style.display = '';
         compSection.style.display = 'none';
@@ -2381,12 +2421,27 @@ function updateHistoryBadges() {
 }
 
 function selectHistoryCompany(company) {
+    // 同じ契約先をクリックしたら選択解除
+    if (historySelectedCompany === company) {
+        historySelectedCompany = null;
+        historySelectedTask = null;
+        document.getElementById('rowEditCompany').value = '';
+        document.getElementById('rowEditTask').value = '';
+        document.getElementById('obCompanySuggest').style.display = 'none';
+        checkRowDuplicate();
+        updateFieldWarnings();
+        updateHistoryBadges();
+        return;
+    }
     historySelectedCompany = company;
     historySelectedTask = null;
     // 契約先名をFieldsに反映
     document.getElementById('rowEditCompany').value = company;
     document.getElementById('obCompanySuggest').style.display = 'none';
+    // 業務名もクリア（新しい契約先の業務を選び直す）
+    document.getElementById('rowEditTask').value = '';
     checkRowDuplicate();
+    updateFieldWarnings();
     updateHistoryBadges();
 }
 
@@ -2427,6 +2482,15 @@ function updateHistoryTaskBadges() {
 }
 
 function selectHistoryTask(task) {
+    // 同じ業務名をクリックしたら選択解除
+    if (historySelectedTask === task) {
+        historySelectedTask = null;
+        document.getElementById('rowEditTask').value = '';
+        document.getElementById('obTaskSuggest').style.display = 'none';
+        checkRowDuplicate();
+        updateHistoryTaskBadges();
+        return;
+    }
     historySelectedTask = task;
     document.getElementById('rowEditTask').value = task;
     document.getElementById('obTaskSuggest').style.display = 'none';
@@ -2704,6 +2768,7 @@ function addShiftRow(ri) {
     resetHistoryAccordion(false);
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
+    updateFieldWarnings();
 }
 
 function addNewRowFromRow(ri) {
@@ -2728,6 +2793,7 @@ function addNewRowFromRow(ri) {
     resetHistoryAccordion(false);
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
+    updateFieldWarnings();
 }
 
 function addNewRow() {
@@ -2751,6 +2817,7 @@ function addNewRow() {
     resetHistoryAccordion(true);
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
+    updateFieldWarnings();
 }
 
 function openRowEditModal(ri) {
@@ -2773,6 +2840,7 @@ function openRowEditModal(ri) {
     resetHistoryAccordion(false);
     document.getElementById('rowEditModalOverlay').style.display = 'flex';
     checkRowDuplicate();
+    updateFieldWarnings();
 }
 
 function closeRowEditModal(e) {
