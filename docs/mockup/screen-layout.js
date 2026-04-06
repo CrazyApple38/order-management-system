@@ -602,7 +602,8 @@
                 // コンボボックスにセルのテキストを表示（IDが無い場合）
                 const companyText = cell.querySelector('.company');
                 if (companyText && companyText.textContent.trim()) {
-                    const found = companiesData.find(c => c.name === companyText.textContent.trim());
+                    const companyName = companyText.textContent.trim();
+                    const found = companiesData.find(c => c.name === companyName);
                     if (found) {
                         companyCombobox.select(found);
                         const siteText = cell.querySelector('.site-name');
@@ -611,7 +612,20 @@
                             const siteFound = sites.find(s => s.name === siteText.textContent.trim());
                             if (siteFound) {
                                 setTimeout(() => siteNameCombobox.select(siteFound), 0);
+                            } else {
+                                // マスターに現場名がない場合、テキストだけ表示
+                                siteNameCombobox.input.value = siteText.textContent.trim();
+                                siteNameCombobox.updateClearButton();
                             }
+                        }
+                    } else {
+                        // マスターに契約先がない場合、テキストだけ表示
+                        companyCombobox.input.value = companyName;
+                        companyCombobox.updateClearButton();
+                        const siteText = cell.querySelector('.site-name');
+                        if (siteText && siteText.textContent.trim()) {
+                            siteNameCombobox.input.value = siteText.textContent.trim();
+                            siteNameCombobox.updateClearButton();
                         }
                     }
                 }
@@ -3413,7 +3427,7 @@
               apply: function(self) {
                   var tbody = document.querySelector('.grid-table tbody');
                   var no = tbody.querySelectorAll('tr').length + 1;
-                  var tr = cnCreateRow({ no: no, gcClass: 'md-gc-row-touo', gcCode: 'touo', shiftClass: 'shift-night', shiftLabel: '夜',
+                  var tr = cnCreateRow({ no: no, gcClass: 'md-gc-row-touo', gcCode: 'touo', gcName: '東央警備', shiftClass: 'shift-night', shiftLabel: '夜',
                       categoryClass: 'category-facility', categoryLabel: '施設', company: '△△不動産',
                       siteName: '△△マンション 常駐警備', meetingTime: '19:30', meetingMethod: '直', meetingMethodClass: 'method-direct',
                       timeStart: '20:00', timeEnd: '08:00', count: '0/2', shortage: true });
@@ -3447,7 +3461,7 @@
               apply: function(self) {
                   var tbody = document.querySelector('.grid-table tbody');
                   var no = tbody.querySelectorAll('tr').length + 1;
-                  var tr = cnCreateRow({ no: no, gcClass: 'md-gc-row-nikkei', gcCode: 'nikkei', shiftClass: 'shift-day', shiftLabel: '昼',
+                  var tr = cnCreateRow({ no: no, gcClass: 'md-gc-row-nikkei', gcCode: 'nikkei', gcName: 'Nikkeiホールディングス', shiftClass: 'shift-day', shiftLabel: '昼',
                       categoryClass: 'category-event', categoryLabel: 'イベント', company: '□□イベント',
                       siteName: '□□公園 花火大会警備', meetingTime: '15:00', meetingMethod: '会社', meetingMethodClass: 'method-company',
                       timeStart: '16:00', timeEnd: '22:00', count: '0/5', shortage: true });
@@ -3910,7 +3924,7 @@
                     '<span class="md-cn-row-bell" onclick="event.stopPropagation(); cnOpenModalForRow(this)" title="この現場の変更通知">' +
                         '<img src="mockup/icons/bell.svg" class="md-cn-row-bell-img">' +
                     '</span></td>' +
-                '<td class="col-site-info clickable-cell"' + (d.gcCode ? ' data-group-company="' + d.gcCode + '"' : '') + ' onclick="openSiteModal(this)">' +
+                '<td class="col-site-info clickable-cell"' + (d.gcCode ? ' data-group-company="' + d.gcCode + '" data-gc-name="' + (d.gcName || '') + '"' : '') + ' onclick="openSiteModal(this)">' +
                   '<div class="site-info"><div class="site-badges">' +
                     '<span class="shift-badge ' + d.shiftClass + '">' + d.shiftLabel + '</span>' +
                     '<span class="category-badge ' + d.categoryClass + '">' + d.categoryLabel + '</span>' +
@@ -5623,6 +5637,7 @@
                 no: no,
                 gcClass: gcClass,
                 gcCode: gcCode,
+                gcName: gc ? gc.name : branch,
                 shiftClass: shiftClass,
                 shiftLabel: shift,
                 categoryClass: categoryClass,
