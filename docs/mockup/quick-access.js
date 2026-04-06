@@ -504,7 +504,7 @@ function qaOpenSiteModal(clientId, siteId) {
     qaSetTimeValue('qaSiteModalStart', site?.presetStart || '');
     qaSetTimeValue('qaSiteModalEnd', site?.presetEnd || '');
 
-    qaClearSiteModalWarnings();
+    qaUpdateSiteModalWarnings();
     document.getElementById('qaSiteModalOverlay').style.display = 'flex';
     document.getElementById('qaSiteModalName').focus();
 }
@@ -526,12 +526,8 @@ function qaSelectSiteModalChip(el, group) {
     el.parentElement.querySelectorAll('.qa-modal-chip').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
     qaSiteModalState[group] = el.textContent;
-    // 選択されたら警告を消す
-    const key = group.charAt(0).toUpperCase() + group.slice(1);
-    const warn = document.getElementById(`qaSiteModal${key}Warn`);
-    if (warn) { warn.classList.remove('active'); }
-    const label = document.getElementById(`qaSiteModal${key}Label`);
-    if (label) { label.classList.remove('warn'); }
+    // リアルタイム警告更新
+    qaUpdateSiteModalWarnings();
 }
 
 function qaInitModalTimeSelects() {
@@ -557,6 +553,27 @@ function qaClearSiteModalWarnings() {
     });
 }
 
+// リアルタイム警告: 新規追加時に未選択項目を警告表示
+function qaUpdateSiteModalWarnings() {
+    // 編集モードでは警告非表示
+    if (qaSiteModalState.siteId) {
+        qaClearSiteModalWarnings();
+        return;
+    }
+    ['branch', 'category', 'shift'].forEach(group => {
+        const key = group.charAt(0).toUpperCase() + group.slice(1);
+        const warn = document.getElementById(`qaSiteModal${key}Warn`);
+        const label = document.getElementById(`qaSiteModal${key}Label`);
+        if (qaSiteModalState[group]) {
+            warn.classList.remove('active');
+            label.classList.remove('warn');
+        } else {
+            warn.classList.add('active');
+            label.classList.add('warn');
+        }
+    });
+}
+
 function qaSaveSiteModal() {
     const nameInput = document.getElementById('qaSiteModalName').value.trim();
     const name = nameInput || '(個別業務)';
@@ -567,16 +584,8 @@ function qaSaveSiteModal() {
 
     // 新規追加時のみ必須チェック（会社・区分・昼夜）
     if (!siteId) {
-        qaClearSiteModalWarnings();
-        const missing = [];
-        if (!qaSiteModalState.branch) missing.push('Branch');
-        if (!qaSiteModalState.category) missing.push('Category');
-        if (!qaSiteModalState.shift) missing.push('Shift');
-        if (missing.length > 0) {
-            missing.forEach(key => {
-                document.getElementById(`qaSiteModal${key}Warn`).classList.add('active');
-                document.getElementById(`qaSiteModal${key}Label`).classList.add('warn');
-            });
+        qaUpdateSiteModalWarnings();
+        if (!qaSiteModalState.branch || !qaSiteModalState.category || !qaSiteModalState.shift) {
             return;
         }
     }
