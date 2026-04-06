@@ -4399,3 +4399,160 @@ h1 {
     background: rgba(68, 166, 181, 0.08);
     pointer-events: none;
 }
+
+/* ============================================================
+   新規追加モーダル
+   ============================================================ */
+.md-ob-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,69,84,0.35);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500;
+}
+.md-ob-modal {
+    background: var(--bg-surface); border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,69,84,0.15);
+    width: 480px; max-height: 90vh;
+    display: flex; flex-direction: column;
+    overflow: hidden; border: 1px solid var(--divider);
+}
+.md-ob-modal.md-ob-modal-sm { width: 380px; }
+.md-ob-modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px;
+    background: var(--accent-light); color: #FFFFFF;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px 12px 0 0;
+    flex-wrap: wrap; gap: 6px;
+    position: relative;
+}
+.md-ob-modal-header span { font-size: 15px; font-weight: 600; color: #FFFFFF; }
+.md-ob-modal-body {
+    padding: 20px 24px; overflow-y: auto; flex: 1;
+    background: #E9F1F6; display: flex; flex-direction: column; gap: 16px;
+    scrollbar-width: thin; scrollbar-color: var(--divider) transparent;
+}
+.md-ob-modal-body::-webkit-scrollbar { width: 5px; }
+.md-ob-modal-body::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 3px; }
+.md-ob-modal-body::-webkit-scrollbar-track { background: transparent; }
+.md-modal-body-field { margin-bottom: 4px; }
+.md-modal-body-field-value {
+    padding: 6px 0; border-bottom: 2px solid var(--accent);
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--accent); font-weight: 600;
+}
+.md-ob-modal-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px; border-top: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+}
+.md-ob-modal-footer-right { display: flex; gap: 10px; }
+
+/* フォーム行 */
+.md-ob-form-row { display: flex; flex-direction: column; gap: 5px; }
+.md-ob-form-row label {
+    font-size: 11px; font-weight: 600; color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+.md-ob-form-row input {
+    padding: 10px; border: 1px solid var(--divider);
+    border-radius: 6px; font-size: 12px; font-family: inherit;
+    transition: border-color 0.15s;
+    background: var(--bg-surface); color: var(--text-primary);
+}
+.md-ob-form-row input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.md-ob-form-row-half { flex-direction: row; gap: 12px; }
+.md-ob-form-row-half > div { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.md-ob-company-field, .md-ob-task-field { position: relative; }
+.md-ob-company-suggest {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
+    background: var(--bg-surface); border: 1px solid var(--divider);
+    border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    max-height: 180px; overflow-y: auto; margin-top: 2px;
+}
+.md-ob-company-suggest .suggest-item {
+    padding: 6px 12px; cursor: pointer; font-size: 12px; color: var(--text-primary);
+}
+.md-ob-company-suggest .suggest-item:hover { background: var(--accent-dim); }
+.md-ob-company-suggest .suggest-header {
+    padding: 4px 12px; font-size: 10px; font-weight: 600; color: var(--text-tertiary);
+    border-bottom: 1px solid var(--divider); background: var(--bg-surface-2);
+}
+.md-ob-field-warning {
+    color: #e65100; font-size: 11px; font-weight: 500;
+    padding: 3px 0 0; margin-top: 2px;
+}
+
+/* 過去データアコーディオン */
+.md-ob-history-accordion {
+    border-top: 1px solid var(--divider); padding-top: 10px; margin-top: 2px;
+}
+.md-ob-history-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: none; border: none; cursor: pointer;
+    font-size: 11px; font-weight: 600; color: var(--text-secondary);
+    padding: 2px 0; transition: color 0.15s;
+}
+.md-ob-history-toggle:hover { color: var(--accent); }
+.md-ob-history-toggle-icon {
+    font-size: 9px; transition: transform 0.2s; display: inline-block;
+}
+.md-ob-history-toggle-icon.md-ob-expanded { transform: rotate(90deg); }
+.md-ob-history-panel {
+    display: flex; flex-direction: column; gap: 10px; padding: 10px 0 0;
+}
+.md-ob-history-hint {
+    font-size: 11px; color: var(--text-tertiary); font-style: italic;
+}
+.md-ob-history-section {
+    display: flex; flex-direction: column; gap: 6px;
+}
+.md-ob-history-label {
+    font-size: 11px; font-weight: 600; color: var(--text-secondary);
+}
+.md-ob-history-badges {
+    display: flex; flex-wrap: wrap; gap: 6px;
+}
+.md-ob-history-badge {
+    display: inline-flex; align-items: center;
+    padding: 4px 12px; border-radius: 14px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface); color: var(--text-secondary);
+    font-size: 11px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    user-select: none;
+}
+.md-ob-history-badge:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.md-ob-history-badge.md-ob-hb-active {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+}
+/* 受注簿に存在する（濃い色） */
+.md-ob-history-badge.sl-hb-in-orderbook {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.12); font-weight: 600;
+}
+.md-ob-history-badge.sl-hb-in-orderbook:hover {
+    background: rgba(68,166,181,0.22);
+}
+.md-ob-history-badge.sl-hb-in-orderbook.md-ob-hb-active {
+    background: var(--accent); color: #fff;
+}
+/* DBのみ（薄い色） */
+.md-ob-history-badge.sl-hb-db-only {
+    border-color: var(--divider); color: var(--text-tertiary);
+    background: rgba(68,166,181,0.03); font-weight: 400;
+}
+.md-ob-history-badge.sl-hb-db-only:hover {
+    border-color: rgba(68,166,181,0.4); color: var(--text-secondary);
+    background: rgba(68,166,181,0.08);
+}
+.md-ob-history-badge.sl-hb-db-only.md-ob-hb-active {
+    background: rgba(68,166,181,0.6); color: #fff;
+    border-color: rgba(68,166,181,0.6);
+}

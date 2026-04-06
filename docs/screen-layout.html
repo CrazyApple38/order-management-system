@@ -42,7 +42,7 @@
                     <button id="undoBtn" onclick="undo()" disabled>↩ 戻す</button>
                     <button id="redoBtn" onclick="redo()" disabled>↪ やり直す</button>
                     <div class="toolbar-separator"></div>
-                    <button><img src="mockup/icons/plus.svg" class="md-ob-icon"> 新規追加</button>
+                    <button onclick="slOpenAddModal()"><img src="mockup/icons/plus.svg" class="md-ob-icon"> 新規追加</button>
                     <button class="danger" onclick="deleteRow()"><img src="mockup/icons/trash.svg" class="md-ob-icon"> 行削除</button>
                     <div class="toolbar-separator"></div>
                     <button onclick="moveRowUp()"><img src="mockup/icons/arrow-up.svg" class="md-ob-icon"> 上へ</button>
@@ -1335,7 +1335,98 @@
         </div>
     </div>
 
+    <!-- 新規追加モーダル -->
+    <div class="md-ob-modal-overlay" id="slAddModalOverlay" style="display:none;" onclick="slCloseAddModal(event)">
+        <div class="md-ob-modal md-ob-modal-sm" onclick="event.stopPropagation()">
+            <div class="md-ob-modal-header">
+                <span>新規追加</span>
+            </div>
+            <div class="md-ob-modal-body">
+                <!-- ━━ Row Information ━━ -->
+                <div class="md-modal-body-field"><div class="md-modal-body-field-value">Row Information</div></div>
+                <div class="md-modal-body-card">
+                    <div class="md-ob-chip-field">
+                        <div class="md-ob-chip-field-header">
+                            <span class="md-ob-chip-field-title">会社</span>
+                        </div>
+                        <div class="md-ob-row-chips" id="slAddBranchChips"></div>
+                        <div class="md-ob-field-warning" id="slWarnBranch" style="display:none;">会社を選択してください</div>
+                    </div>
+                    <div class="md-ob-chip-field">
+                        <div class="md-modal-section-bar">区分</div>
+                        <div class="md-ob-row-chips" id="slAddCategoryChips"></div>
+                        <div class="md-ob-field-warning" id="slWarnCategory" style="display:none;">区分を選択してください</div>
+                    </div>
+                    <div class="md-ob-chip-field">
+                        <div class="md-ob-chip-field-header">
+                            <span class="md-ob-chip-field-title">昼夜</span>
+                        </div>
+                        <div class="md-ob-row-chips" id="slAddShiftChips"></div>
+                        <div class="md-ob-field-warning" id="slWarnShift" style="display:none;">昼夜を選択してください</div>
+                    </div>
+                    <!-- 過去データから入力アコーディオン -->
+                    <div class="md-ob-history-accordion" id="slHistoryAccordion">
+                        <button type="button" class="md-ob-history-toggle" onclick="slToggleHistory()">
+                            <span class="md-ob-history-toggle-icon" id="slHistoryIcon">▶</span>
+                            <span>過去データから入力</span>
+                        </button>
+                        <div class="md-ob-history-panel" id="slHistoryPanel" style="display:none;">
+                            <div class="md-ob-history-hint" id="slHistoryHint">会社と区分を選択してください</div>
+                            <div class="md-ob-history-section" id="slHistoryCompanySection" style="display:none;">
+                                <div class="md-ob-history-label">契約先名</div>
+                                <div class="md-ob-history-badges" id="slHistoryCompanyBadges"></div>
+                            </div>
+                            <div class="md-ob-history-section" id="slHistoryTaskSection" style="display:none;">
+                                <div class="md-ob-history-label">業務名</div>
+                                <div class="md-ob-history-badges" id="slHistoryTaskBadges"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ━━ Fields ━━ -->
+                <div class="md-modal-body-field"><div class="md-modal-body-field-value">Fields</div></div>
+                <div class="md-modal-body-card">
+                    <div class="md-ob-form-row md-ob-company-field">
+                        <label>契約先名</label>
+                        <input type="text" id="slAddCompany" oninput="slCompanySuggest(); slUpdateWarnings()" autocomplete="off">
+                        <div class="md-ob-company-suggest" id="slCompanySuggestPanel" style="display:none;"></div>
+                        <div class="md-ob-field-warning" id="slWarnCompany" style="display:none;">契約先名を入力してください</div>
+                    </div>
+                    <div class="md-ob-form-row md-ob-task-field">
+                        <label>業務名</label>
+                        <input type="text" id="slAddTask" placeholder="空欄で個別業務" oninput="slTaskSuggest()" autocomplete="off">
+                        <div class="md-ob-company-suggest" id="slTaskSuggestPanel" style="display:none;"></div>
+                    </div>
+                    <div class="md-ob-form-row md-ob-form-row-half">
+                        <div>
+                            <label>開始時間（プリセット）</label>
+                            <div class="md-ob-time-picker-wrap" onclick="openTimePicker('slAddPresetStart', this)">
+                                <input type="text" id="slAddPresetStart" class="md-ob-time-input" readonly placeholder="--:--">
+                                <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
+                            </div>
+                        </div>
+                        <div>
+                            <label>終了時間（プリセット）</label>
+                            <div class="md-ob-time-picker-wrap" onclick="openTimePicker('slAddPresetEnd', this)">
+                                <input type="text" id="slAddPresetEnd" class="md-ob-time-input" readonly placeholder="--:--">
+                                <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="md-ob-modal-footer">
+                <div></div>
+                <div class="md-ob-modal-footer-right">
+                    <button class="md-ob-btn md-ob-btn-secondary" onclick="slCloseAddModal()">キャンセル</button>
+                    <button class="md-ob-btn md-ob-btn-primary" id="slAddSaveBtn" onclick="slSaveNewRow()">追加</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="mockup/demo-data.js?v=1"></script>
-    <script src="mockup/screen-layout.js?v=9"></script>
+    <script src="mockup/screen-layout.js?v=10"></script>
 </body>
 </html>
