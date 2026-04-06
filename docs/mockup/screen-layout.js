@@ -5179,7 +5179,11 @@
         // ============================================================
 
         // --- マスターデータ ---
-        const slBranchList = groupCompaniesData.map(g => g.name);
+        function slGetVisibleBranchList() {
+            return groupCompaniesData
+                .filter(g => gcFilterState.selected.includes(g.code))
+                .map(g => g.name);
+        }
         const slShiftList = ['昼', '夜'];
         const slCategoryList = ['施設', 'イベント', '交通', '高速'];
         const slBranchClassMap = {};
@@ -5265,7 +5269,7 @@
         function slSelectChip(groupKey, value) {
             if (slAddSelected[groupKey] === value) value = null;
             slAddSelected[groupKey] = value;
-            if (groupKey === 'branch') slRenderChips('slAddBranchChips', slBranchList, value, 'branch');
+            if (groupKey === 'branch') slRenderChips('slAddBranchChips', slGetVisibleBranchList(), value, 'branch');
             else if (groupKey === 'category') slRenderChips('slAddCategoryChips', slCategoryList, value, 'category');
             else if (groupKey === 'shift') slRenderChips('slAddShiftChips', slShiftList, value, 'shift');
             slUpdateWarnings();
@@ -5564,7 +5568,7 @@
             slHistorySelectedCompany = null;
             slHistorySelectedTask = null;
 
-            slRenderChips('slAddBranchChips', slBranchList, null, 'branch');
+            slRenderChips('slAddBranchChips', slGetVisibleBranchList(), null, 'branch');
             slRenderChips('slAddCategoryChips', slCategoryList, null, 'category');
             slRenderChips('slAddShiftChips', slShiftList, null, 'shift');
 
