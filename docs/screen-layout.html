@@ -52,6 +52,9 @@
                     <button onclick="toggleColorSettingsPanel()"><img src="mockup/icons/brush.svg" class="md-ob-icon"> カラー設定</button>
                     <div class="toolbar-separator"></div>
                     <button id="cnDemoBtn" onclick="toggleChangeNotifyDemo()">▶ デモ開始</button>
+                    <div class="toolbar-separator"></div>
+                    <button onclick="resetDemoData('random')"><img src="mockup/icons/refresh.svg" class="md-ob-icon" alt="再生成" onerror="this.style.display='none'"> デモデータ再生成</button>
+                    <button onclick="resetDemoData('default')">デフォルトに戻す</button>
                 </div>
 
                 <!-- グリッドテーブル -->
@@ -1329,6 +1332,7 @@
         </div>
     </div>
 
+    <script src="mockup/demo-data.js?v=1"></script>
     <script src="mockup/screen-layout.js?v=9"></script>
 </body>
 </html>

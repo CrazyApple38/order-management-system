@@ -15,77 +15,6 @@
             }
         })();
 
-        // グループ会社データ
-        // 【本番】DBのグループ会社マスターから動的に取得。背景色はユーザー設定テーブルから読み込み
-        const groupCompaniesData = [
-            { id: 1, code: 'touo', name: '東央警備', shortName: '東央', rowClass: 'md-gc-row-touo' },
-            { id: 2, code: 'nikkei', name: 'Nikkeiホールディングス', shortName: 'Nikkei', rowClass: 'md-gc-row-nikkei' },
-            { id: 3, code: 'zennihon', name: '全日本エンタープライズ', shortName: 'AJE', rowClass: 'md-gc-row-zennihon' }
-        ];
-
-        // 部署データ（会社コード → 部署リスト）
-        // 【本番】DBの部署マスターから動的に取得
-        const departmentsData = {
-            touo:     [{ id: 'touo-shisetsu', name: '施設課' }, { id: 'touo-kotsu', name: '交通課' }],
-            nikkei:   [{ id: 'nikkei-shisetsu', name: '施設課' }, { id: 'nikkei-kotsu', name: '交通課' }],
-            zennihon: [{ id: 'zen-kotsu1', name: '交通一課' }, { id: 'zen-kotsu2', name: '交通二課' }]
-        };
-
-        // 社員データ（名前・所属会社・所属部署）
-        // 【本番】DBの社員マスターから動的に取得
-        const employeesData = [
-            { name: '田中', company: 'touo', dept: 'touo-shisetsu' },
-            { name: '佐藤', company: 'touo', dept: 'touo-shisetsu' },
-            { name: '鈴木', company: 'touo', dept: 'touo-kotsu' },
-            { name: '高橋', company: 'touo', dept: 'touo-kotsu' },
-            { name: '伊藤', company: 'touo', dept: 'touo-shisetsu' },
-            { name: '林',   company: 'touo', dept: 'touo-shisetsu' },
-            { name: '斎藤', company: 'touo', dept: 'touo-kotsu' },
-            { name: '池田', company: 'touo', dept: 'touo-shisetsu' },
-            { name: '橋本', company: 'touo', dept: 'touo-kotsu' },
-            { name: '山本', company: 'nikkei', dept: 'nikkei-shisetsu' },
-            { name: '中村', company: 'nikkei', dept: 'nikkei-shisetsu' },
-            { name: '小林', company: 'nikkei', dept: 'nikkei-kotsu' },
-            { name: '渡辺', company: 'nikkei', dept: 'nikkei-kotsu' },
-            { name: '加藤', company: 'nikkei', dept: 'nikkei-shisetsu' },
-            { name: '清水', company: 'nikkei', dept: 'nikkei-kotsu' },
-            { name: '山口', company: 'nikkei', dept: 'nikkei-shisetsu' },
-            { name: '阿部', company: 'nikkei', dept: 'nikkei-shisetsu' },
-            { name: '吉田', company: 'zennihon', dept: 'zen-kotsu1' },
-            { name: '山田', company: 'zennihon', dept: 'zen-kotsu1' },
-            { name: '松本', company: 'zennihon', dept: 'zen-kotsu2' },
-            { name: '井上', company: 'zennihon', dept: 'zen-kotsu2' },
-            { name: '木村', company: 'zennihon', dept: 'zen-kotsu1' },
-            { name: '森',   company: 'zennihon', dept: 'zen-kotsu2' },
-            { name: '石川', company: 'zennihon', dept: 'zen-kotsu1' },
-            { name: '前田', company: 'zennihon', dept: 'zen-kotsu2' }
-        ];
-
-        // 車両データ（ナンバー・車種・所有者）
-        // 【本番】DBの車両マスターから動的に取得
-        const vehiclesData = [
-            { plate: 'さ 3078', model: 'ハイエース', owner: 'touo' },
-            { plate: 'わ 2490', model: 'キャラバン', owner: 'touo' },
-            { plate: 'く 7521', model: 'プロボックス', owner: 'nikkei' },
-            { plate: 'あ 1234', model: 'ハイエース', owner: 'touo' },
-            { plate: 'か 5678', model: 'キャンター', owner: 'nikkei' },
-            { plate: 'た 9012', model: 'エルフ', owner: 'touo' },
-        ];
-
-        // ETCカードデータ
-        // 【本番】DBのETCカードマスターから動的に取得
-        const etcCardsData = [
-            { label: 'ETC-A', owner: 'touo' },
-            { label: 'ETC-B', owner: 'touo' },
-            { label: 'ETC-C', owner: 'touo' },
-            { label: 'ETC-D', owner: 'touo' },
-            { label: 'ETC-E', owner: 'touo' },
-            { label: 'ETC-F', owner: 'touo' },
-            { label: 'ETC く7521', owner: 'nikkei' },
-            { label: 'ETC わ2490', owner: 'nikkei' },
-            { label: 'ETC か5678', owner: 'nikkei' },
-        ];
-
         // サイドパネル状態
         const spState = {
             activeTab: 'all',
@@ -93,73 +22,8 @@
             mainTab: 'employee'
         };
 
-        // サンプルデータ（契約先/元請け先）
-        const companiesData = [
-            { id: 1, name: '〇〇株式会社' },
-            { id: 2, name: '△△建設' },
-            { id: 3, name: '□□イベント' },
-            { id: 4, name: '西日本高速道路' },
-            { id: 5, name: '◇◇工業' },
-            { id: 6, name: 'ABC警備' },
-            { id: 7, name: '東央警備' },
-            { id: 8, name: '西日本高速道路エンジニアリング四国' }
-        ];
-
-        // サンプルデータ（現場：階層構造対応）
-        const sitesData = {
-            1: [
-                { id: 101, name: '〇〇ビル', hierarchyDepth: 2, subItems: [
-                    { id: 1001, name: '巡回警備', subItems: [] },
-                    { id: 1002, name: '夜間警備', subItems: [] }
-                ]},
-                { id: 103, name: '本社', hierarchyDepth: 2, subItems: [
-                    { id: 1003, name: '受付警備', subItems: [] }
-                ]}
-            ],
-            2: [
-                { id: 201, name: '国道〇号線', hierarchyDepth: 2, subItems: [
-                    { id: 2001, name: '舗装工事', subItems: [] }
-                ]},
-                { id: 202, name: '県道△号', hierarchyDepth: 2, subItems: [
-                    { id: 2002, name: '橋梁工事', subItems: [] }
-                ]}
-            ],
-            3: [
-                { id: 301, name: '〇〇会館 展示会', hierarchyDepth: 1, subItems: [] },
-                { id: 302, name: '〇〇アリーナ コンサート', hierarchyDepth: 1, subItems: [] }
-            ],
-            4: [
-                { id: 401, name: '24-1234', hierarchyDepth: 3, subItems: [
-                    { id: 4001, name: '〇〇橋補修工事', subItems: [
-                        { id: 40001, name: '点検作業' },
-                        { id: 40002, name: '清掃作業' }
-                    ]}
-                ]},
-                { id: 402, name: '24-5678', hierarchyDepth: 3, subItems: [
-                    { id: 4002, name: 'トンネル清掃', subItems: [
-                        { id: 40003, name: '日常清掃' }
-                    ]}
-                ]}
-            ],
-            5: [
-                { id: 501, name: '県道〇号', hierarchyDepth: 2, subItems: [
-                    { id: 5001, name: '夜間規制', subItems: [] }
-                ]},
-                { id: 502, name: '工場前', hierarchyDepth: 2, subItems: [
-                    { id: 5002, name: '交通整理', subItems: [] }
-                ]}
-            ],
-            6: [],
-            7: [],
-            8: []
-        };
-
-        // 連絡選択肢データ
-        const contactsData = [
-            { id: 1, name: '会社' },
-            { id: 2, name: '直' },
-            { id: 3, name: 'LINE' }
-        ];
+        // デモデータは demo-data.js から読み込み
+        // companiesData, sitesData, contactsData 等は demo-data.js で定義済み
 
         // --- Undo/Redo ---
         const undoStack = [];
