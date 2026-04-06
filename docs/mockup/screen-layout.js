@@ -3413,7 +3413,7 @@
               apply: function(self) {
                   var tbody = document.querySelector('.grid-table tbody');
                   var no = tbody.querySelectorAll('tr').length + 1;
-                  var tr = cnCreateRow({ no: no, gcClass: 'md-gc-row-touo', shiftClass: 'shift-night', shiftLabel: '夜',
+                  var tr = cnCreateRow({ no: no, gcClass: 'md-gc-row-touo', gcCode: 'touo', shiftClass: 'shift-night', shiftLabel: '夜',
                       categoryClass: 'category-facility', categoryLabel: '施設', company: '△△不動産',
                       siteName: '△△マンション 常駐警備', meetingTime: '19:30', meetingMethod: '直', meetingMethodClass: 'method-direct',
                       timeStart: '20:00', timeEnd: '08:00', count: '0/2', shortage: true });
@@ -3447,7 +3447,7 @@
               apply: function(self) {
                   var tbody = document.querySelector('.grid-table tbody');
                   var no = tbody.querySelectorAll('tr').length + 1;
-                  var tr = cnCreateRow({ no: no, gcClass: 'md-gc-row-nikkei', shiftClass: 'shift-day', shiftLabel: '昼',
+                  var tr = cnCreateRow({ no: no, gcClass: 'md-gc-row-nikkei', gcCode: 'nikkei', shiftClass: 'shift-day', shiftLabel: '昼',
                       categoryClass: 'category-event', categoryLabel: 'イベント', company: '□□イベント',
                       siteName: '□□公園 花火大会警備', meetingTime: '15:00', meetingMethod: '会社', meetingMethodClass: 'method-company',
                       timeStart: '16:00', timeEnd: '22:00', count: '0/5', shortage: true });
@@ -3910,7 +3910,7 @@
                     '<span class="md-cn-row-bell" onclick="event.stopPropagation(); cnOpenModalForRow(this)" title="この現場の変更通知">' +
                         '<img src="mockup/icons/bell.svg" class="md-cn-row-bell-img">' +
                     '</span></td>' +
-                '<td class="col-site-info clickable-cell" onclick="openSiteModal(this)">' +
+                '<td class="col-site-info clickable-cell"' + (d.gcCode ? ' data-group-company="' + d.gcCode + '"' : '') + ' onclick="openSiteModal(this)">' +
                   '<div class="site-info"><div class="site-badges">' +
                     '<span class="shift-badge ' + d.shiftClass + '">' + d.shiftLabel + '</span>' +
                     '<span class="category-badge ' + d.categoryClass + '">' + d.categoryLabel + '</span>' +
@@ -5186,8 +5186,6 @@
         }
         const slShiftList = ['昼', '夜'];
         const slCategoryList = ['施設', 'イベント', '交通', '高速'];
-        const slBranchClassMap = {};
-        groupCompaniesData.forEach(g => { slBranchClassMap[g.name] = g.rowClass; });
         const slCategoryClassMap = {
             '施設': 'category-facility', 'イベント': 'category-event',
             '交通': 'category-traffic', '高速': 'category-highway'
@@ -5610,7 +5608,9 @@
 
             pushUndo();
 
-            var gcClass = slBranchClassMap[branch] || '';
+            var gc = groupCompaniesData.find(function(g) { return g.name === branch; });
+            var gcClass = gc ? gc.rowClass : '';
+            var gcCode = gc ? gc.code : '';
             var shiftClass = slShiftClassMap[shift] || 'shift-day';
             var categoryClass = slCategoryClassMap[category] || 'category-facility';
 
@@ -5622,6 +5622,7 @@
             var tr = cnCreateRow({
                 no: no,
                 gcClass: gcClass,
+                gcCode: gcCode,
                 shiftClass: shiftClass,
                 shiftLabel: shift,
                 categoryClass: categoryClass,
