@@ -1412,6 +1412,15 @@
                 if (isExcess) {
                     if (!eBadge) { eBadge = document.createElement('span'); eBadge.className = 'count-excess-badge'; eBadge.textContent = '過多'; cell.appendChild(eBadge); }
                 } else if (eBadge) { eBadge.remove(); }
+
+                // --- 変更通知: diff生成 ---
+                if (newRequired !== required) {
+                    var _cnRow = cell.closest('tr');
+                    var _cnInfo = cnGetRowInfo(_cnRow);
+                    cnSelfNotify('modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
+                        diffs: [{ field: '人数', oldVal: assigned + '/' + required, newVal: assigned + '/' + newRequired }]
+                    });
+                }
             }
 
             input.addEventListener('blur', commitEdit);
