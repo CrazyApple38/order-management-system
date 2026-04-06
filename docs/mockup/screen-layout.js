@@ -302,13 +302,17 @@
         let subItemComboboxes = [];
         let subItemIdCounter = 0;
 
-        // 連結表示名を生成
+        // 連結表示名を生成（現場名 + 業務詳細）
         function buildSiteDisplayName() {
             const parts = [];
             if (siteNameCombobox && siteNameCombobox.selectedItem) parts.push(siteNameCombobox.selectedItem.name);
             subItemComboboxes.forEach(cb => {
                 if (cb.instance && cb.instance.selectedItem) parts.push(cb.instance.selectedItem.name);
             });
+            const subTasks = smCollectSubTasks();
+            if (subTasks && subTasks.length > 0) {
+                subTasks.forEach(st => { if (st.value) parts.push(st.value); });
+            }
             return parts.join(' ');
         }
 
