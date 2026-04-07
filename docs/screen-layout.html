@@ -958,25 +958,27 @@
                 <div class="md-modal-site-body">
                     <div class="md-modal-body-field"><div class="md-modal-body-field-value">Category / Tasks</div></div>
                     <div class="md-modal-body-card">
-                        <!-- 作業内容バッジ（3階層） -->
+                        <!-- 区分表示 -->
                         <div class="md-ob-badge-section">
                             <div class="md-ob-badge-group">
                                 <div class="md-ob-badge-group-header">
                                     <span class="md-ob-badge-group-title">区分</span>
-                                    <span class="md-ob-badge-parent-display" id="smBadgeParentDisplay">-</span>
+                                    <span class="md-ob-badge-parent-display" id="wmBadgeParentDisplay">-</span>
                                 </div>
                             </div>
-                            <div class="md-ob-badge-group md-ob-badge-child-group" id="smBadgeChildSection" style="display:none;">
+                            <!-- 作業内容バッジ選択 -->
+                            <div class="md-ob-badge-group md-ob-badge-child-group" id="wmBadgeChildSection" style="display:none;">
                                 <div class="md-ob-badge-group-header">
                                     <span class="md-ob-badge-group-subtitle">作業内容</span>
                                 </div>
-                                <div class="md-ob-badge-chips" id="smBadgeChildList"></div>
-                                <div class="md-ob-badge-undo-bar" id="smBadgeUndoBar" style="display:none;">
-                                    <span id="smBadgeUndoMsg"></span>
+                                <div class="md-ob-badge-chips" id="wmBadgeChildList"></div>
+                                <div class="md-ob-badge-undo-bar" id="wmBadgeUndoBar" style="display:none;">
+                                    <span id="wmBadgeUndoMsg"></span>
                                     <button type="button" class="md-ob-badge-undo-btn" onclick="smUndoDeleteBadge()">戻す</button>
                                 </div>
                                 <button type="button" class="md-ob-btn-add-badge" onclick="smAddChildBadge()">+ 作業内容追加</button>
                             </div>
+                            <div class="md-ob-badge-empty" id="wmBadgeHint">区分を選択すると作業内容が表示されます</div>
                         </div>
                     </div>
                 </div>

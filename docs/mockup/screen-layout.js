@@ -640,6 +640,7 @@
             smRenderSubTaskEntries(subTasks);
 
             // === バッジ初期化（区分連動） ===
+            smBadgePrefix = 'sm';
             smBadgeSnapshot = JSON.parse(JSON.stringify(smBadgeDefinitions));
             let badgeChildIds = [];
             let badgeGcMap = {};
@@ -1092,6 +1093,7 @@
             const categoryName = categoryBadge ? categoryBadge.textContent.trim() : null;
 
             // バッジデータ復元
+            smBadgePrefix = 'wm';
             smBadgeSnapshot = JSON.parse(JSON.stringify(smBadgeDefinitions));
             let badgeChildIds = [];
             let badgeGcMap = {};
@@ -4183,6 +4185,7 @@
         let smDeletedBadgeInfo = null;
         let smBadgeUndoTimer = null;
         let smBadgeSnapshot = null;
+        let smBadgePrefix = 'sm'; // 'sm' for siteModal, 'wm' for workModal
 
         // 現場監督候補状態
         let smSvCandidateList = [];
@@ -4313,23 +4316,26 @@
             smSelectedChildBadges = childIds ? [...childIds] : [];
             smSelectedGrandchildBadges = grandchildMap ? JSON.parse(JSON.stringify(grandchildMap)) : {};
 
-            const display = document.getElementById('smBadgeParentDisplay');
-            if (!display) return;
-            if (!display) return;
-            const parent = smBadgeDefinitions.find(p => p.id === smSelectedParentBadge);
-            if (parent) {
-                display.textContent = parent.name;
-                display.className = 'md-ob-badge-parent-display';
-            } else {
-                display.textContent = category || '-';
-                display.className = 'md-ob-badge-parent-display md-ob-badge-parent-unknown';
+            const display = document.getElementById(smBadgePrefix + 'BadgeParentDisplay');
+            if (display) {
+                const parent = smBadgeDefinitions.find(p => p.id === smSelectedParentBadge);
+                if (parent) {
+                    display.textContent = parent.name;
+                    display.className = 'md-ob-badge-parent-display';
+                } else {
+                    display.textContent = category || '-';
+                    display.className = 'md-ob-badge-parent-display md-ob-badge-parent-unknown';
+                }
             }
+            // ヒント表示制御
+            const hint = document.getElementById(smBadgePrefix + 'BadgeHint');
+            if (hint) hint.style.display = smSelectedParentBadge ? 'none' : 'block';
             smRenderChildBadges();
         }
 
         function smRenderChildBadges() {
-            const container = document.getElementById('smBadgeChildList');
-            const wrapper = document.getElementById('smBadgeChildSection');
+            const container = document.getElementById(smBadgePrefix + 'BadgeChildList');
+            const wrapper = document.getElementById(smBadgePrefix + 'BadgeChildSection');
             if (!container || !wrapper) return;
 
             if (!smSelectedParentBadge) {
@@ -4387,8 +4393,8 @@
                 });
                 html += `</div>`;
             }
-            html += `<div class="md-ob-badge-undo-bar md-ob-gc-undo-bar" id="smGcUndoBar_${childBadge.id}" style="display:none;">`;
-            html += `<span id="smGcUndoMsg_${childBadge.id}"></span>`;
+            html += `<div class="md-ob-badge-undo-bar md-ob-gc-undo-bar" id="${smBadgePrefix}GcUndoBar_${childBadge.id}" style="display:none;">`;
+            html += `<span id="${smBadgePrefix}GcUndoMsg_${childBadge.id}"></span>`;
             html += `<button type="button" class="md-ob-badge-undo-btn" onclick="smUndoDeleteBadge()">戻す</button>`;
             html += `</div>`;
             html += `</div>`;
@@ -4422,7 +4428,7 @@
                 smSelectedChildBadges = smSelectedChildBadges.filter(cid => cid !== id);
                 delete smSelectedGrandchildBadges[id];
                 smRenderChildBadges();
-                smShowBadgeUndoBar(removed.name, 'smBadgeUndoBar');
+                smShowBadgeUndoBar(removed.name, smBadgePrefix + 'BadgeUndoBar');
             } else if (level === 'grandchild') {
                 const child = parent.children.find(c => c.id === childId);
                 if (!child) return;
@@ -4434,7 +4440,7 @@
                     smSelectedGrandchildBadges[childId] = smSelectedGrandchildBadges[childId].filter(gid => gid !== id);
                 }
                 smRenderChildBadges();
-                smShowBadgeUndoBar(removed.name, `smGcUndoBar_${childId}`);
+                smShowBadgeUndoBar(removed.name, `${smBadgePrefix}GcUndoBar_${childId}`);
             }
         }
 
@@ -4464,7 +4470,8 @@
                 if (child) child.children.splice(smDeletedBadgeInfo.index, 0, smDeletedBadgeInfo.badge);
             }
             // undo barを非表示
-            document.querySelectorAll('#workModal .md-ob-badge-undo-bar').forEach(b => b.style.display = 'none');
+            const modalId = smBadgePrefix === 'wm' ? 'workModal' : 'siteModal';
+            document.querySelectorAll('#' + modalId + ' .md-ob-badge-undo-bar').forEach(b => b.style.display = 'none');
             if (smBadgeUndoTimer) { clearTimeout(smBadgeUndoTimer); smBadgeUndoTimer = null; }
             smDeletedBadgeInfo = null;
             smRenderChildBadges();
@@ -4532,9 +4539,10 @@
         let smBadgeDragChildId = null;
 
         function smInitBadgeDragDrop(level) {
+            const listId = smBadgePrefix + 'BadgeChildList';
             const selector = level === 'child'
-                ? '#smBadgeChildList > .md-ob-badge-drag-item[data-badge-level="child"]'
-                : '#smBadgeChildList .md-ob-gc-drag-item[data-badge-level="grandchild"]';
+                ? '#' + listId + ' > .md-ob-badge-drag-item[data-badge-level="child"]'
+                : '#' + listId + ' .md-ob-gc-drag-item[data-badge-level="grandchild"]';
             document.querySelectorAll(selector).forEach(item => {
                 item.addEventListener('dragstart', e => {
                     smBadgeDragSrcIdx = parseInt(item.dataset.badgeIdx);
