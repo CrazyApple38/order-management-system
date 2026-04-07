@@ -731,10 +731,10 @@
         </div>
 
         <!-- 現場詳細入力モーダル -->
-        <div class="md-modal-overlay" id="siteModal">
-            <div class="md-modal-content md-modal-site-detail">
-                <div class="md-modal-site-header">
-                    <h3>現場詳細入力</h3>
+        <div class="md-ob-modal-overlay" id="siteModal" style="display:none;" onclick="if(event.target===this)closeSiteModal()">
+            <div class="md-ob-modal" onclick="event.stopPropagation()">
+                <div class="md-ob-modal-header">
+                    <span>現場詳細入力</span>
                     <button class="md-ob-modal-close" onclick="closeSiteModal()">✕</button>
                     <!-- コンフリクト警告バナー -->
                     <div class="md-cn-conflict-banner" id="cnConflictBanner" style="display:none;">
@@ -743,121 +743,172 @@
                         <button class="md-cn-conflict-close" onclick="hideConflictBanner()">✕</button>
                     </div>
                 </div>
-                <div class="md-modal-site-body">
-
-                    <!-- ━━ サブタイトル: Client / Site ━━ -->
-                    <div class="md-modal-body-field">
-                        <div class="md-modal-body-field-value">Client / Site</div>
-                    </div>
-
-                    <!-- ━━ カード1: 契約情報 + 現場情報 ━━ -->
+                <div class="md-ob-modal-body">
+                    <!-- ━━ Row Information ━━ -->
+                    <div class="md-modal-body-field"><div class="md-modal-body-field-value">Row Information</div></div>
                     <div class="md-modal-body-card">
-                        <!-- 契約先 -->
-                        <div class="md-modal-section">
-                            <label>契約先（元請け）</label>
-                            <div class="md-cb-container" id="companyCombobox">
-                                <input type="text" class="md-cb-input" id="companyInput"
-                                       placeholder="入力して検索、またはリストから選択..."
-                                       autocomplete="off">
-                                <button type="button" class="md-cb-clear" id="companyClear">✕</button>
-                                <button type="button" class="md-cb-toggle" id="companyToggle">▼</button>
-                                <div class="md-cb-dropdown" id="companyDropdown"></div>
-                            </div>
-                        </div>
-
-                        <!-- 現場名 + 業務詳細 グループ -->
-                        <div class="md-sm-site-group">
-                            <!-- 業務管理計画書 業務名（表示のみ） -->
-                            <div class="md-modal-section">
-                                <div class="md-sm-display-value" id="smPlanTaskName">○○ビル新築工事　基礎掘削工事　配筋工事</div>
-                            </div>
-                            <div class="md-modal-section">
-                                <label>現場名</label>
-                                <div class="md-cb-container" id="siteNameCombobox">
-                                    <input type="text" class="md-cb-input"
-                                           placeholder="契約先を選択してから入力..."
-                                           autocomplete="off" disabled>
-                                    <button type="button" class="md-cb-clear">✕</button>
-                                    <button type="button" class="md-cb-toggle">▼</button>
-                                    <div class="md-cb-dropdown"></div>
-                                </div>
-                            </div>
-                            <div class="md-ob-sub-task-fields" id="smSubTaskFields">
-                                <div class="md-ob-sub-task-header">
-                                    <span class="md-ob-sub-task-title">業務詳細</span>
-                                    <button type="button" class="md-ob-btn-add-sub" onclick="smAddSubTask()">+ 追加</button>
-                                </div>
-                                <div id="smSubTaskList"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ━━ サブタイトル: Category ━━ -->
-                    <div class="md-modal-body-field">
-                        <div class="md-modal-body-field-value">Category</div>
-                    </div>
-
-                    <!-- ━━ カード2: 分類 ━━ -->
-                    <div class="md-modal-body-card">
-                        <!-- 区分 -->
-                        <div class="md-modal-row">
-                            <div class="md-ob-chip-field" style="flex:2">
-                                <div class="md-modal-section-bar">区分 <button type="button" class="md-ob-btn-add-sub" onclick="smAddCategory()">+ 追加</button></div>
-                                <div class="md-ob-row-chips" id="smCategoryChips"></div>
-                            </div>
-                        </div>
-
-                        <!-- 昼夜 -->
-                        <div class="md-ob-chip-field" style="flex:1">
-                            <div class="md-ob-chip-field-header">
-                                <span class="md-ob-chip-field-title">昼夜</span>
-                            </div>
-                            <div class="md-ob-row-chips" id="smShiftChips"></div>
-                        </div>
-
-                        <!-- 会社（チップ） -->
                         <div class="md-ob-chip-field">
                             <div class="md-ob-chip-field-header">
                                 <span class="md-ob-chip-field-title">会社</span>
                             </div>
                             <div class="md-ob-row-chips" id="smBranchChips"></div>
                         </div>
+                        <div class="md-ob-chip-field">
+                            <div class="md-modal-section-bar">区分</div>
+                            <div class="md-ob-row-chips" id="smCategoryChips"></div>
+                        </div>
+                        <div class="md-ob-chip-field">
+                            <div class="md-ob-chip-field-header">
+                                <span class="md-ob-chip-field-title">昼夜</span>
+                            </div>
+                            <div class="md-ob-row-chips" id="smShiftChips"></div>
+                        </div>
+                        <!-- 過去データから入力アコーディオン -->
+                        <div class="md-ob-history-accordion" id="smHistoryAccordion">
+                            <button type="button" class="md-ob-history-toggle" onclick="smToggleHistory()">
+                                <span class="md-ob-history-toggle-icon" id="smHistoryIcon">▶</span>
+                                <span>過去データから入力</span>
+                            </button>
+                            <div class="md-ob-history-panel" id="smHistoryPanel" style="display:none;">
+                                <div class="md-ob-history-hint" id="smHistoryHint">会社と区分を選択してください</div>
+                                <div class="md-ob-history-section" id="smHistoryCompanySection" style="display:none;">
+                                    <div class="md-ob-history-label">契約先名</div>
+                                    <div class="md-ob-history-badges" id="smHistoryCompanyBadges"></div>
+                                </div>
+                                <div class="md-ob-history-section" id="smHistoryTaskSection" style="display:none;">
+                                    <div class="md-ob-history-label">業務名</div>
+                                    <div class="md-ob-history-badges" id="smHistoryTaskBadges"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- ━━ サブタイトル: Staff ━━ -->
-                    <div class="md-modal-body-field">
-                        <div class="md-modal-body-field-value">Staff</div>
-                    </div>
-
-                    <!-- ━━ カード3: 担当者 ━━ -->
+                    <!-- ━━ Fields ━━ -->
+                    <div class="md-modal-body-field"><div class="md-modal-body-field-value">Fields</div></div>
                     <div class="md-modal-body-card">
-                        <!-- 現場監督 + 連絡先 -->
-                        <div class="md-modal-row">
-                            <div class="md-modal-section" style="flex:1">
-                                <label>現場監督</label>
-                                <input type="text" id="smSupervisor" placeholder="氏名">
-                            </div>
-                            <div class="md-modal-section" style="flex:1">
-                                <label>連絡先（TEL）</label>
-                                <input type="tel" id="smSupervisorTel" placeholder="電話番号">
-                            </div>
+                        <div class="md-ob-form-row md-ob-company-field">
+                            <label>契約先名</label>
+                            <input type="text" id="smCompany" oninput="smCompanySuggest(); smUpdateSupervisorCandidates()" autocomplete="off">
+                            <div class="md-ob-company-suggest" id="smCompanySuggestPanel" style="display:none;"></div>
                         </div>
+                        <div class="md-ob-form-row md-ob-task-field">
+                            <label>業務名</label>
+                            <input type="text" id="smTask" placeholder="空欄で個別業務" oninput="smTaskSuggest(); smUpdateSupervisorCandidates()" autocomplete="off">
+                            <div class="md-ob-company-suggest" id="smTaskSuggestPanel" style="display:none;"></div>
+                        </div>
+                    </div>
 
-                        <!-- 現場監督候補 -->
-                        <div class="md-ob-supervisor-candidates" id="smSupervisorCandidates" style="display:none;">
-                            <span class="md-ob-candidates-label">過去の入力:</span>
-                            <div class="md-ob-candidates-chips" id="smSvCandidateChips"></div>
-                            <div class="md-ob-sv-undo-bar" id="smSvUndoBar" style="display:none;">
-                                <span id="smSvUndoMsg"></span>
-                                <button type="button" class="md-ob-badge-undo-btn" onclick="smUndoDeleteSupervisor()">戻す</button>
+                    <!-- ━━ Placement / Details ━━ -->
+                    <div class="md-modal-body-field"><div class="md-modal-body-field-value">Placement / Details</div></div>
+                    <div class="md-modal-body-card">
+                        <div class="md-ob-edit-form">
+                            <!-- 人数 + 信頼度 -->
+                            <div class="md-modal-section-bar">配置情報</div>
+                            <div class="md-ob-count-confidence-row">
+                                <div class="md-ob-form-row">
+                                    <label>人数</label>
+                                    <input type="number" id="smCount" min="0" max="99">
+                                </div>
+                                <div class="md-ob-confidence-field">
+                                    <label>信頼度</label>
+                                    <div class="md-ob-confidence-chips" id="smConfidenceChips"></div>
+                                </div>
+                            </div>
+                            <!-- 業務詳細 -->
+                            <div class="md-modal-section-bar">業務詳細 <button type="button" class="md-ob-btn-add-sub" onclick="smAddSubTask()">+ 追加</button></div>
+                            <div class="md-ob-sub-task-fields" id="smSubTaskFields">
+                                <div id="smSubTaskList"></div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- ━━ 作業内容 ━━ -->
+                    <div class="md-modal-body-field"><div class="md-modal-body-field-value">作業内容</div></div>
+                    <div class="md-modal-body-card">
+                        <div class="md-ob-badge-group md-ob-badge-child-group" id="smBadgeChildSection" style="display:none;">
+                            <div class="md-ob-badge-chips" id="smBadgeChildList"></div>
+                            <button type="button" class="md-ob-btn-add-badge" onclick="smAddChildBadge()">+ 作業内容追加</button>
+                        </div>
+                        <div class="md-ob-badge-empty" id="smBadgeHint">区分を選択すると作業内容が表示されます</div>
+                    </div>
+
+                    <!-- ━━ Schedule / Notes ━━ -->
+                    <div class="md-modal-body-field"><div class="md-modal-body-field-value">Schedule / Notes</div></div>
+                    <div class="md-modal-body-card">
+                        <div class="md-ob-edit-form">
+                            <!-- 集合 -->
+                            <div class="md-modal-section-bar">集合</div>
+                            <div class="md-ob-form-row md-ob-form-row-half">
+                                <div>
+                                    <label>集合時間</label>
+                                    <div class="md-ob-time-picker-wrap" onclick="openTimePicker('smMeetingTime', this)">
+                                        <input type="text" id="smMeetingTime" class="md-ob-time-input" readonly placeholder="--:--">
+                                        <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>集合場所</label>
+                                    <input type="text" id="smMeetingPlace" placeholder="集合場所を入力">
+                                </div>
+                            </div>
+                            <div class="md-ob-chip-field">
+                                <div class="md-modal-section-bar">連絡 <button type="button" class="md-ob-btn-add-sub" onclick="smAddContact()">+ 追加</button></div>
+                                <div class="md-ob-row-chips" id="smContactChips"></div>
+                            </div>
+                            <!-- 開始/終了時間 -->
+                            <div class="md-ob-form-row md-ob-form-row-half">
+                                <div>
+                                    <label>開始時間</label>
+                                    <div class="md-ob-time-picker-wrap" onclick="openTimePicker('smStartTime', this)">
+                                        <input type="text" id="smStartTime" class="md-ob-time-input" readonly placeholder="--:--">
+                                        <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>終了時間</label>
+                                    <div class="md-ob-time-picker-wrap" onclick="openTimePicker('smEndTime', this)">
+                                        <input type="text" id="smEndTime" class="md-ob-time-input" readonly placeholder="--:--">
+                                        <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 担当者 -->
+                            <div class="md-modal-section-bar">担当者</div>
+                            <div class="md-ob-form-row md-ob-form-row-half">
+                                <div>
+                                    <label>現場監督</label>
+                                    <input type="text" id="smSupervisor" placeholder="氏名">
+                                </div>
+                                <div>
+                                    <label>連絡先</label>
+                                    <input type="tel" id="smSupervisorTel" placeholder="電話番号">
+                                </div>
+                            </div>
+                            <div class="md-ob-supervisor-candidates" id="smSupervisorCandidates" style="display:none;">
+                                <span class="md-ob-candidates-label">過去の入力:</span>
+                                <div class="md-ob-candidates-chips" id="smSvCandidateChips"></div>
+                                <div class="md-ob-sv-undo-bar" id="smSvUndoBar" style="display:none;">
+                                    <span id="smSvUndoMsg"></span>
+                                    <button type="button" class="md-ob-badge-undo-btn" onclick="smUndoDeleteSupervisor()">戻す</button>
+                                </div>
+                            </div>
+                            <!-- 地図 -->
+                            <div class="md-modal-section-bar">地図 <button type="button" class="md-ob-btn-add-sub" onclick="smAddMapEntry()">+ 追加</button></div>
+                            <div class="md-ob-map-fields" id="smMapFields">
+                                <div id="smMapEntryList"></div>
+                            </div>
+                            <!-- 備考 -->
+                            <div class="md-modal-section-bar">備考</div>
+                            <div class="md-ob-form-row">
+                                <label>備考</label>
+                                <textarea id="smRemarks" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="md-modal-site-footer">
+                <div class="md-ob-modal-footer">
                     <button class="md-ob-btn md-ob-btn-danger" onclick="smDeleteSite()">削除</button>
-                    <div class="md-modal-site-footer-right">
+                    <div class="md-ob-modal-footer-right">
                         <button class="md-ob-btn md-ob-btn-secondary" onclick="closeSiteModal()">キャンセル</button>
                         <button class="md-ob-btn md-ob-btn-primary" onclick="saveSiteModal()">保存</button>
                     </div>

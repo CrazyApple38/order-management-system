@@ -302,13 +302,11 @@
         let subItemComboboxes = [];
         let subItemIdCounter = 0;
 
-        // 連結表示名を生成（現場名 + 業務詳細）
+        // 連結表示名を生成（業務名 + 業務詳細）
         function buildSiteDisplayName() {
             const parts = [];
-            if (siteNameCombobox && siteNameCombobox.selectedItem) parts.push(siteNameCombobox.selectedItem.name);
-            subItemComboboxes.forEach(cb => {
-                if (cb.instance && cb.instance.selectedItem) parts.push(cb.instance.selectedItem.name);
-            });
+            const taskInput = document.getElementById('smTask');
+            if (taskInput && taskInput.value.trim()) parts.push(taskInput.value.trim());
             const subTasks = smCollectSubTasks();
             if (subTasks && subTasks.length > 0) {
                 subTasks.forEach(st => { if (st.value) parts.push(st.value); });
@@ -319,11 +317,10 @@
         // 業務管理計画書 業務名をリアルタイム更新（読み取り専用表示）
         function smUpdatePlanTaskName() {
             const parts = [];
-            // 親: 現場名
-            if (siteNameCombobox && siteNameCombobox.selectedItem) {
-                parts.push(siteNameCombobox.selectedItem.name);
+            const taskInput = document.getElementById('smTask');
+            if (taskInput && taskInput.value.trim()) {
+                parts.push(taskInput.value.trim());
             }
-            // 子: 業務詳細の各値
             const subTasks = smCollectSubTasks();
             if (subTasks && subTasks.length > 0) {
                 subTasks.forEach(st => { if (st.value) parts.push(st.value); });
@@ -366,7 +363,7 @@
 
             // 親の選択状態からsubItemsを取得
             let parentItems = [];
-            if (level === 0 && siteNameCombobox.selectedItem && siteNameCombobox.selectedItem.subItems) {
+            if (level === 0 && siteNameCombobox && siteNameCombobox.selectedItem && siteNameCombobox.selectedItem.subItems) {
                 parentItems = siteNameCombobox.selectedItem.subItems;
             } else if (level > 0 && subItemComboboxes[level - 1] && subItemComboboxes[level - 1].instance.selectedItem) {
                 const parentSel = subItemComboboxes[level - 1].instance.selectedItem;
@@ -382,7 +379,7 @@
                 },
                 onAddNew: (item) => {
                     item.subItems = [];
-                    if (level === 0 && siteNameCombobox.selectedItem) {
+                    if (level === 0 && siteNameCombobox && siteNameCombobox.selectedItem) {
                         siteNameCombobox.selectedItem.subItems.push(item);
                     } else if (level > 0 && subItemComboboxes[level - 1] && subItemComboboxes[level - 1].instance.selectedItem) {
                         const parent = subItemComboboxes[level - 1].instance.selectedItem;
@@ -438,38 +435,42 @@
 
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            companyCombobox = new Combobox('companyCombobox', {
-                items: companiesData,
-                allowAddNew: true,
-                onSelect: (item) => {
-                    if (item) {
-                        siteNameCombobox.enable();
-                        siteNameCombobox.setItems(sitesData[item.id] || []);
-                    } else {
-                        siteNameCombobox.disable();
+            if (document.getElementById('companyCombobox')) {
+                companyCombobox = new Combobox('companyCombobox', {
+                    items: companiesData,
+                    allowAddNew: true,
+                    onSelect: (item) => {
+                        if (item) {
+                            siteNameCombobox.enable();
+                            siteNameCombobox.setItems(sitesData[item.id] || []);
+                        } else {
+                            siteNameCombobox.disable();
+                        }
+                        clearAllSubItems();
+                    },
+                    onAddNew: (item) => {
+                        console.log('新規会社登録:', item);
+                        sitesData[item.id] = [];
                     }
-                    clearAllSubItems();
-                },
-                onAddNew: (item) => {
-                    console.log('新規会社登録:', item);
-                    sitesData[item.id] = [];
-                }
-            });
+                });
+            }
 
-            siteNameCombobox = new Combobox('siteNameCombobox', {
-                items: [],
-                allowAddNew: true,
-                onSelect: (item) => {
-                    clearAllSubItems();
-                    smUpdatePlanTaskName();
-                },
-                onAddNew: (item) => {
-                    item.subItems = [];
-                    if (companyCombobox.selectedItem) {
-                        sitesData[companyCombobox.selectedItem.id].push(item);
+            if (document.getElementById('siteNameCombobox')) {
+                siteNameCombobox = new Combobox('siteNameCombobox', {
+                    items: [],
+                    allowAddNew: true,
+                    onSelect: (item) => {
+                        clearAllSubItems();
+                        smUpdatePlanTaskName();
+                    },
+                    onAddNew: (item) => {
+                        item.subItems = [];
+                        if (companyCombobox && companyCombobox.selectedItem) {
+                            sitesData[companyCombobox.selectedItem.id].push(item);
+                        }
                     }
-                }
-            });
+                });
+            }
 
             if (document.getElementById('contactCombobox')) {
                 contactCombobox = new Combobox('contactCombobox', {
@@ -554,17 +555,14 @@
             const row = cell.closest('tr');
 
             // === チップ復元 ===
-            // 会社
             const gcCode = cell.getAttribute('data-group-company');
             let branchName = null;
             if (gcCode) {
                 const gc = groupCompaniesData.find(g => g.code === gcCode);
                 if (gc) branchName = gc.name;
             }
-            // 区分
             const categoryBadge = cell.querySelector('.category-badge');
             const categoryName = categoryBadge ? categoryBadge.textContent.trim() : null;
-            // 昼夜
             const shiftBadge = cell.querySelector('.shift-badge');
             const shiftName = shiftBadge ? shiftBadge.textContent.trim() : null;
 
@@ -573,67 +571,66 @@
             smRenderChips('smCategoryChips', smGetCategoryList(), categoryName, 'category');
             smRenderChips('smShiftChips', shiftList, shiftName, 'shift');
 
-            // === コンボボックス復元 ===
-            clearAllSubItems();
-            const companyId = cell.dataset.companyId ? parseInt(cell.dataset.companyId) : null;
-            const siteId = cell.dataset.siteId ? parseInt(cell.dataset.siteId) : null;
-            if (companyId) {
-                const companyItem = companiesData.find(c => c.id === companyId);
-                if (companyItem) {
-                    companyCombobox.select(companyItem);
-                    const sites = sitesData[companyId] || [];
-                    let siteItem = null;
-                    if (siteId) {
-                        siteItem = sites.find(s => s.id === siteId);
-                    }
-                    if (!siteItem) {
-                        // siteIdが無い場合、セルのテキストから前方一致で照合
-                        const siteText = cell.querySelector('.site-name');
-                        if (siteText && siteText.textContent.trim()) {
-                            const cellSiteName = siteText.textContent.trim();
-                            siteItem = sites.find(s => cellSiteName.startsWith(s.name));
-                        }
-                    }
-                    if (siteItem) {
-                        setTimeout(() => siteNameCombobox.select(siteItem), 0);
-                    }
-                }
-            } else {
-                // コンボボックスにセルのテキストを表示（IDが無い場合）
-                const companyText = cell.querySelector('.company');
-                if (companyText && companyText.textContent.trim()) {
-                    const companyName = companyText.textContent.trim();
-                    const found = companiesData.find(c => c.name === companyName);
-                    if (found) {
-                        companyCombobox.select(found);
-                        const siteText = cell.querySelector('.site-name');
-                        if (siteText && siteText.textContent.trim()) {
-                            const sites = sitesData[found.id] || [];
-                            const siteFound = sites.find(s => s.name === siteText.textContent.trim());
-                            if (siteFound) {
-                                setTimeout(() => siteNameCombobox.select(siteFound), 0);
-                            } else {
-                                // マスターに現場名がない場合、テキストだけ表示
-                                siteNameCombobox.input.value = siteText.textContent.trim();
-                                siteNameCombobox.updateClearButton();
-                            }
-                        }
-                    } else {
-                        // マスターに契約先がない場合、テキストだけ表示
-                        companyCombobox.input.value = companyName;
-                        companyCombobox.updateClearButton();
-                        const siteText = cell.querySelector('.site-name');
-                        if (siteText && siteText.textContent.trim()) {
-                            siteNameCombobox.input.value = siteText.textContent.trim();
-                            siteNameCombobox.updateClearButton();
-                        }
-                    }
-                }
-            }
+            // === 契約先名・業務名 入力欄復元 ===
+            const companyText = cell.querySelector('.company');
+            const companyName = companyText ? companyText.textContent.trim() : '';
+            const siteText = cell.querySelector('.site-name');
+            const siteName = siteText ? siteText.textContent.trim() : '';
+            document.getElementById('smCompany').value = companyName;
+            document.getElementById('smTask').value = siteName;
 
             // === data属性の非表示フィールド ===
             document.getElementById('smSupervisor').value = cell.dataset.supervisor || '';
             document.getElementById('smSupervisorTel').value = cell.dataset.supervisorTel || '';
+
+            // 集合・時間・備考の復元
+            const meetingTimeEl = document.getElementById('smMeetingTime');
+            const meetingPlaceEl = document.getElementById('smMeetingPlace');
+            const startTimeEl = document.getElementById('smStartTime');
+            const endTimeEl = document.getElementById('smEndTime');
+            const remarksEl = document.getElementById('smRemarks');
+
+            // 集合時間・場所をセルから復元
+            if (meetingTimeEl) {
+                const meetCell = row ? row.querySelectorAll('td')[2] : null;
+                const timeDisp = meetCell ? meetCell.querySelector('.time-display') : null;
+                meetingTimeEl.value = timeDisp ? timeDisp.textContent.trim() : '';
+            }
+            if (meetingPlaceEl) meetingPlaceEl.value = cell.dataset.meetingPlace || '';
+
+            // 開始・終了時間をセルから復元
+            if (startTimeEl || endTimeEl) {
+                const workTimeCell = row ? row.querySelector('.col-work-time') : null;
+                if (startTimeEl) startTimeEl.value = workTimeCell ? (workTimeCell.dataset.startTime || '') : '';
+                if (endTimeEl) endTimeEl.value = workTimeCell ? (workTimeCell.dataset.endTime || '') : '';
+            }
+
+            // 備考を復元
+            if (remarksEl) {
+                const notesCell = row ? row.querySelector('.col-notes') : null;
+                remarksEl.value = notesCell ? (notesCell.dataset.remarks || '') : '';
+            }
+
+            // 人数・信頼度の復元
+            const countEl = document.getElementById('smCount');
+            if (countEl) {
+                const countCell = row ? row.querySelectorAll('td')[4] : null;
+                const countDisp = countCell ? countCell.querySelector('.count-display') : null;
+                if (countDisp) {
+                    const m = countDisp.textContent.trim().match(/\d+\/(\d+)/);
+                    countEl.value = m ? m[1] : '';
+                } else {
+                    countEl.value = '';
+                }
+            }
+
+            // 連絡チップの復元
+            const meetCell = row ? row.querySelectorAll('td')[2] : null;
+            const contactEl = meetCell ? meetCell.querySelector('.contact-badge') : null;
+            const contactName = contactEl ? contactEl.textContent.trim() : null;
+            if (typeof smRenderContactChips === 'function') {
+                smRenderContactChips(contactName);
+            }
 
             // 業務詳細（サブタスク）
             let subTasks = [];
@@ -658,10 +655,7 @@
             // 現場監督候補
             smRenderSupervisorCandidates();
 
-            // 業務名プレビュー（コンボボックス選択完了後に更新）
-            setTimeout(() => smUpdatePlanTaskName(), 50);
-
-            document.getElementById('siteModal').classList.add('active');
+            document.getElementById('siteModal').style.display = 'flex';
         }
 
         function closeSiteModal() {
@@ -671,7 +665,7 @@
                 smBadgeSnapshot.forEach(b => smBadgeDefinitions.push(b));
                 smBadgeSnapshot = null;
             }
-            document.getElementById('siteModal').classList.remove('active');
+            document.getElementById('siteModal').style.display = 'none';
             closeTimePicker();
         }
 
@@ -712,23 +706,22 @@
             const meetingTime = meetingTimeEl ? meetingTimeEl.value : '';
             const meetingPlaceEl = document.getElementById('smMeetingPlace');
             const meetingPlace = meetingPlaceEl ? meetingPlaceEl.value : '';
-            const requiredCountEl = document.getElementById('smRequiredCount');
+            const requiredCountEl = document.getElementById('smCount');
             const requiredCount = requiredCountEl ? requiredCountEl.value : '';
             const contact = contactCombobox ? contactCombobox.selectedItem : null;
 
-            // コンボボックス
-            const company = companyCombobox.selectedItem;
-            const site = siteNameCombobox.selectedItem;
-            const subItems = subItemComboboxes.map(cb => cb.instance.selectedItem).filter(Boolean);
-            const displayName = buildSiteDisplayName();
+            // 契約先名・業務名（inputから取得）
+            const companyName = (document.getElementById('smCompany') || {}).value || '';
+            const taskName = (document.getElementById('smTask') || {}).value || '';
+            const displayName = taskName;
 
             // 新規フィールド
             const subTasks = smCollectSubTasks();
             const badgeData = smGetSelectedBadgeData();
             const supervisor = document.getElementById('smSupervisor').value;
             const supervisorTel = document.getElementById('smSupervisorTel').value;
-            const notesEl = document.getElementById('smNotes');
-            const notes = notesEl ? notesEl.value : '';
+            const remarksEl = document.getElementById('smRemarks');
+            const remarks = remarksEl ? remarksEl.value : '';
 
             // === セルへの反映 ===
             if (currentSiteCell) {
@@ -799,7 +792,7 @@
 
                 // --- 契約先 ---
                 const companyEl = details.querySelector('.company');
-                if (companyEl) companyEl.textContent = company ? company.name : '';
+                if (companyEl) companyEl.textContent = companyName;
 
                 // --- 現場名 ---
                 const siteNameDiv = details.querySelector('.site-name');
@@ -819,10 +812,10 @@
                 }
 
                 // --- data属性保存（コンボボックスID） ---
-                if (company) currentSiteCell.dataset.companyId = company.id;
+                const foundCompany = companiesData.find(c => c.name === companyName);
+                if (foundCompany) currentSiteCell.dataset.companyId = foundCompany.id;
                 else delete currentSiteCell.dataset.companyId;
-                if (site) currentSiteCell.dataset.siteId = site.id;
-                else delete currentSiteCell.dataset.siteId;
+                delete currentSiteCell.dataset.siteId;
 
                 // --- data属性保存（非表示フィールド） ---
                 if (meetingPlace) currentSiteCell.dataset.meetingPlace = meetingPlace;
@@ -927,7 +920,7 @@
             // --- 変更通知: diff生成 ---
             var _cnDiffs = [];
             var _cnNewSiteName = displayName || '';
-            var _cnNewCompany = company ? company.name : '';
+            var _cnNewCompany = companyName;
             var _cnNewCategory = category || '';
             var _cnNewShift = shift || '';
             if (_cnOld.company !== _cnNewCompany) _cnDiffs.push({ field: '契約先', oldVal: _cnOld.company, newVal: _cnNewCompany });
@@ -948,13 +941,9 @@
                 });
             }
 
-            document.getElementById('siteModal').classList.remove('active');
+            document.getElementById('siteModal').style.display = 'none';
             closeTimePicker();
         }
-
-        document.getElementById('siteModal').addEventListener('click', function(e) {
-            if (e.target === this) closeSiteModal();
-        });
 
         // ============================================
         // 集合モーダル
@@ -3289,7 +3278,7 @@
 
         function checkConflict(notification) {
             const siteModal = document.getElementById('siteModal');
-            if (!siteModal.classList.contains('active')) return false;
+            if (siteModal.style.display === 'none' || siteModal.style.display === '') return false;
             return true;
         }
 
@@ -4587,6 +4576,99 @@
                     smBadgeDragChildId = null;
                 });
             });
+        }
+
+        // ============================================
+        // 現場詳細モーダル — 契約先名・業務名サジェスト
+        // ============================================
+        function smCompanySuggest() {
+            var input = document.getElementById('smCompany');
+            var panel = document.getElementById('smCompanySuggestPanel');
+            if (!input || !panel) return;
+            var val = input.value.trim();
+            if (!val) { panel.style.display = 'none'; return; }
+            var all = slGetCompanyList();
+            var lower = val.toLowerCase();
+            var prefix = [], partial = [];
+            all.forEach(function(c) {
+                var cl = c.toLowerCase();
+                if (cl.indexOf(lower) === 0) prefix.push(c);
+                else if (cl.indexOf(lower) > 0) partial.push(c);
+            });
+            if (prefix.length === 0 && partial.length === 0) { panel.style.display = 'none'; return; }
+            var html = '';
+            if (prefix.length > 0) {
+                html += '<div class="suggest-header">候補</div>';
+                prefix.forEach(function(c) { html += '<div class="suggest-item" onclick="smPickCompanySuggest(\'' + escapeHtml(c).replace(/'/g, "\\'") + '\')">' + escapeHtml(c) + '</div>'; });
+            }
+            if (partial.length > 0) {
+                html += '<div class="suggest-header">もしかして？</div>';
+                partial.forEach(function(c) { html += '<div class="suggest-item" onclick="smPickCompanySuggest(\'' + escapeHtml(c).replace(/'/g, "\\'") + '\')">' + escapeHtml(c) + '</div>'; });
+            }
+            panel.innerHTML = html;
+            panel.style.display = '';
+        }
+        function smPickCompanySuggest(val) {
+            document.getElementById('smCompany').value = val;
+            document.getElementById('smCompanySuggestPanel').style.display = 'none';
+            smUpdateSupervisorCandidates();
+        }
+        function smTaskSuggest() {
+            var input = document.getElementById('smTask');
+            var panel = document.getElementById('smTaskSuggestPanel');
+            if (!input || !panel) return;
+            var val = input.value.trim();
+            if (!val) { panel.style.display = 'none'; return; }
+            var all = slGetTaskList();
+            var lower = val.toLowerCase();
+            var prefix = [], partial = [];
+            all.forEach(function(t) {
+                var tl = t.toLowerCase();
+                if (tl.indexOf(lower) === 0) prefix.push(t);
+                else if (tl.indexOf(lower) > 0) partial.push(t);
+            });
+            if (prefix.length === 0 && partial.length === 0) { panel.style.display = 'none'; return; }
+            var html = '';
+            if (prefix.length > 0) {
+                html += '<div class="suggest-header">候補</div>';
+                prefix.forEach(function(t) { html += '<div class="suggest-item" onclick="smPickTaskSuggest(\'' + escapeHtml(t).replace(/'/g, "\\'") + '\')">' + escapeHtml(t) + '</div>'; });
+            }
+            if (partial.length > 0) {
+                html += '<div class="suggest-header">もしかして？</div>';
+                partial.forEach(function(t) { html += '<div class="suggest-item" onclick="smPickTaskSuggest(\'' + escapeHtml(t).replace(/'/g, "\\'") + '\')">' + escapeHtml(t) + '</div>'; });
+            }
+            panel.innerHTML = html;
+            panel.style.display = '';
+        }
+        function smPickTaskSuggest(val) {
+            document.getElementById('smTask').value = val;
+            document.getElementById('smTaskSuggestPanel').style.display = 'none';
+            smUpdateSupervisorCandidates();
+        }
+        function smUpdateSupervisorCandidates() {
+            smRenderSupervisorCandidates();
+        }
+
+        // 現場詳細モーダル — 連絡・地図・過去データスタブ
+        function smAddContact() {
+            // 連絡チップ追加（新規追加モーダルと同じ仕組み）
+            console.log('smAddContact: stub');
+        }
+        function smAddMapEntry() {
+            // 地図エントリ追加
+            console.log('smAddMapEntry: stub');
+        }
+        function smToggleHistory() {
+            var panel = document.getElementById('smHistoryPanel');
+            var icon = document.getElementById('smHistoryIcon');
+            if (!panel) return;
+            if (panel.style.display === 'none') {
+                panel.style.display = '';
+                if (icon) icon.textContent = '▼';
+            } else {
+                panel.style.display = 'none';
+                if (icon) icon.textContent = '▶';
+            }
         }
 
         // ============================================
@@ -6311,6 +6393,14 @@
         document.addEventListener('click', function(e) {
             var cp = document.getElementById('slCompanySuggestPanel');
             var tp = document.getElementById('slTaskSuggestPanel');
-            if (cp && !e.target.closest('.md-ob-company-field')) cp.style.display = 'none';
-            if (tp && !e.target.closest('.md-ob-task-field')) tp.style.display = 'none';
+            var scp = document.getElementById('smCompanySuggestPanel');
+            var stp = document.getElementById('smTaskSuggestPanel');
+            if (!e.target.closest('.md-ob-company-field')) {
+                if (cp) cp.style.display = 'none';
+                if (scp) scp.style.display = 'none';
+            }
+            if (!e.target.closest('.md-ob-task-field')) {
+                if (tp) tp.style.display = 'none';
+                if (stp) stp.style.display = 'none';
+            }
         });
