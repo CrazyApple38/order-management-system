@@ -605,10 +605,10 @@ body {
 }
 .md-ob-confidence-chip {
     display: inline-flex; align-items: center;
-    padding: 5px 12px; border-radius: 14px;
+    padding: 2px 8px; border-radius: 12px;
     border: 1px solid var(--divider);
     background: var(--bg-surface); color: var(--text-secondary);
-    font-size: 11px; font-weight: 500;
+    font-size: 10px; font-weight: 500;
     cursor: pointer; transition: all 0.15s;
     user-select: none;
 }
@@ -753,10 +753,10 @@ body {
 }
 .md-ob-badge-chip {
     display: inline-flex; align-items: center;
-    padding: 4px 12px; border-radius: 14px;
+    padding: 3px 10px; border-radius: 14px;
     border: 1px solid var(--divider);
     background: var(--bg-primary); color: var(--text-secondary);
-    font-size: 12px; font-weight: 500;
+    font-size: 11px; font-weight: 500;
     cursor: pointer; transition: all 0.15s;
     user-select: none;
 }
@@ -769,7 +769,7 @@ body {
     border-color: var(--accent);
 }
 .md-ob-badge-chip.md-ob-badge-child {
-    font-size: 11px; padding: 3px 10px; border-radius: 12px;
+    font-size: 10px; padding: 2px 8px; border-radius: 12px;
 }
 .md-ob-badge-chip.md-ob-badge-child.md-ob-badge-selected {
     background: var(--secondary); color: var(--primary);
@@ -872,7 +872,7 @@ body {
     display: flex; flex-wrap: wrap; gap: 5px;
 }
 .md-ob-badge-grandchild {
-    font-size: 11px; padding: 3px 10px; border-radius: 12px;
+    font-size: 10px; padding: 2px 8px; border-radius: 12px;
 }
 .md-ob-badge-grandchild.md-ob-badge-selected {
     background: var(--secondary); color: var(--text-primary);
@@ -1087,10 +1087,10 @@ body {
 }
 .md-ob-row-chip {
     display: inline-flex; align-items: center;
-    padding: 5px 14px; border-radius: 16px;
+    padding: 3px 10px; border-radius: 14px;
     border: 1px solid var(--divider);
     background: var(--bg-surface); color: var(--text-secondary);
-    font-size: 12px; font-weight: 500;
+    font-size: 11px; font-weight: 500;
     cursor: pointer; transition: all 0.15s;
     user-select: none;
 }
@@ -1149,10 +1149,10 @@ body {
 }
 .md-ob-history-badge {
     display: inline-flex; align-items: center;
-    padding: 4px 12px; border-radius: 14px;
+    padding: 2px 8px; border-radius: 12px;
     border: 1px solid var(--divider);
     background: var(--bg-surface); color: var(--text-secondary);
-    font-size: 11px; font-weight: 500;
+    font-size: 10px; font-weight: 500;
     cursor: pointer; transition: all 0.15s;
     -webkit-user-select: none; user-select: none;
 }
@@ -1189,9 +1189,9 @@ body {
     cursor: grab; padding: 0 2px; user-select: none;
 }
 .md-ob-supervisor-chip {
-    padding: 4px 10px; border: 1px solid var(--divider);
-    border-radius: 14px; background: var(--bg-surface);
-    color: var(--text-secondary); font-size: 11px;
+    padding: 2px 8px; border: 1px solid var(--divider);
+    border-radius: 12px; background: var(--bg-surface);
+    color: var(--text-secondary); font-size: 10px;
     cursor: pointer; transition: all 0.15s;
     white-space: nowrap;
 }

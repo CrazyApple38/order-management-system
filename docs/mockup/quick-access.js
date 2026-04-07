@@ -415,6 +415,7 @@ function qaRenderHiddenList(container) {
                     <div class="qa-hidden-item-meta">現場 ${c.sites.length}件</div>
                 </div>
                 <button class="qa-hidden-restore-btn" onclick="qaRestoreClient(${i})">再表示</button>
+                <button class="qa-hidden-delete-btn" onclick="qaRemoveHiddenClient(${i})">削除</button>
             </div>
         `).join('');
     }
@@ -427,6 +428,7 @@ function qaRenderHiddenList(container) {
                     <div class="qa-hidden-item-meta">${escHtml(entry.clientName)}</div>
                 </div>
                 <button class="qa-hidden-restore-btn" onclick="qaRestoreSite(${i})">再表示</button>
+                <button class="qa-hidden-delete-btn" onclick="qaRemoveHiddenSite(${i})">削除</button>
             </div>
         `).join('');
     }
@@ -452,6 +454,16 @@ function qaRestoreSite(index) {
         }
     }
     qaAfterRestore(`${entry.site.name} を再表示しました`);
+}
+
+function qaRemoveHiddenClient(index) {
+    const client = qaHiddenClients.splice(index, 1)[0];
+    qaAfterRestore(`${client.name} を非表示リストから削除しました`);
+}
+
+function qaRemoveHiddenSite(index) {
+    const entry = qaHiddenSites.splice(index, 1)[0];
+    qaAfterRestore(`${entry.site.name} を非表示リストから削除しました`);
 }
 
 function qaAfterRestore(msg) {
@@ -492,7 +504,7 @@ function qaOpenSiteModal(clientId, siteId) {
     };
 
     document.getElementById('qaSiteModalTitle').textContent = site ? '現場情報 編集' : '新規現場 追加';
-    document.getElementById('qaSiteModalName').value = site ? site.name : '';
+    document.getElementById('qaSiteModalName').value = (site && site.name !== '(個別業務)') ? site.name : '';
 
     // チップレンダリング
     qaRenderSiteModalChips('qaSiteModalBranch', qaBranchList, qaSiteModalState.branch, 'branch');
@@ -1240,6 +1252,21 @@ function qaUpdateDailyTaskName() {
         el.style.color = 'var(--text-disabled)';
         el.style.fontStyle = 'italic';
         el.style.fontWeight = '400';
+    }
+
+    // ヘッダーの現場名：現場名 + 工事名を連結して表示
+    const siteNameEl = document.getElementById('qaCalSiteName');
+    if (siteNameEl) {
+        const taskNames = [];
+        document.querySelectorAll('.qa-sub-task-row .qa-sub-value').forEach(input => {
+            if (input.value.trim()) taskNames.push(input.value.trim());
+        });
+        if (qaCurrentSiteName === '(個別業務)') {
+            siteNameEl.textContent = taskNames.length > 0 ? taskNames.join(' ') : '(個別業務)';
+        } else {
+            const displayParts = [qaCurrentSiteName, ...taskNames];
+            siteNameEl.textContent = displayParts.join(' ');
+        }
     }
 }
 

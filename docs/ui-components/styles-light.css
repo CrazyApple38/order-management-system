@@ -3499,12 +3499,12 @@ body {
 .bt-chip {
     display: inline-flex;
     align-items: center;
-    padding: 4px 12px;
+    padding: 3px 10px;
     border-radius: 14px;
     border: 1px solid var(--divider);
     background: var(--bg-surface);
     color: var(--text-secondary);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.15s;
@@ -3521,8 +3521,8 @@ body {
     border-color: var(--accent);
 }
 .bt-chip-child {
-    font-size: 11px;
-    padding: 3px 10px;
+    font-size: 10px;
+    padding: 2px 8px;
     border-radius: 12px;
 }
 .bt-chip-child.active {
@@ -3562,6 +3562,54 @@ body {
 }
 .bt-drag-tag:hover .bt-drag-tag-sub {
     color: rgba(255,255,255,0.7);
+}
+
+/* --- 11. ツールチップバッジ (Tooltip Badge) --- */
+.bt-tooltip-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+.bt-tooltip-badge-accent {
+    background: rgba(68,166,181,0.15);
+    color: var(--accent);
+}
+
+/* --- 12. カレンダーセルバッジ (Calendar Cell Badge) --- */
+.bt-cal-badge {
+    font-size: 7px;
+    color: var(--accent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    line-height: 1;
+}
+
+/* --- 13. インフォバッジ (Info Badge) --- */
+.bt-info-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+.bt-info-badge-child {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid rgba(68,166,181,0.25);
+}
+.bt-info-badge-grandchild {
+    background: rgba(178,213,226,0.25);
+    color: var(--text-tertiary);
+    border: 1px solid rgba(178,213,226,0.4);
+    font-weight: 500;
 }
 
 /* --- Badge/Tag デモ用レイアウト --- */
