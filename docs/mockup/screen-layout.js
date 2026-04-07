@@ -5291,7 +5291,10 @@
             if (slAddSelected[groupKey] === value) value = null;
             slAddSelected[groupKey] = value;
             if (groupKey === 'branch') slRenderChips('slAddBranchChips', slGetVisibleBranchList(), value, 'branch');
-            else if (groupKey === 'category') slRenderChips('slAddCategoryChips', slCategoryList, value, 'category');
+            else if (groupKey === 'category') {
+                slRenderChips('slAddCategoryChips', slCategoryList, value, 'category');
+                slAddRenderBadgeSection(value);
+            }
             else if (groupKey === 'shift') slRenderChips('slAddShiftChips', slShiftList, value, 'shift');
             slUpdateWarnings();
             slUpdateHistoryBadges();
@@ -5312,6 +5315,404 @@
             var company = document.getElementById('slAddCompany').value.trim();
             var incomplete = !slAddSelected.branch || !slAddSelected.category || !slAddSelected.shift || !company;
             document.getElementById('slAddSaveBtn').disabled = incomplete;
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 新規追加モーダル: 信頼度チップ
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const slAddConfidenceOptions = [
+            { value: 'confirmed',      label: '確定' },
+            { value: 'tentative_high', label: '予定（高）' },
+            { value: 'tentative_low',  label: '予定（低）' },
+        ];
+        let slAddSelectedConfidence = 'confirmed';
+
+        function slAddRenderConfidenceChips(value) {
+            slAddSelectedConfidence = value || 'confirmed';
+            var container = document.getElementById('slAddConfidenceChips');
+            var html = '';
+            slAddConfidenceOptions.forEach(function(opt) {
+                var active = opt.value === slAddSelectedConfidence ? ' md-ob-conf-active-' + opt.value : '';
+                html += '<button type="button" class="md-ob-confidence-chip' + active + '" onclick="slAddSelectConfidence(\'' + opt.value + '\')">' + escapeHtml(opt.label) + '</button>';
+            });
+            container.innerHTML = html;
+        }
+
+        function slAddSelectConfidence(value) {
+            slAddRenderConfidenceChips(value);
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 新規追加モーダル: 業務詳細（サブタスク）
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const slAddDefaultSubTaskPrefix = '作業';
+
+        function slAddAddSubTaskEntry() {
+            var list = document.getElementById('slAddSubTaskList');
+            var currentCount = list.children.length;
+            var nums = ['①','②','③','④','⑤'];
+            var num = nums[currentCount] || (currentCount + 1);
+            var defaultLabel = slAddDefaultSubTaskPrefix + num;
+            var idx = currentCount;
+            var entry = document.createElement('div');
+            entry.className = 'md-ob-sub-task-entry';
+            entry.dataset.idx = idx;
+            entry.innerHTML =
+                '<input type="text" class="md-ob-sub-label-input" value="' + escapeHtml(defaultLabel) + '" placeholder="項目名" title="項目名を編集">' +
+                '<input type="text" class="md-ob-sub-value-input" value="" placeholder="内容を入力">' +
+                '<button type="button" class="md-ob-btn-remove-sub" onclick="slAddRemoveSubTaskEntry(' + idx + ')" title="削除">×</button>';
+            list.appendChild(entry);
+            entry.querySelector('.md-ob-sub-value-input').focus();
+        }
+
+        function slAddRemoveSubTaskEntry(idx) {
+            var list = document.getElementById('slAddSubTaskList');
+            var entries = list.querySelectorAll('.md-ob-sub-task-entry');
+            if (entries[idx]) {
+                entries[idx].remove();
+                list.querySelectorAll('.md-ob-sub-task-entry').forEach(function(entry, i) {
+                    entry.dataset.idx = i;
+                    entry.querySelector('.md-ob-btn-remove-sub').setAttribute('onclick', 'slAddRemoveSubTaskEntry(' + i + ')');
+                });
+            }
+        }
+
+        function slAddCollectSubTasks() {
+            var list = document.getElementById('slAddSubTaskList');
+            var entries = list.querySelectorAll('.md-ob-sub-task-entry');
+            var subTasks = [];
+            entries.forEach(function(entry) {
+                var label = entry.querySelector('.md-ob-sub-label-input').value.trim();
+                var value = entry.querySelector('.md-ob-sub-value-input').value.trim();
+                subTasks.push({ label: label || '項目', value: value });
+            });
+            return subTasks;
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 新規追加モーダル: 作業内容バッジ
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        var slAddBadgeDefinitions = [
+            { id: 'facility',        name: '施設',     children: [] },
+            { id: 'event',           name: 'イベント', children: [] },
+            { id: 'highway',         name: '高速',     children: [
+                { id: 'hw-lane',     name: '車線規制', children: [
+                    { id: 'hw-lane-sign',   name: '標識車' },
+                    { id: 'hw-lane-mat',    name: '規制材' },
+                    { id: 'hw-lane-light',  name: '保安灯' },
+                ]},
+                { id: 'hw-shoulder', name: '路肩規制', children: [
+                    { id: 'hw-sh-cone', name: 'コーン' },
+                    { id: 'hw-sh-bar',  name: 'バー' },
+                ]},
+                { id: 'hw-booth',    name: 'ブース規制', children: [] },
+                { id: 'hw-security', name: '保安員', children: [] },
+            ]},
+            { id: 'traffic',         name: '交通',     children: [
+                { id: 'tr-alternate', name: '片側交互', children: [
+                    { id: 'tr-alt-flag', name: '旗' },
+                    { id: 'tr-alt-sign', name: '看板' },
+                ]},
+                { id: 'tr-closure',   name: '通行止め', children: [] },
+            ]},
+            { id: 'support-traffic', name: '応援交通', children: [] },
+        ];
+
+        var slAddCategoryToBadgeId = {
+            '施設': 'facility', 'イベント': 'event',
+            '高速': 'highway', '交通': 'traffic', '応援交通': 'support-traffic',
+        };
+
+        var slAddSelectedParentBadge = null;
+        var slAddSelectedChildBadges = [];
+        var slAddSelectedGrandchildBadges = {};
+        var slAddBadgeNextId = 1;
+
+        function slAddGenerateBadgeId(prefix) {
+            return prefix + '-sl-custom-' + (slAddBadgeNextId++);
+        }
+
+        function slAddRenderBadgeSection(category) {
+            slAddSelectedParentBadge = slAddCategoryToBadgeId[category] || null;
+            slAddSelectedChildBadges = [];
+            slAddSelectedGrandchildBadges = {};
+            slAddRenderChildBadges();
+        }
+
+        function slAddRenderChildBadges() {
+            var container = document.getElementById('slAddBadgeChildList');
+            var wrapper = document.getElementById('slAddBadgeChildSection');
+            var hint = document.getElementById('slAddBadgeHint');
+            if (!slAddSelectedParentBadge) {
+                wrapper.style.display = 'none';
+                if (hint) hint.style.display = '';
+                return;
+            }
+            if (hint) hint.style.display = 'none';
+            var parent = slAddBadgeDefinitions.find(function(p) { return p.id === slAddSelectedParentBadge; });
+            if (!parent || parent.children.length === 0) {
+                container.innerHTML = '<span class="md-ob-badge-empty">バッジなし</span>';
+                wrapper.style.display = 'flex';
+                return;
+            }
+            var html = '';
+            parent.children.forEach(function(c, i) {
+                var sel = slAddSelectedChildBadges.indexOf(c.id) >= 0 ? ' md-ob-badge-selected' : '';
+                html += '<div class="md-ob-badge-drag-item" data-badge-idx="' + i + '" data-badge-id="' + c.id + '">';
+                html += '<button type="button" class="md-ob-badge-chip md-ob-badge-child' + sel + '" onclick="slAddToggleChildBadge(\'' + c.id + '\')">' + escapeHtml(c.name) + '</button>';
+                html += '</div>';
+            });
+            // 孫バッジセクション
+            parent.children.forEach(function(c) {
+                if (slAddSelectedChildBadges.indexOf(c.id) >= 0 && c.children && c.children.length > 0) {
+                    html += slAddRenderGrandchildSection(c);
+                }
+            });
+            container.innerHTML = html;
+            wrapper.style.display = 'flex';
+        }
+
+        function slAddRenderGrandchildSection(childBadge) {
+            var gcIds = slAddSelectedGrandchildBadges[childBadge.id] || [];
+            var html = '<div class="md-ob-grandchild-section" data-child-id="' + childBadge.id + '">';
+            html += '<div class="md-ob-grandchild-header">';
+            html += '<span class="md-ob-grandchild-label">' + escapeHtml(childBadge.name) + ' <span class="md-ob-grandchild-arrow">›</span> 詳細</span>';
+            html += '<button type="button" class="md-ob-btn-add-badge md-ob-btn-add-gc" onclick="slAddAddGrandchildBadge(\'' + childBadge.id + '\')">+ 追加</button>';
+            html += '</div>';
+            if (childBadge.children) {
+                childBadge.children.forEach(function(gc, i) {
+                    var sel = gcIds.indexOf(gc.id) >= 0 ? ' md-ob-badge-selected' : '';
+                    html += '<div class="md-ob-gc-drag-item" data-badge-idx="' + i + '">';
+                    html += '<button type="button" class="md-ob-badge-chip md-ob-badge-grandchild' + sel + '" onclick="slAddToggleGrandchildBadge(\'' + childBadge.id + '\',\'' + gc.id + '\')">' + escapeHtml(gc.name) + '</button>';
+                    html += '</div>';
+                });
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function slAddToggleChildBadge(id) {
+            var idx = slAddSelectedChildBadges.indexOf(id);
+            if (idx >= 0) {
+                slAddSelectedChildBadges.splice(idx, 1);
+                delete slAddSelectedGrandchildBadges[id];
+            } else {
+                slAddSelectedChildBadges.push(id);
+            }
+            slAddRenderChildBadges();
+        }
+
+        function slAddToggleGrandchildBadge(childId, gcId) {
+            if (!slAddSelectedGrandchildBadges[childId]) slAddSelectedGrandchildBadges[childId] = [];
+            var arr = slAddSelectedGrandchildBadges[childId];
+            var idx = arr.indexOf(gcId);
+            if (idx >= 0) { arr.splice(idx, 1); } else { arr.push(gcId); }
+            slAddRenderChildBadges();
+        }
+
+        function slAddAddChildBadge() {
+            if (!slAddSelectedParentBadge) return;
+            var name = prompt('新しい作業内容を入力:');
+            if (!name || !name.trim()) return;
+            var parent = slAddBadgeDefinitions.find(function(p) { return p.id === slAddSelectedParentBadge; });
+            if (!parent) return;
+            var id = slAddGenerateBadgeId('child');
+            parent.children.push({ id: id, name: name.trim(), children: [] });
+            slAddRenderChildBadges();
+        }
+
+        function slAddAddGrandchildBadge(childId) {
+            var parent = slAddBadgeDefinitions.find(function(p) { return p.id === slAddSelectedParentBadge; });
+            if (!parent) return;
+            var child = parent.children.find(function(c) { return c.id === childId; });
+            if (!child) return;
+            var name = prompt('新しい詳細項目を入力:');
+            if (!name || !name.trim()) return;
+            if (!child.children) child.children = [];
+            var id = slAddGenerateBadgeId('gc');
+            child.children.push({ id: id, name: name.trim() });
+            slAddRenderChildBadges();
+        }
+
+        function slAddGetSelectedBadgeData() {
+            if (!slAddSelectedParentBadge) return null;
+            return {
+                parentId: slAddSelectedParentBadge,
+                childIds: slAddSelectedChildBadges.slice(),
+                grandchildMap: JSON.parse(JSON.stringify(slAddSelectedGrandchildBadges)),
+            };
+        }
+
+        function slAddGetBadgeDisplayText(badge) {
+            if (!badge || !badge.parentId) return '';
+            var parent = slAddBadgeDefinitions.find(function(p) { return p.id === badge.parentId; });
+            if (!parent) return '';
+            var parts = [];
+            if (badge.childIds && badge.childIds.length > 0) {
+                badge.childIds.forEach(function(cid) {
+                    var child = parent.children.find(function(c) { return c.id === cid; });
+                    if (!child) return;
+                    var gcMap = badge.grandchildMap || {};
+                    var gcIds = gcMap[cid] || [];
+                    if (gcIds.length > 0 && child.children) {
+                        var gcNames = gcIds.map(function(gid) { return child.children.find(function(gc) { return gc.id === gid; }); })
+                            .filter(Boolean).map(function(gc) { return gc.name; });
+                        if (gcNames.length > 0) {
+                            parts.push(child.name + ': ' + gcNames.join('・'));
+                        } else {
+                            parts.push(child.name);
+                        }
+                    } else {
+                        parts.push(child.name);
+                    }
+                });
+            }
+            return parts.length > 0 ? parts.join('、') : '';
+        }
+
+        function slAddBuildBadgeDisplayHtml(badgeData) {
+            if (!badgeData || !badgeData.parentId || !badgeData.childIds || badgeData.childIds.length === 0) return '';
+            var parent = slAddBadgeDefinitions.find(function(p) { return p.id === badgeData.parentId; });
+            if (!parent) return '';
+            var html = '<div class="badge-display">';
+            var gcMap = badgeData.grandchildMap || {};
+            badgeData.childIds.forEach(function(childId, ci) {
+                var child = parent.children.find(function(c) { return c.id === childId; });
+                if (!child) return;
+                if (ci > 0) html += '<span class="badge-group-sep"></span>';
+                html += '<span class="badge-tag badge-child-tag">' + escapeHtml(child.name) + '</span>';
+                var gcIds = gcMap[childId];
+                if (gcIds && gcIds.length > 0 && child.children) {
+                    html += '<span class="badge-gc-sep">\u203a</span>';
+                    gcIds.forEach(function(gcId) {
+                        var gc = child.children.find(function(g) { return g.id === gcId; });
+                        if (gc) html += '<span class="badge-tag badge-gc-tag">' + escapeHtml(gc.name) + '</span>';
+                    });
+                }
+            });
+            html += '</div>';
+            return html;
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 新規追加モーダル: 担当者候補
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        var slAddSvCandidateList = [];
+
+        function slAddGetSupervisorCandidates(task) {
+            if (!task) return [];
+            var seen = {};
+            var results = [];
+            // slOrderBookRowsベースで同一業務名のダミー候補を生成
+            var sampleSupervisors = [
+                { name: '山田太郎', tel: '090-1234-5678' },
+                { name: '鈴木一郎', tel: '090-2345-6789' },
+                { name: '佐藤花子', tel: '090-3456-7890' },
+            ];
+            slOrderBookRows.forEach(function(row) {
+                if (row.task !== task || !row.task) return;
+                sampleSupervisors.forEach(function(sv) {
+                    var key = sv.name + '||' + sv.tel;
+                    if (seen[key]) return;
+                    seen[key] = true;
+                    results.push({ name: sv.name, tel: sv.tel });
+                });
+            });
+            return results;
+        }
+
+        function slAddRenderSupervisorCandidates(task) {
+            var container = document.getElementById('slAddSupervisorCandidates');
+            var chipsEl = document.getElementById('slAddSupervisorCandidateChips');
+            slAddSvCandidateList = slAddGetSupervisorCandidates(task);
+            if (slAddSvCandidateList.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            var html = '';
+            slAddSvCandidateList.forEach(function(c, i) {
+                var label = c.tel ? escapeHtml(c.name) + ' / ' + escapeHtml(c.tel) : escapeHtml(c.name);
+                html += '<button type="button" class="md-ob-supervisor-chip" onclick="slAddSelectSupervisorCandidate(' + i + ')">' + label + '</button>';
+            });
+            chipsEl.innerHTML = html;
+            container.style.display = 'flex';
+        }
+
+        function slAddSelectSupervisorCandidate(idx) {
+            if (!slAddSvCandidateList[idx]) return;
+            document.getElementById('slAddSupervisor').value = slAddSvCandidateList[idx].name;
+            document.getElementById('slAddSupervisorTel').value = slAddSvCandidateList[idx].tel;
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 新規追加モーダル: 地図エントリ管理
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function slAddAddMapEntry() {
+            var list = document.getElementById('slAddMapEntryList');
+            var idx = list.children.length;
+            var entry = document.createElement('div');
+            entry.className = 'md-ob-map-entry';
+            entry.dataset.idx = idx;
+            entry.innerHTML =
+                '<div class="md-ob-map-entry-header">' +
+                    '<input type="text" class="md-ob-sub-label-input md-ob-map-label-input" value="" placeholder="タイトル" title="タイトルを編集">' +
+                    '<button type="button" class="md-ob-btn-remove-sub" onclick="slAddRemoveMapEntry(' + idx + ')" title="削除">×</button>' +
+                '</div>' +
+                '<div class="md-ob-map-url-row">' +
+                    '<input type="url" class="md-ob-map-url-input" placeholder="Google Maps等のURLを入力">' +
+                    '<button type="button" class="md-ob-btn-map-preview" onclick="slAddPreviewMap(this)">プレビュー</button>' +
+                '</div>' +
+                '<div class="md-ob-map-preview" style="display:none;">' +
+                    '<iframe sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>' +
+                    '<button type="button" class="md-ob-btn-map-clear" onclick="slAddClearMapPreview(this)" title="プレビューを閉じる">✕</button>' +
+                '</div>';
+            list.appendChild(entry);
+            entry.querySelector('.md-ob-map-label-input').focus();
+        }
+
+        function slAddRemoveMapEntry(idx) {
+            var list = document.getElementById('slAddMapEntryList');
+            var entries = list.querySelectorAll('.md-ob-map-entry');
+            if (entries[idx]) {
+                entries[idx].remove();
+                list.querySelectorAll('.md-ob-map-entry').forEach(function(entry, i) {
+                    entry.dataset.idx = i;
+                    entry.querySelector('.md-ob-btn-remove-sub').setAttribute('onclick', 'slAddRemoveMapEntry(' + i + ')');
+                });
+            }
+        }
+
+        function slAddPreviewMap(btn) {
+            var entry = btn.closest('.md-ob-map-entry');
+            var url = entry.querySelector('.md-ob-map-url-input').value.trim();
+            if (!url) return;
+            var container = entry.querySelector('.md-ob-map-preview');
+            var iframe = container.querySelector('iframe');
+            iframe.src = url;
+            container.style.display = 'block';
+        }
+
+        function slAddClearMapPreview(btn) {
+            var container = btn.closest('.md-ob-map-preview');
+            var iframe = container.querySelector('iframe');
+            iframe.src = '';
+            container.style.display = 'none';
+        }
+
+        function slAddCollectMapEntries() {
+            var list = document.getElementById('slAddMapEntryList');
+            var entries = list.querySelectorAll('.md-ob-map-entry');
+            var maps = [];
+            entries.forEach(function(entry) {
+                var label = entry.querySelector('.md-ob-map-label-input').value.trim();
+                var url = entry.querySelector('.md-ob-map-url-input').value.trim();
+                if (label || url) maps.push({ label: label, url: url });
+            });
+            return maps;
+        }
+
+        function slAddResetMapEntries() {
+            document.getElementById('slAddMapEntryList').innerHTML = '';
         }
 
         // --- 過去データアコーディオン ---
@@ -5579,6 +5980,7 @@
         function slPickTaskSuggest(val) {
             document.getElementById('slAddTask').value = val;
             document.getElementById('slTaskSuggestPanel').style.display = 'none';
+            slAddRenderSupervisorCandidates(val);
         }
 
         // --- モーダル開閉 ---
@@ -5595,8 +5997,6 @@
 
             document.getElementById('slAddCompany').value = '';
             document.getElementById('slAddTask').value = '';
-            document.getElementById('slAddPresetStart').value = '';
-            document.getElementById('slAddPresetEnd').value = '';
 
             // サジェストパネルを閉じる
             document.getElementById('slCompanySuggestPanel').style.display = 'none';
@@ -5607,6 +6007,25 @@
             document.getElementById('slHistoryIcon').classList.remove('md-ob-expanded');
             document.getElementById('slHistoryCompanySection').style.display = 'none';
             document.getElementById('slHistoryTaskSection').style.display = 'none';
+
+            // Placement / Details 初期化
+            document.getElementById('slAddCount').value = '';
+            slAddRenderConfidenceChips('confirmed'); // 確定をプリセット
+            document.getElementById('slAddSubTaskList').innerHTML = '';
+
+            // Category / Tasks 初期化
+            slAddRenderBadgeSection(null);
+
+            // Schedule / Notes 初���化
+            document.getElementById('slAddStartTime').value = '';
+            document.getElementById('slAddEndTime').value = '';
+            document.getElementById('slAddSupervisor').value = '';
+            document.getElementById('slAddSupervisorTel').value = '';
+            document.getElementById('slAddSupervisorCandidates').style.display = 'none';
+            document.getElementById('slAddMeetingPlace').value = '';
+            document.getElementById('slAddMeetingTime').value = '';
+            slAddResetMapEntries();
+            document.getElementById('slAddRemarks').value = '';
 
             document.getElementById('slAddModalOverlay').style.display = 'flex';
             slUpdateWarnings();
@@ -5624,8 +6043,10 @@
             var shift = slAddSelected.shift;
             var company = document.getElementById('slAddCompany').value.trim();
             var task = document.getElementById('slAddTask').value.trim();
-            var timeStart = document.getElementById('slAddPresetStart').value || '';
-            var timeEnd = document.getElementById('slAddPresetEnd').value || '';
+            var timeStart = document.getElementById('slAddStartTime').value || '';
+            var timeEnd = document.getElementById('slAddEndTime').value || '';
+            var meetingPlace = document.getElementById('slAddMeetingPlace').value.trim();
+            var meetingTime = document.getElementById('slAddMeetingTime').value || '';
 
             if (!branch || !category || !shift || !company) return;
 
@@ -5642,6 +6063,10 @@
             var rowCount = tbody.querySelectorAll('tr').length;
             var no = rowCount + 1;
 
+            var count = parseInt(document.getElementById('slAddCount').value) || 0;
+            var countDisplay = '0/' + count;
+            var shortage = count > 0;
+
             var tr = cnCreateRow({
                 no: no,
                 gcClass: gcClass,
@@ -5653,14 +6078,48 @@
                 categoryLabel: category,
                 company: company,
                 siteName: task || '',
-                meetingTime: '',
-                meetingMethod: '',
-                meetingMethodClass: '',
+                meetingTime: meetingTime,
+                meetingMethod: meetingPlace ? '集合' : '',
+                meetingMethodClass: meetingPlace ? 'contact-badge-meeting' : '',
                 timeStart: timeStart,
                 timeEnd: timeEnd,
-                count: '0/0',
-                shortage: false
+                count: countDisplay,
+                shortage: shortage
             });
+
+            // 作業内容バッジをセルに反映
+            var badgeData = slAddGetSelectedBadgeData();
+            if (badgeData && badgeData.childIds && badgeData.childIds.length > 0) {
+                var badgeTd = tr.querySelector('.col-badge');
+                if (badgeTd) {
+                    badgeTd.innerHTML = slAddBuildBadgeDisplayHtml(badgeData);
+                }
+            }
+
+            // 地図データをセルに反映（URLがあるもののみ）
+            var allMaps = slAddCollectMapEntries();
+            var maps = allMaps.filter(function(m) { return m.url; });
+            var mapTd = tr.querySelector('.col-map');
+            if (mapTd) {
+                if (maps.length > 0) {
+                    mapTd.dataset.maps = JSON.stringify(maps);
+                    mapTd.innerHTML = maps.map(function(m, i) {
+                        return '<span class="map-tag">' + escapeHtml(m.label || '(無題)') + '</span>';
+                    }).join('');
+                }
+                // maps.length === 0 の場合はcnCreateRowのデフォルト（＋）表示のまま
+            }
+
+            // 追加データを行の dataset に保存（モック用）
+            tr.dataset.slAddConfidence = slAddSelectedConfidence;
+            tr.dataset.slAddCount = count;
+            tr.dataset.slAddSubTasks = JSON.stringify(slAddCollectSubTasks());
+            tr.dataset.slAddBadge = JSON.stringify(badgeData);
+            tr.dataset.slAddSupervisor = document.getElementById('slAddSupervisor').value;
+            tr.dataset.slAddSupervisorTel = document.getElementById('slAddSupervisorTel').value;
+            tr.dataset.slAddMeetingPlace = meetingPlace;
+            tr.dataset.slAddMaps = JSON.stringify(maps);
+            tr.dataset.slAddRemarks = document.getElementById('slAddRemarks').value;
 
             tbody.appendChild(tr);
             renumberRows();
