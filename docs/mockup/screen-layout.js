@@ -3943,7 +3943,8 @@
                   '</div></div></td>' +
                 '<td class="clickable-cell" onclick="openMeetingModal(this, event)">' +
                   '<span class="time-display">' + d.meetingTime + '</span>' +
-                  '<span class="contact-badge ' + d.meetingMethodClass + '">' + d.meetingMethod + '</span></td>' +
+                  '<span class="contact-badge ' + d.meetingMethodClass + '">' + d.meetingMethod + '</span>' +
+                  (d.contactBadgeHtml || '') + '</td>' +
                 '<td class="col-work-time clickable-cell" onclick="openWorkTimeModal(this, event)"' +
                   ' data-start-time="' + d.timeStart + '" data-end-time="' + d.timeEnd + '">' +
                   '<span class="work-time-start">' + d.timeStart + '</span>' +
@@ -5345,7 +5346,7 @@
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // 新規追加モーダル: 業務詳細（サブタスク）
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        const slAddDefaultSubTaskPrefix = '作業';
+        const slAddDefaultSubTaskPrefix = '工事名';
 
         function slAddAddSubTaskEntry() {
             var list = document.getElementById('slAddSubTaskList');
@@ -5387,6 +5388,62 @@
                 subTasks.push({ label: label || '項目', value: value });
             });
             return subTasks;
+        }
+
+        function slAddBuildSiteNameDisplay(task, subTasks) {
+            var parts = [];
+            if (task) parts.push(task);
+            subTasks.forEach(function(st) {
+                if (st.value) parts.push(st.value);
+            });
+            return parts.join(' ');
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 新規追加モーダル: 連絡チップ
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        var slAddSelectedContact = null;
+
+        function slAddRenderContactChips() {
+            const container = document.getElementById('slAddContactChips');
+            if (!container) return;
+            let html = '';
+            employeeContactItems.forEach(item => {
+                const active = slAddSelectedContact === item.name ? ' md-ob-chip-active' : '';
+                html += `<button type="button" class="md-ob-row-chip${active}" onclick="slAddSelectContact('${escapeHtml(item.name)}')">${escapeHtml(item.name)}</button>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function slAddSelectContact(name) {
+            slAddSelectedContact = slAddSelectedContact === name ? null : name;
+            slAddRenderContactChips();
+        }
+
+        function slAddAddContact() {
+            const name = prompt('新しい連絡項目名を入力:');
+            if (!name || !name.trim()) return;
+            const trimmed = name.trim();
+            if (employeeContactItems.some(i => i.name === trimmed)) {
+                alert('同名の項目が既に存在します。');
+                return;
+            }
+            const colorPalette = [
+                { bg: 'rgba(68,166,181,0.12)', color: '#2A6B7A', borderColor: 'rgba(68,166,181,0.3)' },
+                { bg: 'rgba(56,161,105,0.12)', color: '#276749', borderColor: 'rgba(56,161,105,0.3)' },
+                { bg: 'rgba(49,151,149,0.12)', color: '#285E61', borderColor: 'rgba(49,151,149,0.3)' },
+                { bg: 'rgba(214,158,46,0.1)', color: '#975A16', borderColor: 'rgba(214,158,46,0.3)' },
+                { bg: 'rgba(128,90,213,0.1)', color: '#6B46C1', borderColor: 'rgba(128,90,213,0.3)' }
+            ];
+            const idx = employeeContactItems.length % colorPalette.length;
+            const colors = colorPalette[idx];
+            const cssClass = 'contact-custom-' + employeeContactItems.length;
+            employeeContactItems.push({
+                name: trimmed, bg: colors.bg, color: colors.color,
+                borderColor: colors.borderColor, cssClass: cssClass
+            });
+            slAddSelectedContact = trimmed;
+            slAddRenderContactChips();
         }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -5598,50 +5655,145 @@
         // 新規追加モーダル: 担当者候補
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         var slAddSvCandidateList = [];
+        var slAddSvDeletedCandidate = null;
+        var slAddSvUndoTimer = null;
 
-        function slAddGetSupervisorCandidates(task) {
-            if (!task) return [];
-            var seen = {};
+        // 契約先名×業務名の組み合わせで異なるダミー担当者データ
+        var slAddSupervisorDb = [
+            { company: '〇〇株式会社',           task: '〇〇ビル 巡回警備',   supervisors: [{ name: '山田太郎', tel: '080-9876-5432' }, { name: '山田太郎', tel: '090-1234-5678' }] },
+            { company: '〇〇株式会社',           task: '〇〇ビル 夜間警備',   supervisors: [{ name: '山田太郎', tel: '' }, { name: '佐藤次郎', tel: '080-9876-5432' }] },
+            { company: '(株)〇〇高速',           task: '東名SA巡回',          supervisors: [{ name: '鈴木三郎', tel: '070-1111-2222' }, { name: '鈴木三郎', tel: '090-1234-5678' }] },
+            { company: '△△建設(株)',             task: '東名高速補修',        supervisors: [{ name: '佐藤次郎', tel: '' }] },
+            { company: '□□警備(株)',             task: '国道1号線',            supervisors: [{ name: '高橋健一', tel: '090-5555-1234' }, { name: '山田太郎', tel: '090-1234-5678' }] },
+            { company: '(株)丸山建設',           task: '〇〇ビル巡回',        supervisors: [{ name: '佐藤次郎', tel: '080-9876-5432' }, { name: '鈴木三郎', tel: '070-1111-2222' }, { name: '山田太郎', tel: '090-1234-5678' }] },
+            { company: '全日本エンタープライズ', task: '商業施設A',            supervisors: [{ name: '高橋健一', tel: '090-5555-1234' }] },
+        ];
+
+        function slAddGetSupervisorCandidates(company, task) {
+            if (!company && !task) return [];
             var results = [];
-            // slOrderBookRowsベースで同一業務名のダミー候補を生成
-            var sampleSupervisors = [
-                { name: '山田太郎', tel: '090-1234-5678' },
-                { name: '鈴木一郎', tel: '090-2345-6789' },
-                { name: '佐藤花子', tel: '090-3456-7890' },
-            ];
-            slOrderBookRows.forEach(function(row) {
-                if (row.task !== task || !row.task) return;
-                sampleSupervisors.forEach(function(sv) {
-                    var key = sv.name + '||' + sv.tel;
-                    if (seen[key]) return;
-                    seen[key] = true;
-                    results.push({ name: sv.name, tel: sv.tel });
+            var seen = {};
+            // 完全一致 → 契約先のみ一致 → 業務名のみ一致の優先順で収集
+            [function(r) { return r.company === company && r.task === task; },
+             function(r) { return r.company === company; },
+             function(r) { return r.task === task; }
+            ].forEach(function(matchFn) {
+                slAddSupervisorDb.forEach(function(row) {
+                    if (!matchFn(row)) return;
+                    row.supervisors.forEach(function(sv) {
+                        var key = sv.name + '||' + sv.tel;
+                        if (seen[key]) return;
+                        seen[key] = true;
+                        results.push({ name: sv.name, tel: sv.tel });
+                    });
                 });
             });
             return results;
         }
 
-        function slAddRenderSupervisorCandidates(task) {
+        function slAddUpdateSupervisorCandidates() {
+            var company = document.getElementById('slAddCompany').value.trim();
+            var task = document.getElementById('slAddTask').value.trim();
+            slAddRenderSupervisorCandidates(company, task);
+        }
+
+        function slAddRenderSupervisorCandidates(company, task) {
             var container = document.getElementById('slAddSupervisorCandidates');
-            var chipsEl = document.getElementById('slAddSupervisorCandidateChips');
-            slAddSvCandidateList = slAddGetSupervisorCandidates(task);
+            slAddSvCandidateList = slAddGetSupervisorCandidates(company, task);
             if (slAddSvCandidateList.length === 0) {
                 container.style.display = 'none';
                 return;
             }
+            slAddRenderSvChips();
+            container.style.display = 'flex';
+        }
+
+        function slAddRenderSvChips() {
+            var chipsEl = document.getElementById('slAddSupervisorCandidateChips');
             var html = '';
             slAddSvCandidateList.forEach(function(c, i) {
                 var label = c.tel ? escapeHtml(c.name) + ' / ' + escapeHtml(c.tel) : escapeHtml(c.name);
+                html += '<div class="md-ob-sv-drag-item" draggable="true" data-sv-idx="' + i + '">';
+                html += '<span class="md-ob-sv-drag-grip">\u2630</span>';
                 html += '<button type="button" class="md-ob-supervisor-chip" onclick="slAddSelectSupervisorCandidate(' + i + ')">' + label + '</button>';
+                html += '<button type="button" class="md-ob-sv-delete-btn" onclick="slAddDeleteSupervisorCandidate(' + i + ')" title="削除">\u2715</button>';
+                html += '</div>';
             });
             chipsEl.innerHTML = html;
-            container.style.display = 'flex';
+            slAddInitSvDragDrop();
         }
 
         function slAddSelectSupervisorCandidate(idx) {
             if (!slAddSvCandidateList[idx]) return;
             document.getElementById('slAddSupervisor').value = slAddSvCandidateList[idx].name;
             document.getElementById('slAddSupervisorTel').value = slAddSvCandidateList[idx].tel;
+        }
+
+        function slAddDeleteSupervisorCandidate(idx) {
+            var removed = slAddSvCandidateList.splice(idx, 1)[0];
+            if (!removed) return;
+            slAddSvDeletedCandidate = { candidate: removed, index: idx };
+            slAddRenderSvChips();
+            slAddShowSvUndoBar(removed.name);
+            if (slAddSvCandidateList.length === 0) {
+                document.getElementById('slAddSupervisorCandidates').style.display = 'none';
+            }
+        }
+
+        function slAddShowSvUndoBar(name) {
+            var bar = document.getElementById('slAddSvUndoBar');
+            document.getElementById('slAddSvUndoMsg').textContent = '\u300c' + name + '\u300d\u3092\u524a\u9664\u3057\u307e\u3057\u305f';
+            bar.style.display = 'flex';
+            if (slAddSvUndoTimer) clearTimeout(slAddSvUndoTimer);
+            slAddSvUndoTimer = setTimeout(function() {
+                bar.style.display = 'none';
+                slAddSvDeletedCandidate = null;
+                slAddSvUndoTimer = null;
+            }, 5000);
+        }
+
+        function slAddUndoDeleteSupervisor() {
+            if (!slAddSvDeletedCandidate) return;
+            slAddSvCandidateList.splice(slAddSvDeletedCandidate.index, 0, slAddSvDeletedCandidate.candidate);
+            slAddSvDeletedCandidate = null;
+            if (slAddSvUndoTimer) { clearTimeout(slAddSvUndoTimer); slAddSvUndoTimer = null; }
+            document.getElementById('slAddSvUndoBar').style.display = 'none';
+            document.getElementById('slAddSupervisorCandidates').style.display = 'flex';
+            slAddRenderSvChips();
+        }
+
+        function slAddInitSvDragDrop() {
+            var chipsEl = document.getElementById('slAddSupervisorCandidateChips');
+            var dragSrcIdx = null;
+            chipsEl.querySelectorAll('.md-ob-sv-drag-item').forEach(function(item) {
+                item.addEventListener('dragstart', function(e) {
+                    dragSrcIdx = parseInt(item.dataset.svIdx);
+                    e.dataTransfer.effectAllowed = 'move';
+                    item.classList.add('md-ob-sv-dragging');
+                });
+                item.addEventListener('dragend', function() {
+                    item.classList.remove('md-ob-sv-dragging');
+                    chipsEl.querySelectorAll('.md-ob-sv-drag-item').forEach(function(el) {
+                        el.classList.remove('md-ob-sv-drag-over');
+                    });
+                });
+                item.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    item.classList.add('md-ob-sv-drag-over');
+                });
+                item.addEventListener('dragleave', function() {
+                    item.classList.remove('md-ob-sv-drag-over');
+                });
+                item.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    var dropIdx = parseInt(item.dataset.svIdx);
+                    if (dragSrcIdx === null || dragSrcIdx === dropIdx) return;
+                    var moved = slAddSvCandidateList.splice(dragSrcIdx, 1)[0];
+                    slAddSvCandidateList.splice(dropIdx, 0, moved);
+                    slAddRenderSvChips();
+                });
+            });
         }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -5864,6 +6016,7 @@
                 slUpdateWarnings();
             }
             slUpdateHistoryBadges();
+            slAddUpdateSupervisorCandidates();
         }
 
         function slSelectHistoryTask(task) {
@@ -5875,6 +6028,7 @@
                 document.getElementById('slAddTask').value = task;
             }
             slUpdateHistoryBadges();
+            slAddUpdateSupervisorCandidates();
         }
 
         // --- サジェスト ---
@@ -5940,6 +6094,7 @@
             document.getElementById('slAddCompany').value = val;
             document.getElementById('slCompanySuggestPanel').style.display = 'none';
             slUpdateWarnings();
+            slAddUpdateSupervisorCandidates();
         }
 
         function slTaskSuggest() {
@@ -5980,7 +6135,7 @@
         function slPickTaskSuggest(val) {
             document.getElementById('slAddTask').value = val;
             document.getElementById('slTaskSuggestPanel').style.display = 'none';
-            slAddRenderSupervisorCandidates(val);
+            slAddUpdateSupervisorCandidates();
         }
 
         // --- モーダル開閉 ---
@@ -6021,9 +6176,11 @@
             document.getElementById('slAddEndTime').value = '';
             document.getElementById('slAddSupervisor').value = '';
             document.getElementById('slAddSupervisorTel').value = '';
-            document.getElementById('slAddSupervisorCandidates').style.display = 'none';
+            slAddRenderSupervisorCandidates(null, null);
             document.getElementById('slAddMeetingPlace').value = '';
             document.getElementById('slAddMeetingTime').value = '';
+            slAddSelectedContact = null;
+            slAddRenderContactChips();
             slAddResetMapEntries();
             document.getElementById('slAddRemarks').value = '';
 
@@ -6067,6 +6224,17 @@
             var countDisplay = '0/' + count;
             var shortage = count > 0;
 
+            // 連絡バッジHTML生成
+            var contactBadgeHtml = '';
+            if (slAddSelectedContact) {
+                var cItem = employeeContactItems.find(function(i) { return i.name === slAddSelectedContact; });
+                if (cItem) {
+                    contactBadgeHtml = '<span class="contact-badge contact-' + escapeHtml(cItem.cssClass || slAddSelectedContact.toLowerCase()) + '"'
+                        + (cItem.bg ? ' style="background:' + cItem.bg + '; color:' + cItem.color + ';"' : '')
+                        + '>' + escapeHtml(cItem.name) + '</span>';
+                }
+            }
+
             var tr = cnCreateRow({
                 no: no,
                 gcClass: gcClass,
@@ -6077,10 +6245,11 @@
                 categoryClass: categoryClass,
                 categoryLabel: category,
                 company: company,
-                siteName: task || '',
+                siteName: slAddBuildSiteNameDisplay(task, slAddCollectSubTasks()),
                 meetingTime: meetingTime,
                 meetingMethod: meetingPlace ? '集合' : '',
                 meetingMethodClass: meetingPlace ? 'contact-badge-meeting' : '',
+                contactBadgeHtml: contactBadgeHtml,
                 timeStart: timeStart,
                 timeEnd: timeEnd,
                 count: countDisplay,
@@ -6118,6 +6287,7 @@
             tr.dataset.slAddSupervisor = document.getElementById('slAddSupervisor').value;
             tr.dataset.slAddSupervisorTel = document.getElementById('slAddSupervisorTel').value;
             tr.dataset.slAddMeetingPlace = meetingPlace;
+            tr.dataset.slAddContact = slAddSelectedContact || '';
             tr.dataset.slAddMaps = JSON.stringify(maps);
             tr.dataset.slAddRemarks = document.getElementById('slAddRemarks').value;
 
