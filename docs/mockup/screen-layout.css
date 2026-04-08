@@ -552,7 +552,7 @@ h1 {
     transform: rotate(-135deg);
 }
 
-/* 部署サブタブグループ（アコーディオン開閉） */
+/* 組織階層サブタブグループ（アコーディオン開閉） */
 .md-sp-dept-group {
     display: flex;
     flex-direction: column;
@@ -563,6 +563,30 @@ h1 {
 
 .md-sp-dept-group.expanded {
     max-height: 500px;
+}
+
+/* 組織ツリーの親ノード（営業所等） */
+.md-sp-org-parent {
+    font-weight: 600;
+    opacity: 0.85;
+}
+
+/* 組織ツリーの深さに応じたインデント */
+.md-sp-vtab[data-org-depth="2"] {
+    padding-left: 24px;
+    font-size: 0.85em;
+}
+.md-sp-vtab[data-org-depth="3"] {
+    padding-left: 36px;
+    font-size: 0.8em;
+}
+.md-sp-vtab[data-org-depth="4"] {
+    padding-left: 48px;
+    font-size: 0.8em;
+}
+.md-sp-vtab[data-org-depth="5"] {
+    padding-left: 60px;
+    font-size: 0.8em;
 }
 
 /* コンテンツエリア（社員タグ） */

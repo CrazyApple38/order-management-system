@@ -4,7 +4,7 @@
 // ============================================================
 
 // --------------------------------------------------
-// 固定マスターデータ（グループ会社・部署・社員・車両・ETC・連絡先）
+// 固定マスターデータ（グループ会社・組織階層・社員・車両・ETC・連絡先）
 // --------------------------------------------------
 
 const groupCompaniesData = [
@@ -13,11 +13,50 @@ const groupCompaniesData = [
     { id: 3, code: 'zennihon', name: '全日本エンタープライズ', shortName: 'AJE', rowClass: 'md-gc-row-zennihon' }
 ];
 
-const departmentsData = {
-    touo:     [{ id: 'touo-shisetsu', name: '施設課' }, { id: 'touo-kotsu', name: '交通課' }],
-    nikkei:   [{ id: 'nikkei-shisetsu', name: '施設課' }, { id: 'nikkei-kotsu', name: '交通課' }],
-    zennihon: [{ id: 'zen-kotsu1', name: '交通一課' }, { id: 'zen-kotsu2', name: '交通二課' }]
+// 組織階層種別定義（グループ会社ごとの階層名）
+const orgLevelTypesData = {
+    touo:     [{ depth: 1, name: '営業所' }, { depth: 2, name: '課' }],
+    nikkei:   [{ depth: 1, name: '課' }],
+    zennihon: [{ depth: 1, name: '課' }]
 };
+
+// 組織ノード（自己参照ツリー）
+const orgUnitsData = {
+    touo: [
+        { id: 'touo-tokyo', name: '東京本社', depth: 1, parentId: null, children: [
+            { id: 'touo-shisetsu', name: '施設課', depth: 2, parentId: 'touo-tokyo' },
+            { id: 'touo-kotsu', name: '交通課', depth: 2, parentId: 'touo-tokyo' }
+        ]},
+        { id: 'touo-yokohama', name: '横浜営業所', depth: 1, parentId: null, children: [
+            { id: 'touo-yoko-shisetsu', name: '施設課', depth: 2, parentId: 'touo-yokohama' }
+        ]}
+    ],
+    nikkei: [
+        { id: 'nikkei-shisetsu', name: '施設課', depth: 1, parentId: null },
+        { id: 'nikkei-kotsu', name: '交通課', depth: 1, parentId: null }
+    ],
+    zennihon: [
+        { id: 'zen-kotsu1', name: '交通一課', depth: 1, parentId: null },
+        { id: 'zen-kotsu2', name: '交通二課', depth: 1, parentId: null }
+    ]
+};
+
+// 後方互換: フラット化した組織ノード一覧（dept参照用）
+var departmentsData = (function() {
+    var result = {};
+    Object.keys(orgUnitsData).forEach(function(gc) {
+        var flat = [];
+        function walk(nodes) {
+            nodes.forEach(function(n) {
+                flat.push({ id: n.id, name: n.name, depth: n.depth, parentId: n.parentId });
+                if (n.children) walk(n.children);
+            });
+        }
+        walk(orgUnitsData[gc]);
+        result[gc] = flat;
+    });
+    return result;
+})();
 
 const employeesData = [
     { name: '田中', company: 'touo', dept: 'touo-shisetsu' },

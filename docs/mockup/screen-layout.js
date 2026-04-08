@@ -1753,7 +1753,23 @@
             renderSidePanel();
         }
 
-        // ===== サイドパネル 縦タブ・部署別表示 =====
+        // ===== サイドパネル 縦タブ・組織階層表示 =====
+
+        // 組織ノードIDから配下の全ノードIDを取得（再帰）
+        function getDescendantIds(nodes, targetId) {
+            var ids = [targetId];
+            function walk(list) {
+                list.forEach(function(n) {
+                    if (n.parentId === targetId || ids.indexOf(n.parentId) >= 0) {
+                        ids.push(n.id);
+                    }
+                    if (n.children) walk(n.children);
+                });
+            }
+            walk(nodes);
+            return ids;
+        }
+
         function renderSidePanel() {
             const vtabs = document.getElementById('spVtabs');
             const content = document.getElementById('spContent');
@@ -1766,25 +1782,40 @@
                 gcFilterState.selected.includes(gc.code)
             );
 
-            // --- タブ列を構築 ---
+            // --- タブ列を構築（組織階層ツリー） ---
             let tabsHtml = '';
             // 「すべて」タブ
             tabsHtml += '<div class="md-sp-vtab' + (spState.activeTab === 'all' ? ' active' : '') + '"'
                 + ' data-sp-tab="all" onclick="spSelectTab(\'all\')">すべて</div>';
 
             visibleCompanies.forEach(function(gc) {
-                const depts = departmentsData[gc.code] || [];
+                var units = orgUnitsData[gc.code] || [];
+                var levelTypes = orgLevelTypesData[gc.code] || [];
                 const isExpanded = spState.expandedCompanies.has(gc.code);
                 tabsHtml += '<div class="md-sp-gc-header' + (isExpanded ? ' expanded' : '') + '"'
                     + ' data-sp-gc="' + gc.code + '"'
                     + ' onclick="spToggleCompany(\'' + gc.code + '\')">' + gc.shortName + '</div>';
                 tabsHtml += '<div class="md-sp-dept-group' + (isExpanded ? ' expanded' : '') + '"'
                     + ' data-sp-gc-group="' + gc.code + '">';
-                depts.forEach(function(dept) {
-                    tabsHtml += '<div class="md-sp-vtab' + (spState.activeTab === dept.id ? ' active' : '') + '"'
-                        + ' data-sp-tab="' + dept.id + '"'
-                        + ' onclick="spSelectTab(\'' + dept.id + '\')">' + dept.name + '</div>';
-                });
+
+                // ツリーを再帰的にレンダリング
+                function renderOrgTabs(nodes, indent) {
+                    nodes.forEach(function(node) {
+                        var levelName = '';
+                        levelTypes.forEach(function(lt) { if (lt.depth === node.depth) levelName = lt.name; });
+                        var label = (indent > 0 ? '　'.repeat(indent) : '') + node.name;
+                        var hasChildren = node.children && node.children.length > 0;
+                        var cssClass = 'md-sp-vtab' + (spState.activeTab === node.id ? ' active' : '')
+                            + (hasChildren ? ' md-sp-org-parent' : '');
+                        tabsHtml += '<div class="' + cssClass + '"'
+                            + ' data-sp-tab="' + node.id + '"'
+                            + ' data-org-depth="' + node.depth + '"'
+                            + ' title="' + levelName + ': ' + node.name + '"'
+                            + ' onclick="spSelectTab(\'' + node.id + '\')">' + label + '</div>';
+                        if (hasChildren) renderOrgTabs(node.children, indent + 1);
+                    });
+                }
+                renderOrgTabs(units, 0);
                 tabsHtml += '</div>';
             });
             vtabs.innerHTML = tabsHtml;
@@ -1803,7 +1834,14 @@
                 return visibleCompanies.some(function(gc) { return gc.code === emp.company; });
             });
             if (spState.activeTab !== 'all') {
-                filtered = filtered.filter(function(emp) { return emp.dept === spState.activeTab; });
+                // 選択ノードの配下すべてを含める（営業所選択→配下の課の社員も表示）
+                var matchIds = [];
+                Object.keys(orgUnitsData).forEach(function(gc) {
+                    matchIds = matchIds.concat(getDescendantIds(orgUnitsData[gc], spState.activeTab));
+                });
+                filtered = filtered.filter(function(emp) {
+                    return matchIds.indexOf(emp.dept) >= 0;
+                });
             }
             if (searchTerm) {
                 filtered = filtered.filter(function(emp) { return emp.name.includes(searchTerm); });
@@ -1825,7 +1863,7 @@
                     });
                 });
             } else {
-                // 部署別フラット表示
+                // 組織ノード別フラット表示
                 filtered.forEach(function(emp) {
                     const isAssigned = assignedNames.has(emp.name);
                     contentHtml += '<span class="employee-tag' + (isAssigned ? ' assigned' : '') + '"'
@@ -1867,10 +1905,10 @@
             } else {
                 spState.expandedCompanies.add(gcCode);
             }
-            // アクティブタブが閉じた会社の部署だった場合リセット
+            // アクティブタブが閉じた会社の組織ノードだった場合リセット
             if (spState.activeTab !== 'all') {
-                var depts = departmentsData[gcCode] || [];
-                var isInThisCompany = depts.some(function(d) { return d.id === spState.activeTab; });
+                var units = departmentsData[gcCode] || [];
+                var isInThisCompany = units.some(function(u) { return u.id === spState.activeTab; });
                 if (isInThisCompany && !spState.expandedCompanies.has(gcCode)) {
                     spState.activeTab = 'all';
                 }
@@ -4940,15 +4978,15 @@
                     }
                 });
             }
-            // サイドパネル連動: 非表示会社のタブをリセット
+            // サイドパネル連動: 非表示会社の組織タブをリセット
             if (spState.activeTab !== 'all') {
-                var activeDeptCompany = null;
+                var activeUnitCompany = null;
                 Object.keys(departmentsData).forEach(function(code) {
                     if (departmentsData[code].some(function(d) { return d.id === spState.activeTab; })) {
-                        activeDeptCompany = code;
+                        activeUnitCompany = code;
                     }
                 });
-                if (activeDeptCompany && !checked.includes(activeDeptCompany)) {
+                if (activeUnitCompany && !checked.includes(activeUnitCompany)) {
                     spState.activeTab = 'all';
                 }
             }
@@ -5019,7 +5057,7 @@
             var html = '';
 
             groupCompaniesData.forEach(function(gc) {
-                var depts = departmentsData[gc.code] || [];
+                var units = orgUnitsData[gc.code] || [];
                 // この会社に所属する社員がいるか
                 var companyEmps = seEditData.filter(function(e) { return e.company === gc.code; });
                 if (companyEmps.length === 0) return;
@@ -5027,23 +5065,30 @@
                 html += '<div class="md-modal-body-card se-company-section" data-se-company="' + gc.code + '">';
                 html += '<div class="se-company-header">' + gc.shortName + '</div>';
 
-                depts.forEach(function(dept) {
-                    html += '<div class="se-dept-zone" data-se-dept="' + dept.id + '" data-se-company="' + gc.code + '">';
-                    html += '<div class="se-dept-label">' + dept.name + '</div>';
-                    html += '<div class="se-chips">';
-                    var deptEmps = seEditData.filter(function(e) {
-                        return e.company === gc.code && e.dept === dept.id;
+                // 組織ツリーを再帰的にレンダリング
+                function renderEditNodes(nodes, indent) {
+                    nodes.forEach(function(node) {
+                        var indentPx = indent * 12;
+                        html += '<div class="se-dept-zone" data-se-dept="' + node.id + '" data-se-company="' + gc.code + '"'
+                            + ' style="margin-left:' + indentPx + 'px">';
+                        html += '<div class="se-dept-label">' + node.name + '</div>';
+                        html += '<div class="se-chips">';
+                        var nodeEmps = seEditData.filter(function(e) {
+                            return e.company === gc.code && e.dept === node.id;
+                        });
+                        nodeEmps.forEach(function(emp) {
+                            var cls = 'se-chip' + (emp.hidden ? ' se-hidden' : '');
+                            html += '<div class="' + cls + '" draggable="true"'
+                                + ' data-se-name="' + emp.name + '"'
+                                + ' data-se-company="' + emp.company + '"'
+                                + ' data-se-dept="' + emp.dept + '">'
+                                + emp.name + '</div>';
+                        });
+                        html += '</div></div>';
+                        if (node.children) renderEditNodes(node.children, indent + 1);
                     });
-                    deptEmps.forEach(function(emp) {
-                        var cls = 'se-chip' + (emp.hidden ? ' se-hidden' : '');
-                        html += '<div class="' + cls + '" draggable="true"'
-                            + ' data-se-name="' + emp.name + '"'
-                            + ' data-se-company="' + emp.company + '"'
-                            + ' data-se-dept="' + emp.dept + '">'
-                            + emp.name + '</div>';
-                    });
-                    html += '</div></div>';
-                });
+                }
+                renderEditNodes(units, 0);
 
                 html += '</div>';
             });

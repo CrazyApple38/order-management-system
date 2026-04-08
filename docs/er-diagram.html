@@ -324,10 +324,22 @@ erDiagram
         int level "階層レベル1-2"
     }
 
-    departments {
+    org_level_types {
         uuid id PK "主キー"
-        string name "部署名"
+        uuid group_company_id FK "グループ会社ID"
+        int depth "階層の深さ(1-5)"
+        string name "階層種別名"
+    }
+
+    organization_units {
+        uuid id PK "主キー"
+        uuid group_company_id FK "グループ会社ID"
+        uuid parent_id FK "親ノードID(自己参照)"
+        uuid level_type_id FK "階層種別ID"
+        string code "組織コード"
+        string name "組織名"
         int sort_order "表示順"
+        boolean is_active "有効フラグ"
     }
 
     employees {
@@ -335,7 +347,7 @@ erDiagram
         string employee_code "社員コード"
         string name "氏名"
         string short_name "略称"
-        uuid department_id FK "部署ID"
+        uuid org_unit_id FK "組織ノードID"
         boolean is_active "有効フラグ"
     }
 
@@ -533,7 +545,11 @@ erDiagram
     employees ||--o{ order_change_history : "変更者"
     employees ||--o{ daily_site_orders : "作成/更新者"
 
-    departments ||--o{ employees : "所属部署"
+    group_companies ||--o{ org_level_types : "階層種別定義"
+    group_companies ||--o{ organization_units : "組織ノード"
+    org_level_types ||--o{ organization_units : "階層種別"
+    organization_units ||--o{ organization_units : "親子(自己参照)"
+    organization_units ||--o{ employees : "所属組織"
     employees ||--o{ employee_licenses : "保有資格"
     license_types ||--o{ employee_licenses : "資格種別"
     employees ||--o{ employee_conflicts : "配置制約"
@@ -590,13 +606,18 @@ erDiagram
         </div>
 
         <div class="annotation-item master">
-            <strong>departments（部署マスタ）</strong>
-            <p>社員の所属部署を管理</p>
+            <strong>org_level_types（階層種別定義）</strong>
+            <p>グループ会社ごとの組織階層名を定義（最大5階層）</p>
+        </div>
+
+        <div class="annotation-item master">
+            <strong>organization_units（組織ノード）</strong>
+            <p>自己参照ツリーで営業所・部・課等の階層構造を表現</p>
         </div>
 
         <div class="annotation-item master">
             <strong>employees（社員マスタ）</strong>
-            <p>警備員の情報（氏名、略称、所属部署など）</p>
+            <p>警備員の情報（氏名、略称、所属組織など）</p>
         </div>
 
         <div class="annotation-item relation">
