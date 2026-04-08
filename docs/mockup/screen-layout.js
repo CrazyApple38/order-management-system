@@ -3073,12 +3073,12 @@
             const container = document.getElementById('cnToastContainer');
             const toast = document.createElement('div');
             const typeClass = 'md-cn-toast-' + notification.type;
-            const icons = { add: '🟢', modify: '🟡', delete: '🔴' };
+            const dotColors = { add: '#44A6B5', modify: '#DECCBE', delete: '#DB577B' };
             const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
 
             toast.className = 'md-cn-toast ' + typeClass;
             toast.innerHTML =
-                '<span class="md-cn-toast-icon">' + icons[notification.type] + '</span>' +
+                '<span class="md-cn-toast-icon" style="width:14px;height:14px;border-radius:50%;background:' + dotColors[notification.type] + ';flex-shrink:0;"></span>' +
                 '<div class="md-cn-toast-body">' +
                     '<div class="md-cn-toast-title">' + typeLabels[notification.type] + ' — ' + notification.user + '</div>' +
                     '<div class="md-cn-toast-desc">' + escapeHtml(notification.siteName) + '</div>' +
@@ -3267,7 +3267,7 @@
             const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
 
             timeline.innerHTML = filtered.map(function(h) {
-                return '<div class="md-cn-timeline-item tl-' + h.type + '">' +
+                return '<div class="md-cn-timeline-item md-cn-tl-' + h.type + '">' +
                     '<div class="md-cn-tl-header">' +
                         '<span class="md-cn-tl-time">' + h.time + '</span>' +
                         '<span class="md-cn-tl-user">' + escapeHtml(h.user) + '</span>' +

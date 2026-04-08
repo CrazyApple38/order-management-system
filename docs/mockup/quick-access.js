@@ -1773,11 +1773,11 @@ function qaCnShowToast(n) {
     var existing = container.querySelectorAll('.md-cn-toast');
     for (var i = 0; i < existing.length; i++) existing[i].remove();
     var toast = document.createElement('div');
-    var icons = { add: '🟢', modify: '🟡', delete: '🔴' };
+    var dotColors = { add: '#44A6B5', modify: '#DECCBE', delete: '#DB577B' };
     var typeLabels = { add: '追加', modify: '変更', delete: '削除' };
     toast.className = 'md-cn-toast md-cn-toast-' + n.type;
     toast.innerHTML =
-        '<span class="md-cn-toast-icon">' + icons[n.type] + '</span>' +
+        '<span class="md-cn-toast-icon" style="width:10px;height:10px;border-radius:50%;background:' + dotColors[n.type] + ';flex-shrink:0;"></span>' +
         '<div class="md-cn-toast-body">' +
             '<span class="md-cn-toast-title">' + typeLabels[n.type] + '</span>' +
             '<span class="md-cn-toast-desc">' + escHtml(n.user) + ' — ' + escHtml(n.siteName || '') + '</span>' +

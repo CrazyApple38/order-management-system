@@ -3554,11 +3554,11 @@ function obCnGetRowBellHtml(ri) {
 function obCnShowToast(n) {
     const container = document.getElementById('obCnToastContainer');
     const toast = document.createElement('div');
-    const icons = { add: '🟢', modify: '🟡', delete: '🔴' };
+    const dotColors = { add: '#44A6B5', modify: '#DECCBE', delete: '#DB577B' };
     const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
     toast.className = 'md-cn-toast md-cn-toast-' + n.type;
     toast.innerHTML =
-        '<span class="md-cn-toast-icon">' + icons[n.type] + '</span>' +
+        '<span class="md-cn-toast-icon" style="width:14px;height:14px;border-radius:50%;background:' + dotColors[n.type] + ';flex-shrink:0;"></span>' +
         '<div class="md-cn-toast-body">' +
             '<div class="md-cn-toast-title">' + typeLabels[n.type] + ' — ' + escapeHtml(n.user) + '</div>' +
             '<div class="md-cn-toast-desc">' + escapeHtml(n.taskName || n.siteName || '') + '</div>' +
