@@ -1,0 +1,302 @@
+/* ============================================================
+   co-navbar.css — 共通ナビゲーションバー
+   全モックアップ画面で共有されるグローバルメニューバー
+   ============================================================ */
+
+/* === ナビバー本体 === */
+.md-nav-bar {
+    display: flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 12px;
+    background: var(--bg-sidebar);
+    color: #fff;
+    font-size: 13px;
+    flex-shrink: 0;
+    gap: 2px;
+    position: relative;
+    z-index: 1000;
+    user-select: none;
+    margin-bottom: 0;
+    border-bottom: 1px solid #1a6b7a;
+    box-shadow: 0 8px 0 0 #002a33;
+    margin-bottom: 14px;
+}
+
+/* === ロゴ === */
+.md-nav-logo {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 0 12px 0 4px;
+    margin-right: 4px;
+    border-right: 1px solid rgba(255,255,255,0.15);
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+}
+
+/* === ページタブ === */
+.md-nav-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+    cursor: pointer;
+    border: none;
+    background: none;
+    white-space: nowrap;
+}
+.md-nav-tab:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+}
+.md-nav-tab.md-nav-active {
+    color: #fff;
+    background: rgba(255,255,255,0.18);
+    font-weight: 600;
+}
+.md-nav-tab-icon {
+    width: 15px;
+    height: 15px;
+    opacity: 0.8;
+    filter: brightness(0) invert(1);
+}
+.md-nav-active .md-nav-tab-icon {
+    opacity: 1;
+}
+
+/* === セパレータ === */
+.md-nav-sep {
+    width: 1px;
+    height: 20px;
+    background: rgba(255,255,255,0.15);
+    margin: 0 6px;
+    flex-shrink: 0;
+}
+
+/* === スペーサー === */
+.md-nav-spacer {
+    flex: 1;
+}
+
+/* === ドロップダウンメニュー === */
+.md-nav-dropdown {
+    position: relative;
+}
+.md-nav-dropdown-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+.md-nav-dropdown-btn:hover,
+.md-nav-dropdown.md-nav-open .md-nav-dropdown-btn {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+}
+.md-nav-dropdown-arrow {
+    font-size: 9px;
+    transition: transform 0.15s;
+}
+.md-nav-dropdown.md-nav-open .md-nav-dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* パネル */
+.md-nav-dropdown-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 200px;
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    padding: 6px 0;
+    z-index: 2000;
+}
+.md-nav-dropdown.md-nav-open .md-nav-dropdown-panel {
+    display: block;
+    animation: md-nav-dropdown-in 0.12s ease-out;
+}
+@keyframes md-nav-dropdown-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* メニュー項目 */
+.md-nav-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 16px;
+    border: none;
+    background: none;
+    color: var(--text-primary);
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.1s;
+    white-space: nowrap;
+}
+.md-nav-menu-item:hover {
+    background: var(--accent-dim);
+    color: var(--accent);
+}
+.md-nav-menu-item-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+}
+.md-nav-menu-item:hover .md-nav-menu-item-icon {
+    opacity: 0.9;
+}
+
+/* メニュー区切り線 */
+.md-nav-menu-divider {
+    height: 1px;
+    background: var(--divider);
+    margin: 4px 12px;
+}
+
+/* === 右端アクションボタン === */
+.md-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 4px;
+}
+.md-nav-action-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.md-nav-action-btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.12);
+}
+.md-nav-action-btn img {
+    width: 18px;
+    height: 18px;
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+}
+.md-nav-action-btn:hover img {
+    opacity: 1;
+}
+
+/* 通知バッジ（既存 md-cn-badge を流用） */
+.md-nav-action-btn .md-cn-badge {
+    top: 2px;
+    right: 2px;
+}
+
+/* テーマアイコン切替 */
+.md-nav-theme-icon-light,
+.md-nav-theme-icon-dark { display: none; }
+[data-theme="dark"] .md-nav-theme-icon-dark,
+:root:not([data-theme="dark"]) .md-nav-theme-icon-light {
+    display: block;
+}
+
+/* === マスタモーダル（共通枠） === */
+.md-nav-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 5000;
+    align-items: center;
+    justify-content: center;
+}
+.md-nav-modal-overlay.md-nav-modal-open {
+    display: flex;
+    animation: md-nav-modal-fade 0.15s ease-out;
+}
+@keyframes md-nav-modal-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.md-nav-modal {
+    background: var(--bg-surface);
+    border-radius: 12px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: md-nav-modal-slide 0.15s ease-out;
+}
+@keyframes md-nav-modal-slide {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.md-nav-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: var(--bg-sidebar);
+    color: #fff;
+}
+.md-nav-modal-title {
+    font-size: 15px;
+    font-weight: 600;
+}
+.md-nav-modal-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.8);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.md-nav-modal-close:hover {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+}
+.md-nav-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+    color: var(--text-primary);
+}
+.md-nav-modal-placeholder {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-tertiary);
+    font-size: 14px;
+}
+.md-nav-modal-placeholder-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+}

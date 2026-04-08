@@ -133,7 +133,7 @@ body {
 .container {
     max-width: 1600px;
     margin: 0 auto;
-    height: 100vh;
+    height: calc(100vh - 36px); /* ナビバー分を差し引く */
     display: flex;
     flex-direction: column;
     overflow: hidden;

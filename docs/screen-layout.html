@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>業務管理計画書 - 画面レイアウト設計</title>
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
+    <link rel="stylesheet" href="mockup/co-navbar.css">
     <link rel="stylesheet" href="mockup/screen-layout.css?v=8">
 </head>
 <body>
@@ -30,11 +31,8 @@
                         </div>
                     </div>
                     <div class="header-right">
-                        <button class="md-cn-notify-btn" id="cnNotifyBtn" onclick="openChangeNotifyModal()" title="変更通知">
-                            <img src="mockup/icons/bell.svg" class="md-ob-icon" style="width:1.2em;height:1.2em;">
-                            <span class="md-cn-badge" id="cnBadge" style="display:none;">0</span>
-                        </button>
-                        <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()"><img src="mockup/icons/moon.svg" class="md-ob-icon"> Dark</button>
+                        <!-- 通知ベル（非表示: ナビバーに統合。バッジ同期用にDOM残す） -->
+                        <span id="cnBadge" style="display:none;">0</span>
                     </div>
                 </div>
 
@@ -1574,5 +1572,6 @@
 
     <script src="mockup/demo-data.js?v=1"></script>
     <script src="mockup/screen-layout.js?v=10"></script>
+    <script src="mockup/co-navbar.js"></script>
 </body>
 </html>
