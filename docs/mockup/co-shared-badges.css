@@ -108,9 +108,9 @@
 }
 
 /* タイムラインドット色 */
-.md-cn-timeline-item.md-cn-tl-add::before { background: var(--success); border-color: var(--success); }
-.md-cn-timeline-item.md-cn-tl-modify::before { background: var(--warning); border-color: var(--warning); }
-.md-cn-timeline-item.md-cn-tl-delete::before { background: var(--error); border-color: var(--error); }
+.md-cn-timeline-item.md-cn-tl-add::before { background: #44A6B5; border-color: #44A6B5; }
+.md-cn-timeline-item.md-cn-tl-modify::before { background: #DECCBE; border-color: #DECCBE; }
+.md-cn-timeline-item.md-cn-tl-delete::before { background: #DB577B; border-color: #DB577B; }
 
 /* タイムラインコンテンツ */
 .md-cn-tl-content {

@@ -1660,9 +1660,9 @@ body {
 .md-cn-toast.md-cn-toast-exit {
     animation: qa-cn-toast-exit 0.25s ease-in forwards;
 }
-.md-cn-toast-add { border-left: 3px solid var(--success); }
-.md-cn-toast-modify { border-left: 3px solid var(--warning); }
-.md-cn-toast-delete { border-left: 3px solid var(--error); }
+.md-cn-toast-add { border-left: 3px solid #44A6B5; }
+.md-cn-toast-modify { border-left: 3px solid #DECCBE; }
+.md-cn-toast-delete { border-left: 3px solid #DB577B; }
 .md-cn-toast-icon { font-size: 14px; flex-shrink: 0; line-height: 1; }
 .md-cn-toast-body { flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px; overflow: hidden; }
 .md-cn-toast-title { font-size: 12px; font-weight: 600; color: var(--text-primary); flex-shrink: 0; }
@@ -1926,9 +1926,9 @@ body {
     background: var(--bg-surface-3);
     border: 2px solid var(--divider);
 }
-.md-cn-timeline-item.md-cn-tl-add::before { background: var(--success); border-color: var(--success); }
-.md-cn-timeline-item.md-cn-tl-modify::before { background: var(--warning); border-color: var(--warning); }
-.md-cn-timeline-item.md-cn-tl-delete::before { background: var(--error); border-color: var(--error); }
+.md-cn-timeline-item.md-cn-tl-add::before { background: #44A6B5; border-color: #44A6B5; }
+.md-cn-timeline-item.md-cn-tl-modify::before { background: #DECCBE; border-color: #DECCBE; }
+.md-cn-timeline-item.md-cn-tl-delete::before { background: #DB577B; border-color: #DB577B; }
 .md-cn-tl-header {
     display: flex;
     align-items: center;
@@ -1950,9 +1950,9 @@ body {
     padding: 1px 6px;
     border-radius: 3px;
 }
-.md-cn-tl-type-add { background: rgba(56,161,105,0.15); color: var(--success-text); }
-.md-cn-tl-type-modify { background: rgba(214,158,46,0.15); color: var(--warning-text); }
-.md-cn-tl-type-delete { background: rgba(219,87,123,0.15); color: var(--error); }
+.md-cn-tl-type-add { background: rgba(68,166,181,0.15); color: #44A6B5; }
+.md-cn-tl-type-modify { background: rgba(222,204,190,0.3); color: #5C4A33; }
+.md-cn-tl-type-delete { background: rgba(219,87,123,0.15); color: #DB577B; }
 .md-cn-tl-content {
     font-size: 13px;
     color: var(--text-tertiary);

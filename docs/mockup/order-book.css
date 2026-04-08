@@ -1376,9 +1376,9 @@ body {
     transition: opacity 0.3s, transform 0.3s;
 }
 .md-cn-toast.md-cn-toast-exit { opacity: 0; transform: translateX(100%); }
-.md-cn-toast-add { border-left: 4px solid var(--success); }
-.md-cn-toast-modify { border-left: 4px solid var(--warning); }
-.md-cn-toast-delete { border-left: 4px solid var(--error); }
+.md-cn-toast-add { border-left: 4px solid #44A6B5; }
+.md-cn-toast-modify { border-left: 4px solid #DECCBE; }
+.md-cn-toast-delete { border-left: 4px solid #DB577B; }
 .md-cn-toast-icon { font-size: 19px; flex-shrink: 0; line-height: 1; }
 .md-cn-toast-body { flex: 1; min-width: 0; }
 .md-cn-toast-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
@@ -1668,9 +1668,9 @@ body {
     padding: 1px 6px;
     border-radius: 3px;
 }
-.md-cn-tl-type-add { background: rgba(56,161,105,0.15); color: var(--success-text); }
-.md-cn-tl-type-modify { background: rgba(214,158,46,0.15); color: var(--warning-text); }
-.md-cn-tl-type-delete { background: rgba(219,87,123,0.15); color: var(--error); }
+.md-cn-tl-type-add { background: rgba(68,166,181,0.15); color: #44A6B5; }
+.md-cn-tl-type-modify { background: rgba(222,204,190,0.3); color: #5C4A33; }
+.md-cn-tl-type-delete { background: rgba(219,87,123,0.15); color: #DB577B; }
 /* .md-cn-tl-content → co-shared-badges.css */
 .md-cn-tl-name { font-weight: 600; }
 .md-cn-tl-summary { color: var(--text-tertiary); font-size: 12px; }

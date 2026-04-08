@@ -3312,9 +3312,9 @@ h1 {
     opacity: 0;
     transform: translateX(100%);
 }
-.md-cn-toast-add { border-left: 4px solid var(--success); }
-.md-cn-toast-modify { border-left: 4px solid var(--warning); }
-.md-cn-toast-delete { border-left: 4px solid var(--error); }
+.md-cn-toast-add { border-left: 4px solid #44A6B5; }
+.md-cn-toast-modify { border-left: 4px solid #DECCBE; }
+.md-cn-toast-delete { border-left: 4px solid #DB577B; }
 
 @keyframes md-cn-toast-enter {
     from { opacity: 0; transform: translateX(100%); }
@@ -3575,9 +3575,9 @@ h1 {
     padding: 1px 6px;
     border-radius: 3px;
 }
-.md-cn-tl-type-add { background: rgba(56,161,105,0.15); color: var(--success-text); }
-.md-cn-tl-type-modify { background: rgba(214,158,46,0.15); color: var(--warning-text); }
-.md-cn-tl-type-delete { background: rgba(219,87,123,0.15); color: var(--error); }
+.md-cn-tl-type-add { background: rgba(68,166,181,0.15); color: #44A6B5; }
+.md-cn-tl-type-modify { background: rgba(222,204,190,0.3); color: #5C4A33; }
+.md-cn-tl-type-delete { background: rgba(219,87,123,0.15); color: #DB577B; }
 
 /* .md-cn-tl-content → co-shared-badges.css */
 
