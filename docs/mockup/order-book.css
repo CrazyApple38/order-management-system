@@ -490,12 +490,7 @@ body {
     position: relative;
 }
 .md-ob-modal-header h3 { font-size: 15px; font-weight: 600; color: #FFFFFF; }
-.md-ob-modal-close {
-    background: none; border: none;
-    color: rgba(255,255,255,0.8); font-size: 18px;
-    cursor: pointer; padding: 2px 6px; border-radius: 4px;
-}
-.md-ob-modal-close:hover { background: rgba(255,255,255,0.2); color: #FFFFFF; }
+/* .md-ob-modal-close → co-shared-badges.css */
 .md-ob-modal-body {
     padding: 20px 24px; overflow-y: auto; flex: 1;
     background: #E9F1F6; display: flex; flex-direction: column; gap: 16px;
@@ -600,31 +595,7 @@ body {
     font-size: 11px; font-weight: 600; color: var(--text-tertiary);
     text-transform: uppercase; letter-spacing: 0.5px;
 }
-.md-ob-confidence-chips {
-    display: flex; flex-wrap: wrap; gap: 5px;
-}
-.md-ob-confidence-chip {
-    display: inline-flex; align-items: center;
-    padding: 2px 8px; border-radius: 12px;
-    border: 1px solid var(--divider);
-    background: var(--bg-surface); color: var(--text-secondary);
-    font-size: 10px; font-weight: 500;
-    cursor: pointer; transition: all 0.15s;
-    user-select: none;
-}
-.md-ob-confidence-chip:hover {
-    border-color: var(--accent); color: var(--accent);
-    background: rgba(68,166,181,0.06);
-}
-.md-ob-confidence-chip.md-ob-conf-active-confirmed {
-    background: var(--accent); color: #fff; border-color: var(--accent);
-}
-.md-ob-confidence-chip.md-ob-conf-active-tentative_high {
-    background: #f59e0b; color: #fff; border-color: #f59e0b;
-}
-.md-ob-confidence-chip.md-ob-conf-active-tentative_low {
-    background: #94a3b8; color: #fff; border-color: #94a3b8;
-}
+/* .md-ob-confidence-chips/chip → co-shared-badges.css */
 
 /* グリッド信頼度による文字色 */
 .md-ob-date-cell.md-ob-conf-tentative_high .md-ob-cell-count { opacity: 0.5; }
@@ -717,137 +688,9 @@ body {
     color: var(--text-disabled); font-style: italic; font-weight: 400;
 }
 
-/* バッジセクション */
-.md-ob-badge-section {
-    display: flex; flex-direction: column; gap: 8px;
-    padding: 0;
-    background: transparent; border: none;
-    border-radius: 0;
-}
-.md-ob-badge-group {
-    display: flex; flex-direction: column; gap: 6px;
-}
-.md-ob-badge-child-group {
-    padding-top: 8px; border-top: 1px dashed var(--divider);
-}
-.md-ob-badge-group-header {
-    display: flex; align-items: center; gap: 6px;
-}
-.md-ob-badge-group-title {
-    font-size: 12px; font-weight: 600; color: var(--text-secondary);
-}
-.md-ob-badge-parent-display {
-    display: inline-flex; align-items: center;
-    padding: 3px 12px; border-radius: 14px;
-    background: var(--accent); color: #fff;
-    font-size: 12px; font-weight: 600;
-}
-.md-ob-badge-parent-display.md-ob-badge-parent-unknown {
-    background: var(--divider); color: var(--text-secondary);
-}
-.md-ob-badge-group-subtitle {
-    font-size: 11px; font-weight: 600; color: var(--text-tertiary);
-}
-.md-ob-badge-chips {
-    display: flex; flex-wrap: wrap; gap: 6px;
-}
-.md-ob-badge-chip {
-    display: inline-flex; align-items: center;
-    padding: 3px 10px; border-radius: 14px;
-    border: 1px solid var(--divider);
-    background: var(--bg-primary); color: var(--text-secondary);
-    font-size: 11px; font-weight: 500;
-    cursor: pointer; transition: all 0.15s;
-    user-select: none;
-}
-.md-ob-badge-chip:hover {
-    border-color: var(--accent); color: var(--accent);
-    background: rgba(68,166,181,0.06);
-}
-.md-ob-badge-chip.md-ob-badge-selected {
-    background: var(--accent); color: #fff;
-    border-color: var(--accent);
-}
-.md-ob-badge-chip.md-ob-badge-child {
-    font-size: 10px; padding: 2px 8px; border-radius: 12px;
-}
-.md-ob-badge-chip.md-ob-badge-child.md-ob-badge-selected {
-    background: var(--secondary); color: var(--primary);
-    border-color: var(--secondary);
-}
-.md-ob-badge-empty {
-    font-size: 11px; color: var(--text-disabled); font-style: italic;
-}
-.md-ob-btn-add-badge {
-    align-self: flex-start;
-    padding: 4px 10px; border: 1px dashed var(--divider);
-    border-radius: 14px; background: transparent;
-    color: var(--text-tertiary); font-size: 11px;
-    cursor: pointer; transition: all 0.15s;
-}
-.md-ob-btn-add-badge:hover {
-    border-color: var(--accent); color: var(--accent);
-    background: rgba(68,166,181,0.06);
-}
+/* バッジセクション → co-shared-badges.css */
 
-/* タッチドラッグ共通 */
-.md-ob-touch-dragging { opacity: 0.4; transform: scale(0.95); }
-.md-ob-touch-drag-over { box-shadow: 0 0 0 2px var(--accent); }
-
-/* バッジ ドラッグ＆ドロップ */
-.md-ob-badge-drag-item {
-    display: inline-flex; align-items: center; gap: 2px;
-    border-radius: 14px;
-    transition: transform 0.15s, box-shadow 0.15s;
-}
-.md-ob-badge-drag-item[draggable="true"] { cursor: grab; }
-.md-ob-badge-drag-item.md-ob-badge-dragging {
-    opacity: 0.4; transform: scale(0.95);
-}
-.md-ob-badge-drag-item.md-ob-badge-drag-over {
-    box-shadow: 0 0 0 2px var(--accent);
-    border-radius: 14px;
-}
-.md-ob-badge-drag-grip {
-    font-size: 10px; color: var(--text-disabled);
-    cursor: grab; padding: 0 2px;
-    user-select: none;
-}
-.md-ob-badge-delete-btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 16px; height: 16px; border-radius: 50%;
-    border: none; background: transparent;
-    color: var(--text-disabled); font-size: 9px;
-    cursor: pointer; transition: all 0.15s;
-    padding: 0; line-height: 1;
-}
-.md-ob-badge-delete-btn:hover {
-    background: #fee2e2; color: #DB577B;
-}
-
-/* バッジ削除復元バー */
-.md-ob-badge-undo-bar {
-    display: flex; align-items: center; gap: 8px;
-    padding: 5px 12px; border-radius: 6px;
-    background: #fef3c7; border: 1px solid #fcd34d;
-    font-size: 11px; color: #92400e;
-    animation: badgeUndoFadeIn 0.2s ease;
-}
-.md-ob-badge-undo-btn {
-    padding: 2px 10px; border-radius: 10px;
-    border: 1px solid #f59e0b; background: #fff;
-    color: #d97706; font-size: 11px; font-weight: 600;
-    cursor: pointer; transition: all 0.15s;
-}
-.md-ob-badge-undo-btn:hover {
-    background: #f59e0b; color: #fff;
-}
-@keyframes badgeUndoFadeIn {
-    from { opacity: 0; transform: translateY(-4px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* 孫バッジセクション */
+/* 孫バッジセクション（固有部分） */
 .md-ob-grandchild-section {
     width: 100%;
     margin: 4px 0 6px 0;
@@ -871,22 +714,7 @@ body {
 .md-ob-grandchild-chips {
     display: flex; flex-wrap: wrap; gap: 5px;
 }
-.md-ob-badge-grandchild {
-    font-size: 10px; padding: 2px 8px; border-radius: 12px;
-}
-.md-ob-badge-grandchild.md-ob-badge-selected {
-    background: var(--secondary); color: var(--text-primary);
-    border-color: var(--secondary);
-}
-.md-ob-gc-drag-item {
-    border-radius: 12px;
-}
-.md-ob-gc-undo-bar {
-    margin-top: 6px;
-}
-.md-ob-btn-add-gc {
-    font-size: 10px; padding: 1px 8px; border-radius: 10px;
-}
+/* .md-ob-badge-grandchild, gc-*, btn-add-gc → co-shared-badges.css */
 
 /* ツールチップ内バッジ */
 .md-ob-tt-badge {
@@ -1081,27 +909,7 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* 行編集モーダル：チップ選択 */
-.md-ob-row-chips {
-    display: flex; flex-wrap: wrap; gap: 6px;
-}
-.md-ob-row-chip {
-    display: inline-flex; align-items: center;
-    padding: 3px 10px; border-radius: 14px;
-    border: 1px solid var(--divider);
-    background: var(--bg-surface); color: var(--text-secondary);
-    font-size: 11px; font-weight: 500;
-    cursor: pointer; transition: all 0.15s;
-    user-select: none;
-}
-.md-ob-row-chip:hover {
-    border-color: var(--accent); color: var(--accent);
-    background: rgba(68,166,181,0.06);
-}
-.md-ob-row-chip.md-ob-chip-active {
-    background: var(--accent); color: #fff;
-    border-color: var(--accent);
-}
+/* 行編集モーダル：チップ選択 → co-shared-badges.css */
 .md-ob-row-chip.md-ob-chip-disabled {
     opacity: 0.35; cursor: not-allowed;
     background: var(--bg-surface-2); color: var(--text-tertiary);
@@ -1538,27 +1346,7 @@ body {
     height: 18px;
     filter: brightness(0) invert(1);
 }
-.md-cn-badge {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: var(--error);
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    min-width: 16px;
-    height: 16px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 4px;
-    animation: md-cn-badge-pulse 2s ease-in-out infinite;
-}
-@keyframes md-cn-badge-pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.15); }
-}
+/* .md-cn-badge + @keyframes md-cn-badge-pulse → co-shared-badges.css */
 
 /* --- トースト通知 --- */
 #obCnToastContainer {
@@ -1642,14 +1430,7 @@ body {
     font-weight: 500;
     color: var(--text-secondary);
 }
-.md-cn-day-badge {
-    font-size: 10px;
-    font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 3px;
-    background: var(--bg-surface-3);
-    color: var(--text-primary);
-}
+/* .md-cn-day-badge → co-shared-badges.css */
 .md-cn-header-right {
     display: flex;
     align-items: center;
@@ -1738,15 +1519,7 @@ body {
 
 /* 取消済カード */
 .md-cn-card-reverted {}
-.md-cn-reverted-badge {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 4px;
-    background: var(--bg-surface-3);
-    color: var(--text-disabled);
-    margin-left: 6px;
-}
+/* .md-cn-reverted/approved-badge, card-header, type-badge → co-shared-badges.css */
 
 /* 承認済カード */
 .md-cn-card-approved {
@@ -1759,34 +1532,7 @@ body {
 .md-cn-card-approved .md-cn-card-header {
     background: var(--bg-surface-3);
 }
-.md-cn-approved-badge {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 4px;
-    background: rgba(56, 161, 105, 0.15);
-    color: var(--success-text);
-    margin-left: 6px;
-}
 
-.md-cn-card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    background: var(--bg-surface-2);
-    flex-wrap: wrap;
-}
-.md-cn-type-badge {
-    font-size: 12px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 4px;
-    flex-shrink: 0;
-}
-.md-cn-type-badge-add { background: rgba(56,161,105,0.15); color: var(--success-text); }
-.md-cn-type-badge-modify { background: rgba(214,158,46,0.15); color: var(--warning-text); }
-.md-cn-type-badge-delete { background: rgba(219,87,123,0.15); color: var(--error); }
 .md-cn-card-user {
     font-size: 13px;
     color: var(--text-secondary);
@@ -1900,9 +1646,7 @@ body {
     background: var(--bg-surface-3);
     border: 2px solid var(--divider);
 }
-.md-cn-timeline-item.md-cn-tl-add::before { background: var(--success); border-color: var(--success); }
-.md-cn-timeline-item.md-cn-tl-modify::before { background: var(--warning); border-color: var(--warning); }
-.md-cn-timeline-item.md-cn-tl-delete::before { background: var(--error); border-color: var(--error); }
+/* .md-cn-timeline-item.md-cn-tl-*::before → co-shared-badges.css */
 .md-cn-tl-header {
     display: flex;
     align-items: center;
@@ -1927,15 +1671,7 @@ body {
 .md-cn-tl-type-add { background: rgba(56,161,105,0.15); color: var(--success-text); }
 .md-cn-tl-type-modify { background: rgba(214,158,46,0.15); color: var(--warning-text); }
 .md-cn-tl-type-delete { background: rgba(219,87,123,0.15); color: var(--error); }
-.md-cn-tl-content {
-    font-size: 13px;
-    color: var(--text-tertiary);
-    line-height: 1.5;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-}
+/* .md-cn-tl-content → co-shared-badges.css */
 .md-cn-tl-name { font-weight: 600; }
 .md-cn-tl-summary { color: var(--text-tertiary); font-size: 12px; }
 .md-cn-tl-clickable { cursor: pointer; border-radius: 6px; transition: background 0.15s; }
@@ -2046,21 +1782,7 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- シフト・カテゴリバッジ (通知カード用) --- */
-.md-cn-shift-badge, .md-cn-category-badge {
-    font-size: 10px;
-    font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 3px;
-    display: inline-block;
-}
-.md-cn-shift-day { background: #fefcbf; color: #744210; }
-.md-cn-shift-night { background: #2d3748; color: #e2e8f0; }
-.md-cn-cat-facility { background: #c6f6d5; color: #22543d; }
-.md-cn-cat-event { background: #fed7e2; color: #702459; }
-.md-cn-cat-highway { background: #bee3f8; color: #2a4365; }
-.md-cn-cat-traffic { background: #fefcbf; color: #744210; }
-.md-cn-cat-support { background: #e9d8fd; color: #44337a; }
+/* .md-cn-shift/category-badge, shift-day/night, cat-* → co-shared-badges.css */
 
 /* --- フラッシュアニメーション --- */
 @keyframes md-cn-flash-green {

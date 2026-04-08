@@ -3633,6 +3633,56 @@ body {
     margin-bottom: 2px;
 }
 
+/* --- バリエーション比較レイアウト --- */
+.bt-variant-compare {
+    margin-bottom: 20px;
+}
+.bt-variant-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+.bt-variant-title code {
+    font-size: 12px;
+    background: var(--bg-surface-2);
+    padding: 1px 6px;
+    border-radius: 3px;
+}
+.bt-variant-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.bt-variant-card {
+    padding: 12px;
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    background: var(--bg-primary);
+}
+.bt-variant-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+}
+.bt-variant-desc {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+.bt-variant-desc code {
+    font-size: 10px;
+    background: var(--bg-surface-2);
+    padding: 0 3px;
+    border-radius: 2px;
+}
+strong.bt-diff {
+    color: var(--error);
+    font-weight: 700;
+}
+
 /* ===========================
    Form Input System
    =========================== */
@@ -3929,9 +3979,9 @@ body {
     align-items: flex-start;
     gap: 10px;
 }
-.plst-cn-toast-add { border-left: 4px solid var(--success); }
-.plst-cn-toast-modify { border-left: 4px solid var(--warning); }
-.plst-cn-toast-delete { border-left: 4px solid var(--error); }
+.plst-cn-toast-add { border-left: 4px solid #44A6B5; }
+.plst-cn-toast-modify { border-left: 4px solid #DECCBE; }
+.plst-cn-toast-delete { border-left: 4px solid #DB577B; }
 .plst-cn-toast-icon { font-size: 19px; flex-shrink: 0; line-height: 1; }
 .plst-cn-toast-body { flex: 1; min-width: 0; }
 .plst-cn-toast-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
@@ -3953,9 +4003,9 @@ body {
     white-space: nowrap;
     overflow: hidden;
 }
-.plst-cn-toast-compact.plst-cn-toast-add { border-left: 3px solid var(--success); }
-.plst-cn-toast-compact.plst-cn-toast-modify { border-left: 3px solid var(--warning); }
-.plst-cn-toast-compact.plst-cn-toast-delete { border-left: 3px solid var(--error); }
+.plst-cn-toast-compact.plst-cn-toast-add { border-left: 3px solid #44A6B5; }
+.plst-cn-toast-compact.plst-cn-toast-modify { border-left: 3px solid #DECCBE; }
+.plst-cn-toast-compact.plst-cn-toast-delete { border-left: 3px solid #DB577B; }
 .plst-cn-toast-compact .plst-cn-toast-icon { font-size: 14px; }
 .plst-cn-toast-compact .plst-cn-toast-body { display: flex; align-items: center; gap: 4px; overflow: hidden; }
 .plst-cn-toast-compact .plst-cn-toast-title { font-size: 12px; margin-bottom: 0; flex-shrink: 0; }

@@ -272,6 +272,7 @@ erDiagram
         uuid id PK "主キー"
         string code "グループ会社コード"
         string name "グループ会社名"
+        string short_name "略称"
         string badge_color "ボーダー色"
         string badge_text_color "バッジ文字色"
         boolean is_active "有効フラグ"
@@ -288,7 +289,19 @@ erDiagram
         uuid id PK "主キー"
         string code "区分コード"
         string name "区分名"
+        string base_color "ベース色"
         int sort_order "表示順"
+    }
+
+    category_badges {
+        uuid id PK "主キー"
+        uuid category_id FK "区分ID"
+        uuid parent_badge_id FK "親バッジID(自己参照)"
+        int level "階層レベル(1=子,2=孫)"
+        string code "バッジコード"
+        string name "バッジ名"
+        int sort_order "表示順"
+        boolean is_active "有効フラグ"
     }
 
     sites {
@@ -311,12 +324,18 @@ erDiagram
         int level "階層レベル1-2"
     }
 
+    departments {
+        uuid id PK "主キー"
+        string name "部署名"
+        int sort_order "表示順"
+    }
+
     employees {
         uuid id PK "主キー"
         string employee_code "社員コード"
         string name "氏名"
         string short_name "略称"
-        string department "所属"
+        uuid department_id FK "部署ID"
         boolean is_active "有効フラグ"
     }
 
@@ -347,11 +366,25 @@ erDiagram
         boolean is_active "使用可能"
     }
 
+    etc_cards {
+        uuid id PK "主キー"
+        string card_number "カード番号"
+        string name "カード名称"
+        uuid default_vehicle_id FK "既定車両ID"
+        boolean is_active "有効フラグ"
+    }
+
     penalty_codes {
         uuid id PK "主キー"
         string code "コード"
         string name "コード名"
         int sort_order "表示順"
+    }
+
+    holidays {
+        uuid id PK "主キー"
+        date holiday_date "祝日日付"
+        string name "祝日名"
     }
 
     %% ==================== 関連テーブル ====================
@@ -377,28 +410,48 @@ erDiagram
         date order_date "受注対象日"
         uuid site_id FK "現場ID"
         string shift_type "day/night"
+        int placement_seq "配置先連番"
         int required_count "必要人数"
         time start_time "開始時間"
         time end_time "終了時間"
         string contact "連絡"
+        string supervisor_name "現場監督名"
+        string supervisor_tel "現場監督TEL"
+        string meeting_place "集合場所"
+        time meeting_time "集合時間"
+        string daily_task_name "計画書業務名"
         string contact_info "連絡事項"
+        json maps "地図URL(JSONB)"
+        string notes "備考"
+        uuid_arr badge_child_ids "子バッジID配列"
+        json badge_gc_map "孫バッジマップ(JSONB)"
+        string confidence "信頼度"
         string status "active/cancelled"
         int version "楽観的ロック用"
         uuid created_by FK "作成者"
         uuid updated_by FK "最終更新者"
     }
 
+    daily_order_sub_items {
+        uuid id PK "主キー"
+        uuid daily_site_order_id FK "日毎受注ID"
+        string label "項目ラベル"
+        string value "項目値"
+        int sort_order "表示順"
+    }
+
     daily_assignments {
         uuid id PK "主キー"
         uuid daily_site_order_id FK "日毎受注ID"
-        string map_url "現場地図URL"
         uuid[] vehicle_ids "配置車両ID"
+        json display_items "表示項目(JSONB)"
     }
 
     assignment_details {
         uuid id PK "主キー"
         uuid daily_assignment_id FK "日毎配置ID"
         uuid employee_id FK "社員ID"
+        string contact_type "連絡タイプ"
         string transport_method "移動手段"
         string equipment "備品装備"
     }
@@ -426,7 +479,7 @@ erDiagram
         uuid id PK "主キー"
         uuid order_id FK "日毎受注ID"
         int version "バージョン番号"
-        string operation_type "create/update/cancel/restore/rollback/merge"
+        string operation_type "create/update/cancel等"
         json changed_fields "変更内容JSON"
         string change_reason "変更理由(任意)"
         uuid changed_by FK "変更者(社員ID)"
@@ -450,6 +503,9 @@ erDiagram
         string trigger_type "トリガー"
         string message "メッセージ"
         string status "pending/sent/failed"
+        json snapshot_before "変更前スナップショット"
+        json snapshot_after "変更後スナップショット"
+        string revert_status "復元ステータス"
         timestamp sent_at "送信日時"
     }
 
@@ -466,14 +522,18 @@ erDiagram
     group_companies ||--o{ sites : "所属"
     companies ||--o{ sites : "契約先"
     site_categories ||--o{ sites : "分類"
+    site_categories ||--o{ category_badges : "区分バッジ"
+    category_badges ||--o{ category_badges : "親子(自己参照)"
     sites ||--o{ site_sub_items : "子項目"
     sites ||--o{ daily_site_orders : "受注先"
 
     daily_site_orders ||--|| daily_assignments : "配置計画"
+    daily_site_orders ||--o{ daily_order_sub_items : "業務詳細"
     daily_site_orders ||--o{ order_change_history : "変更履歴"
     employees ||--o{ order_change_history : "変更者"
     employees ||--o{ daily_site_orders : "作成/更新者"
 
+    departments ||--o{ employees : "所属部署"
     employees ||--o{ employee_licenses : "保有資格"
     license_types ||--o{ employee_licenses : "資格種別"
     employees ||--o{ employee_conflicts : "配置制約"
@@ -485,6 +545,7 @@ erDiagram
 
     vehicles ||--o{ daily_assignments : "配置車両"
     vehicles ||--o{ maintenance_schedules : "整備予定"
+    vehicles ||--o{ etc_cards : "既定車両"
 
     daily_assignments ||--o{ assignment_details : "配置詳細"
     daily_assignments ||--o{ penalty_records : "関連配置"
@@ -514,6 +575,11 @@ erDiagram
         </div>
 
         <div class="annotation-item master">
+            <strong>category_badges（区分バッジマスタ）</strong>
+            <p>区分ごとの作業内容バッジ。自己参照FKで3階層（子バッジ・孫バッジ）を構成</p>
+        </div>
+
+        <div class="annotation-item master">
             <strong>sites（現場マスタ）</strong>
             <p>警備を行う現場の詳細情報</p>
         </div>
@@ -524,8 +590,13 @@ erDiagram
         </div>
 
         <div class="annotation-item master">
+            <strong>departments（部署マスタ）</strong>
+            <p>社員の所属部署を管理</p>
+        </div>
+
+        <div class="annotation-item master">
             <strong>employees（社員マスタ）</strong>
-            <p>警備員の情報（氏名、略称、所属など）</p>
+            <p>警備員の情報（氏名、略称、所属部署など）</p>
         </div>
 
         <div class="annotation-item relation">
@@ -544,8 +615,18 @@ erDiagram
         </div>
 
         <div class="annotation-item master">
+            <strong>etc_cards（ETCカードマスタ）</strong>
+            <p>ETCカード情報。既定車両との紐付けを管理</p>
+        </div>
+
+        <div class="annotation-item master">
             <strong>penalty_codes（ペナルティコード）</strong>
             <p>欠勤・遅刻などのペナルティ種別</p>
+        </div>
+
+        <div class="annotation-item master">
+            <strong>holidays（祝日マスタ）</strong>
+            <p>祝日の日付と名称。カレンダー表示に使用</p>
         </div>
 
         <div class="annotation-item relation">
@@ -560,12 +641,17 @@ erDiagram
 
         <div class="annotation-item transaction">
             <strong>daily_site_orders（日毎受注）</strong>
-            <p>営業担当者が契約先から受けた受注情報（日付・現場・人数・時間）。status/versionで楽観的ロック</p>
+            <p>受注情報（日付・現場・人数・時間・監督・集合・地図・バッジ・信頼度・備考）。placement_seqで複数配置先対応。status/versionで楽観的ロック</p>
+        </div>
+
+        <div class="annotation-item transaction">
+            <strong>daily_order_sub_items（日毎受注業務詳細）</strong>
+            <p>受注の業務詳細（ラベル＋値ペア、複数行）。工事名①②等の動的サブタスク</p>
         </div>
 
         <div class="annotation-item transaction">
             <strong>daily_assignments（日毎配置）</strong>
-            <p>配置担当者が管理する配置計画（地図URL・車両配置）。日毎受注に1:1で紐づく</p>
+            <p>配置担当者が管理する配置計画（車両配置・表示項目）。日毎受注に1:1で紐づく</p>
         </div>
 
         <div class="annotation-item log">
@@ -595,7 +681,7 @@ erDiagram
 
         <div class="annotation-item log">
             <strong>notification_logs（通知ログ）</strong>
-            <p>LINE通知などの送信履歴を記録</p>
+            <p>LINE通知などの送信履歴。変更前後スナップショットを保持し「元に戻す」「やっぱり反映」に対応</p>
         </div>
 
         <div class="annotation-item log">

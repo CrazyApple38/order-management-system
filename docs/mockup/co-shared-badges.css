@@ -1,0 +1,399 @@
+/* ============================================================
+   co-shared-badges.css — 共通バッジ・チップスタイル
+   複数モックアップ画面で共有されるバッジ・チップ定義
+   ============================================================ */
+
+/* ────────────────────────────────────────────────────────────
+   1. md-cn: 差分情報通知バッジ
+   対象: order-book / quick-access / screen-layout
+   ──────────────────────────────────────────────────────────── */
+
+/* 通知カウントバッジ（ベルアイコン等） */
+.md-cn-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--error);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    animation: md-cn-badge-pulse 2s ease-in-out infinite;
+}
+@keyframes md-cn-badge-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+/* 変更種別バッジ（追加/変更/削除） */
+.md-cn-type-badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+.md-cn-type-badge-add { background: rgba(56,161,105,0.15); color: var(--success-text); }
+.md-cn-type-badge-modify { background: rgba(214,158,46,0.15); color: var(--warning-text); }
+.md-cn-type-badge-delete { background: rgba(219,87,123,0.15); color: var(--error); }
+
+/* キャンセル・承認バッジ */
+.md-cn-reverted-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--bg-surface-3);
+    color: var(--text-disabled);
+    margin-left: 6px;
+}
+.md-cn-approved-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(56, 161, 105, 0.15);
+    color: var(--success-text);
+    margin-left: 6px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   2. md-cn: シフト・カテゴリ・日付バッジ
+   対象: order-book / quick-access
+   ──────────────────────────────────────────────────────────── */
+
+.md-cn-day-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: var(--bg-surface-3);
+    color: var(--text-primary);
+}
+.md-cn-shift-badge, .md-cn-category-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+    display: inline-block;
+}
+.md-cn-shift-day { background: #fefcbf; color: #744210; }
+.md-cn-shift-night { background: #2d3748; color: #e2e8f0; }
+.md-cn-cat-facility { background: #c6f6d5; color: #22543d; }
+.md-cn-cat-event { background: #fed7e2; color: #702459; }
+.md-cn-cat-highway { background: #bee3f8; color: #2a4365; }
+.md-cn-cat-traffic { background: #fefcbf; color: #744210; }
+.md-cn-cat-support { background: #e9d8fd; color: #44337a; }
+
+/* ────────────────────────────────────────────────────────────
+   3. md-cn: 差分通知パネル
+   対象: order-book / screen-layout
+   統一先: order-book (A)
+   ──────────────────────────────────────────────────────────── */
+
+/* カードヘッダー */
+.md-cn-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--bg-surface-2);
+    flex-wrap: wrap;
+}
+
+/* タイムラインドット色 */
+.md-cn-timeline-item.md-cn-tl-add::before { background: var(--success); border-color: var(--success); }
+.md-cn-timeline-item.md-cn-tl-modify::before { background: var(--warning); border-color: var(--warning); }
+.md-cn-timeline-item.md-cn-tl-delete::before { background: var(--error); border-color: var(--error); }
+
+/* タイムラインコンテンツ */
+.md-cn-tl-content {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* ────────────────────────────────────────────────────────────
+   4. md-ob: バッジセクション（選択式バッジUI）
+   対象: order-book / screen-layout
+   統一先: 14-1=A, 14-2=B, 14-3=カスタム, 14-4=B, 14-5=B
+   ──────────────────────────────────────────────────────────── */
+
+/* 14-1: badge-section → A (order-book: 透過/枠なし) */
+.md-ob-badge-section {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 0;
+    background: transparent; border: none;
+    border-radius: 0;
+}
+
+/* 14-2: badge-chip → B (screen-layout: bg-surface) */
+.md-ob-badge-chip {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: 14px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface); color: var(--text-secondary);
+    font-size: 11px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    user-select: none;
+}
+.md-ob-badge-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.md-ob-badge-chip.md-ob-badge-selected {
+    background: var(--accent); color: #fff;
+    border-color: var(--accent);
+}
+.md-ob-badge-chip.md-ob-badge-child {
+    font-size: 10px; padding: 2px 8px; border-radius: 12px;
+}
+.md-ob-badge-chip.md-ob-badge-child.md-ob-badge-selected {
+    background: var(--secondary); color: var(--primary);
+    border-color: var(--secondary);
+}
+
+/* 14-3: delete-btn → カスタム（✕色を文字色と同色、hover時は半透明背景） */
+.md-ob-badge-delete-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    border: none; background: transparent;
+    color: inherit; font-size: 9px;
+    cursor: pointer; transition: all 0.15s;
+    padding: 0; line-height: 1;
+}
+.md-ob-badge-delete-btn:hover {
+    background: rgba(0,0,0,0.08);
+}
+/* 選択中（白文字）チップ内の✕ hover */
+.md-ob-badge-selected .md-ob-badge-delete-btn:hover {
+    background: rgba(255,255,255,0.25);
+}
+
+/* 14-4: btn-add-badge → B (screen-layout: 小さめ/12px) */
+.md-ob-btn-add-badge {
+    align-self: flex-start;
+    padding: 2px 10px; border: 1px dashed var(--divider);
+    border-radius: 12px; background: transparent;
+    color: var(--text-tertiary); font-size: 11px;
+    cursor: pointer; transition: all 0.15s;
+}
+.md-ob-btn-add-badge:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+
+/* 14-5: row-chips → B (screen-layout: gap 4px) */
+.md-ob-row-chips {
+    display: flex; flex-wrap: wrap; gap: 4px;
+}
+.md-ob-row-chip {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: 14px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface); color: var(--text-secondary);
+    font-size: 11px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    user-select: none;
+}
+.md-ob-row-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.md-ob-row-chip.md-ob-chip-active {
+    background: var(--accent); color: #fff;
+    border-color: var(--accent);
+}
+
+/* 共通部分 */
+.md-ob-badge-group {
+    display: flex; flex-direction: column; gap: 6px;
+}
+.md-ob-badge-child-group {
+    padding-top: 8px; border-top: 1px dashed var(--divider);
+}
+.md-ob-badge-group-header {
+    display: flex; align-items: center; gap: 6px;
+}
+.md-ob-badge-group-title {
+    font-size: 12px; font-weight: 600; color: var(--text-secondary);
+}
+.md-ob-badge-parent-display {
+    display: inline-flex; align-items: center;
+    padding: 3px 12px; border-radius: 14px;
+    background: var(--accent); color: #fff;
+    font-size: 12px; font-weight: 600;
+}
+.md-ob-badge-parent-display.md-ob-badge-parent-unknown {
+    background: var(--divider); color: var(--text-secondary);
+}
+.md-ob-badge-group-subtitle {
+    font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+}
+.md-ob-badge-chips {
+    display: flex; flex-wrap: wrap; gap: 6px;
+}
+.md-ob-badge-empty {
+    font-size: 11px; color: var(--text-disabled); font-style: italic;
+}
+
+/* ドラッグ＆ドロップ */
+.md-ob-badge-drag-item {
+    display: inline-flex; align-items: center; gap: 2px;
+    border-radius: 14px;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.md-ob-badge-drag-item[draggable="true"] { cursor: grab; }
+.md-ob-badge-drag-item.md-ob-badge-dragging {
+    opacity: 0.4; transform: scale(0.95);
+}
+.md-ob-badge-drag-item.md-ob-badge-drag-over {
+    box-shadow: 0 0 0 2px var(--accent);
+    border-radius: 14px;
+}
+.md-ob-badge-drag-grip {
+    font-size: 10px; color: var(--text-disabled);
+    cursor: grab; padding: 0 2px;
+    user-select: none;
+}
+
+/* バッジ削除復元バー */
+.md-ob-badge-undo-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border-radius: 6px;
+    background: #fef3c7; border: 1px solid #fcd34d;
+    font-size: 11px; color: #92400e;
+    animation: badgeUndoFadeIn 0.2s ease;
+}
+.md-ob-badge-undo-btn {
+    padding: 2px 10px; border-radius: 10px;
+    border: 1px solid #f59e0b; background: #fff;
+    color: #d97706; font-size: 11px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+}
+.md-ob-badge-undo-btn:hover {
+    background: #f59e0b; color: #fff;
+}
+@keyframes badgeUndoFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 孫バッジ */
+.md-ob-grandchild-section {
+    width: 100%;
+    margin: 4px 0 6px 0;
+    padding: 8px 10px 6px 14px;
+    border-left: 2px solid var(--secondary);
+    background: rgba(68,166,181,0.04);
+    border-radius: 0 6px 6px 0;
+}
+.md-ob-badge-grandchild {
+    font-size: 10px; padding: 2px 8px; border-radius: 12px;
+}
+.md-ob-badge-grandchild.md-ob-badge-selected {
+    background: var(--secondary); color: var(--text-primary);
+    border-color: var(--secondary);
+}
+.md-ob-gc-drag-item { border-radius: 12px; }
+.md-ob-gc-undo-bar { margin-top: 6px; }
+.md-ob-btn-add-gc { font-size: 10px; padding: 1px 8px; border-radius: 10px; }
+
+/* タッチドラッグ共通 */
+.md-ob-touch-dragging { opacity: 0.4; transform: scale(0.95); }
+.md-ob-touch-drag-over { box-shadow: 0 0 0 2px var(--accent); }
+
+/* ── md-ob: 信頼度チップ ── */
+.md-ob-confidence-chips {
+    display: flex; flex-wrap: wrap; gap: 5px;
+}
+.md-ob-confidence-chip {
+    display: inline-flex; align-items: center;
+    padding: 2px 8px; border-radius: 12px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface); color: var(--text-secondary);
+    font-size: 10px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    user-select: none;
+}
+.md-ob-confidence-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(68,166,181,0.06);
+}
+.md-ob-confidence-chip.md-ob-conf-active-confirmed {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+}
+.md-ob-confidence-chip.md-ob-conf-active-tentative_high {
+    background: #f59e0b; color: #fff; border-color: #f59e0b;
+}
+.md-ob-confidence-chip.md-ob-conf-active-tentative_low {
+    background: #94a3b8; color: #fff; border-color: #94a3b8;
+}
+
+/* ────────────────────────────────────────────────────────────
+   5. md-ob: モーダル閉じるボタン
+   対象: order-book / screen-layout
+   統一先: A (order-book: 白系・濃色ヘッダー前提)
+   ──────────────────────────────────────────────────────────── */
+
+.md-ob-modal-close {
+    background: none; border: none;
+    color: rgba(255,255,255,0.8); font-size: 18px;
+    cursor: pointer; padding: 2px 6px; border-radius: 4px;
+}
+.md-ob-modal-close:hover { background: rgba(255,255,255,0.2); color: #FFFFFF; }
+
+/* ────────────────────────────────────────────────────────────
+   6. 表示専用バッジ（グリッド・一覧表示用）
+   対象: screen-layout
+   ──────────────────────────────────────────────────────────── */
+
+.badge-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+}
+.badge-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+.badge-child-tag {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid rgba(68, 166, 181, 0.25);
+}
+.badge-gc-tag {
+    background: rgba(178, 213, 226, 0.25);
+    color: var(--text-tertiary);
+    border: 1px solid rgba(178, 213, 226, 0.4);
+    font-weight: 500;
+}
+.badge-gc-sep {
+    flex-basis: 100%;
+    height: 0;
+    font-size: 0;
+    overflow: hidden;
+}
+.badge-group-sep {
+    flex-basis: 100%;
+    height: 0;
+    border-top: 1px dotted var(--text-disabled);
+    font-size: 0;
+    overflow: hidden;
+    margin: 3px 0 1px;
+}

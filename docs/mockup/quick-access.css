@@ -1798,15 +1798,7 @@ body {
 .md-cn-card-delete { border-left: 4px solid var(--error); }
 
 /* 取消済カード */
-.md-cn-reverted-badge {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 4px;
-    background: var(--bg-surface-3);
-    color: var(--text-disabled);
-    margin-left: 6px;
-}
+/* .md-cn-reverted/approved-badge, card-header, type-badge → co-shared-badges.css */
 
 /* 承認済カード */
 .md-cn-card-approved {
@@ -1819,34 +1811,7 @@ body {
 .md-cn-card-approved .md-cn-card-header {
     background: var(--bg-surface-3);
 }
-.md-cn-approved-badge {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 4px;
-    background: rgba(56, 161, 105, 0.15);
-    color: var(--success-text);
-    margin-left: 6px;
-}
 
-.md-cn-card-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    background: var(--bg-surface-2);
-    flex-wrap: wrap;
-}
-.md-cn-type-badge {
-    font-size: 12px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 4px;
-    flex-shrink: 0;
-}
-.md-cn-type-badge-add { background: rgba(56,161,105,0.15); color: var(--success-text); }
-.md-cn-type-badge-modify { background: rgba(214,158,46,0.15); color: var(--warning-text); }
-.md-cn-type-badge-delete { background: rgba(219,87,123,0.15); color: var(--error); }
 .md-cn-card-user {
     font-size: 13px;
     color: var(--text-secondary);
@@ -2036,28 +2001,7 @@ body {
     font-weight: 500;
     color: var(--text-secondary);
 }
-.md-cn-day-badge {
-    font-size: 10px;
-    font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 3px;
-    background: var(--bg-surface-3);
-    color: var(--text-primary);
-}
-.md-cn-shift-badge, .md-cn-category-badge {
-    font-size: 10px;
-    font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 3px;
-    display: inline-block;
-}
-.md-cn-shift-day { background: #fefcbf; color: #744210; }
-.md-cn-shift-night { background: #2d3748; color: #e2e8f0; }
-.md-cn-cat-facility { background: #c6f6d5; color: #22543d; }
-.md-cn-cat-event { background: #fed7e2; color: #702459; }
-.md-cn-cat-highway { background: #bee3f8; color: #2a4365; }
-.md-cn-cat-traffic { background: #fefcbf; color: #744210; }
-.md-cn-cat-support { background: #e9d8fd; color: #44337a; }
+/* .md-cn-day/shift/category-badge, cat-* → co-shared-badges.css */
 
 /* --- カレンダーセル明滅ハイライト --- */
 .qa-cal-cell.md-cn-cell-glow-modify { animation: qa-cn-glow-yellow 1.2s ease-in-out 4; }
