@@ -921,7 +921,7 @@ body {
     color: var(--text-primary);
 }
 
-/* 候補リスト */
+/* 候補リスト（旧リスト形式 — 配置モーダル用に残す） */
 .md-ws-candidate-list {
     flex: 1;
     overflow-y: auto;
@@ -990,6 +990,169 @@ body {
     color: var(--text-tertiary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+/* === サイドバー 縦タブ + バッジレイアウト === */
+.md-ws-sidebar-panel {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* 縦タブ列 */
+.md-ws-vtabs {
+    display: flex;
+    flex-direction: column;
+    width: 34px;
+    min-width: 34px;
+    background: var(--bg-surface-2);
+    border-right: 1px solid var(--divider);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    border-radius: 0;
+}
+.md-ws-vtab {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    padding: 10px 5px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-left: 2px solid transparent;
+    white-space: nowrap;
+    text-align: center;
+    transition: all 0.15s;
+    user-select: none;
+    letter-spacing: 0.08em;
+}
+.md-ws-vtab:hover {
+    color: var(--text-secondary);
+    background: var(--accent-dim);
+}
+.md-ws-vtab.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: var(--bg-surface);
+    font-weight: 600;
+}
+
+/* 会社セクションヘッダー（アコーディオン） */
+.md-ws-gc-header {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    padding: 8px 5px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: var(--bg-surface-3);
+    border-top: 1px solid var(--divider);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    letter-spacing: 0.06em;
+    position: relative;
+    text-align: center;
+}
+.md-ws-gc-header::after {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 5px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    margin: 6px auto 0;
+    transition: transform 0.2s;
+}
+.md-ws-gc-header.expanded::after {
+    transform: rotate(-135deg);
+}
+
+/* 組織階層サブタブグループ（アコーディオン開閉） */
+.md-ws-dept-group {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+}
+.md-ws-dept-group.expanded {
+    max-height: 500px;
+}
+
+/* 組織ツリーの親ノード */
+.md-ws-org-parent {
+    font-weight: 600;
+    opacity: 0.85;
+}
+
+/* 組織ツリーの深さに応じたインデント */
+.md-ws-vtab[data-org-depth="2"] { font-size: 0.85em; }
+.md-ws-vtab[data-org-depth="3"] { font-size: 0.8em; }
+
+/* バッジコンテンツエリア */
+.md-ws-badge-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+    min-width: 0;
+}
+
+/* 会社セクション見出し（「すべて」タブ時） */
+.md-ws-gc-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 6px 4px 2px;
+    margin-top: 6px;
+    border-bottom: 1px solid var(--divider);
+}
+.md-ws-gc-section-label:first-child {
+    margin-top: 0;
+}
+
+/* 社員バッジ（ピル型） */
+.md-ws-emp-tag {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 3px;
+    background: var(--bg-surface-2);
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: grab;
+    transition: all 0.2s;
+    user-select: none;
+    color: var(--text-primary);
+}
+.md-ws-emp-tag:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+.md-ws-emp-tag:active {
+    cursor: grabbing;
+}
+.md-ws-emp-tag.md-ws-tag-assigned {
+    background: var(--success-bg);
+    border-color: rgba(56, 161, 105, 0.3);
+    color: var(--success-text);
+}
+.md-ws-emp-tag.md-ws-tag-holiday {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
+    text-decoration: line-through;
+}
+
+/* 社員数カウント */
+.md-ws-employee-count {
+    font-size: 13px;
+    opacity: 0.8;
 }
 
 /* 現場軸ビュー：カテゴリバッジ */
