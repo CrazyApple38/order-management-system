@@ -1448,8 +1448,11 @@
         renderSidebar();
         // 日付ヘッダーハイライト
         document.querySelectorAll('.md-ws-date-header').forEach(function (h) {
-            h.style.outline = h.dataset.date === dk ? '2px solid var(--accent-light)' : '';
-            h.style.outlineOffset = h.dataset.date === dk ? '-2px' : '';
+            if (h.dataset.date === dk) {
+                h.classList.add('md-ws-date-selected');
+            } else {
+                h.classList.remove('md-ws-date-selected');
+            }
         });
     }
 

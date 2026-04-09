@@ -265,7 +265,12 @@ body {
 .md-ws-date-header.md-ws-sun,
 .md-ws-date-header.md-ws-holiday { color: var(--error-light); }
 .md-ws-date-header.md-ws-today {
-    background: var(--accent);
+    background: #005f6f;
+    border-bottom: 2px solid var(--accent);
+}
+.md-ws-date-header.md-ws-date-selected {
+    background: var(--accent) !important;
+    color: #fff !important;
 }
 
 /* --- サブヘッダー（昼/夜） --- */
@@ -826,8 +831,8 @@ body {
     background: rgba(68, 166, 181, 0.06) !important;
 }
 .md-ws-grid.md-ws-selection-active .md-ws-date-header.md-ws-col-highlighted {
-    outline: 2px solid var(--accent-light);
-    outline-offset: -2px;
+    background: var(--accent);
+    color: #fff;
 }
 
 /* 選択モード中の非選択カラムのグレーアウト */
