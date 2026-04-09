@@ -233,7 +233,6 @@ body {
 .md-ws-grid {
     display: grid;
     /* columns set by JS: grid-template-columns */
-    min-width: max-content;
     border-collapse: collapse;
 }
 
@@ -366,12 +365,13 @@ body {
 .md-ws-cell {
     border-bottom: 1px solid var(--divider);
     border-left: 1px solid rgba(178, 213, 226, 0.4);
-    padding: 2px;
-    min-height: 36px;
+    padding: 3px 4px;
+    min-height: 40px;
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 2px;
-    align-items: stretch;
+    align-items: flex-start;
+    align-content: flex-start;
     transition: background 0.1s;
     position: relative;
 }
@@ -435,9 +435,9 @@ body {
 
 /* --- 現場チップ（セル内） --- */
 .md-ws-site-chip {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
-    padding: 2px 5px;
+    padding: 3px 6px;
     border-radius: 4px;
     background: var(--accent-dim);
     color: var(--text-primary);
@@ -594,6 +594,8 @@ body {
     padding: 2px 6px;
     border-radius: 10px;
     white-space: nowrap;
+    width: 100%;
+    text-align: center;
 }
 .md-ws-staff-ok {
     background: var(--success-bg);
@@ -761,4 +763,286 @@ body {
     pointer-events: none;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     line-height: 1.5;
+}
+
+/* ============================================================
+   ビュー切替トグル
+   ============================================================ */
+.md-ws-view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--bg-surface-2);
+    border-radius: 6px;
+    border: 1px solid var(--divider);
+    overflow: hidden;
+}
+.md-ws-view-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.md-ws-view-btn:hover {
+    color: var(--text-secondary);
+    background: rgba(68, 166, 181, 0.08);
+}
+.md-ws-view-btn.md-ws-view-active {
+    background: var(--accent);
+    color: #fff;
+}
+.md-ws-view-btn img {
+    width: 13px;
+    height: 13px;
+}
+.md-ws-view-shortcut {
+    font-size: 9px;
+    opacity: 0.6;
+    margin-left: 2px;
+}
+
+/* ============================================================
+   セル選択モード（B案：クリック→配置）
+   ============================================================ */
+
+/* 選択中のセル */
+.md-ws-cell.md-ws-cell-selected {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+    background: rgba(68, 166, 181, 0.15) !important;
+    z-index: 6;
+}
+
+/* 選択中カラムのハイライト */
+.md-ws-grid.md-ws-selection-active .md-ws-cell.md-ws-col-highlighted {
+    background: rgba(68, 166, 181, 0.06) !important;
+}
+.md-ws-grid.md-ws-selection-active .md-ws-date-header.md-ws-col-highlighted {
+    outline: 2px solid var(--accent-light);
+    outline-offset: -2px;
+}
+
+/* 選択モード中の非選択カラムのグレーアウト */
+.md-ws-grid.md-ws-selection-active .md-ws-cell:not(.md-ws-col-highlighted):not(.md-ws-cell-selected) {
+    opacity: 0.35;
+    pointer-events: none;
+}
+.md-ws-grid.md-ws-selection-active .md-ws-date-header:not(.md-ws-col-highlighted) {
+    opacity: 0.4;
+}
+.md-ws-grid.md-ws-selection-active .md-ws-shift-header:not(.md-ws-col-highlighted) {
+    opacity: 0.4;
+}
+/* 名前セル・グループ行は常に見える */
+.md-ws-grid.md-ws-selection-active .md-ws-name-cell,
+.md-ws-grid.md-ws-selection-active .md-ws-group-row,
+.md-ws-grid.md-ws-selection-active .md-ws-corner {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* ============================================================
+   D&D グレーアウトモード
+   ============================================================ */
+.md-ws-grid.md-ws-drag-active .md-ws-cell:not(.md-ws-col-highlighted) {
+    opacity: 0.35;
+    transition: opacity 0.15s;
+}
+.md-ws-grid.md-ws-drag-active .md-ws-cell.md-ws-col-highlighted {
+    opacity: 1;
+}
+.md-ws-grid.md-ws-drag-active .md-ws-date-header:not(.md-ws-col-highlighted) {
+    opacity: 0.4;
+}
+.md-ws-grid.md-ws-drag-active .md-ws-shift-header:not(.md-ws-col-highlighted) {
+    opacity: 0.4;
+}
+/* D&D中も名前セル・グループ行は常に見える */
+.md-ws-grid.md-ws-drag-active .md-ws-name-cell,
+.md-ws-grid.md-ws-drag-active .md-ws-group-row,
+.md-ws-grid.md-ws-drag-active .md-ws-corner {
+    opacity: 1 !important;
+}
+
+/* ============================================================
+   サイドバー：配置モード
+   ============================================================ */
+.md-ws-sidebar-assign-header {
+    background: var(--accent);
+    color: #fff;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+.md-ws-sidebar-assign-header .md-ws-assign-close {
+    margin-left: auto;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: #fff;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+.md-ws-sidebar-assign-header .md-ws-assign-close:hover {
+    background: rgba(255,255,255,0.35);
+}
+.md-ws-sidebar-assign-info {
+    padding: 8px 12px;
+    background: var(--accent-dim);
+    border-bottom: 1px solid var(--divider);
+    font-size: 11px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+.md-ws-sidebar-assign-info strong {
+    color: var(--text-primary);
+}
+
+/* 候補リスト */
+.md-ws-candidate-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 8px;
+}
+.md-ws-candidate-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.12s;
+    font-size: 12px;
+    color: var(--text-primary);
+    border: 1px solid transparent;
+}
+.md-ws-candidate-item:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+}
+.md-ws-candidate-item.md-ws-candidate-disabled {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
+}
+.md-ws-candidate-item.md-ws-candidate-assigned {
+    opacity: 0.5;
+    cursor: default;
+    background: var(--bg-surface-2);
+}
+.md-ws-candidate-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.md-ws-candidate-dot.md-ws-dot-available { background: var(--success); }
+.md-ws-candidate-dot.md-ws-dot-busy { background: var(--warning); }
+.md-ws-candidate-dot.md-ws-dot-holiday { background: var(--text-disabled); }
+.md-ws-candidate-dot.md-ws-dot-assigned { background: var(--accent); }
+.md-ws-candidate-name {
+    flex: 1;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.md-ws-candidate-status {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+}
+.md-ws-candidate-gc-badge {
+    font-size: 8px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: var(--bg-surface-2);
+    color: var(--text-tertiary);
+}
+.md-ws-candidate-section {
+    padding: 6px 8px 2px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* 現場軸ビュー：カテゴリバッジ */
+.md-ws-category-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: #fff;
+}
+.md-ws-category-badge.md-ws-cat-facility { background: #44A6B5; }
+.md-ws-category-badge.md-ws-cat-traffic  { background: #D69E2E; }
+.md-ws-category-badge.md-ws-cat-highway  { background: #805AD5; }
+.md-ws-category-badge.md-ws-cat-event    { background: #DD6B20; }
+
+/* 現場軸ビュー：人数インジケータ（セル内） */
+.md-ws-emp-chip {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 6px;
+    border-radius: 4px;
+    background: var(--accent-dim);
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+    max-width: 100%;
+}
+.md-ws-emp-chip:hover {
+    border-color: var(--accent);
+    background: rgba(68, 166, 181, 0.2);
+}
+.md-ws-emp-chip.md-ws-night-chip {
+    color: var(--night-text);
+    background: var(--error-bg);
+}
+.md-ws-emp-chip.md-ws-night-chip:hover {
+    border-color: var(--error);
+}
+/* 配置済み解除ボタン */
+.md-ws-emp-chip .md-ws-chip-remove {
+    display: none;
+    margin-left: 2px;
+    font-size: 10px;
+    color: var(--error);
+    cursor: pointer;
+}
+.md-ws-emp-chip:hover .md-ws-chip-remove {
+    display: inline;
+}
+
+/* セルのクリック可能表示 */
+.md-ws-cell.md-ws-clickable {
+    cursor: pointer;
+}
+.md-ws-cell.md-ws-clickable:hover {
+    background: rgba(68, 166, 181, 0.06);
 }
