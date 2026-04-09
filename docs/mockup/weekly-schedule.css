@@ -1,0 +1,764 @@
+/* ============================================================
+   weekly-schedule.css — 週間予定表モックアップ
+   プレフィックス: md-ws-
+   ============================================================ */
+
+/* --- カラーパレット（共通） --- */
+:root {
+    --bg-page:        #E9F1F6;
+    --bg-surface:     #FFFFFF;
+    --bg-surface-2:   #F0EDE9;
+    --bg-surface-3:   #D3D0C8;
+    --bg-sidebar:     #004554;
+    --text-primary:   #004554;
+    --text-secondary: #2A6B7A;
+    --text-tertiary:  #6B9AA8;
+    --text-disabled:  #A0BCC5;
+    --accent:         #44A6B5;
+    --accent-light:   #5AB8C6;
+    --accent-dim:     rgba(68, 166, 181, 0.12);
+    --secondary:      #B2D5E2;
+    --divider:        #B2D5E2;
+
+    --md-gc-bg-touo:      #FFFFFF;
+    --md-gc-bg-nikkei:    #F3F9F6;
+    --md-gc-bg-zennihon:  #F2F4F8;
+
+    --shift-bg-day:       rgba(211, 208, 200, 0.12);
+    --shift-text-day:     #3f3b31;
+    --shift-bg-night:     rgba(0, 69, 84, 0.12);
+    --shift-text-night:   #005c70;
+
+    --shadow-color:   rgba(0, 69, 84, 0.08);
+    --shadow-medium:  rgba(0, 69, 84, 0.12);
+    --shadow-strong:  rgba(0, 69, 84, 0.15);
+
+    --error:          #DB577B;
+    --error-light:    #E88AA5;
+    --error-bg:       rgba(219, 87, 123, 0.12);
+    --success:        #38A169;
+    --success-text:   #276749;
+    --success-bg:     rgba(56, 161, 105, 0.1);
+    --warning:        #D69E2E;
+    --warning-text:   #975A16;
+    --warning-bg:     rgba(214, 158, 46, 0.1);
+    --night-text:     #DB577B;
+
+    --tooltip-bg:     rgba(0, 69, 84, 0.95);
+    --tooltip-color:  white;
+    --header-btn-bg:  rgba(255, 255, 255, 0.15);
+    --header-btn-hover: rgba(255, 255, 255, 0.25);
+}
+
+/* --- ダークテーマ --- */
+[data-theme="dark"] {
+    --bg-page:        #1a1e22;
+    --bg-surface:     #2a3038;
+    --bg-surface-2:   #3D444B;
+    --bg-surface-3:   #505A63;
+    --bg-sidebar:     #14181c;
+    --text-primary:   #D9D4D1;
+    --text-secondary: #BAB1AD;
+    --text-tertiary:  #8a8480;
+    --text-disabled:  #5a5550;
+    --accent:         #098698;
+    --accent-light:   #0a9db0;
+    --accent-dim:     rgba(9, 134, 152, 0.2);
+    --secondary:      #AEC0C2;
+    --divider:        #4a5259;
+
+    --md-gc-bg-touo:      #2a3038;
+    --md-gc-bg-nikkei:    #2d3540;
+    --md-gc-bg-zennihon:  #303848;
+
+    --shift-bg-day:       rgba(211, 208, 200, 0.2);
+    --shift-text-day:     #d3d0c8;
+    --shift-bg-night:     rgba(0, 69, 84, 0.2);
+    --shift-text-night:   #5ab8c6;
+
+    --shadow-color:   rgba(0, 0, 0, 0.3);
+    --shadow-medium:  rgba(0, 0, 0, 0.2);
+    --shadow-strong:  rgba(0, 0, 0, 0.4);
+
+    --error:          #E88AA5;
+    --error-light:    #F0B0C2;
+    --error-bg:       rgba(232, 138, 165, 0.2);
+    --success:        #68d391;
+    --success-text:   #68d391;
+    --success-bg:     rgba(72, 187, 120, 0.2);
+    --warning:        #ecc94b;
+    --warning-text:   #ecc94b;
+    --warning-bg:     rgba(236, 201, 75, 0.2);
+    --night-text:     #E88AA5;
+
+    --tooltip-bg:     rgba(20, 24, 28, 0.95);
+    --tooltip-color:  #D9D4D1;
+    --header-btn-bg:  rgba(255, 255, 255, 0.08);
+    --header-btn-hover: rgba(255, 255, 255, 0.15);
+}
+
+/* --- リセット・ベース --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* ============================================================
+   レイアウト
+   ============================================================ */
+.md-ws-container {
+    height: calc(100vh - 36px);   /* navbar 36px */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* --- ヘッダー --- */
+.md-ws-header {
+    background: var(--bg-sidebar);
+    color: #fff;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+.md-ws-header-title {
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.md-ws-header-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 8px;
+}
+.md-ws-nav-btn {
+    background: var(--header-btn-bg);
+    border: none;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+.md-ws-nav-btn:hover { background: var(--header-btn-hover); }
+.md-ws-month-label {
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 130px;
+    text-align: center;
+}
+.md-ws-today-btn {
+    background: var(--header-btn-bg);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    transition: background 0.15s;
+}
+.md-ws-today-btn:hover { background: var(--header-btn-hover); }
+.md-ws-header-spacer { flex: 1; }
+
+/* --- ツールバー --- */
+.md-ws-toolbar {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--divider);
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.md-ws-toolbar .md-tb-btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    color: var(--text-secondary);
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.md-ws-toolbar .md-tb-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+}
+.md-ws-toolbar .md-tb-btn img {
+    width: 14px;
+    height: 14px;
+    opacity: 0.6;
+}
+.md-ws-tb-sep {
+    width: 1px;
+    height: 20px;
+    background: var(--divider);
+    flex-shrink: 0;
+}
+
+/* --- メインエリア（グリッド＋サイドバー） --- */
+.md-ws-main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ============================================================
+   グリッド
+   ============================================================ */
+.md-ws-grid-wrapper {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+}
+
+.md-ws-grid {
+    display: grid;
+    /* columns set by JS: grid-template-columns */
+    min-width: max-content;
+    border-collapse: collapse;
+}
+
+/* --- ヘッダーセル（日付） --- */
+.md-ws-corner {
+    position: sticky;
+    left: 0;
+    z-index: 20;
+    background: var(--bg-sidebar);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 8px;
+    display: flex;
+    align-items: center;
+    border-right: 2px solid var(--secondary);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+.md-ws-date-header {
+    background: var(--bg-sidebar);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 2px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    border-left: 1px solid rgba(255,255,255,0.08);
+}
+.md-ws-date-header.md-ws-sat { color: var(--accent-light); }
+.md-ws-date-header.md-ws-sun,
+.md-ws-date-header.md-ws-holiday { color: var(--error-light); }
+.md-ws-date-header.md-ws-today {
+    background: var(--accent);
+}
+
+/* --- サブヘッダー（昼/夜） --- */
+.md-ws-shift-header {
+    background: #334155;
+    color: #cbd5e1;
+    font-size: 10px;
+    font-weight: 600;
+    text-align: center;
+    padding: 2px 0;
+    border-bottom: 2px solid var(--secondary);
+    border-left: 1px solid rgba(255,255,255,0.06);
+}
+.md-ws-shift-header.md-ws-shift-night {
+    color: var(--night-text);
+}
+
+/* --- グループヘッダー行 --- */
+.md-ws-group-row {
+    grid-column: 1 / -1;
+    background: var(--accent-dim);
+    border-bottom: 1px solid var(--divider);
+    border-top: 2px solid var(--secondary);
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    position: sticky;
+    left: 0;
+}
+.md-ws-group-row:hover {
+    background: rgba(68, 166, 181, 0.18);
+}
+.md-ws-group-chevron {
+    font-size: 10px;
+    transition: transform 0.2s;
+    display: inline-block;
+    width: 14px;
+    text-align: center;
+}
+.md-ws-group-row.md-ws-collapsed .md-ws-group-chevron {
+    transform: rotate(-90deg);
+}
+.md-ws-group-gc-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--accent);
+    color: #fff;
+}
+
+/* --- 社員名セル（frozen） --- */
+.md-ws-name-cell {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background: var(--bg-surface);
+    border-right: 2px solid var(--secondary);
+    border-bottom: 1px solid var(--divider);
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+}
+.md-ws-name-cell.md-ws-gc-touo      { background: var(--md-gc-bg-touo); }
+.md-ws-name-cell.md-ws-gc-nikkei    { background: var(--md-gc-bg-nikkei); }
+.md-ws-name-cell.md-ws-gc-zennihon  { background: var(--md-gc-bg-zennihon); }
+
+/* 車両行名前セル */
+.md-ws-name-cell.md-ws-vehicle-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    font-style: italic;
+    border-top: 1px dashed var(--divider);
+}
+.md-ws-vehicle-icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 4px;
+    opacity: 0.5;
+}
+
+/* --- データセル --- */
+.md-ws-cell {
+    border-bottom: 1px solid var(--divider);
+    border-left: 1px solid rgba(178, 213, 226, 0.4);
+    padding: 2px;
+    min-height: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: stretch;
+    transition: background 0.1s;
+    position: relative;
+}
+/* 昼セルの左ボーダー（日付区切り） */
+.md-ws-cell.md-ws-day-col {
+    border-left: 1px solid var(--divider);
+}
+/* 夜セルのテキスト色 */
+.md-ws-cell.md-ws-night-col {
+    background: rgba(0, 69, 84, 0.03);
+}
+[data-theme="dark"] .md-ws-cell.md-ws-night-col {
+    background: rgba(0, 69, 84, 0.08);
+}
+
+/* 土日 */
+.md-ws-cell.md-ws-sat-col { background: rgba(68, 166, 181, 0.04); }
+.md-ws-cell.md-ws-sun-col,
+.md-ws-cell.md-ws-holiday-col { background: rgba(219, 87, 123, 0.04); }
+.md-ws-cell.md-ws-night-col.md-ws-sat-col { background: rgba(68, 166, 181, 0.07); }
+.md-ws-cell.md-ws-night-col.md-ws-sun-col,
+.md-ws-cell.md-ws-night-col.md-ws-holiday-col { background: rgba(219, 87, 123, 0.07); }
+
+/* 今日 */
+.md-ws-cell.md-ws-today-col {
+    background: rgba(68, 166, 181, 0.06);
+}
+
+/* グループ会社背景（データセル） */
+.md-ws-cell.md-ws-gc-touo      { /* default white */ }
+.md-ws-cell.md-ws-gc-nikkei    { background: var(--md-gc-bg-nikkei); }
+.md-ws-cell.md-ws-gc-zennihon  { background: var(--md-gc-bg-zennihon); }
+
+/* 車両セル */
+.md-ws-cell.md-ws-vehicle-cell {
+    border-top: 1px dashed var(--divider);
+    min-height: 30px;
+}
+
+/* ドロップ対象 */
+.md-ws-cell.md-ws-drag-over {
+    background: rgba(56, 161, 105, 0.08) !important;
+    outline: 2px dashed var(--success);
+    outline-offset: -2px;
+}
+
+/* 休みセル */
+.md-ws-cell.md-ws-holiday-cell {
+    justify-content: center;
+    align-items: center;
+}
+.md-ws-holiday-mark {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-disabled);
+    background: var(--bg-surface-2);
+    border-radius: 4px;
+    padding: 2px 8px;
+    text-align: center;
+}
+
+/* --- 現場チップ（セル内） --- */
+.md-ws-site-chip {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: var(--accent-dim);
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: grab;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+    max-width: 100%;
+}
+.md-ws-site-chip:hover {
+    border-color: var(--accent);
+    background: rgba(68, 166, 181, 0.2);
+}
+.md-ws-site-chip.md-ws-night-chip {
+    color: var(--night-text);
+    background: var(--error-bg);
+}
+.md-ws-site-chip.md-ws-night-chip:hover {
+    border-color: var(--error);
+}
+.md-ws-site-chip.md-ws-dragging {
+    opacity: 0.35;
+    transform: scale(0.92);
+}
+/* 過去データ（読み取り専用） */
+.md-ws-site-chip.md-ws-readonly {
+    cursor: default;
+    opacity: 0.7;
+}
+.md-ws-site-chip.md-ws-readonly:hover {
+    border-color: transparent;
+}
+
+/* --- 車両チップ --- */
+.md-ws-vehicle-chip {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: var(--bg-surface-2);
+    color: var(--text-secondary);
+    border: 1px solid var(--divider);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: grab;
+}
+.md-ws-vehicle-chip:hover {
+    border-color: var(--accent);
+}
+/* 昼夜連続：結合表示 */
+.md-ws-vehicle-span {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: -100%;   /* JS で幅を制御 */
+    bottom: 2px;
+    z-index: 5;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--bg-surface-2) 0%, rgba(240,237,233,0.85) 100%);
+    color: var(--text-secondary);
+    border: 1px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* ============================================================
+   サイドバー
+   ============================================================ */
+.md-ws-sidebar {
+    width: 280px;
+    min-width: 280px;
+    background: var(--bg-surface);
+    border-left: 2px solid var(--secondary);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.md-ws-sidebar-header {
+    background: var(--bg-sidebar);
+    color: #fff;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.md-ws-sidebar-date {
+    font-size: 14px;
+    font-weight: 700;
+}
+.md-ws-sidebar-dow {
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.md-ws-sidebar-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+/* --- 現場カード --- */
+.md-ws-site-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+}
+.md-ws-site-card:hover {
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.md-ws-site-card-header {
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+}
+.md-ws-site-card-header:hover {
+    background: var(--accent-dim);
+}
+
+.md-ws-site-card-name {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 人数インジケーター */
+.md-ws-staff-indicator {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+.md-ws-staff-ok {
+    background: var(--success-bg);
+    color: var(--success-text);
+}
+.md-ws-staff-short {
+    background: var(--error-bg);
+    color: var(--error);
+}
+.md-ws-staff-over {
+    background: var(--warning-bg);
+    color: var(--warning-text);
+}
+
+/* シフトバッジ（サイドバー内） */
+.md-ws-shift-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+}
+.md-ws-shift-badge.md-ws-shift-day-badge {
+    background: var(--shift-bg-day);
+    color: var(--shift-text-day);
+}
+.md-ws-shift-badge.md-ws-shift-night-badge {
+    background: var(--shift-bg-night);
+    color: var(--shift-text-night);
+}
+
+/* カード展開ボディ */
+.md-ws-site-card-body {
+    display: none;
+    padding: 0 10px 8px;
+    border-top: 1px solid var(--divider);
+}
+.md-ws-site-card.md-ws-expanded .md-ws-site-card-body {
+    display: block;
+}
+.md-ws-site-card-chevron {
+    font-size: 10px;
+    transition: transform 0.2s;
+    color: var(--text-tertiary);
+}
+.md-ws-site-card.md-ws-expanded .md-ws-site-card-chevron {
+    transform: rotate(90deg);
+}
+
+/* 配置済み社員リスト */
+.md-ws-assigned-list {
+    margin-top: 6px;
+}
+.md-ws-assigned-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+}
+.md-ws-assigned-employee {
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 2px 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.md-ws-assigned-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    flex-shrink: 0;
+}
+
+/* 車両リスト */
+.md-ws-vehicle-list-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+.md-ws-vehicle-list-item {
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 2px 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* サイドバードラッグ用 */
+.md-ws-drag-handle {
+    cursor: grab;
+    color: var(--text-disabled);
+    font-size: 12px;
+    user-select: none;
+    flex-shrink: 0;
+}
+.md-ws-drag-handle:active { cursor: grabbing; }
+
+/* 空の現場表示 */
+.md-ws-sidebar-empty {
+    text-align: center;
+    padding: 40px 16px;
+    color: var(--text-disabled);
+    font-size: 12px;
+}
+
+/* ============================================================
+   ドラッグ中のゴースト
+   ============================================================ */
+.md-ws-drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 12px var(--shadow-strong);
+    white-space: nowrap;
+    opacity: 0.92;
+}
+
+/* ============================================================
+   非表示行（グループ折りたたみ）
+   ============================================================ */
+.md-ws-row-hidden {
+    display: none !important;
+}
+
+/* ============================================================
+   スクロールバー
+   ============================================================ */
+.md-ws-grid-wrapper::-webkit-scrollbar { width: 8px; height: 8px; }
+.md-ws-grid-wrapper::-webkit-scrollbar-track { background: var(--bg-surface-2); }
+.md-ws-grid-wrapper::-webkit-scrollbar-thumb {
+    background: var(--bg-surface-3);
+    border-radius: 4px;
+}
+.md-ws-grid-wrapper::-webkit-scrollbar-thumb:hover { background: var(--text-disabled); }
+
+.md-ws-sidebar-body::-webkit-scrollbar { width: 6px; }
+.md-ws-sidebar-body::-webkit-scrollbar-track { background: transparent; }
+.md-ws-sidebar-body::-webkit-scrollbar-thumb {
+    background: var(--bg-surface-3);
+    border-radius: 3px;
+}
+
+/* ============================================================
+   ツールチップ
+   ============================================================ */
+.md-ws-tooltip {
+    position: fixed;
+    z-index: 9999;
+    background: var(--tooltip-bg);
+    color: var(--tooltip-color);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    max-width: 240px;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    line-height: 1.5;
+}

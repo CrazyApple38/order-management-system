@@ -11,6 +11,7 @@
     var currentPage = 'other';
     if (path.indexOf('screen-layout') !== -1) currentPage = 'screen-layout';
     else if (path.indexOf('order-book') !== -1) currentPage = 'order-book';
+    else if (path.indexOf('weekly-schedule') !== -1) currentPage = 'weekly-schedule';
 
     // --- マスタ管理メニュー項目 ---
     var masterItems = [
@@ -146,14 +147,24 @@
         if (!item.divider) masterLabels[item.id] = item.label;
     });
 
+    // ページ遷移するメニュー項目
+    var pageLinks = {
+        'weekly-schedule': 'weekly-schedule.html'
+    };
+
     document.querySelectorAll('.md-nav-menu-item[data-master]').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var id = this.getAttribute('data-master');
-            mdNavOpenModal(id, masterLabels[id] || 'マスタ');
             // ドロップダウンを閉じる
             document.querySelectorAll('.md-nav-dropdown.md-nav-open').forEach(function (d) {
                 d.classList.remove('md-nav-open');
             });
+            // ページ遷移 or モーダル
+            if (pageLinks[id]) {
+                location.href = pageLinks[id];
+            } else {
+                mdNavOpenModal(id, masterLabels[id] || 'マスタ');
+            }
         });
     });
 
