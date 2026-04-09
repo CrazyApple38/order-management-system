@@ -194,6 +194,17 @@
         if (idx >= 0) arr.splice(idx, 1);
     }
 
+    function addVehicleAssignment(dateKey, shift, siteId, vehicleId) {
+        if (!vehicleAssignments[dateKey]) vehicleAssignments[dateKey] = { day: {}, night: {} };
+        if (!vehicleAssignments[dateKey][shift]) vehicleAssignments[dateKey][shift] = {};
+        vehicleAssignments[dateKey][shift][siteId] = vehicleId;
+    }
+
+    function removeVehicleAssignment(dateKey, shift, siteId) {
+        if (!vehicleAssignments[dateKey] || !vehicleAssignments[dateKey][shift]) return;
+        delete vehicleAssignments[dateKey][shift][siteId];
+    }
+
     function getAssignedEmployees(siteId, dateKey, shift) {
         var result = [];
         Object.keys(assignments).forEach(function (empIdx) {
@@ -476,6 +487,29 @@
                             cell.appendChild(chip);
                         });
 
+                        // 車両チップ（この現場・日付・シフトに配置された車両）
+                        var va = vehicleAssignments[dk];
+                        if (va && va[shift] && va[shift][site.id]) {
+                            var vehicleId = va[shift][site.id];
+                            var vehicle = findVehicle(vehicleId);
+                            if (vehicle) {
+                                var vChip = el('div', 'md-ws-vehicle-chip', '\ud83d\ude97 ' + truncate(vehicle.plate, 8));
+                                vChip.title = vehicle.plate + ' ' + vehicle.model;
+                                if (!isPast) {
+                                    vChip.style.cursor = 'pointer';
+                                    (function (vid, sid, dkk, sh) {
+                                        vChip.addEventListener('click', function (e) {
+                                            e.stopPropagation();
+                                            removeVehicleAssignment(dkk, sh, sid);
+                                            renderGrid();
+                                            renderSidebar();
+                                        });
+                                    })(vehicleId, site.id, dk, shift);
+                                }
+                                cell.appendChild(vChip);
+                            }
+                        }
+
                         // 人数インジケーター（受注あり現場のみ）
                         if (orders > 0) {
                             var indicator = el('div', 'md-ws-staff-indicator');
@@ -498,7 +532,7 @@
                         // セルクリック（B案）
                         if (!isPast) {
                             cell.addEventListener('click', function (e) {
-                                if (e.target.closest('.md-ws-emp-chip')) return;
+                                if (e.target.closest('.md-ws-emp-chip') || e.target.closest('.md-ws-vehicle-chip')) return;
                                 selectCellSiteView(site.id, dk, shift);
                             });
                         }
@@ -702,70 +736,6 @@
                 currentRow++;
             });
 
-            // 車両行
-            var vNameCell = el('div', 'md-ws-name-cell md-ws-vehicle-name md-ws-gc-' + group.gcCode);
-            vNameCell.innerHTML = '<span style="margin-right:4px;">\ud83d\ude97</span> \u8eca\u4e21';
-            vNameCell.dataset.groupId = groupId;
-            if (isCollapsed) vNameCell.classList.add('md-ws-row-hidden');
-            vNameCell.style.gridRow = currentRow;
-            vNameCell.style.gridColumn = '1';
-            grid.appendChild(vNameCell);
-
-            dates.forEach(function (d, di) {
-                var dk = formatDateKey(d);
-                ['day', 'night'].forEach(function (shift, si) {
-                    var colIdx = 2 + di * 2 + si;
-                    var vCell = el('div', 'md-ws-cell md-ws-vehicle-cell');
-                    if (si === 0) vCell.classList.add('md-ws-day-col');
-                    if (si === 1) vCell.classList.add('md-ws-night-col');
-                    vCell.dataset.date = dk;
-                    vCell.dataset.shift = shift;
-                    vCell.dataset.groupId = groupId;
-                    if (isCollapsed) vCell.classList.add('md-ws-row-hidden');
-                    vCell.style.gridRow = currentRow;
-                    vCell.style.gridColumn = colIdx;
-
-                    var va = vehicleAssignments[dk];
-                    if (va && va[shift]) {
-                        Object.keys(va[shift]).forEach(function (siteId) {
-                            var vehicleId = va[shift][siteId];
-                            var vehicle = findVehicle(vehicleId);
-                            if (!vehicle) return;
-                            var hasGroupEmployee = group.employees.some(function (emp) {
-                                var ea = assignments[emp.index];
-                                return ea && ea[dk] && ea[dk][shift] && ea[dk][shift].indexOf(siteId) >= 0;
-                            });
-                            if (!hasGroupEmployee) return;
-
-                            var isSpanning = false;
-                            if (shift === 'day' && va.night && va.night[siteId] === vehicleId) {
-                                isSpanning = true;
-                            }
-                            if (shift === 'night') {
-                                if (va.day && va.day[siteId] === vehicleId) return;
-                            }
-
-                            if (isSpanning) {
-                                var span = el('div', 'md-ws-vehicle-span');
-                                span.textContent = vehicle.plate + ' ' + vehicle.model;
-                                span.title = '\u663c\u591c\u9023\u7d9a: ' + findSite(siteId).name;
-                                span.style.right = '2px';
-                                vCell.style.position = 'relative';
-                                vCell.style.overflow = 'visible';
-                                vCell.style.zIndex = '5';
-                                vCell.appendChild(span);
-                            } else {
-                                var vChip = el('div', 'md-ws-vehicle-chip', truncate(vehicle.plate, 10));
-                                vChip.title = vehicle.plate + ' ' + vehicle.model;
-                                vCell.appendChild(vChip);
-                            }
-                        });
-                    }
-
-                    grid.appendChild(vCell);
-                });
-            });
-            currentRow++;
         });
 
         if (selectedCell) {
@@ -1093,6 +1063,65 @@
         });
 
         sidebar.appendChild(list);
+
+        // 車両リスト
+        var vLabel = el('div', 'md-ws-vehicle-list-label', '\ud83d\ude97 車両');
+        sidebar.appendChild(vLabel);
+
+        var vList = el('div', 'md-ws-candidate-list');
+        var currentVa = vehicleAssignments[sc.date];
+        var currentVehicleId = (currentVa && currentVa[sc.shift]) ? currentVa[sc.shift][sc.siteId] : null;
+
+        wsVehiclesData.forEach(function (v) {
+            var item = el('div', 'md-ws-candidate-item');
+            var dot = el('span', 'md-ws-candidate-dot');
+            var nameSpan = el('span', 'md-ws-candidate-name', v.plate + ' ' + v.model);
+            var status = el('span', 'md-ws-candidate-status');
+
+            var isAssignedHere = currentVehicleId === v.id;
+
+            // この車両が同日・同シフトで他の現場に配置されているか確認
+            var busySiteId = null;
+            if (currentVa && currentVa[sc.shift]) {
+                Object.keys(currentVa[sc.shift]).forEach(function (sid) {
+                    if (currentVa[sc.shift][sid] === v.id && sid !== sc.siteId) {
+                        busySiteId = sid;
+                    }
+                });
+            }
+
+            if (isAssignedHere) {
+                dot.classList.add('md-ws-dot-assigned');
+                status.textContent = '配置済';
+                item.classList.add('md-ws-candidate-assigned');
+                item.style.cursor = 'pointer';
+                item.title = 'クリックで解除';
+                item.addEventListener('click', function () {
+                    removeVehicleAssignment(sc.date, sc.shift, sc.siteId);
+                    renderGrid();
+                    renderSidebar();
+                });
+            } else if (busySiteId) {
+                dot.classList.add('md-ws-dot-busy');
+                var busySite = findSite(busySiteId);
+                status.textContent = busySite ? truncate(busySite.name, 10) : '使用中';
+            } else {
+                dot.classList.add('md-ws-dot-available');
+                status.textContent = '空き';
+                item.addEventListener('click', function () {
+                    addVehicleAssignment(sc.date, sc.shift, sc.siteId, v.id);
+                    renderGrid();
+                    renderSidebar();
+                });
+            }
+
+            item.appendChild(dot);
+            item.appendChild(nameSpan);
+            item.appendChild(status);
+            vList.appendChild(item);
+        });
+
+        sidebar.appendChild(vList);
     }
 
     // --- 社員軸ビュー + セル選択 → 現場候補表示 ---
