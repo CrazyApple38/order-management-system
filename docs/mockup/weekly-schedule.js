@@ -68,6 +68,7 @@
     // D&Dアクティブ状態
     var dragActive = false;
     var dragTargetDate = null;
+    var dragSourceDate = null;   // セル起点D&D時の元日付（同日限定用）
 
     // サイドバー社員タブ状態
     var wsEmpTab = {
@@ -494,7 +495,7 @@
                                 });
                                 chip.appendChild(removeBtn);
 
-                                // D&D対応（社員チップを別セルへ移動）
+                                // D&D対応（社員チップを同日の別セルへ移動）
                                 chip.draggable = true;
                                 chip.addEventListener('dragstart', function (e) {
                                     e.dataTransfer.setData('text/plain', JSON.stringify({
@@ -506,6 +507,7 @@
                                     }));
                                     e.dataTransfer.effectAllowed = 'move';
                                     chip.classList.add('md-ws-dragging');
+                                    dragSourceDate = dk;
                                     activateDragMode(dk);
                                 });
                                 chip.addEventListener('dragend', function () {
@@ -535,7 +537,7 @@
                                             renderSidebar();
                                         });
                                     })(vehicleId, site.id, dk, shift);
-                                    // 車両チップD&D（セル間移動）
+                                    // 車両チップD&D（同日の別セルへ移動）
                                     vChip.draggable = true;
                                     (function (vid, sid, dkk, sh) {
                                         vChip.addEventListener('dragstart', function (e) {
@@ -549,6 +551,7 @@
                                             }));
                                             e.dataTransfer.effectAllowed = 'move';
                                             vChip.classList.add('md-ws-dragging');
+                                            dragSourceDate = dkk;
                                             activateDragMode(dkk);
                                         });
                                         vChip.addEventListener('dragend', function () {
@@ -739,6 +742,7 @@
                                             }));
                                             e.dataTransfer.effectAllowed = 'move';
                                             chip.classList.add('md-ws-dragging');
+                                            dragSourceDate = dk;
                                             activateDragMode(dk);
                                         });
                                         chip.addEventListener('dragend', function () {
@@ -876,6 +880,7 @@
     function deactivateDragMode() {
         dragActive = false;
         dragTargetDate = null;
+        dragSourceDate = null;
         var grid = document.getElementById('wsGrid');
         if (!grid) return;
         grid.classList.remove('md-ws-drag-active');
@@ -885,13 +890,17 @@
     }
 
     function onCellDragOver(e) {
+        var cellDate = e.currentTarget.dataset.date;
+
+        // セル起点D&Dは同日限定
+        if (dragSourceDate && cellDate !== dragSourceDate) return;
+
         e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
+        e.dataTransfer.dropEffect = dragSourceDate ? 'move' : 'copy';
         e.currentTarget.classList.add('md-ws-drag-over');
 
-        // ドラッグ先の日付カラムをハイライト更新
-        var cellDate = e.currentTarget.dataset.date;
-        if (cellDate && cellDate !== dragTargetDate) {
+        // ドラッグ先の日付カラムをハイライト更新（サイドバー起点のみ）
+        if (!dragSourceDate && cellDate && cellDate !== dragTargetDate) {
             var grid = document.getElementById('wsGrid');
             if (grid) {
                 grid.querySelectorAll('.md-ws-col-highlighted').forEach(function (el) {
