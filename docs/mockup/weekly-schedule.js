@@ -162,7 +162,9 @@
             { emp: 18, dayOffset: 0, shift: 'day', site: 's6' },
             { emp: 19, dayOffset: 0, shift: 'day', site: 's6' },
             { emp: 20, dayOffset: 0, shift: 'day', site: 's6' },
-            { emp: 21, dayOffset: 0, shift: 'day', site: 's4' }
+            { emp: 21, dayOffset: 0, shift: 'day', site: 's4' },
+            // 休日出勤テストケース（emp5=林 は dayOffset1=4/7に休みだが出勤）
+            { emp: 5, dayOffset: 1, shift: 'day', site: 's3' }
         ];
 
         samplePlacements.forEach(function (p) {
@@ -241,6 +243,16 @@
     function isEmployeeBusy(empIndex, dateKey, shift) {
         var sites = getAssignedSites(empIndex, dateKey, shift);
         return sites.length > 0;
+    }
+
+    function getHolidayEmployees(dateKey) {
+        var result = [];
+        Object.keys(holidays).forEach(function (empIdx) {
+            if (holidays[empIdx][dateKey]) {
+                result.push(parseInt(empIdx));
+            }
+        });
+        return result;
     }
 
     // ==========================================================
@@ -398,6 +410,116 @@
         var siteGroups = buildSiteGroups();
         var currentRow = 3;
 
+        // --- 休み行（最上部） ---
+        var holidayGroupId = 'ws-holiday';
+        var isHolidayCollapsed = !!collapsedGroups[holidayGroupId];
+
+        // 全表示期間の休み社員数を集計
+        var allHolidayEmpSet = {};
+        dates.forEach(function (d) {
+            getHolidayEmployees(formatDateKey(d)).forEach(function (idx) {
+                allHolidayEmpSet[idx] = true;
+            });
+        });
+        var holidayTotal = Object.keys(allHolidayEmpSet).length;
+
+        if (holidayTotal > 0) {
+            // グループヘッダー
+            var hGroupRow = el('div', 'md-ws-group-row md-ws-holiday-group-header' + (isHolidayCollapsed ? ' md-ws-collapsed' : ''));
+            hGroupRow.style.gridRow = currentRow;
+            hGroupRow.innerHTML =
+                '<span class="md-ws-group-chevron">\u25bc</span>' +
+                '<span class="md-ws-holiday-badge">\u4f11</span>' +
+                '<span>\u4f11\u307f ' + holidayTotal + '\u540d</span>';
+            hGroupRow.dataset.groupId = holidayGroupId;
+            hGroupRow.addEventListener('click', function () { toggleGroup(holidayGroupId); });
+            grid.appendChild(hGroupRow);
+            currentRow++;
+
+            // 名前セル
+            var hNameCell = el('div', 'md-ws-name-cell md-ws-holiday-name');
+            hNameCell.dataset.groupId = holidayGroupId;
+            if (isHolidayCollapsed) hNameCell.classList.add('md-ws-row-hidden');
+            hNameCell.style.gridRow = currentRow;
+            hNameCell.style.gridColumn = '1';
+            hNameCell.textContent = '\u4f11\u307f';
+            grid.appendChild(hNameCell);
+
+            // 各日付×シフトセル
+            dates.forEach(function (d, di) {
+                var dk = formatDateKey(d);
+                var holidayEmps = getHolidayEmployees(dk);
+                var isPast = d < today;
+
+                ['day', 'night'].forEach(function (shift, si) {
+                    var colIdx = 2 + di * 2 + si;
+                    var cellCls = 'md-ws-cell md-ws-holiday-row-cell';
+                    if (si === 0) cellCls += ' md-ws-day-col';
+                    if (si === 1) cellCls += ' md-ws-night-col';
+                    if (d.getDay() === 6) cellCls += ' md-ws-sat-col';
+                    if (d.getDay() === 0) cellCls += ' md-ws-sun-col';
+                    if (holidayDates[dk]) cellCls += ' md-ws-holiday-col';
+                    if (dk === formatDateKey(today)) cellCls += ' md-ws-today-col';
+
+                    var cell = el('div', cellCls);
+                    cell.dataset.date = dk;
+                    cell.dataset.shift = shift;
+                    cell.dataset.groupId = holidayGroupId;
+                    if (isHolidayCollapsed) cell.classList.add('md-ws-row-hidden');
+                    cell.style.gridRow = currentRow;
+                    cell.style.gridColumn = colIdx;
+
+                    holidayEmps.forEach(function (empIdx) {
+                        var emp = employeesData[empIdx];
+                        if (!emp) return;
+                        var chip = el('div', 'md-ws-holiday-emp-chip md-ws-holiday-cursor');
+                        chip.dataset.empIndex = empIdx;
+
+                        var nameSpan = el('span', '', emp.name);
+                        chip.appendChild(nameSpan);
+
+                        // 配置済みチェック
+                        var assignedSites = getAssignedSites(empIdx, dk, shift);
+                        if (assignedSites.length > 0) {
+                            chip.classList.add('md-ws-holiday-assigned');
+                            var siteNames = assignedSites.map(function (sid) {
+                                var s = findSite(sid);
+                                return s ? truncate(s.name, 6) : '';
+                            });
+                            var assignInfo = el('span', 'md-ws-holiday-assign-info', '\u2192 ' + siteNames.join(', '));
+                            chip.appendChild(assignInfo);
+                        }
+
+                        // D&D（同日の現場セルへ）
+                        if (!isPast) {
+                            chip.draggable = true;
+                            (function (idx, dateKey) {
+                                chip.addEventListener('dragstart', function (e) {
+                                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                                        type: 'sidebar-emp',
+                                        empIndex: idx
+                                    }));
+                                    e.dataTransfer.effectAllowed = 'copy';
+                                    chip.style.opacity = '0.5';
+                                    dragSourceDate = dateKey;
+                                    activateDragMode(dateKey);
+                                });
+                                chip.addEventListener('dragend', function () {
+                                    chip.style.opacity = '';
+                                    deactivateDragMode();
+                                });
+                            })(empIdx, dk);
+                        }
+
+                        cell.appendChild(chip);
+                    });
+
+                    grid.appendChild(cell);
+                });
+            });
+            currentRow++;
+        }
+
         siteGroups.forEach(function (group) {
             var groupId = group.id;
             var isCollapsed = !!collapsedGroups[groupId];
@@ -483,6 +605,13 @@
                             var nameSpan = document.createElement('span');
                             nameSpan.textContent = emp.name;
                             chip.appendChild(nameSpan);
+
+                            // 休日出勤マーク
+                            if (isEmployeeOnHoliday(empIdx, dk)) {
+                                chip.classList.add('md-ws-emp-holiday', 'md-ws-holiday-cursor');
+                                var holidaySub = el('span', 'md-ws-holiday-sub', '\u4f11');
+                                chip.appendChild(holidaySub);
+                            }
 
                             // ×ボタン（ホバーで表示）
                             if (!isPast) {
@@ -1862,9 +1991,25 @@
     // 初期化
     // ==========================================================
 
+    // 休みカスタムカーソル（SVG data URI を JS で生成）
+    function initHolidayCursor() {
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="22">' +
+            '<rect width="40" height="22" rx="4" fill="#DB577B" opacity="0.92"/>' +
+            '<text x="20" y="15.5" text-anchor="middle" fill="white" ' +
+            'font-size="12" font-weight="700" font-family="system-ui,sans-serif">' +
+            '\u4f11\u307f</text></svg>';
+        var encoded = encodeURIComponent(svg);
+        var style = document.createElement('style');
+        style.textContent =
+            '.md-ws-holiday-cursor{cursor:url("data:image/svg+xml,' +
+            encoded + '") 0 0,pointer!important}';
+        document.head.appendChild(style);
+    }
+
     function init() {
         restoreTheme();
         generateDemoAssignments();
+        initHolidayCursor();
 
         // ツールバーにビュー切替ボタンを注入
         injectViewToggle();
