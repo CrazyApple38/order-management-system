@@ -75,6 +75,9 @@
         expandedCompanies: new Set()
     };
 
+    // サイドバーメインタブ: 'employee' | 'vehicle'
+    var wsSidebarMainTab = 'employee';
+
     // ==========================================================
     // 日付ユーティリティ
     // ==========================================================
@@ -513,7 +516,8 @@
                             cell.appendChild(chip);
                         });
 
-                        // 車両チップ（この現場・日付・シフトに配置された車両）
+                        // 車両配置ゾーン（セル下部）
+                        var vZone = el('div', 'md-ws-vehicle-zone');
                         var va = vehicleAssignments[dk];
                         if (va && va[shift] && va[shift][site.id]) {
                             var vehicleId = va[shift][site.id];
@@ -531,10 +535,35 @@
                                             renderSidebar();
                                         });
                                     })(vehicleId, site.id, dk, shift);
+                                    // 車両チップD&D（セル間移動）
+                                    vChip.draggable = true;
+                                    (function (vid, sid, dkk, sh) {
+                                        vChip.addEventListener('dragstart', function (e) {
+                                            e.stopPropagation();
+                                            e.dataTransfer.setData('text/plain', JSON.stringify({
+                                                type: 'move-vehicle',
+                                                vehicleId: vid,
+                                                fromSiteId: sid,
+                                                fromDate: dkk,
+                                                fromShift: sh
+                                            }));
+                                            e.dataTransfer.effectAllowed = 'move';
+                                            vChip.classList.add('md-ws-dragging');
+                                            activateDragMode(dkk);
+                                        });
+                                        vChip.addEventListener('dragend', function () {
+                                            vChip.classList.remove('md-ws-dragging');
+                                            deactivateDragMode();
+                                        });
+                                    })(vehicleId, site.id, dk, shift);
                                 }
-                                cell.appendChild(vChip);
+                                vZone.appendChild(vChip);
                             }
+                        } else {
+                            vZone.classList.add('md-ws-vz-empty');
+                            vZone.textContent = '\ud83d\ude97';
                         }
+                        cell.appendChild(vZone);
 
                         // セルクリック（B案）
                         if (!isPast) {
@@ -900,6 +929,11 @@
         } else if (data.type === 'move-emp') {
             removeAssignment(data.empIndex, data.fromDate, data.fromShift, data.fromSiteId);
             addAssignment(data.empIndex, date, shift, siteId);
+        } else if (data.type === 'sidebar-vehicle') {
+            addVehicleAssignment(date, shift, siteId, data.vehicleId);
+        } else if (data.type === 'move-vehicle') {
+            removeVehicleAssignment(data.fromDate, data.fromShift, data.fromSiteId);
+            addVehicleAssignment(date, shift, siteId, data.vehicleId);
         }
 
         deactivateDragMode();
@@ -939,52 +973,99 @@
     // ==========================================================
 
     function renderSidebar() {
-        if (selectedCell) {
-            if (viewMode === 'site') {
-                renderSidebarAssignEmployee();
-            } else {
-                renderSidebarAssignSite();
-            }
+        if (viewMode === 'site') {
+            renderSidebarSiteMode();
         } else {
-            if (viewMode === 'site') {
-                renderSidebarEmployeeOverview();
+            if (selectedCell) {
+                renderSidebarAssignSite();
             } else {
                 renderSidebarSiteOverview();
             }
         }
     }
 
-    // --- 現場軸ビュー + セル選択 → 社員候補表示 ---
-    function renderSidebarAssignEmployee() {
+    // --- 現場軸ビュー統合サイドバー（メインタブ対応） ---
+    function renderSidebarSiteMode() {
         var sidebar = document.querySelector('.md-ws-sidebar');
         if (!sidebar) return;
-
-        var sc = selectedCell;
-        var site = findSite(sc.siteId);
-        var d = parseDate(sc.date);
-        var mm = d.getMonth() + 1;
-        var dd = d.getDate();
-        var dow = getDaysOfWeek()[d.getDay()];
-        var shiftLabel = sc.shift === 'day' ? '\u663c' : '\u591c';
-
         sidebar.innerHTML = '';
 
-        // ヘッダー
-        var header = el('div', 'md-ws-sidebar-assign-header');
-        header.innerHTML = '\u914d\u7f6e\u30e2\u30fc\u30c9';
-        var closeBtn = el('button', 'md-ws-assign-close', '\u00d7');
-        closeBtn.addEventListener('click', function () { deselectCell(); });
-        header.appendChild(closeBtn);
-        sidebar.appendChild(header);
+        // ヘッダー（選択状態で分岐）
+        if (selectedCell) {
+            var sc = selectedCell;
+            var site = findSite(sc.siteId);
+            var d = parseDate(sc.date);
+            var mm = d.getMonth() + 1;
+            var dd = d.getDate();
+            var dow = getDaysOfWeek()[d.getDay()];
+            var shiftLabel = sc.shift === 'day' ? '\u663c' : '\u591c';
 
-        // 情報
-        var info = el('div', 'md-ws-sidebar-assign-info');
-        info.innerHTML = '<strong>' + (site ? site.name : '') + '</strong><br>' +
-            mm + '/' + dd + '(' + dow + ') ' + shiftLabel +
-            (site ? ' \u2014 \u53d7\u6ce8: ' + (site.orders[sc.shift] || 0) + '\u540d' : '');
-        sidebar.appendChild(info);
+            var header = el('div', 'md-ws-sidebar-assign-header');
+            header.innerHTML = '\u914d\u7f6e\u30e2\u30fc\u30c9';
+            var closeBtn = el('button', 'md-ws-assign-close', '\u00d7');
+            closeBtn.addEventListener('click', function () { deselectCell(); });
+            header.appendChild(closeBtn);
+            sidebar.appendChild(header);
 
-        // 候補リスト
+            var info = el('div', 'md-ws-sidebar-assign-info');
+            info.innerHTML = '<strong>' + (site ? site.name : '') + '</strong><br>' +
+                mm + '/' + dd + '(' + dow + ') ' + shiftLabel +
+                (site ? ' \u2014 \u53d7\u6ce8: ' + (site.orders[sc.shift] || 0) + '\u540d' : '');
+            sidebar.appendChild(info);
+        } else {
+            var d2 = parseDate(selectedDate);
+            var mm2 = d2.getMonth() + 1;
+            var dd2 = d2.getDate();
+            var dow2 = getDaysOfWeek()[d2.getDay()];
+
+            var header2 = el('div', 'md-ws-sidebar-header');
+            header2.innerHTML =
+                '<img src="mockup/icons/calendar.svg" alt="" style="width:16px;height:16px;filter:brightness(10);">' +
+                '<span class="md-ws-sidebar-date">' + mm2 + '\u6708' + dd2 + '\u65e5</span>' +
+                '<span class="md-ws-sidebar-dow">(' + dow2 + ')</span>' +
+                '<span style="flex:1;"></span>' +
+                '<span class="md-ws-employee-count" id="wsEmpCount"></span>';
+            sidebar.appendChild(header2);
+        }
+
+        // メインタブ（社員/車両）
+        var mainTabs = el('div', 'md-ws-main-tabs');
+        var empTab = el('div', 'md-ws-main-tab' + (wsSidebarMainTab === 'employee' ? ' active' : ''));
+        empTab.innerHTML = '<img src="mockup/icons/person.svg" alt="" style="width:12px;height:12px;"> \u793e\u54e1';
+        empTab.dataset.mainTab = 'employee';
+        empTab.addEventListener('click', function () { wsSwitchMainTab('employee'); });
+        var vehTab = el('div', 'md-ws-main-tab' + (wsSidebarMainTab === 'vehicle' ? ' active' : ''));
+        vehTab.innerHTML = '\ud83d\ude97 \u8eca\u4e21';
+        vehTab.dataset.mainTab = 'vehicle';
+        vehTab.addEventListener('click', function () { wsSwitchMainTab('vehicle'); });
+        mainTabs.appendChild(empTab);
+        mainTabs.appendChild(vehTab);
+        sidebar.appendChild(mainTabs);
+
+        // タブ別コンテンツ
+        if (wsSidebarMainTab === 'employee') {
+            if (selectedCell) {
+                renderAssignEmployeeContent(sidebar);
+            } else {
+                renderEmployeeOverviewContent(sidebar);
+            }
+        } else {
+            if (selectedCell) {
+                renderVehicleCandidatesContent(sidebar);
+            } else {
+                renderVehicleOverviewContent(sidebar);
+            }
+        }
+    }
+
+    function wsSwitchMainTab(tab) {
+        wsSidebarMainTab = tab;
+        renderSidebar();
+    }
+
+    // --- 社員候補リスト（配置モード・コンテンツのみ） ---
+    function renderAssignEmployeeContent(sidebar) {
+        var sc = selectedCell;
         var list = el('div', 'md-ws-candidate-list');
         var groups = buildEmployeeGroups();
         var currentAssigned = getAssignedEmployees(sc.siteId, sc.date, sc.shift);
@@ -1007,7 +1088,6 @@
                     dot.classList.add('md-ws-dot-assigned');
                     status.textContent = '\u914d\u7f6e\u6e08';
                     item.classList.add('md-ws-candidate-assigned');
-                    // クリックで解除
                     item.addEventListener('click', function () {
                         removeAssignment(emp.index, sc.date, sc.shift, sc.siteId);
                         renderGrid();
@@ -1028,7 +1108,6 @@
                     });
                     status.textContent = truncate(busySiteNames.join(', '), 15);
                     item.title = '\u4ed6\u73fe\u5834\u914d\u7f6e\u6e08\uff08\u30af\u30ea\u30c3\u30af\u3067\u8ffd\u52a0\u914d\u7f6e\uff09';
-                    // busy でも配置可能（掛け持ち）
                     item.addEventListener('click', function () {
                         addAssignment(emp.index, sc.date, sc.shift, sc.siteId);
                         renderGrid();
@@ -1070,12 +1149,12 @@
         });
 
         sidebar.appendChild(list);
+    }
 
-        // 車両リスト
-        var vLabel = el('div', 'md-ws-vehicle-list-label', '\ud83d\ude97 車両');
-        sidebar.appendChild(vLabel);
-
-        var vList = el('div', 'md-ws-candidate-list');
+    // --- 車両候補リスト（配置モード・車両タブ） ---
+    function renderVehicleCandidatesContent(sidebar) {
+        var sc = selectedCell;
+        var list = el('div', 'md-ws-candidate-list');
         var currentVa = vehicleAssignments[sc.date];
         var currentVehicleId = (currentVa && currentVa[sc.shift]) ? currentVa[sc.shift][sc.siteId] : null;
 
@@ -1087,7 +1166,6 @@
 
             var isAssignedHere = currentVehicleId === v.id;
 
-            // この車両が同日・同シフトで他の現場に配置されているか確認
             var busySiteId = null;
             if (currentVa && currentVa[sc.shift]) {
                 Object.keys(currentVa[sc.shift]).forEach(function (sid) {
@@ -1099,10 +1177,10 @@
 
             if (isAssignedHere) {
                 dot.classList.add('md-ws-dot-assigned');
-                status.textContent = '配置済';
+                status.textContent = '\u914d\u7f6e\u6e08';
                 item.classList.add('md-ws-candidate-assigned');
                 item.style.cursor = 'pointer';
-                item.title = 'クリックで解除';
+                item.title = '\u30af\u30ea\u30c3\u30af\u3067\u89e3\u9664';
                 item.addEventListener('click', function () {
                     removeVehicleAssignment(sc.date, sc.shift, sc.siteId);
                     renderGrid();
@@ -1111,10 +1189,16 @@
             } else if (busySiteId) {
                 dot.classList.add('md-ws-dot-busy');
                 var busySite = findSite(busySiteId);
-                status.textContent = busySite ? truncate(busySite.name, 10) : '使用中';
+                status.textContent = busySite ? truncate(busySite.name, 10) : '\u4f7f\u7528\u4e2d';
+                item.title = '\u4ed6\u73fe\u5834\u3067\u4f7f\u7528\u4e2d';
+                item.addEventListener('click', function () {
+                    addVehicleAssignment(sc.date, sc.shift, sc.siteId, v.id);
+                    renderGrid();
+                    renderSidebar();
+                });
             } else {
                 dot.classList.add('md-ws-dot-available');
-                status.textContent = '空き';
+                status.textContent = '\u7a7a\u304d';
                 item.addEventListener('click', function () {
                     addVehicleAssignment(sc.date, sc.shift, sc.siteId, v.id);
                     renderGrid();
@@ -1122,13 +1206,31 @@
                 });
             }
 
+            // D&D対応（サイドバーからグリッドへ）
+            if (!isAssignedHere) {
+                item.draggable = true;
+                item.addEventListener('dragstart', function (e) {
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        type: 'sidebar-vehicle',
+                        vehicleId: v.id
+                    }));
+                    e.dataTransfer.effectAllowed = 'copy';
+                    item.style.opacity = '0.5';
+                    activateDragMode(sc.date);
+                });
+                item.addEventListener('dragend', function () {
+                    item.style.opacity = '';
+                    deactivateDragMode();
+                });
+            }
+
             item.appendChild(dot);
             item.appendChild(nameSpan);
             item.appendChild(status);
-            vList.appendChild(item);
+            list.appendChild(item);
         });
 
-        sidebar.appendChild(vList);
+        sidebar.appendChild(list);
     }
 
     // --- 社員軸ビュー + セル選択 → 現場候補表示 ---
@@ -1250,27 +1352,8 @@
         return ids;
     }
 
-    function renderSidebarEmployeeOverview() {
-        var sidebar = document.querySelector('.md-ws-sidebar');
-        if (!sidebar) return;
-
-        var d = parseDate(selectedDate);
-        var mm = d.getMonth() + 1;
-        var dd = d.getDate();
-        var dow = getDaysOfWeek()[d.getDay()];
-
-        sidebar.innerHTML = '';
-
-        // ヘッダー
-        var header = el('div', 'md-ws-sidebar-header');
-        header.innerHTML =
-            '<img src="mockup/icons/calendar.svg" alt="" style="width:16px;height:16px;filter:brightness(10);">' +
-            '<span class="md-ws-sidebar-date">' + mm + '\u6708' + dd + '\u65e5</span>' +
-            '<span class="md-ws-sidebar-dow">(' + dow + ')</span>' +
-            '<span style="flex:1;"></span>' +
-            '<span class="md-ws-employee-count" id="wsEmpCount"></span>';
-        sidebar.appendChild(header);
-
+    // --- 社員概要コンテンツ（縦タブ+バッジ） ---
+    function renderEmployeeOverviewContent(sidebar) {
         // パネル（縦タブ + バッジコンテンツ）
         var panel = el('div', 'md-ws-sidebar-panel');
 
@@ -1338,7 +1421,6 @@
         }
 
         if (wsEmpTab.activeTab === 'all') {
-            // 会社別グループ表示
             visibleCompanies.forEach(function (gc) {
                 var companyEmps = filtered.filter(function (emp) { return emp.company === gc.code; });
                 if (companyEmps.length === 0) return;
@@ -1365,6 +1447,74 @@
                 ? '\u5168' + total + '\u540d'
                 : filtered.length + '/' + total + '\u540d';
         }
+    }
+
+    // --- 車両概要コンテンツ（非選択・車両タブ） ---
+    function renderVehicleOverviewContent(sidebar) {
+        var overview = el('div', 'md-ws-vehicle-overview');
+
+        // 配置済み車両を収集（選択日・全シフト）
+        var assignedVehicleIds = new Set();
+        var va = vehicleAssignments[selectedDate];
+        if (va) {
+            ['day', 'night'].forEach(function (sh) {
+                if (va[sh]) {
+                    Object.keys(va[sh]).forEach(function (sid) {
+                        assignedVehicleIds.add(va[sh][sid]);
+                    });
+                }
+            });
+        }
+
+        // 会社別グループ表示
+        var gcNames = { touo: '\u6771\u592e\u8b66\u5099', nikkei: 'Nikkei', zennihon: 'AJE' };
+        var gcOrder = ['touo', 'nikkei', 'zennihon'];
+
+        gcOrder.forEach(function (gc) {
+            var companyVehicles = wsVehiclesData.filter(function (v) { return v.owner === gc; });
+            if (companyVehicles.length === 0) return;
+
+            var sectionLabel = el('div', 'md-ws-gc-section-label', gcNames[gc] || gc);
+            overview.appendChild(sectionLabel);
+
+            companyVehicles.forEach(function (v) {
+                var tag = el('span', 'md-ws-vehicle-tag');
+                var plateSpan = document.createTextNode(v.plate + ' ');
+                tag.appendChild(plateSpan);
+                var modelSpan = el('span', 'md-ws-vt-model', v.model);
+                tag.appendChild(modelSpan);
+
+                if (assignedVehicleIds.has(v.id)) {
+                    tag.classList.add('md-ws-tag-assigned');
+                }
+
+                // D&D対応
+                tag.draggable = true;
+                tag.addEventListener('dragstart', function (e) {
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        type: 'sidebar-vehicle',
+                        vehicleId: v.id
+                    }));
+                    e.dataTransfer.effectAllowed = 'copy';
+                    tag.style.opacity = '0.5';
+                    activateDragMode(selectedDate);
+                });
+                tag.addEventListener('dragend', function () {
+                    tag.style.opacity = '';
+                    deactivateDragMode();
+                });
+
+                overview.appendChild(tag);
+            });
+        });
+
+        // 車両数カウント
+        var countEl = sidebar.querySelector('.md-ws-employee-count');
+        if (countEl) {
+            countEl.textContent = '\u5168' + wsVehiclesData.length + '\u53f0';
+        }
+
+        sidebar.appendChild(overview);
     }
 
     // 社員バッジ要素を生成
@@ -1404,7 +1554,7 @@
     // サイドバータブ切替
     function wsSelectTab(tabId) {
         wsEmpTab.activeTab = tabId;
-        renderSidebarEmployeeOverview();
+        renderSidebar();
     }
 
     function wsToggleCompany(gcCode) {
@@ -1428,7 +1578,7 @@
                 wsEmpTab.activeTab = 'all';
             }
         }
-        renderSidebarEmployeeOverview();
+        renderSidebar();
     }
 
     // --- 社員軸ビュー + 非選択 → 現場概要（既存相当） ---
@@ -1736,6 +1886,8 @@
 
         // グリッド外クリックで選択解除
         document.addEventListener('click', function (e) {
+            // DOM再構築でターゲットが切断済みの場合は無視（タブ切替等）
+            if (!e.target.isConnected) return;
             if (selectedCell && !e.target.closest('.md-ws-cell') &&
                 !e.target.closest('.md-ws-sidebar') &&
                 !e.target.closest('.md-ws-candidate-item')) {

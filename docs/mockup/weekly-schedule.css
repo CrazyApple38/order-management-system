@@ -1224,3 +1224,120 @@ body {
 .md-ws-cell.md-ws-clickable:hover {
     background: rgba(68, 166, 181, 0.06);
 }
+
+/* ============================================================
+   サイドバーメインタブ（社員/車両切替）
+   ============================================================ */
+.md-ws-main-tabs {
+    display: flex;
+    background: var(--bg-surface-2);
+    border-bottom: 2px solid var(--divider);
+    flex-shrink: 0;
+}
+.md-ws-main-tab {
+    flex: 1;
+    padding: 7px 0;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.md-ws-main-tab:hover {
+    color: var(--text-secondary);
+    background: var(--accent-dim);
+}
+.md-ws-main-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: var(--bg-surface);
+}
+.md-ws-main-tab img {
+    width: 12px;
+    height: 12px;
+    opacity: 0.6;
+}
+.md-ws-main-tab.active img {
+    opacity: 1;
+}
+
+/* ============================================================
+   車両配置ゾーン（セル内下部）
+   ============================================================ */
+.md-ws-vehicle-zone {
+    border-top: 1px dashed var(--divider);
+    margin-top: 2px;
+    padding-top: 2px;
+    min-height: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    align-items: center;
+}
+.md-ws-vehicle-zone.md-ws-vz-empty {
+    justify-content: center;
+    opacity: 0.3;
+    font-size: 9px;
+}
+.md-ws-cell.md-ws-drag-over .md-ws-vehicle-zone {
+    background: rgba(56, 161, 105, 0.08);
+    border-top-color: var(--success);
+}
+
+/* ============================================================
+   車両バッジ（サイドバー車両タブ内）
+   ============================================================ */
+.md-ws-vehicle-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    margin: 3px;
+    background: var(--bg-surface-2);
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: grab;
+    transition: all 0.2s;
+    user-select: none;
+    color: var(--text-primary);
+}
+.md-ws-vehicle-tag:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+.md-ws-vehicle-tag:active {
+    cursor: grabbing;
+}
+.md-ws-vehicle-tag .md-ws-vt-model {
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+.md-ws-vehicle-tag:hover .md-ws-vt-model {
+    color: rgba(255, 255, 255, 0.8);
+}
+.md-ws-vehicle-tag.md-ws-tag-assigned {
+    background: var(--success-bg);
+    border-color: rgba(56, 161, 105, 0.3);
+    color: var(--success-text);
+}
+.md-ws-vehicle-tag.md-ws-tag-assigned .md-ws-vt-model {
+    color: var(--success-text);
+    opacity: 0.7;
+}
+
+/* 車両概要パネル */
+.md-ws-vehicle-overview {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+}
