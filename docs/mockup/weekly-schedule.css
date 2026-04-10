@@ -404,6 +404,62 @@ body {
 .md-ws-cell.md-ws-today-col {
     background: rgba(68, 166, 181, 0.06);
 }
+/* 今日カラム左境界線（過去と現在の境目） */
+.md-ws-cell.md-ws-today-col.md-ws-day-col,
+.md-ws-date-header.md-ws-today,
+.md-ws-shift-header.md-ws-today-shift-border {
+    border-left: 3px solid var(--accent) !important;
+}
+
+/* ============================================================
+   過去日グレーアウト
+   ============================================================ */
+/* 日付ヘッダー */
+.md-ws-date-header.md-ws-past {
+    background: rgba(0, 0, 0, 0.12) !important;
+    color: rgba(255, 255, 255, 0.6);
+}
+[data-theme="dark"] .md-ws-date-header.md-ws-past {
+    background: rgba(0, 0, 0, 0.3) !important;
+    color: rgba(255, 255, 255, 0.35);
+}
+/* シフトヘッダー */
+.md-ws-shift-header.md-ws-past {
+    background: var(--bg-surface-2);
+    color: var(--text-disabled);
+}
+/* データセル */
+.md-ws-cell.md-ws-past-col {
+    background: rgba(0, 0, 0, 0.04) !important;
+    cursor: not-allowed !important;
+}
+.md-ws-cell.md-ws-past-col.md-ws-night-col {
+    background: rgba(0, 0, 0, 0.06) !important;
+}
+[data-theme="dark"] .md-ws-cell.md-ws-past-col {
+    background: rgba(0, 0, 0, 0.15) !important;
+}
+[data-theme="dark"] .md-ws-cell.md-ws-past-col.md-ws-night-col {
+    background: rgba(0, 0, 0, 0.2) !important;
+}
+/* 過去セル内チップの彩度を落とす */
+.md-ws-cell.md-ws-past-col .md-ws-emp-chip,
+.md-ws-cell.md-ws-past-col .md-ws-site-chip,
+.md-ws-cell.md-ws-past-col .md-ws-vehicle-chip,
+.md-ws-cell.md-ws-past-col .md-ws-vehicle-zone,
+.md-ws-cell.md-ws-past-col .md-ws-staff-indicator {
+    filter: saturate(0.3) opacity(0.7);
+    pointer-events: none;
+}
+/* 過去セルのホバー無効化 */
+.md-ws-cell.md-ws-past-col.md-ws-clickable:hover {
+    background: rgba(0, 0, 0, 0.04) !important;
+}
+/* 休み行の過去セル */
+.md-ws-cell.md-ws-holiday-row-cell.md-ws-past-col .md-ws-holiday-emp-chip {
+    filter: saturate(0.3) opacity(0.6);
+    pointer-events: none;
+}
 
 /* グループ会社背景（データセル） */
 .md-ws-cell.md-ws-gc-touo      { /* default white */ }
