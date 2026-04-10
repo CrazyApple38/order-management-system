@@ -450,28 +450,48 @@
 
                         // 受注人数がないシフトはスキップ表示
                         var orders = site.orders[shift] || 0;
+                        var assignedEmps = getAssignedEmployees(site.id, dk, shift);
+
+                        // 人数インジケーター（セル上部に表示）
+                        if (orders > 0) {
+                            var indicator = el('div', 'md-ws-staff-indicator');
+                            if (assignedEmps.length < orders) {
+                                indicator.classList.add('md-ws-staff-short');
+                            } else if (assignedEmps.length > orders) {
+                                indicator.classList.add('md-ws-staff-over');
+                            } else {
+                                indicator.classList.add('md-ws-staff-ok');
+                            }
+                            indicator.textContent = assignedEmps.length + '/' + orders;
+                            cell.appendChild(indicator);
+                        }
 
                         // 配置済み社員チップ
-                        var assignedEmps = getAssignedEmployees(site.id, dk, shift);
                         assignedEmps.forEach(function (empIdx) {
                             var emp = employeesData[empIdx];
                             if (!emp) return;
                             var chipCls = 'md-ws-emp-chip';
                             if (shift === 'night') chipCls += ' md-ws-night-chip';
                             var chip = el('div', chipCls);
-                            chip.textContent = emp.name;
                             chip.dataset.empIndex = empIdx;
                             chip.title = emp.name;
 
-                            // チップクリックで解除（過去は不可）
+                            var nameSpan = document.createElement('span');
+                            nameSpan.textContent = emp.name;
+                            chip.appendChild(nameSpan);
+
+                            // ×ボタン（ホバーで表示）
                             if (!isPast) {
-                                chip.addEventListener('click', function (e) {
+                                var removeBtn = el('span', 'md-ws-chip-remove', '\u00d7');
+                                removeBtn.addEventListener('click', function (e) {
                                     e.stopPropagation();
                                     removeAssignment(empIdx, dk, shift, site.id);
                                     renderGrid();
                                     renderSidebar();
                                 });
-                                // D&D対応
+                                chip.appendChild(removeBtn);
+
+                                // D&D対応（社員チップを別セルへ移動）
                                 chip.draggable = true;
                                 chip.addEventListener('dragstart', function (e) {
                                     e.dataTransfer.setData('text/plain', JSON.stringify({
@@ -514,25 +534,6 @@
                                 }
                                 cell.appendChild(vChip);
                             }
-                        }
-
-                        // 人数インジケーター（受注あり現場のみ）
-                        if (orders > 0) {
-                            var indicator = el('div', 'md-ws-staff-indicator');
-                            indicator.style.fontSize = '9px';
-                            indicator.style.marginTop = '1px';
-                            indicator.style.textAlign = 'center';
-                            if (assignedEmps.length < orders) {
-                                indicator.classList.add('md-ws-staff-short');
-                                indicator.textContent = assignedEmps.length + '/' + orders;
-                            } else if (assignedEmps.length > orders) {
-                                indicator.classList.add('md-ws-staff-over');
-                                indicator.textContent = assignedEmps.length + '/' + orders;
-                            } else {
-                                indicator.classList.add('md-ws-staff-ok');
-                                indicator.textContent = assignedEmps.length + '/' + orders;
-                            }
-                            cell.appendChild(indicator);
                         }
 
                         // セルクリック（B案）

@@ -1195,13 +1195,23 @@ body {
 .md-ws-emp-chip.md-ws-night-chip:hover {
     border-color: var(--error);
 }
-/* 配置済み解除ボタン */
+/* 配置済み解除ボタン（ホバーで表示） */
+.md-ws-emp-chip {
+    position: relative;
+}
 .md-ws-emp-chip .md-ws-chip-remove {
     display: none;
-    margin-left: 2px;
-    font-size: 10px;
+    margin-left: 3px;
+    font-size: 12px;
+    font-weight: 700;
     color: var(--error);
     cursor: pointer;
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity 0.1s;
+}
+.md-ws-emp-chip .md-ws-chip-remove:hover {
+    opacity: 1;
 }
 .md-ws-emp-chip:hover .md-ws-chip-remove {
     display: inline;
