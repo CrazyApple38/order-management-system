@@ -445,7 +445,7 @@
             hNameCell.textContent = '\u4f11\u307f';
             grid.appendChild(hNameCell);
 
-            // 各日付×シフトセル
+            // 各日付×シフトセル（バッジは昼セルのみ、夜セルは空）
             dates.forEach(function (d, di) {
                 var dk = formatDateKey(d);
                 var holidayEmps = getHolidayEmployees(dk);
@@ -469,50 +469,58 @@
                     cell.style.gridRow = currentRow;
                     cell.style.gridColumn = colIdx;
 
-                    holidayEmps.forEach(function (empIdx) {
-                        var emp = employeesData[empIdx];
-                        if (!emp) return;
-                        var chip = el('div', 'md-ws-holiday-emp-chip md-ws-holiday-cursor');
-                        chip.dataset.empIndex = empIdx;
+                    // 昼セルのみにバッジ表示
+                    if (shift === 'day') {
+                        holidayEmps.forEach(function (empIdx) {
+                            var emp = employeesData[empIdx];
+                            if (!emp) return;
+                            var chip = el('div', 'md-ws-holiday-emp-chip md-ws-holiday-cursor');
+                            chip.dataset.empIndex = empIdx;
 
-                        var nameSpan = el('span', '', emp.name);
-                        chip.appendChild(nameSpan);
+                            var nameSpan = el('span', '', emp.name);
+                            chip.appendChild(nameSpan);
 
-                        // 配置済みチェック
-                        var assignedSites = getAssignedSites(empIdx, dk, shift);
-                        if (assignedSites.length > 0) {
-                            chip.classList.add('md-ws-holiday-assigned');
-                            var siteNames = assignedSites.map(function (sid) {
-                                var s = findSite(sid);
-                                return s ? truncate(s.name, 6) : '';
-                            });
-                            var assignInfo = el('span', 'md-ws-holiday-assign-info', '\u2192 ' + siteNames.join(', '));
-                            chip.appendChild(assignInfo);
-                        }
-
-                        // D&D（同日の現場セルへ）
-                        if (!isPast) {
-                            chip.draggable = true;
-                            (function (idx, dateKey) {
-                                chip.addEventListener('dragstart', function (e) {
-                                    e.dataTransfer.setData('text/plain', JSON.stringify({
-                                        type: 'sidebar-emp',
-                                        empIndex: idx
-                                    }));
-                                    e.dataTransfer.effectAllowed = 'copy';
-                                    chip.style.opacity = '0.5';
-                                    dragSourceDate = dateKey;
-                                    activateDragMode(dateKey);
+                            // 配置済みチェック（昼夜両方の配置先を表示）
+                            var daySites = getAssignedSites(empIdx, dk, 'day');
+                            var nightSites = getAssignedSites(empIdx, dk, 'night');
+                            var allSites = daySites.concat(nightSites);
+                            if (allSites.length > 0) {
+                                chip.classList.add('md-ws-holiday-assigned');
+                                var siteNames = [];
+                                var seen = {};
+                                allSites.forEach(function (sid) {
+                                    if (seen[sid]) return;
+                                    seen[sid] = true;
+                                    var s = findSite(sid);
+                                    if (s) siteNames.push(truncate(s.name, 6));
                                 });
-                                chip.addEventListener('dragend', function () {
-                                    chip.style.opacity = '';
-                                    deactivateDragMode();
-                                });
-                            })(empIdx, dk);
-                        }
+                                var assignInfo = el('span', 'md-ws-holiday-assign-info', '\u2192 ' + siteNames.join(', '));
+                                chip.appendChild(assignInfo);
+                            }
 
-                        cell.appendChild(chip);
-                    });
+                            // D&D（任意の現場セルへ移動可能）
+                            if (!isPast) {
+                                chip.draggable = true;
+                                (function (idx, dateKey) {
+                                    chip.addEventListener('dragstart', function (e) {
+                                        e.dataTransfer.setData('text/plain', JSON.stringify({
+                                            type: 'sidebar-emp',
+                                            empIndex: idx
+                                        }));
+                                        e.dataTransfer.effectAllowed = 'copy';
+                                        chip.style.opacity = '0.5';
+                                        activateDragMode(dateKey);
+                                    });
+                                    chip.addEventListener('dragend', function () {
+                                        chip.style.opacity = '';
+                                        deactivateDragMode();
+                                    });
+                                })(empIdx, dk);
+                            }
+
+                            cell.appendChild(chip);
+                        });
+                    }
 
                     grid.appendChild(cell);
                 });
