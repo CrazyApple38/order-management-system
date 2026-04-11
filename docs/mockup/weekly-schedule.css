@@ -1399,6 +1399,28 @@ body {
 }
 
 /* ============================================================
+   笑い男フローティング（休みチップD&D中）
+   ============================================================ */
+.md-ws-drag-float {
+    position: fixed;
+    z-index: 99999;
+    pointer-events: none;
+    white-space: nowrap;
+}
+.md-ws-drag-float-lm {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.25));
+    animation: md-ws-lm-pop 0.3s ease-out;
+}
+@keyframes md-ws-lm-pop {
+    0% { transform: scale(0.3); opacity: 0; }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================================
    休み行（グリッド最上部）
    ============================================================ */
 /* 休みグループヘッダー */

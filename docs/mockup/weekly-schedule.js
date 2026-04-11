@@ -505,24 +505,26 @@
                                 chip.appendChild(assignInfo);
                             }
 
-                            // D&D（任意の現場セルへ移動可能）
+                            // D&D（任意の現場セルへ移動可能 + 笑い男イースターエッグ）
                             if (!isPast) {
                                 chip.draggable = true;
-                                (function (idx, dateKey) {
-                                    chip.addEventListener('dragstart', function (e) {
+                                (function (idx, dateKey, chipRef) {
+                                    chipRef.addEventListener('dragstart', function (e) {
                                         e.dataTransfer.setData('text/plain', JSON.stringify({
                                             type: 'sidebar-emp',
                                             empIndex: idx
                                         }));
                                         e.dataTransfer.effectAllowed = 'copy';
-                                        chip.style.opacity = '0.5';
+                                        chipRef.style.opacity = '0.5';
+                                        lmStartDrag(e, chipRef);
                                         activateDragMode(dateKey);
                                     });
-                                    chip.addEventListener('dragend', function () {
-                                        chip.style.opacity = '';
+                                    chipRef.addEventListener('dragend', function () {
+                                        chipRef.style.opacity = '';
+                                        lmEndDrag();
                                         deactivateDragMode();
                                     });
-                                })(empIdx, dk);
+                                })(empIdx, dk, chip);
                             }
 
                             cell.appendChild(chip);
@@ -1032,6 +1034,55 @@
         grid.querySelectorAll('.md-ws-col-highlighted').forEach(function (el) {
             el.classList.remove('md-ws-col-highlighted');
         });
+    }
+
+    // ==========================================================
+    // 笑い男イースターエッグ（休みチップ長押しドラッグ）
+    // ==========================================================
+    var lmTimer = null;
+    var lmFloat = null;
+    var lmActive = false;
+
+    function lmStartDrag(e, chipEl) {
+        lmEndDrag();
+        // デフォルトゴーストを透明に差し替え
+        var blank = document.createElement('canvas');
+        blank.width = 1; blank.height = 1;
+        e.dataTransfer.setDragImage(blank, 0, 0);
+
+        // チップクローンのフローティング要素
+        lmFloat = document.createElement('div');
+        lmFloat.className = 'md-ws-drag-float';
+        var clone = chipEl.cloneNode(true);
+        clone.style.opacity = '1';
+        clone.classList.remove('md-ws-holiday-assigned');
+        lmFloat.appendChild(clone);
+        document.body.appendChild(lmFloat);
+
+        // 1秒後に笑い男に変身
+        lmTimer = setTimeout(function () {
+            if (!lmFloat) return;
+            lmFloat.innerHTML = '';
+            lmFloat.classList.add('md-ws-drag-float-lm');
+            var img = document.createElement('img');
+            img.src = 'image/laughing_man.svg';
+            img.style.cssText = 'width:64px;height:64px;display:block;';
+            lmFloat.appendChild(img);
+            lmActive = true;
+        }, 1000);
+    }
+
+    function lmEndDrag() {
+        if (lmTimer) { clearTimeout(lmTimer); lmTimer = null; }
+        if (lmFloat) { lmFloat.remove(); lmFloat = null; }
+        lmActive = false;
+    }
+
+    function lmUpdatePos(x, y) {
+        if (!lmFloat) return;
+        var offset = lmActive ? 32 : 8;
+        lmFloat.style.left = (x + 12) + 'px';
+        lmFloat.style.top = (y - offset) + 'px';
     }
 
     function onCellDragOver(e) {
@@ -2037,6 +2088,11 @@
         if (prevBtn) prevBtn.addEventListener('click', prevWeek);
         if (nextBtn) nextBtn.addEventListener('click', nextWeek);
         if (todayBtn) todayBtn.addEventListener('click', goToday);
+
+        // 笑い男フローティング位置追従
+        document.addEventListener('dragover', function (e) {
+            lmUpdatePos(e.clientX, e.clientY);
+        });
 
         // Escキーで選択解除
         document.addEventListener('keydown', function (e) {
