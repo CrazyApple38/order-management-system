@@ -1067,7 +1067,7 @@
             lmActive = true;
             // カーソル非表示（mouseベースなので確実に効く）
             document.documentElement.classList.add('md-ws-lm-active');
-        }, 1000);
+        }, 2000);
 
         document.addEventListener('mousemove', lmOnMouseMove);
         document.addEventListener('mouseup', lmOnMouseUp);
