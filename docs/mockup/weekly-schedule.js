@@ -1062,7 +1062,7 @@
             lmFloat.classList.add('md-ws-drag-float-lm');
             var img = document.createElement('img');
             img.src = 'image/laughing_man.svg';
-            img.style.cssText = 'width:56px;height:56px;display:block;';
+            img.style.cssText = 'width:64px;height:64px;display:block;';
             lmFloat.appendChild(img);
             lmActive = true;
             // カーソル非表示（mouseベースなので確実に効く）
@@ -1150,8 +1150,8 @@
     function lmUpdatePos(x, y) {
         if (!lmFloat) return;
         if (lmActive) {
-            lmFloat.style.left = (x - 28) + 'px';
-            lmFloat.style.top = (y - 28) + 'px';
+            lmFloat.style.left = (x - 32) + 'px';
+            lmFloat.style.top = (y - 32) + 'px';
         } else {
             lmFloat.style.left = (x + 12) + 'px';
             lmFloat.style.top = (y - 8) + 'px';
