@@ -505,24 +505,13 @@
                                 chip.appendChild(assignInfo);
                             }
 
-                            // D&D（任意の現場セルへ移動可能 + 笑い男イースターエッグ）
+                            // カスタムD&D（笑い男カーソル対応・mouseベース）
                             if (!isPast) {
-                                chip.draggable = true;
+                                chip.style.cursor = 'grab';
                                 (function (idx, dateKey, chipRef) {
-                                    chipRef.addEventListener('dragstart', function (e) {
-                                        e.dataTransfer.setData('text/plain', JSON.stringify({
-                                            type: 'sidebar-emp',
-                                            empIndex: idx
-                                        }));
-                                        e.dataTransfer.effectAllowed = 'copy';
-                                        chipRef.style.opacity = '0.5';
-                                        lmStartDrag(e, chipRef);
-                                        activateDragMode(dateKey);
-                                    });
-                                    chipRef.addEventListener('dragend', function () {
-                                        chipRef.style.opacity = '';
-                                        lmEndDrag();
-                                        deactivateDragMode();
+                                    chipRef.addEventListener('mousedown', function (e) {
+                                        if (e.button !== 0) return;
+                                        lmStartCustomDrag(e, chipRef, idx, dateKey);
                                     });
                                 })(empIdx, dk, chip);
                             }
@@ -1037,18 +1026,21 @@
     }
 
     // ==========================================================
-    // 笑い男イースターエッグ（休みチップ長押しドラッグ）
+    // 笑い男カスタムドラッグ（休みチップ専用・mouseベース）
+    // ネイティブD&Dではブラウザがカーソルを制御するため、
+    // mouse イベントで独自実装しカーソルを完全制御する
     // ==========================================================
     var lmTimer = null;
     var lmFloat = null;
     var lmActive = false;
+    var lmDragData = null;
 
-    function lmStartDrag(e, chipEl) {
+    function lmStartCustomDrag(e, chipEl, empIndex, dateKey) {
+        e.preventDefault();
         lmEndDrag();
-        // デフォルトゴーストを透明に差し替え
-        var blank = document.createElement('canvas');
-        blank.width = 1; blank.height = 1;
-        e.dataTransfer.setDragImage(blank, 0, 0);
+
+        lmDragData = { empIndex: empIndex, dateKey: dateKey, chipEl: chipEl };
+        chipEl.style.opacity = '0.5';
 
         // チップクローンのフローティング要素
         lmFloat = document.createElement('div');
@@ -1058,8 +1050,12 @@
         clone.classList.remove('md-ws-holiday-assigned');
         lmFloat.appendChild(clone);
         document.body.appendChild(lmFloat);
+        lmUpdatePos(e.clientX, e.clientY);
 
-        // 1秒後に笑い男に変身（カーソルを置き換え）
+        // カラムハイライト
+        activateDragMode(dateKey);
+
+        // 1秒後に笑い男に変身
         lmTimer = setTimeout(function () {
             if (!lmFloat) return;
             lmFloat.innerHTML = '';
@@ -1069,26 +1065,94 @@
             img.style.cssText = 'width:64px;height:64px;display:block;';
             lmFloat.appendChild(img);
             lmActive = true;
-            // ブラウザカーソルを非表示
+            // カーソル非表示（mouseベースなので確実に効く）
             document.documentElement.classList.add('md-ws-lm-active');
         }, 1000);
+
+        document.addEventListener('mousemove', lmOnMouseMove);
+        document.addEventListener('mouseup', lmOnMouseUp);
+    }
+
+    function lmOnMouseMove(e) {
+        lmUpdatePos(e.clientX, e.clientY);
+
+        // ドロップ先ハイライト
+        document.querySelectorAll('.md-ws-cell.md-ws-drag-over').forEach(function (c) {
+            c.classList.remove('md-ws-drag-over');
+        });
+        var target = document.elementFromPoint(e.clientX, e.clientY);
+        if (target) {
+            var cell = target.closest('.md-ws-cell[data-site-id]');
+            if (cell && !cell.classList.contains('md-ws-past-col')) {
+                cell.classList.add('md-ws-drag-over');
+                // カラムハイライト追従
+                var cellDate = cell.dataset.date;
+                if (cellDate && cellDate !== dragTargetDate) {
+                    var grid = document.getElementById('wsGrid');
+                    if (grid) {
+                        grid.querySelectorAll('.md-ws-col-highlighted').forEach(function (el) {
+                            el.classList.remove('md-ws-col-highlighted');
+                        });
+                        grid.querySelectorAll('[data-date="' + cellDate + '"]').forEach(function (el) {
+                            el.classList.add('md-ws-col-highlighted');
+                        });
+                        dragTargetDate = cellDate;
+                    }
+                }
+            }
+        }
+    }
+
+    function lmOnMouseUp(e) {
+        document.removeEventListener('mousemove', lmOnMouseMove);
+        document.removeEventListener('mouseup', lmOnMouseUp);
+
+        // ドロップ先を判定（lmFloatはpointer-events:noneなので透過）
+        var target = document.elementFromPoint(e.clientX, e.clientY);
+        var dropped = false;
+        if (target && lmDragData) {
+            var cell = target.closest('.md-ws-cell[data-site-id]');
+            if (cell && !cell.classList.contains('md-ws-past-col')) {
+                var siteId = cell.dataset.siteId;
+                var date = cell.dataset.date;
+                var shift = cell.dataset.shift;
+                if (siteId && date && shift) {
+                    addAssignment(lmDragData.empIndex, date, shift, siteId);
+                    dropped = true;
+                }
+            }
+        }
+
+        // ハイライト除去
+        document.querySelectorAll('.md-ws-cell.md-ws-drag-over').forEach(function (c) {
+            c.classList.remove('md-ws-drag-over');
+        });
+
+        lmEndDrag();
+        deactivateDragMode();
+        if (dropped) {
+            renderGrid();
+            renderSidebar();
+        }
     }
 
     function lmEndDrag() {
         if (lmTimer) { clearTimeout(lmTimer); lmTimer = null; }
         if (lmFloat) { lmFloat.remove(); lmFloat = null; }
+        if (lmDragData && lmDragData.chipEl) {
+            lmDragData.chipEl.style.opacity = '';
+        }
         lmActive = false;
+        lmDragData = null;
         document.documentElement.classList.remove('md-ws-lm-active');
     }
 
     function lmUpdatePos(x, y) {
         if (!lmFloat) return;
         if (lmActive) {
-            // 笑い男: カーソル位置に中央揃え（カーソル代替）
             lmFloat.style.left = (x - 32) + 'px';
             lmFloat.style.top = (y - 32) + 'px';
         } else {
-            // チップクローン: カーソルの少し右下
             lmFloat.style.left = (x + 12) + 'px';
             lmFloat.style.top = (y - 8) + 'px';
         }
@@ -2097,11 +2161,6 @@
         if (prevBtn) prevBtn.addEventListener('click', prevWeek);
         if (nextBtn) nextBtn.addEventListener('click', nextWeek);
         if (todayBtn) todayBtn.addEventListener('click', goToday);
-
-        // 笑い男フローティング位置追従
-        document.addEventListener('dragover', function (e) {
-            lmUpdatePos(e.clientX, e.clientY);
-        });
 
         // Escキーで選択解除
         document.addEventListener('keydown', function (e) {
