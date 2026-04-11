@@ -1407,6 +1407,11 @@ body {
     pointer-events: none;
     white-space: nowrap;
 }
+/* 笑い男変身時：ブラウザカーソルを非表示 */
+.md-ws-lm-active,
+.md-ws-lm-active * {
+    cursor: none !important;
+}
 .md-ws-drag-float-lm {
     width: 64px;
     height: 64px;

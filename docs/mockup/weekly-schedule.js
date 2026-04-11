@@ -1059,7 +1059,7 @@
         lmFloat.appendChild(clone);
         document.body.appendChild(lmFloat);
 
-        // 1秒後に笑い男に変身
+        // 1秒後に笑い男に変身（カーソルを置き換え）
         lmTimer = setTimeout(function () {
             if (!lmFloat) return;
             lmFloat.innerHTML = '';
@@ -1069,6 +1069,8 @@
             img.style.cssText = 'width:64px;height:64px;display:block;';
             lmFloat.appendChild(img);
             lmActive = true;
+            // ブラウザカーソルを非表示
+            document.documentElement.classList.add('md-ws-lm-active');
         }, 1000);
     }
 
@@ -1076,13 +1078,20 @@
         if (lmTimer) { clearTimeout(lmTimer); lmTimer = null; }
         if (lmFloat) { lmFloat.remove(); lmFloat = null; }
         lmActive = false;
+        document.documentElement.classList.remove('md-ws-lm-active');
     }
 
     function lmUpdatePos(x, y) {
         if (!lmFloat) return;
-        var offset = lmActive ? 32 : 8;
-        lmFloat.style.left = (x + 12) + 'px';
-        lmFloat.style.top = (y - offset) + 'px';
+        if (lmActive) {
+            // 笑い男: カーソル位置に中央揃え（カーソル代替）
+            lmFloat.style.left = (x - 32) + 'px';
+            lmFloat.style.top = (y - 32) + 'px';
+        } else {
+            // チップクローン: カーソルの少し右下
+            lmFloat.style.left = (x + 12) + 'px';
+            lmFloat.style.top = (y - 8) + 'px';
+        }
     }
 
     function onCellDragOver(e) {
