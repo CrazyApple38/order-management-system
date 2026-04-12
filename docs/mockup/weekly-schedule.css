@@ -459,9 +459,13 @@ body {
 .md-ws-cell.md-ws-past-col.md-ws-clickable:hover {
     background: #4A8E9C !important;
 }
-/* 休み行の過去セル */
+/* 休み行の過去セル — 背景を暗くしてバッジとのコントラスト確保 */
+.md-ws-cell.md-ws-holiday-row-cell.md-ws-past-col {
+    background: #3A7A88 !important;
+}
 .md-ws-cell.md-ws-holiday-row-cell.md-ws-past-col .md-ws-holiday-emp-chip {
-    filter: opacity(0.75);
+    filter: none;
+    opacity: 1;
     pointer-events: none;
 }
 
