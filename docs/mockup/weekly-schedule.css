@@ -1227,10 +1227,9 @@ body {
 
 /* 曜日ミニバッジ共通 */
 .md-ws-dow-badges {
-    display: flex;
+    display: inline-grid;
+    grid-template-columns: repeat(3, min-content);
     gap: 2px;
-    flex-wrap: wrap;
-    max-width: 54px;
 }
 .md-ws-dow-badge {
     font-size: 9px;
