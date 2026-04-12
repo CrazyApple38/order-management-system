@@ -661,7 +661,7 @@
                             var vehicleId = va[shift][site.id];
                             var vehicle = findVehicle(vehicleId);
                             if (vehicle) {
-                                var vChip = el('div', 'md-ws-vehicle-chip', '\ud83d\ude97 ' + truncate(vehicle.plate, 8));
+                                var vChip = el('div', 'md-ws-vehicle-chip', truncate(vehicle.plate, 8));
                                 vChip.title = vehicle.plate + ' ' + vehicle.model;
                                 if (!isPast) {
                                     vChip.style.cursor = 'pointer';
@@ -700,7 +700,7 @@
                             }
                         } else {
                             vZone.classList.add('md-ws-vz-empty');
-                            vZone.textContent = '\ud83d\ude97';
+                            vZone.textContent = '';
                         }
                         cell.appendChild(vZone);
 
@@ -1309,11 +1309,11 @@
         // メインタブ（社員/車両）
         var mainTabs = el('div', 'md-ws-main-tabs');
         var empTab = el('div', 'md-ws-main-tab' + (wsSidebarMainTab === 'employee' ? ' active' : ''));
-        empTab.innerHTML = '<img src="mockup/icons/person.svg" alt="" style="width:12px;height:12px;"> \u793e\u54e1';
+        empTab.innerHTML = '\u793e\u54e1';
         empTab.dataset.mainTab = 'employee';
         empTab.addEventListener('click', function () { wsSwitchMainTab('employee'); });
         var vehTab = el('div', 'md-ws-main-tab' + (wsSidebarMainTab === 'vehicle' ? ' active' : ''));
-        vehTab.innerHTML = '\ud83d\ude97 \u8eca\u4e21';
+        vehTab.innerHTML = '\u8eca\u4e21';
         vehTab.dataset.mainTab = 'vehicle';
         vehTab.addEventListener('click', function () { wsSwitchMainTab('vehicle'); });
         mainTabs.appendChild(empTab);
