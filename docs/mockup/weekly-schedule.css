@@ -585,8 +585,8 @@ body {
    サイドバー
    ============================================================ */
 .md-ws-sidebar {
-    width: 280px;
-    min-width: 280px;
+    width: 340px;
+    min-width: 340px;
     background: var(--bg-surface);
     border-left: 2px solid var(--secondary);
     display: flex;
