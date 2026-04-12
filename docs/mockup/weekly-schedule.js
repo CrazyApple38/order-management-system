@@ -613,7 +613,8 @@
                             var vehicle = findVehicle(vid);
                             if (!vehicle) return;
                             var chip = el('div', 'md-ws-maint-vehicle-chip');
-                            chip.textContent = vehicle.plate + ' ' + vehicle.model;
+                            chip.textContent = vehicle.plate;
+                            chip.title = vehicle.plate + ' ' + vehicle.model;
 
                             // 配置済みチェック
                             var assignedSites = [];
@@ -1043,7 +1044,7 @@
     // B案: セル選択 → サイドパネルで配置
     // ==========================================================
 
-    function selectCellSiteView(siteId, date, shift) {
+    function selectCellSiteView(siteId, date, shift, keepTab) {
         // 同じセルの再クリックで解除
         if (selectedCell && selectedCell.siteId === siteId &&
             selectedCell.date === date && selectedCell.shift === shift) {
@@ -1052,11 +1053,12 @@
         }
         selectedCell = { siteId: siteId, date: date, shift: shift };
         selectedDate = date;
+        if (!keepTab) wsSidebarMainTab = 'employee';
         applySelectionHighlight();
         renderSidebar();
     }
 
-    function selectCellEmployeeView(empIndex, date, shift) {
+    function selectCellEmployeeView(empIndex, date, shift, keepTab) {
         if (selectedCell && selectedCell.empIndex === empIndex &&
             selectedCell.date === date && selectedCell.shift === shift) {
             deselectCell();
@@ -1064,12 +1066,14 @@
         }
         selectedCell = { empIndex: empIndex, date: date, shift: shift };
         selectedDate = date;
+        if (!keepTab) wsSidebarMainTab = 'employee';
         applySelectionHighlight();
         renderSidebar();
     }
 
     function deselectCell() {
         selectedCell = null;
+        wsSidebarMainTab = 'employee';
         removeSelectionHighlight();
         renderSidebar();
     }
@@ -1455,9 +1459,9 @@
                 prev.setDate(prev.getDate() - 1);
                 var prevKey = formatDateKey(prev);
                 if (viewMode === 'site') {
-                    selectCellSiteView(sc.siteId, prevKey, sc.shift);
+                    selectCellSiteView(sc.siteId, prevKey, sc.shift, true);
                 } else {
-                    selectCellEmployeeView(sc.empIndex, prevKey, sc.shift);
+                    selectCellEmployeeView(sc.empIndex, prevKey, sc.shift, true);
                 }
             });
 
@@ -1477,9 +1481,9 @@
                 next.setDate(next.getDate() + 1);
                 var nextKey = formatDateKey(next);
                 if (viewMode === 'site') {
-                    selectCellSiteView(sc.siteId, nextKey, sc.shift);
+                    selectCellSiteView(sc.siteId, nextKey, sc.shift, true);
                 } else {
-                    selectCellEmployeeView(sc.empIndex, nextKey, sc.shift);
+                    selectCellEmployeeView(sc.empIndex, nextKey, sc.shift, true);
                 }
             });
 
@@ -2435,6 +2439,7 @@
     function switchView(mode) {
         if (viewMode === mode) return;
         viewMode = mode;
+        wsSidebarMainTab = 'employee';
         deselectCell();
         collapsedGroups = {};
 
