@@ -1164,6 +1164,13 @@ body {
     overflow-y: auto;
     padding: 8px;
     min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    align-content: start;
+}
+.md-ws-badge-content .md-ws-gc-section-label {
+    grid-column: 1 / -1;
 }
 
 /* 会社セクション見出し（「すべて」タブ時） */
