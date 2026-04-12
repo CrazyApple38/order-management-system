@@ -1332,17 +1332,8 @@
                 (site ? ' \u2014 \u53d7\u6ce8: ' + (site.orders[sc.shift] || 0) + '\u540d' : '');
             sidebar.appendChild(info);
         } else {
-            var d2 = parseDate(selectedDate);
-            var mm2 = d2.getMonth() + 1;
-            var dd2 = d2.getDate();
-            var dow2 = getDaysOfWeek()[d2.getDay()];
-
             var header2 = el('div', 'md-ws-sidebar-header');
             header2.innerHTML =
-                '<img src="mockup/icons/calendar.svg" alt="" style="width:16px;height:16px;filter:brightness(10);">' +
-                '<span class="md-ws-sidebar-date">' + mm2 + '\u6708' + dd2 + '\u65e5</span>' +
-                '<span class="md-ws-sidebar-dow">(' + dow2 + ')</span>' +
-                '<span style="flex:1;"></span>' +
                 '<span class="md-ws-employee-count" id="wsEmpCount"></span>';
             sidebar.appendChild(header2);
         }
@@ -1773,18 +1764,29 @@
     function renderVehicleOverviewContent(sidebar) {
         var overview = el('div', 'md-ws-vehicle-overview');
 
-        // 配置済み車両を収集（選択日・全シフト）
-        var assignedVehicleIds = new Set();
-        var va = vehicleAssignments[selectedDate];
-        if (va) {
-            ['day', 'night'].forEach(function (sh) {
-                if (va[sh]) {
-                    Object.keys(va[sh]).forEach(function (sid) {
-                        assignedVehicleIds.add(va[sh][sid]);
-                    });
-                }
-            });
-        }
+        // 全表示日の配置状況を車両ごとに収集
+        var dates = getVisibleDates();
+        var dowLabels = getDaysOfWeek();
+        var vehicleAssignedDows = {}; // vehicleId -> [曜日]
+
+        dates.forEach(function (d) {
+            var dk = formatDateKey(d);
+            var dow = dowLabels[d.getDay()];
+            var va = vehicleAssignments[dk];
+            if (va) {
+                ['day', 'night'].forEach(function (sh) {
+                    if (va[sh]) {
+                        Object.keys(va[sh]).forEach(function (sid) {
+                            var vid = va[sh][sid];
+                            if (!vehicleAssignedDows[vid]) vehicleAssignedDows[vid] = [];
+                            if (vehicleAssignedDows[vid].indexOf(dow) < 0) {
+                                vehicleAssignedDows[vid].push(dow);
+                            }
+                        });
+                    }
+                });
+            }
+        });
 
         // 会社別グループ表示
         var gcNames = { touo: '\u6771\u592e\u8b66\u5099', nikkei: 'Nikkei', zennihon: 'AJE' };
@@ -1799,13 +1801,22 @@
 
             companyVehicles.forEach(function (v) {
                 var tag = el('span', 'md-ws-vehicle-tag');
+                var infoRow = el('span', 'md-ws-vehicle-info');
                 var plateSpan = document.createTextNode(v.plate + ' ');
-                tag.appendChild(plateSpan);
+                infoRow.appendChild(plateSpan);
                 var modelSpan = el('span', 'md-ws-vt-model', v.model);
-                tag.appendChild(modelSpan);
+                infoRow.appendChild(modelSpan);
+                tag.appendChild(infoRow);
 
-                if (assignedVehicleIds.has(v.id)) {
-                    tag.classList.add('md-ws-tag-assigned');
+                // 曜日ミニバッジ
+                var dows = vehicleAssignedDows[v.id] || [];
+                if (dows.length > 0) {
+                    var dowRow = el('span', 'md-ws-dow-badges');
+                    dows.forEach(function (dow) {
+                        var badge = el('span', 'md-ws-dow-badge', dow);
+                        dowRow.appendChild(badge);
+                    });
+                    tag.appendChild(dowRow);
                 }
 
                 // D&D対応
@@ -1817,7 +1828,7 @@
                     }));
                     e.dataTransfer.effectAllowed = 'copy';
                     tag.style.opacity = '0.5';
-                    activateDragMode(selectedDate);
+                    activateDragMode(null);
                 });
                 tag.addEventListener('dragend', function () {
                     tag.style.opacity = '';
@@ -1839,19 +1850,53 @@
 
     // 社員バッジ要素を生成
     function createEmpBadge(emp) {
-        var tag = el('span', 'md-ws-emp-tag', emp.name);
-        var isOnHoliday = isEmployeeOnHoliday(emp.index, selectedDate);
-        var daySites = getAssignedSites(emp.index, selectedDate, 'day');
-        var nightSites = getAssignedSites(emp.index, selectedDate, 'night');
+        var tag = el('span', 'md-ws-emp-tag');
+        var nameSpan = el('span', 'md-ws-emp-name', emp.name);
+        tag.appendChild(nameSpan);
 
-        if (isOnHoliday) {
+        // 全表示日の配置・休み状況を収集
+        var dates = getVisibleDates();
+        var dowLabels = getDaysOfWeek();
+        var assignedDows = [];
+        var holidayDows = [];
+        var allHoliday = true;
+
+        dates.forEach(function (d) {
+            var dk = formatDateKey(d);
+            var dow = dowLabels[d.getDay()];
+            if (isEmployeeOnHoliday(emp.index, dk)) {
+                holidayDows.push(dow);
+            } else {
+                allHoliday = false;
+                var daySites = getAssignedSites(emp.index, dk, 'day');
+                var nightSites = getAssignedSites(emp.index, dk, 'night');
+                if (daySites.length > 0 || nightSites.length > 0) {
+                    assignedDows.push(dow);
+                }
+            }
+        });
+
+        // 全日休みなら休みスタイル
+        if (allHoliday && holidayDows.length > 0) {
             tag.classList.add('md-ws-tag-holiday');
-        } else if (daySites.length > 0 || nightSites.length > 0) {
-            tag.classList.add('md-ws-tag-assigned');
         }
 
-        // D&D対応
-        if (!isOnHoliday) {
+        // 曜日ミニバッジを表示
+        if (assignedDows.length > 0 || holidayDows.length > 0) {
+            var dowRow = el('span', 'md-ws-dow-badges');
+            assignedDows.forEach(function (dow) {
+                var badge = el('span', 'md-ws-dow-badge', dow);
+                dowRow.appendChild(badge);
+            });
+            holidayDows.forEach(function (dow) {
+                var badge = el('span', 'md-ws-dow-badge md-ws-dow-holiday', dow);
+                dowRow.appendChild(badge);
+            });
+            tag.appendChild(dowRow);
+        }
+
+        // D&D対応（全日休みでなければドラッグ可能）
+        if (!allHoliday) {
             tag.draggable = true;
             tag.addEventListener('dragstart', function (e) {
                 e.dataTransfer.setData('text/plain', JSON.stringify({
@@ -1861,7 +1906,7 @@
                 e.dataTransfer.effectAllowed = 'copy';
                 tag.style.opacity = '0.5';
                 dragEmpIndex = emp.index;
-                activateDragMode(selectedDate);
+                activateDragMode(null);
             });
             tag.addEventListener('dragend', function () {
                 tag.style.opacity = '';

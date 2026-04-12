@@ -1181,7 +1181,10 @@ body {
 
 /* 社員バッジ（ピル型） */
 .md-ws-emp-tag {
-    display: inline-block;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
     padding: 5px 10px;
     margin: 3px;
     background: var(--bg-surface-2);
@@ -1198,19 +1201,47 @@ body {
     color: white;
     border-color: var(--accent);
 }
+.md-ws-emp-tag:hover .md-ws-dow-badge {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+}
+.md-ws-emp-tag:hover .md-ws-dow-badge.md-ws-dow-holiday {
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.6);
+}
 .md-ws-emp-tag:active {
     cursor: grabbing;
-}
-.md-ws-emp-tag.md-ws-tag-assigned {
-    background: var(--success-bg);
-    border-color: rgba(56, 161, 105, 0.3);
-    color: var(--success-text);
 }
 .md-ws-emp-tag.md-ws-tag-holiday {
     opacity: 0.4;
     cursor: default;
     pointer-events: none;
+}
+.md-ws-emp-tag.md-ws-tag-holiday .md-ws-emp-name {
     text-decoration: line-through;
+}
+
+/* 曜日ミニバッジ共通 */
+.md-ws-dow-badges {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.md-ws-dow-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 0 4px;
+    border-radius: 3px;
+    line-height: 16px;
+    background: var(--success-bg);
+    color: var(--success-text);
+}
+.md-ws-dow-badge.md-ws-dow-holiday {
+    background: var(--error-bg);
+    color: var(--error);
+    font-weight: 600;
+    opacity: 0.7;
 }
 
 /* 社員数カウント */
@@ -1361,8 +1392,9 @@ body {
    ============================================================ */
 .md-ws-vehicle-tag {
     display: inline-flex;
+    flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     padding: 5px 10px;
     margin: 3px;
     background: var(--bg-surface-2);
@@ -1374,10 +1406,19 @@ body {
     user-select: none;
     color: var(--text-primary);
 }
+.md-ws-vehicle-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
 .md-ws-vehicle-tag:hover {
     background: var(--accent);
     color: white;
     border-color: var(--accent);
+}
+.md-ws-vehicle-tag:hover .md-ws-dow-badge {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
 }
 .md-ws-vehicle-tag:active {
     cursor: grabbing;
@@ -1388,15 +1429,6 @@ body {
 }
 .md-ws-vehicle-tag:hover .md-ws-vt-model {
     color: rgba(255, 255, 255, 0.8);
-}
-.md-ws-vehicle-tag.md-ws-tag-assigned {
-    background: var(--success-bg);
-    border-color: rgba(56, 161, 105, 0.3);
-    color: var(--success-text);
-}
-.md-ws-vehicle-tag.md-ws-tag-assigned .md-ws-vt-model {
-    color: var(--success-text);
-    opacity: 0.7;
 }
 
 /* 車両概要パネル */
