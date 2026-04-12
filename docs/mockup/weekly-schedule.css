@@ -412,52 +412,56 @@ body {
 }
 
 /* ============================================================
-   過去日グレーアウト
+   過去日スタイリング（Moonstone系カラー）
    ============================================================ */
-/* 日付ヘッダー */
+/* 日付ヘッダー — Deep Moonstone 暗め */
 .md-ws-date-header.md-ws-past {
-    background: rgba(0, 0, 0, 0.12) !important;
-    color: rgba(255, 255, 255, 0.6);
+    background: #1B4A55 !important;
+    color: rgba(255, 255, 255, 0.9);
 }
 [data-theme="dark"] .md-ws-date-header.md-ws-past {
-    background: rgba(0, 0, 0, 0.3) !important;
-    color: rgba(255, 255, 255, 0.35);
+    background: #0F2E36 !important;
+    color: rgba(255, 255, 255, 0.7);
 }
-/* シフトヘッダー */
+/* シフトヘッダー — Deep Moonstone */
 .md-ws-shift-header.md-ws-past {
-    background: var(--bg-surface-2);
-    color: var(--text-disabled);
+    background: #2A6B7A;
+    color: #FFFFFF;
 }
-/* データセル */
+[data-theme="dark"] .md-ws-shift-header.md-ws-past {
+    background: #1B4A55;
+    color: rgba(255, 255, 255, 0.85);
+}
+/* データセル — Moonstone 暗色ベース */
 .md-ws-cell.md-ws-past-col {
-    background: rgba(0, 0, 0, 0.04) !important;
+    background: #4A8E9C !important;
     cursor: not-allowed !important;
 }
 .md-ws-cell.md-ws-past-col.md-ws-night-col {
-    background: rgba(0, 0, 0, 0.06) !important;
+    background: #357480 !important;
 }
 [data-theme="dark"] .md-ws-cell.md-ws-past-col {
-    background: rgba(0, 0, 0, 0.15) !important;
+    background: #183840 !important;
 }
 [data-theme="dark"] .md-ws-cell.md-ws-past-col.md-ws-night-col {
-    background: rgba(0, 0, 0, 0.2) !important;
+    background: #112E36 !important;
 }
-/* 過去セル内チップの彩度を落とす */
+/* 過去セル内チップ — 彩度維持、透明度のみ軽く落とす */
 .md-ws-cell.md-ws-past-col .md-ws-emp-chip,
 .md-ws-cell.md-ws-past-col .md-ws-site-chip,
 .md-ws-cell.md-ws-past-col .md-ws-vehicle-chip,
 .md-ws-cell.md-ws-past-col .md-ws-vehicle-zone,
 .md-ws-cell.md-ws-past-col .md-ws-staff-indicator {
-    filter: saturate(0.3) opacity(0.7);
+    filter: opacity(0.85);
     pointer-events: none;
 }
 /* 過去セルのホバー無効化 */
 .md-ws-cell.md-ws-past-col.md-ws-clickable:hover {
-    background: rgba(0, 0, 0, 0.04) !important;
+    background: #4A8E9C !important;
 }
 /* 休み行の過去セル */
 .md-ws-cell.md-ws-holiday-row-cell.md-ws-past-col .md-ws-holiday-emp-chip {
-    filter: saturate(0.3) opacity(0.6);
+    filter: opacity(0.75);
     pointer-events: none;
 }
 
