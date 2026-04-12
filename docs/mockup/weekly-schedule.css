@@ -340,12 +340,25 @@ body {
     font-size: 12px;
     font-weight: 600;
     color: var(--text-primary);
-    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
     display: flex;
     align-items: center;
     min-height: 36px;
+}
+.md-ws-name-client {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-tertiary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.3;
+}
+.md-ws-name-site {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.3;
 }
 .md-ws-name-cell.md-ws-gc-touo      { background: var(--md-gc-bg-touo); }
 .md-ws-name-cell.md-ws-gc-nikkei    { background: var(--md-gc-bg-nikkei); }

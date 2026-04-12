@@ -552,9 +552,10 @@
                 if (isCollapsed) nameCell.classList.add('md-ws-row-hidden');
                 nameCell.style.gridRow = currentRow;
                 nameCell.style.gridColumn = '1';
-                nameCell.title = site.name + ' (' + site.company + ')';
-                nameCell.innerHTML = '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;">' +
-                    truncate(site.name, 12) + '</span>';
+                nameCell.title = site.company + ' / ' + site.name;
+                nameCell.innerHTML = '<span style="flex:1;min-width:0;display:flex;flex-direction:column;"><span class="md-ws-name-client">' +
+                    truncate(site.company, 14) + '</span><span class="md-ws-name-site">' +
+                    truncate(site.name, 12) + '</span></span>';
                 grid.appendChild(nameCell);
 
                 // 各日付×シフトセル
@@ -1327,7 +1328,7 @@
             sidebar.appendChild(header);
 
             var info = el('div', 'md-ws-sidebar-assign-info');
-            info.innerHTML = '<strong>' + (site ? site.name : '') + '</strong><br>' +
+            info.innerHTML = '<strong>' + (site ? site.company + ' / ' + site.name : '') + '</strong><br>' +
                 mm + '/' + dd + '(' + dow + ') ' + shiftLabel +
                 (site ? ' \u2014 \u53d7\u6ce8: ' + (site.orders[sc.shift] || 0) + '\u540d' : '');
             sidebar.appendChild(info);
