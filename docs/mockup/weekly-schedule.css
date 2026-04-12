@@ -1716,6 +1716,14 @@ body {
     background: rgba(222, 204, 190, 0.08) !important;
     border-bottom: 2px solid #DECCBE;
 }
+.md-ws-cell.md-ws-maint-row-cell.md-ws-past-col {
+    background: #3A7A88 !important;
+}
+.md-ws-cell.md-ws-maint-row-cell.md-ws-past-col .md-ws-maint-vehicle-chip {
+    filter: none;
+    opacity: 1;
+    pointer-events: none;
+}
 .md-ws-maint-vehicle-chip {
     font-size: 10px;
     font-weight: 600;
