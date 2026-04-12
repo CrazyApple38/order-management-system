@@ -69,6 +69,7 @@
     var dragActive = false;
     var dragTargetDate = null;
     var dragSourceDate = null;   // セル起点D&D時の元日付（同日限定用）
+    var dragEmpIndex = null;     // ドラッグ中の社員インデックス（休みチェック用）
 
     // サイドバー社員タブ状態
     var wsEmpTab = {
@@ -644,6 +645,7 @@
                                     e.dataTransfer.effectAllowed = 'move';
                                     chip.classList.add('md-ws-dragging');
                                     dragSourceDate = dk;
+                                    dragEmpIndex = empIdx;
                                     activateDragMode(dk);
                                 });
                                 chip.addEventListener('dragend', function () {
@@ -1017,12 +1019,35 @@
         dragActive = false;
         dragTargetDate = null;
         dragSourceDate = null;
+        dragEmpIndex = null;
+        hideHolidayFloat();
         var grid = document.getElementById('wsGrid');
         if (!grid) return;
         grid.classList.remove('md-ws-drag-active');
         grid.querySelectorAll('.md-ws-col-highlighted').forEach(function (el) {
             el.classList.remove('md-ws-col-highlighted');
         });
+    }
+
+    // --- ドラッグ中「休み」フロート ---
+    var holidayFloat = null;
+
+    function showHolidayFloat(x, y) {
+        if (!holidayFloat) {
+            holidayFloat = document.createElement('div');
+            holidayFloat.className = 'md-ws-holiday-drag-float';
+            holidayFloat.textContent = '\u4f11\u307f';
+            document.body.appendChild(holidayFloat);
+        }
+        holidayFloat.style.left = (x + 14) + 'px';
+        holidayFloat.style.top = (y + 14) + 'px';
+        holidayFloat.style.display = '';
+    }
+
+    function hideHolidayFloat() {
+        if (holidayFloat) {
+            holidayFloat.style.display = 'none';
+        }
     }
 
     // ==========================================================
@@ -1084,19 +1109,27 @@
         if (target) {
             var cell = target.closest('.md-ws-cell[data-site-id]');
             if (cell && !cell.classList.contains('md-ws-past-col')) {
-                cell.classList.add('md-ws-drag-over');
+                // 休みチェック：禁止カーソル切替
+                var cellDateLm = cell.dataset.date;
+                if (lmDragData && cellDateLm && isEmployeeOnHoliday(lmDragData.empIndex, cellDateLm)) {
+                    if (lmFloat) lmFloat.classList.add('md-ws-holiday-cursor');
+                    showHolidayFloat(e.clientX, e.clientY);
+                } else {
+                    cell.classList.add('md-ws-drag-over');
+                    if (lmFloat) lmFloat.classList.remove('md-ws-holiday-cursor');
+                    hideHolidayFloat();
+                }
                 // カラムハイライト追従
-                var cellDate = cell.dataset.date;
-                if (cellDate && cellDate !== dragTargetDate) {
+                if (cellDateLm && cellDateLm !== dragTargetDate) {
                     var grid = document.getElementById('wsGrid');
                     if (grid) {
                         grid.querySelectorAll('.md-ws-col-highlighted').forEach(function (el) {
                             el.classList.remove('md-ws-col-highlighted');
                         });
-                        grid.querySelectorAll('[data-date="' + cellDate + '"]').forEach(function (el) {
+                        grid.querySelectorAll('[data-date="' + cellDateLm + '"]').forEach(function (el) {
                             el.classList.add('md-ws-col-highlighted');
                         });
-                        dragTargetDate = cellDate;
+                        dragTargetDate = cellDateLm;
                     }
                 }
             }
@@ -1164,6 +1197,13 @@
         // セル起点D&Dは同日限定
         if (dragSourceDate && cellDate !== dragSourceDate) return;
 
+        // 社員ドラッグ中：ドロップ先日付で休みなら「休み」フロート表示
+        if (dragEmpIndex !== null && isEmployeeOnHoliday(dragEmpIndex, cellDate)) {
+            showHolidayFloat(e.clientX, e.clientY);
+        } else {
+            hideHolidayFloat();
+        }
+
         e.preventDefault();
         e.dataTransfer.dropEffect = dragSourceDate ? 'move' : 'copy';
         e.currentTarget.classList.add('md-ws-drag-over');
@@ -1185,6 +1225,7 @@
 
     function onCellDragLeave(e) {
         e.currentTarget.classList.remove('md-ws-drag-over');
+        hideHolidayFloat();
     }
 
     // 現場軸ビュー用ドロップ
@@ -1411,6 +1452,7 @@
                         }));
                         e.dataTransfer.effectAllowed = 'copy';
                         item.style.opacity = '0.5';
+                        dragEmpIndex = emp.index;
                         activateDragMode(sc.date);
                     });
                     item.addEventListener('dragend', function () {
@@ -1818,6 +1860,7 @@
                 }));
                 e.dataTransfer.effectAllowed = 'copy';
                 tag.style.opacity = '0.5';
+                dragEmpIndex = emp.index;
                 activateDragMode(selectedDate);
             });
             tag.addEventListener('dragend', function () {

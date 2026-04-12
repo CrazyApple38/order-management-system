@@ -1433,6 +1433,22 @@ body {
     100% { transform: scale(1); opacity: 1; }
 }
 
+/* --- ドラッグ中「休み」フロート（ネイティブD&D用） --- */
+.md-ws-holiday-drag-float {
+    position: fixed;
+    z-index: 100000;
+    pointer-events: none;
+    background: #DB577B;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: system-ui, sans-serif;
+    padding: 2px 8px;
+    border-radius: 4px;
+    opacity: 0.92;
+    white-space: nowrap;
+}
+
 /* ============================================================
    休み行（グリッド最上部）
    ============================================================ */
