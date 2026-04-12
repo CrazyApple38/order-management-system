@@ -1165,7 +1165,7 @@ body {
     padding: 8px;
     min-width: 0;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, max-content);
     gap: 0;
     align-content: start;
 }
@@ -1235,7 +1235,7 @@ body {
 /* 曜日ミニバッジ共通 */
 .md-ws-dow-badges {
     display: inline-grid;
-    grid-template-columns: repeat(3, min-content);
+    grid-template-columns: repeat(4, min-content);
     gap: 2px;
 }
 .md-ws-dow-badge {
