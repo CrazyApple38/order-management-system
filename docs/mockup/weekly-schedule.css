@@ -1679,8 +1679,8 @@ body {
 }
 .md-ws-holiday-assign-info {
     font-size: 8px;
-    color: var(--text-disabled);
-    font-weight: 400;
+    color: var(--text-secondary);
+    font-weight: 500;
 }
 
 /* ============================================================
