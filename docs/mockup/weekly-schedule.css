@@ -1691,3 +1691,65 @@ body {
 .md-ws-emp-chip.md-ws-emp-holiday:hover {
     border-color: var(--error);
 }
+
+/* ============================================================
+   修理/点検行
+   ============================================================ */
+.md-ws-group-row.md-ws-maint-group-header {
+    background: rgba(222, 204, 190, 0.15) !important;
+    border-bottom-color: #DECCBE;
+}
+.md-ws-maint-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: #DECCBE;
+    color: #5C4A33;
+}
+.md-ws-name-cell.md-ws-maint-name {
+    color: #5C4A33;
+    font-weight: 700;
+    font-size: 12px;
+}
+.md-ws-cell.md-ws-maint-row-cell {
+    background: rgba(222, 204, 190, 0.08) !important;
+    border-bottom: 2px solid #DECCBE;
+}
+.md-ws-maint-vehicle-chip {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: rgba(222, 204, 190, 0.25);
+    color: #5C4A33;
+    border: 1px solid rgba(222, 204, 190, 0.40);
+    margin-bottom: 2px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+.md-ws-maint-vehicle-chip.md-ws-maint-assigned {
+    opacity: 0.5;
+    background: var(--bg-surface-2);
+    border-color: var(--divider);
+    color: var(--text-tertiary);
+}
+.md-ws-maint-assign-info {
+    font-size: 8px;
+    color: var(--text-disabled);
+    font-weight: 400;
+}
+
+/* 配置モード — 修理/点検中車両バッジ（警告枠） */
+.md-ws-vehicle-tag.md-ws-tag-maintenance {
+    border: 2px dashed #DECCBE;
+    background: rgba(222, 204, 190, 0.15);
+}
+.md-ws-vehicle-tag.md-ws-tag-maintenance::after {
+    content: '\26a0';
+    font-size: 10px;
+    color: #5C4A33;
+    margin-left: 2px;
+}

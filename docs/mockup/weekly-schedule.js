@@ -46,6 +46,7 @@
     var assignments = {};
     var vehicleAssignments = {};
     var holidays = {};
+    var vehicleMaintenance = {}; // vehicleId -> { dateKey: true }
 
     // ==========================================================
     // 状態管理
@@ -127,6 +128,7 @@
         assignments = {};
         vehicleAssignments = {};
         holidays = {};
+        vehicleMaintenance = {};
 
         var dates = getVisibleDates();
         var empCount = employeesData.length;
@@ -185,6 +187,14 @@
         vehicleAssignments[dk0].night['s4'] = 'v2';
         vehicleAssignments[dk1] = { day: {}, night: {} };
         vehicleAssignments[dk1].day['s5'] = 'v3';
+
+        // 車両修理/点検デモデータ
+        vehicleMaintenance['v4'] = {};
+        vehicleMaintenance['v4'][formatDateKey(dates[0])] = true;
+        vehicleMaintenance['v4'][formatDateKey(dates[1])] = true;
+        vehicleMaintenance['v4'][formatDateKey(dates[2])] = true;
+        vehicleMaintenance['v5'] = {};
+        vehicleMaintenance['v5'][formatDateKey(dates[3])] = true;
     }
 
     // ==========================================================
@@ -251,6 +261,20 @@
         Object.keys(holidays).forEach(function (empIdx) {
             if (holidays[empIdx][dateKey]) {
                 result.push(parseInt(empIdx));
+            }
+        });
+        return result;
+    }
+
+    function isVehicleInMaintenance(vehicleId, dateKey) {
+        return vehicleMaintenance[vehicleId] && vehicleMaintenance[vehicleId][dateKey];
+    }
+
+    function getMaintenanceVehicles(dateKey) {
+        var result = [];
+        Object.keys(vehicleMaintenance).forEach(function (vid) {
+            if (vehicleMaintenance[vid][dateKey]) {
+                result.push(vid);
             }
         });
         return result;
@@ -515,6 +539,99 @@
                                         lmStartCustomDrag(e, chipRef, idx, dateKey);
                                     });
                                 })(empIdx, dk, chip);
+                            }
+
+                            cell.appendChild(chip);
+                        });
+                    }
+
+                    grid.appendChild(cell);
+                });
+            });
+            currentRow++;
+        }
+
+        // --- 修理/点検行（休み行の下） ---
+        var maintGroupId = 'ws-maintenance';
+        var isMaintCollapsed = !!collapsedGroups[maintGroupId];
+
+        var allMaintVehicleSet = {};
+        dates.forEach(function (d) {
+            getMaintenanceVehicles(formatDateKey(d)).forEach(function (vid) {
+                allMaintVehicleSet[vid] = true;
+            });
+        });
+        var maintTotal = Object.keys(allMaintVehicleSet).length;
+
+        if (maintTotal > 0) {
+            var mGroupRow = el('div', 'md-ws-group-row md-ws-maint-group-header' + (isMaintCollapsed ? ' md-ws-collapsed' : ''));
+            mGroupRow.style.gridRow = currentRow;
+            mGroupRow.innerHTML =
+                '<span class="md-ws-group-chevron">\u25bc</span>' +
+                '<span class="md-ws-maint-badge">\u4fee</span>' +
+                '<span>\u4fee\u7406/\u70b9\u691c ' + maintTotal + '\u53f0</span>';
+            mGroupRow.dataset.groupId = maintGroupId;
+            mGroupRow.addEventListener('click', function () { toggleGroup(maintGroupId); });
+            grid.appendChild(mGroupRow);
+            currentRow++;
+
+            var mNameCell = el('div', 'md-ws-name-cell md-ws-maint-name');
+            mNameCell.dataset.groupId = maintGroupId;
+            if (isMaintCollapsed) mNameCell.classList.add('md-ws-row-hidden');
+            mNameCell.style.gridRow = currentRow;
+            mNameCell.style.gridColumn = '1';
+            mNameCell.textContent = '\u4fee\u7406/\u70b9\u691c';
+            grid.appendChild(mNameCell);
+
+            dates.forEach(function (d, di) {
+                var dk = formatDateKey(d);
+                var maintVehicles = getMaintenanceVehicles(dk);
+                var isPast = d < today;
+
+                ['day', 'night'].forEach(function (shift, si) {
+                    var colIdx = 2 + di * 2 + si;
+                    var cellCls = 'md-ws-cell md-ws-maint-row-cell';
+                    if (si === 0) cellCls += ' md-ws-day-col';
+                    if (si === 1) cellCls += ' md-ws-night-col';
+                    if (d.getDay() === 6) cellCls += ' md-ws-sat-col';
+                    if (d.getDay() === 0) cellCls += ' md-ws-sun-col';
+                    if (holidayDates[dk]) cellCls += ' md-ws-holiday-col';
+                    if (dk === formatDateKey(today)) cellCls += ' md-ws-today-col';
+                    if (isPast) cellCls += ' md-ws-past-col';
+
+                    var cell = el('div', cellCls);
+                    cell.dataset.date = dk;
+                    cell.dataset.shift = shift;
+                    cell.dataset.groupId = maintGroupId;
+                    if (isMaintCollapsed) cell.classList.add('md-ws-row-hidden');
+                    cell.style.gridRow = currentRow;
+                    cell.style.gridColumn = colIdx;
+
+                    // 昼セルのみにバッジ表示
+                    if (shift === 'day') {
+                        maintVehicles.forEach(function (vid) {
+                            var vehicle = findVehicle(vid);
+                            if (!vehicle) return;
+                            var chip = el('div', 'md-ws-maint-vehicle-chip');
+                            chip.textContent = vehicle.plate + ' ' + vehicle.model;
+
+                            // 配置済みチェック
+                            var assignedSites = [];
+                            ['day', 'night'].forEach(function (sh) {
+                                var va = vehicleAssignments[dk];
+                                if (va && va[sh]) {
+                                    Object.keys(va[sh]).forEach(function (sid) {
+                                        if (va[sh][sid] === vid) {
+                                            var s = findSite(sid);
+                                            if (s) assignedSites.push(truncate(s.name, 6));
+                                        }
+                                    });
+                                }
+                            });
+                            if (assignedSites.length > 0) {
+                                chip.classList.add('md-ws-maint-assigned');
+                                var assignInfo = el('span', 'md-ws-maint-assign-info', '\u2192 ' + assignedSites.join(', '));
+                                chip.appendChild(assignInfo);
                             }
 
                             cell.appendChild(chip);
@@ -1618,6 +1735,7 @@
         tag.appendChild(infoRow);
 
         var isAssignedHere = currentVehicleId === v.id;
+        var inMaint = isVehicleInMaintenance(v.id, sc.date);
 
         var busySiteId = null;
         if (currentVa && currentVa[sc.shift]) {
@@ -1628,9 +1746,14 @@
             });
         }
 
+        // 修理/点検中は警告スタイル（配置は可能）
+        if (inMaint) {
+            tag.classList.add('md-ws-tag-maintenance');
+        }
+
         if (isAssignedHere) {
             tag.classList.add('md-ws-tag-assigned');
-            tag.title = '\u30af\u30ea\u30c3\u30af\u3067\u89e3\u9664';
+            tag.title = (inMaint ? '\u26a0 \u4fee\u7406/\u70b9\u691c\u4e2d \u2014 ' : '') + '\u30af\u30ea\u30c3\u30af\u3067\u89e3\u9664';
             tag.addEventListener('click', function () {
                 removeVehicleAssignment(sc.date, sc.shift, sc.siteId);
                 renderGrid();
@@ -1639,7 +1762,8 @@
         } else if (busySiteId) {
             tag.classList.add('md-ws-tag-busy');
             var busySite = findSite(busySiteId);
-            tag.title = '\u4ed6\u73fe\u5834: ' + (busySite ? busySite.name : '\u4f7f\u7528\u4e2d') + '\uff08\u30af\u30ea\u30c3\u30af\u3067\u79fb\u52d5\uff09';
+            tag.title = (inMaint ? '\u26a0 \u4fee\u7406/\u70b9\u691c\u4e2d \u2014 ' : '') +
+                '\u4ed6\u73fe\u5834: ' + (busySite ? busySite.name : '\u4f7f\u7528\u4e2d') + '\uff08\u30af\u30ea\u30c3\u30af\u3067\u79fb\u52d5\uff09';
             tag.addEventListener('click', function () {
                 removeVehicleAssignment(sc.date, sc.shift, busySiteId);
                 addVehicleAssignment(sc.date, sc.shift, sc.siteId, v.id);
@@ -1647,6 +1771,7 @@
                 renderSidebar();
             });
         } else {
+            tag.title = inMaint ? '\u26a0 \u4fee\u7406/\u70b9\u691c\u4e2d\uff08\u914d\u7f6e\u53ef\uff09' : '';
             tag.addEventListener('click', function () {
                 addVehicleAssignment(sc.date, sc.shift, sc.siteId, v.id);
                 renderGrid();
