@@ -997,6 +997,46 @@ body {
 .md-ws-sidebar-assign-info strong {
     color: var(--text-primary);
 }
+.md-ws-assign-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+}
+.md-ws-assign-nav-btn {
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.md-ws-assign-nav-btn:hover {
+    background: var(--accent-hover, #1565c0);
+}
+.md-ws-assign-nav-center {
+    flex: 1;
+    text-align: center;
+    min-width: 0;
+}
+.md-ws-assign-nav-site {
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.md-ws-assign-nav-date {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
 
 /* 候補リスト（旧リスト形式 — 配置モーダル用に残す） */
 .md-ws-candidate-list {
@@ -1484,6 +1524,32 @@ body {
     color: var(--text-tertiary);
 }
 .md-ws-vehicle-tag:hover .md-ws-vt-model {
+    color: rgba(255, 255, 255, 0.8);
+}
+/* 配置モード — 配置済車両バッジ */
+.md-ws-vehicle-tag.md-ws-tag-assigned {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    cursor: pointer;
+}
+.md-ws-vehicle-tag.md-ws-tag-assigned:hover {
+    background: var(--accent-hover, #1565c0);
+}
+.md-ws-vehicle-tag.md-ws-tag-assigned .md-ws-vt-model {
+    color: rgba(255, 255, 255, 0.8);
+}
+/* 配置モード — 他現場使用中車両バッジ */
+.md-ws-vehicle-tag.md-ws-tag-busy {
+    background: var(--warning-dim, #fff3e0);
+    border-color: var(--warning);
+}
+.md-ws-vehicle-tag.md-ws-tag-busy:hover {
+    background: var(--warning);
+    color: #fff;
+    border-color: var(--warning);
+}
+.md-ws-vehicle-tag.md-ws-tag-busy:hover .md-ws-vt-model {
     color: rgba(255, 255, 255, 0.8);
 }
 

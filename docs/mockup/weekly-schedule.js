@@ -1328,9 +1328,49 @@
             sidebar.appendChild(header);
 
             var info = el('div', 'md-ws-sidebar-assign-info');
-            info.innerHTML = '<strong>' + (site ? site.company + ' / ' + site.name : '') + '</strong><br>' +
-                mm + '/' + dd + '(' + dow + ') ' + shiftLabel +
+
+            var navRow = el('div', 'md-ws-assign-nav');
+
+            var prevBtn = el('button', 'md-ws-assign-nav-btn', '\u25c0');
+            prevBtn.title = '\u524d\u65e5\u3078';
+            prevBtn.addEventListener('click', function () {
+                var prev = parseDate(sc.date);
+                prev.setDate(prev.getDate() - 1);
+                var prevKey = formatDateKey(prev);
+                if (viewMode === 'site') {
+                    selectCellSiteView(sc.siteId, prevKey, sc.shift);
+                } else {
+                    selectCellEmployeeView(sc.empIndex, prevKey, sc.shift);
+                }
+            });
+
+            var centerBlock = el('div', 'md-ws-assign-nav-center');
+            var siteLine = el('div', 'md-ws-assign-nav-site');
+            siteLine.innerHTML = '<strong>' + (site ? site.company + ' / ' + site.name : '') + '</strong>';
+            var dateLine = el('div', 'md-ws-assign-nav-date');
+            dateLine.textContent = mm + '/' + dd + '(' + dow + ') ' + shiftLabel +
                 (site ? ' \u2014 \u53d7\u6ce8: ' + (site.orders[sc.shift] || 0) + '\u540d' : '');
+            centerBlock.appendChild(siteLine);
+            centerBlock.appendChild(dateLine);
+
+            var nextBtn = el('button', 'md-ws-assign-nav-btn', '\u25b6');
+            nextBtn.title = '\u7fcc\u65e5\u3078';
+            nextBtn.addEventListener('click', function () {
+                var next = parseDate(sc.date);
+                next.setDate(next.getDate() + 1);
+                var nextKey = formatDateKey(next);
+                if (viewMode === 'site') {
+                    selectCellSiteView(sc.siteId, nextKey, sc.shift);
+                } else {
+                    selectCellEmployeeView(sc.empIndex, nextKey, sc.shift);
+                }
+            });
+
+            navRow.appendChild(prevBtn);
+            navRow.appendChild(centerBlock);
+            navRow.appendChild(nextBtn);
+
+            info.appendChild(navRow);
             sidebar.appendChild(info);
         } else {
             var header2 = el('div', 'md-ws-sidebar-header');
@@ -1498,8 +1538,11 @@
                 var s = findSite(sid);
                 return s ? s.name : sid;
             });
-            tag.title = '\u4ed6\u73fe\u5834: ' + busySiteNames.join(', ') + '\uff08\u30af\u30ea\u30c3\u30af\u3067\u8ffd\u52a0\u914d\u7f6e\uff09';
+            tag.title = '\u4ed6\u73fe\u5834: ' + busySiteNames.join(', ') + '\uff08\u30af\u30ea\u30c3\u30af\u3067\u79fb\u52d5\uff09';
             tag.addEventListener('click', function () {
+                busySites.forEach(function (sid) {
+                    removeAssignment(emp.index, sc.date, sc.shift, sid);
+                });
                 addAssignment(emp.index, sc.date, sc.shift, sc.siteId);
                 renderGrid();
                 renderSidebar();
@@ -1537,83 +1580,99 @@
     // --- 車両候補リスト（配置モード・車両タブ） ---
     function renderVehicleCandidatesContent(sidebar) {
         var sc = selectedCell;
-        var list = el('div', 'md-ws-candidate-list');
         var currentVa = vehicleAssignments[sc.date];
         var currentVehicleId = (currentVa && currentVa[sc.shift]) ? currentVa[sc.shift][sc.siteId] : null;
 
-        wsVehiclesData.forEach(function (v) {
-            var item = el('div', 'md-ws-candidate-item');
-            var dot = el('span', 'md-ws-candidate-dot');
-            var nameSpan = el('span', 'md-ws-candidate-name', v.plate + ' ' + v.model);
-            var status = el('span', 'md-ws-candidate-status');
+        var content = el('div', 'md-ws-vehicle-overview md-ws-badge-assign');
 
-            var isAssignedHere = currentVehicleId === v.id;
+        var gcNames = { touo: '\u6771\u592e\u8b66\u5099', nikkei: 'Nikkei', zennihon: 'AJE' };
+        var gcOrder = ['touo', 'nikkei', 'zennihon'];
 
-            var busySiteId = null;
-            if (currentVa && currentVa[sc.shift]) {
-                Object.keys(currentVa[sc.shift]).forEach(function (sid) {
-                    if (currentVa[sc.shift][sid] === v.id && sid !== sc.siteId) {
-                        busySiteId = sid;
-                    }
-                });
-            }
+        gcOrder.forEach(function (gc) {
+            var companyVehicles = wsVehiclesData.filter(function (v) { return v.owner === gc; });
+            if (companyVehicles.length === 0) return;
 
-            if (isAssignedHere) {
-                dot.classList.add('md-ws-dot-assigned');
-                status.textContent = '\u914d\u7f6e\u6e08';
-                item.classList.add('md-ws-candidate-assigned');
-                item.style.cursor = 'pointer';
-                item.title = '\u30af\u30ea\u30c3\u30af\u3067\u89e3\u9664';
-                item.addEventListener('click', function () {
-                    removeVehicleAssignment(sc.date, sc.shift, sc.siteId);
-                    renderGrid();
-                    renderSidebar();
-                });
-            } else if (busySiteId) {
-                dot.classList.add('md-ws-dot-busy');
-                var busySite = findSite(busySiteId);
-                status.textContent = busySite ? truncate(busySite.name, 10) : '\u4f7f\u7528\u4e2d';
-                item.title = '\u4ed6\u73fe\u5834\u3067\u4f7f\u7528\u4e2d';
-                item.addEventListener('click', function () {
-                    addVehicleAssignment(sc.date, sc.shift, sc.siteId, v.id);
-                    renderGrid();
-                    renderSidebar();
-                });
-            } else {
-                dot.classList.add('md-ws-dot-available');
-                status.textContent = '\u7a7a\u304d';
-                item.addEventListener('click', function () {
-                    addVehicleAssignment(sc.date, sc.shift, sc.siteId, v.id);
-                    renderGrid();
-                    renderSidebar();
-                });
-            }
+            var sectionLabel = el('div', 'md-ws-gc-section-label', gcNames[gc] || gc);
+            content.appendChild(sectionLabel);
 
-            // D&D対応（サイドバーからグリッドへ）
-            if (!isAssignedHere) {
-                item.draggable = true;
-                item.addEventListener('dragstart', function (e) {
-                    e.dataTransfer.setData('text/plain', JSON.stringify({
-                        type: 'sidebar-vehicle',
-                        vehicleId: v.id
-                    }));
-                    e.dataTransfer.effectAllowed = 'copy';
-                    item.style.opacity = '0.5';
-                    activateDragMode(sc.date);
-                });
-                item.addEventListener('dragend', function () {
-                    item.style.opacity = '';
-                    deactivateDragMode();
-                });
-            }
-
-            item.appendChild(dot);
-            item.appendChild(nameSpan);
-            item.appendChild(status);
-            list.appendChild(item);
+            companyVehicles.forEach(function (v) {
+                content.appendChild(createAssignVehicleBadge(v, sc, currentVa, currentVehicleId));
+            });
         });
 
-        sidebar.appendChild(list);
+        // 車両数カウント
+        var countEl = sidebar.querySelector('.md-ws-employee-count');
+        if (countEl) {
+            countEl.textContent = '\u5168' + wsVehiclesData.length + '\u53f0';
+        }
+
+        sidebar.appendChild(content);
+    }
+
+    // 配置モード用車両バッジ生成
+    function createAssignVehicleBadge(v, sc, currentVa, currentVehicleId) {
+        var tag = el('span', 'md-ws-vehicle-tag');
+        var infoRow = el('span', 'md-ws-vehicle-info');
+        infoRow.appendChild(document.createTextNode(v.plate + ' '));
+        infoRow.appendChild(el('span', 'md-ws-vt-model', v.model));
+        tag.appendChild(infoRow);
+
+        var isAssignedHere = currentVehicleId === v.id;
+
+        var busySiteId = null;
+        if (currentVa && currentVa[sc.shift]) {
+            Object.keys(currentVa[sc.shift]).forEach(function (sid) {
+                if (currentVa[sc.shift][sid] === v.id && sid !== sc.siteId) {
+                    busySiteId = sid;
+                }
+            });
+        }
+
+        if (isAssignedHere) {
+            tag.classList.add('md-ws-tag-assigned');
+            tag.title = '\u30af\u30ea\u30c3\u30af\u3067\u89e3\u9664';
+            tag.addEventListener('click', function () {
+                removeVehicleAssignment(sc.date, sc.shift, sc.siteId);
+                renderGrid();
+                renderSidebar();
+            });
+        } else if (busySiteId) {
+            tag.classList.add('md-ws-tag-busy');
+            var busySite = findSite(busySiteId);
+            tag.title = '\u4ed6\u73fe\u5834: ' + (busySite ? busySite.name : '\u4f7f\u7528\u4e2d') + '\uff08\u30af\u30ea\u30c3\u30af\u3067\u79fb\u52d5\uff09';
+            tag.addEventListener('click', function () {
+                removeVehicleAssignment(sc.date, sc.shift, busySiteId);
+                addVehicleAssignment(sc.date, sc.shift, sc.siteId, v.id);
+                renderGrid();
+                renderSidebar();
+            });
+        } else {
+            tag.addEventListener('click', function () {
+                addVehicleAssignment(sc.date, sc.shift, sc.siteId, v.id);
+                renderGrid();
+                renderSidebar();
+            });
+        }
+
+        // D&D対応
+        if (!isAssignedHere) {
+            tag.draggable = true;
+            tag.addEventListener('dragstart', function (e) {
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    type: 'sidebar-vehicle',
+                    vehicleId: v.id
+                }));
+                e.dataTransfer.effectAllowed = 'copy';
+                tag.style.opacity = '0.5';
+                activateDragMode(sc.date);
+            });
+            tag.addEventListener('dragend', function () {
+                tag.style.opacity = '';
+                deactivateDragMode();
+            });
+        }
+
+        return tag;
     }
 
     // --- 社員軸ビュー + セル選択 → 現場候補表示 ---
