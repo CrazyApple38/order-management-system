@@ -124,7 +124,7 @@ body {
     padding: 8px 16px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     flex-shrink: 0;
 }
 .md-ws-header-title {
@@ -132,32 +132,40 @@ body {
     font-weight: 700;
     white-space: nowrap;
 }
+.md-ws-year-label {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0.85;
+}
 .md-ws-header-nav {
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-left: 8px;
+    gap: 4px;
+    flex-shrink: 0;
 }
 .md-ws-nav-btn {
     background: var(--header-btn-bg);
     border: none;
     color: #fff;
-    width: 28px;
     height: 28px;
+    padding: 0 8px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
-    display: flex;
+    font-size: 11px;
+    font-weight: 500;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
+    white-space: nowrap;
     transition: background 0.15s;
 }
 .md-ws-nav-btn:hover { background: var(--header-btn-hover); }
 .md-ws-month-label {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    min-width: 130px;
+    white-space: nowrap;
     text-align: center;
+    padding: 0 4px;
 }
 .md-ws-today-btn {
     background: var(--header-btn-bg);

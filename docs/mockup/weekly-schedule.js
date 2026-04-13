@@ -2694,6 +2694,20 @@
         renderSidebar();
     }
 
+    function prevDay() {
+        deselectCell();
+        viewStartDate.setDate(viewStartDate.getDate() - 1);
+        renderGrid();
+        renderSidebar();
+    }
+
+    function nextDay() {
+        deselectCell();
+        viewStartDate.setDate(viewStartDate.getDate() + 1);
+        renderGrid();
+        renderSidebar();
+    }
+
     function goToday() {
         deselectCell();
         viewStartDate = getWeekStart(today);
@@ -2703,19 +2717,28 @@
     }
 
     function updateMonthLabel() {
-        var label = document.getElementById('wsMonthLabel');
-        if (!label) return;
         var dates = getVisibleDates();
         var first = dates[0];
         var last = dates[dates.length - 1];
-        var y1 = first.getFullYear();
-        var m1 = first.getMonth() + 1;
-        var y2 = last.getFullYear();
-        var m2 = last.getMonth() + 1;
-        if (y1 === y2 && m1 === m2) {
-            label.textContent = y1 + '\u5e74' + m1 + '\u6708';
-        } else {
-            label.textContent = y1 + '\u5e74' + m1 + '\u6708 \u301c ' + (y1 !== y2 ? y2 + '\u5e74' : '') + m2 + '\u6708';
+
+        // 年ラベル
+        var yearLabel = document.getElementById('wsYearLabel');
+        if (yearLabel) {
+            var y1 = first.getFullYear();
+            var y2 = last.getFullYear();
+            yearLabel.textContent = y1 === y2
+                ? y1 + '\u5e74'
+                : y1 + '\u5e74\u301c' + y2 + '\u5e74';
+        }
+
+        // 日付範囲ラベル
+        var label = document.getElementById('wsMonthLabel');
+        if (label) {
+            var m1 = first.getMonth() + 1;
+            var d1 = first.getDate();
+            var m2 = last.getMonth() + 1;
+            var d2 = last.getDate();
+            label.textContent = m1 + '\u6708' + d1 + '\u65e5\uff5e' + m2 + '\u6708' + d2 + '\u65e5';
         }
     }
 
@@ -2806,11 +2829,15 @@
         injectViewToggle();
 
         // ナビゲーションボタン
-        var prevBtn = document.getElementById('wsPrevWeek');
-        var nextBtn = document.getElementById('wsNextWeek');
+        var prevWeekBtn = document.getElementById('wsPrevWeek');
+        var nextWeekBtn = document.getElementById('wsNextWeek');
+        var prevDayBtn = document.getElementById('wsPrevDay');
+        var nextDayBtn = document.getElementById('wsNextDay');
         var todayBtn = document.getElementById('wsTodayBtn');
-        if (prevBtn) prevBtn.addEventListener('click', prevWeek);
-        if (nextBtn) nextBtn.addEventListener('click', nextWeek);
+        if (prevWeekBtn) prevWeekBtn.addEventListener('click', prevWeek);
+        if (nextWeekBtn) nextWeekBtn.addEventListener('click', nextWeek);
+        if (prevDayBtn) prevDayBtn.addEventListener('click', prevDay);
+        if (nextDayBtn) nextDayBtn.addEventListener('click', nextDay);
         if (todayBtn) todayBtn.addEventListener('click', goToday);
 
         // Escキーで選択解除
