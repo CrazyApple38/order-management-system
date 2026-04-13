@@ -256,6 +256,34 @@
         return sites.length > 0;
     }
 
+    /**
+     * 連続シフト判定
+     * 同日昼→夜、夜→翌日昼 を連続とみなす
+     * @returns {{ hasPrev: boolean, hasNext: boolean }}
+     */
+    function getConsecutiveShiftInfo(empIndex, dateKey, shift) {
+        var d = new Date(dateKey + 'T00:00:00');
+        var prevDay = new Date(d); prevDay.setDate(prevDay.getDate() - 1);
+        var nextDay = new Date(d); nextDay.setDate(nextDay.getDate() + 1);
+        var prevDayKey = formatDateKey(prevDay);
+        var nextDayKey = formatDateKey(nextDay);
+
+        var hasPrev = false;
+        var hasNext = false;
+
+        if (shift === 'day') {
+            // 昼シフト: 前=前日夜、次=同日夜
+            hasPrev = getAssignedSites(empIndex, prevDayKey, 'night').length > 0;
+            hasNext = getAssignedSites(empIndex, dateKey, 'night').length > 0;
+        } else {
+            // 夜シフト: 前=同日昼、次=翌日昼
+            hasPrev = getAssignedSites(empIndex, dateKey, 'day').length > 0;
+            hasNext = getAssignedSites(empIndex, nextDayKey, 'day').length > 0;
+        }
+
+        return { hasPrev: hasPrev, hasNext: hasNext };
+    }
+
     function getHolidayEmployees(dateKey) {
         var result = [];
         Object.keys(holidays).forEach(function (empIdx) {
@@ -729,9 +757,21 @@
                             chip.dataset.empIndex = empIdx;
                             chip.title = emp.name;
 
+                            // 連続シフト矢印
+                            var csInfo = getConsecutiveShiftInfo(empIdx, dk, shift);
+                            if (csInfo.hasPrev) {
+                                var arrowDown = el('span', 'md-ws-chip-arrow md-ws-chip-arrow-prev', '\u25bc');
+                                chip.appendChild(arrowDown);
+                            }
+
                             var nameSpan = document.createElement('span');
                             nameSpan.textContent = emp.name;
                             chip.appendChild(nameSpan);
+
+                            if (csInfo.hasNext) {
+                                var arrowUp = el('span', 'md-ws-chip-arrow md-ws-chip-arrow-next', '\u25b2');
+                                chip.appendChild(arrowUp);
+                            }
 
                             // 休日出勤マーク
                             if (isEmployeeOnHoliday(empIdx, dk)) {
@@ -977,8 +1017,18 @@
                                     var chipCls = 'md-ws-site-chip';
                                     if (shift === 'night') chipCls += ' md-ws-night-chip';
                                     if (isPast) chipCls += ' md-ws-readonly';
-                                    var chip = el('div', chipCls, truncate(site.name, 8));
+                                    var chip = el('div', chipCls);
                                     chip.dataset.siteId = siteId;
+
+                                    // 連続シフト矢印
+                                    var csInfo = getConsecutiveShiftInfo(emp.index, dk, shift);
+                                    if (csInfo.hasPrev) {
+                                        chip.appendChild(el('span', 'md-ws-chip-arrow md-ws-chip-arrow-prev', '\u25bc'));
+                                    }
+                                    chip.appendChild(document.createTextNode(truncate(site.name, 8)));
+                                    if (csInfo.hasNext) {
+                                        chip.appendChild(el('span', 'md-ws-chip-arrow md-ws-chip-arrow-next', '\u25b2'));
+                                    }
                                     chip.title = site.name + ' (' + site.company + ')';
                                     if (!isPast) {
                                         // クリックで解除

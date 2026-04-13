@@ -1396,6 +1396,25 @@ body {
 .md-ws-emp-chip.md-ws-night-chip:hover {
     border-color: var(--error);
 }
+/* 連続シフト矢印（▼▲） */
+.md-ws-chip-arrow {
+    font-size: 8px;
+    line-height: 1;
+    vertical-align: middle;
+    opacity: 0.85;
+}
+.md-ws-chip-arrow-prev {
+    margin-right: 2px;
+    color: var(--accent);
+}
+.md-ws-chip-arrow-next {
+    margin-left: 2px;
+    color: var(--accent);
+}
+.md-ws-night-chip .md-ws-chip-arrow-prev,
+.md-ws-night-chip .md-ws-chip-arrow-next {
+    color: var(--error);
+}
 /* 配置済み解除ボタン（ホバーで表示） */
 .md-ws-emp-chip {
     position: relative;
@@ -1474,6 +1493,7 @@ body {
    車両配置ゾーン（セル内下部）
    ============================================================ */
 .md-ws-vehicle-zone {
+    width: 100%;
     border-top: 1px dashed var(--divider);
     margin-top: 2px;
     padding-top: 2px;
