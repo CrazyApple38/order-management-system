@@ -1148,7 +1148,6 @@
 
                 dates.forEach(function (d, di) {
                     var dk = formatDateKey(d);
-                    var isPast = d < today;
                     var isMaint = isVehicleInMaintenance(vehicle.id, dk);
 
                     ['day', 'night'].forEach(function (shift, si) {
@@ -1160,7 +1159,6 @@
                         if (d.getDay() === 0) cellCls += ' md-ws-sun-col';
                         if (holidayDates[dk]) cellCls += ' md-ws-holiday-col';
                         if (dk === formatDateKey(today)) cellCls += ' md-ws-today-col';
-                        if (isPast) cellCls += ' md-ws-past-col';
 
                         var cell = el('div', cellCls);
                         cell.dataset.vehicleId = vehicle.id;
@@ -2118,7 +2116,28 @@
 
     // --- 社員概要コンテンツ（縦タブ+バッジ） ---
     function renderEmployeeOverviewContent(sidebar) {
-        // パネル（縦タブ + バッジコンテンツ）
+        // 社員軸: 縦タブなし、バッジコンテンツのみ
+        if (viewMode === 'employee') {
+            var content = el('div', 'md-ws-badge-content');
+            var visibleCompanies = groupCompaniesData;
+            visibleCompanies.forEach(function (gc) {
+                var companyEmps = employeesData.map(function (emp, idx) {
+                    return { index: idx, name: emp.name, company: emp.company, dept: emp.dept };
+                }).filter(function (emp) { return emp.company === gc.code; });
+                if (companyEmps.length === 0) return;
+                content.appendChild(el('div', 'md-ws-gc-section-label', gc.shortName));
+                companyEmps.forEach(function (emp) {
+                    content.appendChild(createEmpBadge(emp));
+                });
+            });
+            sidebar.appendChild(content);
+
+            var countEl = sidebar.querySelector('.md-ws-employee-count');
+            if (countEl) countEl.textContent = '\u5168' + employeesData.length + '\u540d';
+            return;
+        }
+
+        // 現場軸: パネル（縦タブ + バッジコンテンツ）
         var panel = el('div', 'md-ws-sidebar-panel');
 
         // --- 縦タブ列 ---
@@ -2305,29 +2324,6 @@
     function renderVehicleOverviewContentEmpView(sidebar) {
         var overview = el('div', 'md-ws-vehicle-overview');
 
-        var dates = getVisibleDates();
-        var dowLabels = getDaysOfWeek();
-        var vehicleAssignedDows = {};
-
-        dates.forEach(function (d) {
-            var dk = formatDateKey(d);
-            var dow = dowLabels[d.getDay()];
-            var va = vehicleAssignments[dk];
-            if (va) {
-                ['day', 'night'].forEach(function (sh) {
-                    if (va[sh]) {
-                        Object.keys(va[sh]).forEach(function (sid) {
-                            var vid = va[sh][sid];
-                            if (!vehicleAssignedDows[vid]) vehicleAssignedDows[vid] = [];
-                            if (vehicleAssignedDows[vid].indexOf(dow) < 0) {
-                                vehicleAssignedDows[vid].push(dow);
-                            }
-                        });
-                    }
-                });
-            }
-        });
-
         var gcNames = { touo: '\u6771\u592e\u8b66\u5099', nikkei: 'Nikkei', zennihon: 'AJE' };
         var gcOrder = ['touo', 'nikkei', 'zennihon'];
 
@@ -2345,15 +2341,6 @@
                 infoRow.appendChild(document.createTextNode(v.plate + ' '));
                 infoRow.appendChild(el('span', 'md-ws-vt-model', v.model));
                 tag.appendChild(infoRow);
-
-                var dows = vehicleAssignedDows[v.id] || [];
-                if (dows.length > 0) {
-                    var dowRow = el('span', 'md-ws-dow-badges');
-                    dows.forEach(function (dow) {
-                        dowRow.appendChild(el('span', 'md-ws-dow-badge', dow));
-                    });
-                    tag.appendChild(dowRow);
-                }
 
                 // クリック → 行スクロール＋フラッシュ
                 tag.addEventListener('click', function () {
@@ -2405,8 +2392,8 @@
             tag.classList.add('md-ws-tag-holiday');
         }
 
-        // 曜日ミニバッジを表示
-        if (assignedDows.length > 0 || holidayDows.length > 0) {
+        // 曜日ミニバッジを表示（現場軸のみ）
+        if (viewMode !== 'employee' && (assignedDows.length > 0 || holidayDows.length > 0)) {
             var dowRow = el('span', 'md-ws-dow-badges');
             assignedDows.forEach(function (dow) {
                 var badge = el('span', 'md-ws-dow-badge', dow);
