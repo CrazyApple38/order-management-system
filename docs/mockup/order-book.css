@@ -107,7 +107,7 @@ body {
 
 /* ツールバー */
 .md-ob-toolbar {
-    background: #F7F5F2;
+    background: #F5F5F5;
     border-bottom: 1px solid var(--divider);
     padding: 8px 20px;
     display: flex; align-items: center; justify-content: space-between;
@@ -276,7 +276,7 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 28px;
-    background: #F7F5F2;
+    background: #F5F5F5;
 }
 
 /* ヘッダー行 */
@@ -293,15 +293,15 @@ body {
 }
 
 /* 固定列 */
-.md-ob-frozen-0 { position: sticky; left: 0; z-index: 10; background: #F7F5F2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; line-height: 28px; }
-.md-ob-frozen-1 { position: sticky; left: 100px; z-index: 10; background: #F7F5F2; }
-.md-ob-frozen-2 { position: sticky; left: 164px; z-index: 10; background: #F7F5F2; }
-.md-ob-frozen-3 { position: sticky; left: 200px; z-index: 10; background: #F7F5F2; text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
-.md-ob-frozen-4 { position: sticky; left: 330px; z-index: 10; background: #F7F5F2; }
-.md-ob-frozen-5 { position: sticky; left: 358px; z-index: 10; background: #F7F5F2; text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
-.md-ob-frozen-6 { position: sticky; left: 488px; z-index: 10; background: #F7F5F2; }
-.md-ob-frozen-7 { position: sticky; left: 516px; z-index: 10; background: #F7F5F2; }
-.md-ob-frozen-8 { position: sticky; left: 552px; z-index: 10; background: #F7F5F2; border-right: 2px solid var(--sub-secondary); }
+.md-ob-frozen-0 { position: sticky; left: 0; z-index: 10; background: #F5F5F5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; line-height: 28px; }
+.md-ob-frozen-1 { position: sticky; left: 100px; z-index: 10; background: #F5F5F5; }
+.md-ob-frozen-2 { position: sticky; left: 164px; z-index: 10; background: #F5F5F5; }
+.md-ob-frozen-3 { position: sticky; left: 200px; z-index: 10; background: #F5F5F5; text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
+.md-ob-frozen-4 { position: sticky; left: 330px; z-index: 10; background: #F5F5F5; }
+.md-ob-frozen-5 { position: sticky; left: 358px; z-index: 10; background: #F5F5F5; text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
+.md-ob-frozen-6 { position: sticky; left: 488px; z-index: 10; background: #F5F5F5; }
+.md-ob-frozen-7 { position: sticky; left: 516px; z-index: 10; background: #F5F5F5; }
+.md-ob-frozen-8 { position: sticky; left: 552px; z-index: 10; background: #F5F5F5; border-right: 2px solid var(--sub-secondary); }
 
 /* ヘッダー + 固定列（最高優先） */
 .md-ob-cell.md-ob-header.md-ob-frozen-0,
@@ -360,10 +360,10 @@ body {
     box-shadow: inset 0 0 0 2px var(--accent-primary);
 }
 
-/* 土日祝（ボディセル: #F7F5F2上で合成済み不透明色） */
-.md-ob-sat { background-color: #ECF0EE !important; }
-.md-ob-sun { background-color: #F5ECEB !important; }
-.md-ob-holiday { background-color: #F5F0E6 !important; }
+/* 土日祝（ボディセル: #F5F5F5上で合成済み不透明色） */
+.md-ob-sat { background-color: #EAF0F1 !important; }
+.md-ob-sun { background-color: #F3ECEE !important; }
+.md-ob-holiday { background-color: #F3F0E9 !important; }
 /* 土日祝（ヘッダー: base-muted + 薄い色ティント混合） */
 .md-ob-sat-head { background-color: #BECAC5 !important; color: var(--text-primary) !important; }
 .md-ob-sun-head { background-color: #D4BEBD !important; color: var(--text-primary) !important; }
@@ -416,9 +416,9 @@ body {
 /* データ行ホバー — JS側で.md-ob-data-rowクラスを付与した行グループにホバー効果 */
 /* (CSS Gridでは行グループが無いため、JSでhover処理) */
 
-/* 偶数行（Timberwolf系の薄いティント — #F7F5F2上で合成済み不透明色） */
+/* 偶数行（Timberwolf系の薄いティント — #F5F5F5上で合成済み不透明色） */
 .md-ob-even-row {
-    background: #F4F2EF;
+    background: #F2F2F1;
 }
 .md-ob-even-row.md-ob-frozen-0,
 .md-ob-even-row.md-ob-frozen-1,
@@ -429,7 +429,7 @@ body {
 .md-ob-even-row.md-ob-frozen-6,
 .md-ob-even-row.md-ob-frozen-7,
 .md-ob-even-row.md-ob-frozen-8 {
-    background: #F4F2EF;
+    background: #F2F2F1;
 }
 
 /* 行複製＋ボタン列 */
