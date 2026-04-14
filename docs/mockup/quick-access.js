@@ -58,6 +58,13 @@ const qaCategories = ['すべて', '施設', 'イベント', '高速', '交通',
 
 // マスタリスト（受注簿と同期）
 const qaBranchList = ['東央警備', 'Nikkeiホールディングス', '全日本エンタープライズ'];
+// GCフィルタ: branch名 → gcコードのマッピング
+const qaBranchToGcCode = { '東央警備': 'touo', 'Nikkeiホールディングス': 'nikkei', '全日本エンタープライズ': 'zennihon' };
+function qaIsGcVisible(branch) {
+    if (!window.mdNavGcIsCompanyVisible) return true;
+    var code = qaBranchToGcCode[branch];
+    return !code || window.mdNavGcIsCompanyVisible(code);
+}
 const qaCategoryList = ['施設', 'イベント', '高速', '交通', '応援交通'];
 const qaShiftList = ['昼', '夜'];
 
@@ -142,12 +149,18 @@ function qaRenderClients() {
         return;
     }
 
+    // GCフィルタ適用: 表示対象の現場を持つ契約先のみ表示
+    var gcFiltered = qaClients.map(function(c) {
+        var sites = c.sites.filter(function(s) { return qaIsGcVisible(s.branch); });
+        return { client: c, sites: sites };
+    }).filter(function(item) { return item.sites.length > 0; });
+
     const filtered = qaActiveTab === 'すべて'
-        ? qaClients
-        : qaClients.filter(c =>
-            c.categories.includes(qaActiveTab) ||
-            c.sites.some(s => s.category === qaActiveTab)
-        );
+        ? gcFiltered.map(function(item) { return item.client; })
+        : gcFiltered.filter(function(item) {
+            return item.client.categories.includes(qaActiveTab) ||
+                item.sites.some(function(s) { return s.category === qaActiveTab; });
+        }).map(function(item) { return item.client; });
 
     if (filtered.length === 0) {
         container.innerHTML = '<div style="text-align:center;color:var(--text-tertiary);padding:32px 0;font-size:13px;">該当する契約先がありません</div>';
@@ -157,10 +170,11 @@ function qaRenderClients() {
     container.innerHTML = filtered.map(client => {
         const expanded = qaExpandedClientId === client.id;
         const initials = client.name.charAt(0);
-        // タブに応じて現場をフィルタ（「すべて」は全件表示）
+        // タブに応じて現場をフィルタ（GCフィルタ＋カテゴリ）
+        const gcVisibleSites = client.sites.filter(s => qaIsGcVisible(s.branch));
         const visibleSites = qaActiveTab === 'すべて'
-            ? client.sites
-            : client.sites.filter(s => s.category === qaActiveTab || (!s.category && client.categories.includes(qaActiveTab)));
+            ? gcVisibleSites
+            : gcVisibleSites.filter(s => s.category === qaActiveTab || (!s.category && client.categories.includes(qaActiveTab)));
         return `
         <div class="qa-client-card${expanded ? ' expanded' : ''}" data-client-id="${client.id}">
             <div class="qa-client-card-header" onclick="qaToggleClient(${client.id})">
@@ -1725,6 +1739,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('qaNewClientName')?.addEventListener('keydown', e => {
         if (e.key === 'Enter') qaSubmitNewClient();
     });
+    // 共通GCフィルタ変更イベントで再描画
+    document.addEventListener('gcFilterChanged', () => {
+        qaRenderTabs();
+        qaRenderClients();
+        // 変更通知モーダルが開いていれば再描画
+        var cnModal = document.getElementById('qaCnModal');
+        if (cnModal && cnModal.classList.contains('active')) {
+            qaCnRenderLatest();
+            qaCnRenderHistory();
+        }
+    });
 });
 
 // ==================== 変更通知システム ====================
@@ -1962,6 +1987,10 @@ function qaCnJumpToCard(notificationId) {
 function qaCnRenderLatest() {
     var list = document.getElementById('qaCnCardList');
     var filtered = qaCnState.notifications;
+    // GCフィルタ適用
+    filtered = filtered.filter(function(n) {
+        return !n.branch || qaIsGcVisible(n.branch);
+    });
     if (qaCnState.filterSite !== '') {
         filtered = filtered.filter(function(n) { return n.siteName === qaCnState.filterSite; });
     }
@@ -2041,6 +2070,10 @@ function qaCnRenderLatest() {
 function qaCnRenderHistory() {
     var timeline = document.getElementById('qaCnTimeline');
     var filtered = qaCnState.history;
+    // GCフィルタ適用
+    filtered = filtered.filter(function(h) {
+        return !h.branch || qaIsGcVisible(h.branch);
+    });
     if (qaCnState.filterSite !== '') {
         filtered = filtered.filter(function(h) { return h.siteName === qaCnState.filterSite; });
     }
@@ -2129,6 +2162,7 @@ function qaCnReceive(n) {
         time: n.time,
         siteName: n.siteName || '',
         clientName: n.clientName || '',
+        branch: n.branch || '',
         dayLabel: n.dayLabel || '',
         summary: (n.type === 'modify' && n.diffs
             ? n.diffs.map(function(d) { return d.field; }).join('・')

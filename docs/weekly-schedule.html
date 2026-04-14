@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社員週間予定表 - 受注管理システム</title>
+    <title>週間予定表 - 受注管理システム</title>
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
-    <link rel="stylesheet" href="mockup/co-navbar.css">
+    <link rel="stylesheet" href="mockup/co-navbar.css?v=3">
     <link rel="stylesheet" href="mockup/weekly-schedule.css">
 </head>
 <body>
@@ -14,7 +14,7 @@
     <div class="md-ws-container">
         <!-- ヘッダー -->
         <div class="md-ws-header">
-            <span class="md-ws-header-title">社員週間予定表</span>
+            <span class="md-ws-header-title">週間予定表</span>
 
             <span class="md-ws-year-label" id="wsYearLabel">2026年</span>
 
@@ -31,21 +31,8 @@
             <div class="md-ws-header-spacer"></div>
         </div>
 
-        <!-- ツールバー -->
-        <div class="md-ws-toolbar">
-            <button class="md-tb-btn">
-                <img src="mockup/icons/eye.svg" alt="">フィルター
-            </button>
-            <span class="md-ws-tb-sep"></span>
-            <button class="md-tb-btn">
-                <img src="mockup/icons/person.svg" alt="">グループ管理
-            </button>
-            <span class="md-ws-tb-sep"></span>
-            <button class="md-tb-btn md-ws-gc-filter-btn" id="wsGcFilterBtn">
-                <span id="wsGcFilterLabel">すべて</span>
-                <span class="md-ws-gc-arrow">▼</span>
-            </button>
-        </div>
+        <!-- ツールバー（GCフィルタは共通ナビバーに移動） -->
+        <div class="md-ws-toolbar"></div>
 
         <!-- メインエリア -->
         <div class="md-ws-main">
@@ -72,26 +59,10 @@
         </div>
     </div>
 
-    <!-- 表示グループ会社モーダル -->
-    <div class="md-ws-modal-overlay" id="wsGcFilterModal">
-        <div class="md-ws-modal-content">
-            <div class="md-ws-modal-header">
-                <h3>表示グループ会社</h3>
-                <button class="md-ws-modal-close" id="wsGcFilterClose">&times;</button>
-            </div>
-            <div class="md-ws-modal-body">
-                <p class="md-ws-modal-hint">チェックを入れた会社の現場・社員が表示されます</p>
-                <div class="md-ws-gcf-checkboxes" id="wsGcFilterChecks"></div>
-            </div>
-            <div class="md-ws-modal-footer">
-                <button class="md-ws-modal-btn md-ws-modal-btn-cancel" id="wsGcFilterCancel">キャンセル</button>
-                <button class="md-ws-modal-btn md-ws-modal-btn-apply" id="wsGcFilterApply">適用</button>
-            </div>
-        </div>
-    </div>
+    <!-- GCフィルタモーダルは共通ナビバー(co-navbar.js)に移動 -->
 
-    <script src="mockup/demo-data.js"></script>
-    <script src="mockup/co-navbar.js"></script>
+    <script src="mockup/demo-data.js?v=2"></script>
+    <script src="mockup/co-navbar.js?v=3"></script>
     <script src="mockup/weekly-schedule.js"></script>
 </body>
 </html>

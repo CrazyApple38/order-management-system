@@ -15,29 +15,28 @@ const groupCompaniesData = [
 
 // 組織階層種別定義（グループ会社ごとの階層名）
 const orgLevelTypesData = {
-    touo:     [{ depth: 1, name: '営業所' }, { depth: 2, name: '課' }],
+    touo:     [{ depth: 1, name: '課' }],
     nikkei:   [{ depth: 1, name: '課' }],
-    zennihon: [{ depth: 1, name: '課' }]
+    zennihon: [{ depth: 1, name: '拠点' }, { depth: 2, name: '課' }]
 };
 
 // 組織ノード（自己参照ツリー）
 const orgUnitsData = {
     touo: [
-        { id: 'touo-tokyo', name: '東京本社', depth: 1, parentId: null, children: [
-            { id: 'touo-shisetsu', name: '施設課', depth: 2, parentId: 'touo-tokyo' },
-            { id: 'touo-kotsu', name: '交通課', depth: 2, parentId: 'touo-tokyo' }
-        ]},
-        { id: 'touo-yokohama', name: '横浜営業所', depth: 1, parentId: null, children: [
-            { id: 'touo-yoko-shisetsu', name: '施設課', depth: 2, parentId: 'touo-yokohama' }
-        ]}
+        { id: 'touo-shisetsu', name: '施設課', depth: 1, parentId: null },
+        { id: 'touo-kotsu', name: '交通課', depth: 1, parentId: null }
     ],
     nikkei: [
         { id: 'nikkei-shisetsu', name: '施設課', depth: 1, parentId: null },
         { id: 'nikkei-kotsu', name: '交通課', depth: 1, parentId: null }
     ],
     zennihon: [
-        { id: 'zen-kotsu1', name: '交通一課', depth: 1, parentId: null },
-        { id: 'zen-kotsu2', name: '交通二課', depth: 1, parentId: null }
+        { id: 'zen-honsha', name: '本社', depth: 1, parentId: null, children: [
+            { id: 'zen-kotsu1', name: '交通一課', depth: 2, parentId: 'zen-honsha' },
+            { id: 'zen-kotsu2', name: '交通二課', depth: 2, parentId: 'zen-honsha' },
+            { id: 'zen-kotsu3', name: '交通三課', depth: 2, parentId: 'zen-honsha' }
+        ]},
+        { id: 'zen-ehime', name: '愛媛営業所', depth: 1, parentId: null }
     ]
 };
 
@@ -80,10 +79,10 @@ const employeesData = [
     { name: '山田', company: 'zennihon', dept: 'zen-kotsu1' },
     { name: '松本', company: 'zennihon', dept: 'zen-kotsu2' },
     { name: '井上', company: 'zennihon', dept: 'zen-kotsu2' },
-    { name: '木村', company: 'zennihon', dept: 'zen-kotsu1' },
-    { name: '森',   company: 'zennihon', dept: 'zen-kotsu2' },
-    { name: '石川', company: 'zennihon', dept: 'zen-kotsu1' },
-    { name: '前田', company: 'zennihon', dept: 'zen-kotsu2' }
+    { name: '木村', company: 'zennihon', dept: 'zen-kotsu3' },
+    { name: '森',   company: 'zennihon', dept: 'zen-kotsu3' },
+    { name: '石川', company: 'zennihon', dept: 'zen-ehime' },
+    { name: '前田', company: 'zennihon', dept: 'zen-ehime' }
 ];
 
 const vehiclesData = [

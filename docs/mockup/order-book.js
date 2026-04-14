@@ -777,7 +777,15 @@ document.addEventListener('click', function(e) {
     }
 });
 
+// GCフィルタ: branch名 → gcコードのマッピング
+var obBranchToGcCode = { '東央警備': 'touo', 'Nikkeiホールディングス': 'nikkei', '全日本エンタープライズ': 'zennihon' };
+
 function isFiltered(row) {
+    // 共通GCフィルタ
+    if (window.mdNavGcIsCompanyVisible) {
+        var gcCode = obBranchToGcCode[row.branch];
+        if (gcCode && !window.mdNavGcIsCompanyVisible(gcCode)) return false;
+    }
     const branches = getFilterDDSelected('filterBranchPanel');
     const cats = getFilterDDSelected('filterCategoryPanel');
     const fs = document.getElementById('filterShift').value;
@@ -788,6 +796,17 @@ function isFiltered(row) {
     if (fco && !row.company.includes(fco)) return false;
     return true;
 }
+
+// 共通GCフィルタ変更イベントで再描画
+document.addEventListener('gcFilterChanged', function() {
+    if (typeof renderGrid === 'function') renderGrid();
+    // 変更通知モーダルが開いていれば再描画
+    var cnModal = document.getElementById('obCnModal');
+    if (cnModal && cnModal.classList.contains('active')) {
+        obCnRenderLatest();
+        obCnRenderHistory();
+    }
+});
 
 function toggleFilterRow() {
     filterBarVisible = !filterBarVisible;
@@ -3742,6 +3761,13 @@ const obCnShiftClassMap = { '昼': 'md-cn-shift-day', '夜': 'md-cn-shift-night'
 function obCnRenderLatest() {
     const list = document.getElementById('obCnCardList');
     let filtered = obCnState.notifications;
+    // GCフィルタ適用
+    if (window.mdNavGcIsCompanyVisible) {
+        filtered = filtered.filter(function(n) {
+            var code = obBranchToGcCode[n.branch];
+            return !code || window.mdNavGcIsCompanyVisible(code);
+        });
+    }
     if (obCnState.filterRowId >= 0) {
         filtered = filtered.filter(function(n) {
             return n.rowId === obCnState.filterRowId;
@@ -3851,6 +3877,13 @@ function obCnRenderLatest() {
 function obCnRenderHistory() {
     const timeline = document.getElementById('obCnTimeline');
     let filtered = obCnState.history;
+    // GCフィルタ適用
+    if (window.mdNavGcIsCompanyVisible) {
+        filtered = filtered.filter(function(h) {
+            var code = obBranchToGcCode[h.branch];
+            return !code || window.mdNavGcIsCompanyVisible(code);
+        });
+    }
     if (obCnState.filterRowId >= 0) {
         filtered = filtered.filter(function(h) {
             return h.rowId === obCnState.filterRowId;
@@ -3990,6 +4023,7 @@ function obCnReceive(n) {
         time: n.time,
         taskName: n.taskName || '',
         company: n.company || '',
+        branch: n.branch || '',
         day: n.day || null,
         rowId: n.rowId,
         summary: (n.type === 'modify' && n.diffs

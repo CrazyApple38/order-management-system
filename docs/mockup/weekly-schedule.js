@@ -81,8 +81,11 @@
     // サイドバーメインタブ: 'employee' | 'vehicle'
     var wsSidebarMainTab = 'employee';
 
-    // 表示グループ会社フィルタ
-    var wsGcFilter = groupCompaniesData.map(function (gc) { return gc.code; }); // 全社表示
+    // 表示グループ会社フィルタ（共通ナビバーのヘルパー関数を使用）
+    // wsGcIsCompanyVisible: 後方互換ラッパー
+    function wsGcIsVisible(gcCode) {
+        return window.mdNavGcIsCompanyVisible ? window.mdNavGcIsCompanyVisible(gcCode) : true;
+    }
 
     // ==========================================================
     // 日付ユーティリティ
@@ -330,7 +333,7 @@
         var gcNames = { touo: '\u6771\u592e\u8b66\u5099', nikkei: 'Nikkei', zennihon: 'AJE' };
 
         gcOrder.forEach(function (gc) {
-            if (wsGcFilter.indexOf(gc) < 0) return;
+            if (!wsGcIsVisible(gc)) return;
             var vehicles = wsVehiclesData.filter(function (v) { return v.owner === gc; });
             if (vehicles.length === 0) return;
             groups.push({
@@ -353,7 +356,7 @@
         var gcNames = { touo: '\u6771\u592e\u8b66\u5099', nikkei: 'Nikkei', zennihon: 'AJE' };
 
         gcOrder.forEach(function (gc) {
-            if (wsGcFilter.indexOf(gc) < 0) return;
+            if (!wsGcIsVisible(gc)) return;
             var deptMap = {};
             employeesData.forEach(function (emp, idx) {
                 if (emp.company !== gc) return;
@@ -1742,12 +1745,25 @@
         // --- 縦タブ列 ---
         var vtabs = el('div', 'md-ws-vtabs');
 
+        // GCフィルタ連動：非表示会社のタブが選択中なら「すべて」にフォールバック
+        var visibleCompanies = groupCompaniesData.filter(function (gc) {
+            return wsGcIsVisible(gc.code);
+        });
+        if (wsEmpTab.activeTab !== 'all') {
+            var tabInVisible = false;
+            visibleCompanies.forEach(function (gc) {
+                var units = orgUnitsData[gc.code] || [];
+                var ids = wsGetDescendantIds(units, wsEmpTab.activeTab);
+                if (ids.length > 0) tabInVisible = true;
+            });
+            if (!tabInVisible) wsEmpTab.activeTab = 'all';
+        }
+
         var allTab = el('div', 'md-ws-vtab' + (wsEmpTab.activeTab === 'all' ? ' active' : ''), '\u3059\u3079\u3066');
         allTab.setAttribute('data-ws-tab', 'all');
         allTab.addEventListener('click', function () { wsSelectTab('all'); });
         vtabs.appendChild(allTab);
 
-        var visibleCompanies = groupCompaniesData;
         visibleCompanies.forEach(function (gc) {
             var units = orgUnitsData[gc.code] || [];
             var isExpanded = wsEmpTab.expandedCompanies.has(gc.code);
@@ -1906,6 +1922,7 @@
         var gcOrder = ['touo', 'nikkei', 'zennihon'];
 
         gcOrder.forEach(function (gc) {
+            if (!wsGcIsVisible(gc)) return; // GCフィルタ連動
             var companyVehicles = wsVehiclesData.filter(function (v) { return v.owner === gc; });
             if (companyVehicles.length === 0) return;
 
@@ -2125,7 +2142,7 @@
         if (viewMode === 'employee') {
             var content = el('div', 'md-ws-badge-content');
             var visibleCompanies = groupCompaniesData.filter(function (gc) {
-                return wsGcFilter.indexOf(gc.code) >= 0;
+                return wsGcIsVisible(gc.code);
             });
             var filteredCount = 0;
             visibleCompanies.forEach(function (gc) {
@@ -2152,14 +2169,25 @@
         // --- 縦タブ列 ---
         var vtabs = el('div', 'md-ws-vtabs');
 
+        // GCフィルタ連動：非表示会社のタブが選択中なら「すべて」にフォールバック
+        var visibleCompanies = groupCompaniesData.filter(function (gc) {
+            return wsGcIsVisible(gc.code);
+        });
+        if (wsEmpTab.activeTab !== 'all') {
+            var tabInVisible = false;
+            visibleCompanies.forEach(function (gc) {
+                var units = orgUnitsData[gc.code] || [];
+                var ids = wsGetDescendantIds(units, wsEmpTab.activeTab);
+                if (ids.length > 0) tabInVisible = true;
+            });
+            if (!tabInVisible) wsEmpTab.activeTab = 'all';
+        }
+
         // 「すべて」タブ
         var allTab = el('div', 'md-ws-vtab' + (wsEmpTab.activeTab === 'all' ? ' active' : ''), '\u3059\u3079\u3066');
         allTab.setAttribute('data-ws-tab', 'all');
         allTab.addEventListener('click', function () { wsSelectTab('all'); });
         vtabs.appendChild(allTab);
-
-        // 会社ごとのアコーディオンタブ
-        var visibleCompanies = groupCompaniesData;
         visibleCompanies.forEach(function (gc) {
             var units = orgUnitsData[gc.code] || [];
             var isExpanded = wsEmpTab.expandedCompanies.has(gc.code);
@@ -2274,6 +2302,7 @@
         var gcOrder = ['touo', 'nikkei', 'zennihon'];
 
         gcOrder.forEach(function (gc) {
+            if (!wsGcIsVisible(gc)) return; // GCフィルタ連動
             var companyVehicles = wsVehiclesData.filter(function (v) { return v.owner === gc; });
             if (companyVehicles.length === 0) return;
 
@@ -2337,7 +2366,7 @@
         var gcOrder = ['touo', 'nikkei', 'zennihon'];
 
         gcOrder.forEach(function (gc) {
-            if (wsGcFilter.indexOf(gc) < 0) return;
+            if (!wsGcIsVisible(gc)) return;
             var companyVehicles = wsVehiclesData.filter(function (v) { return v.owner === gc; });
             if (companyVehicles.length === 0) return;
 
@@ -2850,18 +2879,11 @@
         if (nextDayBtn) nextDayBtn.addEventListener('click', nextDay);
         if (todayBtn) todayBtn.addEventListener('click', goToday);
 
-        // GCフィルタボタン・モーダル
-        var gcBtn = document.getElementById('wsGcFilterBtn');
-        var gcClose = document.getElementById('wsGcFilterClose');
-        var gcCancel = document.getElementById('wsGcFilterCancel');
-        var gcApply = document.getElementById('wsGcFilterApply');
-        var gcModal = document.getElementById('wsGcFilterModal');
-        if (gcBtn) gcBtn.addEventListener('click', openGcFilterModal);
-        if (gcClose) gcClose.addEventListener('click', closeGcFilterModal);
-        if (gcCancel) gcCancel.addEventListener('click', closeGcFilterModal);
-        if (gcApply) gcApply.addEventListener('click', applyGcFilter);
-        if (gcModal) gcModal.addEventListener('click', function (e) {
-            if (e.target === gcModal) closeGcFilterModal();
+        // 共通GCフィルタ変更イベントを受けて画面を更新
+        document.addEventListener('gcFilterChanged', function () {
+            deselectCell();
+            renderGrid();
+            renderSidebar();
         });
 
         // Escキーで選択解除
@@ -2923,69 +2945,7 @@
         toolbar.insertBefore(toggle, toolbar.firstChild);
     }
 
-    // ==========================================================
-    // 表示グループ会社フィルタ
-    // ==========================================================
-
-    function openGcFilterModal() {
-        var modal = document.getElementById('wsGcFilterModal');
-        var container = document.getElementById('wsGcFilterChecks');
-        if (!modal || !container) return;
-
-        container.innerHTML = '';
-        groupCompaniesData.forEach(function (gc) {
-            var label = document.createElement('label');
-            label.className = 'md-ws-gcf-item';
-            var cb = document.createElement('input');
-            cb.type = 'checkbox';
-            cb.value = gc.code;
-            cb.checked = wsGcFilter.indexOf(gc.code) >= 0;
-            var swatch = el('span', 'md-ws-gcf-swatch');
-            swatch.style.background = 'var(--md-gc-bg-' + gc.code + ')';
-            swatch.style.border = '1px solid #ccc';
-            label.appendChild(cb);
-            label.appendChild(swatch);
-            label.appendChild(document.createTextNode(gc.name));
-            container.appendChild(label);
-        });
-
-        modal.classList.add('active');
-    }
-
-    function closeGcFilterModal() {
-        var modal = document.getElementById('wsGcFilterModal');
-        if (modal) modal.classList.remove('active');
-    }
-
-    function applyGcFilter() {
-        var checks = document.querySelectorAll('#wsGcFilterChecks input:checked');
-        if (checks.length === 0) {
-            alert('\u5c11\u306a\u304f\u3068\u30821\u3064\u306e\u30b0\u30eb\u30fc\u30d7\u4f1a\u793e\u3092\u9078\u629e\u3057\u3066\u304f\u3060\u3055\u3044\u3002');
-            return;
-        }
-        wsGcFilter = [];
-        checks.forEach(function (cb) { wsGcFilter.push(cb.value); });
-
-        updateGcFilterLabel();
-        closeGcFilterModal();
-        deselectCell();
-        renderGrid();
-        renderSidebar();
-    }
-
-    function updateGcFilterLabel() {
-        var label = document.getElementById('wsGcFilterLabel');
-        if (!label) return;
-        if (wsGcFilter.length === groupCompaniesData.length) {
-            label.textContent = '\u3059\u3079\u3066';
-        } else {
-            var names = [];
-            groupCompaniesData.forEach(function (gc) {
-                if (wsGcFilter.indexOf(gc.code) >= 0) names.push(gc.shortName);
-            });
-            label.textContent = names.join(' + ');
-        }
-    }
+    // GCフィルタモーダル関連は共通ナビバー(co-navbar.js)に移動済み
 
     // DOMReady
     if (document.readyState === 'loading') {

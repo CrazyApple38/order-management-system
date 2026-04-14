@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>業務管理計画書 - 画面レイアウト設計</title>
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
-    <link rel="stylesheet" href="mockup/co-navbar.css">
+    <link rel="stylesheet" href="mockup/co-navbar.css?v=3">
     <link rel="stylesheet" href="mockup/screen-layout.css?v=8">
 </head>
 <body>
@@ -23,12 +23,7 @@
                             <button>▶</button>
                             <button><img src="mockup/icons/calendar.svg" class="md-ob-icon"></button>
                         </div>
-                        <div class="company-filter">
-                            <button class="md-gc-filter-btn" onclick="openGcFilterModal()">
-                                <span id="gcFilterLabel">東央 + Nikkei</span>
-                                <span class="md-gc-filter-arrow">▼</span>
-                            </button>
-                        </div>
+                        <!-- GCフィルタは共通ナビバーに移動 -->
                     </div>
                     <div class="header-right">
                         <!-- 通知ベル（非表示: ナビバーに統合。バッジ同期用にDOM残す） -->
@@ -498,48 +493,7 @@
             </div>
         </div>
 
-        <!-- グループ会社フィルタモーダル -->
-        <!-- グループ会社フィルタモーダル -->
-        <div class="md-modal-overlay" id="gcFilterModal" onclick="if(event.target===this)closeGcFilterModal()">
-            <div class="md-modal-content md-modal-meeting-detail">
-                <div class="md-modal-site-header">
-                    <h3>表示グループ会社</h3>
-                    <button class="md-ob-modal-close" onclick="closeGcFilterModal()">✕</button>
-                </div>
-                <div class="md-modal-site-body">
-                    <div class="md-ob-chip-field">
-                        <div class="md-ob-chip-field-header">
-                            <span class="md-ob-chip-field-title">表示する会社</span>
-                        </div>
-                        <p style="font-size:0.75rem; color:var(--text-tertiary); margin:0 0 8px;">チェックを入れた会社の現場が表示されます</p>
-                        <div class="gcf-checkboxes">
-                            <label class="gcf-checkbox-item">
-                                <input type="checkbox" value="touo" checked>
-                                <span class="gcf-swatch" style="background:var(--md-gc-bg-touo); border:1px solid #ddd;"></span>
-                                東央警備
-                            </label>
-                            <label class="gcf-checkbox-item">
-                                <input type="checkbox" value="nikkei" checked>
-                                <span class="gcf-swatch" style="background:var(--md-gc-bg-nikkei); border:1px solid #ddd;"></span>
-                                Nikkeiホールディングス
-                            </label>
-                            <label class="gcf-checkbox-item">
-                                <input type="checkbox" value="zennihon">
-                                <span class="gcf-swatch" style="background:var(--md-gc-bg-zennihon); border:1px solid #ddd;"></span>
-                                全日本エンタープライズ
-                            </label>
-                        </div>
-                    </div>
-                    <!-- 【本番】デフォルト設定はログインユーザーの所属グループ会社から自動判定 -->
-                </div>
-                <div class="md-modal-site-footer">
-                    <div class="md-modal-site-footer-right">
-                        <button class="md-ob-btn md-ob-btn-secondary" onclick="closeGcFilterModal()">キャンセル</button>
-                        <button class="md-ob-btn md-ob-btn-primary" onclick="applyGcFilter()">適用</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- GCフィルタモーダルは共通ナビバー(co-navbar.js)に移動 -->
 
         <!-- 車両リスト編集モーダル -->
         <div class="md-modal-overlay" id="vehicleEditModal" onclick="if(event.target===this)closeVehicleEditModal()">
@@ -1570,8 +1524,8 @@
         </div>
     </div>
 
-    <script src="mockup/demo-data.js?v=1"></script>
+    <script src="mockup/demo-data.js?v=2"></script>
+    <script src="mockup/co-navbar.js?v=3"></script>
     <script src="mockup/screen-layout.js?v=10"></script>
-    <script src="mockup/co-navbar.js"></script>
 </body>
 </html>

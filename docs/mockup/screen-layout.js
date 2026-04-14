@@ -1779,7 +1779,7 @@
 
             // 表示対象の会社
             const visibleCompanies = groupCompaniesData.filter(gc =>
-                gcFilterState.selected.includes(gc.code)
+                window.mdNavGcIsCompanyVisible(gc.code)
             );
 
             // --- タブ列を構築（組織階層ツリー） ---
@@ -1945,7 +1945,7 @@
             var searchTerm = searchInput ? searchInput.value.trim() : '';
 
             var visibleCompanies = groupCompaniesData.filter(function(gc) {
-                return gcFilterState.selected.includes(gc.code);
+                return window.mdNavGcIsCompanyVisible(gc.code);
             });
 
             // 配置済み車両ナンバーを取得
@@ -3210,6 +3210,10 @@
         function renderLatestChanges() {
             const list = document.getElementById('cnCardList');
             var filtered = cnState.notifications;
+            // GCフィルタ適用
+            filtered = filtered.filter(function(n) {
+                return !n.gcCode || window.mdNavGcIsCompanyVisible(n.gcCode);
+            });
             if (cnState.filterRowId) {
                 filtered = filtered.filter(function(n) { return n._rowId === cnState.filterRowId; });
             }
@@ -3294,6 +3298,10 @@
         function renderChangeHistory() {
             const timeline = document.getElementById('cnTimeline');
             var filtered = cnState.history;
+            // GCフィルタ適用
+            filtered = filtered.filter(function(h) {
+                return !h.gcCode || window.mdNavGcIsCompanyVisible(h.gcCode);
+            });
             if (cnState.filterRowId) {
                 filtered = filtered.filter(function(h) { return h.siteName === cnState.filterRowId; });
             }
@@ -3333,17 +3341,32 @@
             document.getElementById('cnConflictBanner').style.display = 'none';
         }
 
+        // 行要素からグループ会社コードを取得
+        function cnGetGcCodeFromRow(row) {
+            if (!row) return '';
+            for (var i = 0; i < groupCompaniesData.length; i++) {
+                if (row.classList && row.classList.contains(groupCompaniesData[i].rowClass)) return groupCompaniesData[i].code;
+            }
+            return '';
+        }
+
         function receiveChangeNotification(notification) {
             notification.id = cnState.nextId++;
             notification.reverted = false;
             notification._read = false;
             notification._rowId = notification.siteName || '';
+            // GCコード付与（行参照 or siteName検索）
+            if (!notification.gcCode) {
+                var gcRow = notification._row || cnFindRow(notification.siteName);
+                if (gcRow) notification.gcCode = cnGetGcCodeFromRow(gcRow);
+            }
             cnState.notifications.unshift(notification);
             cnState.history.unshift({
                 type: notification.type,
                 user: notification.user,
                 time: notification.time,
                 siteName: notification.siteName || '',
+                gcCode: notification.gcCode || '',
                 summary: notification.siteName + (notification.type === 'modify' && notification.diffs
                     ? '（' + notification.diffs.map(function(d) { return d.field; }).join('・') + '）'
                     : '')
@@ -3444,7 +3467,7 @@
         const cnPendingMap = new Map();
 
         const cnDemoSequence = [
-            { type: 'modify', user: '山田（現場管理）', siteName: '国道〇号線 舗装工事', category: '交通', shift: '昼',
+            { type: 'modify', user: '山田（現場管理）', siteName: '国道〇号線 舗装工事', category: '交通', shift: '昼', gcCode: 'touo',
               diffs: [{ field: '時間', oldVal: '08:00 - 17:00', newVal: '09:00 - 18:00' }],
               apply: function(self) {
                   var row = cnFindRow('国道〇号線 舗装工事'); if (!row) return;
@@ -3460,7 +3483,7 @@
                       cnCleanCellBadges(row);
                   });
               }},
-            { type: 'add', user: '鈴木（受注担当）', siteName: '△△マンション 常駐警備', category: '施設', shift: '夜',
+            { type: 'add', user: '鈴木（受注担当）', siteName: '△△マンション 常駐警備', category: '施設', shift: '夜', gcCode: 'touo',
               details: [{ field: '会社', value: '△△不動産' }, { field: '区分', value: '施設（夜）' }, { field: '時間', value: '20:00 - 08:00' }, { field: '人数', value: '2名' }, { field: '集合', value: '19:30' }],
               apply: function(self) {
                   var tbody = document.querySelector('.grid-table tbody');
@@ -3473,7 +3496,7 @@
                   if (typeof renderMinimap === 'function') renderMinimap();
                   cnMarkPending(tr, 'add', function() {});
               }},
-            { type: 'modify', user: '伊藤（配車担当）', siteName: '〇〇会館 展示会', category: 'イベント', shift: '昼',
+            { type: 'modify', user: '伊藤（配車担当）', siteName: '〇〇会館 展示会', category: 'イベント', shift: '昼', gcCode: 'touo',
               diffs: [{ field: '人数', oldVal: '1/2', newVal: '3/2' }, { field: '配置', oldVal: '山本', newVal: '山本, 吉田, 松本' }],
               apply: function(self) {
                   var row = cnFindRow('〇〇会館 展示会'); if (!row) return;
@@ -3486,7 +3509,7 @@
                       cnCleanCellBadges(row);
                   });
               }},
-            { type: 'delete', user: '高橋（管理部）', siteName: '県道〇号 夜間規制', category: '高速', shift: '夜', diffs: null,
+            { type: 'delete', user: '高橋（管理部）', siteName: '県道〇号 夜間規制', category: '高速', shift: '夜', gcCode: 'nikkei', diffs: null,
               apply: function(self) {
                   var row = cnFindRow('県道〇号 夜間規制'); if (!row) return;
                   cnMarkPending(row, 'delete', function() {
@@ -3494,7 +3517,7 @@
                       row.remove(); cnRenumberRows();
                   });
               }},
-            { type: 'add', user: '田中（営業部）', siteName: '□□公園 花火大会警備', category: 'イベント', shift: '昼',
+            { type: 'add', user: '田中（営業部）', siteName: '□□公園 花火大会警備', category: 'イベント', shift: '昼', gcCode: 'nikkei',
               details: [{ field: '会社', value: '□□イベント' }, { field: '区分', value: 'イベント（昼）' }, { field: '時間', value: '16:00 - 22:00' }, { field: '人数', value: '5名' }, { field: '集合', value: '15:00' }],
               apply: function(self) {
                   var tbody = document.querySelector('.grid-table tbody');
@@ -3507,7 +3530,7 @@
                   if (typeof renderMinimap === 'function') renderMinimap();
                   cnMarkPending(tr, 'add', function() {});
               }},
-            { type: 'modify', user: '佐藤（営業部）', siteName: '〇〇ビル 巡回警備', category: '施設', shift: '昼',
+            { type: 'modify', user: '佐藤（営業部）', siteName: '〇〇ビル 巡回警備', category: '施設', shift: '昼', gcCode: 'touo',
               diffs: [{ field: '集合時間', oldVal: '08:45', newVal: '08:30' }],
               apply: function(self) {
                   var row = cnFindRow('〇〇ビル 巡回警備'); if (!row) return;
@@ -3520,7 +3543,7 @@
                       cnCleanCellBadges(row);
                   });
               }},
-            { type: 'modify', user: '田中 太郎（自分）', siteName: '〇〇ビル 夜間警備', category: '施設', shift: '夜',
+            { type: 'modify', user: '田中 太郎（自分）', siteName: '〇〇ビル 夜間警備', category: '施設', shift: '夜', gcCode: 'touo',
               diffs: [{ field: '人数', oldVal: '', newVal: '' }],
               apply: function(self) {
                   var row = cnFindRow('〇〇ビル 夜間警備'); if (!row) return;
@@ -3997,7 +4020,7 @@
             var item = cnDemoSequence[cnDemoIndex];
             cnDemoIndex++;
             var n = { type: item.type, user: item.user, siteName: item.siteName,
-                category: item.category, shift: item.shift, time: cnTimeNow(),
+                category: item.category, shift: item.shift, gcCode: item.gcCode || '', time: cnTimeNow(),
                 diffs: item.diffs ? item.diffs.map(function(d) { return Object.assign({}, d); }) : null,
                 details: item.details ? item.details.map(function(d) { return Object.assign({}, d); }) : null };
             n._demoItem = item;
@@ -4903,15 +4926,12 @@
         }
 
         // ============================================
-        // グループ会社フィルタ
+        // グループ会社フィルタ（共通ナビバー連携）
         // ============================================
-        // 【本番】デフォルトはログインユーザーの所属から自動判定
-        //   東央警備・Nikkei所属 → ['touo','nikkei']
-        //   全日本エンタープライズ所属 → ['zennihon']
-        const gcFilterState = { selected: ['touo', 'nikkei'] };
-
         // サイドパネル初期化: 表示中会社を展開し、レンダリング
-        gcFilterState.selected.forEach(function(code) { spState.expandedCompanies.add(code); });
+        groupCompaniesData.forEach(function(gc) {
+            if (window.mdNavGcIsCompanyVisible(gc.code)) spState.expandedCompanies.add(gc.code);
+        });
         renderSidePanel();
         renderMinimap();
 
@@ -4937,44 +4957,15 @@
             });
         }
 
-        function openGcFilterModal() {
-            const modal = document.getElementById('gcFilterModal');
-            modal.querySelectorAll('.gcf-checkbox-item input').forEach(cb => {
-                cb.checked = gcFilterState.selected.includes(cb.value);
-            });
-            modal.classList.add('active');
-        }
-
-        function closeGcFilterModal() {
-            document.getElementById('gcFilterModal').classList.remove('active');
-        }
-
+        // 共通GCフィルタ変更イベントを受けて画面を更新
         function applyGcFilter() {
-            const modal = document.getElementById('gcFilterModal');
-            const checked = Array.from(modal.querySelectorAll('.gcf-checkbox-item input:checked')).map(cb => cb.value);
-            if (checked.length === 0) {
-                alert('少なくとも1つのグループ会社を選択してください。');
-                return;
-            }
-            gcFilterState.selected = checked;
-
-            // ラベル更新
-            const allCodes = groupCompaniesData.map(g => g.code);
-            const isAll = allCodes.length === checked.length && allCodes.every(c => checked.includes(c));
-            document.getElementById('gcFilterLabel').textContent = isAll
-                ? 'すべて'
-                : checked.map(c => {
-                    const gc = groupCompaniesData.find(g => g.code === c);
-                    return gc ? gc.shortName : c;
-                }).join(' + ');
-
             // 行の表示/非表示
-            const tbody = document.querySelector('.grid-table tbody');
+            var tbody = document.querySelector('.grid-table tbody');
             if (tbody) {
-                tbody.querySelectorAll('tr').forEach(row => {
-                    const gc = groupCompaniesData.find(g => row.classList.contains(g.rowClass));
+                tbody.querySelectorAll('tr').forEach(function(row) {
+                    var gc = groupCompaniesData.find(function(g) { return row.classList.contains(g.rowClass); });
                     if (gc) {
-                        row.style.display = checked.includes(gc.code) ? '' : 'none';
+                        row.style.display = window.mdNavGcIsCompanyVisible(gc.code) ? '' : 'none';
                     }
                 });
             }
@@ -4986,20 +4977,33 @@
                         activeUnitCompany = code;
                     }
                 });
-                if (activeUnitCompany && !checked.includes(activeUnitCompany)) {
+                if (activeUnitCompany && !window.mdNavGcIsCompanyVisible(activeUnitCompany)) {
                     spState.activeTab = 'all';
                 }
             }
             // 非表示会社のアコーディオンをクリア＆新規表示会社を展開
             spState.expandedCompanies.forEach(function(code) {
-                if (!checked.includes(code)) spState.expandedCompanies.delete(code);
+                if (!window.mdNavGcIsCompanyVisible(code)) spState.expandedCompanies.delete(code);
             });
-            checked.forEach(function(code) { spState.expandedCompanies.add(code); });
+            groupCompaniesData.forEach(function(gc) {
+                if (window.mdNavGcIsCompanyVisible(gc.code)) spState.expandedCompanies.add(gc.code);
+            });
             renderSidePanel();
             renderMinimap();
-
-            closeGcFilterModal();
         }
+
+        document.addEventListener('gcFilterChanged', function() {
+            applyGcFilter();
+            // 変更通知モーダルが開いていれば再描画
+            var cnModal = document.getElementById('changeNotifyModal');
+            if (cnModal && cnModal.classList.contains('active')) {
+                renderLatestChanges();
+                renderChangeHistory();
+            }
+        });
+
+        // 初期表示にGCフィルタを適用
+        applyGcFilter();
 
         // ===== 社員リスト編集モーダル =====
         // 編集用の一時データ（保存まで元データに反映しない）
@@ -5340,7 +5344,7 @@
         // --- マスターデータ ---
         function slGetVisibleBranchList() {
             return groupCompaniesData
-                .filter(g => gcFilterState.selected.includes(g.code))
+                .filter(g => window.mdNavGcIsCompanyVisible(g.code))
                 .map(g => g.name);
         }
         const slShiftList = ['昼', '夜'];
