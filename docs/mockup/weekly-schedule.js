@@ -81,6 +81,9 @@
     // サイドバーメインタブ: 'employee' | 'vehicle'
     var wsSidebarMainTab = 'employee';
 
+    // 表示グループ会社フィルタ
+    var wsGcFilter = groupCompaniesData.map(function (gc) { return gc.code; }); // 全社表示
+
     // ==========================================================
     // 日付ユーティリティ
     // ==========================================================
@@ -327,6 +330,7 @@
         var gcNames = { touo: '\u6771\u592e\u8b66\u5099', nikkei: 'Nikkei', zennihon: 'AJE' };
 
         gcOrder.forEach(function (gc) {
+            if (wsGcFilter.indexOf(gc) < 0) return;
             var vehicles = wsVehiclesData.filter(function (v) { return v.owner === gc; });
             if (vehicles.length === 0) return;
             groups.push({
@@ -349,6 +353,7 @@
         var gcNames = { touo: '\u6771\u592e\u8b66\u5099', nikkei: 'Nikkei', zennihon: 'AJE' };
 
         gcOrder.forEach(function (gc) {
+            if (wsGcFilter.indexOf(gc) < 0) return;
             var deptMap = {};
             employeesData.forEach(function (emp, idx) {
                 if (emp.company !== gc) return;
@@ -513,14 +518,14 @@
         });
         var holidayTotal = Object.keys(allHolidayEmpSet).length;
 
-        if (holidayTotal > 0) {
+        {
             // グループヘッダー
             var hGroupRow = el('div', 'md-ws-group-row md-ws-holiday-group-header' + (isHolidayCollapsed ? ' md-ws-collapsed' : ''));
             hGroupRow.style.gridRow = currentRow;
             hGroupRow.innerHTML =
                 '<span class="md-ws-group-chevron">\u25bc</span>' +
                 '<span class="md-ws-holiday-badge">\u4f11</span>' +
-                '<span>\u4f11\u307f ' + holidayTotal + '\u540d</span>';
+                '<span>\u4f11\u307f' + (holidayTotal > 0 ? ' ' + holidayTotal + '\u540d' : '') + '</span>';
             hGroupRow.dataset.groupId = holidayGroupId;
             hGroupRow.addEventListener('click', function () { toggleGroup(holidayGroupId); });
             grid.appendChild(hGroupRow);
@@ -610,7 +615,7 @@
             currentRow++;
         }
 
-        // --- 修理/点検行（休み行の下） ---
+        // --- 修理/点検行（休み行の下、常に表示） ---
         var maintGroupId = 'ws-maintenance';
         var isMaintCollapsed = !!collapsedGroups[maintGroupId];
 
@@ -622,13 +627,13 @@
         });
         var maintTotal = Object.keys(allMaintVehicleSet).length;
 
-        if (maintTotal > 0) {
+        {
             var mGroupRow = el('div', 'md-ws-group-row md-ws-maint-group-header' + (isMaintCollapsed ? ' md-ws-collapsed' : ''));
             mGroupRow.style.gridRow = currentRow;
             mGroupRow.innerHTML =
                 '<span class="md-ws-group-chevron">\u25bc</span>' +
                 '<span class="md-ws-maint-badge">\u4fee</span>' +
-                '<span>\u4fee\u7406/\u70b9\u691c ' + maintTotal + '\u53f0</span>';
+                '<span>\u4fee\u7406/\u70b9\u691c' + (maintTotal > 0 ? ' ' + maintTotal + '\u53f0' : '') + '</span>';
             mGroupRow.dataset.groupId = maintGroupId;
             mGroupRow.addEventListener('click', function () { toggleGroup(maintGroupId); });
             grid.appendChild(mGroupRow);
@@ -2119,12 +2124,16 @@
         // 社員軸: 縦タブなし、バッジコンテンツのみ
         if (viewMode === 'employee') {
             var content = el('div', 'md-ws-badge-content');
-            var visibleCompanies = groupCompaniesData;
+            var visibleCompanies = groupCompaniesData.filter(function (gc) {
+                return wsGcFilter.indexOf(gc.code) >= 0;
+            });
+            var filteredCount = 0;
             visibleCompanies.forEach(function (gc) {
                 var companyEmps = employeesData.map(function (emp, idx) {
                     return { index: idx, name: emp.name, company: emp.company, dept: emp.dept };
                 }).filter(function (emp) { return emp.company === gc.code; });
                 if (companyEmps.length === 0) return;
+                filteredCount += companyEmps.length;
                 content.appendChild(el('div', 'md-ws-gc-section-label', gc.shortName));
                 companyEmps.forEach(function (emp) {
                     content.appendChild(createEmpBadge(emp));
@@ -2133,7 +2142,7 @@
             sidebar.appendChild(content);
 
             var countEl = sidebar.querySelector('.md-ws-employee-count');
-            if (countEl) countEl.textContent = '\u5168' + employeesData.length + '\u540d';
+            if (countEl) countEl.textContent = filteredCount + '/' + employeesData.length + '\u540d';
             return;
         }
 
@@ -2328,6 +2337,7 @@
         var gcOrder = ['touo', 'nikkei', 'zennihon'];
 
         gcOrder.forEach(function (gc) {
+            if (wsGcFilter.indexOf(gc) < 0) return;
             var companyVehicles = wsVehiclesData.filter(function (v) { return v.owner === gc; });
             if (companyVehicles.length === 0) return;
 
@@ -2840,6 +2850,20 @@
         if (nextDayBtn) nextDayBtn.addEventListener('click', nextDay);
         if (todayBtn) todayBtn.addEventListener('click', goToday);
 
+        // GCフィルタボタン・モーダル
+        var gcBtn = document.getElementById('wsGcFilterBtn');
+        var gcClose = document.getElementById('wsGcFilterClose');
+        var gcCancel = document.getElementById('wsGcFilterCancel');
+        var gcApply = document.getElementById('wsGcFilterApply');
+        var gcModal = document.getElementById('wsGcFilterModal');
+        if (gcBtn) gcBtn.addEventListener('click', openGcFilterModal);
+        if (gcClose) gcClose.addEventListener('click', closeGcFilterModal);
+        if (gcCancel) gcCancel.addEventListener('click', closeGcFilterModal);
+        if (gcApply) gcApply.addEventListener('click', applyGcFilter);
+        if (gcModal) gcModal.addEventListener('click', function (e) {
+            if (e.target === gcModal) closeGcFilterModal();
+        });
+
         // Escキーで選択解除
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
@@ -2882,11 +2906,7 @@
         var toolbar = document.querySelector('.md-ws-toolbar');
         if (!toolbar) return;
 
-        // セパレータ
-        var sep = el('span', 'md-ws-tb-sep');
-        toolbar.appendChild(sep);
-
-        // ビュー切替トグル
+        // ビュー切替トグル（ツールバーの一番左に挿入）
         var toggle = el('div', 'md-ws-view-toggle');
 
         var siteBtn = el('button', 'md-ws-view-btn md-ws-view-active', '\u73fe\u5834\u8ef8');
@@ -2899,15 +2919,72 @@
 
         toggle.appendChild(siteBtn);
         toggle.appendChild(empBtn);
-        toolbar.appendChild(toggle);
 
-        // ショートカットヒント
-        var hint = el('span', '', '');
-        hint.style.fontSize = '9px';
-        hint.style.color = 'var(--text-disabled)';
-        hint.style.marginLeft = '4px';
-        hint.textContent = 'Tab\u3067\u5207\u66ff';
-        toolbar.appendChild(hint);
+        toolbar.insertBefore(toggle, toolbar.firstChild);
+    }
+
+    // ==========================================================
+    // 表示グループ会社フィルタ
+    // ==========================================================
+
+    function openGcFilterModal() {
+        var modal = document.getElementById('wsGcFilterModal');
+        var container = document.getElementById('wsGcFilterChecks');
+        if (!modal || !container) return;
+
+        container.innerHTML = '';
+        groupCompaniesData.forEach(function (gc) {
+            var label = document.createElement('label');
+            label.className = 'md-ws-gcf-item';
+            var cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.value = gc.code;
+            cb.checked = wsGcFilter.indexOf(gc.code) >= 0;
+            var swatch = el('span', 'md-ws-gcf-swatch');
+            swatch.style.background = 'var(--md-gc-bg-' + gc.code + ')';
+            swatch.style.border = '1px solid #ccc';
+            label.appendChild(cb);
+            label.appendChild(swatch);
+            label.appendChild(document.createTextNode(gc.name));
+            container.appendChild(label);
+        });
+
+        modal.classList.add('active');
+    }
+
+    function closeGcFilterModal() {
+        var modal = document.getElementById('wsGcFilterModal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    function applyGcFilter() {
+        var checks = document.querySelectorAll('#wsGcFilterChecks input:checked');
+        if (checks.length === 0) {
+            alert('\u5c11\u306a\u304f\u3068\u30821\u3064\u306e\u30b0\u30eb\u30fc\u30d7\u4f1a\u793e\u3092\u9078\u629e\u3057\u3066\u304f\u3060\u3055\u3044\u3002');
+            return;
+        }
+        wsGcFilter = [];
+        checks.forEach(function (cb) { wsGcFilter.push(cb.value); });
+
+        updateGcFilterLabel();
+        closeGcFilterModal();
+        deselectCell();
+        renderGrid();
+        renderSidebar();
+    }
+
+    function updateGcFilterLabel() {
+        var label = document.getElementById('wsGcFilterLabel');
+        if (!label) return;
+        if (wsGcFilter.length === groupCompaniesData.length) {
+            label.textContent = '\u3059\u3079\u3066';
+        } else {
+            var names = [];
+            groupCompaniesData.forEach(function (gc) {
+                if (wsGcFilter.indexOf(gc.code) >= 0) names.push(gc.shortName);
+            });
+            label.textContent = names.join(' + ');
+        }
     }
 
     // DOMReady
