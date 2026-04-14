@@ -485,7 +485,7 @@
         var corner2 = el('div', 'md-ws-corner', '');
         corner2.style.gridRow = '2';
         corner2.style.fontSize = '10px';
-        corner2.style.borderBottom = '2px solid var(--secondary)';
+        corner2.style.borderBottom = '2px solid var(--sub-secondary)';
         grid.appendChild(corner2);
 
         dates.forEach(function (d, i) {
@@ -974,7 +974,7 @@
         var corner2 = el('div', 'md-ws-corner', '');
         corner2.style.gridRow = '2';
         corner2.style.fontSize = '10px';
-        corner2.style.borderBottom = '2px solid var(--secondary)';
+        corner2.style.borderBottom = '2px solid var(--sub-secondary)';
         grid.appendChild(corner2);
 
         dates.forEach(function (d) {

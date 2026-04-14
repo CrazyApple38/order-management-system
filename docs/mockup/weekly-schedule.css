@@ -5,20 +5,29 @@
 
 /* --- カラーパレット（共通） --- */
 :root {
-    --bg-page:        #E9F1F6;
-    --bg-surface:     #FFFFFF;
-    --bg-surface-2:   #F0EDE9;
-    --bg-surface-3:   #D3D0C8;
-    --bg-sidebar:     #004554;
-    --text-primary:   #004554;
-    --text-secondary: #2A6B7A;
-    --text-tertiary:  #6B9AA8;
-    --text-disabled:  #A0BCC5;
-    --accent:         #44A6B5;
-    --accent-light:   #5AB8C6;
-    --accent-dim:     rgba(68, 166, 181, 0.12);
-    --secondary:      #B2D5E2;
-    --divider:        #B2D5E2;
+    /* ═══ Tier 1 — Base（60%）═══ */
+    --base-page:         #E9F1F6;
+    --base-surface:      #FFFFFF;
+    --base-surface-alt:  #F0EDE9;
+    --base-muted:        #D3D0C8;
+
+    /* ═══ Tier 2 — Sub（30%）═══ */
+    --sub-primary:       #004554;
+    --sub-secondary:     #B2D5E2;
+
+    /* ═══ Tier 3 — Accent（10%）═══ */
+    --accent-primary:    #44A6B5;
+    --accent-light:      #5AB8C6;
+    --accent-dim:        rgba(68, 166, 181, 0.12);
+
+    /* テキスト */
+    --text-primary:      #004554;
+    --text-secondary:    #2A6B7A;
+    --text-tertiary:     #6B9AA8;
+    --text-disabled:     #A0BCC5;
+
+    /* ディバイダー */
+    --divider:           #B2D5E2;
 
     --md-gc-bg-touo:      #FFFFFF;
     --md-gc-bg-nikkei:    #F3F9F6;
@@ -48,23 +57,36 @@
     --tooltip-color:  white;
     --header-btn-bg:  rgba(255, 255, 255, 0.15);
     --header-btn-hover: rgba(255, 255, 255, 0.25);
+
+    /* 後方互換（co-navbar.css等の共有CSS用） */
+    --bg-page: var(--base-page);
+    --bg-surface: var(--base-surface);
+    --bg-surface-2: var(--base-surface-alt);
+    --bg-surface-3: var(--base-muted);
+    --bg-sidebar: var(--sub-primary);
+    --accent: var(--accent-primary);
+    --secondary: var(--sub-secondary);
 }
 
 /* --- ダークテーマ --- */
 [data-theme="dark"] {
-    --bg-page:        #1a1e22;
-    --bg-surface:     #2a3038;
-    --bg-surface-2:   #3D444B;
-    --bg-surface-3:   #505A63;
-    --bg-sidebar:     #14181c;
+    /* Tier 1 — Base */
+    --base-page:         #1a1e22;
+    --base-surface:      #2a3038;
+    --base-surface-alt:  #3D444B;
+    --base-muted:        #505A63;
+    /* Tier 2 — Sub */
+    --sub-primary:       #14181c;
+    --sub-secondary:     #AEC0C2;
+    /* Tier 3 — Accent */
+    --accent-primary:    #098698;
+    --accent-light:      #0a9db0;
+    --accent-dim:        rgba(9, 134, 152, 0.2);
+    /* テキスト */
     --text-primary:   #D9D4D1;
     --text-secondary: #BAB1AD;
     --text-tertiary:  #8a8480;
     --text-disabled:  #5a5550;
-    --accent:         #098698;
-    --accent-light:   #0a9db0;
-    --accent-dim:     rgba(9, 134, 152, 0.2);
-    --secondary:      #AEC0C2;
     --divider:        #4a5259;
 
     --md-gc-bg-touo:      #2a3038;
@@ -95,13 +117,22 @@
     --tooltip-color:  #D9D4D1;
     --header-btn-bg:  rgba(255, 255, 255, 0.08);
     --header-btn-hover: rgba(255, 255, 255, 0.15);
+
+    /* 後方互換 */
+    --bg-page: var(--base-page);
+    --bg-surface: var(--base-surface);
+    --bg-surface-2: var(--base-surface-alt);
+    --bg-surface-3: var(--base-muted);
+    --bg-sidebar: var(--sub-primary);
+    --accent: var(--accent-primary);
+    --secondary: var(--sub-secondary);
 }
 
 /* --- リセット・ベース --- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-    background: var(--bg-page);
+    background: var(--base-page);
     color: var(--text-primary);
     font-size: 13px;
     line-height: 1.4;
@@ -119,7 +150,7 @@ body {
 
 /* --- ヘッダー --- */
 .md-ws-header {
-    background: var(--bg-sidebar);
+    background: var(--sub-primary);
     color: #fff;
     padding: 8px 16px;
     display: flex;
@@ -183,7 +214,7 @@ body {
 
 /* --- ツールバー --- */
 .md-ws-toolbar {
-    background: var(--bg-surface);
+    background: var(--base-surface);
     border-bottom: 1px solid var(--divider);
     padding: 6px 12px;
     display: flex;
@@ -192,7 +223,7 @@ body {
     flex-shrink: 0;
 }
 .md-ws-toolbar .md-tb-btn {
-    background: var(--bg-surface);
+    background: var(--base-surface);
     border: 1px solid var(--divider);
     color: var(--text-secondary);
     padding: 4px 10px;
@@ -206,8 +237,8 @@ body {
     gap: 4px;
 }
 .md-ws-toolbar .md-tb-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
     background: var(--accent-dim);
 }
 .md-ws-toolbar .md-tb-btn img {
@@ -249,48 +280,49 @@ body {
     position: sticky;
     left: 0;
     z-index: 20;
-    background: var(--bg-sidebar);
-    color: #fff;
+    background: var(--base-muted);
+    color: var(--text-primary);
     font-size: 11px;
     font-weight: 700;
     padding: 6px 8px;
     display: flex;
     align-items: center;
-    border-right: 2px solid var(--secondary);
-    border-bottom: 1px solid rgba(255,255,255,0.15);
+    border-right: 2px solid var(--sub-secondary);
+    border-bottom: 1px solid rgba(0,69,84,0.1);
 }
 .md-ws-date-header {
-    background: var(--bg-sidebar);
-    color: #fff;
+    background: var(--base-muted);
+    color: var(--text-primary);
     font-size: 11px;
     font-weight: 700;
     padding: 4px 2px;
     text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.15);
-    border-left: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(0,69,84,0.1);
+    border-left: 1px solid rgba(0,69,84,0.06);
 }
-.md-ws-date-header.md-ws-sat { color: var(--accent-light); }
+.md-ws-date-header.md-ws-sat { color: var(--text-secondary); }
 .md-ws-date-header.md-ws-sun,
-.md-ws-date-header.md-ws-holiday { color: var(--error-light); }
+.md-ws-date-header.md-ws-holiday { color: var(--error); }
 .md-ws-date-header.md-ws-today {
-    background: #005f6f;
-    border-bottom: 2px solid var(--accent);
+    background: var(--accent-primary);
+    color: #fff;
+    border-bottom: 2px solid var(--sub-primary);
 }
 .md-ws-date-header.md-ws-date-selected {
-    background: var(--accent) !important;
+    background: var(--accent-primary) !important;
     color: #fff !important;
 }
 
 /* --- サブヘッダー（昼/夜） --- */
 .md-ws-shift-header {
-    background: #334155;
-    color: #cbd5e1;
+    background: var(--base-surface-alt);
+    color: var(--text-secondary);
     font-size: 10px;
     font-weight: 600;
     text-align: center;
     padding: 2px 0;
-    border-bottom: 2px solid var(--secondary);
-    border-left: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 2px solid var(--sub-secondary);
+    border-left: 1px solid rgba(0,69,84,0.06);
 }
 .md-ws-shift-header.md-ws-shift-night {
     color: var(--night-text);
@@ -301,7 +333,7 @@ body {
     grid-column: 1 / -1;
     background: var(--accent-dim);
     border-bottom: 1px solid var(--divider);
-    border-top: 2px solid var(--secondary);
+    border-top: 2px solid var(--sub-secondary);
     padding: 4px 10px;
     font-size: 12px;
     font-weight: 700;
@@ -332,7 +364,7 @@ body {
     font-weight: 700;
     padding: 1px 5px;
     border-radius: 3px;
-    background: var(--accent);
+    background: var(--accent-primary);
     color: #fff;
 }
 
@@ -341,8 +373,8 @@ body {
     position: sticky;
     left: 0;
     z-index: 10;
-    background: var(--bg-surface);
-    border-right: 2px solid var(--secondary);
+    background: var(--base-surface);
+    border-right: 2px solid var(--sub-secondary);
     border-bottom: 1px solid var(--divider);
     padding: 4px 8px;
     font-size: 12px;
@@ -429,7 +461,7 @@ body {
 .md-ws-cell.md-ws-today-col.md-ws-day-col,
 .md-ws-date-header.md-ws-today,
 .md-ws-shift-header.md-ws-today-shift-border {
-    border-left: 3px solid var(--accent) !important;
+    border-left: 3px solid var(--accent-primary) !important;
 }
 
 /* ============================================================
@@ -529,7 +561,7 @@ body {
     font-size: 10px;
     font-weight: 700;
     color: var(--text-disabled);
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
     border-radius: 4px;
     padding: 2px 8px;
     text-align: center;
@@ -552,7 +584,7 @@ body {
     max-width: 100%;
 }
 .md-ws-site-chip:hover {
-    border-color: var(--accent);
+    border-color: var(--accent-primary);
     background: rgba(68, 166, 181, 0.2);
 }
 .md-ws-site-chip.md-ws-night-chip {
@@ -590,7 +622,7 @@ body {
     cursor: grab;
 }
 .md-ws-vehicle-chip:hover {
-    border-color: var(--accent);
+    border-color: var(--accent-primary);
 }
 /* 昼夜連続：結合表示 */
 .md-ws-vehicle-span {
@@ -604,9 +636,9 @@ body {
     font-weight: 600;
     padding: 2px 6px;
     border-radius: 4px;
-    background: linear-gradient(90deg, var(--bg-surface-2) 0%, rgba(240,237,233,0.85) 100%);
+    background: linear-gradient(90deg, var(--base-surface-alt) 0%, rgba(240,237,233,0.85) 100%);
     color: var(--text-secondary);
-    border: 1px solid var(--accent);
+    border: 1px solid var(--accent-primary);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -620,8 +652,8 @@ body {
 .md-ws-sidebar {
     width: 340px;
     min-width: 340px;
-    background: var(--bg-surface);
-    border-left: 2px solid var(--secondary);
+    background: var(--base-surface);
+    border-left: 2px solid var(--sub-secondary);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -629,7 +661,7 @@ body {
 }
 
 .md-ws-sidebar-header {
-    background: var(--bg-sidebar);
+    background: var(--sub-primary);
     color: #fff;
     padding: 10px 12px;
     font-size: 12px;
@@ -656,7 +688,7 @@ body {
 
 /* --- 現場カード --- */
 .md-ws-site-card {
-    background: var(--bg-surface);
+    background: var(--base-surface);
     border: 1px solid var(--divider);
     border-radius: 8px;
     margin-bottom: 6px;
@@ -818,7 +850,7 @@ body {
     font-weight: 600;
     padding: 4px 10px;
     border-radius: 6px;
-    background: var(--accent);
+    background: var(--accent-primary);
     color: #fff;
     box-shadow: 0 4px 12px var(--shadow-strong);
     white-space: nowrap;
@@ -836,9 +868,9 @@ body {
    スクロールバー
    ============================================================ */
 .md-ws-grid-wrapper::-webkit-scrollbar { width: 8px; height: 8px; }
-.md-ws-grid-wrapper::-webkit-scrollbar-track { background: var(--bg-surface-2); }
+.md-ws-grid-wrapper::-webkit-scrollbar-track { background: var(--base-surface-alt); }
 .md-ws-grid-wrapper::-webkit-scrollbar-thumb {
-    background: var(--bg-surface-3);
+    background: var(--base-muted);
     border-radius: 4px;
 }
 .md-ws-grid-wrapper::-webkit-scrollbar-thumb:hover { background: var(--text-disabled); }
@@ -846,7 +878,7 @@ body {
 .md-ws-sidebar-body::-webkit-scrollbar { width: 6px; }
 .md-ws-sidebar-body::-webkit-scrollbar-track { background: transparent; }
 .md-ws-sidebar-body::-webkit-scrollbar-thumb {
-    background: var(--bg-surface-3);
+    background: var(--base-muted);
     border-radius: 3px;
 }
 
@@ -875,7 +907,7 @@ body {
     align-items: center;
     gap: 0;
     flex-shrink: 0;
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
     border-radius: 6px;
     border: 1px solid var(--divider);
     overflow: hidden;
@@ -899,7 +931,7 @@ body {
     background: rgba(68, 166, 181, 0.08);
 }
 .md-ws-view-btn.md-ws-view-active {
-    background: var(--accent);
+    background: var(--accent-primary);
     color: #fff;
 }
 .md-ws-view-btn img {
@@ -918,7 +950,7 @@ body {
 
 /* 選択中のセル */
 .md-ws-cell.md-ws-cell-selected {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--accent-primary);
     outline-offset: -2px;
     background: rgba(68, 166, 181, 0.15) !important;
     z-index: 6;
@@ -929,7 +961,7 @@ body {
     background: rgba(68, 166, 181, 0.06) !important;
 }
 .md-ws-grid.md-ws-selection-active .md-ws-date-header.md-ws-col-highlighted {
-    background: var(--accent);
+    background: var(--accent-primary);
     color: #fff;
 }
 
@@ -979,7 +1011,7 @@ body {
    サイドバー：配置モード
    ============================================================ */
 .md-ws-sidebar-assign-header {
-    background: var(--accent);
+    background: var(--accent-primary);
     color: #fff;
     padding: 8px 12px;
     font-size: 11px;
@@ -1025,7 +1057,7 @@ body {
     margin-top: 4px;
 }
 .md-ws-assign-nav-btn {
-    background: var(--accent);
+    background: var(--accent-primary);
     border: none;
     color: #fff;
     width: 28px;
@@ -1079,7 +1111,7 @@ body {
 }
 .md-ws-candidate-item:hover {
     background: var(--accent-dim);
-    border-color: var(--accent);
+    border-color: var(--accent-primary);
 }
 .md-ws-candidate-item.md-ws-candidate-disabled {
     opacity: 0.4;
@@ -1089,7 +1121,7 @@ body {
 .md-ws-candidate-item.md-ws-candidate-assigned {
     opacity: 0.5;
     cursor: default;
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
 }
 .md-ws-candidate-dot {
     width: 8px;
@@ -1100,7 +1132,7 @@ body {
 .md-ws-candidate-dot.md-ws-dot-available { background: var(--success); }
 .md-ws-candidate-dot.md-ws-dot-busy { background: var(--warning); }
 .md-ws-candidate-dot.md-ws-dot-holiday { background: var(--text-disabled); }
-.md-ws-candidate-dot.md-ws-dot-assigned { background: var(--accent); }
+.md-ws-candidate-dot.md-ws-dot-assigned { background: var(--accent-primary); }
 .md-ws-candidate-name {
     flex: 1;
     font-weight: 600;
@@ -1118,7 +1150,7 @@ body {
     font-weight: 700;
     padding: 1px 4px;
     border-radius: 3px;
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
     color: var(--text-tertiary);
 }
 .md-ws-candidate-section {
@@ -1144,7 +1176,7 @@ body {
     flex-direction: column;
     width: 34px;
     min-width: 34px;
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
     border-right: 1px solid var(--divider);
     overflow-y: auto;
     overflow-x: hidden;
@@ -1172,9 +1204,9 @@ body {
     background: var(--accent-dim);
 }
 .md-ws-vtab.active {
-    color: var(--accent);
-    border-left-color: var(--accent);
-    background: var(--bg-surface);
+    color: var(--accent-primary);
+    border-left-color: var(--accent-primary);
+    background: var(--base-surface);
     font-weight: 600;
 }
 
@@ -1186,7 +1218,7 @@ body {
     font-size: 10px;
     font-weight: 700;
     color: var(--text-secondary);
-    background: var(--bg-surface-3);
+    background: var(--base-muted);
     border-top: 1px solid var(--divider);
     cursor: pointer;
     user-select: none;
@@ -1277,7 +1309,7 @@ body {
     align-items: flex-start;
     gap: 4px;
     padding: 4px 8px;
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
     border: 1px solid var(--divider);
     border-radius: 6px;
     font-size: 12px;
@@ -1291,9 +1323,9 @@ body {
     line-height: 16px;
 }
 .md-ws-emp-tag:hover {
-    background: var(--accent);
+    background: var(--accent-primary);
     color: white;
-    border-color: var(--accent);
+    border-color: var(--accent-primary);
 }
 .md-ws-emp-tag:hover .md-ws-dow-badge {
     background: rgba(255, 255, 255, 0.25);
@@ -1316,9 +1348,9 @@ body {
 }
 /* 配置モード — 配置済バッジ */
 .md-ws-emp-tag.md-ws-tag-assigned {
-    background: var(--accent);
+    background: var(--accent-primary);
     color: #fff;
-    border-color: var(--accent);
+    border-color: var(--accent-primary);
     cursor: pointer;
 }
 .md-ws-emp-tag.md-ws-tag-assigned:hover {
@@ -1394,7 +1426,7 @@ body {
     max-width: 100%;
 }
 .md-ws-emp-chip:hover {
-    border-color: var(--accent);
+    border-color: var(--accent-primary);
     background: rgba(68, 166, 181, 0.2);
 }
 .md-ws-emp-chip.md-ws-night-chip {
@@ -1413,11 +1445,11 @@ body {
 }
 .md-ws-chip-arrow-prev {
     margin-right: 2px;
-    color: var(--accent);
+    color: var(--accent-primary);
 }
 .md-ws-chip-arrow-next {
     margin-left: 2px;
-    color: var(--accent);
+    color: var(--accent-primary);
 }
 .md-ws-night-chip .md-ws-chip-arrow-prev,
 .md-ws-night-chip .md-ws-chip-arrow-next {
@@ -1458,7 +1490,7 @@ body {
    ============================================================ */
 .md-ws-main-tabs {
     display: flex;
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
     border-bottom: 2px solid var(--divider);
     flex-shrink: 0;
 }
@@ -1484,9 +1516,9 @@ body {
     background: var(--accent-dim);
 }
 .md-ws-main-tab.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-    background: var(--bg-surface);
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+    background: var(--base-surface);
 }
 .md-ws-main-tab img {
     width: 12px;
@@ -1531,7 +1563,7 @@ body {
     gap: 4px;
     padding: 5px 10px;
     margin: 3px;
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
     border: 1px solid var(--divider);
     border-radius: 6px;
     font-size: 12px;
@@ -1548,9 +1580,9 @@ body {
     line-height: 16px;
 }
 .md-ws-vehicle-tag:hover {
-    background: var(--accent);
+    background: var(--accent-primary);
     color: white;
-    border-color: var(--accent);
+    border-color: var(--accent-primary);
 }
 .md-ws-vehicle-tag:hover .md-ws-dow-badge {
     background: rgba(255, 255, 255, 0.25);
@@ -1568,9 +1600,9 @@ body {
 }
 /* 配置モード — 配置済車両バッジ */
 .md-ws-vehicle-tag.md-ws-tag-assigned {
-    background: var(--accent);
+    background: var(--accent-primary);
     color: #fff;
-    border-color: var(--accent);
+    border-color: var(--accent-primary);
     cursor: pointer;
 }
 .md-ws-vehicle-tag.md-ws-tag-assigned:hover {
@@ -1701,7 +1733,7 @@ body {
 /* 配置済みの休み社員（グレーアウト） */
 .md-ws-holiday-emp-chip.md-ws-holiday-assigned {
     opacity: 0.5;
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
     border-color: var(--divider);
     color: var(--text-tertiary);
 }
@@ -1783,7 +1815,7 @@ body {
 }
 .md-ws-maint-vehicle-chip.md-ws-maint-assigned {
     opacity: 0.5;
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
     border-color: var(--divider);
     color: var(--text-tertiary);
 }
@@ -1809,7 +1841,7 @@ body {
    社員軸ビュー：車両行
    ============================================================ */
 .md-ws-vehicle-group-header .md-ws-group-gc-badge {
-    background: var(--accent);
+    background: var(--accent-primary);
 }
 .md-ws-vehicle-name-cell {
     display: flex;

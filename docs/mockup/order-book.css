@@ -4,20 +4,29 @@
    =========================== */
 
 :root {
-    --bg-page: #E9F1F6;
-    --bg-surface: #FFFFFF;
-    --bg-surface-2: #F0EDE9;
-    --bg-surface-3: #D3D0C8;
-    --bg-sidebar: #004554;
-    --text-primary: #004554;
-    --text-secondary: #2A6B7A;
-    --text-tertiary: #6B9AA8;
-    --text-disabled: #A0BCC5;
-    --accent: #44A6B5;
-    --accent-light: #5AB8C6;
-    --accent-dim: rgba(68, 166, 181, 0.12);
-    --secondary: #B2D5E2;
-    --divider: #B2D5E2;
+    /* ═══ Tier 1 — Base（60%）═══ */
+    --base-page:         #E9F1F6;
+    --base-surface:      #FFFFFF;
+    --base-surface-alt:  #F0EDE9;
+    --base-muted:        #D3D0C8;
+
+    /* ═══ Tier 2 — Sub（30%）═══ */
+    --sub-primary:       #004554;
+    --sub-secondary:     #B2D5E2;
+
+    /* ═══ Tier 3 — Accent（10%）═══ */
+    --accent-primary:    #44A6B5;
+    --accent-light:      #5AB8C6;
+    --accent-dim:        rgba(68, 166, 181, 0.12);
+
+    /* テキスト */
+    --text-primary:      #004554;
+    --text-secondary:    #2A6B7A;
+    --text-tertiary:     #6B9AA8;
+    --text-disabled:     #A0BCC5;
+
+    /* ディバイダー・セマンティック */
+    --divider:           #B2D5E2;
     --error: #DB577B;
     --night-text: #DB577B;
     --success: #38A169;
@@ -26,13 +35,22 @@
     --warning: #D69E2E;
     --warning-text: #975A16;
     --warning-bg: rgba(214, 158, 46, 0.1);
+
+    /* 後方互換（co-navbar.css等の共有CSS用） */
+    --bg-page: var(--base-page);
+    --bg-surface: var(--base-surface);
+    --bg-surface-2: var(--base-surface-alt);
+    --bg-surface-3: var(--base-muted);
+    --bg-sidebar: var(--sub-primary);
+    --accent: var(--accent-primary);
+    --secondary: var(--sub-secondary);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: thin; }
 
 body {
     font-family: 'Segoe UI', 'Yu Gothic UI', 'Meiryo', sans-serif;
-    background: var(--bg-page);
+    background: var(--base-page);
     color: var(--text-primary);
     font-size: 13px;
     overflow: hidden;
@@ -43,7 +61,7 @@ body {
 
 /* ヘッダー */
 .md-ob-header {
-    background: var(--bg-sidebar);
+    background: var(--sub-primary);
     color: white;
     display: flex;
     align-items: center;
@@ -89,7 +107,7 @@ body {
 
 /* ツールバー */
 .md-ob-toolbar {
-    background: var(--bg-surface);
+    background: #F7F5F2;
     border-bottom: 1px solid var(--divider);
     padding: 8px 20px;
     display: flex; align-items: center; justify-content: space-between;
@@ -98,26 +116,26 @@ body {
 }
 .md-ob-toolbar-left { display: flex; gap: 8px; }
 .md-ob-tb-btn {
-    background: var(--bg-surface); border: 1px solid var(--divider);
+    background: var(--base-surface); border: 1px solid var(--divider);
     padding: 6px 14px; border-radius: 6px; cursor: pointer;
     font-size: 11px; color: var(--text-secondary);
     transition: all 0.15s; font-weight: 500;
 }
 .md-ob-tb-btn:hover {
-    background: var(--accent-dim); border-color: var(--accent); color: var(--accent);
+    background: var(--accent-dim); border-color: var(--accent-primary); color: var(--accent-primary);
 }
 .md-ob-tb-btn.active {
-    background: var(--accent); color: white; border-color: var(--accent);
+    background: var(--accent-primary); color: white; border-color: var(--accent-primary);
 }
 .md-ob-tb-btn:disabled {
     opacity: 0.35; cursor: default; pointer-events: none;
 }
 .md-ob-tb-btn-add {
-    background: var(--accent-dim); color: var(--accent); border-color: var(--accent);
+    background: var(--accent-dim); color: var(--accent-primary); border-color: var(--accent-primary);
     font-weight: 600;
 }
 .md-ob-tb-btn-add:hover {
-    background: var(--accent); color: white;
+    background: var(--accent-primary); color: white;
 }
 .md-ob-toolbar-sep {
     width: 1px; height: 20px; background: var(--divider); align-self: center;
@@ -127,7 +145,7 @@ body {
 /* フィルタバー */
 .md-ob-filter-bar {
     background: rgba(68,166,181,0.08);
-    border-bottom: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--sub-secondary);
     padding: 8px 20px;
     display: flex; align-items: center; gap: 14px;
     flex-shrink: 0; flex-wrap: wrap;
@@ -140,11 +158,11 @@ body {
 .md-ob-filter-bar input[type="text"] {
     padding: 4px 8px; border: 1px solid var(--divider);
     border-radius: 4px; font-size: 12px;
-    background: var(--bg-surface); color: var(--text-primary);
+    background: var(--base-surface); color: var(--text-primary);
 }
 .md-ob-filter-bar select:focus,
 .md-ob-filter-bar input[type="text"]:focus {
-    border-color: var(--accent); outline: none;
+    border-color: var(--accent-primary); outline: none;
     box-shadow: 0 0 0 2px var(--accent-dim);
 }
 .md-ob-filter-bar input[type="text"] { width: 140px; }
@@ -157,7 +175,7 @@ body {
     padding: 4px 10px;
     border: 1px solid var(--divider);
     border-radius: 4px;
-    background: var(--bg-surface);
+    background: var(--base-surface);
     color: var(--text-primary);
     font-size: 12px;
     cursor: pointer;
@@ -166,7 +184,7 @@ body {
 }
 .md-ob-filter-dd-btn:hover,
 .md-ob-filter-dd.open .md-ob-filter-dd-btn {
-    border-color: var(--accent);
+    border-color: var(--accent-primary);
     box-shadow: 0 0 0 2px var(--accent-dim);
 }
 .md-ob-filter-dd-arrow {
@@ -184,7 +202,7 @@ body {
     top: calc(100% + 4px);
     left: 0;
     min-width: 140px;
-    background: var(--bg-surface);
+    background: var(--base-surface);
     border: 1px solid var(--divider);
     border-radius: 6px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.12);
@@ -206,13 +224,13 @@ body {
     background: var(--accent-dim);
 }
 .md-ob-filter-dd-item input[type="checkbox"] {
-    accent-color: var(--accent);
+    accent-color: var(--accent-primary);
     cursor: pointer;
 }
 .md-ob-filter-dd-badge {
     font-size: 10px;
     font-weight: 700;
-    background: var(--accent);
+    background: var(--accent-primary);
     color: white;
     border-radius: 8px;
     min-width: 16px;
@@ -223,7 +241,7 @@ body {
     padding: 0 4px;
 }
 .md-ob-filter-clear {
-    background: none; border: none; color: var(--accent);
+    background: none; border: none; color: var(--accent-primary);
     cursor: pointer; font-size: 12px;
 }
 .md-ob-filter-clear:hover { text-decoration: underline; }
@@ -258,31 +276,32 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 28px;
+    background: #F7F5F2;
 }
 
 /* ヘッダー行 */
 .md-ob-cell.md-ob-header {
-    background: #334155;
-    color: #fff;
+    background: var(--base-muted);
+    color: var(--text-primary);
     font-weight: 600;
     font-size: 11px;
     position: sticky;
     top: 0;
     z-index: 20;
-    border-bottom: 2px solid var(--accent);
-    border-right: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 2px solid var(--accent-primary);
+    border-right: 1px solid rgba(0,69,84,0.1);
 }
 
 /* 固定列 */
-.md-ob-frozen-0 { position: sticky; left: 0; z-index: 10; background: var(--bg-page); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; line-height: 28px; }
-.md-ob-frozen-1 { position: sticky; left: 100px; z-index: 10; background: var(--bg-page); }
-.md-ob-frozen-2 { position: sticky; left: 164px; z-index: 10; background: var(--bg-page); }
-.md-ob-frozen-3 { position: sticky; left: 200px; z-index: 10; background: var(--bg-page); text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
-.md-ob-frozen-4 { position: sticky; left: 330px; z-index: 10; background: var(--bg-page); }
-.md-ob-frozen-5 { position: sticky; left: 358px; z-index: 10; background: var(--bg-page); text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
-.md-ob-frozen-6 { position: sticky; left: 488px; z-index: 10; background: var(--bg-page); }
-.md-ob-frozen-7 { position: sticky; left: 516px; z-index: 10; background: var(--bg-page); }
-.md-ob-frozen-8 { position: sticky; left: 552px; z-index: 10; background: var(--bg-page); border-right: 2px solid var(--secondary); }
+.md-ob-frozen-0 { position: sticky; left: 0; z-index: 10; background: #F7F5F2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; line-height: 28px; }
+.md-ob-frozen-1 { position: sticky; left: 100px; z-index: 10; background: #F7F5F2; }
+.md-ob-frozen-2 { position: sticky; left: 164px; z-index: 10; background: #F7F5F2; }
+.md-ob-frozen-3 { position: sticky; left: 200px; z-index: 10; background: #F7F5F2; text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
+.md-ob-frozen-4 { position: sticky; left: 330px; z-index: 10; background: #F7F5F2; }
+.md-ob-frozen-5 { position: sticky; left: 358px; z-index: 10; background: #F7F5F2; text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
+.md-ob-frozen-6 { position: sticky; left: 488px; z-index: 10; background: #F7F5F2; }
+.md-ob-frozen-7 { position: sticky; left: 516px; z-index: 10; background: #F7F5F2; }
+.md-ob-frozen-8 { position: sticky; left: 552px; z-index: 10; background: #F7F5F2; border-right: 2px solid var(--sub-secondary); }
 
 /* ヘッダー + 固定列（最高優先） */
 .md-ob-cell.md-ob-header.md-ob-frozen-0,
@@ -295,7 +314,7 @@ body {
 .md-ob-cell.md-ob-header.md-ob-frozen-7,
 .md-ob-cell.md-ob-header.md-ob-frozen-8 {
     z-index: 30;
-    background: #334155;
+    background: var(--base-muted);
 }
 
 /* 日付ヘッダー */
@@ -330,7 +349,7 @@ body {
 }
 .md-ob-cell-badge-text {
     font-size: 7px; font-weight: 500;
-    color: var(--accent);
+    color: var(--accent-primary);
     white-space: nowrap;
     overflow: hidden; text-overflow: ellipsis;
     max-width: 100%;
@@ -338,16 +357,17 @@ body {
 }
 .md-ob-date-cell:hover {
     background: var(--accent-dim) !important;
-    box-shadow: inset 0 0 0 2px var(--accent);
+    box-shadow: inset 0 0 0 2px var(--accent-primary);
 }
 
-/* 土日祝 */
-.md-ob-sat { background-color: rgba(68,166,181,0.08) !important; }
-.md-ob-sun { background-color: rgba(220,120,120,0.1) !important; }
-.md-ob-holiday { background-color: rgba(214,158,46,0.1) !important; }
-.md-ob-sat-head { background-color: #2A6B7A !important; }
-.md-ob-sun-head { background-color: #8B4545 !important; }
-.md-ob-holiday-head { background-color: #92400e !important; }
+/* 土日祝（ボディセル: #F7F5F2上で合成済み不透明色） */
+.md-ob-sat { background-color: #ECF0EE !important; }
+.md-ob-sun { background-color: #F5ECEB !important; }
+.md-ob-holiday { background-color: #F5F0E6 !important; }
+/* 土日祝（ヘッダー: base-muted + 薄い色ティント混合） */
+.md-ob-sat-head { background-color: #BECAC5 !important; color: var(--text-primary) !important; }
+.md-ob-sun-head { background-color: #D4BEBD !important; color: var(--text-primary) !important; }
+.md-ob-holiday-head { background-color: #D4C9B1 !important; color: var(--text-primary) !important; }
 
 /* 夜勤 */
 .md-ob-cell.md-ob-night {
@@ -378,7 +398,7 @@ body {
 .md-ob-total-row {
     font-weight: 700; font-size: 11px;
     background: rgba(68,166,181,0.08);
-    border-top: 2px solid var(--secondary);
+    border-top: 2px solid var(--sub-secondary);
     white-space: nowrap;
 }
 .md-ob-total-row.md-ob-frozen-0,
@@ -396,9 +416,9 @@ body {
 /* データ行ホバー — JS側で.md-ob-data-rowクラスを付与した行グループにホバー効果 */
 /* (CSS Gridでは行グループが無いため、JSでhover処理) */
 
-/* 偶数行 */
+/* 偶数行（Timberwolf系の薄いティント — #F7F5F2上で合成済み不透明色） */
 .md-ob-even-row {
-    background: rgba(233,241,246,0.5);
+    background: #F4F2EF;
 }
 .md-ob-even-row.md-ob-frozen-0,
 .md-ob-even-row.md-ob-frozen-1,
@@ -409,7 +429,7 @@ body {
 .md-ob-even-row.md-ob-frozen-6,
 .md-ob-even-row.md-ob-frozen-7,
 .md-ob-even-row.md-ob-frozen-8 {
-    background: rgba(225,237,243,0.8);
+    background: #F4F2EF;
 }
 
 /* 行複製＋ボタン列 */
@@ -419,7 +439,7 @@ body {
     color: var(--text-tertiary); font-size: 14px; font-weight: 700;
     transition: all 0.15s; line-height: 1;
 }
-.md-ob-row-add-btn:hover { background: var(--accent-dim); color: var(--accent); }
+.md-ob-row-add-btn:hover { background: var(--accent-dim); color: var(--accent-primary); }
 
 /* カレンダーボタン列 */
 .md-ob-cal-open-btn {
@@ -452,7 +472,7 @@ body {
 }
 .md-ob-tooltip .md-ob-tt-title {
     font-weight: 700; font-size: 13px; margin-bottom: 6px;
-    color: var(--secondary);
+    color: var(--sub-secondary);
     border-bottom: 1px solid rgba(178,213,226,0.3); padding-bottom: 4px;
 }
 .md-ob-tooltip .md-ob-tt-row { display: flex; gap: 8px; }
@@ -473,7 +493,7 @@ body {
     z-index: 500;
 }
 .md-ob-modal {
-    background: var(--bg-surface); border-radius: 12px;
+    background: var(--base-surface); border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0,69,84,0.15);
     width: 480px; max-height: 90vh;
     display: flex; flex-direction: column;
@@ -502,9 +522,9 @@ body {
 /* カード型サブタイトル */
 .md-modal-body-field { margin-bottom: 4px; }
 .md-modal-body-field-value {
-    padding: 6px 0; border-bottom: 2px solid var(--accent);
+    padding: 6px 0; border-bottom: 2px solid var(--accent-primary);
     font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
-    color: var(--accent); font-weight: 600;
+    color: var(--accent-primary); font-weight: 600;
 }
 /* モーダル内カード */
 .md-modal-body-card {
@@ -515,7 +535,7 @@ body {
 /* セクションバー */
 .md-modal-section-bar {
     display: flex; align-items: center; gap: 8px;
-    font-size: 11px; font-weight: 700; color: var(--accent);
+    font-size: 11px; font-weight: 700; color: var(--accent-primary);
     letter-spacing: 0.5px; margin: 0;
 }
 .md-modal-section-bar::after {
@@ -524,14 +544,14 @@ body {
 /* 業務名表示（sm-display-value準拠） */
 .md-ob-cal-display-value {
     font-size: 15px; font-weight: 600;
-    color: var(--accent);
+    color: var(--accent-primary);
     padding: 12px 0 8px;
     border-bottom: 1px solid var(--divider);
 }
 .md-ob-modal-footer {
     display: flex; justify-content: space-between; align-items: center;
     padding: 14px 20px; border-top: 1px solid var(--divider);
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
 }
 .md-ob-modal-footer-right {
     display: flex; gap: 10px;
@@ -549,11 +569,11 @@ body {
     padding: 10px; border: 1px solid var(--divider);
     border-radius: 6px; font-size: 12px; font-family: inherit;
     transition: border-color 0.15s;
-    background: var(--bg-surface); color: var(--text-primary);
+    background: var(--base-surface); color: var(--text-primary);
 }
 .md-ob-form-row input:focus,
 .md-ob-form-row textarea:focus {
-    outline: none; border-color: var(--accent);
+    outline: none; border-color: var(--accent-primary);
     box-shadow: 0 0 0 3px var(--accent-dim);
 }
 .md-ob-form-row input[type="number"] { width: 80px; text-align: center; font-size: 18px; font-weight: 700; }
@@ -562,7 +582,7 @@ body {
 .md-ob-company-field, .md-ob-task-field { position: relative; }
 .md-ob-company-suggest {
     position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
-    background: var(--bg-surface); border: 1px solid var(--divider);
+    background: var(--base-surface); border: 1px solid var(--divider);
     border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     max-height: 180px; overflow-y: auto;
     margin-top: 2px;
@@ -606,24 +626,24 @@ body {
     display: flex; flex-direction: column; gap: 10px;
     padding: 12px 14px;
     background: rgba(68,166,181,0.05);
-    border-left: 3px solid var(--accent);
+    border-left: 3px solid var(--accent-primary);
     border-radius: 0 6px 6px 0;
 }
 .md-ob-sub-task-header {
     display: flex; align-items: center; justify-content: space-between;
 }
 .md-ob-sub-task-title {
-    font-size: 12px; font-weight: 600; color: var(--accent);
+    font-size: 12px; font-weight: 600; color: var(--accent-primary);
     letter-spacing: 0.5px;
 }
 .md-ob-btn-add-sub {
-    background: var(--accent-dim); border: 1px solid var(--accent);
-    color: var(--accent); padding: 4px 10px; border-radius: 4px;
+    background: var(--accent-dim); border: 1px solid var(--accent-primary);
+    color: var(--accent-primary); padding: 4px 10px; border-radius: 4px;
     font-size: 11px; font-weight: 600; cursor: pointer;
     transition: all 0.15s;
 }
 .md-ob-btn-add-sub:hover {
-    background: var(--accent); color: white;
+    background: var(--accent-primary); color: white;
 }
 
 /* サブタスクエントリ */
@@ -635,23 +655,23 @@ body {
     width: 80px; flex-shrink: 0;
     padding: 5px 8px; border: 1px dashed var(--divider);
     border-radius: 4px; font-size: 11px;
-    background: rgba(68,166,181,0.04); color: var(--accent);
+    background: rgba(68,166,181,0.04); color: var(--accent-primary);
     font-weight: 600; text-align: center;
     transition: border-color 0.15s;
 }
 .md-ob-sub-label-input:focus {
-    outline: none; border-color: var(--accent); border-style: solid;
+    outline: none; border-color: var(--accent-primary); border-style: solid;
     box-shadow: 0 0 0 2px var(--accent-dim);
 }
 .md-ob-sub-value-input {
     flex: 1;
     padding: 6px 10px; border: 1px solid var(--divider);
     border-radius: 5px; font-size: 13px;
-    background: var(--bg-surface); color: var(--text-primary);
+    background: var(--base-surface); color: var(--text-primary);
     transition: border-color 0.15s;
 }
 .md-ob-sub-value-input:focus {
-    outline: none; border-color: var(--accent);
+    outline: none; border-color: var(--accent-primary);
     box-shadow: 0 0 0 2px var(--accent-dim);
 }
 .md-ob-btn-remove-sub {
@@ -670,11 +690,11 @@ body {
 .md-ob-plan-name-row {
     padding: 10px 14px;
     background: rgba(68,166,181,0.06);
-    border: 1px solid var(--secondary);
+    border: 1px solid var(--sub-secondary);
     border-radius: 6px;
 }
 .md-ob-plan-name-label {
-    font-size: 10px; font-weight: 600; color: var(--accent);
+    font-size: 10px; font-weight: 600; color: var(--accent-primary);
     letter-spacing: 0.5px; margin-bottom: 4px;
 }
 .md-ob-plan-name-value {
@@ -695,7 +715,7 @@ body {
     width: 100%;
     margin: 4px 0 6px 0;
     padding: 8px 10px 6px 14px;
-    border-left: 2px solid var(--secondary);
+    border-left: 2px solid var(--sub-secondary);
     background: rgba(68,166,181,0.04);
     border-radius: 0 6px 6px 0;
 }
@@ -720,7 +740,7 @@ body {
 .md-ob-tt-badge {
     display: inline-block;
     padding: 2px 8px; border-radius: 10px;
-    background: rgba(68,166,181,0.15); color: var(--accent);
+    background: rgba(68,166,181,0.15); color: var(--accent-primary);
     font-size: 10px; font-weight: 600;
 }
 
@@ -734,7 +754,7 @@ body {
     display: flex; flex-direction: column; gap: 10px;
     padding: 12px 14px;
     background: rgba(68,166,181,0.05);
-    border-left: 3px solid var(--accent);
+    border-left: 3px solid var(--accent-primary);
     border-radius: 0 6px 6px 0;
 }
 .md-ob-map-entry {
@@ -759,18 +779,18 @@ body {
     font-size: 13px; background: var(--bg-primary); color: var(--text-primary);
 }
 .md-ob-map-url-row input:focus {
-    outline: none; border-color: var(--accent);
+    outline: none; border-color: var(--accent-primary);
     box-shadow: 0 0 0 2px rgba(68,166,181,0.15);
 }
 .md-ob-btn-map-preview {
-    padding: 5px 10px; border: 1px solid var(--accent);
+    padding: 5px 10px; border: 1px solid var(--accent-primary);
     border-radius: 6px; background: var(--accent-dim);
-    color: var(--accent); font-size: 12px; font-weight: 600;
+    color: var(--accent-primary); font-size: 12px; font-weight: 600;
     cursor: pointer; white-space: nowrap;
     transition: all 0.15s;
 }
 .md-ob-btn-map-preview:hover {
-    background: var(--accent); color: #fff;
+    background: var(--accent-primary); color: #fff;
 }
 .md-ob-map-preview {
     position: relative;
@@ -804,18 +824,18 @@ body {
     width: 100%; padding: 7px 30px 7px 10px; border: 1px solid var(--divider);
     border-radius: 6px; font-size: 13px; font-weight: 500;
     text-align: center; cursor: pointer;
-    background: var(--bg-surface); color: var(--text-primary);
+    background: var(--base-surface); color: var(--text-primary);
     font-family: inherit; transition: border-color 0.15s;
 }
-.md-ob-time-input:hover { border-color: var(--accent); }
-.md-ob-time-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.md-ob-time-input:hover { border-color: var(--accent-primary); }
+.md-ob-time-input:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px var(--accent-dim); }
 .md-ob-time-picker-icon {
     position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
     font-size: 14px; line-height: 1; pointer-events: none; opacity: 0.6;
 }
 .md-ob-time-dropdown {
     position: fixed; display: flex;
-    background: var(--bg-surface); border: 1px solid var(--divider);
+    background: var(--base-surface); border: 1px solid var(--divider);
     border-radius: 10px; box-shadow: 0 8px 24px rgba(0,69,84,0.18);
     z-index: 600; overflow: hidden;
 }
@@ -840,10 +860,10 @@ body {
     min-width: 50px;
 }
 .md-ob-time-option:hover {
-    background: var(--accent-dim); color: var(--accent);
+    background: var(--accent-dim); color: var(--accent-primary);
 }
 .md-ob-time-option.md-ob-time-selected {
-    background: var(--accent); color: #fff;
+    background: var(--accent-primary); color: #fff;
 }
 
 /* ボタン */
@@ -851,12 +871,12 @@ body {
     padding: 5px 10px; border: none; border-radius: 6px;
     font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
 }
-.md-ob-btn-primary { background: var(--accent); color: white; }
+.md-ob-btn-primary { background: var(--accent-primary); color: white; }
 .md-ob-btn-primary:hover { background: var(--accent-light); box-shadow: 0 2px 8px rgba(68,166,181,0.3); }
 .md-ob-btn-primary:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
-.md-ob-btn-primary:disabled:hover { background: var(--accent); box-shadow: none; }
-.md-ob-btn-secondary { background: var(--bg-surface-2); color: var(--text-secondary); border: none; }
-.md-ob-btn-secondary:hover { background: var(--bg-surface-3); }
+.md-ob-btn-primary:disabled:hover { background: var(--accent-primary); box-shadow: none; }
+.md-ob-btn-secondary { background: var(--base-surface-alt); color: var(--text-secondary); border: none; }
+.md-ob-btn-secondary:hover { background: var(--base-muted); }
 .md-ob-btn-danger { background: rgba(219, 87, 123, 0.08); color: var(--error); border: 1px solid rgba(219, 87, 123, 0.3); }
 .md-ob-btn-danger:hover { background: rgba(219, 87, 123, 0.15); color: var(--error); }
 
@@ -865,13 +885,13 @@ body {
 .md-ob-sort-list { list-style: none; }
 .md-ob-sort-list li {
     display: flex; align-items: center; gap: 8px;
-    padding: 9px 12px; background: var(--bg-page);
+    padding: 9px 12px; background: var(--base-page);
     border: 1px solid var(--divider); border-radius: 6px;
     margin-bottom: 6px; font-size: 13px;
     cursor: grab; user-select: none; transition: all 0.15s;
 }
 .md-ob-sort-list li:active { cursor: grabbing; background: var(--accent-dim); }
-.md-ob-sort-list li.drag-over { border-color: var(--accent); background: var(--accent-dim); }
+.md-ob-sort-list li.drag-over { border-color: var(--accent-primary); background: var(--accent-dim); }
 .md-ob-sort-grip { color: var(--text-tertiary); font-size: 14px; }
 .md-ob-sort-dir {
     margin-left: auto; background: none;
@@ -880,18 +900,18 @@ body {
     font-size: 11px; color: var(--text-tertiary);
 }
 .md-ob-sort-dir:hover {
-    background: var(--accent-dim); border-color: var(--accent); color: var(--accent);
+    background: var(--accent-dim); border-color: var(--accent-primary); color: var(--accent-primary);
 }
 
 /* 行編集モーダル：セレクト・固定列カーソル */
 .md-ob-form-row select {
     padding: 8px 12px; border: 1px solid var(--divider);
     border-radius: 6px; font-size: 13px; font-family: inherit;
-    background: var(--bg-surface); color: var(--text-primary);
+    background: var(--base-surface); color: var(--text-primary);
     transition: border-color 0.15s; appearance: auto;
 }
 .md-ob-form-row select:focus {
-    outline: none; border-color: var(--accent);
+    outline: none; border-color: var(--accent-primary);
     box-shadow: 0 0 0 3px var(--accent-dim);
 }
 /* 行編集モーダル：チップフィールド */
@@ -905,14 +925,14 @@ body {
     display: flex; align-items: center; justify-content: space-between;
 }
 .md-ob-chip-field-title {
-    font-size: 12px; font-weight: 600; color: var(--accent);
+    font-size: 12px; font-weight: 600; color: var(--accent-primary);
     letter-spacing: 0.5px;
 }
 
 /* 行編集モーダル：チップ選択 → co-shared-badges.css */
 .md-ob-row-chip.md-ob-chip-disabled {
     opacity: 0.35; cursor: not-allowed;
-    background: var(--bg-surface-2); color: var(--text-tertiary);
+    background: var(--base-surface-alt); color: var(--text-tertiary);
     border-color: var(--divider);
 }
 .md-ob-row-dup-warning {
@@ -933,7 +953,7 @@ body {
     font-size: 11px; font-weight: 600; color: var(--text-secondary);
     padding: 2px 0; transition: color 0.15s;
 }
-.md-ob-history-toggle:hover { color: var(--accent); }
+.md-ob-history-toggle:hover { color: var(--accent-primary); }
 .md-ob-history-toggle-icon {
     font-size: 9px; transition: transform 0.2s;
     display: inline-block;
@@ -959,18 +979,18 @@ body {
     display: inline-flex; align-items: center;
     padding: 2px 8px; border-radius: 12px;
     border: 1px solid var(--divider);
-    background: var(--bg-surface); color: var(--text-secondary);
+    background: var(--base-surface); color: var(--text-secondary);
     font-size: 10px; font-weight: 500;
     cursor: pointer; transition: all 0.15s;
     -webkit-user-select: none; user-select: none;
 }
 .md-ob-history-badge:hover {
-    border-color: var(--accent); color: var(--accent);
+    border-color: var(--accent-primary); color: var(--accent-primary);
     background: rgba(68,166,181,0.06);
 }
 .md-ob-history-badge.md-ob-hb-active {
-    background: var(--accent); color: #fff;
-    border-color: var(--accent);
+    background: var(--accent-primary); color: #fff;
+    border-color: var(--accent-primary);
 }
 /* 現場監督・連絡先 候補チップ */
 .md-ob-supervisor-candidates {
@@ -991,20 +1011,20 @@ body {
 }
 .md-ob-sv-drag-item[draggable="true"] { cursor: grab; }
 .md-ob-sv-drag-item.md-ob-sv-dragging { opacity: 0.4; transform: scale(0.95); }
-.md-ob-sv-drag-item.md-ob-sv-drag-over { box-shadow: 0 0 0 2px var(--accent); border-radius: 14px; }
+.md-ob-sv-drag-item.md-ob-sv-drag-over { box-shadow: 0 0 0 2px var(--accent-primary); border-radius: 14px; }
 .md-ob-sv-drag-grip {
     font-size: 10px; color: var(--text-disabled);
     cursor: grab; padding: 0 2px; user-select: none;
 }
 .md-ob-supervisor-chip {
     padding: 2px 8px; border: 1px solid var(--divider);
-    border-radius: 12px; background: var(--bg-surface);
+    border-radius: 12px; background: var(--base-surface);
     color: var(--text-secondary); font-size: 10px;
     cursor: pointer; transition: all 0.15s;
     white-space: nowrap;
 }
 .md-ob-supervisor-chip:hover {
-    border-color: var(--accent); color: var(--accent);
+    border-color: var(--accent-primary); color: var(--accent-primary);
     background: rgba(68,166,181,0.06);
 }
 .md-ob-sv-delete-btn {
@@ -1031,7 +1051,7 @@ body {
     cursor: pointer; transition: all 0.15s;
 }
 .md-ob-btn-add-chip:hover {
-    border-color: var(--accent); color: var(--accent);
+    border-color: var(--accent-primary); color: var(--accent-primary);
     background: rgba(68,166,181,0.06);
 }
 
@@ -1047,7 +1067,7 @@ body {
 }
 .md-ob-site-entry:hover {
     background: var(--accent-dim);
-    box-shadow: inset 0 0 0 1px var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent-primary);
 }
 .md-ob-site-entry + .md-ob-site-entry {
     border-top: 1px dotted var(--divider);
@@ -1066,14 +1086,14 @@ body {
     cursor: pointer; transition: all 0.15s;
     border-bottom: 2px solid transparent; margin-bottom: -2px;
 }
-.md-ob-placement-tab:hover { color: var(--accent); }
+.md-ob-placement-tab:hover { color: var(--accent-primary); }
 .md-ob-placement-tab.active {
-    color: var(--accent); border-bottom-color: var(--accent);
+    color: var(--accent-primary); border-bottom-color: var(--accent-primary);
 }
 .md-ob-placement-tab-add {
     color: var(--text-tertiary); font-size: 11px;
 }
-.md-ob-placement-tab-add:hover { color: var(--accent); }
+.md-ob-placement-tab-add:hover { color: var(--accent-primary); }
 .md-ob-placement-tab-delete {
     color: var(--error); font-size: 11px; margin-left: auto;
 }
@@ -1085,13 +1105,13 @@ body {
     border-bottom: 2px solid transparent; margin-bottom: -2px;
 }
 .md-ob-site-nav-btn:hover:not(:disabled) {
-    color: var(--accent);
+    color: var(--accent-primary);
 }
 .md-ob-site-nav-btn:disabled {
     opacity: 0.3; cursor: default;
 }
 .md-ob-site-nav-btn.active {
-    color: var(--accent); border-bottom-color: var(--accent);
+    color: var(--accent-primary); border-bottom-color: var(--accent-primary);
 }
 .md-ob-site-nav-label {
     display: none;
@@ -1103,7 +1123,7 @@ body {
     border-bottom: 2px solid transparent; margin-bottom: -2px;
 }
 .md-ob-btn-add-site:hover {
-    color: var(--accent);
+    color: var(--accent-primary);
 }
 .md-ob-btn-delete-site {
     padding: 4px 10px; border: 1px solid rgba(219,87,123,0.3);
@@ -1133,7 +1153,7 @@ body {
 }
 .md-ob-frozen-clickable:hover {
     background: var(--accent-dim) !important;
-    color: var(--accent);
+    color: var(--accent-primary);
 }
 
 /* ========== カレンダー入力モーダル ========== */
@@ -1190,7 +1210,7 @@ body {
     border-bottom: 1px solid var(--divider);
 }
 .md-ob-cal-dow-header.md-ob-cal-sun { color: #DB577B; }
-.md-ob-cal-dow-header.md-ob-cal-sat { color: var(--accent); }
+.md-ob-cal-dow-header.md-ob-cal-sat { color: var(--accent-primary); }
 
 /* 日セル */
 .md-ob-cal-cell {
@@ -1200,7 +1220,7 @@ body {
     transition: background 0.1s, border-color 0.1s; cursor: pointer;
 }
 .md-ob-cal-cell:hover:not(.md-ob-cal-outside) {
-    background: var(--accent-dim); border-color: var(--accent);
+    background: var(--accent-dim); border-color: var(--accent-primary);
 }
 .md-ob-cal-day-num { font-size: 11px; font-weight: 600; margin-bottom: 1px; }
 
@@ -1208,13 +1228,13 @@ body {
 .md-ob-cal-cell.md-ob-cal-sun { background: rgba(220,120,120,0.06); }
 .md-ob-cal-cell.md-ob-cal-sun .md-ob-cal-day-num { color: #DB577B; }
 .md-ob-cal-cell.md-ob-cal-sat { background: rgba(68,166,181,0.06); }
-.md-ob-cal-cell.md-ob-cal-sat .md-ob-cal-day-num { color: var(--accent); }
+.md-ob-cal-cell.md-ob-cal-sat .md-ob-cal-day-num { color: var(--accent-primary); }
 .md-ob-cal-cell.md-ob-cal-holiday { background: rgba(214,158,46,0.08); }
 .md-ob-cal-holiday-name { font-size: 8px; color: #b45309; font-weight: 500; line-height: 1; }
 
 /* 今日マーク */
 .md-ob-cal-cell.md-ob-cal-today .md-ob-cal-day-num {
-    background: var(--accent); color: white; border-radius: 50%;
+    background: var(--accent-primary); color: white; border-radius: 50%;
     width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
 }
 
@@ -1245,7 +1265,7 @@ body {
 .md-ob-edit-night #editStartTime,
 .md-ob-edit-night #editEndTime { color: var(--night-text); }
 .md-ob-cal-badge {
-    font-size: 7px; color: var(--accent);
+    font-size: 7px; color: var(--accent-primary);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
     line-height: 1;
 }
@@ -1253,11 +1273,11 @@ body {
 /* 選択中のセル */
 .md-ob-cal-cell.md-ob-cal-selected {
     background: rgba(68,166,181,0.22) !important;
-    border: 2px solid var(--accent) !important;
+    border: 2px solid var(--accent-primary) !important;
 }
 /* 選択中のエントリ（複数配置先時） */
 .md-ob-cal-entry.md-ob-cal-entry-selected {
-    background: var(--accent);
+    background: var(--accent-primary);
     border-radius: 3px;
 }
 .md-ob-cal-entry.md-ob-cal-entry-selected .md-ob-cal-count {
@@ -1284,7 +1304,7 @@ body {
 
 /* カレンダー内 編集アコーディオンパネル */
 .md-ob-cal-edit-panel {
-    border-top: 2px solid var(--accent);
+    border-top: 2px solid var(--accent-primary);
 }
 .md-ob-cal-edit-panel-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -1338,8 +1358,8 @@ body {
     line-height: 1;
 }
 .md-cn-notify-btn:hover {
-    background: var(--bg-surface-2);
-    border-color: var(--accent);
+    background: var(--base-surface-alt);
+    border-color: var(--accent-primary);
 }
 .md-cn-bell-icon {
     width: 18px;
@@ -1361,7 +1381,7 @@ body {
 }
 .md-cn-toast {
     pointer-events: auto;
-    background: var(--bg-surface);
+    background: var(--base-surface);
     border: 1px solid var(--divider);
     border-radius: 8px;
     padding: 12px 16px;
@@ -1391,7 +1411,7 @@ body {
 
 /* --- 変更通知モーダル --- */
 .md-cn-modal {
-    background: var(--bg-surface);
+    background: var(--base-surface);
     border-radius: 12px;
     width: 500px;
     max-height: 80vh;
@@ -1406,7 +1426,7 @@ body {
     justify-content: space-between;
     padding: 16px 24px;
     border-bottom: 1px solid var(--divider);
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
     flex-shrink: 0;
 }
 .md-cn-header-left {
@@ -1441,14 +1461,14 @@ body {
     padding: 4px 8px;
     border: 1px solid var(--divider);
     border-radius: 6px;
-    background: var(--bg-surface);
+    background: var(--base-surface);
     color: var(--text-secondary);
     cursor: pointer;
     max-width: 180px;
 }
 .md-cn-filter-select:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--accent-primary);
     box-shadow: 0 0 0 2px var(--accent-dim);
 }
 .md-cn-close {
@@ -1461,13 +1481,13 @@ body {
     border-radius: 4px;
     transition: all 0.15s;
 }
-.md-cn-close:hover { background: var(--accent-dim); color: var(--accent); }
+.md-cn-close:hover { background: var(--accent-dim); color: var(--accent-primary); }
 
 /* タブ */
 .md-cn-tabs {
     display: flex;
     border-bottom: 1px solid var(--divider);
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
     flex-shrink: 0;
     padding: 0 24px;
 }
@@ -1483,8 +1503,8 @@ body {
 }
 .md-cn-tab:hover { color: var(--text-secondary); }
 .md-cn-tab.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
 }
 
 /* ボディ */
@@ -1511,7 +1531,7 @@ body {
     border: 1px solid var(--divider);
     border-radius: 8px;
     overflow: hidden;
-    background: var(--bg-surface);
+    background: var(--base-surface);
 }
 .md-cn-card-add { border-left: 4px solid var(--success); }
 .md-cn-card-modify { border-left: 4px solid var(--warning); }
@@ -1530,7 +1550,7 @@ body {
     opacity: 0.45;
 }
 .md-cn-card-approved .md-cn-card-header {
-    background: var(--bg-surface-3);
+    background: var(--base-muted);
 }
 
 .md-cn-card-user {
@@ -1584,7 +1604,7 @@ body {
     gap: 6px;
     padding: 8px 14px;
     border-top: 1px solid var(--divider);
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
 }
 .md-cn-btn-revert,
 .md-cn-btn-reapprove {
@@ -1597,7 +1617,7 @@ body {
     letter-spacing: 0.02em;
 }
 .md-cn-btn-revert {
-    background: var(--bg-surface);
+    background: var(--base-surface);
     color: var(--text-secondary);
     border: 1px solid var(--divider);
 }
@@ -1607,9 +1627,9 @@ body {
     border-color: var(--error);
 }
 .md-cn-btn-reapprove {
-    background: var(--accent);
+    background: var(--accent-primary);
     color: #fff;
-    border: 1px solid var(--accent);
+    border: 1px solid var(--accent-primary);
     box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
 .md-cn-btn-reapprove:hover {
@@ -1643,7 +1663,7 @@ body {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: var(--bg-surface-3);
+    background: var(--base-muted);
     border: 2px solid var(--divider);
 }
 /* .md-cn-timeline-item.md-cn-tl-*::before → co-shared-badges.css */
@@ -1675,12 +1695,12 @@ body {
 .md-cn-tl-name { font-weight: 600; }
 .md-cn-tl-summary { color: var(--text-tertiary); font-size: 12px; }
 .md-cn-tl-clickable { cursor: pointer; border-radius: 6px; transition: background 0.15s; }
-.md-cn-tl-clickable:hover { background: var(--bg-surface-2); }
+.md-cn-tl-clickable:hover { background: var(--base-surface-alt); }
 
 /* カードハイライト */
 .md-cn-card-highlight { animation: md-cn-highlight 1.5s ease; }
 @keyframes md-cn-highlight {
-    0%, 30% { box-shadow: 0 0 0 3px var(--accent); }
+    0%, 30% { box-shadow: 0 0 0 3px var(--accent-primary); }
     100% { box-shadow: none; }
 }
 
@@ -1688,7 +1708,7 @@ body {
 .md-cn-footer {
     padding: 12px 24px;
     border-top: 1px solid var(--divider);
-    background: var(--bg-surface-2);
+    background: var(--base-surface-alt);
     display: flex;
     justify-content: flex-end;
     flex-shrink: 0;
@@ -1697,13 +1717,13 @@ body {
     padding: 8px 24px;
     border: 1px solid var(--divider);
     border-radius: 6px;
-    background: var(--bg-surface);
+    background: var(--base-surface);
     color: var(--text-secondary);
     font-size: 14px;
     cursor: pointer;
     transition: all 0.15s;
 }
-.md-cn-footer-btn:hover { background: var(--bg-surface-2); }
+.md-cn-footer-btn:hover { background: var(--base-surface-alt); }
 
 /* --- 行ミニベルアイコン --- */
 .md-ob-row-bell {
