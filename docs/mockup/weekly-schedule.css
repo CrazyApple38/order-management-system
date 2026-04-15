@@ -619,8 +619,8 @@ body {
 .md-ws-holiday-mark {
     font-size: 10px;
     font-weight: 700;
-    color: var(--text-disabled);
-    background: var(--base-surface-alt);
+    color: var(--error);
+    background: var(--error-dim, rgba(220, 38, 38, 0.1));
     border-radius: 4px;
     padding: 2px 8px;
     text-align: center;
