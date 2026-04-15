@@ -1152,26 +1152,60 @@ body {
     color: var(--text-secondary);
 }
 
-/* 社員ナビゲーション（配置モード・社員軸） */
-.md-ws-assign-emp-nav {
+/* 社員軸配置モード・コンパクトナビバー */
+.md-ws-assign-navbar {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
+    padding: 6px 8px;
+    background: var(--accent-primary);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
 }
-.md-ws-assign-emp-nav span {
-    flex: 1;
-    text-align: center;
+.md-ws-assign-navbar .md-ws-assign-nav-btn {
+    width: 24px;
+    height: 24px;
     font-size: 11px;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
 }
-.md-ws-assign-emp-nav .md-ws-assign-nav-btn {
-    width: 22px;
-    height: 22px;
-    font-size: 11px;
+.md-ws-assign-navbar .md-ws-assign-nav-btn:hover {
+    background: rgba(255,255,255,0.35);
 }
-.md-ws-assign-emp-nav .md-ws-assign-nav-btn:disabled {
+.md-ws-assign-navbar .md-ws-assign-nav-btn:disabled {
     opacity: 0.3;
     cursor: default;
     pointer-events: none;
+}
+.md-ws-assign-navbar-emp {
+    margin-left: 4px;
+    white-space: nowrap;
+}
+.md-ws-assign-navbar-date {
+    font-weight: 400;
+    font-size: 11px;
+    opacity: 0.85;
+    white-space: nowrap;
+}
+.md-ws-assign-navbar .md-ws-assign-close {
+    margin-left: auto;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: #fff;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+.md-ws-assign-navbar .md-ws-assign-close:hover {
+    background: rgba(255,255,255,0.35);
 }
 
 /* 候補リスト（旧リスト形式 — 配置モーダル用に残す） */

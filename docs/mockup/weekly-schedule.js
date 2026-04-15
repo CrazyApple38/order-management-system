@@ -2066,20 +2066,12 @@
 
         sidebar.innerHTML = '';
 
-        var header = el('div', 'md-ws-sidebar-assign-header');
-        header.innerHTML = '\u914d\u7f6e\u30e2\u30fc\u30c9';
-        var closeBtn = el('button', 'md-ws-assign-close', '\u00d7');
-        closeBtn.addEventListener('click', function () { deselectCell(); });
-        header.appendChild(closeBtn);
-        sidebar.appendChild(header);
+        // --- コンパクトナビバー: ◀ ▶ 社員名 日付昼夜 × ---
+        var navBar = el('div', 'md-ws-assign-navbar');
 
-        var info = el('div', 'md-ws-sidebar-assign-info');
-        // 社員名（固定表示）
-        info.appendChild(el('strong', '', emp ? emp.name : ''));
-        // 日付 + ◀▶ナビゲーション
         var visibleDateKeys = getVisibleDates().map(function (d) { return formatDateKey(d); });
         var curDatePos = visibleDateKeys.indexOf(sc.date);
-        var navRow = el('div', 'md-ws-assign-emp-nav');
+
         var prevBtn = el('button', 'md-ws-assign-nav-btn', '\u25c0');
         if (curDatePos <= 0) prevBtn.disabled = true;
         prevBtn.addEventListener('click', function () {
@@ -2088,6 +2080,7 @@
                 renderGrid(); renderSidebar(); applySelectionHighlight();
             }
         });
+
         var nextBtn = el('button', 'md-ws-assign-nav-btn', '\u25b6');
         if (curDatePos < 0 || curDatePos >= visibleDateKeys.length - 1) nextBtn.disabled = true;
         nextBtn.addEventListener('click', function () {
@@ -2096,11 +2089,19 @@
                 renderGrid(); renderSidebar(); applySelectionHighlight();
             }
         });
-        navRow.appendChild(prevBtn);
-        navRow.appendChild(el('span', '', mm + '/' + dd + '(' + dow + ') ' + shiftLabel));
-        navRow.appendChild(nextBtn);
-        info.appendChild(navRow);
-        sidebar.appendChild(info);
+
+        var empName = el('span', 'md-ws-assign-navbar-emp', emp ? emp.name : '');
+        var dateLabel = el('span', 'md-ws-assign-navbar-date', mm + '/' + dd + '(' + dow + ') ' + shiftLabel);
+
+        var closeBtn = el('button', 'md-ws-assign-close', '\u00d7');
+        closeBtn.addEventListener('click', function () { deselectCell(); });
+
+        navBar.appendChild(prevBtn);
+        navBar.appendChild(nextBtn);
+        navBar.appendChild(empName);
+        navBar.appendChild(dateLabel);
+        navBar.appendChild(closeBtn);
+        sidebar.appendChild(navBar);
 
         var list = el('div', 'md-ws-candidate-list');
         var currentSites = getAssignedSites(sc.empIndex, sc.date, sc.shift);
