@@ -1017,9 +1017,9 @@
 
             var groupName = el('div', 'md-ws-group-name' + (isCollapsed ? ' md-ws-collapsed' : ''));
             groupName.style.gridRow = currentRow;
+            groupName.setAttribute('title', group.gcName);
             groupName.innerHTML =
                 '<span class="md-ws-group-chevron">\u25bc</span>' +
-                '<span class="md-ws-group-gc-badge">' + group.gcName + '</span>' +
                 '<span>' + group.deptName + '</span>' +
                 '<span style="font-size:10px;color:var(--text-tertiary);font-weight:400;">(' + group.employees.length + '\u540d)</span>';
             groupName.dataset.groupId = groupId;
@@ -1155,9 +1155,9 @@
 
             var vGroupName = el('div', 'md-ws-group-name md-ws-vehicle-group-header' + (isCollapsed ? ' md-ws-collapsed' : ''));
             vGroupName.style.gridRow = currentRow;
+            vGroupName.setAttribute('title', vg.gcName);
             vGroupName.innerHTML =
                 '<span class="md-ws-group-chevron">\u25bc</span>' +
-                '<span class="md-ws-group-gc-badge">' + vg.gcName + '</span>' +
                 '<span>\u8eca\u4e21 ' + vg.vehicles.length + '\u53f0</span>';
             vGroupName.dataset.groupId = vgId;
             vGroupName.addEventListener('click', function () { toggleGroup(vgId); });
@@ -1794,8 +1794,9 @@
             var units = orgUnitsData[gc.code] || [];
             var isExpanded = wsEmpTab.expandedCompanies.has(gc.code);
 
-            var gcHeader = el('div', 'md-ws-gc-header' + (isExpanded ? ' expanded' : ''), gc.shortName);
+            var gcHeader = el('div', 'md-ws-gc-header' + (isExpanded ? ' expanded' : ''));
             gcHeader.setAttribute('data-ws-gc', gc.code);
+            gcHeader.setAttribute('title', gc.shortName);
             gcHeader.addEventListener('click', function () { wsToggleCompany(gc.code); });
             vtabs.appendChild(gcHeader);
 
@@ -2066,8 +2067,32 @@
         sidebar.appendChild(header);
 
         var info = el('div', 'md-ws-sidebar-assign-info');
-        info.innerHTML = '<strong>' + (emp ? emp.name : '') + '</strong><br>' +
-            mm + '/' + dd + '(' + dow + ') ' + shiftLabel;
+        // 社員名（固定表示）
+        info.appendChild(el('strong', '', emp ? emp.name : ''));
+        // 日付 + ◀▶ナビゲーション
+        var visibleDateKeys = getVisibleDates().map(function (d) { return formatDateKey(d); });
+        var curDatePos = visibleDateKeys.indexOf(sc.date);
+        var navRow = el('div', 'md-ws-assign-emp-nav');
+        var prevBtn = el('button', 'md-ws-assign-nav-btn', '\u25c0');
+        if (curDatePos <= 0) prevBtn.disabled = true;
+        prevBtn.addEventListener('click', function () {
+            if (curDatePos > 0) {
+                selectedCell = { empIndex: sc.empIndex, date: visibleDateKeys[curDatePos - 1], shift: sc.shift };
+                renderGrid(); renderSidebar(); applySelectionHighlight();
+            }
+        });
+        var nextBtn = el('button', 'md-ws-assign-nav-btn', '\u25b6');
+        if (curDatePos < 0 || curDatePos >= visibleDateKeys.length - 1) nextBtn.disabled = true;
+        nextBtn.addEventListener('click', function () {
+            if (curDatePos < visibleDateKeys.length - 1) {
+                selectedCell = { empIndex: sc.empIndex, date: visibleDateKeys[curDatePos + 1], shift: sc.shift };
+                renderGrid(); renderSidebar(); applySelectionHighlight();
+            }
+        });
+        navRow.appendChild(prevBtn);
+        navRow.appendChild(el('span', '', mm + '/' + dd + '(' + dow + ') ' + shiftLabel));
+        navRow.appendChild(nextBtn);
+        info.appendChild(navRow);
         sidebar.appendChild(info);
 
         var list = el('div', 'md-ws-candidate-list');
@@ -2218,8 +2243,9 @@
             var units = orgUnitsData[gc.code] || [];
             var isExpanded = wsEmpTab.expandedCompanies.has(gc.code);
 
-            var gcHeader = el('div', 'md-ws-gc-header' + (isExpanded ? ' expanded' : ''), gc.shortName);
+            var gcHeader = el('div', 'md-ws-gc-header' + (isExpanded ? ' expanded' : ''));
             gcHeader.setAttribute('data-ws-gc', gc.code);
+            gcHeader.setAttribute('title', gc.shortName);
             gcHeader.addEventListener('click', function () { wsToggleCompany(gc.code); });
             vtabs.appendChild(gcHeader);
 
