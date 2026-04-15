@@ -181,8 +181,9 @@
             var dk = formatDateKey(dates[p.dayOffset]);
             if (!assignments[p.emp]) assignments[p.emp] = {};
             if (!assignments[p.emp][dk]) assignments[p.emp][dk] = {};
-            if (!assignments[p.emp][dk][p.shift]) assignments[p.emp][dk][p.shift] = [];
-            assignments[p.emp][dk][p.shift].push(p.site);
+            // 1セル1現場: 最初の1つだけ保持
+            if (assignments[p.emp][dk][p.shift]) return;
+            assignments[p.emp][dk][p.shift] = [p.site];
         });
 
         var dk0 = formatDateKey(dates[0]);
@@ -210,10 +211,8 @@
     function addAssignment(empIndex, date, shift, siteId) {
         if (!assignments[empIndex]) assignments[empIndex] = {};
         if (!assignments[empIndex][date]) assignments[empIndex][date] = {};
-        if (!assignments[empIndex][date][shift]) assignments[empIndex][date][shift] = [];
-        if (assignments[empIndex][date][shift].indexOf(siteId) < 0) {
-            assignments[empIndex][date][shift].push(siteId);
-        }
+        // 1セル1現場: 既存を上書き
+        assignments[empIndex][date][shift] = [siteId];
     }
 
     function removeAssignment(empIndex, date, shift, siteId) {
