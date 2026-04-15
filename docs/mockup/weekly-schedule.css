@@ -1156,7 +1156,7 @@ body {
 .md-ws-assign-navbar {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
     padding: 6px 8px;
     background: var(--accent-primary);
     color: #fff;
