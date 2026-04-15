@@ -1552,6 +1552,27 @@ body {
 .md-ws-emp-chip:hover .md-ws-chip-remove {
     display: inline;
 }
+/* 社員軸: 現場チップの×ボタン（ホバーで表示） */
+.md-ws-site-chip {
+    position: relative;
+}
+.md-ws-site-chip .md-ws-chip-remove {
+    display: none;
+    margin-left: 3px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--error);
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity 0.1s;
+}
+.md-ws-site-chip .md-ws-chip-remove:hover {
+    opacity: 1;
+}
+.md-ws-site-chip:hover .md-ws-chip-remove {
+    display: inline;
+}
 
 /* セルのクリック可能表示 */
 .md-ws-cell.md-ws-clickable {

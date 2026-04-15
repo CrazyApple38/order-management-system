@@ -1091,13 +1091,15 @@
                                     }
                                     chip.title = site.name + ' (' + site.company + ')';
                                     if (!isPast) {
-                                        // クリックで解除
-                                        chip.addEventListener('click', function (e) {
+                                        // ×ボタン（ホバーで表示）
+                                        var removeBtn = el('span', 'md-ws-chip-remove', '\u00d7');
+                                        removeBtn.addEventListener('click', function (e) {
                                             e.stopPropagation();
                                             removeAssignment(emp.index, dk, shift, siteId);
                                             renderGrid();
                                             renderSidebar();
                                         });
+                                        chip.appendChild(removeBtn);
                                         chip.draggable = true;
                                         chip.addEventListener('dragstart', function (e) {
                                             e.dataTransfer.setData('text/plain', JSON.stringify({
