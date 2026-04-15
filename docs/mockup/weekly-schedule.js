@@ -21,17 +21,17 @@
     var CATEGORY_ORDER = ['facility', 'traffic', 'highway', 'event'];
 
     var wsSitesData = [
-        { id: 's1', name: '\u3007\u3007\u30d3\u30eb', category: 'facility', company: '\u3007\u3007\u682a\u5f0f\u4f1a\u793e',
+        { id: 's1', name: '\u3007\u3007\u30d3\u30eb', category: 'facility', company: '\u3007\u3007\u682a\u5f0f\u4f1a\u793e', gc: 'touo',
           orders: { day: 3, night: 2 } },
-        { id: 's2', name: '\u25b3\u25b3\u30de\u30f3\u30b7\u30e7\u30f3', category: 'facility', company: '\u25b3\u25b3\u5efa\u8a2d',
+        { id: 's2', name: '\u25b3\u25b3\u30de\u30f3\u30b7\u30e7\u30f3', category: 'facility', company: '\u25b3\u25b3\u5efa\u8a2d', gc: 'nikkei',
           orders: { day: 2, night: 1 } },
-        { id: 's3', name: '\u56fd\u90531\u53f7\u7dda \u8217\u88c5\u5de5\u4e8b', category: 'traffic', company: '\u25c7\u25c7\u5de5\u696d',
+        { id: 's3', name: '\u56fd\u90531\u53f7\u7dda \u8217\u88c5\u5de5\u4e8b', category: 'traffic', company: '\u25c7\u25c7\u5de5\u696d', gc: 'touo',
           orders: { day: 4, night: 0 } },
-        { id: 's4', name: '\u770c\u905315\u53f7 \u6a4b\u6881\u5de5\u4e8b', category: 'traffic', company: '\u25b3\u25b3\u5efa\u8a2d',
+        { id: 's4', name: '\u770c\u905315\u53f7 \u6a4b\u6881\u5de5\u4e8b', category: 'traffic', company: '\u25b3\u25b3\u5efa\u8a2d', gc: 'nikkei',
           orders: { day: 3, night: 2 } },
-        { id: 's5', name: '\u9ad8\u901fSA\u88dc\u4fee 24-1234', category: 'highway', company: '\u897f\u65e5\u672c\u9ad8\u901f\u9053\u8def',
+        { id: 's5', name: '\u9ad8\u901fSA\u88dc\u4fee 24-1234', category: 'highway', company: '\u897f\u65e5\u672c\u9ad8\u901f\u9053\u8def', gc: 'zennihon',
           orders: { day: 5, night: 3 } },
-        { id: 's6', name: '\u3007\u3007\u30a2\u30ea\u30fc\u30ca \u30b3\u30f3\u30b5\u30fc\u30c8', category: 'event', company: '\u25a1\u25a1\u30a4\u30d9\u30f3\u30c8',
+        { id: 's6', name: '\u3007\u3007\u30a2\u30ea\u30fc\u30ca \u30b3\u30f3\u30b5\u30fc\u30c8', category: 'event', company: '\u25a1\u25a1\u30a4\u30d9\u30f3\u30c8', gc: 'zennihon',
           orders: { day: 6, night: 0 } }
     ];
 
@@ -77,6 +77,10 @@
         activeTab: 'all',
         expandedCompanies: new Set()
     };
+
+    // サイドバー現場候補アコーディオン状態（GC > カテゴリ）
+    // キー: 'gc-{gcCode}' または 'gc-{gcCode}-{category}'、値: true=折りたたみ
+    var siteAccordionCollapsed = {};
 
     // サイドバーメインタブ: 'employee' | 'vehicle'
     var wsSidebarMainTab = 'employee';
@@ -1258,6 +1262,8 @@
             deselectCell();
             return;
         }
+        // 配置モード開始時: アコーディオンをすべて展開
+        siteAccordionCollapsed = {};
         selectedCell = { empIndex: empIndex, date: date, shift: shift };
         selectedDate = date;
         if (!keepTab) wsSidebarMainTab = 'employee';
@@ -2099,74 +2105,120 @@
         var list = el('div', 'md-ws-candidate-list');
         var currentSites = getAssignedSites(sc.empIndex, sc.date, sc.shift);
 
-        wsSitesData.forEach(function (site) {
-            var orders = site.orders[sc.shift] || 0;
-            if (orders === 0) return;
+        // GC > カテゴリの2階層でグループ化
+        var gcOrder = (typeof groupCompaniesData !== 'undefined')
+            ? groupCompaniesData.filter(function (gc) { return wsGcIsVisible(gc.code); })
+            : [];
 
-            var item = el('div', 'md-ws-candidate-item');
-            var dot = el('span', 'md-ws-candidate-dot');
-            var nameSpan = el('span', 'md-ws-candidate-name', site.name);
-            var status = el('span', 'md-ws-candidate-status');
+        gcOrder.forEach(function (gc) {
+            var gcSites = wsSitesData.filter(function (s) {
+                return s.gc === gc.code && (s.orders[sc.shift] || 0) > 0;
+            });
+            if (gcSites.length === 0) return;
 
-            var assignedCount = getAssignedEmployees(site.id, sc.date, sc.shift).length;
-            var isAlreadyAssigned = currentSites.indexOf(site.id) >= 0;
+            var gcKey = 'gc-' + gc.code;
+            var gcCollapsed = !!siteAccordionCollapsed[gcKey];
 
-            if (isAlreadyAssigned) {
-                dot.classList.add('md-ws-dot-assigned');
-                status.textContent = '\u914d\u7f6e\u6e08';
-                item.classList.add('md-ws-candidate-assigned');
-                item.addEventListener('click', function () {
-                    removeAssignment(sc.empIndex, sc.date, sc.shift, site.id);
-                    renderGrid();
+            // --- GCヘッダー ---
+            var gcHeader = el('div', 'md-ws-site-accordion-header md-ws-site-accordion-gc md-ws-gc-' + gc.code);
+            if (gcCollapsed) gcHeader.classList.add('md-ws-collapsed');
+            gcHeader.innerHTML = '<span class="md-ws-site-accordion-chevron">\u25bc</span>' +
+                '<span>' + gc.shortName + '</span>' +
+                '<span class="md-ws-site-accordion-count">(' + gcSites.length + ')</span>';
+            gcHeader.addEventListener('click', function () {
+                siteAccordionCollapsed[gcKey] = !siteAccordionCollapsed[gcKey];
+                renderSidebar();
+            });
+            list.appendChild(gcHeader);
+
+            if (gcCollapsed) return;
+
+            // カテゴリ別にサブグループ
+            CATEGORY_ORDER.forEach(function (cat) {
+                var catSites = gcSites.filter(function (s) { return s.category === cat; });
+                if (catSites.length === 0) return;
+
+                var catKey = gcKey + '-' + cat;
+                var catCollapsed = !!siteAccordionCollapsed[catKey];
+
+                // --- カテゴリヘッダー ---
+                var catHeader = el('div', 'md-ws-site-accordion-header md-ws-site-accordion-cat');
+                if (catCollapsed) catHeader.classList.add('md-ws-collapsed');
+                catHeader.innerHTML = '<span class="md-ws-site-accordion-chevron">\u25bc</span>' +
+                    '<span class="md-ws-category-badge md-ws-cat-' + cat + '">' + CATEGORIES[cat] + '</span>' +
+                    '<span class="md-ws-site-accordion-count">(' + catSites.length + ')</span>';
+                catHeader.addEventListener('click', function () {
+                    siteAccordionCollapsed[catKey] = !siteAccordionCollapsed[catKey];
                     renderSidebar();
                 });
-                item.style.cursor = 'pointer';
-                item.title = '\u30af\u30ea\u30c3\u30af\u3067\u914d\u7f6e\u89e3\u9664';
-            } else if (assignedCount < orders) {
-                dot.classList.add('md-ws-dot-available');
-                status.textContent = assignedCount + '/' + orders + ' \u4e0d\u8db3';
-                item.addEventListener('click', function () {
-                    addAssignment(sc.empIndex, sc.date, sc.shift, site.id);
-                    renderGrid();
-                    renderSidebar();
-                });
-            } else {
-                dot.classList.add('md-ws-dot-busy');
-                status.textContent = assignedCount + '/' + orders + ' \u5145\u8db3';
-                item.addEventListener('click', function () {
-                    addAssignment(sc.empIndex, sc.date, sc.shift, site.id);
-                    renderGrid();
-                    renderSidebar();
-                });
-            }
+                list.appendChild(catHeader);
 
-            // カテゴリバッジ
-            var catBadge = el('span', 'md-ws-category-badge md-ws-cat-' + site.category, CATEGORIES[site.category]);
-            nameSpan.insertAdjacentElement('afterend', catBadge);
+                if (catCollapsed) return;
 
-            // D&D対応
-            if (!isAlreadyAssigned) {
-                item.draggable = true;
-                item.addEventListener('dragstart', function (e) {
-                    e.dataTransfer.setData('text/plain', JSON.stringify({
-                        type: 'sidebar-site',
-                        siteId: site.id
-                    }));
-                    e.dataTransfer.effectAllowed = 'copy';
-                    item.style.opacity = '0.5';
-                    activateDragMode(sc.date);
-                });
-                item.addEventListener('dragend', function () {
-                    item.style.opacity = '';
-                    deactivateDragMode();
-                });
-            }
+                // --- 現場アイテム ---
+                catSites.forEach(function (site) {
+                    var orders = site.orders[sc.shift] || 0;
+                    var item = el('div', 'md-ws-candidate-item md-ws-candidate-indented');
+                    var dot = el('span', 'md-ws-candidate-dot');
+                    var nameSpan = el('span', 'md-ws-candidate-name', site.name);
+                    var status = el('span', 'md-ws-candidate-status');
 
-            item.appendChild(dot);
-            item.appendChild(nameSpan);
-            item.appendChild(catBadge);
-            item.appendChild(status);
-            list.appendChild(item);
+                    var assignedCount = getAssignedEmployees(site.id, sc.date, sc.shift).length;
+                    var isAlreadyAssigned = currentSites.indexOf(site.id) >= 0;
+
+                    if (isAlreadyAssigned) {
+                        dot.classList.add('md-ws-dot-assigned');
+                        status.textContent = '\u914d\u7f6e\u6e08';
+                        item.classList.add('md-ws-candidate-assigned');
+                        item.addEventListener('click', function () {
+                            removeAssignment(sc.empIndex, sc.date, sc.shift, site.id);
+                            renderGrid();
+                            renderSidebar();
+                        });
+                        item.style.cursor = 'pointer';
+                        item.title = '\u30af\u30ea\u30c3\u30af\u3067\u914d\u7f6e\u89e3\u9664';
+                    } else if (assignedCount < orders) {
+                        dot.classList.add('md-ws-dot-available');
+                        status.textContent = assignedCount + '/' + orders + ' \u4e0d\u8db3';
+                        item.addEventListener('click', function () {
+                            addAssignment(sc.empIndex, sc.date, sc.shift, site.id);
+                            renderGrid();
+                            renderSidebar();
+                        });
+                    } else {
+                        dot.classList.add('md-ws-dot-busy');
+                        status.textContent = assignedCount + '/' + orders + ' \u5145\u8db3';
+                        item.addEventListener('click', function () {
+                            addAssignment(sc.empIndex, sc.date, sc.shift, site.id);
+                            renderGrid();
+                            renderSidebar();
+                        });
+                    }
+
+                    // D&D対応
+                    if (!isAlreadyAssigned) {
+                        item.draggable = true;
+                        item.addEventListener('dragstart', function (e) {
+                            e.dataTransfer.setData('text/plain', JSON.stringify({
+                                type: 'sidebar-site',
+                                siteId: site.id
+                            }));
+                            e.dataTransfer.effectAllowed = 'copy';
+                            item.style.opacity = '0.5';
+                            activateDragMode(sc.date);
+                        });
+                        item.addEventListener('dragend', function () {
+                            item.style.opacity = '';
+                            deactivateDragMode();
+                        });
+                    }
+
+                    item.appendChild(dot);
+                    item.appendChild(nameSpan);
+                    item.appendChild(status);
+                    list.appendChild(item);
+                });
+            });
         });
 
         sidebar.appendChild(list);

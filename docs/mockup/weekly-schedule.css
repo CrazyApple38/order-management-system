@@ -1244,6 +1244,62 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+/* === 現場候補アコーディオン（GC > カテゴリ） === */
+.md-ws-site-accordion-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    border-radius: 6px;
+    transition: background 0.12s;
+}
+.md-ws-site-accordion-header:hover {
+    background: var(--accent-dim);
+}
+/* GCレベル */
+.md-ws-site-accordion-gc {
+    background: var(--base-surface-alt);
+    border-top: 2px solid var(--sub-secondary);
+    border-radius: 0;
+    padding: 6px 8px;
+    margin-top: 2px;
+}
+.md-ws-site-accordion-gc:first-child {
+    margin-top: 0;
+}
+/* カテゴリレベル */
+.md-ws-site-accordion-cat {
+    padding: 4px 8px 4px 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+/* シェブロン */
+.md-ws-site-accordion-chevron {
+    font-size: 9px;
+    transition: transform 0.2s;
+    display: inline-block;
+    width: 12px;
+    text-align: center;
+}
+.md-ws-site-accordion-header.md-ws-collapsed .md-ws-site-accordion-chevron {
+    transform: rotate(-90deg);
+}
+/* 件数 */
+.md-ws-site-accordion-count {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-tertiary);
+}
+/* アコーディオン内の候補アイテムはインデント */
+.md-ws-candidate-item.md-ws-candidate-indented {
+    padding-left: 28px;
+}
 
 /* === サイドバー 縦タブ + バッジレイアウト === */
 .md-ws-sidebar-panel {
