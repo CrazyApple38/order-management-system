@@ -363,11 +363,11 @@ body {
 /* 土日祝（ボディセル: #F5F5F5上で合成済み不透明色） */
 .md-ob-sat { background-color: #EAF0F1 !important; }
 .md-ob-sun { background-color: #F3ECEE !important; }
-.md-ob-holiday { background-color: #F3F0E9 !important; }
+.md-ob-holiday { background-color: #F3ECEE !important; }
 /* 土日祝（ヘッダー: base-muted + 薄い色ティント混合） */
 .md-ob-sat-head { background-color: #BECAC5 !important; color: var(--text-primary) !important; }
 .md-ob-sun-head { background-color: #D4BEBD !important; color: var(--text-primary) !important; }
-.md-ob-holiday-head { background-color: #D4C9B1 !important; color: var(--text-primary) !important; }
+.md-ob-holiday-head { background-color: #D4BEBD !important; color: var(--text-primary) !important; }
 
 /* 夜勤 */
 .md-ob-cell.md-ob-night {
@@ -1229,8 +1229,8 @@ body {
 .md-ob-cal-cell.md-ob-cal-sun .md-ob-cal-day-num { color: #DB577B; }
 .md-ob-cal-cell.md-ob-cal-sat { background: rgba(68,166,181,0.06); }
 .md-ob-cal-cell.md-ob-cal-sat .md-ob-cal-day-num { color: var(--accent-primary); }
-.md-ob-cal-cell.md-ob-cal-holiday { background: rgba(214,158,46,0.08); }
-.md-ob-cal-holiday-name { font-size: 8px; color: #b45309; font-weight: 500; line-height: 1; }
+.md-ob-cal-cell.md-ob-cal-holiday { background: rgba(220,120,120,0.06); }
+.md-ob-cal-holiday-name { font-size: 8px; color: #DB577B; font-weight: 500; line-height: 1; }
 
 /* 今日マーク */
 .md-ob-cal-cell.md-ob-cal-today .md-ob-cal-day-num {
