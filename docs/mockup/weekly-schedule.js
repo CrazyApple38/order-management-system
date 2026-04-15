@@ -2160,7 +2160,7 @@
                     var orders = site.orders[sc.shift] || 0;
                     var item = el('div', 'md-ws-candidate-item md-ws-candidate-indented');
                     var dot = el('span', 'md-ws-candidate-dot');
-                    var nameSpan = el('span', 'md-ws-candidate-name', site.name);
+                    var nameSpan = el('span', 'md-ws-candidate-name', site.company + ' / ' + site.name);
                     var status = el('span', 'md-ws-candidate-status');
 
                     var assignedCount = getAssignedEmployees(site.id, sc.date, sc.shift).length;
