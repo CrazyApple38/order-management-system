@@ -978,7 +978,9 @@
             var dow = getDaysOfWeek()[d.getDay()];
             var mm = d.getMonth() + 1;
             var dd = d.getDate();
+            var isPastDate = d < today;
             var cls = 'md-ws-date-header';
+            if (isPastDate) cls += ' md-ws-past';
             if (d.getDay() === 6) cls += ' md-ws-sat';
             if (d.getDay() === 0) cls += ' md-ws-sun';
             if (holidayDates[dk]) cls += ' md-ws-holiday';
@@ -1000,10 +1002,11 @@
 
         dates.forEach(function (d) {
             var dk = formatDateKey(d);
-            var dayH = el('div', 'md-ws-shift-header', '\u663c');
+            var isPastDate = d < today;
+            var dayH = el('div', 'md-ws-shift-header' + (isPastDate ? ' md-ws-past' : ''), '\u663c');
             dayH.dataset.date = dk;
             dayH.dataset.shift = 'day';
-            var nightH = el('div', 'md-ws-shift-header md-ws-shift-night', '\u591c');
+            var nightH = el('div', 'md-ws-shift-header md-ws-shift-night' + (isPastDate ? ' md-ws-past' : ''), '\u591c');
             nightH.dataset.date = dk;
             nightH.dataset.shift = 'night';
             grid.appendChild(dayH);
@@ -1054,6 +1057,7 @@
                         var cellCls = 'md-ws-cell md-ws-clickable';
                         if (si === 0) cellCls += ' md-ws-day-col';
                         if (si === 1) cellCls += ' md-ws-night-col';
+                        if (isPast) cellCls += ' md-ws-past-col md-ws-emp-past';
                         if (d.getDay() === 6) cellCls += ' md-ws-sat-col';
                         if (d.getDay() === 0) cellCls += ' md-ws-sun-col';
                         if (holidayDates[dk]) cellCls += ' md-ws-holiday-col';
