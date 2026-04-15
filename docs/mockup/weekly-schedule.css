@@ -1156,7 +1156,7 @@ body {
 .md-ws-assign-navbar {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     padding: 6px 8px;
     background: var(--accent-primary);
     color: #fff;
@@ -1170,6 +1170,9 @@ body {
     font-size: 11px;
     background: rgba(255,255,255,0.2);
     color: #fff;
+}
+.md-ws-assign-navbar .md-ws-assign-nav-btn + .md-ws-assign-nav-btn {
+    margin-left: 24px;
 }
 .md-ws-assign-navbar .md-ws-assign-nav-btn:hover {
     background: rgba(255,255,255,0.35);
