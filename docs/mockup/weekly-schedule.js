@@ -493,7 +493,13 @@
             var isPastDate = d < today;
             var dayCls = 'md-ws-shift-header' + (isPastDate ? ' md-ws-past' : '');
             var nightCls = 'md-ws-shift-header md-ws-shift-night' + (isPastDate ? ' md-ws-past' : '');
-            if (dk === formatDateKey(today)) dayCls += ' md-ws-today-shift-border';
+            if (d.getDay() === 6) { dayCls += ' md-ws-shift-sat'; nightCls += ' md-ws-shift-sat'; }
+            if (d.getDay() === 0) { dayCls += ' md-ws-shift-sun'; nightCls += ' md-ws-shift-sun'; }
+            if (holidayDates[dk]) { dayCls += ' md-ws-shift-holiday'; nightCls += ' md-ws-shift-holiday'; }
+            if (dk === formatDateKey(today)) {
+                dayCls += ' md-ws-today-shift-border md-ws-today-shift';
+                nightCls += ' md-ws-today-shift';
+            }
             var dayH = el('div', dayCls, '\u663c');
             dayH.dataset.date = dk;
             dayH.dataset.shift = 'day';
