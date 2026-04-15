@@ -382,7 +382,7 @@ body {
 /* 合計セル */
 .md-ob-total-cell {
     font-weight: 700;
-    background: rgba(68,166,181,0.06);
+    background: #F0F4F4;
     font-size: 11px;
     white-space: nowrap;
 }
