@@ -1223,6 +1223,20 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.md-ws-candidate-name:has(.md-ws-candidate-company) {
+    display: flex;
+    flex-direction: column;
+    white-space: normal;
+    line-height: 1.3;
+}
+.md-ws-candidate-company {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-tertiary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 .md-ws-candidate-status {
     font-size: 10px;
     color: var(--text-tertiary);
