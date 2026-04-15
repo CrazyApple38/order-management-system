@@ -528,16 +528,20 @@
         var holidayTotal = Object.keys(allHolidayEmpSet).length;
 
         {
-            // グループヘッダー
-            var hGroupRow = el('div', 'md-ws-group-row md-ws-holiday-group-header' + (isHolidayCollapsed ? ' md-ws-collapsed' : ''));
-            hGroupRow.style.gridRow = currentRow;
-            hGroupRow.innerHTML =
+            // グループヘッダー（名前列 + 日付列）
+            var hGroupName = el('div', 'md-ws-group-name md-ws-holiday-group-header' + (isHolidayCollapsed ? ' md-ws-collapsed' : ''));
+            hGroupName.style.gridRow = currentRow;
+            hGroupName.innerHTML =
                 '<span class="md-ws-group-chevron">\u25bc</span>' +
                 '<span class="md-ws-holiday-badge">\u4f11</span>' +
                 '<span>\u4f11\u307f' + (holidayTotal > 0 ? ' ' + holidayTotal + '\u540d' : '') + '</span>';
-            hGroupRow.dataset.groupId = holidayGroupId;
-            hGroupRow.addEventListener('click', function () { toggleGroup(holidayGroupId); });
-            grid.appendChild(hGroupRow);
+            hGroupName.dataset.groupId = holidayGroupId;
+            hGroupName.addEventListener('click', function () { toggleGroup(holidayGroupId); });
+            grid.appendChild(hGroupName);
+            var hGroupDates = el('div', 'md-ws-group-dates');
+            hGroupDates.style.gridRow = currentRow;
+            hGroupDates.addEventListener('click', function () { toggleGroup(holidayGroupId); });
+            grid.appendChild(hGroupDates);
             currentRow++;
 
             // 名前セル
@@ -637,15 +641,19 @@
         var maintTotal = Object.keys(allMaintVehicleSet).length;
 
         {
-            var mGroupRow = el('div', 'md-ws-group-row md-ws-maint-group-header' + (isMaintCollapsed ? ' md-ws-collapsed' : ''));
-            mGroupRow.style.gridRow = currentRow;
-            mGroupRow.innerHTML =
+            var mGroupName = el('div', 'md-ws-group-name md-ws-maint-group-header' + (isMaintCollapsed ? ' md-ws-collapsed' : ''));
+            mGroupName.style.gridRow = currentRow;
+            mGroupName.innerHTML =
                 '<span class="md-ws-group-chevron">\u25bc</span>' +
                 '<span class="md-ws-maint-badge">\u4fee</span>' +
                 '<span>\u4fee\u7406/\u70b9\u691c' + (maintTotal > 0 ? ' ' + maintTotal + '\u53f0' : '') + '</span>';
-            mGroupRow.dataset.groupId = maintGroupId;
-            mGroupRow.addEventListener('click', function () { toggleGroup(maintGroupId); });
-            grid.appendChild(mGroupRow);
+            mGroupName.dataset.groupId = maintGroupId;
+            mGroupName.addEventListener('click', function () { toggleGroup(maintGroupId); });
+            grid.appendChild(mGroupName);
+            var mGroupDates = el('div', 'md-ws-group-dates');
+            mGroupDates.style.gridRow = currentRow;
+            mGroupDates.addEventListener('click', function () { toggleGroup(maintGroupId); });
+            grid.appendChild(mGroupDates);
             currentRow++;
 
             var mNameCell = el('div', 'md-ws-name-cell md-ws-maint-name');
@@ -722,16 +730,20 @@
             var groupId = group.id;
             var isCollapsed = !!collapsedGroups[groupId];
 
-            // カテゴリグループヘッダー
-            var groupRow = el('div', 'md-ws-group-row' + (isCollapsed ? ' md-ws-collapsed' : ''));
-            groupRow.style.gridRow = currentRow;
-            groupRow.innerHTML =
+            // カテゴリグループヘッダー（名前列 + 日付列）
+            var groupName = el('div', 'md-ws-group-name' + (isCollapsed ? ' md-ws-collapsed' : ''));
+            groupName.style.gridRow = currentRow;
+            groupName.innerHTML =
                 '<span class="md-ws-group-chevron">\u25bc</span>' +
                 '<span class="md-ws-category-badge md-ws-cat-' + group.category + '">' + group.categoryName + '</span>' +
                 '<span>' + group.sites.length + '\u4ef6</span>';
-            groupRow.dataset.groupId = groupId;
-            groupRow.addEventListener('click', function () { toggleGroup(groupId); });
-            grid.appendChild(groupRow);
+            groupName.dataset.groupId = groupId;
+            groupName.addEventListener('click', function () { toggleGroup(groupId); });
+            grid.appendChild(groupName);
+            var groupDates = el('div', 'md-ws-group-dates');
+            groupDates.style.gridRow = currentRow;
+            groupDates.addEventListener('click', function () { toggleGroup(groupId); });
+            grid.appendChild(groupDates);
             currentRow++;
 
             // 各現場行
@@ -1003,16 +1015,20 @@
             var groupId = group.id;
             var isCollapsed = !!collapsedGroups[groupId];
 
-            var groupRow = el('div', 'md-ws-group-row' + (isCollapsed ? ' md-ws-collapsed' : ''));
-            groupRow.style.gridRow = currentRow;
-            groupRow.innerHTML =
+            var groupName = el('div', 'md-ws-group-name' + (isCollapsed ? ' md-ws-collapsed' : ''));
+            groupName.style.gridRow = currentRow;
+            groupName.innerHTML =
                 '<span class="md-ws-group-chevron">\u25bc</span>' +
                 '<span class="md-ws-group-gc-badge">' + group.gcName + '</span>' +
                 '<span>' + group.deptName + '</span>' +
                 '<span style="font-size:10px;color:var(--text-tertiary);font-weight:400;">(' + group.employees.length + '\u540d)</span>';
-            groupRow.dataset.groupId = groupId;
-            groupRow.addEventListener('click', function () { toggleGroup(groupId); });
-            grid.appendChild(groupRow);
+            groupName.dataset.groupId = groupId;
+            groupName.addEventListener('click', function () { toggleGroup(groupId); });
+            grid.appendChild(groupName);
+            var groupDates = el('div', 'md-ws-group-dates');
+            groupDates.style.gridRow = currentRow;
+            groupDates.addEventListener('click', function () { toggleGroup(groupId); });
+            grid.appendChild(groupDates);
             currentRow++;
 
             group.employees.forEach(function (emp) {
@@ -1137,15 +1153,19 @@
             var vgId = vg.id;
             var isCollapsed = !!collapsedGroups[vgId];
 
-            var vGroupRow = el('div', 'md-ws-group-row md-ws-vehicle-group-header' + (isCollapsed ? ' md-ws-collapsed' : ''));
-            vGroupRow.style.gridRow = currentRow;
-            vGroupRow.innerHTML =
+            var vGroupName = el('div', 'md-ws-group-name md-ws-vehicle-group-header' + (isCollapsed ? ' md-ws-collapsed' : ''));
+            vGroupName.style.gridRow = currentRow;
+            vGroupName.innerHTML =
                 '<span class="md-ws-group-chevron">\u25bc</span>' +
                 '<span class="md-ws-group-gc-badge">' + vg.gcName + '</span>' +
                 '<span>\u8eca\u4e21 ' + vg.vehicles.length + '\u53f0</span>';
-            vGroupRow.dataset.groupId = vgId;
-            vGroupRow.addEventListener('click', function () { toggleGroup(vgId); });
-            grid.appendChild(vGroupRow);
+            vGroupName.dataset.groupId = vgId;
+            vGroupName.addEventListener('click', function () { toggleGroup(vgId); });
+            grid.appendChild(vGroupName);
+            var vGroupDates = el('div', 'md-ws-group-dates');
+            vGroupDates.style.gridRow = currentRow;
+            vGroupDates.addEventListener('click', function () { toggleGroup(vgId); });
+            grid.appendChild(vGroupDates);
             currentRow++;
 
             vg.vehicles.forEach(function (vehicle) {
@@ -2791,13 +2811,13 @@
         collapsedGroups[groupId] = !collapsedGroups[groupId];
         var isCollapsed = collapsedGroups[groupId];
 
-        var groupRow = document.querySelector('.md-ws-group-row[data-group-id="' + groupId + '"]');
-        if (groupRow) {
-            groupRow.classList.toggle('md-ws-collapsed', isCollapsed);
+        var groupName = document.querySelector('.md-ws-group-name[data-group-id="' + groupId + '"]');
+        if (groupName) {
+            groupName.classList.toggle('md-ws-collapsed', isCollapsed);
         }
 
         document.querySelectorAll('[data-group-id="' + groupId + '"]').forEach(function (el) {
-            if (el.classList.contains('md-ws-group-row')) return;
+            if (el.classList.contains('md-ws-group-name')) return;
             el.classList.toggle('md-ws-row-hidden', isCollapsed);
         });
     }

@@ -380,11 +380,15 @@ body {
 }
 
 /* --- グループヘッダー行 --- */
-.md-ws-group-row {
-    grid-column: 1 / -1;
-    background: var(--accent-dim);
-    border-bottom: 1px solid var(--divider);
+/* --- グループヘッダー（名前列） --- */
+.md-ws-group-name {
+    grid-column: 1;
+    background: var(--base-surface-alt);
+    border: 3px solid var(--divider);
+    border-bottom: none;
+    border-left: none;
     border-top: 2px solid var(--sub-secondary);
+    border-radius: 0 12px 0 0;
     padding: 4px 10px;
     font-size: 12px;
     font-weight: 700;
@@ -396,9 +400,18 @@ body {
     user-select: none;
     position: sticky;
     left: 0;
+    z-index: 10;
 }
-.md-ws-group-row:hover {
-    background: rgba(68, 166, 181, 0.18);
+.md-ws-group-name:hover {
+    background: var(--accent-dim);
+}
+/* --- グループヘッダー（日付列） --- */
+.md-ws-group-dates {
+    grid-column: 2 / -1;
+    background: var(--base-page);
+    border-bottom: 1px solid var(--divider);
+    border-top: 2px solid var(--sub-secondary);
+    cursor: pointer;
 }
 .md-ws-group-chevron {
     font-size: 10px;
@@ -407,7 +420,7 @@ body {
     width: 14px;
     text-align: center;
 }
-.md-ws-group-row.md-ws-collapsed .md-ws-group-chevron {
+.md-ws-group-name.md-ws-collapsed .md-ws-group-chevron {
     transform: rotate(-90deg);
 }
 .md-ws-group-gc-badge {
@@ -1024,7 +1037,8 @@ body {
 }
 /* 名前セル・グループ行は常に見える */
 .md-ws-grid.md-ws-selection-active .md-ws-name-cell,
-.md-ws-grid.md-ws-selection-active .md-ws-group-row,
+.md-ws-grid.md-ws-selection-active .md-ws-group-name,
+.md-ws-grid.md-ws-selection-active .md-ws-group-dates,
 .md-ws-grid.md-ws-selection-active .md-ws-corner {
     opacity: 1 !important;
     pointer-events: auto !important;
@@ -1048,7 +1062,8 @@ body {
 }
 /* D&D中も名前セル・グループ行は常に見える */
 .md-ws-grid.md-ws-drag-active .md-ws-name-cell,
-.md-ws-grid.md-ws-drag-active .md-ws-group-row,
+.md-ws-grid.md-ws-drag-active .md-ws-group-name,
+.md-ws-grid.md-ws-drag-active .md-ws-group-dates,
 .md-ws-grid.md-ws-drag-active .md-ws-corner {
     opacity: 1 !important;
 }
@@ -1724,9 +1739,10 @@ body {
    休み行（グリッド最上部）
    ============================================================ */
 /* 休みグループヘッダー */
-.md-ws-group-row.md-ws-holiday-group-header {
-    background: var(--error-bg) !important;
-    border-bottom-color: var(--error-light);
+.md-ws-group-name.md-ws-holiday-group-header {
+    border-color: var(--divider);
+    border-bottom: none;
+    background: linear-gradient(rgba(219, 87, 123, 0.15), rgba(219, 87, 123, 0.15)), var(--base-surface-alt);
 }
 .md-ws-holiday-badge {
     font-size: 9px;
@@ -1739,6 +1755,7 @@ body {
 
 /* 休み行名前セル */
 .md-ws-name-cell.md-ws-holiday-name {
+    background: linear-gradient(rgba(219, 87, 123, 0.15), rgba(219, 87, 123, 0.15)), var(--base-surface-alt);
     color: var(--error);
     font-weight: 700;
     font-size: 12px;
@@ -1815,9 +1832,10 @@ body {
 /* ============================================================
    修理/点検行
    ============================================================ */
-.md-ws-group-row.md-ws-maint-group-header {
-    background: rgba(240, 237, 233, 0.3) !important;
-    border-bottom-color: var(--base-muted);
+.md-ws-group-name.md-ws-maint-group-header {
+    border-color: var(--divider);
+    border-bottom: none;
+    background: linear-gradient(rgba(211, 208, 200, 0.30), rgba(211, 208, 200, 0.30)), var(--base-surface-alt);
 }
 .md-ws-maint-badge {
     font-size: 9px;
@@ -1828,6 +1846,7 @@ body {
     color: var(--text-secondary);
 }
 .md-ws-name-cell.md-ws-maint-name {
+    background: linear-gradient(rgba(211, 208, 200, 0.30), rgba(211, 208, 200, 0.30)), var(--base-surface-alt);
     color: var(--text-secondary);
     font-weight: 700;
     font-size: 12px;
