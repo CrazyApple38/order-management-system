@@ -2063,6 +2063,7 @@
         var sc = selectedCell;
         var emp = employeesData[sc.empIndex];
         var d = parseDate(sc.date);
+        var isPast = d < today;
         var mm = d.getMonth() + 1;
         var dd = d.getDate();
         var dow = getDaysOfWeek()[d.getDay()];
@@ -2175,7 +2176,16 @@
                     var assignedCount = getAssignedEmployees(site.id, sc.date, sc.shift).length;
                     var isAlreadyAssigned = currentSites.indexOf(site.id) >= 0;
 
-                    if (isAlreadyAssigned) {
+                    if (isPast) {
+                        // 過去日: 読み取り専用
+                        item.classList.add('md-ws-candidate-disabled');
+                        if (isAlreadyAssigned) {
+                            dot.classList.add('md-ws-dot-assigned');
+                            status.textContent = '\u914d\u7f6e\u6e08';
+                        } else {
+                            status.textContent = assignedCount + '/' + orders;
+                        }
+                    } else if (isAlreadyAssigned) {
                         dot.classList.add('md-ws-dot-assigned');
                         status.textContent = '\u914d\u7f6e\u6e08';
                         item.classList.add('md-ws-candidate-assigned');
@@ -2204,8 +2214,8 @@
                         });
                     }
 
-                    // D&D対応
-                    if (!isAlreadyAssigned) {
+                    // D&D対応（過去日は無効）
+                    if (!isPast && !isAlreadyAssigned) {
                         item.draggable = true;
                         item.addEventListener('dragstart', function (e) {
                             e.dataTransfer.setData('text/plain', JSON.stringify({
