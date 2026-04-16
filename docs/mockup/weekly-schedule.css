@@ -1052,6 +1052,12 @@ body {
 .md-ws-grid.md-ws-selection-active .md-ws-shift-header:not(.md-ws-col-highlighted) {
     opacity: 0.4;
 }
+/* 選択行のヘッダーセル（名前セル）ハイライト */
+.md-ws-grid.md-ws-selection-active .md-ws-name-cell.md-ws-name-selected,
+.md-ws-grid.md-ws-selection-active .md-ws-vehicle-name-cell.md-ws-name-selected {
+    background: rgba(68, 166, 181, 0.15) !important;
+}
+
 /* 名前セル・グループ行は常に見える */
 .md-ws-grid.md-ws-selection-active .md-ws-name-cell,
 .md-ws-grid.md-ws-selection-active .md-ws-group-name,

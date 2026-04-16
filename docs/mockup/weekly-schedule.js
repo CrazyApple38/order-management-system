@@ -1100,7 +1100,7 @@
                                     if (csInfo.hasNext) {
                                         chip.appendChild(el('span', 'md-ws-chip-arrow md-ws-chip-arrow-next', '\u25b2'));
                                     }
-                                    chip.title = site.name + ' (' + site.company + ')';
+                                    chip.title = site.company + ' / ' + site.name;
                                     if (!isPast) {
                                         // ×ボタン（ホバーで表示）
                                         var removeBtn = el('span', 'md-ws-chip-remove', '\u00d7');
@@ -1194,13 +1194,15 @@
 
                 dates.forEach(function (d, di) {
                     var dk = formatDateKey(d);
+                    var isPast = d < today;
                     var isMaint = isVehicleInMaintenance(vehicle.id, dk);
 
                     ['day', 'night'].forEach(function (shift, si) {
                         var colIdx = 2 + di * 2 + si;
-                        var cellCls = 'md-ws-cell md-ws-vehicle-row-cell';
+                        var cellCls = 'md-ws-cell md-ws-vehicle-row-cell md-ws-clickable';
                         if (si === 0) cellCls += ' md-ws-day-col';
                         if (si === 1) cellCls += ' md-ws-night-col';
+                        if (isPast) cellCls += ' md-ws-past-col md-ws-emp-past';
                         if (d.getDay() === 6) cellCls += ' md-ws-sat-col';
                         if (d.getDay() === 0) cellCls += ' md-ws-sun-col';
                         if (holidayDates[dk]) cellCls += ' md-ws-holiday-col';
@@ -1226,12 +1228,58 @@
                         assignedSites.forEach(function (siteId) {
                             var site = findSite(siteId);
                             if (!site) return;
-                            var chipCls = 'md-ws-site-chip md-ws-readonly';
+                            var chipCls = 'md-ws-site-chip';
                             if (shift === 'night') chipCls += ' md-ws-night-chip';
-                            var chip = el('div', chipCls, truncate(site.name, 8));
-                            chip.title = site.name + ' (' + site.company + ')';
+                            if (isPast) chipCls += ' md-ws-readonly';
+                            var chip = el('div', chipCls);
+                            chip.dataset.siteId = siteId;
+                            chip.appendChild(document.createTextNode(truncate(site.name, 8)));
+                            chip.title = site.company + ' / ' + site.name;
+                            if (!isPast) {
+                                var removeBtn = el('span', 'md-ws-chip-remove', '\u00d7');
+                                removeBtn.addEventListener('click', function (e) {
+                                    e.stopPropagation();
+                                    removeVehicleAssignment(dk, shift, siteId);
+                                    renderGrid();
+                                    renderSidebar();
+                                });
+                                chip.appendChild(removeBtn);
+                                chip.draggable = true;
+                                chip.addEventListener('dragstart', function (e) {
+                                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                                        type: 'move-vehicle-chip',
+                                        siteId: siteId,
+                                        fromVehicleId: vehicle.id,
+                                        fromDate: dk,
+                                        fromShift: shift
+                                    }));
+                                    e.dataTransfer.effectAllowed = 'move';
+                                    chip.classList.add('md-ws-dragging');
+                                    dragSourceDate = dk;
+                                    activateDragMode(dk);
+                                });
+                                chip.addEventListener('dragend', function () {
+                                    chip.classList.remove('md-ws-dragging');
+                                    deactivateDragMode();
+                                });
+                            }
                             cell.appendChild(chip);
                         });
+
+                        // セルクリック
+                        if (!isPast) {
+                            cell.addEventListener('click', function (e) {
+                                if (e.target.closest('.md-ws-site-chip')) return;
+                                selectCellVehicleView(vehicle.id, dk, shift);
+                            });
+                        }
+
+                        // D&Dドロップ対象
+                        if (!isPast) {
+                            cell.addEventListener('dragover', onCellDragOver);
+                            cell.addEventListener('dragleave', onCellDragLeave);
+                            cell.addEventListener('drop', onCellDropVehicleView);
+                        }
 
                         grid.appendChild(cell);
                     });
@@ -1278,6 +1326,20 @@
         renderSidebar();
     }
 
+    function selectCellVehicleView(vehicleId, date, shift, keepTab) {
+        if (selectedCell && selectedCell.vehicleId === vehicleId &&
+            selectedCell.date === date && selectedCell.shift === shift) {
+            deselectCell();
+            return;
+        }
+        siteAccordionCollapsed = {};
+        selectedCell = { vehicleId: vehicleId, date: date, shift: shift };
+        selectedDate = date;
+        if (!keepTab) wsSidebarMainTab = 'site';
+        applySelectionHighlight();
+        renderSidebar();
+    }
+
     function deselectCell() {
         selectedCell = null;
         wsSidebarMainTab = 'employee';
@@ -1292,8 +1354,8 @@
         grid.classList.add('md-ws-selection-active');
 
         // 全セルからハイライトクラス除去
-        grid.querySelectorAll('.md-ws-col-highlighted, .md-ws-cell-selected').forEach(function (el) {
-            el.classList.remove('md-ws-col-highlighted', 'md-ws-cell-selected');
+        grid.querySelectorAll('.md-ws-col-highlighted, .md-ws-cell-selected, .md-ws-name-selected').forEach(function (el) {
+            el.classList.remove('md-ws-col-highlighted', 'md-ws-cell-selected', 'md-ws-name-selected');
         });
 
         var targetDate = selectedCell.date;
@@ -1309,6 +1371,10 @@
             selector = '.md-ws-cell[data-site-id="' + selectedCell.siteId +
                 '"][data-date="' + targetDate +
                 '"][data-shift="' + selectedCell.shift + '"]';
+        } else if (selectedCell.vehicleId) {
+            selector = '.md-ws-cell[data-vehicle-id="' + selectedCell.vehicleId +
+                '"][data-date="' + targetDate +
+                '"][data-shift="' + selectedCell.shift + '"]';
         } else {
             selector = '.md-ws-cell[data-emp-index="' + selectedCell.empIndex +
                 '"][data-date="' + targetDate +
@@ -1318,14 +1384,28 @@
         if (targetCell) {
             targetCell.classList.add('md-ws-cell-selected');
         }
+
+        // 選択行のヘッダーセル（名前セル）をハイライト
+        var nameSelector;
+        if (viewMode === 'site') {
+            nameSelector = '.md-ws-name-cell[data-site-id="' + selectedCell.siteId + '"]';
+        } else if (selectedCell.vehicleId) {
+            nameSelector = '.md-ws-vehicle-name-cell[data-vehicle-id="' + selectedCell.vehicleId + '"]';
+        } else {
+            nameSelector = '.md-ws-name-cell[data-emp-index="' + selectedCell.empIndex + '"]';
+        }
+        var nameCell = grid.querySelector(nameSelector);
+        if (nameCell) {
+            nameCell.classList.add('md-ws-name-selected');
+        }
     }
 
     function removeSelectionHighlight() {
         var grid = document.getElementById('wsGrid');
         if (!grid) return;
         grid.classList.remove('md-ws-selection-active');
-        grid.querySelectorAll('.md-ws-col-highlighted, .md-ws-cell-selected').forEach(function (el) {
-            el.classList.remove('md-ws-col-highlighted', 'md-ws-cell-selected');
+        grid.querySelectorAll('.md-ws-col-highlighted, .md-ws-cell-selected, .md-ws-name-selected').forEach(function (el) {
+            el.classList.remove('md-ws-col-highlighted', 'md-ws-cell-selected', 'md-ws-name-selected');
         });
     }
 
@@ -1616,6 +1696,33 @@
         renderSidebar();
     }
 
+    // 車両セル用ドロップ
+    function onCellDropVehicleView(e) {
+        e.preventDefault();
+        var cell = e.currentTarget;
+        cell.classList.remove('md-ws-drag-over');
+
+        var raw = e.dataTransfer.getData('text/plain');
+        if (!raw) return;
+        var data;
+        try { data = JSON.parse(raw); } catch (_) { return; }
+
+        var vehicleId = cell.dataset.vehicleId;
+        var date = cell.dataset.date;
+        var shift = cell.dataset.shift;
+
+        if (data.type === 'sidebar-site') {
+            addVehicleAssignment(date, shift, data.siteId, vehicleId);
+        } else if (data.type === 'move-vehicle-chip') {
+            removeVehicleAssignment(data.fromDate, data.fromShift, data.siteId);
+            addVehicleAssignment(date, shift, data.siteId, vehicleId);
+        }
+
+        deactivateDragMode();
+        renderGrid();
+        renderSidebar();
+    }
+
     // ==========================================================
     // サイドバー描画
     // ==========================================================
@@ -1625,7 +1732,11 @@
             renderSidebarSiteMode();
         } else {
             if (selectedCell) {
-                renderSidebarAssignSite();
+                if (selectedCell.vehicleId) {
+                    renderSidebarAssignSiteForVehicle();
+                } else {
+                    renderSidebarAssignSite();
+                }
             } else {
                 renderSidebarEmployeeMode();
             }
@@ -2250,6 +2361,235 @@
                         status.textContent = assignedCount + '/' + orders + ' 充足';
                         item.addEventListener('click', function () {
                             addAssignment(sc.empIndex, sc.date, sc.shift, site.id);
+                            renderGrid();
+                            renderSidebar();
+                        });
+                    }
+
+                    // D&D対応（過去日は無効）
+                    if (!isPast && !isAlreadyAssigned) {
+                        item.draggable = true;
+                        item.addEventListener('dragstart', function (e) {
+                            e.dataTransfer.setData('text/plain', JSON.stringify({
+                                type: 'sidebar-site',
+                                siteId: site.id
+                            }));
+                            e.dataTransfer.effectAllowed = 'copy';
+                            item.style.opacity = '0.5';
+                            activateDragMode(sc.date);
+                        });
+                        item.addEventListener('dragend', function () {
+                            item.style.opacity = '';
+                            deactivateDragMode();
+                        });
+                    }
+
+                    item.appendChild(dot);
+                    item.appendChild(nameSpan);
+                    item.appendChild(status);
+                    content.appendChild(item);
+
+                    // 配置済み社員バッジ
+                    if (assignedEmpIdxs.length > 0) {
+                        var badgeRow = el('div', 'md-ws-site-emp-badges');
+                        assignedEmpIdxs.forEach(function (idx) {
+                            var empData = employeesData[idx];
+                            if (!empData) return;
+                            var badge = el('span', 'md-ws-site-emp-badge', empData.name);
+                            badge.addEventListener('click', function (e) {
+                                e.stopPropagation();
+                                scrollToRowAndFlash('[data-emp-index="' + idx + '"].md-ws-name-cell');
+                            });
+                            badgeRow.appendChild(badge);
+                        });
+                        content.appendChild(badgeRow);
+                    }
+                });
+            });
+        });
+
+        panel.appendChild(content);
+        sidebar.appendChild(panel);
+    }
+
+    // --- 社員軸ビュー + 車両セル選択 → 現場候補表示 ---
+    function renderSidebarAssignSiteForVehicle() {
+        var sidebar = document.querySelector('.md-ws-sidebar');
+        if (!sidebar) return;
+
+        var sc = selectedCell;
+        var vehicle = findVehicle(sc.vehicleId);
+        var d = parseDate(sc.date);
+        var isPast = d < today;
+        var mm = d.getMonth() + 1;
+        var dd = d.getDate();
+        var dow = getDaysOfWeek()[d.getDay()];
+        var shiftLabel = sc.shift === 'day' ? '\u663c' : '\u591c';
+
+        sidebar.innerHTML = '';
+
+        // --- ヘッダー ---
+        var header = el('div', 'md-ws-sidebar-assign-header');
+        header.innerHTML = '\u914d\u7f6e\u30e2\u30fc\u30c9';
+        var closeBtn = el('button', 'md-ws-assign-close', '\u00d7');
+        closeBtn.addEventListener('click', function () { deselectCell(); });
+        header.appendChild(closeBtn);
+        sidebar.appendChild(header);
+
+        // --- infoエリア ---
+        var info = el('div', 'md-ws-sidebar-assign-info');
+        var navRow = el('div', 'md-ws-assign-nav');
+
+        var visibleDateKeys = getVisibleDates().map(function (d) { return formatDateKey(d); });
+        var curDatePos = visibleDateKeys.indexOf(sc.date);
+
+        var prevBtn = el('button', 'md-ws-assign-nav-btn', '\u25c0');
+        prevBtn.title = '\u524d\u65e5\u3078';
+        if (curDatePos <= 0) prevBtn.disabled = true;
+        prevBtn.addEventListener('click', function () {
+            if (curDatePos > 0) {
+                selectedCell = { vehicleId: sc.vehicleId, date: visibleDateKeys[curDatePos - 1], shift: sc.shift };
+                renderGrid(); renderSidebar(); applySelectionHighlight();
+            }
+        });
+
+        var nextBtn = el('button', 'md-ws-assign-nav-btn', '\u25b6');
+        nextBtn.title = '\u7fcc\u65e5\u3078';
+        if (curDatePos < 0 || curDatePos >= visibleDateKeys.length - 1) nextBtn.disabled = true;
+        nextBtn.addEventListener('click', function () {
+            if (curDatePos < visibleDateKeys.length - 1) {
+                selectedCell = { vehicleId: sc.vehicleId, date: visibleDateKeys[curDatePos + 1], shift: sc.shift };
+                renderGrid(); renderSidebar(); applySelectionHighlight();
+            }
+        });
+
+        var centerBlock = el('div', 'md-ws-assign-nav-center');
+        var vehLine = el('div', 'md-ws-assign-nav-site');
+        vehLine.innerHTML = '<strong>' + (vehicle ? vehicle.plate + ' ' + vehicle.model : '') + '</strong>';
+        var dateLine = el('div', 'md-ws-assign-nav-date');
+        dateLine.textContent = mm + '/' + dd + '(' + dow + ') ' + shiftLabel;
+        centerBlock.appendChild(vehLine);
+        centerBlock.appendChild(dateLine);
+
+        navRow.appendChild(prevBtn);
+        navRow.appendChild(nextBtn);
+        navRow.appendChild(centerBlock);
+
+        info.appendChild(navRow);
+        sidebar.appendChild(info);
+
+        var currentSites = getVehicleAssignedSites(sc.vehicleId, sc.date, sc.shift);
+
+        // パネル（縦タブ + コンテンツ）
+        var panel = el('div', 'md-ws-sidebar-panel');
+
+        // --- 縦タブ列（GC別） ---
+        var vtabs = el('div', 'md-ws-site-vtabs');
+        var gcOrder = (typeof groupCompaniesData !== 'undefined')
+            ? groupCompaniesData.filter(function (gc) { return wsGcIsVisible(gc.code); })
+            : [];
+
+        if (wsSiteTab.activeGc !== 'all') {
+            var found = gcOrder.some(function (gc) { return gc.code === wsSiteTab.activeGc; });
+            if (!found) wsSiteTab.activeGc = 'all';
+        }
+
+        var allTab = el('div', 'md-ws-site-vtab' + (wsSiteTab.activeGc === 'all' ? ' active' : ''), '\u3059\u3079\u3066');
+        allTab.addEventListener('click', function () { wsSiteTab.activeGc = 'all'; renderSidebar(); });
+        vtabs.appendChild(allTab);
+
+        gcOrder.forEach(function (gc) {
+            var tab = el('div', 'md-ws-site-vtab' + (wsSiteTab.activeGc === gc.code ? ' active' : ''), gc.shortName);
+            tab.addEventListener('click', function () { wsSiteTab.activeGc = gc.code; renderSidebar(); });
+            vtabs.appendChild(tab);
+        });
+
+        panel.appendChild(vtabs);
+
+        // --- コンテンツエリア ---
+        var content = el('div', 'md-ws-site-tab-content');
+
+        var filteredGcs = wsSiteTab.activeGc === 'all'
+            ? gcOrder
+            : gcOrder.filter(function (gc) { return gc.code === wsSiteTab.activeGc; });
+
+        filteredGcs.forEach(function (gc) {
+            var gcSites = wsSitesData.filter(function (s) {
+                return s.gc === gc.code && (s.orders[sc.shift] || 0) > 0;
+            });
+            if (gcSites.length === 0) return;
+
+            if (wsSiteTab.activeGc === 'all') {
+                content.appendChild(el('div', 'md-ws-gc-section-label', gc.shortName));
+            }
+
+            CATEGORY_ORDER.forEach(function (cat) {
+                var catSites = gcSites.filter(function (s) { return s.category === cat; });
+                if (catSites.length === 0) return;
+
+                var catKey = 'gc-' + gc.code + '-' + cat;
+                var catCollapsed = !!siteAccordionCollapsed[catKey];
+
+                var catHeader = el('div', 'md-ws-site-accordion-header md-ws-site-accordion-cat');
+                if (catCollapsed) catHeader.classList.add('md-ws-collapsed');
+                catHeader.innerHTML = '<span class="md-ws-site-accordion-chevron">\u25bc</span>' +
+                    '<span class="md-ws-category-badge md-ws-cat-' + cat + '">' + CATEGORIES[cat] + '</span>' +
+                    '<span class="md-ws-site-accordion-count">(' + catSites.length + ')</span>';
+                catHeader.addEventListener('click', function () {
+                    siteAccordionCollapsed[catKey] = !siteAccordionCollapsed[catKey];
+                    renderSidebar();
+                });
+                content.appendChild(catHeader);
+
+                if (catCollapsed) return;
+
+                catSites.forEach(function (site) {
+                    var orders = site.orders[sc.shift] || 0;
+                    var item = el('div', 'md-ws-candidate-item md-ws-candidate-indented');
+                    var dot = el('span', 'md-ws-candidate-dot');
+                    var nameSpan = el('span', 'md-ws-candidate-name');
+                    var companyLine = el('span', 'md-ws-candidate-company', site.company);
+                    var siteLine = el('span', '', site.name);
+                    nameSpan.appendChild(companyLine);
+                    nameSpan.appendChild(siteLine);
+                    var status = el('span', 'md-ws-candidate-status');
+
+                    var assignedEmpIdxs = getAssignedEmployees(site.id, sc.date, sc.shift);
+                    var assignedCount = assignedEmpIdxs.length;
+                    var isAlreadyAssigned = currentSites.indexOf(site.id) >= 0;
+
+                    if (isPast) {
+                        item.classList.add('md-ws-candidate-disabled');
+                        if (isAlreadyAssigned) {
+                            dot.classList.add('md-ws-dot-assigned');
+                            status.textContent = '\u914d\u7f6e\u6e08';
+                        } else {
+                            status.textContent = assignedCount + '/' + orders;
+                        }
+                    } else if (isAlreadyAssigned) {
+                        dot.classList.add('md-ws-dot-assigned');
+                        status.textContent = '\u914d\u7f6e\u6e08';
+                        item.classList.add('md-ws-candidate-assigned');
+                        item.addEventListener('click', function () {
+                            removeVehicleAssignment(sc.date, sc.shift, site.id);
+                            renderGrid();
+                            renderSidebar();
+                        });
+                        item.style.cursor = 'pointer';
+                        item.title = '\u30af\u30ea\u30c3\u30af\u3067\u914d\u7f6e\u89e3\u9664';
+                    } else if (assignedCount < orders) {
+                        dot.classList.add('md-ws-dot-available');
+                        status.textContent = assignedCount + '/' + orders + ' \u4e0d\u8db3';
+                        item.addEventListener('click', function () {
+                            addVehicleAssignment(sc.date, sc.shift, site.id, sc.vehicleId);
+                            renderGrid();
+                            renderSidebar();
+                        });
+                    } else {
+                        dot.classList.add('md-ws-dot-busy');
+                        status.textContent = assignedCount + '/' + orders + ' \u5145\u8db3';
+                        item.addEventListener('click', function () {
+                            addVehicleAssignment(sc.date, sc.shift, site.id, sc.vehicleId);
                             renderGrid();
                             renderSidebar();
                         });
