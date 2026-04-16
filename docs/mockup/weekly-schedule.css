@@ -1155,8 +1155,12 @@ body {
 }
 .md-ws-assign-nav-center {
     flex: 1;
-    text-align: center;
+    text-align: left;
     min-width: 0;
+    margin-left: 20px;
+}
+.md-ws-assign-nav .md-ws-assign-nav-btn + .md-ws-assign-nav-btn {
+    margin-left: 20px;
 }
 .md-ws-assign-nav-site {
     font-size: 12px;
@@ -2124,6 +2128,103 @@ body {
 .md-ws-clickable-badge:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================================
+   現場タブ — 小さい社員バッジ
+   ============================================================ */
+.md-ws-site-emp-badge {
+    display: inline-block;
+    padding: 1px 4px;
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 14px;
+    background: var(--accent-dim);
+    color: var(--accent-primary);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    white-space: nowrap;
+}
+.md-ws-site-emp-badge:hover {
+    background: var(--accent-primary);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* 現場タブ — 現場アイテム内バッジコンテナ */
+.md-ws-site-emp-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    padding: 2px 0 4px 28px;
+}
+
+/* 現場タブ — カテゴリ内現場アイテム */
+.md-ws-site-tab-item {
+    padding: 4px 8px 2px 20px;
+    font-size: 11px;
+    color: var(--text-primary);
+    cursor: default;
+}
+.md-ws-site-tab-item-name {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.md-ws-site-tab-item-company {
+    font-size: 9px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+}
+
+/* 現場タブ — 縦タブ用GCタブ（現場側） */
+.md-ws-site-vtabs {
+    display: flex;
+    flex-direction: column;
+    width: 34px;
+    min-width: 34px;
+    background: var(--base-surface-alt);
+    border-right: 1px solid var(--divider);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+}
+.md-ws-site-vtab {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    padding: 10px 5px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-left: 2px solid transparent;
+    white-space: nowrap;
+    text-align: center;
+    transition: all 0.15s;
+    user-select: none;
+    letter-spacing: 0.08em;
+}
+.md-ws-site-vtab:hover {
+    color: var(--text-secondary);
+    background: var(--accent-dim);
+}
+.md-ws-site-vtab.active {
+    color: var(--accent-primary);
+    border-left-color: var(--accent-primary);
+    background: var(--base-surface);
+    font-weight: 600;
+}
+
+/* 現場タブ — コンテンツエリア */
+.md-ws-site-tab-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+    min-width: 0;
 }
 
 /* GCフィルタボタン・モーダルは共通ナビバー(co-navbar.css)に移動 */
