@@ -1257,18 +1257,37 @@ body {
     border: 1px solid transparent;
 }
 .md-ws-candidate-item:hover {
-    background: var(--accent-dim);
-    border-color: var(--accent-primary);
+    filter: brightness(0.95);
+    border-color: currentColor;
 }
 .md-ws-candidate-item.md-ws-candidate-disabled {
     opacity: 0.4;
     cursor: default;
     pointer-events: none;
 }
+/* ステータス別チップスタイル */
+.md-ws-candidate-item.md-ws-candidate-shortage {
+    background: var(--error-bg);
+    border-color: rgba(219, 87, 123, 0.25);
+    color: var(--error);
+}
+.md-ws-candidate-item.md-ws-candidate-fulfilled {
+    background: var(--success-bg);
+    border-color: rgba(56, 161, 105, 0.25);
+    color: var(--success-text);
+}
+.md-ws-candidate-item.md-ws-candidate-excess {
+    background: var(--warning-bg);
+    border-color: rgba(214, 158, 46, 0.25);
+    color: var(--warning-text);
+}
 .md-ws-candidate-item.md-ws-candidate-assigned {
-    opacity: 0.5;
-    cursor: default;
-    background: var(--base-surface-alt);
+    background: var(--accent-dim);
+    border-color: rgba(68, 166, 181, 0.3);
+    color: var(--accent-primary);
+}
+.md-ws-candidate-item.md-ws-candidate-assigned:hover {
+    filter: brightness(0.92);
 }
 .md-ws-candidate-dot {
     width: 8px;
@@ -1301,10 +1320,25 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+/* ステータスチップ内の会社名は親の色を継承 */
+.md-ws-candidate-item.md-ws-candidate-shortage .md-ws-candidate-company,
+.md-ws-candidate-item.md-ws-candidate-fulfilled .md-ws-candidate-company,
+.md-ws-candidate-item.md-ws-candidate-excess .md-ws-candidate-company,
+.md-ws-candidate-item.md-ws-candidate-assigned .md-ws-candidate-company {
+    color: inherit;
+    opacity: 0.7;
+}
 .md-ws-candidate-status {
     font-size: 10px;
     color: var(--text-tertiary);
     white-space: nowrap;
+}
+/* ステータスチップ内の人数カウント */
+.md-ws-candidate-count {
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 .md-ws-candidate-gc-badge {
     font-size: 8px;

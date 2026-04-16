@@ -2317,13 +2317,12 @@
                 catSites.forEach(function (site) {
                     var orders = site.orders[sc.shift] || 0;
                     var item = el('div', 'md-ws-candidate-item md-ws-candidate-indented');
-                    var dot = el('span', 'md-ws-candidate-dot');
                     var nameSpan = el('span', 'md-ws-candidate-name');
                     var companyLine = el('span', 'md-ws-candidate-company', site.company);
                     var siteLine = el('span', '', site.name);
                     nameSpan.appendChild(companyLine);
                     nameSpan.appendChild(siteLine);
-                    var status = el('span', 'md-ws-candidate-status');
+                    var countChip = el('span', 'md-ws-candidate-count');
 
                     var assignedEmpIdxs = getAssignedEmployees(site.id, sc.date, sc.shift);
                     var assignedCount = assignedEmpIdxs.length;
@@ -2331,34 +2330,36 @@
 
                     if (isPast) {
                         item.classList.add('md-ws-candidate-disabled');
-                        if (isAlreadyAssigned) {
-                            dot.classList.add('md-ws-dot-assigned');
-                            status.textContent = '配置済';
-                        } else {
-                            status.textContent = assignedCount + '/' + orders;
-                        }
+                        countChip.textContent = assignedCount + '/' + orders;
                     } else if (isAlreadyAssigned) {
-                        dot.classList.add('md-ws-dot-assigned');
-                        status.textContent = '配置済';
                         item.classList.add('md-ws-candidate-assigned');
+                        countChip.textContent = assignedCount + '/' + orders;
                         item.addEventListener('click', function () {
                             removeAssignment(sc.empIndex, sc.date, sc.shift, site.id);
                             renderGrid();
                             renderSidebar();
                         });
                         item.style.cursor = 'pointer';
-                        item.title = 'クリックで配置解除';
+                        item.title = '\u30af\u30ea\u30c3\u30af\u3067\u914d\u7f6e\u89e3\u9664';
                     } else if (assignedCount < orders) {
-                        dot.classList.add('md-ws-dot-available');
-                        status.textContent = assignedCount + '/' + orders + ' 不足';
+                        item.classList.add('md-ws-candidate-shortage');
+                        countChip.textContent = assignedCount + '/' + orders;
+                        item.addEventListener('click', function () {
+                            addAssignment(sc.empIndex, sc.date, sc.shift, site.id);
+                            renderGrid();
+                            renderSidebar();
+                        });
+                    } else if (assignedCount === orders) {
+                        item.classList.add('md-ws-candidate-fulfilled');
+                        countChip.textContent = assignedCount + '/' + orders;
                         item.addEventListener('click', function () {
                             addAssignment(sc.empIndex, sc.date, sc.shift, site.id);
                             renderGrid();
                             renderSidebar();
                         });
                     } else {
-                        dot.classList.add('md-ws-dot-busy');
-                        status.textContent = assignedCount + '/' + orders + ' 充足';
+                        item.classList.add('md-ws-candidate-excess');
+                        countChip.textContent = assignedCount + '/' + orders;
                         item.addEventListener('click', function () {
                             addAssignment(sc.empIndex, sc.date, sc.shift, site.id);
                             renderGrid();
@@ -2384,9 +2385,8 @@
                         });
                     }
 
-                    item.appendChild(dot);
                     item.appendChild(nameSpan);
-                    item.appendChild(status);
+                    item.appendChild(countChip);
                     content.appendChild(item);
 
                     // 配置済み社員バッジ
@@ -2546,13 +2546,12 @@
                 catSites.forEach(function (site) {
                     var orders = site.orders[sc.shift] || 0;
                     var item = el('div', 'md-ws-candidate-item md-ws-candidate-indented');
-                    var dot = el('span', 'md-ws-candidate-dot');
                     var nameSpan = el('span', 'md-ws-candidate-name');
                     var companyLine = el('span', 'md-ws-candidate-company', site.company);
                     var siteLine = el('span', '', site.name);
                     nameSpan.appendChild(companyLine);
                     nameSpan.appendChild(siteLine);
-                    var status = el('span', 'md-ws-candidate-status');
+                    var countChip = el('span', 'md-ws-candidate-count');
 
                     var assignedEmpIdxs = getAssignedEmployees(site.id, sc.date, sc.shift);
                     var assignedCount = assignedEmpIdxs.length;
@@ -2560,16 +2559,10 @@
 
                     if (isPast) {
                         item.classList.add('md-ws-candidate-disabled');
-                        if (isAlreadyAssigned) {
-                            dot.classList.add('md-ws-dot-assigned');
-                            status.textContent = '\u914d\u7f6e\u6e08';
-                        } else {
-                            status.textContent = assignedCount + '/' + orders;
-                        }
+                        countChip.textContent = assignedCount + '/' + orders;
                     } else if (isAlreadyAssigned) {
-                        dot.classList.add('md-ws-dot-assigned');
-                        status.textContent = '\u914d\u7f6e\u6e08';
                         item.classList.add('md-ws-candidate-assigned');
+                        countChip.textContent = assignedCount + '/' + orders;
                         item.addEventListener('click', function () {
                             removeVehicleAssignment(sc.date, sc.shift, site.id);
                             renderGrid();
@@ -2578,16 +2571,24 @@
                         item.style.cursor = 'pointer';
                         item.title = '\u30af\u30ea\u30c3\u30af\u3067\u914d\u7f6e\u89e3\u9664';
                     } else if (assignedCount < orders) {
-                        dot.classList.add('md-ws-dot-available');
-                        status.textContent = assignedCount + '/' + orders + ' \u4e0d\u8db3';
+                        item.classList.add('md-ws-candidate-shortage');
+                        countChip.textContent = assignedCount + '/' + orders;
+                        item.addEventListener('click', function () {
+                            addVehicleAssignment(sc.date, sc.shift, site.id, sc.vehicleId);
+                            renderGrid();
+                            renderSidebar();
+                        });
+                    } else if (assignedCount === orders) {
+                        item.classList.add('md-ws-candidate-fulfilled');
+                        countChip.textContent = assignedCount + '/' + orders;
                         item.addEventListener('click', function () {
                             addVehicleAssignment(sc.date, sc.shift, site.id, sc.vehicleId);
                             renderGrid();
                             renderSidebar();
                         });
                     } else {
-                        dot.classList.add('md-ws-dot-busy');
-                        status.textContent = assignedCount + '/' + orders + ' \u5145\u8db3';
+                        item.classList.add('md-ws-candidate-excess');
+                        countChip.textContent = assignedCount + '/' + orders;
                         item.addEventListener('click', function () {
                             addVehicleAssignment(sc.date, sc.shift, site.id, sc.vehicleId);
                             renderGrid();
@@ -2613,9 +2614,8 @@
                         });
                     }
 
-                    item.appendChild(dot);
                     item.appendChild(nameSpan);
-                    item.appendChild(status);
+                    item.appendChild(countChip);
                     content.appendChild(item);
 
                     // 配置済み社員バッジ
