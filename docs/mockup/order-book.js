@@ -3085,8 +3085,11 @@ function openCalendarModal(ri) {
     const calMeta = document.getElementById('calendarModalMeta');
     calMeta.innerHTML =
         `<span class="md-ob-cal-meta-company">${escapeHtml(obBranchShort(row.branch))}</span>` +
-        `<span class="md-ob-cal-meta-task">${escapeHtml(row.company)} / ${taskDisplay}</span>` +
-        `<span class="md-ob-cal-meta-tags">${escapeHtml(row.category)} | ${escapeHtml(row.shift)}勤</span>`;
+        `<span class="md-ob-cal-meta-tags">${escapeHtml(row.category)} | ${escapeHtml(row.shift)}勤</span>` +
+        `<div class="md-ob-cal-meta-names">` +
+            `<span class="md-ob-cal-meta-contract">${escapeHtml(row.company)}</span>` +
+            `<span class="md-ob-cal-meta-task">${taskDisplay}</span>` +
+        `</div>`;
     calMeta.classList.toggle('md-ob-night', row.shift === '夜');
 
     // 現在月のデータ参照をキャッシュ（直接参照：同月編集は即時反映）
