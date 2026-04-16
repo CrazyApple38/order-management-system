@@ -330,6 +330,19 @@ body {
     border-right: 2px solid var(--sub-secondary);
     border-bottom: 1px solid rgba(0,69,84,0.1);
 }
+/* 日付行・昼夜行を上部に固定 */
+.md-ws-corner.md-ws-corner-row1 {
+    position: sticky;
+    left: 0;
+    top: 0;
+    z-index: 30;
+}
+.md-ws-corner.md-ws-corner-row2 {
+    position: sticky;
+    left: 0;
+    z-index: 30;
+    /* top は JS で設定 */
+}
 .md-ws-date-header {
     background: var(--base-muted);
     color: var(--text-primary);
@@ -339,6 +352,9 @@ body {
     text-align: center;
     border-bottom: 1px solid rgba(0,69,84,0.1);
     border-left: 1px solid rgba(0,69,84,0.06);
+    position: sticky;
+    top: 0;
+    z-index: 12;
 }
 .md-ws-date-header.md-ws-sat {
     color: var(--text-secondary);
@@ -369,6 +385,9 @@ body {
     padding: 2px 0;
     border-bottom: 2px solid var(--sub-secondary);
     border-left: 1px solid rgba(0,69,84,0.06);
+    position: sticky;
+    z-index: 11;
+    /* top は JS で設定 */
 }
 .md-ws-shift-header.md-ws-shift-night {
     color: var(--night-text);
@@ -802,22 +821,25 @@ body {
     font-size: 10px;
     font-weight: 700;
     padding: 2px 6px;
-    border-radius: 10px;
+    border-radius: 0;
     white-space: nowrap;
-    width: 100%;
+    width: 66%;
+    margin: 0 auto;
     text-align: center;
+    background: transparent;
+    border-bottom: 1px solid transparent;
 }
 .md-ws-staff-ok {
-    background: var(--success-bg);
     color: var(--success-text);
+    border-bottom-color: var(--success);
 }
 .md-ws-staff-short {
-    background: var(--error-bg);
     color: var(--error);
+    border-bottom-color: var(--error);
 }
 .md-ws-staff-over {
-    background: var(--warning-bg);
     color: var(--warning-text);
+    border-bottom-color: var(--warning);
 }
 
 /* シフトバッジ（サイドバー内） */

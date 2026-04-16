@@ -445,6 +445,20 @@
             renderEmployeeGrid();
         }
         updateMonthLabel();
+        fixStickyHeaderTops();
+    }
+
+    function fixStickyHeaderTops() {
+        var grid = document.getElementById('wsGrid');
+        if (!grid) return;
+        var dateHeader = grid.querySelector('.md-ws-date-header');
+        if (!dateHeader) return;
+        var headerHeight = dateHeader.offsetHeight;
+        grid.querySelectorAll('.md-ws-shift-header').forEach(function (sh) {
+            sh.style.top = headerHeight + 'px';
+        });
+        var corner2 = grid.querySelector('.md-ws-corner-row2');
+        if (corner2) corner2.style.top = headerHeight + 'px';
     }
 
     // ==========================================================
@@ -463,7 +477,7 @@
         grid.classList.remove('md-ws-selection-active', 'md-ws-drag-active');
 
         // --- ヘッダー行1: 日付 ---
-        var corner1 = el('div', 'md-ws-corner', '\u73fe\u5834\u540d');
+        var corner1 = el('div', 'md-ws-corner md-ws-corner-row1', '\u73fe\u5834\u540d');
         corner1.style.gridRow = '1';
         grid.appendChild(corner1);
 
@@ -488,7 +502,7 @@
         });
 
         // --- ヘッダー行2: 昼/夜 ---
-        var corner2 = el('div', 'md-ws-corner', '');
+        var corner2 = el('div', 'md-ws-corner md-ws-corner-row2', '');
         corner2.style.gridRow = '2';
         corner2.style.fontSize = '10px';
         corner2.style.borderBottom = '2px solid var(--sub-secondary)';
@@ -972,7 +986,7 @@
         grid.classList.remove('md-ws-selection-active', 'md-ws-drag-active');
 
         // --- ヘッダー行1: 日付 ---
-        var corner1 = el('div', 'md-ws-corner', '\u793e\u54e1\u540d');
+        var corner1 = el('div', 'md-ws-corner md-ws-corner-row1', '\u793e\u54e1\u540d');
         corner1.style.gridRow = '1';
         grid.appendChild(corner1);
 
@@ -997,7 +1011,7 @@
         });
 
         // --- ヘッダー行2: 昼/夜 ---
-        var corner2 = el('div', 'md-ws-corner', '');
+        var corner2 = el('div', 'md-ws-corner md-ws-corner-row2', '');
         corner2.style.gridRow = '2';
         corner2.style.fontSize = '10px';
         corner2.style.borderBottom = '2px solid var(--sub-secondary)';
