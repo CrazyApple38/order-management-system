@@ -1635,6 +1635,156 @@ body {
     border-color: var(--warning);
 }
 
+/* ==============================
+   応援社員バッジ
+   ============================== */
+
+/* 応援バッジ — 破線ボーダーで正社員と区別 */
+.md-ws-emp-tag.md-ws-support-tag {
+    border-style: dashed;
+    border-color: var(--accent-primary);
+    position: relative;
+}
+/* ホバー: 枠線変更 + 透過オーバーレイ（グリッドチップと同様） */
+.md-ws-emp-tag.md-ws-support-tag:hover {
+    background: rgba(68, 166, 181, 0.15);
+    border-color: var(--accent-hover);
+    color: var(--text-primary);
+}
+.md-ws-emp-tag.md-ws-support-tag:hover .md-ws-dow-badge {
+    background: var(--success-bg);
+    color: var(--success-text);
+}
+.md-ws-emp-tag.md-ws-support-tag:hover .md-ws-support-remove {
+    display: inline-flex;
+}
+
+/* 応援バッジ ×削除ボタン（ホバー時のみ表示） */
+.md-ws-support-remove {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin-left: 3px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--error);
+    cursor: pointer;
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+.md-ws-support-remove:hover {
+    opacity: 1;
+}
+
+/* 応援セクション外枠（GCにネスト・回り込み防止） */
+.md-ws-support-outer {
+    width: 100%;
+    margin-top: 4px;
+    margin-left: 10px;
+}
+
+/* 「応援」サブセクションラベル */
+.md-ws-support-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding-bottom: 2px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--divider);
+    letter-spacing: 0.5px;
+}
+
+/* 応援セクション（バッジ群＋追加ボタン） */
+.md-ws-support-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    padding: 2px 0;
+}
+
+/* ＋追加ボタン */
+.md-ws-support-add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: 1px dashed var(--divider);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.md-ws-support-add-btn:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    background: var(--accent-bg, rgba(0,120,212,0.06));
+}
+
+/* インライン入力欄 */
+.md-ws-support-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    padding: 4px 0;
+}
+.md-ws-support-input {
+    flex: 1;
+    min-width: 0;
+    height: 26px;
+    padding: 0 6px;
+    border: 1px solid var(--accent-primary);
+    border-radius: 4px;
+    font-size: 12px;
+    outline: none;
+    background: var(--base-surface);
+    color: var(--text-primary);
+}
+.md-ws-support-input:focus {
+    box-shadow: 0 0 0 2px rgba(0,120,212,0.2);
+}
+.md-ws-support-input-ok {
+    height: 26px;
+    padding: 0 8px;
+    border: none;
+    border-radius: 4px;
+    background: var(--accent-primary);
+    color: #fff;
+    font-size: 11px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.md-ws-support-input-ok:hover {
+    background: var(--accent-hover);
+}
+.md-ws-support-input-cancel {
+    height: 26px;
+    width: 26px;
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.md-ws-support-input-cancel:hover {
+    background: var(--error-bg);
+    color: var(--error);
+}
+
+/* グリッド内の応援チップ */
+.md-ws-emp-chip.md-ws-support-chip {
+    border: 1px dashed var(--accent-primary);
+    background: var(--accent-bg, rgba(0,120,212,0.06));
+}
+
 /* 曜日ミニバッジ共通 */
 .md-ws-dow-badges {
     display: inline-grid;

@@ -48,6 +48,12 @@
     var holidays = {};
     var vehicleMaintenance = {}; // vehicleId -> { dateKey: true }
 
+    // 応援社員バッジ
+    // { id: 'sup-1', label: 'A社①', company: 'touo', isActive: true }
+    var wsSupportWorkers = [];
+    var supportAssignments = {}; // id -> { dateKey -> { shift -> [siteIds] } }
+    var nextSupportId = 1;
+
     // ==========================================================
     // 状態管理
     // ==========================================================
@@ -266,6 +272,65 @@
     function isEmployeeBusy(empIndex, dateKey, shift) {
         var sites = getAssignedSites(empIndex, dateKey, shift);
         return sites.length > 0;
+    }
+
+    // ==========================================================
+    // 応援社員バッジ管理
+    // ==========================================================
+
+    function addSupportWorker(label, gcCode) {
+        var id = 'sup-' + nextSupportId++;
+        wsSupportWorkers.push({ id: id, label: label, company: gcCode, isActive: true });
+        return id;
+    }
+
+    function removeSupportWorker(supId) {
+        // ソフトデリート: isActive = false（配置データは保持）
+        var sw = wsSupportWorkers.find(function (s) { return s.id === supId; });
+        if (sw) sw.isActive = false;
+    }
+
+    function addSupportAssignment(supId, date, shift, siteId) {
+        if (!supportAssignments[supId]) supportAssignments[supId] = {};
+        if (!supportAssignments[supId][date]) supportAssignments[supId][date] = {};
+        supportAssignments[supId][date][shift] = [siteId];
+    }
+
+    function removeSupportAssignment(supId, date, shift, siteId) {
+        if (!supportAssignments[supId] || !supportAssignments[supId][date] || !supportAssignments[supId][date][shift]) return;
+        var arr = supportAssignments[supId][date][shift];
+        var idx = arr.indexOf(siteId);
+        if (idx >= 0) arr.splice(idx, 1);
+    }
+
+    function getAssignedSupportWorkers(siteId, dateKey, shift) {
+        var result = [];
+        Object.keys(supportAssignments).forEach(function (supId) {
+            var sa = supportAssignments[supId];
+            if (sa && sa[dateKey] && sa[dateKey][shift]) {
+                if (sa[dateKey][shift].indexOf(siteId) >= 0) {
+                    var sw = wsSupportWorkers.find(function (s) { return s.id === supId; });
+                    if (sw) result.push(sw);
+                }
+            }
+        });
+        return result;
+    }
+
+    function getSupportAssignedSites(supId, dateKey, shift) {
+        var sa = supportAssignments[supId];
+        if (!sa || !sa[dateKey] || !sa[dateKey][shift]) return [];
+        return sa[dateKey][shift].slice();
+    }
+
+    function isSupportBusy(supId, dateKey, shift) {
+        return getSupportAssignedSites(supId, dateKey, shift).length > 0;
+    }
+
+    function getActiveSupportWorkers(gcCode) {
+        return wsSupportWorkers.filter(function (sw) {
+            return sw.company === gcCode && sw.isActive;
+        });
     }
 
     /**
@@ -809,18 +874,20 @@
                         // 受注人数がないシフトはスキップ表示
                         var orders = site.orders[shift] || 0;
                         var assignedEmps = getAssignedEmployees(site.id, dk, shift);
+                        var assignedSup = getAssignedSupportWorkers(site.id, dk, shift);
+                        var totalAssigned = assignedEmps.length + assignedSup.length;
 
                         // 人数インジケーター（セル上部に表示）
                         if (orders > 0) {
                             var indicator = el('div', 'md-ws-staff-indicator');
-                            if (assignedEmps.length < orders) {
+                            if (totalAssigned < orders) {
                                 indicator.classList.add('md-ws-staff-short');
-                            } else if (assignedEmps.length > orders) {
+                            } else if (totalAssigned > orders) {
                                 indicator.classList.add('md-ws-staff-over');
                             } else {
                                 indicator.classList.add('md-ws-staff-ok');
                             }
-                            indicator.textContent = assignedEmps.length + '/' + orders;
+                            indicator.textContent = totalAssigned + '/' + orders;
                             cell.appendChild(indicator);
                         }
 
@@ -882,6 +949,53 @@
                                     chip.classList.add('md-ws-dragging');
                                     dragSourceDate = dk;
                                     dragEmpIndex = empIdx;
+                                    activateDragMode(dk);
+                                });
+                                chip.addEventListener('dragend', function () {
+                                    chip.classList.remove('md-ws-dragging');
+                                    deactivateDragMode();
+                                });
+                            }
+                            cell.appendChild(chip);
+                        });
+
+                        // 配置済み応援社員チップ
+                        var assignedSupport = getAssignedSupportWorkers(site.id, dk, shift);
+                        assignedSupport.forEach(function (sw) {
+                            var chipCls = 'md-ws-emp-chip md-ws-support-chip';
+                            if (shift === 'night') chipCls += ' md-ws-night-chip';
+                            var chip = el('div', chipCls);
+                            chip.dataset.supportId = sw.id;
+                            chip.title = sw.label;
+
+                            var nameSpan = document.createElement('span');
+                            nameSpan.textContent = sw.label;
+                            chip.appendChild(nameSpan);
+
+                            // ×ボタン
+                            if (!isPast) {
+                                var removeBtn = el('span', 'md-ws-chip-remove', '\u00d7');
+                                removeBtn.addEventListener('click', function (e) {
+                                    e.stopPropagation();
+                                    removeSupportAssignment(sw.id, dk, shift, site.id);
+                                    renderGrid();
+                                    renderSidebar();
+                                });
+                                chip.appendChild(removeBtn);
+
+                                // D&D対応（応援チップを同日の別セルへ移動）
+                                chip.draggable = true;
+                                chip.addEventListener('dragstart', function (e) {
+                                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                                        type: 'move-support',
+                                        supportId: sw.id,
+                                        fromSiteId: site.id,
+                                        fromDate: dk,
+                                        fromShift: shift
+                                    }));
+                                    e.dataTransfer.effectAllowed = 'move';
+                                    chip.classList.add('md-ws-dragging');
+                                    dragSourceDate = dk;
                                     activateDragMode(dk);
                                 });
                                 chip.addEventListener('dragend', function () {
@@ -1671,6 +1785,11 @@
         } else if (data.type === 'move-emp') {
             removeAssignment(data.empIndex, data.fromDate, data.fromShift, data.fromSiteId);
             addAssignment(data.empIndex, date, shift, siteId);
+        } else if (data.type === 'sidebar-support') {
+            addSupportAssignment(data.supportId, date, shift, siteId);
+        } else if (data.type === 'move-support') {
+            removeSupportAssignment(data.supportId, data.fromDate, data.fromShift, data.fromSiteId);
+            addSupportAssignment(data.supportId, date, shift, siteId);
         } else if (data.type === 'sidebar-vehicle') {
             addVehicleAssignment(date, shift, siteId, data.vehicleId);
         } else if (data.type === 'move-vehicle') {
@@ -1991,20 +2110,37 @@
             });
         }
 
+        var currentAssignedSupport = getAssignedSupportWorkers(sc.siteId, sc.date, sc.shift);
+
         if (wsEmpTab.activeTab === 'all') {
             visibleCompanies.forEach(function (gc) {
                 var companyEmps = filtered.filter(function (emp) { return emp.company === gc.code; });
-                if (companyEmps.length === 0) return;
+                if (companyEmps.length === 0 && getActiveSupportWorkers(gc.code).length === 0) return;
                 var sectionLabel = el('div', 'md-ws-gc-section-label', gc.shortName);
                 content.appendChild(sectionLabel);
                 companyEmps.forEach(function (emp) {
                     content.appendChild(createAssignEmpBadge(emp, sc, currentAssigned));
+                });
+                appendSupportSection(content, gc.code, function (sw) {
+                    return createAssignSupportBadge(sw, sc, currentAssignedSupport);
                 });
             });
         } else {
             filtered.forEach(function (emp) {
                 content.appendChild(createAssignEmpBadge(emp, sc, currentAssigned));
             });
+            // フィルタ中でも、選択タブに属するGCの応援バッジを表示
+            var activeGc = null;
+            visibleCompanies.forEach(function (gc) {
+                var units = orgUnitsData[gc.code] || [];
+                var ids = wsGetDescendantIds(units, wsEmpTab.activeTab);
+                if (ids.length > 0) activeGc = gc.code;
+            });
+            if (activeGc) {
+                appendSupportSection(content, activeGc, function (sw) {
+                    return createAssignSupportBadge(sw, sc, currentAssignedSupport);
+                });
+            }
         }
 
         panel.appendChild(content);
@@ -2684,11 +2820,14 @@
                 var companyEmps = employeesData.map(function (emp, idx) {
                     return { index: idx, name: emp.name, company: emp.company, dept: emp.dept };
                 }).filter(function (emp) { return emp.company === gc.code; });
-                if (companyEmps.length === 0) return;
+                if (companyEmps.length === 0 && getActiveSupportWorkers(gc.code).length === 0) return;
                 filteredCount += companyEmps.length;
                 content.appendChild(el('div', 'md-ws-gc-section-label', gc.shortName));
                 companyEmps.forEach(function (emp) {
                     content.appendChild(createEmpBadge(emp));
+                });
+                appendSupportSection(content, gc.code, function (sw) {
+                    return createSupportBadge(sw);
                 });
             });
             sidebar.appendChild(content);
@@ -2779,17 +2918,32 @@
         if (wsEmpTab.activeTab === 'all') {
             visibleCompanies.forEach(function (gc) {
                 var companyEmps = filtered.filter(function (emp) { return emp.company === gc.code; });
-                if (companyEmps.length === 0) return;
+                if (companyEmps.length === 0 && getActiveSupportWorkers(gc.code).length === 0) return;
                 var sectionLabel = el('div', 'md-ws-gc-section-label', gc.shortName);
                 content.appendChild(sectionLabel);
                 companyEmps.forEach(function (emp) {
                     content.appendChild(createEmpBadge(emp));
+                });
+                appendSupportSection(content, gc.code, function (sw) {
+                    return createSupportBadge(sw);
                 });
             });
         } else {
             filtered.forEach(function (emp) {
                 content.appendChild(createEmpBadge(emp));
             });
+            // フィルタ中でも、選択タブに属するGCの応援バッジを表示
+            var activeGc = null;
+            visibleCompanies.forEach(function (gc) {
+                var units = orgUnitsData[gc.code] || [];
+                var ids = wsGetDescendantIds(units, wsEmpTab.activeTab);
+                if (ids.length > 0) activeGc = gc.code;
+            });
+            if (activeGc) {
+                appendSupportSection(content, activeGc, function (sw) {
+                    return createSupportBadge(sw);
+                });
+            }
         }
 
         panel.appendChild(content);
@@ -3132,6 +3286,219 @@
         }
 
         return tag;
+    }
+
+    // ==========================================================
+    // 応援社員バッジUI（サイドバー共通ヘルパー）
+    // ==========================================================
+
+    /** 応援社員バッジ生成（概要モード：非選択時） */
+    function createSupportBadge(sw) {
+        var tag = el('span', 'md-ws-emp-tag md-ws-support-tag');
+        var nameSpan = el('span', 'md-ws-emp-name', sw.label);
+        tag.appendChild(nameSpan);
+
+        // 全表示日の配置状況を収集
+        var dates = getVisibleDates();
+        var dowLabels = getDaysOfWeek();
+        var assignedDows = [];
+
+        dates.forEach(function (d) {
+            var dk = formatDateKey(d);
+            var dow = dowLabels[d.getDay()];
+            var daySites = getSupportAssignedSites(sw.id, dk, 'day');
+            var nightSites = getSupportAssignedSites(sw.id, dk, 'night');
+            if (daySites.length > 0 || nightSites.length > 0) {
+                assignedDows.push(dow);
+            }
+        });
+
+        // 曜日ミニバッジ（現場軸のみ）
+        if (viewMode !== 'employee' && assignedDows.length > 0) {
+            var dowRow = el('span', 'md-ws-dow-badges');
+            assignedDows.forEach(function (dow) {
+                var badge = el('span', 'md-ws-dow-badge', dow);
+                dowRow.appendChild(badge);
+            });
+            tag.appendChild(dowRow);
+        }
+
+        // ×削除ボタン
+        var removeBtn = el('span', 'md-ws-support-remove', '\u00d7');
+        removeBtn.title = '\u524a\u9664';
+        removeBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            removeSupportWorker(sw.id);
+            renderGrid();
+            renderSidebar();
+        });
+        tag.appendChild(removeBtn);
+
+        // D&D対応（現場軸のみ）
+        if (viewMode !== 'employee') {
+            tag.draggable = true;
+            tag.addEventListener('dragstart', function (e) {
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    type: 'sidebar-support',
+                    supportId: sw.id
+                }));
+                e.dataTransfer.effectAllowed = 'copy';
+                tag.style.opacity = '0.5';
+                activateDragMode(null);
+            });
+            tag.addEventListener('dragend', function () {
+                tag.style.opacity = '';
+                deactivateDragMode();
+            });
+        }
+
+        return tag;
+    }
+
+    /** 応援社員バッジ生成（配置モード：セル選択時） */
+    function createAssignSupportBadge(sw, sc, currentAssignedSupport) {
+        var tag = el('span', 'md-ws-emp-tag md-ws-support-tag');
+        var nameSpan = el('span', 'md-ws-emp-name', sw.label);
+        tag.appendChild(nameSpan);
+
+        var isAlreadyHere = currentAssignedSupport.some(function (s) { return s.id === sw.id; });
+        var busy = isSupportBusy(sw.id, sc.date, sc.shift);
+
+        if (isAlreadyHere) {
+            tag.classList.add('md-ws-tag-assigned');
+            tag.title = '\u30af\u30ea\u30c3\u30af\u3067\u914d\u7f6e\u89e3\u9664';
+            tag.addEventListener('click', function () {
+                removeSupportAssignment(sw.id, sc.date, sc.shift, sc.siteId);
+                renderGrid();
+                renderSidebar();
+            });
+        } else if (busy) {
+            tag.classList.add('md-ws-tag-busy');
+            var busySites = getSupportAssignedSites(sw.id, sc.date, sc.shift);
+            var busySiteNames = busySites.map(function (sid) {
+                var s = findSite(sid);
+                return s ? s.name : sid;
+            });
+            tag.title = '\u4ed6\u73fe\u5834: ' + busySiteNames.join(', ') + '\uff08\u30af\u30ea\u30c3\u30af\u3067\u79fb\u52d5\uff09';
+            tag.addEventListener('click', function () {
+                busySites.forEach(function (sid) {
+                    removeSupportAssignment(sw.id, sc.date, sc.shift, sid);
+                });
+                addSupportAssignment(sw.id, sc.date, sc.shift, sc.siteId);
+                renderGrid();
+                renderSidebar();
+            });
+        } else {
+            tag.addEventListener('click', function () {
+                addSupportAssignment(sw.id, sc.date, sc.shift, sc.siteId);
+                renderGrid();
+                renderSidebar();
+            });
+        }
+
+        // D&D対応
+        if (!isAlreadyHere) {
+            tag.draggable = true;
+            tag.addEventListener('dragstart', function (e) {
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    type: 'sidebar-support',
+                    supportId: sw.id
+                }));
+                e.dataTransfer.effectAllowed = 'copy';
+                tag.style.opacity = '0.5';
+                activateDragMode(sc.date);
+            });
+            tag.addEventListener('dragend', function () {
+                tag.style.opacity = '';
+                deactivateDragMode();
+            });
+        }
+
+        // ×削除ボタン
+        var delBtn = el('span', 'md-ws-support-remove', '\u00d7');
+        delBtn.title = '\u524a\u9664';
+        delBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            removeSupportWorker(sw.id);
+            renderGrid();
+            renderSidebar();
+        });
+        tag.appendChild(delBtn);
+
+        return tag;
+    }
+
+    /** ＋追加ボタン生成 */
+    function createSupportAddBtn(gcCode) {
+        var btn = el('button', 'md-ws-support-add-btn', '\uff0b');
+        btn.title = '\u5fdc\u63f4\u793e\u54e1\u30d0\u30c3\u30b8\u3092\u8ffd\u52a0';
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            showSupportAddInput(btn, gcCode);
+        });
+        return btn;
+    }
+
+    /** インライン入力欄を表示 */
+    function showSupportAddInput(triggerBtn, gcCode) {
+        // 既に入力欄がある場合は閉じる
+        var existing = triggerBtn.parentElement.querySelector('.md-ws-support-input-wrap');
+        if (existing) { existing.remove(); return; }
+
+        var wrap = el('div', 'md-ws-support-input-wrap');
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'md-ws-support-input';
+        input.placeholder = '\u4f8b: A\u793e\u2460';
+        input.maxLength = 20;
+
+        var addBtn = el('button', 'md-ws-support-input-ok', '\u8ffd\u52a0');
+        var cancelBtn = el('button', 'md-ws-support-input-cancel', '\u00d7');
+
+        function doAdd() {
+            var label = input.value.trim();
+            if (!label) return;
+            addSupportWorker(label, gcCode);
+            wrap.remove();
+            renderGrid();
+            renderSidebar();
+        }
+
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') doAdd();
+            if (e.key === 'Escape') wrap.remove();
+        });
+        addBtn.addEventListener('click', doAdd);
+        cancelBtn.addEventListener('click', function () { wrap.remove(); });
+
+        wrap.appendChild(input);
+        wrap.appendChild(addBtn);
+        wrap.appendChild(cancelBtn);
+        triggerBtn.parentElement.appendChild(wrap);
+
+        setTimeout(function () { input.focus(); }, 0);
+    }
+
+    /** 会社セクションに応援バッジ群＋追加ボタンを追加する共通処理 */
+    function appendSupportSection(container, gcCode, badgeCreator) {
+        var supporters = getActiveSupportWorkers(gcCode);
+
+        // 応援セクションラッパー（GCにネストされた見た目）
+        var secOuter = el('div', 'md-ws-support-outer');
+
+        // 「応援」サブセクションラベル（下線付き）
+        var secLabel = el('div', 'md-ws-support-label', '\u5fdc\u63f4');
+        secOuter.appendChild(secLabel);
+
+        // バッジ群＋追加ボタン
+        var secWrap = el('div', 'md-ws-support-section');
+        supporters.forEach(function (sw) {
+            secWrap.appendChild(badgeCreator(sw));
+        });
+        secWrap.appendChild(createSupportAddBtn(gcCode));
+        secOuter.appendChild(secWrap);
+
+        container.appendChild(secOuter);
     }
 
     // サイドバータブ切替
