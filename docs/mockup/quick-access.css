@@ -828,10 +828,10 @@ body {
     background: var(--base-surface-alt);
 }
 .qa-modal-btn {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
-    padding: 8px 20px;
-    border-radius: 8px;
+    padding: 10px 20px;
+    border-radius: 6px;
     border: 1px solid var(--divider);
     cursor: pointer;
     transition: all 0.15s;
@@ -1323,7 +1323,7 @@ body {
 }
 .qa-placement-add {
     flex-shrink: 0;
-    padding: 6px 12px;
+    padding: 2px 8px;
     border: none;
     background: transparent;
     color: var(--text-tertiary);
@@ -1494,7 +1494,7 @@ body {
     color: var(--accent-primary);
     font-size: 11px;
     font-weight: 600;
-    padding: 4px 10px;
+    padding: 2px 8px;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s;

@@ -650,7 +650,7 @@ body {
 }
 .md-ob-btn-add-sub {
     background: var(--accent-dim); border: 1px solid var(--accent-primary);
-    color: var(--accent-primary); padding: 1px 6px; border-radius: 4px;
+    color: var(--accent-primary); padding: 2px 8px; border-radius: 4px;
     font-size: 11px; font-weight: 600; cursor: pointer;
     transition: all 0.15s;
 }
@@ -1057,7 +1057,7 @@ body {
 }
 .md-ob-btn-add-chip {
     align-self: flex-start;
-    padding: 4px 10px; border: 1px dashed var(--divider);
+    padding: 2px 8px; border: 1px dashed var(--divider);
     border-radius: 14px; background: transparent;
     color: var(--text-tertiary); font-size: 11px;
     cursor: pointer; transition: all 0.15s;
@@ -1093,7 +1093,7 @@ body {
     display: flex; gap: 0; border-bottom: 2px solid var(--divider);
 }
 .md-ob-placement-tab {
-    padding: 6px 16px; border: none; background: transparent;
+    padding: 6px 14px; border: none; background: transparent;
     font-size: 12px; font-weight: 600; color: var(--text-secondary);
     cursor: pointer; transition: all 0.15s;
     border-bottom: 2px solid transparent; margin-bottom: -2px;
@@ -1103,7 +1103,7 @@ body {
     color: var(--accent-primary); border-bottom-color: var(--accent-primary);
 }
 .md-ob-placement-tab-add {
-    color: var(--text-tertiary); font-size: 11px;
+    color: var(--text-tertiary); font-size: 11px; padding: 2px 8px;
 }
 .md-ob-placement-tab-add:hover { color: var(--accent-primary); }
 .md-ob-placement-tab-delete {

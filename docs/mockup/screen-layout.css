@@ -2804,7 +2804,7 @@ h1 {
     margin: -2px -16px 12px -16px; padding: 0 16px;
 }
 .sm-map-tab {
-    padding: 7px 14px; border: none; background: transparent;
+    padding: 6px 14px; border: none; background: transparent;
     font-size: 12px; font-weight: 600; color: var(--text-secondary);
     cursor: pointer; transition: all 0.15s;
     border-bottom: 2px solid transparent; margin-bottom: -2px;
@@ -2813,8 +2813,8 @@ h1 {
 .sm-map-tab:hover { color: var(--accent-primary); }
 .sm-map-tab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
 .sm-map-tab-add {
-    padding: 7px 10px; border: none; background: transparent;
-    color: var(--text-tertiary); font-size: 14px; cursor: pointer;
+    padding: 2px 8px; border: none; background: transparent;
+    color: var(--text-tertiary); font-size: 11px; cursor: pointer;
     margin-bottom: -2px; transition: color 0.15s;
 }
 .sm-map-tab-add:hover { color: var(--accent-primary); }
@@ -3062,12 +3062,12 @@ h1 {
     justify-content: center;
     gap: 4px;
     width: 100%;
-    padding: 8px;
-    border: 2px dashed var(--divider);
+    padding: 2px 8px;
+    border: 1px dashed var(--divider);
     border-radius: 6px;
     background: var(--base-surface);
     color: var(--text-tertiary);
-    font-size: 14px;
+    font-size: 11px;
     cursor: pointer;
     transition: all 0.15s;
 }
@@ -3898,7 +3898,7 @@ h1 {
 }
 .md-ob-btn-add-sub {
     background: var(--accent-dim); border: 1px solid var(--accent-primary);
-    color: var(--accent-primary); padding: 1px 6px; border-radius: 4px;
+    color: var(--accent-primary); padding: 2px 8px; border-radius: 4px;
     font-size: 11px; font-weight: 600; cursor: pointer;
     transition: all 0.15s;
 }
