@@ -1642,7 +1642,7 @@ function collectMapEntries() {
     entries.forEach(entry => {
         const label = entry.querySelector('.md-ob-map-label-input').value.trim();
         const url = entry.querySelector('.md-ob-map-url-input').value.trim();
-        if (label || url) maps.push({ label, url });
+        if (url) maps.push({ label, url });
     });
     return maps;
 }
