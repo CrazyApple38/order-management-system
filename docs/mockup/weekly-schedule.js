@@ -356,6 +356,14 @@
         });
     }
 
+    // プリセット応援の表示ラベル: GC shortName ｜ 応援
+    function getSupportDisplayLabel(sw) {
+        if (!sw.isPreset) return sw.label;
+        var gc = groupCompaniesData.find(function (g) { return g.code === sw.company; });
+        var short = gc ? gc.shortName : '';
+        return short ? short + '\uff5c' + sw.label : sw.label;
+    }
+
     /**
      * 連続シフト判定
      * 同日昼→夜、夜→翌日昼 を連続とみなす
@@ -993,7 +1001,7 @@
                             chip.title = sw.isPreset ? '\u30af\u30ea\u30c3\u30af\u3067\u696d\u8005\u3092\u7d10\u4ed8\u3051' : sw.label;
 
                             var nameSpan = document.createElement('span');
-                            nameSpan.textContent = sw.label;
+                            nameSpan.textContent = getSupportDisplayLabel(sw);
                             chip.appendChild(nameSpan);
 
                             if (!isPast) {
@@ -3331,7 +3339,7 @@
     function createSupportBadge(sw) {
         var tagCls = 'md-ws-emp-tag md-ws-support-tag' + (sw.isPreset ? ' md-ws-support-preset' : '');
         var tag = el('span', tagCls);
-        var nameSpan = el('span', 'md-ws-emp-name', sw.label);
+        var nameSpan = el('span', 'md-ws-emp-name', getSupportDisplayLabel(sw));
         tag.appendChild(nameSpan);
 
         // 全表示日の昼/夜配置数を集計
@@ -3398,7 +3406,7 @@
     function createAssignSupportBadge(sw, sc, currentAssignedSupport) {
         var tagCls = 'md-ws-emp-tag md-ws-support-tag' + (sw.isPreset ? ' md-ws-support-preset' : '');
         var tag = el('span', tagCls);
-        var nameSpan = el('span', 'md-ws-emp-name', sw.label);
+        var nameSpan = el('span', 'md-ws-emp-name', getSupportDisplayLabel(sw));
         tag.appendChild(nameSpan);
 
         var isAlreadyHere = currentAssignedSupport.some(function (s) { return s.id === sw.id; });
