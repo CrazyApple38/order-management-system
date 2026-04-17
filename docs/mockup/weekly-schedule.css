@@ -1659,6 +1659,16 @@ body {
     display: inline-flex;
 }
 
+/* 配置モード — 配置済みプリセット応援バッジ（透過オーバーレイ） */
+.md-ws-emp-tag.md-ws-support-preset.md-ws-tag-assigned {
+    background: rgba(68, 166, 181, 0.2);
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
+}
+.md-ws-emp-tag.md-ws-support-preset.md-ws-tag-assigned:hover {
+    background: rgba(68, 166, 181, 0.3);
+}
+
 /* 応援バッジ ×削除ボタン（ホバー時のみ表示） */
 .md-ws-support-remove {
     display: none;
@@ -1779,10 +1789,107 @@ body {
     color: var(--error);
 }
 
+/* プリセット応援バッジ（サイドバー） */
+.md-ws-emp-tag.md-ws-support-preset {
+    border-style: dotted;
+    border-color: var(--text-secondary);
+    color: var(--text-secondary);
+}
+.md-ws-emp-tag.md-ws-support-preset:hover {
+    border-color: var(--accent-primary);
+    background: rgba(68, 166, 181, 0.12);
+    color: var(--text-primary);
+}
+
+/* 応援バッジ 昼/夜配置数テキスト */
+.md-ws-support-count-text {
+    font-size: 11px;
+    margin-left: 4px;
+    white-space: nowrap;
+}
+.md-ws-support-ct-day {
+    color: var(--success-text, #2e7d32);
+}
+.md-ws-support-ct-night {
+    color: var(--error, #c0392b);
+}
+
 /* グリッド内の応援チップ */
 .md-ws-emp-chip.md-ws-support-chip {
     border: 1px dashed var(--accent-primary);
     background: var(--accent-bg, rgba(0,120,212,0.06));
+}
+
+/* グリッド内のプリセット応援チップ */
+.md-ws-emp-chip.md-ws-support-chip-preset {
+    border-style: dotted;
+    cursor: pointer;
+}
+
+/* 業者紐付けポップオーバー */
+.md-ws-link-popover {
+    position: fixed;
+    z-index: 9999;
+    background: var(--base-surface);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    padding: 10px 12px;
+    min-width: 180px;
+}
+.md-ws-link-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+.md-ws-link-input {
+    width: 100%;
+    height: 28px;
+    padding: 0 8px;
+    border: 1px solid var(--accent-primary);
+    border-radius: 4px;
+    font-size: 12px;
+    outline: none;
+    background: var(--base-surface);
+    color: var(--text-primary);
+    box-sizing: border-box;
+    margin-bottom: 8px;
+}
+.md-ws-link-input:focus {
+    box-shadow: 0 0 0 2px rgba(0,120,212,0.2);
+}
+.md-ws-link-btn-row {
+    display: flex;
+    gap: 6px;
+}
+.md-ws-link-confirm {
+    flex: 1;
+    height: 28px;
+    border: none;
+    border-radius: 4px;
+    background: var(--accent-primary);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.md-ws-link-confirm:hover {
+    background: var(--accent-hover);
+}
+.md-ws-link-cancel {
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+}
+.md-ws-link-cancel:hover {
+    background: var(--error-bg);
+    color: var(--error);
 }
 
 /* 曜日ミニバッジ共通 */

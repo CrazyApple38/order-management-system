@@ -49,10 +49,21 @@
     var vehicleMaintenance = {}; // vehicleId -> { dateKey: true }
 
     // 応援社員バッジ
-    // { id: 'sup-1', label: 'A社①', company: 'touo', isActive: true }
+    // { id: 'sup-1', label: 'A社①', company: 'touo', isActive: true, isPreset: false }
     var wsSupportWorkers = [];
     var supportAssignments = {}; // id -> { dateKey -> { shift -> [siteIds] } }
     var nextSupportId = 1;
+
+    // プリセット「応援」バッジ初期化（各GCに1つ）
+    (function initPresetSupportBadges() {
+        groupCompaniesData.forEach(function (gc) {
+            var id = 'sup-preset-' + gc.code;
+            wsSupportWorkers.push({
+                id: id, label: '\u5fdc\u63f4', company: gc.code,
+                isActive: true, isPreset: true
+            });
+        });
+    })();
 
     // ==========================================================
     // 状態管理
@@ -293,7 +304,17 @@
     function addSupportAssignment(supId, date, shift, siteId) {
         if (!supportAssignments[supId]) supportAssignments[supId] = {};
         if (!supportAssignments[supId][date]) supportAssignments[supId][date] = {};
-        supportAssignments[supId][date][shift] = [siteId];
+        var sw = wsSupportWorkers.find(function (s) { return s.id === supId; });
+        if (sw && sw.isPreset) {
+            // プリセット: 複数セル配置可能（追加）
+            if (!supportAssignments[supId][date][shift]) supportAssignments[supId][date][shift] = [];
+            if (supportAssignments[supId][date][shift].indexOf(siteId) < 0) {
+                supportAssignments[supId][date][shift].push(siteId);
+            }
+        } else {
+            // 通常: 1セル1現場（上書き）
+            supportAssignments[supId][date][shift] = [siteId];
+        }
     }
 
     function removeSupportAssignment(supId, date, shift, siteId) {
@@ -324,6 +345,8 @@
     }
 
     function isSupportBusy(supId, dateKey, shift) {
+        var sw = wsSupportWorkers.find(function (s) { return s.id === supId; });
+        if (sw && sw.isPreset) return false; // プリセットは常に配置可能
         return getSupportAssignedSites(supId, dateKey, shift).length > 0;
     }
 
@@ -963,17 +986,29 @@
                         var assignedSupport = getAssignedSupportWorkers(site.id, dk, shift);
                         assignedSupport.forEach(function (sw) {
                             var chipCls = 'md-ws-emp-chip md-ws-support-chip';
+                            if (sw.isPreset) chipCls += ' md-ws-support-chip-preset';
                             if (shift === 'night') chipCls += ' md-ws-night-chip';
                             var chip = el('div', chipCls);
                             chip.dataset.supportId = sw.id;
-                            chip.title = sw.label;
+                            chip.title = sw.isPreset ? '\u30af\u30ea\u30c3\u30af\u3067\u696d\u8005\u3092\u7d10\u4ed8\u3051' : sw.label;
 
                             var nameSpan = document.createElement('span');
                             nameSpan.textContent = sw.label;
                             chip.appendChild(nameSpan);
 
-                            // ×ボタン
                             if (!isPast) {
+                                // プリセット: クリック→業者紐付けポップオーバー
+                                if (sw.isPreset) {
+                                    chip.style.cursor = 'pointer';
+                                    (function (swRef, siteRef, dateKey, shiftKey, chipRef) {
+                                        chipRef.addEventListener('click', function (e) {
+                                            e.stopPropagation();
+                                            showLinkPopover(chipRef, swRef.id, siteRef.id, dateKey, shiftKey, swRef.company);
+                                        });
+                                    })(sw, site, dk, shift, chip);
+                                }
+
+                                // ×ボタン
                                 var removeBtn = el('span', 'md-ws-chip-remove', '\u00d7');
                                 removeBtn.addEventListener('click', function (e) {
                                     e.stopPropagation();
@@ -983,17 +1018,17 @@
                                 });
                                 chip.appendChild(removeBtn);
 
-                                // D&D対応（応援チップを同日の別セルへ移動）
+                                // D&D対応
                                 chip.draggable = true;
                                 chip.addEventListener('dragstart', function (e) {
                                     e.dataTransfer.setData('text/plain', JSON.stringify({
-                                        type: 'move-support',
+                                        type: sw.isPreset ? 'sidebar-support' : 'move-support',
                                         supportId: sw.id,
                                         fromSiteId: site.id,
                                         fromDate: dk,
                                         fromShift: shift
                                     }));
-                                    e.dataTransfer.effectAllowed = 'move';
+                                    e.dataTransfer.effectAllowed = sw.isPreset ? 'copy' : 'move';
                                     chip.classList.add('md-ws-dragging');
                                     dragSourceDate = dk;
                                     activateDragMode(dk);
@@ -3294,45 +3329,49 @@
 
     /** 応援社員バッジ生成（概要モード：非選択時） */
     function createSupportBadge(sw) {
-        var tag = el('span', 'md-ws-emp-tag md-ws-support-tag');
+        var tagCls = 'md-ws-emp-tag md-ws-support-tag' + (sw.isPreset ? ' md-ws-support-preset' : '');
+        var tag = el('span', tagCls);
         var nameSpan = el('span', 'md-ws-emp-name', sw.label);
         tag.appendChild(nameSpan);
 
-        // 全表示日の配置状況を収集
+        // 全表示日の昼/夜配置数を集計
         var dates = getVisibleDates();
-        var dowLabels = getDaysOfWeek();
-        var assignedDows = [];
+        var dayCount = 0;
+        var nightCount = 0;
 
         dates.forEach(function (d) {
             var dk = formatDateKey(d);
-            var dow = dowLabels[d.getDay()];
-            var daySites = getSupportAssignedSites(sw.id, dk, 'day');
-            var nightSites = getSupportAssignedSites(sw.id, dk, 'night');
-            if (daySites.length > 0 || nightSites.length > 0) {
-                assignedDows.push(dow);
-            }
+            dayCount += getSupportAssignedSites(sw.id, dk, 'day').length;
+            nightCount += getSupportAssignedSites(sw.id, dk, 'night').length;
         });
 
-        // 曜日ミニバッジ（現場軸のみ）
-        if (viewMode !== 'employee' && assignedDows.length > 0) {
-            var dowRow = el('span', 'md-ws-dow-badges');
-            assignedDows.forEach(function (dow) {
-                var badge = el('span', 'md-ws-dow-badge', dow);
-                dowRow.appendChild(badge);
-            });
-            tag.appendChild(dowRow);
+        // 昼/夜配置数テキスト
+        if (dayCount > 0 || nightCount > 0) {
+            var countWrap = el('span', 'md-ws-support-count-text');
+            if (dayCount > 0) {
+                countWrap.appendChild(el('span', 'md-ws-support-ct-day', '\u663c' + dayCount));
+            }
+            if (dayCount > 0 && nightCount > 0) {
+                countWrap.appendChild(document.createTextNode(' '));
+            }
+            if (nightCount > 0) {
+                countWrap.appendChild(el('span', 'md-ws-support-ct-night', '\u591c' + nightCount));
+            }
+            tag.appendChild(countWrap);
         }
 
-        // ×削除ボタン
-        var removeBtn = el('span', 'md-ws-support-remove', '\u00d7');
-        removeBtn.title = '\u524a\u9664';
-        removeBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            removeSupportWorker(sw.id);
-            renderGrid();
-            renderSidebar();
-        });
-        tag.appendChild(removeBtn);
+        // ×削除ボタン（プリセットは非表示）
+        if (!sw.isPreset) {
+            var removeBtn = el('span', 'md-ws-support-remove', '\u00d7');
+            removeBtn.title = '\u524a\u9664';
+            removeBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                removeSupportWorker(sw.id);
+                renderGrid();
+                renderSidebar();
+            });
+            tag.appendChild(removeBtn);
+        }
 
         // D&D対応（現場軸のみ）
         if (viewMode !== 'employee') {
@@ -3357,7 +3396,8 @@
 
     /** 応援社員バッジ生成（配置モード：セル選択時） */
     function createAssignSupportBadge(sw, sc, currentAssignedSupport) {
-        var tag = el('span', 'md-ws-emp-tag md-ws-support-tag');
+        var tagCls = 'md-ws-emp-tag md-ws-support-tag' + (sw.isPreset ? ' md-ws-support-preset' : '');
+        var tag = el('span', tagCls);
         var nameSpan = el('span', 'md-ws-emp-name', sw.label);
         tag.appendChild(nameSpan);
 
@@ -3397,33 +3437,33 @@
         }
 
         // D&D対応
-        if (!isAlreadyHere) {
-            tag.draggable = true;
-            tag.addEventListener('dragstart', function (e) {
-                e.dataTransfer.setData('text/plain', JSON.stringify({
-                    type: 'sidebar-support',
-                    supportId: sw.id
-                }));
-                e.dataTransfer.effectAllowed = 'copy';
-                tag.style.opacity = '0.5';
-                activateDragMode(sc.date);
-            });
-            tag.addEventListener('dragend', function () {
-                tag.style.opacity = '';
-                deactivateDragMode();
-            });
-        }
-
-        // ×削除ボタン
-        var delBtn = el('span', 'md-ws-support-remove', '\u00d7');
-        delBtn.title = '\u524a\u9664';
-        delBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            removeSupportWorker(sw.id);
-            renderGrid();
-            renderSidebar();
+        tag.draggable = true;
+        tag.addEventListener('dragstart', function (e) {
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+                type: 'sidebar-support',
+                supportId: sw.id
+            }));
+            e.dataTransfer.effectAllowed = 'copy';
+            tag.style.opacity = '0.5';
+            activateDragMode(sc.date);
         });
-        tag.appendChild(delBtn);
+        tag.addEventListener('dragend', function () {
+            tag.style.opacity = '';
+            deactivateDragMode();
+        });
+
+        // ×削除ボタン（プリセットは非表示）
+        if (!sw.isPreset) {
+            var delBtn = el('span', 'md-ws-support-remove', '\u00d7');
+            delBtn.title = '\u524a\u9664';
+            delBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                removeSupportWorker(sw.id);
+                renderGrid();
+                renderSidebar();
+            });
+            tag.appendChild(delBtn);
+        }
 
         return tag;
     }
@@ -3499,6 +3539,85 @@
         secOuter.appendChild(secWrap);
 
         container.appendChild(secOuter);
+    }
+
+    // ==========================================================
+    // 業者紐付けポップオーバー（プリセット「応援」→ 確定バッジに変換）
+    // ==========================================================
+
+    function showLinkPopover(chipEl, presetId, siteId, dateKey, shift, gcCode) {
+        // 既存ポップオーバーがあれば閉じる
+        var existing = document.querySelector('.md-ws-link-popover');
+        if (existing) existing.remove();
+
+        var popover = el('div', 'md-ws-link-popover');
+
+        var title = el('div', 'md-ws-link-title', '\u696d\u8005\u3092\u7d10\u4ed8\u3051');
+        popover.appendChild(title);
+
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'md-ws-link-input';
+        input.placeholder = '\u4f8b: A\u793e\u2460';
+        input.maxLength = 20;
+        popover.appendChild(input);
+
+        var btnRow = el('div', 'md-ws-link-btn-row');
+        var confirmBtn = el('button', 'md-ws-link-confirm', '\u78ba\u5b9a');
+        var cancelBtn = el('button', 'md-ws-link-cancel', '\u30ad\u30e3\u30f3\u30bb\u30eb');
+        btnRow.appendChild(confirmBtn);
+        btnRow.appendChild(cancelBtn);
+        popover.appendChild(btnRow);
+
+        function doLink() {
+            var label = input.value.trim();
+            if (!label) return;
+            // 1. プリセット配置を解除
+            removeSupportAssignment(presetId, dateKey, shift, siteId);
+            // 2. 新バッジ作成＋配置
+            var newId = addSupportWorker(label, gcCode);
+            addSupportAssignment(newId, dateKey, shift, siteId);
+            // 3. 閉じて再描画
+            popover.remove();
+            renderGrid();
+            renderSidebar();
+        }
+
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') doLink();
+            if (e.key === 'Escape') popover.remove();
+        });
+        confirmBtn.addEventListener('click', doLink);
+        cancelBtn.addEventListener('click', function () { popover.remove(); });
+
+        // ポップオーバーをチップの近くに表示
+        document.body.appendChild(popover);
+        var rect = chipEl.getBoundingClientRect();
+        popover.style.top = (rect.bottom + 4) + 'px';
+        popover.style.left = rect.left + 'px';
+
+        // 画面外にはみ出す場合の補正
+        setTimeout(function () {
+            var pr = popover.getBoundingClientRect();
+            if (pr.right > window.innerWidth - 8) {
+                popover.style.left = (window.innerWidth - pr.width - 8) + 'px';
+            }
+            if (pr.bottom > window.innerHeight - 8) {
+                popover.style.top = (rect.top - pr.height - 4) + 'px';
+            }
+            input.focus();
+        }, 0);
+
+        // 外部クリックで閉じる
+        setTimeout(function () {
+            function onOutside(e) {
+                if (!popover.contains(e.target)) {
+                    popover.remove();
+                    document.removeEventListener('mousedown', onOutside);
+                }
+            }
+            document.addEventListener('mousedown', onOutside);
+        }, 10);
     }
 
     // サイドバータブ切替
