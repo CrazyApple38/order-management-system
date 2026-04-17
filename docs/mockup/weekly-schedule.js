@@ -306,11 +306,9 @@
         if (!supportAssignments[supId][date]) supportAssignments[supId][date] = {};
         var sw = wsSupportWorkers.find(function (s) { return s.id === supId; });
         if (sw && sw.isPreset) {
-            // プリセット: 複数セル配置可能（追加）
+            // プリセット: 複数セル・同一セル複数配置可能
             if (!supportAssignments[supId][date][shift]) supportAssignments[supId][date][shift] = [];
-            if (supportAssignments[supId][date][shift].indexOf(siteId) < 0) {
-                supportAssignments[supId][date][shift].push(siteId);
-            }
+            supportAssignments[supId][date][shift].push(siteId);
         } else {
             // 通常: 1セル1現場（上書き）
             supportAssignments[supId][date][shift] = [siteId];
@@ -329,10 +327,12 @@
         Object.keys(supportAssignments).forEach(function (supId) {
             var sa = supportAssignments[supId];
             if (sa && sa[dateKey] && sa[dateKey][shift]) {
-                if (sa[dateKey][shift].indexOf(siteId) >= 0) {
-                    var sw = wsSupportWorkers.find(function (s) { return s.id === supId; });
-                    if (sw) result.push(sw);
-                }
+                var sw = wsSupportWorkers.find(function (s) { return s.id === supId; });
+                if (!sw) return;
+                // プリセットは同一セルに複数配置可能 → 出現回数分pushする
+                sa[dateKey][shift].forEach(function (sid) {
+                    if (sid === siteId) result.push(sw);
+                });
             }
         });
         return result;
@@ -3404,7 +3404,20 @@
         var isAlreadyHere = currentAssignedSupport.some(function (s) { return s.id === sw.id; });
         var busy = isSupportBusy(sw.id, sc.date, sc.shift);
 
-        if (isAlreadyHere) {
+        if (sw.isPreset) {
+            // プリセット: 常に追加配置可能（配置済みでもクリックで追加）
+            if (isAlreadyHere) {
+                tag.classList.add('md-ws-tag-assigned');
+                // 配置数を表示
+                var placedCount = currentAssignedSupport.filter(function (s) { return s.id === sw.id; }).length;
+                tag.title = '\u914d\u7f6e\u6e08\u307f ' + placedCount + '\u540d\uff08\u30af\u30ea\u30c3\u30af\u3067\u8ffd\u52a0\uff09';
+            }
+            tag.addEventListener('click', function () {
+                addSupportAssignment(sw.id, sc.date, sc.shift, sc.siteId);
+                renderGrid();
+                renderSidebar();
+            });
+        } else if (isAlreadyHere) {
             tag.classList.add('md-ws-tag-assigned');
             tag.title = '\u30af\u30ea\u30c3\u30af\u3067\u914d\u7f6e\u89e3\u9664';
             tag.addEventListener('click', function () {
