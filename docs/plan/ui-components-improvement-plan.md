@@ -6,6 +6,21 @@
 
 ---
 
+## 📌 新会話での継続手順
+
+新しい会話ではまず本ファイルを読み、以下の順で状況を把握する:
+
+1. 本ファイル §2（決定事項）と §5（完了基準）でどこまで終わったか確認
+2. §7（次のアクション詳細）で次に取り組むフェーズを確認
+3. 必要に応じて以下を参照:
+   - UIコンポーネント集: [`docs/ui-components/index-light.html`](../ui-components/index-light.html)（サイドバー「Design Tokens」「Button（統一 .btn-*）」「Form（統一 .form-*）」「Feedback & Overlay」）
+   - 統一クラスCSS: [`docs/ui-components/styles-light.css`](../ui-components/styles-light.css)（4138行目以降が Phase U1〜U4 追加分）
+   - 要件定義連携: [`docs/01_要件定義.md`](../01_要件定義.md) §5.2 UIデザインシステム、§5.1.11・§5.3.6 使用UIコンポーネント
+   - アイコン運用ルール: [`CLAUDE.md`](../../CLAUDE.md) 「アイコン運用ルール（厳守）」
+4. ユーザーが「Phase U5-A」等を明示指定するまで作業着手はしない（承認ポイントⓓ）
+
+---
+
 ## 1. 背景と現状診断
 
 ### 1.1 良好な部分（現状維持）
@@ -39,6 +54,10 @@
 | 独自クラス（md-ob-btn / qa-login-btn 等） | **共通クラスに寄せて段階廃止**（.btn-primary 等を新設、各モックアップはラッパー/追加装飾のみ残す） |
 | Tokens整備スコープ | **標準スコープ**（spacing / z-index / モーダル幅 / トースト位置 / line-height / フォーカスリング） |
 | 既存モックアップへの反映 | **Tokens定義のみ先行、反映は段階的**（1画面ずつ別タスクで承認ポイント挟む） |
+| ボタンサイズ基準 | **`.md-btn-primary` 互換**（`.btn-md` = padding 5px 10px / font-size 12px / radius 6px）。Design Tokens の spacing には乗らない中間値だが、既存UIとの互換性を優先した結果 |
+| アイコン運用 | **`docs/assets/icons/` から必ず採用**、絵文字・Unicode記号禁止。色変更時はSVG形式、`<svg><symbol>` スプライト + `<use href="#ui-icon-xxx"/>` 参照方式 |
+| メニュー(⋮)代替 | ライブラリに該当アイコン無し → **歯車（`im-00001-muryou-no-settei-haguruma.svg`）で代替**。必要時に自作SVG追加検討 |
+| メタドキュメント配置 | プロジェクト固有ルール（アイコン運用等）は **CLAUDE.md** に記載。MEMORY.md のグローバルメモリには置かない |
 
 ---
 
@@ -168,3 +187,68 @@
 - ⓓ Phase U5-A/B/C/D 各画面の反映前 ← **次はここ**
 
 各ポイントでユーザーが明示承認してから次へ進む。Phase Gate Rules に準拠。
+
+---
+
+## 7. 次のアクション詳細（Phase U5）
+
+Phase U5 は各モックアップの独自クラスを新統一クラスに置換する作業。**画面ごとに別タスク**で承認ⓓを挟んで進める。
+
+### 7.1 共通作業（全画面に適用）
+
+1. **ハードコード数値をトークンに置換**:
+   - `padding: 12px` → `padding: var(--space-md)` 等
+   - `box-shadow: 0 0 0 3px var(--accent-dim)` → `box-shadow: var(--focus-ring)`
+   - `z-index: 1000` → `z-index: var(--z-modal)` 等
+2. **ボタン置換**:
+   - `.md-ob-btn` / `.qa-login-btn` / `.sm-*` 独自ボタン → `.btn` + バリアント + サイズ + 必要に応じた装飾ラッパー
+   - HTMLとJS両方のクラス参照箇所を更新
+3. **フォーム要素置換**:
+   - `.md-fi-input` / `.qa-input` / `.combobox-input` 等 → `.form-input` / `.form-combobox` 一式
+   - エラー状態は `.is-error` + `aria-invalid="true"` へ
+4. **アイコン置換**:
+   - 絵文字・Unicode記号（×、✓、!、?、＋、★、▾、▴、📋 等）→ `<svg class="ui-icon"><use href="#ui-icon-xxx"/></svg>`
+   - 各モックアップのHTMLに SVG スプライト定義を追加（あるいは外部化を検討）
+5. **バッジ統合**:
+   - 画面独自バッジクラス → `co-shared-badges.css` の共通定義を使用
+
+### 7.2 画面別の優先作業
+
+| フェーズ | 対象画面 | ファイル | 置換ボリュームの目安 | 特記事項 |
+|---------|---------|---------|----------------------|---------|
+| **U5-A** | 業務管理計画書 | `docs/screen-layout.html` + `docs/mockup/screen-layout.{js,css}` | 最大（3304行のCSS） | `sm-*` / `md-ob-*` / `md-sp-*` が多数。独自ボタン36種以上 |
+| **U5-B** | 受注簿 | `docs/order-book.html` + `docs/mockup/order-book.{js,css}` | 大（1870行のCSS） | `md-ob-btn` / `md-ob-tb-btn` / `md-ob-cal-info-btn` |
+| **U5-C** | Quick Access | `docs/quick-access.html` + `docs/mockup/quick-access.{js,css}` | 中（2039行のCSS） | `qa-` プリフィックスで独立実装が最も多い画面 |
+| **U5-D** | 週間予定表 | `docs/weekly-schedule.html` + `docs/mockup/weekly-schedule.{js,css}` | 大（3304行のCSS） | 応援予約機能 (Phase A1〜A8) 完了直後。衝突注意 |
+
+### 7.3 推奨着手順
+
+- **C → B → A → D** を推奨:
+  - C (Quick Access) は独立実装が多く、置換効果が大きく学習コストも低い
+  - B (受注簿) で `md-ob-*` パターンを確立
+  - A (業務管理計画書) で最大規模の置換を最後に
+  - D (週間予定表) は応援予約機能の直後なので機能安定を待って最後
+
+### 7.4 各画面の完了条件
+
+- 独自クラス（`md-ob-btn`, `qa-login-btn`, `sm-*` 等）の新規使用がない
+- `grep -n "padding: [0-9]" *.css` でハードコード余白がほぼゼロ（例外は legacy コメント付き）
+- Playwrightで視覚的回帰テスト（スクリーンショット比較）：見た目が変わらないことを確認
+- 計画書の完了基準（§5）の Phase U5 行をチェック
+
+### 7.5 リスクと注意
+
+- モックアップは運用中なので **機能退行は絶対に避ける**。CSS書き換えは視覚的には同じ結果になることを確認
+- 一度に全クラスを置換せず、**1コンポーネント（ボタン→フォーム→アイコン）単位で差分確認**
+- 各画面の JS にクラス名がハードコードされている箇所（`classList.add('md-ob-btn-primary')` 等）にも注意
+- `co-shared-badges.css` と `co-navbar.css` は既に共通化されているので干渉に注意
+
+---
+
+## 8. 関連ドキュメント
+
+- 要件定義: [`docs/01_要件定義.md`](../01_要件定義.md) §5.2 UIデザインシステム、§5.1.11・§5.3.6 使用UIコンポーネント
+- プロジェクト全体ガイド: [`CLAUDE.md`](../../CLAUDE.md) 「アイコン運用ルール（厳守）」
+- 開発手順: [`docs/00_開発手順書.md`](../00_開発手順書.md)
+- UIコンポーネント集（ビジュアル）: [`docs/ui-components/index-light.html`](../ui-components/index-light.html)
+- 週間予定表の応援予約作業（別進行）: [`docs/plan/ws-support-partner-plan.md`](ws-support-partner-plan.md)
