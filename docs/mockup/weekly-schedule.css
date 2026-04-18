@@ -3085,6 +3085,51 @@ body {
 }
 .md-ws-res-week-add-panel .md-ws-pac { flex: 1; min-width: 200px; }
 
+/* ==========================================================
+   D&D 違反セル＆トースト（A6）
+   ========================================================== */
+.md-ws-cell.md-ws-drag-invalid {
+    opacity: 0.35;
+    cursor: not-allowed;
+    background-image: repeating-linear-gradient(
+        135deg,
+        rgba(176, 58, 46, 0.08) 0 6px,
+        transparent 6px 12px
+    );
+}
+.md-ws-cell.md-ws-drag-invalid.md-ws-drag-over {
+    outline: 1px dashed rgba(176, 58, 46, 0.55);
+    outline-offset: -1px;
+}
+
+.md-ws-toast-wrap {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    transform: translateX(-50%);
+    z-index: 11000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+.md-ws-toast {
+    padding: 8px 16px;
+    background: rgba(44, 48, 52, 0.92);
+    color: #fff;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.24s ease, transform 0.24s ease;
+}
+.md-ws-toast.md-ws-toast-show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 /* 行⋮メニュー */
 .md-ws-res-week-row-menu {
     position: fixed;

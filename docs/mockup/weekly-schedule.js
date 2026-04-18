@@ -168,7 +168,9 @@
     // D&Dアクティブ状態
     var dragActive = false;
     var dragTargetDate = null;
-    var dragSourceDate = null;   // セル起点D&D時の元日付（同日限定用）
+    var dragSourceDate = null;   // セル起点D&D時の元日付
+    var dragSourceShift = null;  // セル起点D&D時の元シフト（'day' | 'night' | null）
+    var dragSourceType = null;   // ドラッグ種別 'move-emp'|'move-partner'|'move-chip'|'move-vehicle'|'move-vehicle-chip'|'reservation-partner'|'sidebar-*'
     var dragEmpIndex = null;     // ドラッグ中の社員インデックス（休みチェック用）
 
     // サイドバー社員タブ状態
@@ -529,7 +531,7 @@
                     e.dataTransfer.effectAllowed = 'copy';
                     badge.classList.add('md-ws-dragging');
                     dragSourceDate = dateKey;
-                    activateDragMode(dateKey);
+                    activateDragMode(dateKey, { type: 'reservation-partner', shift: null });
                 });
             })(partner.id);
             badge.addEventListener('dragend', function () {
@@ -1247,7 +1249,7 @@
                                     chip.classList.add('md-ws-dragging');
                                     dragSourceDate = dk;
                                     dragEmpIndex = empIdx;
-                                    activateDragMode(dk);
+                                    activateDragMode(dk, { type: 'move-emp', shift: shift });
                                 });
                                 chip.addEventListener('dragend', function () {
                                     chip.classList.remove('md-ws-dragging');
@@ -1320,7 +1322,7 @@
                                         e.dataTransfer.effectAllowed = partner.isPreset ? 'copy' : 'move';
                                         chip.classList.add('md-ws-dragging');
                                         dragSourceDate = dkCap;
-                                        activateDragMode(dkCap);
+                                        activateDragMode(dkCap, { type: 'move-partner', shift: shCap });
                                     });
                                 })(partner.id, site.id, dk, shift);
                                 chip.addEventListener('dragend', function () {
@@ -1365,7 +1367,7 @@
                                             e.dataTransfer.effectAllowed = 'move';
                                             vChip.classList.add('md-ws-dragging');
                                             dragSourceDate = dkk;
-                                            activateDragMode(dkk);
+                                            activateDragMode(dkk, { type: 'move-vehicle', shift: sh });
                                         });
                                         vChip.addEventListener('dragend', function () {
                                             vChip.classList.remove('md-ws-dragging');
@@ -1576,7 +1578,7 @@
                                             e.dataTransfer.effectAllowed = 'move';
                                             chip.classList.add('md-ws-dragging');
                                             dragSourceDate = dk;
-                                            activateDragMode(dk);
+                                            activateDragMode(dk, { type: 'move-chip', shift: shift });
                                         });
                                         chip.addEventListener('dragend', function () {
                                             chip.classList.remove('md-ws-dragging');
@@ -1709,7 +1711,7 @@
                                     e.dataTransfer.effectAllowed = 'move';
                                     chip.classList.add('md-ws-dragging');
                                     dragSourceDate = dk;
-                                    activateDragMode(dk);
+                                    activateDragMode(dk, { type: 'move-vehicle-chip', shift: shift });
                                 });
                                 chip.addEventListener('dragend', function () {
                                     chip.classList.remove('md-ws-dragging');
@@ -1866,28 +1868,44 @@
     // D&D: カラムハイライト+グレーアウト
     // ==========================================================
 
-    function activateDragMode(dateKey) {
+    function activateDragMode(dateKey, opts) {
         dragActive = true;
         dragTargetDate = dateKey;
+        if (opts) {
+            dragSourceShift = opts.shift || null;
+            dragSourceType = opts.type || null;
+        }
         var grid = document.getElementById('wsGrid');
         if (!grid) return;
         grid.classList.add('md-ws-drag-active');
         grid.querySelectorAll('[data-date="' + dateKey + '"]').forEach(function (el) {
             el.classList.add('md-ws-col-highlighted');
         });
+        // 移動D&D（別日は同シフトのみ）: 違反対象セルを事前に無効化表示
+        if (dragSourceType && dragSourceType.indexOf('move-') === 0 && dragSourceShift) {
+            grid.querySelectorAll('.md-ws-cell[data-site-id][data-shift]').forEach(function (cell) {
+                var cellDate = cell.dataset.date;
+                var cellShift = cell.dataset.shift;
+                if (cellDate !== dateKey && cellShift !== dragSourceShift) {
+                    cell.classList.add('md-ws-drag-invalid');
+                }
+            });
+        }
     }
 
     function deactivateDragMode() {
         dragActive = false;
         dragTargetDate = null;
         dragSourceDate = null;
+        dragSourceShift = null;
+        dragSourceType = null;
         dragEmpIndex = null;
         hideHolidayFloat();
         var grid = document.getElementById('wsGrid');
         if (!grid) return;
         grid.classList.remove('md-ws-drag-active');
-        grid.querySelectorAll('.md-ws-col-highlighted').forEach(function (el) {
-            el.classList.remove('md-ws-col-highlighted');
+        grid.querySelectorAll('.md-ws-col-highlighted, .md-ws-drag-invalid, .md-ws-drag-over').forEach(function (el) {
+            el.classList.remove('md-ws-col-highlighted', 'md-ws-drag-invalid', 'md-ws-drag-over');
         });
     }
 
@@ -2055,9 +2073,15 @@
 
     function onCellDragOver(e) {
         var cellDate = e.currentTarget.dataset.date;
+        var cellShift = e.currentTarget.dataset.shift;
 
-        // セル起点D&Dは同日限定
-        if (dragSourceDate && cellDate !== dragSourceDate) return;
+        // 予約→セル: 同日限定（予約は日付固定）
+        if (dragSourceType === 'reservation-partner' && dragSourceDate && cellDate !== dragSourceDate) return;
+
+        // 移動D&D: 同日内は自由、別日は同シフトのみ
+        var isMove = dragSourceType && dragSourceType.indexOf('move-') === 0;
+        var crossDayShiftViolation = isMove && dragSourceDate && dragSourceShift
+            && cellDate !== dragSourceDate && cellShift !== dragSourceShift;
 
         // 社員ドラッグ中：ドロップ先日付で休みなら「休み」フロート表示
         if (dragEmpIndex !== null && isEmployeeOnHoliday(dragEmpIndex, cellDate)) {
@@ -2067,6 +2091,13 @@
         }
 
         e.preventDefault();
+
+        if (crossDayShiftViolation) {
+            e.dataTransfer.dropEffect = 'none';
+            e.currentTarget.classList.add('md-ws-drag-invalid');
+            return;
+        }
+
         e.dataTransfer.dropEffect = dragSourceDate ? 'move' : 'copy';
         e.currentTarget.classList.add('md-ws-drag-over');
 
@@ -2090,11 +2121,21 @@
         hideHolidayFloat();
     }
 
+    /** 移動D&Dの同シフト制限を検証し、違反ならトースト表示 */
+    function validateMoveShift(data, date, shift) {
+        if (!data || typeof data.type !== 'string' || data.type.indexOf('move-') !== 0) return true;
+        if (!data.fromDate || !data.fromShift) return true;
+        if (data.fromDate === date) return true; // 同日は自由
+        if (data.fromShift === shift) return true; // 別日＋同シフトOK
+        showToast('\u5225\u65e5\u306f\u540c\u30b7\u30d5\u30c8\u306e\u307f\u79fb\u52d5\u53ef\u80fd\u3067\u3059');
+        return false;
+    }
+
     // 現場軸ビュー用ドロップ
     function onCellDropSiteView(e) {
         e.preventDefault();
         var cell = e.currentTarget;
-        cell.classList.remove('md-ws-drag-over');
+        cell.classList.remove('md-ws-drag-over', 'md-ws-drag-invalid');
 
         var raw = e.dataTransfer.getData('text/plain');
         if (!raw) return;
@@ -2104,6 +2145,11 @@
         var siteId = cell.dataset.siteId;
         var date = cell.dataset.date;
         var shift = cell.dataset.shift;
+
+        if (!validateMoveShift(data, date, shift)) {
+            deactivateDragMode();
+            return;
+        }
 
         if (data.type === 'sidebar-emp') {
             addAssignment(data.empIndex, date, shift, siteId);
@@ -2136,7 +2182,7 @@
     function onCellDropEmployeeView(e) {
         e.preventDefault();
         var cell = e.currentTarget;
-        cell.classList.remove('md-ws-drag-over');
+        cell.classList.remove('md-ws-drag-over', 'md-ws-drag-invalid');
 
         var raw = e.dataTransfer.getData('text/plain');
         if (!raw) return;
@@ -2146,6 +2192,11 @@
         var empIndex = parseInt(cell.dataset.empIndex);
         var date = cell.dataset.date;
         var shift = cell.dataset.shift;
+
+        if (!validateMoveShift(data, date, shift)) {
+            deactivateDragMode();
+            return;
+        }
 
         if (data.type === 'sidebar-site') {
             addAssignment(empIndex, date, shift, data.siteId);
@@ -2163,7 +2214,7 @@
     function onCellDropVehicleView(e) {
         e.preventDefault();
         var cell = e.currentTarget;
-        cell.classList.remove('md-ws-drag-over');
+        cell.classList.remove('md-ws-drag-over', 'md-ws-drag-invalid');
 
         var raw = e.dataTransfer.getData('text/plain');
         if (!raw) return;
@@ -2173,6 +2224,11 @@
         var vehicleId = cell.dataset.vehicleId;
         var date = cell.dataset.date;
         var shift = cell.dataset.shift;
+
+        if (!validateMoveShift(data, date, shift)) {
+            deactivateDragMode();
+            return;
+        }
 
         if (data.type === 'sidebar-site') {
             addVehicleAssignment(date, shift, data.siteId, vehicleId);
@@ -2184,6 +2240,25 @@
         deactivateDragMode();
         renderGrid();
         renderSidebar();
+    }
+
+    // トースト表示（簡易・自動消失）
+    function showToast(message, opts) {
+        opts = opts || {};
+        var duration = opts.duration || 2400;
+        var wrap = document.getElementById('wsToastWrap');
+        if (!wrap) {
+            wrap = el('div', 'md-ws-toast-wrap');
+            wrap.id = 'wsToastWrap';
+            document.body.appendChild(wrap);
+        }
+        var toast = el('div', 'md-ws-toast', message);
+        wrap.appendChild(toast);
+        setTimeout(function () { toast.classList.add('md-ws-toast-show'); }, 10);
+        setTimeout(function () {
+            toast.classList.remove('md-ws-toast-show');
+            setTimeout(function () { toast.remove(); }, 260);
+        }, duration);
     }
 
     // ==========================================================
