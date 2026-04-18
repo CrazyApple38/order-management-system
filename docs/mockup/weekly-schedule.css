@@ -2837,11 +2837,11 @@ body {
     border-style: solid;
 }
 
-/* モーダルオーバーレイ */
+/* モーダルオーバーレイ（ob-modal パターンに準拠） */
 .md-ws-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 69, 84, 0.45);
     z-index: 10000;
     display: flex;
     align-items: center;
@@ -2850,65 +2850,84 @@ body {
 }
 .md-ws-modal-content {
     background: var(--base-surface);
-    border-radius: 8px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--divider);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 69, 84, 0.15);
     max-width: 92vw;
     max-height: 88vh;
     display: flex;
     flex-direction: column;
     min-width: 380px;
+    overflow: hidden;
 }
 .md-ws-modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--divider);
+    padding: 14px 20px;
+    background: var(--accent-light);
+    color: #FFFFFF;
+    border-radius: 12px 12px 0 0;
 }
 .md-ws-modal-title {
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 13px;
+    color: #FFFFFF;
 }
 .md-ws-modal-close {
     border: none;
     background: transparent;
     font-size: 16px;
     cursor: pointer;
-    color: var(--text-secondary);
-    padding: 4px 8px;
+    color: rgba(255, 255, 255, 0.85);
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1;
+}
+.md-ws-modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #FFFFFF;
 }
 .md-ws-modal-body {
-    padding: 16px;
+    padding: 20px;
     overflow: auto;
     min-width: 0;
+    flex: 1;
 }
 .md-ws-modal-footer {
     display: flex;
     justify-content: flex-end;
-    gap: 8px;
-    padding: 12px 16px;
+    gap: 10px;
+    padding: 14px 20px;
     border-top: 1px solid var(--divider);
+    background: var(--base-surface-alt);
 }
 .md-ws-modal-btn {
-    padding: 6px 14px;
+    padding: 5px 12px;
     font-size: 12px;
-    border-radius: 4px;
-    border: 1px solid var(--divider);
-    background: var(--base-surface);
-    color: var(--text-primary);
+    border-radius: 6px;
+    border: none;
+    background: var(--base-surface-alt);
+    color: var(--text-secondary);
     cursor: pointer;
     font-weight: 600;
+    transition: all 0.15s;
+}
+.md-ws-modal-btn:hover {
+    background: var(--base-muted);
 }
 .md-ws-modal-btn-primary {
-    background: var(--brand-primary, #2C7A7B);
-    border-color: var(--brand-primary, #2C7A7B);
-    color: #fff;
+    background: var(--accent);
+    color: #FFFFFF;
+}
+.md-ws-modal-btn-primary:hover {
+    background: var(--accent-light);
+    box-shadow: 0 2px 8px rgba(68, 166, 181, 0.3);
 }
 .md-ws-modal-btn-secondary {
     background: var(--base-surface-alt);
+    color: var(--text-secondary);
 }
-.md-ws-modal-btn:hover { filter: brightness(0.96); }
 
 /* ステッパー */
 .md-ws-stepper {
@@ -2920,31 +2939,42 @@ body {
     background: var(--base-surface);
 }
 .md-ws-stepper-btn {
-    width: 26px;
-    height: 28px;
+    width: 28px;
+    height: 30px;
     border: none;
     background: var(--base-surface-alt);
-    color: var(--text-primary);
+    color: var(--text-secondary);
     font-weight: 700;
     cursor: pointer;
     line-height: 1;
     padding: 0;
+    transition: all 0.15s;
 }
-.md-ws-stepper-btn:hover { background: var(--base-muted); }
+.md-ws-stepper-btn:hover {
+    background: var(--accent-dim);
+    color: var(--accent);
+}
+.md-ws-stepper {
+    border-radius: 6px;
+}
 .md-ws-stepper-input {
     width: 44px;
-    height: 28px;
+    height: 30px;
     border: none;
     border-left: 1px solid var(--divider);
     border-right: 1px solid var(--divider);
     text-align: center;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12px;
     background: var(--base-surface);
     color: var(--text-primary);
     -moz-appearance: textfield;
     appearance: textfield;
     padding: 0;
+}
+.md-ws-stepper-input:focus {
+    outline: none;
+    background: var(--accent-dim);
 }
 .md-ws-stepper-input::-webkit-outer-spin-button,
 .md-ws-stepper-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -2956,19 +2986,19 @@ body {
 }
 .md-ws-pac-input {
     width: 100%;
-    height: 30px;
-    padding: 0 8px;
+    height: 32px;
+    padding: 0 10px;
     border: 1px solid var(--divider);
-    border-radius: 4px;
-    font-size: 13px;
+    border-radius: 6px;
+    font-size: 12px;
     background: var(--base-surface);
     color: var(--text-primary);
     box-sizing: border-box;
 }
 .md-ws-pac-input:focus {
     outline: none;
-    border-color: var(--brand-primary, #2C7A7B);
-    box-shadow: 0 0 0 2px rgba(44, 122, 123, 0.15);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
 }
 .md-ws-pac-list {
     position: absolute;
@@ -2985,14 +3015,16 @@ body {
     z-index: 10;
 }
 .md-ws-pac-item {
-    padding: 6px 10px;
-    font-size: 13px;
+    padding: 8px 12px;
+    font-size: 12px;
     cursor: pointer;
     color: var(--text-primary);
+    border-bottom: 1px solid var(--base-surface-alt);
 }
-.md-ws-pac-item:hover { background: var(--base-surface-alt); }
+.md-ws-pac-item:last-child { border-bottom: none; }
+.md-ws-pac-item:hover { background: var(--accent-dim); }
 .md-ws-pac-item-new {
-    color: var(--success-text);
+    color: var(--accent);
     font-weight: 600;
     border-top: 1px dashed var(--divider);
 }
@@ -3009,19 +3041,19 @@ body {
 }
 .md-ws-res-quick-input {
     width: 100%;
-    height: 30px;
-    padding: 0 8px;
+    height: 32px;
+    padding: 0 10px;
     border: 1px solid var(--divider);
-    border-radius: 4px;
-    font-size: 13px;
+    border-radius: 6px;
+    font-size: 12px;
     background: var(--base-surface);
     color: var(--text-primary);
     box-sizing: border-box;
 }
 .md-ws-res-quick-input:focus {
     outline: none;
-    border-color: var(--brand-primary, #2C7A7B);
-    box-shadow: 0 0 0 2px rgba(44, 122, 123, 0.15);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
 }
 .md-ws-res-quick-hint {
     font-size: 11px;
@@ -3038,11 +3070,11 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    padding: 6px;
+    padding: 8px;
     border: 1px solid var(--divider);
-    border-radius: 4px;
+    border-radius: 6px;
     background: var(--base-surface-alt);
-    min-height: 40px;
+    min-height: 44px;
     max-height: 160px;
     overflow-y: auto;
 }
@@ -3050,35 +3082,47 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border: 1px solid var(--divider);
-    border-radius: 12px;
+    border-radius: 14px;
     background: var(--base-surface);
     font-size: 12px;
     font-weight: 600;
     color: var(--text-primary);
     cursor: pointer;
-    transition: background 0.12s, border-color 0.12s;
+    transition: all 0.15s;
+}
+.md-ws-res-quick-badge:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.md-ws-res-quick-badge.md-ws-res-quick-badge-selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(68, 166, 181, 0.3);
+}
+.md-ws-res-quick-badge.md-ws-res-quick-badge-selected:hover {
+    background: var(--accent-light);
+    border-color: var(--accent-light);
+    color: #FFFFFF;
 }
 .md-ws-res-quick-badge-count {
     font-size: 11px;
     font-weight: 500;
     color: var(--text-secondary);
-    padding: 0 5px;
-    border-radius: 8px;
-    background: var(--base-muted);
+    padding: 1px 6px;
+    border-radius: 10px;
+    background: var(--accent-dim);
+}
+.md-ws-res-quick-badge:hover .md-ws-res-quick-badge-count {
+    background: rgba(68, 166, 181, 0.2);
+    color: var(--accent);
 }
 .md-ws-res-quick-badge.md-ws-res-quick-badge-selected .md-ws-res-quick-badge-count {
     background: rgba(255, 255, 255, 0.25);
-    color: #fff;
-}
-.md-ws-res-quick-badge:hover {
-    background: var(--base-muted);
-}
-.md-ws-res-quick-badge.md-ws-res-quick-badge-selected {
-    background: var(--brand-primary, #2C7A7B);
-    border-color: var(--brand-primary, #2C7A7B);
-    color: #fff;
+    color: #FFFFFF;
 }
 .md-ws-res-quick-badges-empty {
     font-size: 11px;
