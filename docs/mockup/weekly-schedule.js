@@ -540,7 +540,41 @@
             });
         }
 
+        // ×ボタン: 予約行バッジごと削除（当日の予約＋配置を一括キャンセル）
+        if (!isPast) {
+            var removeBtn = el('span', 'md-ws-reserve-remove', '\u00d7');
+            removeBtn.title = '\u3053\u306e\u65e5\u306e\u4e88\u7d04\u3092\u524a\u9664';
+            (function (pid, dk) {
+                removeBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    cancelReservationForDate(pid, dk);
+                });
+                removeBtn.addEventListener('mousedown', function (e) {
+                    e.stopPropagation();
+                });
+            })(partner.id, dateKey);
+            badge.appendChild(removeBtn);
+        }
+
         return badge;
+    }
+
+    // 当日の予約を削除（配置があれば確認の上で配置もまとめて解除）
+    function cancelReservationForDate(partnerId, dateKey) {
+        var partner = findPartner(partnerId);
+        if (!partner) return;
+        var assigned = getAssignedCountForDate(partnerId, dateKey);
+        if (assigned > 0) {
+            var ok = confirm(partner.shortName + ' の ' + dateKey + ' に配置済み ' + assigned + '件があります。配置も併せて削除します。よろしいですか？');
+            if (!ok) return;
+            var sa = supportAssignments[partnerId];
+            if (sa && sa[dateKey]) delete sa[dateKey];
+        }
+        if (supportReservations[partnerId] && supportReservations[partnerId][dateKey]) {
+            delete supportReservations[partnerId][dateKey];
+        }
+        renderGrid();
+        renderSidebar();
     }
 
     /**
