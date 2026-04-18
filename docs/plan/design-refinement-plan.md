@@ -4,7 +4,7 @@
 **ステータス**: **Phase D1 承認済・実装待ち**（プレビュー確認完了）
 **対象**: `docs/ui-components/` + `docs/mockup/`（weekly-schedule / order-book / quick-access / screen-layout）
 **関連計画**: [ui-components-improvement-plan.md](./ui-components-improvement-plan.md)（Tokens基礎整備・先行完了済）
-**プレビュー**: [docs/ui-components/preview.html](../ui-components/preview.html)（Phase D1 Before/After 比較・承認済）
+**プレビュー**: [docs/ui-components/preview.html](../ui-components/preview.html)（Phase D1・D5・D6 Before/After 比較・承認済）
 
 ---
 

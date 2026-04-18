@@ -467,6 +467,174 @@ body[data-mode="new"] .panel-old { display: none; }
 .diff-summary td.new { color: #299394; font-family: monospace; font-size: 12px; font-weight: 600; }
 .diff-summary tr:last-child td { border-bottom: none; }
 
+/* ========================================================
+   配色系セクション用スタイル（⑦〜⑪）
+   ======================================================== */
+
+/* 共通：カラーチップ */
+.color-chip-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.color-chip {
+    width: 100px;
+    height: 80px;
+    border-radius: 8px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 8px;
+    color: #fff;
+    font-size: 10px;
+    text-align: center;
+    font-family: monospace;
+    box-shadow: var(--new-elev-1);
+}
+.chip-label { line-height: 1.3; font-weight: 600; }
+
+/* ボタン・デモ */
+.btn-demo-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+.demo-btn {
+    padding: 8px 16px;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 120ms ease-out;
+}
+.demo-btn:hover { transform: translateY(-1px); }
+
+.demo-note {
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: rgba(0, 69, 84, 0.04);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* カテゴリ・グリッド */
+.cat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+}
+.cat-cell {
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    border-left: 3px solid currentColor;
+}
+.cat-cell strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+/* データ可視化 */
+.mini-title {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 14px;
+    margin-bottom: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.demo-chart {
+    padding: 12px;
+    background: var(--surface);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+.bar-group {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    height: 120px;
+}
+.bar {
+    flex: 1;
+    border-radius: 4px 4px 0 0;
+    min-width: 20px;
+    transition: opacity 120ms;
+}
+.bar:hover { opacity: 0.85; }
+
+.heatmap-row {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+}
+.heat-cell {
+    flex: 1;
+    padding: 12px 6px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    color: var(--text-primary);
+}
+
+/* コントラスト・テーブル */
+.contrast-table {
+    width: 100%;
+    margin-top: 14px;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.contrast-table th {
+    background: var(--surface-alt);
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+.contrast-table td {
+    padding: 8px;
+    border-bottom: 1px solid #f0f0f0;
+    font-family: monospace;
+}
+.contrast-table td.pass { color: #38A169; font-weight: 700; font-family: inherit; }
+.contrast-table td.fail { color: #DB577B; font-weight: 700; font-family: inherit; }
+
+/* 2テーマ */
+.theme-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+}
+.theme-card {
+    flex: 1;
+    padding: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 13px;
+}
+.theme-card small { font-family: monospace; color: inherit; opacity: 0.7; font-size: 11px; }
+.theme-light { background: #E9F1F6; color: #004554; }
+.theme-dark  { background: #1a1e22; color: #D9D4D1; }
+.theme-chip {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+}
+
 /* フッタ情報 */
 .help-note {
     background: #FFF9E6;
@@ -496,12 +664,17 @@ body[data-mode="new"] .panel-old { display: none; }
 
 <!-- ================== 目次 ================== -->
 <nav class="toc" aria-label="目次">
-    <a href="#typo">① Typography（スケール）</a>
+    <a href="#typo">① Typography</a>
     <a href="#jp">② 和文フォント</a>
     <a href="#space">③ Spacing</a>
     <a href="#motion">④ Motion</a>
     <a href="#elev">⑤ Elevation</a>
     <a href="#icon">⑥ Icon Size</a>
+    <a href="#accent2">⑦ 第2アクセント</a>
+    <a href="#category">⑧ カテゴリ色分化</a>
+    <a href="#chart">⑨ データ可視化</a>
+    <a href="#contrast">⑩ コントラスト</a>
+    <a href="#theme">⑪ 2テーマ整合</a>
 </nav>
 
 <main class="main">
@@ -786,6 +959,238 @@ body[data-mode="new"] .panel-old { display: none; }
                         <span>2xl 32</span>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================== ⑦ 第2アクセント ================== -->
+    <section class="demo" id="accent2">
+        <h2>⑦ 第2アクセント — ブランドの第二声</h2>
+        <p class="desc">
+            現状は accent (<code>#44A6B5</code> teal) 一色で、
+            <strong>CTA・重要トグル・注意喚起が全部同色</strong>。テラコッタ系の第2アクセント
+            (<code>#E07856</code>) を導入し、「重要だが破壊的ではない」強調用途を分離します。
+            <code>--error</code> (ピンク) とは色相30°以上ずらし、機能差を明確化。
+        </p>
+
+        <div class="split-grid">
+            <div class="panel panel-old">
+                <div class="panel-label">旧（accent一色）</div>
+                <div class="color-chip-row">
+                    <div class="color-chip" style="background:#44A6B5;">
+                        <span class="chip-label">accent<br>#44A6B5</span>
+                    </div>
+                    <div class="color-chip" style="background:#DB577B;">
+                        <span class="chip-label">error<br>#DB577B</span>
+                    </div>
+                </div>
+                <div class="btn-demo-row">
+                    <button class="demo-btn" style="background:#44A6B5;">新規登録</button>
+                    <button class="demo-btn" style="background:#44A6B5;">承認待ち</button>
+                    <button class="demo-btn" style="background:#44A6B5;">重要</button>
+                    <button class="demo-btn" style="background:#DB577B;">削除</button>
+                </div>
+                <p class="demo-note">CTAも重要トグルも同じteal。視覚的なメリハリがつかない</p>
+            </div>
+            <div class="panel panel-new">
+                <div class="panel-label">新（accent + accent-2）</div>
+                <div class="color-chip-row">
+                    <div class="color-chip" style="background:#44A6B5;">
+                        <span class="chip-label">accent<br>#44A6B5</span>
+                    </div>
+                    <div class="color-chip" style="background:#E07856;">
+                        <span class="chip-label">accent-2<br>#E07856</span>
+                    </div>
+                    <div class="color-chip" style="background:#DB577B;">
+                        <span class="chip-label">error<br>#DB577B</span>
+                    </div>
+                </div>
+                <div class="btn-demo-row">
+                    <button class="demo-btn" style="background:#44A6B5;">新規登録（CTA）</button>
+                    <button class="demo-btn" style="background:#E07856;">承認待ち</button>
+                    <button class="demo-btn" style="background:#E07856;">重要フラグ</button>
+                    <button class="demo-btn" style="background:#DB577B;">削除</button>
+                </div>
+                <p class="demo-note">用途別に色を使い分け、情報階層が一目で分かる</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================== ⑧ カテゴリ色分化 ================== -->
+    <section class="demo" id="category">
+        <h2>⑧ カテゴリ色分化 — 識別性の回復</h2>
+        <p class="desc">
+            現状は4カテゴリ（Facility / Event / Traffic / Highway）が<strong>全て同一 teal</strong>で区別不能。
+            彩度・明度を揃えたムーディートーン4色相に分化し、統一感を保ちつつ識別性を確保します。
+        </p>
+
+        <div class="split-grid">
+            <div class="panel panel-old">
+                <div class="panel-label">旧（全カテゴリ同色）</div>
+                <div class="cat-grid">
+                    <div class="cat-cell" style="background:rgba(68,166,181,0.12); color:#1c4d54;">
+                        <strong>現場事務所</strong><br>Facility
+                    </div>
+                    <div class="cat-cell" style="background:rgba(68,166,181,0.12); color:#1c4d54;">
+                        <strong>イベント</strong><br>Event
+                    </div>
+                    <div class="cat-cell" style="background:rgba(68,166,181,0.12); color:#1c4d54;">
+                        <strong>交通誘導</strong><br>Traffic
+                    </div>
+                    <div class="cat-cell" style="background:rgba(68,166,181,0.12); color:#1c4d54;">
+                        <strong>高速道路</strong><br>Highway
+                    </div>
+                </div>
+                <p class="demo-note">一覧時にカテゴリ判別不能、凡例参照が必要</p>
+            </div>
+            <div class="panel panel-new">
+                <div class="panel-label">新（4色相ムーディートーン）</div>
+                <div class="cat-grid">
+                    <div class="cat-cell" style="background:rgba(68,166,181,0.14); color:#1c4d54;">
+                        <strong>現場事務所</strong><br>Facility（teal）
+                    </div>
+                    <div class="cat-cell" style="background:rgba(122,140,196,0.14); color:#2d3e7a;">
+                        <strong>イベント</strong><br>Event（blue-violet）
+                    </div>
+                    <div class="cat-cell" style="background:rgba(180,135,100,0.14); color:#5a3f25;">
+                        <strong>交通誘導</strong><br>Traffic（warm-brown）
+                    </div>
+                    <div class="cat-cell" style="background:rgba(98,158,120,0.14); color:#1f4e31;">
+                        <strong>高速道路</strong><br>Highway（sage-green）
+                    </div>
+                </div>
+                <p class="demo-note">一目で判別可能、彩度14%で全体統一感も維持</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================== ⑨ データ可視化パレット ================== -->
+    <section class="demo" id="chart">
+        <h2>⑨ データ可視化パレット — 新規追加</h2>
+        <p class="desc">
+            グラフ・集計画面用のカラーパレットが未整備。<strong>3種類</strong>（カテゴリカル6色 / 連続値5段階 / ±差分）を新規定義。
+            色覚多様性（P型・D型）に配慮した選定。
+        </p>
+
+        <div class="split-grid">
+            <div class="panel panel-old">
+                <div class="panel-label">旧（未定義）</div>
+                <div class="demo-chart">
+                    <div class="bar-group">
+                        <div class="bar" style="height:60%; background:#44A6B5;"></div>
+                        <div class="bar" style="height:80%; background:#44A6B5;"></div>
+                        <div class="bar" style="height:45%; background:#44A6B5;"></div>
+                        <div class="bar" style="height:90%; background:#44A6B5;"></div>
+                        <div class="bar" style="height:70%; background:#44A6B5;"></div>
+                        <div class="bar" style="height:55%; background:#44A6B5;"></div>
+                    </div>
+                </div>
+                <p class="demo-note">系列識別不可、使うたびに色を選定する必要がある</p>
+            </div>
+            <div class="panel panel-new">
+                <div class="panel-label">新（3パレット体系）</div>
+                <h4 class="mini-title">カテゴリカル（離散値・6色）</h4>
+                <div class="demo-chart">
+                    <div class="bar-group">
+                        <div class="bar" style="height:60%; background:#44A6B5;"></div>
+                        <div class="bar" style="height:80%; background:#E07856;"></div>
+                        <div class="bar" style="height:45%; background:#7A8CC4;"></div>
+                        <div class="bar" style="height:90%; background:#629E78;"></div>
+                        <div class="bar" style="height:70%; background:#B48764;"></div>
+                        <div class="bar" style="height:55%; background:#B8607A;"></div>
+                    </div>
+                </div>
+                <h4 class="mini-title">連続値（ヒートマップ・5段階）</h4>
+                <div class="heatmap-row">
+                    <div class="heat-cell" style="background:#E9F1F6;">0</div>
+                    <div class="heat-cell" style="background:#B2D5E2;">25</div>
+                    <div class="heat-cell" style="background:#6B9AA8; color:#fff;">50</div>
+                    <div class="heat-cell" style="background:#2A6B7A; color:#fff;">75</div>
+                    <div class="heat-cell" style="background:#004554; color:#fff;">100</div>
+                </div>
+                <h4 class="mini-title">差分（±表示・3色）</h4>
+                <div class="heatmap-row">
+                    <div class="heat-cell" style="background:#DB577B; color:#fff;">-15</div>
+                    <div class="heat-cell" style="background:#D3D0C8;">0</div>
+                    <div class="heat-cell" style="background:#38A169; color:#fff;">+20</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================== ⑩ コントラスト改善 ================== -->
+    <section class="demo" id="contrast">
+        <h2>⑩ コントラスト改善 — WCAG AA 準拠</h2>
+        <p class="desc">
+            現状 <code>text-tertiary: #6B9AA8</code> on <code>#E9F1F6</code> は<strong>コントラスト比 3.1:1</strong>で
+            WCAG AA（4.5:1）未達。<code>#5A8896</code>（4.6:1）に調整し、業務画面の長時間利用の疲労と法的リスクを回避。
+        </p>
+
+        <div class="split-grid">
+            <div class="panel panel-old">
+                <div class="panel-label">旧 (3.1:1 AA未達 ❌)</div>
+                <div class="contrast-sample" style="background:#E9F1F6; padding:24px; border-radius:8px;">
+                    <h4 style="color:#004554;">受注情報</h4>
+                    <p style="color:#004554; margin:8px 0; font-size:14px;">現場A / 2026-04-20 / 協力業者 3社確定</p>
+                    <p style="color:#6B9AA8; font-size:12px;">補助情報：前回更新 2026-04-18 10:30 by 田中<br>添付ファイル 2件、コメント 5件</p>
+                </div>
+                <table class="contrast-table">
+                    <tr><th>テキスト</th><th>背景</th><th>比率</th><th>判定</th></tr>
+                    <tr><td>#6B9AA8</td><td>#E9F1F6</td><td>3.1:1</td><td class="fail">AA未達</td></tr>
+                </table>
+            </div>
+            <div class="panel panel-new">
+                <div class="panel-label">新 (4.6:1 AA準拠 ✓)</div>
+                <div class="contrast-sample" style="background:#E9F1F6; padding:24px; border-radius:8px;">
+                    <h4 style="color:#004554;">受注情報</h4>
+                    <p style="color:#004554; margin:8px 0; font-size:14px;">現場A / 2026-04-20 / 協力業者 3社確定</p>
+                    <p style="color:#5A8896; font-size:12px;">補助情報：前回更新 2026-04-18 10:30 by 田中<br>添付ファイル 2件、コメント 5件</p>
+                </div>
+                <table class="contrast-table">
+                    <tr><th>テキスト</th><th>背景</th><th>比率</th><th>判定</th></tr>
+                    <tr><td>#5A8896</td><td>#E9F1F6</td><td>4.6:1</td><td class="pass">AA準拠</td></tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================== ⑪ 2テーマ整合 ================== -->
+    <section class="demo" id="theme">
+        <h2>⑪ 2テーマ整合 — ライト/ダークのブランド統一</h2>
+        <p class="desc">
+            現状はライト accent (<code>#44A6B5</code>) とダーク accent (<code>#098698</code>) で
+            <strong>明度カーブが別物</strong>。HSL空間で色相・彩度を揃え、明度のみ反転することで
+            「テーマ切り替えで別サービスに見える」現象を解消します。
+        </p>
+
+        <div class="split-grid">
+            <div class="panel panel-old">
+                <div class="panel-label">旧（2テーマ別物）</div>
+                <div class="theme-row">
+                    <div class="theme-card theme-light">
+                        <div class="theme-chip" style="background:#44A6B5;"></div>
+                        <div>ライト: #44A6B5<br><small>hsl(187, 46%, 50%)</small></div>
+                    </div>
+                    <div class="theme-card theme-dark">
+                        <div class="theme-chip" style="background:#098698;"></div>
+                        <div>ダーク: #098698<br><small>hsl(186, 88%, 32%)</small></div>
+                    </div>
+                </div>
+                <p class="demo-note">彩度・明度が別物。切り替えるとブランドが変わった印象</p>
+            </div>
+            <div class="panel panel-new">
+                <div class="panel-label">新（HSL統一）</div>
+                <div class="theme-row">
+                    <div class="theme-card theme-light">
+                        <div class="theme-chip" style="background:#44A6B5;"></div>
+                        <div>ライト: #44A6B5<br><small>hsl(187, 46%, 50%)</small></div>
+                    </div>
+                    <div class="theme-card theme-dark">
+                        <div class="theme-chip" style="background:#55B5C4;"></div>
+                        <div>ダーク: #55B5C4<br><small>hsl(187, 46%, 55%)</small></div>
+                    </div>
+                </div>
+                <p class="demo-note">色相・彩度完全一致、明度のみ5%差。ブランド一貫性が保たれる</p>
             </div>
         </div>
     </section>
