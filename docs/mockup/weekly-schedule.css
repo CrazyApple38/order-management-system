@@ -1891,6 +1891,118 @@ body {
     background: var(--error-bg);
     color: var(--error);
 }
+/* ポップオーバー内: セクションタイトル・既存業者リスト */
+.md-ws-link-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    letter-spacing: 0.04em;
+    margin: 6px 0 4px;
+    text-transform: none;
+}
+.md-ws-link-partner-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-height: 160px;
+    overflow-y: auto;
+    margin-bottom: 6px;
+}
+.md-ws-link-partner-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 5px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--base-surface-alt);
+    color: var(--text-primary);
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+}
+.md-ws-link-partner-btn:hover:not(:disabled) {
+    background: var(--accent-dim);
+    border-color: var(--accent-primary);
+}
+.md-ws-link-partner-btn.md-ws-link-partner-disabled,
+.md-ws-link-partner-btn:disabled {
+    opacity: 0.45;
+    background: var(--base-surface-alt);
+    color: var(--text-tertiary);
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+}
+.md-ws-link-partner-name {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.md-ws-link-empty {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    padding: 10px 4px;
+    text-align: center;
+}
+
+/* 配置済み協力業者チップクリック時のアクションポップオーバー */
+.md-ws-chip-action-popover {
+    min-width: 180px;
+}
+.md-ws-chip-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.md-ws-chip-action-btn {
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--divider);
+    background: var(--base-surface-alt);
+    color: var(--text-primary);
+    text-align: left;
+}
+.md-ws-chip-action-btn:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent-primary);
+}
+.md-ws-chip-action-revert {
+    background: var(--success-bg);
+    border-color: rgba(56, 161, 105, 0.5);
+    color: var(--success-text);
+}
+.md-ws-chip-action-revert:hover {
+    background: rgba(56, 161, 105, 0.2);
+    border-color: var(--success);
+}
+.md-ws-chip-action-delete {
+    background: var(--error-bg);
+    border-color: rgba(219, 87, 123, 0.5);
+    color: var(--error);
+}
+.md-ws-chip-action-delete:hover {
+    background: rgba(219, 87, 123, 0.22);
+    border-color: var(--error);
+}
+.md-ws-chip-action-cancel {
+    color: var(--text-tertiary);
+}
+.md-ws-link-partner-warn {
+    display: inline-flex;
+    align-items: center;
+    color: #DECCBE;
+}
+.md-ws-link-partner-warn svg {
+    width: 12px;
+    height: 12px;
+}
 
 /* 曜日ミニバッジ共通 */
 .md-ws-dow-badges {
@@ -1978,47 +2090,57 @@ body {
 .md-ws-night-chip .md-ws-chip-arrow-next {
     color: var(--error);
 }
-/* 配置済み解除ボタン（ホバーで表示） */
+/* 配置済み解除ボタン（ホバーで可視化。常に同じスペースを確保してレイアウトシフトを防止） */
 .md-ws-emp-chip {
     position: relative;
 }
 .md-ws-emp-chip .md-ws-chip-remove {
-    display: none;
+    display: inline;
+    visibility: hidden;
     margin-left: 3px;
     font-size: 12px;
     font-weight: 700;
     color: var(--error);
     cursor: pointer;
     line-height: 1;
-    opacity: 0.7;
+    opacity: 0;
     transition: opacity 0.1s;
 }
 .md-ws-emp-chip .md-ws-chip-remove:hover {
     opacity: 1;
 }
 .md-ws-emp-chip:hover .md-ws-chip-remove {
-    display: inline;
+    visibility: visible;
+    opacity: 0.7;
 }
-/* 社員軸: 現場チップの×ボタン（ホバーで表示） */
+.md-ws-emp-chip:hover .md-ws-chip-remove:hover {
+    opacity: 1;
+}
+/* 社員軸: 現場チップの×ボタン（ホバーで可視化、スペース常時確保） */
 .md-ws-site-chip {
     position: relative;
 }
 .md-ws-site-chip .md-ws-chip-remove {
-    display: none;
+    display: inline;
+    visibility: hidden;
     margin-left: 3px;
     font-size: 12px;
     font-weight: 700;
     color: var(--error);
     cursor: pointer;
     line-height: 1;
-    opacity: 0.7;
+    opacity: 0;
     transition: opacity 0.1s;
 }
 .md-ws-site-chip .md-ws-chip-remove:hover {
     opacity: 1;
 }
 .md-ws-site-chip:hover .md-ws-chip-remove {
-    display: inline;
+    visibility: visible;
+    opacity: 0.7;
+}
+.md-ws-site-chip:hover .md-ws-chip-remove:hover {
+    opacity: 1;
 }
 
 /* セルのクリック可能表示 */
@@ -2375,6 +2497,127 @@ body {
     font-size: 8px;
     color: var(--text-disabled);
     font-weight: 400;
+}
+
+/* ============================================================
+   応援予約行（協力業者予約）※Coastal Light パレット --success 系を使用
+   ============================================================ */
+.md-ws-group-name.md-ws-reservation-group-header {
+    border-color: var(--divider);
+    border-bottom: none;
+    background: linear-gradient(rgba(56, 161, 105, 0.15), rgba(56, 161, 105, 0.15)), var(--base-surface-alt);
+}
+.md-ws-reservation-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--success);
+    color: #fff;
+}
+.md-ws-name-cell.md-ws-reservation-name {
+    background: linear-gradient(rgba(56, 161, 105, 0.10), rgba(56, 161, 105, 0.10)), var(--base-surface-alt);
+    color: var(--success-text);
+    font-weight: 700;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+.md-ws-reservation-name-label {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.md-ws-reservation-add-btn {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    border: 1px solid var(--divider);
+    background: var(--base-surface);
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+}
+.md-ws-reservation-add-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.md-ws-cell.md-ws-reservation-row-cell {
+    background: linear-gradient(rgba(56, 161, 105, 0.06), rgba(56, 161, 105, 0.06)), var(--cell-base-day);
+    border-bottom: 2px solid rgba(56, 161, 105, 0.35);
+    padding: 2px;
+    gap: 2px;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+/* 応援予約行は昼/夜を結合した1セル×2列幅で表示 */
+.md-ws-cell.md-ws-reservation-row-cell.md-ws-reservation-merged.md-ws-past-col {
+    background:
+        linear-gradient(var(--past-overlay), var(--past-overlay)),
+        linear-gradient(rgba(56, 161, 105, 0.06), rgba(56, 161, 105, 0.06)),
+        var(--cell-base-day) !important;
+}
+
+/* 予約バッジ（フレックス統一、--success 系） */
+.md-ws-reserve-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 5px;
+    border-radius: 3px;
+    background: var(--success-bg);
+    color: var(--success-text);
+    border: 1px solid rgba(56, 161, 105, 0.35);
+    white-space: nowrap;
+    cursor: grab;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.md-ws-reserve-badge:hover {
+    background: rgba(56, 161, 105, 0.18);
+    border-color: var(--success);
+}
+.md-ws-reserve-badge:active {
+    cursor: grabbing;
+}
+.md-ws-reserve-badge.md-ws-reserve-empty {
+    opacity: 0.45;
+    background: var(--base-surface-alt);
+    border-color: var(--divider);
+    color: var(--text-tertiary);
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+}
+.md-ws-reserve-badge.md-ws-reserve-empty:hover {
+    background: var(--base-surface-alt);
+    border-color: var(--divider);
+}
+.md-ws-reserve-badge.md-ws-dragging {
+    opacity: 0.5;
+}
+.md-ws-reserve-label {
+    font-size: 10px;
+}
+.md-ws-reserve-warn {
+    display: inline-flex;
+    align-items: center;
+    /* Applied Color Palette: Warning/変更 (Shell Beige) */
+    color: #DECCBE;
+    line-height: 1;
+}
+.md-ws-reserve-warn svg {
+    width: 11px;
+    height: 11px;
 }
 
 /* 配置モード — 修理/点検中車両バッジ（警告枠） */
