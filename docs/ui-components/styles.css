@@ -14,11 +14,13 @@
     --text-secondary: #BAB1AD;
     --text-tertiary: #8a8480;
     --text-disabled: #5a5550;
-    --accent: #098698;
-    --accent-light: #0a9db0;
-    --accent-dim: rgba(9, 134, 152, 0.2);
+    /* Phase D6.2: 2テーマのアクセント統一（HSL同色相・彩度、明度のみ反転） */
+    /* 旧 #098698 → ライト #44A6B5 と揃えた #55B5C4 へ（hsl(187, 46%, 55%)） */
+    --accent: #55B5C4;
+    --accent-light: #6BC4D1;
+    --accent-dim: rgba(85, 181, 196, 0.20);
     --secondary: #AEC0C2;
-    --ios-blue: #098698;
+    --ios-blue: #55B5C4;
     --ios-green: #30d158;
     --ios-red: #ff453a;
     --ios-orange: #ff9f0a;
@@ -28,9 +30,10 @@
     --radius-md: 8px;
     --radius-lg: 12px;
     --radius-xl: 16px;
-    --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
-    --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+    /* 旧 shadow（Phase D1.5 で --elevation-* へエイリアス、互換維持） */
+    --shadow-sm: var(--elevation-1);
+    --shadow-md: var(--elevation-3);
+    --shadow-lg: var(--elevation-4);
     /* Semantic Colors */
     --success: #38A169;
     --success-text: #68d391;
@@ -39,20 +42,137 @@
     --warning-bg: rgba(214, 158, 46, 0.12);
     --error: #DB577B;
     --error-text: #E88AA5;
+
+    /* =====================================================================
+       Phase D1 — 基盤トークン・バンドル（2026-04-18 承認済）
+       ===================================================================== */
+
+    /* D1.1 Typography Scale（7段階） */
+    --fs-caption: 11px;
+    --fs-sm:      13px;
+    --fs-base:    14px;
+    --fs-md:      16px;
+    --fs-lg:      20px;
+    --fs-xl:      26px;
+    --fs-2xl:     34px;
+
+    /* Font weights */
+    --fw-regular:  400;
+    --fw-medium:   500;
+    --fw-semibold: 600;
+    --fw-bold:     700;
+    --fw-black:    800;
+
+    /* D1.3 Spacing（ダークテーマにU1未導入のため最低限のスペーシングも併記） */
+    --space-2xs: 2px;
+    --space-xs:  4px;
+    --space-sm:  8px;
+    --space-md:  12px;
+    --space-lg:  16px;
+    --space-xl:  24px;
+    --space-2xl: 32px;
+    --space-3xl: 48px;
+
+    /* 行高（ダークテーマU1未導入分の補完） */
+    --lh-tight: 1.3;
+    --lh-base:  1.5;
+    --lh-loose: 1.7;
+
+    /* D1.4 Motion */
+    --duration-instant: 0ms;
+    --duration-fast:    120ms;
+    --duration-base:    200ms;
+    --duration-slow:    320ms;
+    --duration-slower:  480ms;
+    --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in:     cubic-bezier(0.7, 0, 0.84, 0);
+    --ease-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* D1.5 Elevation System（ダークテーマは影を濃く・広く） */
+    --elevation-0: none;
+    --elevation-1: 0 1px 2px rgba(0,0,0,0.25);
+    --elevation-2: 0 2px 4px rgba(0,0,0,0.30);
+    --elevation-3: 0 4px 12px rgba(0,0,0,0.40);
+    --elevation-4: 0 8px 24px rgba(0,0,0,0.50);
+    --elevation-5: 0 16px 48px rgba(0,0,0,0.60);
+
+    /* D1.6 Breakpoints */
+    --bp-sm:  640px;
+    --bp-md:  768px;
+    --bp-lg:  1024px;
+    --bp-xl:  1280px;
+    --bp-2xl: 1536px;
+
+    /* D1.7 Icon Size Scale */
+    --icon-xs:  12px;
+    --icon-sm:  14px;
+    --icon-md:  16px;
+    --icon-lg:  20px;
+    --icon-xl:  24px;
+    --icon-2xl: 32px;
+
+    /* =====================================================================
+       Phase D5 — 配色バランス改善（2026-04-18 承認済）
+       ===================================================================== */
+
+    /* D5.1 第2アクセント */
+    --accent-2:        #E07856;
+    --accent-2-light:  #EA9980;
+    --accent-2-dim:    rgba(224, 120, 86, 0.15);
+
+    /* D5.2 カテゴリ色4色相分化（ダークBG向けに彩度・明度を微調整） */
+    --cat-bg-facility: rgba(85, 181, 196, 0.18);   --cat-text-facility: #A8D8DF;  /* teal */
+    --cat-bg-event:    rgba(122, 140, 196, 0.18);  --cat-text-event:    #B5BFDF;  /* blue-violet */
+    --cat-bg-traffic:  rgba(180, 135, 100, 0.18);  --cat-text-traffic:  #D4B89B;  /* warm brown */
+    --cat-bg-highway:  rgba(98, 158, 120, 0.18);   --cat-text-highway:  #A8D0B4;  /* sage green */
+
+    /* D5.3 データ可視化パレット — カテゴリカル */
+    --chart-1: #55B5C4;
+    --chart-2: #E07856;
+    --chart-3: #7A8CC4;
+    --chart-4: #629E78;
+    --chart-5: #B48764;
+    --chart-6: #B8607A;
+
+    /* D5.3 データ可視化パレット — 連続値 */
+    --chart-seq-0: #14181c;
+    --chart-seq-1: #2A6B7A;
+    --chart-seq-2: #6B9AA8;
+    --chart-seq-3: #B2D5E2;
+    --chart-seq-4: #E9F1F6;
+
+    /* D5.3 データ可視化パレット — 差分 */
+    --chart-diverge-neg:     #DB577B;
+    --chart-diverge-neutral: #5A5550;
+    --chart-diverge-pos:     #38A169;
 }
 
 /* --- Reset & Base --- */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    /* Phase D1.2: 和文フォント指定 */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont,
+                 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic UI',
+                 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: "palt" 1;
+    font-variant-numeric: tabular-nums;
     background: var(--bg-page);
     color: var(--text-primary);
     display: flex;
     min-height: 100vh;
     overflow-x: hidden;
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: var(--fs-base);
+    line-height: var(--lh-base);
+}
+
+/* Phase D1.4: prefers-reduced-motion 対応 */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
 /* --- Sidebar --- */
