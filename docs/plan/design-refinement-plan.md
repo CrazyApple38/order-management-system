@@ -1,24 +1,49 @@
 # デザイン洗練化・拡充 改修計画（Design Refinement & Expansion Plan）
 
 **最終更新**: 2026-04-18
-**ステータス**: 計画策定済、Phase D1 未着手
+**ステータス**: **Phase D1 承認済・実装待ち**（プレビュー確認完了）
 **対象**: `docs/ui-components/` + `docs/mockup/`（weekly-schedule / order-book / quick-access / screen-layout）
 **関連計画**: [ui-components-improvement-plan.md](./ui-components-improvement-plan.md)（Tokens基礎整備・先行完了済）
+**プレビュー**: [docs/ui-components/preview.html](../ui-components/preview.html)（Phase D1 Before/After 比較・承認済）
 
 ---
 
 ## 📌 新会話での継続手順
 
-新しい会話ではまず本ファイルを読み、以下の順で状況を把握する:
+### 🚀 即着手手順（Phase D1 実装）
 
-1. §2（決定事項）と §5（フェーズ進捗）で現在位置を確認
-2. §6（次のアクション）で次に取り組むフェーズを確認
-3. 必要に応じて以下を参照:
+新しい会話で以下のいずれかが指示された場合、**プレビュー承認済のため、確認不要で即着手可能**:
+- 「Phase D1 を実装して」
+- 「基盤トークンを実装して」
+- 「デザイン改修を開始して」
+
+**実装対象ファイル**（両テーマ）:
+- [`docs/ui-components/styles-light.css`](../ui-components/styles-light.css) の `:root`
+- [`docs/ui-components/styles.css`](../ui-components/styles.css) の `:root`
+
+**実装内容の正**: 本ファイル §4 Phase D1 の D1.1〜D1.7（全7サブセクション）
+
+**作業フロー**:
+1. §4 Phase D1 の D1.1〜D1.7 のトークンを `:root` に追加（両テーマ）
+2. `index-light.html` / `index-dark.html` の「Design Tokens」セクションに7カテゴリの表示例を追加
+3. 旧 `--shadow-sm/md/lg` → `--elevation-1/3/4` のエイリアス維持を確認
+4. `@media (prefers-reduced-motion: reduce)` の動作確認
+5. Phase D1 完了後、Phase D2（テーブル・デザインシステム）の承認を求める
+
+### 参照資料
+
+1. プレビュー（承認済の視覚イメージ）: [docs/ui-components/preview.html](../ui-components/preview.html)
+2. §2（決定事項）と §5（フェーズ進捗）で現在位置を確認
+3. §6（次のアクション）で次に取り組むフェーズを確認
+4. 必要に応じて:
    - 先行計画: [ui-components-improvement-plan.md](./ui-components-improvement-plan.md) §2（確定済トークン）
-   - UIコンポーネント集: [`docs/ui-components/index-light.html`](../ui-components/index-light.html) / [`styles-light.css`](../ui-components/styles-light.css)
+   - 既存UIコンポーネント集: [`docs/ui-components/index-light.html`](../ui-components/index-light.html) / [`styles-light.css`](../ui-components/styles-light.css)
    - モックアップ: [`docs/mockup/`](../mockup/)
    - アイコン運用ルール: [`CLAUDE.md`](../../CLAUDE.md)
-4. ユーザーが「Phase D1」等を明示指定するまで作業着手はしない（承認ポイント必須）
+
+### 承認ステータス
+- ✅ Phase D1（基盤トークン）: **承認済**（2026-04-18 プレビュー確認）
+- ⏸ Phase D2〜D14: 各Phase完了後に個別承認が必要
 
 ---
 

@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Refinement Preview — Phase D1 基盤トークン</title>
+<style>
+/* =========================================================
+   プレビュー専用スタイル（既存CSSに影響しない自己完結設計）
+   すべて --preview-* / --old-* / --new-* プレフィックスで隔離
+   ========================================================= */
+
+/* ------- 共通ベース ------- */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Noto Sans JP',
+                 'Hiragino Sans', 'Yu Gothic UI', 'Segoe UI', Roboto, sans-serif;
+    background: #F4F7FA;
+    color: #1a2e35;
+    line-height: 1.5;
+    padding-bottom: 80px;
+}
+
+/* ------- 新旧比較用トークン定義 ------- */
+/* 現状（旧）*/
+:root {
+    --old-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --old-fs-caption: 10px;
+    --old-fs-sm: 13px;
+    --old-fs-base: 14px;
+    --old-fs-md: 15px;
+    --old-fs-lg: 16px;
+    --old-fs-xl: 20px;
+    --old-fs-2xl: 28px;
+    --old-lh: 1.3;
+    --old-space-s: 6px;
+    --old-space-m: 10px;
+    --old-space-l: 13px;
+    --old-shadow-1: 0 2px 4px rgba(0,69,84,0.08);
+    --old-shadow-2: 0 4px 12px rgba(0,69,84,0.12);
+    --old-shadow-3: 0 8px 24px rgba(0,69,84,0.15);
+    --old-duration: 300ms;
+    --old-easing: ease;
+
+    /* 新規提案 */
+    --new-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Noto Sans JP',
+                       'Hiragino Sans', 'Yu Gothic UI', 'Segoe UI', Roboto, sans-serif;
+    --new-fs-caption: 11px;
+    --new-fs-sm: 13px;
+    --new-fs-base: 14px;
+    --new-fs-md: 16px;
+    --new-fs-lg: 20px;
+    --new-fs-xl: 26px;
+    --new-fs-2xl: 34px;
+    --new-lh: 1.5;
+    --new-space-xs: 4px;
+    --new-space-sm: 8px;
+    --new-space-md: 12px;
+    --new-space-lg: 16px;
+    --new-space-xl: 24px;
+    --new-elev-1: 0 1px 2px rgba(0,69,84,0.06);
+    --new-elev-2: 0 2px 4px rgba(0,69,84,0.08);
+    --new-elev-3: 0 4px 12px rgba(0,69,84,0.10);
+    --new-elev-4: 0 8px 24px rgba(0,69,84,0.14);
+    --new-elev-5: 0 16px 48px rgba(0,69,84,0.18);
+    --new-duration-fast: 120ms;
+    --new-duration-base: 200ms;
+    --new-duration-slow: 320ms;
+    --new-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --new-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* UI 共通 */
+    --accent: #44A6B5;
+    --accent-dark: #004554;
+    --surface: #FFFFFF;
+    --surface-alt: #F0EDE9;
+    --border: #D3D0C8;
+    --text-primary: #004554;
+    --text-secondary: #2A6B7A;
+}
+
+/* ------- ヘッダ（固定）------- */
+.preview-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--accent-dark);
+    color: #fff;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.preview-header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+.preview-header .sub { font-size: 12px; opacity: 0.8; }
+
+/* モード切替ボタン */
+.mode-switcher {
+    margin-left: auto;
+    display: flex;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 4px;
+    gap: 2px;
+}
+.mode-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 120ms ease-out;
+    font-weight: 500;
+}
+.mode-btn:hover { background: rgba(255,255,255,0.1); }
+.mode-btn.active {
+    background: var(--accent);
+    font-weight: 600;
+}
+
+/* 目次 */
+.toc {
+    background: var(--surface);
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.toc a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    transition: background 120ms;
+}
+.toc a:hover { background: var(--surface-alt); }
+
+/* ------- メインレイアウト ------- */
+.main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px;
+}
+
+section.demo {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 24px;
+}
+section.demo h2 {
+    font-size: 22px;
+    color: var(--accent-dark);
+    margin-bottom: 8px;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 8px;
+}
+section.demo .desc {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+
+/* Split レイアウト（並列モード用）*/
+.split-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+body[data-mode="split"] .split-grid {
+    grid-template-columns: 1fr 1fr;
+}
+
+/* 単一モード時：該当方のみ表示 */
+body[data-mode="old"] .panel-new { display: none; }
+body[data-mode="new"] .panel-old { display: none; }
+
+.panel {
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+}
+.panel .panel-label {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--surface);
+    padding: 0 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+.panel-old .panel-label { color: #B8607A; }
+.panel-new .panel-label { color: var(--accent); }
+
+.panel-old { border-color: #E8C8D1; background: #FDF7F9; }
+.panel-new { border-color: #C4E0E5; background: #F2FAFB; }
+
+/* ========================================================
+   各デモ用スタイル（Typography / Spacing / Motion / Elevation / Icon-size）
+   ======================================================== */
+
+/* --- Typography --- */
+.typo-demo {
+    font-family: var(--demo-font-family);
+    line-height: var(--demo-lh);
+}
+.panel-old .typo-demo { --demo-font-family: var(--old-font-family); --demo-lh: var(--old-lh); }
+.panel-new .typo-demo { --demo-font-family: var(--new-font-family); --demo-lh: var(--new-lh); }
+
+.panel-old .t-2xl    { font-size: var(--old-fs-2xl); font-weight: 800; margin-bottom: 6px; }
+.panel-old .t-xl     { font-size: var(--old-fs-xl);  font-weight: 700; margin-bottom: 6px; }
+.panel-old .t-lg     { font-size: var(--old-fs-lg);  font-weight: 600; margin-bottom: 6px; }
+.panel-old .t-md     { font-size: var(--old-fs-md);  font-weight: 500; margin-bottom: 6px; }
+.panel-old .t-base   { font-size: var(--old-fs-base); margin-bottom: 6px; }
+.panel-old .t-sm     { font-size: var(--old-fs-sm);   color: var(--text-secondary); margin-bottom: 4px; }
+.panel-old .t-caption{ font-size: var(--old-fs-caption); color: #888; }
+
+.panel-new .t-2xl    { font-size: var(--new-fs-2xl); font-weight: 800; margin-bottom: 8px; letter-spacing: -0.02em; }
+.panel-new .t-xl     { font-size: var(--new-fs-xl);  font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+.panel-new .t-lg     { font-size: var(--new-fs-lg);  font-weight: 600; margin-bottom: 8px; }
+.panel-new .t-md     { font-size: var(--new-fs-md);  font-weight: 500; margin-bottom: 6px; }
+.panel-new .t-base   { font-size: var(--new-fs-base); margin-bottom: 6px; }
+.panel-new .t-sm     { font-size: var(--new-fs-sm);   color: var(--text-secondary); margin-bottom: 4px; }
+.panel-new .t-caption{ font-size: var(--new-fs-caption); color: #888; }
+
+.typo-sample-block {
+    padding: 20px;
+    background: var(--surface);
+    border-radius: 8px;
+    margin-top: 16px;
+    border: 1px solid var(--border);
+}
+.typo-scale-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 12px;
+}
+.typo-scale-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+.typo-scale-table td:first-child {
+    color: #888;
+    width: 100px;
+    font-family: monospace;
+}
+
+/* --- Font Family (和文) --- */
+.jp-sample {
+    padding: 24px;
+    background: var(--surface);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+.jp-sample h3 { margin-bottom: 12px; font-weight: 700; }
+.jp-sample p { margin-bottom: 8px; }
+.panel-old .jp-sample { font-family: var(--old-font-family); line-height: var(--old-lh); }
+.panel-old .jp-sample h3 { font-size: var(--old-fs-lg); }
+.panel-old .jp-sample p  { font-size: var(--old-fs-base); }
+.panel-new .jp-sample { font-family: var(--new-font-family); line-height: var(--new-lh); font-feature-settings: "palt" 1; }
+.panel-new .jp-sample h3 { font-size: var(--new-fs-lg); }
+.panel-new .jp-sample p  { font-size: var(--new-fs-base); }
+
+/* --- Spacing --- */
+.card-sample {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+.panel-old .card-sample {
+    padding: var(--old-space-l) var(--old-space-m);
+}
+.panel-old .card-sample > .badges {
+    display: flex; gap: 3px; flex-wrap: wrap; margin-top: var(--old-space-s);
+}
+.panel-old .badge {
+    font-size: 9px;
+    padding: 1px 5px;
+    background: #E07856;
+    color: #fff;
+    border-radius: 3px;
+}
+
+.panel-new .card-sample {
+    padding: var(--new-space-lg);
+}
+.panel-new .card-sample > .badges {
+    display: flex; gap: var(--new-space-sm); flex-wrap: wrap; margin-top: var(--new-space-md);
+}
+.panel-new .badge {
+    font-size: var(--new-fs-caption);
+    padding: 2px 8px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 4px;
+    font-weight: 500;
+}
+.card-sample h4 { margin-bottom: 4px; }
+.panel-new .card-sample h4 { margin-bottom: 8px; font-size: var(--new-fs-md); }
+.panel-old .card-sample h4 { font-size: var(--old-fs-md); }
+
+.spacing-scale {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+.spacing-box {
+    background: var(--accent);
+    min-width: 4px;
+    border-radius: 2px;
+    position: relative;
+    opacity: 0.3;
+}
+.spacing-box.active { opacity: 1; }
+.spacing-box .lbl {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #888;
+    font-family: monospace;
+}
+
+/* --- Motion --- */
+.motion-demo {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 12px;
+}
+.motion-btn {
+    padding: 10px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    user-select: none;
+}
+.panel-old .motion-btn { transition: all var(--old-duration) var(--old-easing); }
+.panel-old .motion-btn:hover { transform: translateY(-2px); background: #338594; }
+.panel-new .motion-btn-fast   { transition: all var(--new-duration-fast) var(--new-ease-out); }
+.panel-new .motion-btn-base   { transition: all var(--new-duration-base) var(--new-ease-out); }
+.panel-new .motion-btn-spring { transition: all var(--new-duration-slow) var(--new-ease-spring); }
+.panel-new .motion-btn:hover { transform: translateY(-3px) scale(1.03); background: #338594; box-shadow: var(--new-elev-3); }
+
+.motion-card {
+    display: inline-block;
+    padding: 20px 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 12px 12px 12px 0;
+    cursor: pointer;
+}
+.panel-old .motion-card { transition: all var(--old-duration) var(--old-easing); box-shadow: var(--old-shadow-1); }
+.panel-old .motion-card:hover { box-shadow: var(--old-shadow-2); }
+.panel-new .motion-card { transition: all var(--new-duration-base) var(--new-ease-out); box-shadow: var(--new-elev-2); }
+.panel-new .motion-card:hover { box-shadow: var(--new-elev-4); transform: translateY(-2px); }
+
+/* --- Elevation --- */
+.elev-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 24px;
+    margin-top: 16px;
+    padding: 32px 16px;
+    background: var(--surface-alt);
+    border-radius: 8px;
+}
+.elev-card {
+    background: var(--surface);
+    padding: 20px 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+.panel-old .elev-card.e1 { box-shadow: var(--old-shadow-1); }
+.panel-old .elev-card.e2 { box-shadow: var(--old-shadow-2); }
+.panel-old .elev-card.e3 { box-shadow: var(--old-shadow-3); }
+.panel-old .elev-card.e4, .panel-old .elev-card.e5 { display: none; }
+.panel-old .elev-card.e0 { display: none; }
+
+.panel-new .elev-card.e0 { box-shadow: none; background: #f4f7fa; }
+.panel-new .elev-card.e1 { box-shadow: var(--new-elev-1); }
+.panel-new .elev-card.e2 { box-shadow: var(--new-elev-2); }
+.panel-new .elev-card.e3 { box-shadow: var(--new-elev-3); }
+.panel-new .elev-card.e4 { box-shadow: var(--new-elev-4); }
+.panel-new .elev-card.e5 { box-shadow: var(--new-elev-5); }
+
+/* --- Icon Size --- */
+.icon-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-top: 16px;
+    padding: 20px;
+    background: var(--surface-alt);
+    border-radius: 8px;
+}
+.icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--text-secondary);
+    font-family: monospace;
+}
+.icon-item svg { fill: var(--accent); }
+.panel-old .icon-item.xs, .panel-old .icon-item.xl-plus { display: none; } /* 旧は1-2種のみ想定 */
+.panel-old .icon-item svg { width: 16px; height: 16px; }
+.panel-old .icon-item.big svg { width: 20px; height: 20px; }
+
+.panel-new .icon-item.xs  svg { width: 12px; height: 12px; }
+.panel-new .icon-item.sm  svg { width: 14px; height: 14px; }
+.panel-new .icon-item.md  svg { width: 16px; height: 16px; }
+.panel-new .icon-item.lg  svg { width: 20px; height: 20px; }
+.panel-new .icon-item.xl  svg { width: 24px; height: 24px; }
+.panel-new .icon-item.xxl svg { width: 32px; height: 32px; }
+
+/* サマリー表 */
+.diff-summary {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.diff-summary th {
+    background: var(--surface-alt);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+}
+.diff-summary td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.diff-summary td.old { color: #B8607A; font-family: monospace; font-size: 12px; }
+.diff-summary td.new { color: #299394; font-family: monospace; font-size: 12px; font-weight: 600; }
+.diff-summary tr:last-child td { border-bottom: none; }
+
+/* フッタ情報 */
+.help-note {
+    background: #FFF9E6;
+    border-left: 3px solid #D69E2E;
+    padding: 12px 16px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #5a4500;
+    border-radius: 4px;
+}
+</style>
+</head>
+<body data-mode="split">
+
+<!-- ================== ヘッダ ================== -->
+<div class="preview-header">
+    <div>
+        <h1>Design Refinement Preview</h1>
+        <div class="sub">Phase D1 — 基盤トークン・バンドル Before/After 比較</div>
+    </div>
+    <div class="mode-switcher" role="tablist" aria-label="表示モード">
+        <button class="mode-btn" data-target="old">旧のみ</button>
+        <button class="mode-btn" data-target="new">新のみ</button>
+        <button class="mode-btn active" data-target="split">並列</button>
+    </div>
+</div>
+
+<!-- ================== 目次 ================== -->
+<nav class="toc" aria-label="目次">
+    <a href="#typo">① Typography（スケール）</a>
+    <a href="#jp">② 和文フォント</a>
+    <a href="#space">③ Spacing</a>
+    <a href="#motion">④ Motion</a>
+    <a href="#elev">⑤ Elevation</a>
+    <a href="#icon">⑥ Icon Size</a>
+</nav>
+
+<main class="main">
+
+    <!-- ================== ① Typography ================== -->
+    <section class="demo" id="typo">
+        <h2>① Typography — スケール再設計</h2>
+        <p class="desc">
+            フォントサイズを <strong>11種類 → 7段階</strong> に集約、最小値を <strong>6px → 11px</strong> に底上げ。
+            見出しと本文のジャンプ率を <strong>1.14倍 → 1.43倍</strong> に強化してメリハリを出します。
+        </p>
+        <table class="diff-summary">
+            <tr><th>項目</th><th>旧</th><th>新</th></tr>
+            <tr><td>フォントサイズ種類</td><td class="old">11種</td><td class="new">7種</td></tr>
+            <tr><td>最小値</td><td class="old">6-9px（可読性NG）</td><td class="new">11px</td></tr>
+            <tr><td>見出し/本文ジャンプ率</td><td class="old">1.14（16/14）</td><td class="new">1.43（20/14）</td></tr>
+            <tr><td>line-height</td><td class="old">1.3（和文詰まり）</td><td class="new">1.5（呼吸感）</td></tr>
+        </table>
+
+        <div class="split-grid" style="margin-top:24px;">
+            <div class="panel panel-old">
+                <div class="panel-label">旧</div>
+                <div class="typo-demo">
+                    <div class="t-2xl">受注管理システム</div>
+                    <div class="t-xl">業務管理計画書</div>
+                    <div class="t-lg">週次予定</div>
+                    <div class="t-md">本日のタスク一覧</div>
+                    <div class="t-base">本文テキスト：Excel から移行された業務データを一覧で確認できます。</div>
+                    <div class="t-sm">補助情報：最終更新 2026-04-18 10:30</div>
+                    <div class="t-caption">キャプション：10px（可読性ギリギリ）</div>
+                </div>
+                <table class="typo-scale-table">
+                    <tr><td>2xl (28px)</td><td>H1 主見出し</td></tr>
+                    <tr><td>xl (20px)</td><td>H2</td></tr>
+                    <tr><td>lg (16px)</td><td>H3</td></tr>
+                    <tr><td>md (15px)</td><td>H4</td></tr>
+                    <tr><td>base (14px)</td><td>本文</td></tr>
+                    <tr><td>sm (13px)</td><td>補助</td></tr>
+                    <tr><td>caption (10px)</td><td>最小</td></tr>
+                </table>
+            </div>
+            <div class="panel panel-new">
+                <div class="panel-label">新</div>
+                <div class="typo-demo">
+                    <div class="t-2xl">受注管理システム</div>
+                    <div class="t-xl">業務管理計画書</div>
+                    <div class="t-lg">週次予定</div>
+                    <div class="t-md">本日のタスク一覧</div>
+                    <div class="t-base">本文テキスト：Excel から移行された業務データを一覧で確認できます。</div>
+                    <div class="t-sm">補助情報：最終更新 2026-04-18 10:30</div>
+                    <div class="t-caption">キャプション：11px（底上げ済）</div>
+                </div>
+                <table class="typo-scale-table">
+                    <tr><td>2xl (34px)</td><td>H1 主見出し</td></tr>
+                    <tr><td>xl (26px)</td><td>H2</td></tr>
+                    <tr><td>lg (20px)</td><td>H3</td></tr>
+                    <tr><td>md (16px)</td><td>H4</td></tr>
+                    <tr><td>base (14px)</td><td>本文</td></tr>
+                    <tr><td>sm (13px)</td><td>補助</td></tr>
+                    <tr><td>caption (11px)</td><td>最小</td></tr>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================== ② 和文フォント ================== -->
+    <section class="demo" id="jp">
+        <h2>② 和文フォント指定 — OS間の統一</h2>
+        <p class="desc">
+            現状は <code>-apple-system, Segoe UI, Roboto</code> のみで<strong>和文フォント無指定</strong>。
+            Windows では游ゴシック or Meiryo、Mac ではヒラギノにフォールバックされ <strong>OS間で別プロダクト化</strong>。
+            Noto Sans JP / Hiragino Sans を明示すれば統一できます。
+            <strong>font-feature-settings: "palt"</strong> で和文の間延びも解消。
+        </p>
+
+        <div class="split-grid">
+            <div class="panel panel-old">
+                <div class="panel-label">旧（和文指定なし）</div>
+                <div class="jp-sample">
+                    <h3>第2四半期 業務管理計画</h3>
+                    <p>受注簿データの集計：現場事務所・高速道路・イベント区分における見込み数値の確認と、対応可能な協力業者の絞り込みを実施してください。</p>
+                    <p>注意：承認前の案件については、必ず担当者への確認を経てから登録してください。</p>
+                </div>
+            </div>
+            <div class="panel panel-new">
+                <div class="panel-label">新（Inter + Noto Sans JP + palt）</div>
+                <div class="jp-sample">
+                    <h3>第2四半期 業務管理計画</h3>
+                    <p>受注簿データの集計：現場事務所・高速道路・イベント区分における見込み数値の確認と、対応可能な協力業者の絞り込みを実施してください。</p>
+                    <p>注意：承認前の案件については、必ず担当者への確認を経てから登録してください。</p>
+                </div>
+            </div>
+        </div>
+        <div class="help-note">
+            ※ 新側が Inter + Noto Sans JP で表示されているか確認するには、お使いのシステムに Noto Sans JP がインストールされている必要があります。
+            未インストール環境ではヒラギノ or 游ゴシックへフォールバックします。
+        </div>
+    </section>
+
+    <!-- ================== ③ Spacing ================== -->
+    <section class="demo" id="space">
+        <h2>③ Spacing — 4pxグリッド強制適用</h2>
+        <p class="desc">
+            現状は <strong>padding 30種類以上</strong>（1,2,3,5,6,7,9,10,13,14px が横行）。
+            <code>--space-*</code> トークン（4/8/12/16/24/32/48px）に強制統一すれば、raw値を撲滅できます。
+        </p>
+        <table class="diff-summary">
+            <tr><th>項目</th><th>旧</th><th>新</th></tr>
+            <tr><td>padding パターン数</td><td class="old">30種以上</td><td class="new">7種（--space-*）</td></tr>
+            <tr><td>バッジ内 padding</td><td class="old">1px 5px</td><td class="new">2px 8px</td></tr>
+            <tr><td>カード padding</td><td class="old">13px 10px</td><td class="new">16px (space-lg)</td></tr>
+            <tr><td>バッジ間 gap</td><td class="old">3px</td><td class="new">8px (space-sm)</td></tr>
+        </table>
+
+        <div class="split-grid" style="margin-top:24px;">
+            <div class="panel panel-old">
+                <div class="panel-label">旧</div>
+                <div class="card-sample">
+                    <h4>現場A — 高速道路警備</h4>
+                    <div style="font-size:12px;color:#666;margin-top:3px;">協力業者候補</div>
+                    <div class="badges">
+                        <span class="badge">A社</span>
+                        <span class="badge">B社</span>
+                        <span class="badge">C社</span>
+                        <span class="badge">D社</span>
+                    </div>
+                </div>
+                <div class="spacing-scale">
+                    <div class="spacing-box active" style="width:1px;height:20px;"><span class="lbl">1</span></div>
+                    <div class="spacing-box active" style="width:2px;height:20px;"><span class="lbl">2</span></div>
+                    <div class="spacing-box active" style="width:3px;height:24px;"><span class="lbl">3</span></div>
+                    <div class="spacing-box active" style="width:5px;height:28px;"><span class="lbl">5</span></div>
+                    <div class="spacing-box active" style="width:6px;height:32px;"><span class="lbl">6</span></div>
+                    <div class="spacing-box active" style="width:7px;height:32px;"><span class="lbl">7</span></div>
+                    <div class="spacing-box active" style="width:9px;height:36px;"><span class="lbl">9</span></div>
+                    <div class="spacing-box active" style="width:10px;height:36px;"><span class="lbl">10</span></div>
+                    <div class="spacing-box active" style="width:13px;height:40px;"><span class="lbl">13</span></div>
+                    <div class="spacing-box active" style="width:14px;height:40px;"><span class="lbl">14</span></div>
+                </div>
+            </div>
+            <div class="panel panel-new">
+                <div class="panel-label">新</div>
+                <div class="card-sample">
+                    <h4>現場A — 高速道路警備</h4>
+                    <div style="font-size:12px;color:#666;margin-top:4px;">協力業者候補</div>
+                    <div class="badges">
+                        <span class="badge">A社</span>
+                        <span class="badge">B社</span>
+                        <span class="badge">C社</span>
+                        <span class="badge">D社</span>
+                    </div>
+                </div>
+                <div class="spacing-scale">
+                    <div class="spacing-box active" style="width:4px;height:24px;"><span class="lbl">xs 4</span></div>
+                    <div class="spacing-box active" style="width:8px;height:28px;"><span class="lbl">sm 8</span></div>
+                    <div class="spacing-box active" style="width:12px;height:32px;"><span class="lbl">md 12</span></div>
+                    <div class="spacing-box active" style="width:16px;height:36px;"><span class="lbl">lg 16</span></div>
+                    <div class="spacing-box active" style="width:24px;height:40px;"><span class="lbl">xl 24</span></div>
+                    <div class="spacing-box active" style="width:32px;height:44px;"><span class="lbl">2xl 32</span></div>
+                    <div class="spacing-box active" style="width:48px;height:48px;"><span class="lbl">3xl 48</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================== ④ Motion ================== -->
+    <section class="demo" id="motion">
+        <h2>④ Motion — アニメーション・トークン</h2>
+        <p class="desc">
+            ボタン・カードをホバーして動きの違いを確認してください。
+            現状は <code>transition: all 0.3s ease</code> の一律設定。
+            新規は <strong>duration 5段階 × easing 4種</strong> で、用途に応じた適切なモーションに。
+            <code>prefers-reduced-motion</code> 対応も含まれます。
+        </p>
+
+        <div class="split-grid">
+            <div class="panel panel-old">
+                <div class="panel-label">旧（transition: all 0.3s ease 一律）</div>
+                <div class="motion-demo">
+                    <button class="motion-btn">ホバー</button>
+                </div>
+                <div class="motion-card">カード（ホバー）</div>
+            </div>
+            <div class="panel panel-new">
+                <div class="panel-label">新（用途別 duration × easing）</div>
+                <div class="motion-demo">
+                    <button class="motion-btn motion-btn-fast">fast 120ms</button>
+                    <button class="motion-btn motion-btn-base">base 200ms</button>
+                    <button class="motion-btn motion-btn-spring">spring 320ms</button>
+                </div>
+                <div class="motion-card">カード（ホバー / ease-out）</div>
+            </div>
+        </div>
+        <table class="diff-summary">
+            <tr><th>用途</th><th>旧</th><th>新</th></tr>
+            <tr><td>ホバー・フォーカス</td><td class="old">300ms ease</td><td class="new">120ms ease-out</td></tr>
+            <tr><td>一般的な遷移</td><td class="old">300ms ease</td><td class="new">200ms ease-out</td></tr>
+            <tr><td>モーダル開閉</td><td class="old">300ms ease</td><td class="new">320ms ease-out</td></tr>
+            <tr><td>バウンス・強調</td><td class="old">なし</td><td class="new">cubic-bezier spring</td></tr>
+            <tr><td>prefers-reduced-motion</td><td class="old">未対応</td><td class="new">対応済（0.01ms強制）</td></tr>
+        </table>
+    </section>
+
+    <!-- ================== ⑤ Elevation ================== -->
+    <section class="demo" id="elev">
+        <h2>⑤ Elevation — 影の階層（3段階 → 6段階）</h2>
+        <p class="desc">
+            現状は <code>--shadow-sm/md/lg</code> の <strong>3段階</strong>のみで情報階層が表現しきれない。
+            <strong>6段階（elevation-0〜5）</strong>に拡充。Drawer / Modal / Toast 等の区別が視覚的に可能に。
+        </p>
+
+        <div class="split-grid">
+            <div class="panel panel-old">
+                <div class="panel-label">旧（3段階）</div>
+                <div class="elev-grid">
+                    <div class="elev-card e1">shadow-sm</div>
+                    <div class="elev-card e2">shadow-md</div>
+                    <div class="elev-card e3">shadow-lg</div>
+                </div>
+            </div>
+            <div class="panel panel-new">
+                <div class="panel-label">新（6段階）</div>
+                <div class="elev-grid">
+                    <div class="elev-card e0">elev-0<br><small>none</small></div>
+                    <div class="elev-card e1">elev-1<br><small>card base</small></div>
+                    <div class="elev-card e2">elev-2<br><small>card hover</small></div>
+                    <div class="elev-card e3">elev-3<br><small>dropdown</small></div>
+                    <div class="elev-card e4">elev-4<br><small>modal</small></div>
+                    <div class="elev-card e5">elev-5<br><small>toast</small></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================== ⑥ Icon Size ================== -->
+    <section class="demo" id="icon">
+        <h2>⑥ Icon Size — サイズ・スケール</h2>
+        <p class="desc">
+            現状はアイコンサイズが <code>1em</code> の1種類のみ。
+            <strong>6段階</strong>に規格化すれば、バッジ内（12px）〜ヒーロー（32px）まで用途別に適切な大きさを選べます。
+        </p>
+
+        <div class="split-grid">
+            <div class="panel panel-old">
+                <div class="panel-label">旧（実質1-2種類）</div>
+                <div class="icon-row">
+                    <div class="icon-item">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                        <span>16px</span>
+                    </div>
+                    <div class="icon-item big">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                        <span>20px</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-new">
+                <div class="panel-label">新（6段階）</div>
+                <div class="icon-row">
+                    <div class="icon-item xs">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                        <span>xs 12</span>
+                    </div>
+                    <div class="icon-item sm">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                        <span>sm 14</span>
+                    </div>
+                    <div class="icon-item md">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                        <span>md 16</span>
+                    </div>
+                    <div class="icon-item lg">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                        <span>lg 20</span>
+                    </div>
+                    <div class="icon-item xl">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                        <span>xl 24</span>
+                    </div>
+                    <div class="icon-item xxl">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                        <span>2xl 32</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========= フッター ========= -->
+    <section class="demo" style="background: var(--accent-dark); color: #fff; text-align: center;">
+        <h2 style="color:#fff; border-color: var(--accent);">確認後のアクション</h2>
+        <p style="font-size:14px; margin: 16px 0;">
+            このプレビューで Phase D1 の方向性に問題がなければ、実装フェーズに進みます。<br>
+            修正したい箇所があれば、セクション番号と希望内容をお知らせください。
+        </p>
+        <p style="font-size:12px; opacity:0.7;">
+            実装対象ファイル: <code style="background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px;">docs/ui-components/styles-light.css</code>
+            &nbsp;/&nbsp; <code style="background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px;">styles.css</code>
+        </p>
+    </section>
+
+</main>
+
+<script>
+// モード切替
+document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+        document.body.dataset.mode = target;
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    });
+});
+</script>
+</body>
+</html>
