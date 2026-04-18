@@ -30,64 +30,86 @@
         <section class="comp-section" id="color-palette">
             <div class="comp-title-bar"><h2>Color Palette</h2></div>
             <div class="comp-body">
-                <p class="palette-credit">Based on Color Palette by <em>Luca Davincci</em></p>
+                <p class="palette-credit">Dark Theme × Phase D1〜D6 デザインシステム準拠（Phase D6.2 で Accent を Light と HSL 整合）</p>
 
-                <!-- Primary -->
-                <h4>Primary</h4>
+                <!-- ============== Accent ============== -->
+                <h4>Accent（プライマリ / Phase D6.2 HSL整合）</h4>
                 <div class="comp-row palette-row">
                     <div class="palette-card">
-                        <div class="palette-swatch" style="background:#098698;">
+                        <div class="palette-swatch" style="background:#55B5C4;">
                             <span class="swatch-label light">Aa</span>
                         </div>
                         <div class="palette-info">
-                            <span class="palette-name">Teal Blue</span>
-                            <span class="palette-role">Primary / Accent</span>
-                            <span class="palette-hex">#098698</span>
-                            <span class="palette-use">ボタン、リンク、アクティブ状態、FAB</span>
+                            <span class="palette-name">Dark Moonstone</span>
+                            <span class="palette-role">--accent</span>
+                            <span class="palette-hex">#55B5C4</span>
+                            <span class="palette-use">ボタン、リンク、Active、FAB（ライト #44A6B5 と HSL 色相・彩度一致、明度のみ反転）</span>
                         </div>
                     </div>
                     <div class="palette-card">
-                        <div class="palette-swatch" style="background:#0a9db0;">
+                        <div class="palette-swatch" style="background:#6BC4D1;">
                             <span class="swatch-label light">Aa</span>
                         </div>
                         <div class="palette-info">
-                            <span class="palette-name">Light Teal</span>
-                            <span class="palette-role">Primary Light</span>
-                            <span class="palette-hex">#0a9db0</span>
-                            <span class="palette-use">ホバー、ハイライト</span>
+                            <span class="palette-name">Dark Moonstone Light</span>
+                            <span class="palette-role">--accent-light</span>
+                            <span class="palette-hex">#6BC4D1</span>
+                            <span class="palette-use">Hover、モーダルヘッダー</span>
                         </div>
                     </div>
                     <div class="palette-card">
-                        <div class="palette-swatch" style="background:#076a78;">
-                            <span class="swatch-label light">Aa</span>
+                        <div class="palette-swatch" style="background:rgba(85,181,196,0.20); border: 1px solid var(--divider);">
+                            <span class="swatch-label light">α</span>
                         </div>
                         <div class="palette-info">
-                            <span class="palette-name">Dark Teal</span>
-                            <span class="palette-role">Primary Dark</span>
-                            <span class="palette-hex">#076a78</span>
-                            <span class="palette-use">プレス状態、アクティブ</span>
+                            <span class="palette-name">Dark Moonstone α20%</span>
+                            <span class="palette-role">--accent-dim</span>
+                            <span class="palette-hex">rgba(85,181,196,.20)</span>
+                            <span class="palette-use">Focus ring、Hover、Active背景</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Secondary -->
-                <h4>Secondary / Subtle</h4>
+                <!-- ============== Secondary Accent (D5.1) ============== -->
+                <h4>Secondary Accent（Phase D5.1 テラコッタ系）</h4>
                 <div class="comp-row palette-row">
                     <div class="palette-card">
-                        <div class="palette-swatch" style="background:#AEC0C2;">
-                            <span class="swatch-label dark">Aa</span>
+                        <div class="palette-swatch" style="background:#E07856;">
+                            <span class="swatch-label light">Aa</span>
                         </div>
                         <div class="palette-info">
-                            <span class="palette-name">Blue Gray</span>
-                            <span class="palette-role">Secondary</span>
-                            <span class="palette-hex">#AEC0C2</span>
-                            <span class="palette-use">セカンダリアクション、ボーダー、アイコン</span>
+                            <span class="palette-name">Terracotta</span>
+                            <span class="palette-role">--accent-2</span>
+                            <span class="palette-hex">#E07856</span>
+                            <span class="palette-use">編集中行アウトライン、重要トグル</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#EA9980;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Light Terracotta</span>
+                            <span class="palette-role">--accent-2-light</span>
+                            <span class="palette-hex">#EA9980</span>
+                            <span class="palette-use">Hover、強調枠</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:rgba(224,120,86,0.15); border: 1px solid var(--divider);">
+                            <span class="swatch-label light">α</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Terracotta α15%</span>
+                            <span class="palette-role">--accent-2-dim</span>
+                            <span class="palette-hex">rgba(224,120,86,.15)</span>
+                            <span class="palette-use">編集中行背景（Dark では 15% で可視性確保）</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Text -->
-                <h4>Text</h4>
+                <!-- ============== Text ============== -->
+                <h4>Text Hierarchy（階層テキスト）</h4>
                 <div class="comp-row palette-row">
                     <div class="palette-card">
                         <div class="palette-swatch" style="background:#D9D4D1;">
@@ -95,9 +117,9 @@
                         </div>
                         <div class="palette-info">
                             <span class="palette-name">Warm Gray Light</span>
-                            <span class="palette-role">Text Primary</span>
+                            <span class="palette-role">--text-primary</span>
                             <span class="palette-hex">#D9D4D1</span>
-                            <span class="palette-use">見出し、本文テキスト</span>
+                            <span class="palette-use">本文、見出し</span>
                         </div>
                     </div>
                     <div class="palette-card">
@@ -106,15 +128,37 @@
                         </div>
                         <div class="palette-info">
                             <span class="palette-name">Warm Gray Medium</span>
-                            <span class="palette-role">Text Secondary</span>
+                            <span class="palette-role">--text-secondary</span>
                             <span class="palette-hex">#BAB1AD</span>
-                            <span class="palette-use">サブテキスト、キャプション、ラベル</span>
+                            <span class="palette-use">サブテキスト、ラベル</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#8a8480;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Warm Gray Muted</span>
+                            <span class="palette-role">--text-tertiary</span>
+                            <span class="palette-hex">#8a8480</span>
+                            <span class="palette-use">補助情報、プレースホルダ</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#5a5550;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Warm Gray Dim</span>
+                            <span class="palette-role">--text-disabled</span>
+                            <span class="palette-hex">#5a5550</span>
+                            <span class="palette-use">Disabled、空セル</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Surface / Background -->
-                <h4>Surface / Background</h4>
+                <!-- ============== Surface / Background ============== -->
+                <h4>Surface / Background（面・背景）</h4>
                 <div class="comp-row palette-row">
                     <div class="palette-card">
                         <div class="palette-swatch" style="background:#1a1e22;">
@@ -122,9 +166,20 @@
                         </div>
                         <div class="palette-info">
                             <span class="palette-name">Near Black</span>
-                            <span class="palette-role">Page Background</span>
+                            <span class="palette-role">--bg-page</span>
                             <span class="palette-hex">#1a1e22</span>
                             <span class="palette-use">ページ背景</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#2a3038;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Charcoal</span>
+                            <span class="palette-role">--bg-surface</span>
+                            <span class="palette-hex">#2a3038</span>
+                            <span class="palette-use">カード、モーダル内面</span>
                         </div>
                     </div>
                     <div class="palette-card">
@@ -133,9 +188,9 @@
                         </div>
                         <div class="palette-info">
                             <span class="palette-name">Dark Gray</span>
-                            <span class="palette-role">Surface</span>
+                            <span class="palette-role">--bg-surface-2</span>
                             <span class="palette-hex">#3D444B</span>
-                            <span class="palette-use">カード、パネル、セクション背景</span>
+                            <span class="palette-use">ヘッダー、Zebra偶数行、Secondary btn</span>
                         </div>
                     </div>
                     <div class="palette-card">
@@ -144,30 +199,207 @@
                         </div>
                         <div class="palette-info">
                             <span class="palette-name">Medium Dark Gray</span>
-                            <span class="palette-role">Surface Variant</span>
+                            <span class="palette-role">--bg-surface-3</span>
                             <span class="palette-hex">#505A63</span>
-                            <span class="palette-use">ヘッダー、入力フィールド背景</span>
+                            <span class="palette-use">集計行、Secondary btn hover</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#14181c;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Deepest Black</span>
+                            <span class="palette-role">--bg-sidebar</span>
+                            <span class="palette-hex">#14181c</span>
+                            <span class="palette-use">サイドバー背景（bg-page より深い）</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Divider -->
-                <h4>Divider / Border</h4>
+                <!-- ============== Secondary / Divider ============== -->
+                <h4>Secondary / Divider</h4>
                 <div class="comp-row palette-row">
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#AEC0C2;">
+                            <span class="swatch-label dark">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Blue Gray</span>
+                            <span class="palette-role">--secondary</span>
+                            <span class="palette-hex">#AEC0C2</span>
+                            <span class="palette-use">セカンダリアクション、アイコン</span>
+                        </div>
+                    </div>
                     <div class="palette-card">
                         <div class="palette-swatch" style="background:#4a5259;">
                             <span class="swatch-label light">─</span>
                         </div>
                         <div class="palette-info">
                             <span class="palette-name">Border Gray</span>
-                            <span class="palette-role">Divider</span>
+                            <span class="palette-role">--divider</span>
                             <span class="palette-hex">#4a5259</span>
                             <span class="palette-use">ボーダー、区切り線</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Usage Map -->
+                <!-- ============== Semantic ============== -->
+                <h4>Semantic（状態色）</h4>
+                <div class="comp-row palette-row">
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#38A169;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Forest Green</span>
+                            <span class="palette-role">--success</span>
+                            <span class="palette-hex">#38A169</span>
+                            <span class="palette-use">成功、確定、追加バッジ</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#68d391;">
+                            <span class="swatch-label dark">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Light Forest</span>
+                            <span class="palette-role">--success-text</span>
+                            <span class="palette-hex">#68d391</span>
+                            <span class="palette-use">成功メッセージ本文（Dark背景上の可読性）</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#D69E2E;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Amber</span>
+                            <span class="palette-role">--warning</span>
+                            <span class="palette-hex">#D69E2E</span>
+                            <span class="palette-use">警告アイコン、注意バッジ</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#ecc94b;">
+                            <span class="swatch-label dark">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Light Amber</span>
+                            <span class="palette-role">--warning-text</span>
+                            <span class="palette-hex">#ecc94b</span>
+                            <span class="palette-use">警告メッセージ本文</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:rgba(214,158,46,0.12); border: 1px solid var(--divider);">
+                            <span class="swatch-label light">α</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Amber α12%</span>
+                            <span class="palette-role">--warning-bg</span>
+                            <span class="palette-hex">rgba(214,158,46,.12)</span>
+                            <span class="palette-use">Warning Banner 背景</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#DB577B;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Vivid Rose</span>
+                            <span class="palette-role">--error</span>
+                            <span class="palette-hex">#DB577B</span>
+                            <span class="palette-use">エラー、削除、破壊的操作</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#E88AA5;">
+                            <span class="swatch-label dark">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Light Rose</span>
+                            <span class="palette-role">--error-text</span>
+                            <span class="palette-hex">#E88AA5</span>
+                            <span class="palette-use">エラーメッセージ本文（Dark背景）</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============== Category Colors (D5.2) ============== -->
+                <h4>Category Colors（カテゴリ4色相 / Phase D5.2 Dark調整版）</h4>
+                <p style="font-size: var(--fs-caption); color: var(--text-tertiary); margin-bottom: var(--space-sm);">
+                    Dark背景向けに text 色を明るく、bg 透明度を18%に調整。
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); margin-bottom: var(--space-md);">
+                    <div>
+                        <div style="background: var(--cat-bg-facility); color: var(--cat-text-facility); padding: var(--space-md); border-radius: var(--radius-md); text-align: center; border: 1px solid var(--divider);">
+                            <div style="font-size: var(--fs-base); font-weight: var(--fw-bold);">施設</div>
+                            <div style="font-size: var(--fs-caption); margin-top: var(--space-xs); opacity: 0.8;">Facility (teal)</div>
+                        </div>
+                        <div style="font-size: 10px; font-family: monospace; color: var(--text-tertiary); margin-top: var(--space-xs); text-align: center; line-height: var(--lh-tight);">
+                            bg: rgba(85,181,196,.18)<br>text: #A8D8DF
+                        </div>
+                    </div>
+                    <div>
+                        <div style="background: var(--cat-bg-event); color: var(--cat-text-event); padding: var(--space-md); border-radius: var(--radius-md); text-align: center; border: 1px solid var(--divider);">
+                            <div style="font-size: var(--fs-base); font-weight: var(--fw-bold);">イベント</div>
+                            <div style="font-size: var(--fs-caption); margin-top: var(--space-xs); opacity: 0.8;">Event (blue-violet)</div>
+                        </div>
+                        <div style="font-size: 10px; font-family: monospace; color: var(--text-tertiary); margin-top: var(--space-xs); text-align: center; line-height: var(--lh-tight);">
+                            bg: rgba(122,140,196,.18)<br>text: #B5BFDF
+                        </div>
+                    </div>
+                    <div>
+                        <div style="background: var(--cat-bg-traffic); color: var(--cat-text-traffic); padding: var(--space-md); border-radius: var(--radius-md); text-align: center; border: 1px solid var(--divider);">
+                            <div style="font-size: var(--fs-base); font-weight: var(--fw-bold);">交通誘導</div>
+                            <div style="font-size: var(--fs-caption); margin-top: var(--space-xs); opacity: 0.8;">Traffic (warm brown)</div>
+                        </div>
+                        <div style="font-size: 10px; font-family: monospace; color: var(--text-tertiary); margin-top: var(--space-xs); text-align: center; line-height: var(--lh-tight);">
+                            bg: rgba(180,135,100,.18)<br>text: #D4B89B
+                        </div>
+                    </div>
+                    <div>
+                        <div style="background: var(--cat-bg-highway); color: var(--cat-text-highway); padding: var(--space-md); border-radius: var(--radius-md); text-align: center; border: 1px solid var(--divider);">
+                            <div style="font-size: var(--fs-base); font-weight: var(--fw-bold);">高速道路</div>
+                            <div style="font-size: var(--fs-caption); margin-top: var(--space-xs); opacity: 0.8;">Highway (sage)</div>
+                        </div>
+                        <div style="font-size: 10px; font-family: monospace; color: var(--text-tertiary); margin-top: var(--space-xs); text-align: center; line-height: var(--lh-tight);">
+                            bg: rgba(98,158,120,.18)<br>text: #A8D0B4
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============== Chart Palette (D5.3) ============== -->
+                <h4>Chart Palette（データ可視化 / Phase D5.3）</h4>
+
+                <div style="font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-secondary); margin: var(--space-md) 0 var(--space-xs);">Categorical</div>
+                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-xs); margin-bottom: var(--space-md);">
+                    <div style="background: var(--chart-1); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">chart-1<br>#55B5C4</div>
+                    <div style="background: var(--chart-2); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">chart-2<br>#E07856</div>
+                    <div style="background: var(--chart-3); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">chart-3<br>#7A8CC4</div>
+                    <div style="background: var(--chart-4); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">chart-4<br>#629E78</div>
+                    <div style="background: var(--chart-5); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">chart-5<br>#B48764</div>
+                    <div style="background: var(--chart-6); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">chart-6<br>#B8607A</div>
+                </div>
+
+                <div style="font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-secondary); margin: var(--space-md) 0 var(--space-xs);">Sequential（暗→明 / Dark 用反転配置）</div>
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; margin-bottom: var(--space-md);">
+                    <div style="background: var(--chart-seq-0); color: var(--text-primary); padding: var(--space-md) var(--space-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">seq-0<br>#14181c</div>
+                    <div style="background: var(--chart-seq-1); color: #fff; padding: var(--space-md) var(--space-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">seq-1<br>#2A6B7A</div>
+                    <div style="background: var(--chart-seq-2); color: #fff; padding: var(--space-md) var(--space-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">seq-2<br>#6B9AA8</div>
+                    <div style="background: var(--chart-seq-3); color: var(--text-primary); padding: var(--space-md) var(--space-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">seq-3<br>#B2D5E2</div>
+                    <div style="background: var(--chart-seq-4); color: var(--text-primary); padding: var(--space-md) var(--space-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">seq-4<br>#E9F1F6</div>
+                </div>
+
+                <div style="font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-secondary); margin: var(--space-md) 0 var(--space-xs);">Diverging</div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-xs); margin-bottom: var(--space-md);">
+                    <div style="background: var(--chart-diverge-neg); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">neg (減)<br>#DB577B</div>
+                    <div style="background: var(--chart-diverge-neutral); color: var(--text-primary); padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">neutral<br>#5A5550</div>
+                    <div style="background: var(--chart-diverge-pos); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">pos (増)<br>#38A169</div>
+                </div>
+
+                <!-- ============== Usage Map ============== -->
                 <h4>Usage Map</h4>
                 <div class="palette-usage-map">
                     <div class="usage-example">
@@ -182,8 +414,8 @@
                                     <h5>Card Title</h5>
                                     <p>Secondary text content</p>
                                     <div class="usage-mock-btns">
-                                        <span class="usage-btn-primary">Button</span>
-                                        <span class="usage-btn-flat">Button</span>
+                                        <span class="usage-btn-primary">Accent</span>
+                                        <span class="usage-btn-flat">Ghost</span>
                                     </div>
                                 </div>
                                 <div class="usage-mock-field">
@@ -198,12 +430,18 @@
                             </div>
                         </div>
                         <div class="usage-legend">
-                            <div class="legend-item"><span class="legend-dot" style="background:#098698;"></span> Primary (#098698)</div>
-                            <div class="legend-item"><span class="legend-dot" style="background:#D9D4D1;"></span> Text Primary (#D9D4D1)</div>
-                            <div class="legend-item"><span class="legend-dot" style="background:#BAB1AD;"></span> Text Secondary (#BAB1AD)</div>
-                            <div class="legend-item"><span class="legend-dot" style="background:#3D444B;"></span> Surface (#3D444B)</div>
-                            <div class="legend-item"><span class="legend-dot" style="background:#505A63;"></span> Surface Variant (#505A63)</div>
-                            <div class="legend-item"><span class="legend-dot" style="background:#AEC0C2;"></span> Secondary (#AEC0C2)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#55B5C4;"></span> --accent (#55B5C4)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#E07856;"></span> --accent-2 (#E07856)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#D9D4D1;"></span> --text-primary (#D9D4D1)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#BAB1AD;"></span> --text-secondary (#BAB1AD)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#8a8480;"></span> --text-tertiary (#8a8480)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#2a3038;border:1px solid var(--divider);"></span> --bg-surface (#2a3038)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#3D444B;"></span> --bg-surface-2 (#3D444B)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#505A63;"></span> --bg-surface-3 (#505A63)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#4a5259;"></span> --divider (#4a5259)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#38A169;"></span> --success (#38A169)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#D69E2E;"></span> --warning (#D69E2E)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#DB577B;"></span> --error (#DB577B)</div>
                         </div>
                     </div>
                 </div>

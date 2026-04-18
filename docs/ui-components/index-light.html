@@ -132,10 +132,10 @@
         <section class="comp-section" id="color-palette">
             <div class="comp-title-bar"><h2>Color Palette</h2></div>
             <div class="comp-body">
-                <p class="palette-credit">Based on Coastal Color Palette</p>
+                <p class="palette-credit">Coastal Palette × Phase D1〜D6 デザインシステム準拠（全42色）</p>
 
-                <!-- Primary -->
-                <h4>Primary</h4>
+                <!-- ============== Accent ============== -->
+                <h4>Accent（プライマリ・Moonstone系）</h4>
                 <div class="comp-row palette-row">
                     <div class="palette-card">
                         <div class="palette-swatch" style="background:#44A6B5;">
@@ -143,9 +143,9 @@
                         </div>
                         <div class="palette-info">
                             <span class="palette-name">Moonstone</span>
-                            <span class="palette-role">Primary / Accent</span>
+                            <span class="palette-role">--accent</span>
                             <span class="palette-hex">#44A6B5</span>
-                            <span class="palette-use">ボタン、リンク、アクティブ状態、FAB</span>
+                            <span class="palette-use">ボタン、リンク、Active、FAB</span>
                         </div>
                     </div>
                     <div class="palette-card">
@@ -154,42 +154,64 @@
                         </div>
                         <div class="palette-info">
                             <span class="palette-name">Light Moonstone</span>
-                            <span class="palette-role">Primary Light</span>
+                            <span class="palette-role">--accent-light</span>
                             <span class="palette-hex">#5AB8C6</span>
-                            <span class="palette-use">ホバー、ハイライト</span>
+                            <span class="palette-use">Hover、モーダルヘッダー</span>
                         </div>
                     </div>
                     <div class="palette-card">
-                        <div class="palette-swatch" style="background:#00384A;">
+                        <div class="palette-swatch" style="background:rgba(68,166,181,0.12); border: 1px solid var(--divider);">
+                            <span class="swatch-label dark">α</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Moonstone α12%</span>
+                            <span class="palette-role">--accent-dim</span>
+                            <span class="palette-hex">rgba(68,166,181,.12)</span>
+                            <span class="palette-use">Focus ring、Active背景、Chip selected</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============== Secondary Accent (D5.1) ============== -->
+                <h4>Secondary Accent（Phase D5.1 テラコッタ系）</h4>
+                <div class="comp-row palette-row">
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#E07856;">
                             <span class="swatch-label light">Aa</span>
                         </div>
                         <div class="palette-info">
-                            <span class="palette-name">Dark Midnight</span>
-                            <span class="palette-role">Primary Dark</span>
-                            <span class="palette-hex">#00384A</span>
-                            <span class="palette-use">プレス状態、アクティブ</span>
+                            <span class="palette-name">Terracotta</span>
+                            <span class="palette-role">--accent-2</span>
+                            <span class="palette-hex">#E07856</span>
+                            <span class="palette-use">重要トグル、編集中行アウトライン</span>
                         </div>
                     </div>
-                </div>
-
-                <!-- Secondary -->
-                <h4>Secondary / Subtle</h4>
-                <div class="comp-row palette-row">
                     <div class="palette-card">
-                        <div class="palette-swatch" style="background:#B2D5E2;">
-                            <span class="swatch-label dark">Aa</span>
+                        <div class="palette-swatch" style="background:#EA9980;">
+                            <span class="swatch-label light">Aa</span>
                         </div>
                         <div class="palette-info">
-                            <span class="palette-name">Light Blue</span>
-                            <span class="palette-role">Secondary</span>
-                            <span class="palette-hex">#B2D5E2</span>
-                            <span class="palette-use">セカンダリアクション、ボーダー、アイコン</span>
+                            <span class="palette-name">Light Terracotta</span>
+                            <span class="palette-role">--accent-2-light</span>
+                            <span class="palette-hex">#EA9980</span>
+                            <span class="palette-use">Hover、強調枠</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:rgba(224,120,86,0.12); border: 1px solid var(--divider);">
+                            <span class="swatch-label dark">α</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Terracotta α12%</span>
+                            <span class="palette-role">--accent-2-dim</span>
+                            <span class="palette-hex">rgba(224,120,86,.12)</span>
+                            <span class="palette-use">編集中行背景、強調Hint</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Text -->
-                <h4>Text</h4>
+                <!-- ============== Text ============== -->
+                <h4>Text Hierarchy（階層テキスト）</h4>
                 <div class="comp-row palette-row">
                     <div class="palette-card">
                         <div class="palette-swatch" style="background:#004554;">
@@ -197,9 +219,9 @@
                         </div>
                         <div class="palette-info">
                             <span class="palette-name">Midnight Green</span>
-                            <span class="palette-role">Text Primary</span>
+                            <span class="palette-role">--text-primary</span>
                             <span class="palette-hex">#004554</span>
-                            <span class="palette-use">見出し、本文テキスト</span>
+                            <span class="palette-use">本文、見出し</span>
                         </div>
                     </div>
                     <div class="palette-card">
@@ -208,15 +230,37 @@
                         </div>
                         <div class="palette-info">
                             <span class="palette-name">Mid Teal</span>
-                            <span class="palette-role">Text Secondary</span>
+                            <span class="palette-role">--text-secondary</span>
                             <span class="palette-hex">#2A6B7A</span>
-                            <span class="palette-use">サブテキスト、キャプション、ラベル</span>
+                            <span class="palette-use">サブテキスト、ラベル</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#5A8896;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Slate Blue</span>
+                            <span class="palette-role">--text-tertiary</span>
+                            <span class="palette-hex">#5A8896</span>
+                            <span class="palette-use">補助情報、プレースホルダ（D6.1 AA準拠）</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#8BAEB9;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Pale Slate</span>
+                            <span class="palette-role">--text-disabled</span>
+                            <span class="palette-hex">#8BAEB9</span>
+                            <span class="palette-use">Disabled、空セル（D6.1 3:1）</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Surface / Background -->
-                <h4>Surface / Background</h4>
+                <!-- ============== Surface / Background ============== -->
+                <h4>Surface / Background（面・背景）</h4>
                 <div class="comp-row palette-row">
                     <div class="palette-card">
                         <div class="palette-swatch" style="background:#E9F1F6;">
@@ -224,20 +268,20 @@
                         </div>
                         <div class="palette-info">
                             <span class="palette-name">Alice Blue</span>
-                            <span class="palette-role">Page Background</span>
+                            <span class="palette-role">--bg-page</span>
                             <span class="palette-hex">#E9F1F6</span>
-                            <span class="palette-use">ページ背景</span>
+                            <span class="palette-use">ページ背景、モーダルボディ</span>
                         </div>
                     </div>
                     <div class="palette-card">
-                        <div class="palette-swatch" style="background:#FFFFFF;">
+                        <div class="palette-swatch" style="background:#FFFFFF; border: 1px solid var(--divider);">
                             <span class="swatch-label dark">Aa</span>
                         </div>
                         <div class="palette-info">
                             <span class="palette-name">White</span>
-                            <span class="palette-role">Surface</span>
+                            <span class="palette-role">--bg-surface</span>
                             <span class="palette-hex">#FFFFFF</span>
-                            <span class="palette-use">カード、パネル、セクション背景</span>
+                            <span class="palette-use">カード・テーブル・モーダル内面</span>
                         </div>
                     </div>
                     <div class="palette-card">
@@ -246,14 +290,36 @@
                         </div>
                         <div class="palette-info">
                             <span class="palette-name">Timberwolf Light</span>
-                            <span class="palette-role">Surface Variant</span>
+                            <span class="palette-role">--bg-surface-2</span>
                             <span class="palette-hex">#F0EDE9</span>
-                            <span class="palette-use">ヘッダー、入力フィールド背景</span>
+                            <span class="palette-use">ヘッダー、Zebra偶数行、Secondary btn</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#D3D0C8;">
+                            <span class="swatch-label dark">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Timberwolf</span>
+                            <span class="palette-role">--bg-surface-3</span>
+                            <span class="palette-hex">#D3D0C8</span>
+                            <span class="palette-use">集計行、Secondary btn hover</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#004554;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Sidebar Midnight</span>
+                            <span class="palette-role">--bg-sidebar</span>
+                            <span class="palette-hex">#004554</span>
+                            <span class="palette-use">サイドバー背景（Text Primary と同値）</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Divider -->
+                <!-- ============== Divider ============== -->
                 <h4>Divider / Border</h4>
                 <div class="comp-row palette-row">
                     <div class="palette-card">
@@ -262,14 +328,158 @@
                         </div>
                         <div class="palette-info">
                             <span class="palette-name">Light Blue</span>
-                            <span class="palette-role">Divider</span>
+                            <span class="palette-role">--divider / --secondary</span>
                             <span class="palette-hex">#B2D5E2</span>
-                            <span class="palette-use">ボーダー、区切り線</span>
+                            <span class="palette-use">全ての罫線・区切り（Secondaryエイリアス）</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Usage Map -->
+                <!-- ============== Semantic ============== -->
+                <h4>Semantic（状態色 / Phase D6 WCAG AA）</h4>
+                <div class="comp-row palette-row">
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#38A169;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Forest Green</span>
+                            <span class="palette-role">--success</span>
+                            <span class="palette-hex">#38A169</span>
+                            <span class="palette-use">成功、確定、追加バッジ</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#276749;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Deep Forest</span>
+                            <span class="palette-role">--success-text</span>
+                            <span class="palette-hex">#276749</span>
+                            <span class="palette-use">成功メッセージ本文（AA準拠）</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#D69E2E;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Amber</span>
+                            <span class="palette-role">--warning</span>
+                            <span class="palette-hex">#D69E2E</span>
+                            <span class="palette-use">警告アイコン、注意バッジ</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#92400E;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Bronze</span>
+                            <span class="palette-role">--warning-text</span>
+                            <span class="palette-hex">#92400E</span>
+                            <span class="palette-use">警告メッセージ本文（AA準拠）</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:rgba(214,158,46,0.1); border: 1px solid var(--divider);">
+                            <span class="swatch-label dark">α</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Amber α10%</span>
+                            <span class="palette-role">--warning-bg</span>
+                            <span class="palette-hex">rgba(214,158,46,.10)</span>
+                            <span class="palette-use">Warning Banner 背景</span>
+                        </div>
+                    </div>
+                    <div class="palette-card">
+                        <div class="palette-swatch" style="background:#DB577B;">
+                            <span class="swatch-label light">Aa</span>
+                        </div>
+                        <div class="palette-info">
+                            <span class="palette-name">Vivid Rose</span>
+                            <span class="palette-role">--error</span>
+                            <span class="palette-hex">#DB577B</span>
+                            <span class="palette-use">エラー、削除、破壊的操作</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============== Category Colors (D5.2) ============== -->
+                <h4>Category Colors（カテゴリ4色相 / Phase D5.2）</h4>
+                <p style="font-size: var(--fs-caption); color: var(--text-tertiary); margin-bottom: var(--space-sm);">
+                    bg × text ペア運用。背景のみ使用禁止（可読性低下のため）。
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); margin-bottom: var(--space-md);">
+                    <div>
+                        <div style="background: var(--cat-bg-facility); color: var(--cat-text-facility); padding: var(--space-md); border-radius: var(--radius-md); text-align: center; border: 1px solid var(--divider);">
+                            <div style="font-size: var(--fs-base); font-weight: var(--fw-bold);">施設</div>
+                            <div style="font-size: var(--fs-caption); margin-top: var(--space-xs); opacity: 0.8;">Facility (teal)</div>
+                        </div>
+                        <div style="font-size: 10px; font-family: monospace; color: var(--text-tertiary); margin-top: var(--space-xs); text-align: center; line-height: var(--lh-tight);">
+                            bg: rgba(68,166,181,.14)<br>text: #1c4d54
+                        </div>
+                    </div>
+                    <div>
+                        <div style="background: var(--cat-bg-event); color: var(--cat-text-event); padding: var(--space-md); border-radius: var(--radius-md); text-align: center; border: 1px solid var(--divider);">
+                            <div style="font-size: var(--fs-base); font-weight: var(--fw-bold);">イベント</div>
+                            <div style="font-size: var(--fs-caption); margin-top: var(--space-xs); opacity: 0.8;">Event (blue-violet)</div>
+                        </div>
+                        <div style="font-size: 10px; font-family: monospace; color: var(--text-tertiary); margin-top: var(--space-xs); text-align: center; line-height: var(--lh-tight);">
+                            bg: rgba(122,140,196,.14)<br>text: #2d3e7a
+                        </div>
+                    </div>
+                    <div>
+                        <div style="background: var(--cat-bg-traffic); color: var(--cat-text-traffic); padding: var(--space-md); border-radius: var(--radius-md); text-align: center; border: 1px solid var(--divider);">
+                            <div style="font-size: var(--fs-base); font-weight: var(--fw-bold);">交通誘導</div>
+                            <div style="font-size: var(--fs-caption); margin-top: var(--space-xs); opacity: 0.8;">Traffic (warm brown)</div>
+                        </div>
+                        <div style="font-size: 10px; font-family: monospace; color: var(--text-tertiary); margin-top: var(--space-xs); text-align: center; line-height: var(--lh-tight);">
+                            bg: rgba(180,135,100,.14)<br>text: #5a3f25
+                        </div>
+                    </div>
+                    <div>
+                        <div style="background: var(--cat-bg-highway); color: var(--cat-text-highway); padding: var(--space-md); border-radius: var(--radius-md); text-align: center; border: 1px solid var(--divider);">
+                            <div style="font-size: var(--fs-base); font-weight: var(--fw-bold);">高速道路</div>
+                            <div style="font-size: var(--fs-caption); margin-top: var(--space-xs); opacity: 0.8;">Highway (sage)</div>
+                        </div>
+                        <div style="font-size: 10px; font-family: monospace; color: var(--text-tertiary); margin-top: var(--space-xs); text-align: center; line-height: var(--lh-tight);">
+                            bg: rgba(98,158,120,.14)<br>text: #1f4e31
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============== Chart Palette (D5.3) ============== -->
+                <h4>Chart Palette（データ可視化 / Phase D5.3）</h4>
+
+                <div style="font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-secondary); margin: var(--space-md) 0 var(--space-xs);">Categorical（色覚多様性対応・6系統）</div>
+                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-xs); margin-bottom: var(--space-md);">
+                    <div style="background: var(--chart-1); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">chart-1<br>#44A6B5</div>
+                    <div style="background: var(--chart-2); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">chart-2<br>#E07856</div>
+                    <div style="background: var(--chart-3); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">chart-3<br>#7A8CC4</div>
+                    <div style="background: var(--chart-4); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">chart-4<br>#629E78</div>
+                    <div style="background: var(--chart-5); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">chart-5<br>#B48764</div>
+                    <div style="background: var(--chart-6); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">chart-6<br>#B8607A</div>
+                </div>
+
+                <div style="font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-secondary); margin: var(--space-md) 0 var(--space-xs);">Sequential（ヒートマップ・5段階）</div>
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; margin-bottom: var(--space-md);">
+                    <div style="background: var(--chart-seq-0); color: var(--text-primary); padding: var(--space-md) var(--space-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">seq-0<br>#E9F1F6</div>
+                    <div style="background: var(--chart-seq-1); color: var(--text-primary); padding: var(--space-md) var(--space-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">seq-1<br>#B2D5E2</div>
+                    <div style="background: var(--chart-seq-2); color: #fff; padding: var(--space-md) var(--space-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">seq-2<br>#6B9AA8</div>
+                    <div style="background: var(--chart-seq-3); color: #fff; padding: var(--space-md) var(--space-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">seq-3<br>#2A6B7A</div>
+                    <div style="background: var(--chart-seq-4); color: #fff; padding: var(--space-md) var(--space-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">seq-4<br>#004554</div>
+                </div>
+
+                <div style="font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-secondary); margin: var(--space-md) 0 var(--space-xs);">Diverging（±3段階）</div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-xs); margin-bottom: var(--space-md);">
+                    <div style="background: var(--chart-diverge-neg); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">neg (減)<br>#DB577B</div>
+                    <div style="background: var(--chart-diverge-neutral); color: var(--text-primary); padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">neutral<br>#D3D0C8</div>
+                    <div style="background: var(--chart-diverge-pos); color: #fff; padding: var(--space-sm); border-radius: var(--radius-sm); text-align: center; font-family: monospace; font-size: 10px; line-height: var(--lh-tight);">pos (増)<br>#38A169</div>
+                </div>
+
+                <!-- ============== Usage Map ============== -->
                 <h4>Usage Map</h4>
                 <div class="palette-usage-map">
                     <div class="usage-example">
@@ -284,8 +494,8 @@
                                     <h5>Card Title</h5>
                                     <p>Secondary text content</p>
                                     <div class="usage-mock-btns">
-                                        <span class="usage-btn-primary">Button</span>
-                                        <span class="usage-btn-flat">Button</span>
+                                        <span class="usage-btn-primary">Accent</span>
+                                        <span class="usage-btn-flat">Ghost</span>
                                     </div>
                                 </div>
                                 <div class="usage-mock-field">
@@ -300,12 +510,18 @@
                             </div>
                         </div>
                         <div class="usage-legend">
-                            <div class="legend-item"><span class="legend-dot" style="background:#44A6B5;"></span> Primary (#44A6B5)</div>
-                            <div class="legend-item"><span class="legend-dot" style="background:#004554;"></span> Text Primary (#004554)</div>
-                            <div class="legend-item"><span class="legend-dot" style="background:#2A6B7A;"></span> Text Secondary (#2A6B7A)</div>
-                            <div class="legend-item"><span class="legend-dot" style="background:#FFFFFF;"></span> Surface (#FFFFFF)</div>
-                            <div class="legend-item"><span class="legend-dot" style="background:#F0EDE9;"></span> Surface Variant (#F0EDE9)</div>
-                            <div class="legend-item"><span class="legend-dot" style="background:#B2D5E2;"></span> Secondary (#B2D5E2)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#44A6B5;"></span> --accent (#44A6B5)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#E07856;"></span> --accent-2 (#E07856)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#004554;"></span> --text-primary (#004554)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#2A6B7A;"></span> --text-secondary (#2A6B7A)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#5A8896;"></span> --text-tertiary (#5A8896)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#FFFFFF;border:1px solid var(--divider);"></span> --bg-surface (#FFFFFF)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#F0EDE9;"></span> --bg-surface-2 (#F0EDE9)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#D3D0C8;"></span> --bg-surface-3 (#D3D0C8)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#B2D5E2;"></span> --divider (#B2D5E2)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#38A169;"></span> --success (#38A169)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#D69E2E;"></span> --warning (#D69E2E)</div>
+                            <div class="legend-item"><span class="legend-dot" style="background:#DB577B;"></span> --error (#DB577B)</div>
                         </div>
                     </div>
                 </div>
@@ -316,176 +532,301 @@
         <section class="comp-section" id="applied-color-palette">
             <div class="comp-title-bar"><h2>Applied Color Palette</h2></div>
             <div class="comp-body">
-                <p style="font-size: var(--fs-caption); color: var(--text-tertiary); margin-bottom: var(--space-md);">実際にUI要素に使用するカラーの一覧。基盤パレット(Coastal)からの導出関係を併記。新しい色を使用する場合は、必ずここに登録してから使用すること。</p>
+                <p style="font-size: var(--fs-caption); color: var(--text-tertiary); margin-bottom: var(--space-md);">実際にUI要素に使用するカラーの一覧。Phase D1〜D6 デザインシステムのトークンへ紐付け。新しい色を使う場合は、必ずCSS変数として定義 → 本表に登録 → 使用の順で運用すること。</p>
 
-                <!-- UIクローム -->
+                <!-- UI Chrome -->
                 <h4 style="font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin-bottom: var(--space-sm);">UI Chrome</h4>
                 <table class="applied-color-table">
-                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>由来</th></tr></thead>
+                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>トークン</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td><span class="applied-dot" style="background:#5AB8C6;"></span></td>
-                            <td><strong>Light Moonstone</strong></td>
-                            <td><code>#5AB8C6</code></td>
-                            <td>モーダルヘッダー背景、ホバー</td>
-                            <td>Primary Light</td>
-                        </tr>
                         <tr>
                             <td><span class="applied-dot" style="background:#44A6B5;"></span></td>
                             <td><strong>Moonstone</strong></td>
                             <td><code>#44A6B5</code></td>
-                            <td>ボタンPrimary、アクティブ、リンク</td>
-                            <td>Primary Accent</td>
+                            <td>ボタンPrimary、リンク、Active、FAB、フォーカス枠色</td>
+                            <td><code>--accent</code></td>
                         </tr>
-                        <tr>
-                            <td><span class="applied-dot" style="background:#F0EDE9;"></span></td>
-                            <td><strong>Timberwolf Light</strong></td>
-                            <td><code>#F0EDE9</code></td>
-                            <td>モーダルフッター背景、タブ背景</td>
-                            <td>Surface Variant</td>
-                        </tr>
-                        <tr>
-                            <td><span class="applied-dot" style="background:rgba(0,69,84,0.35);border:1px solid var(--divider);"></span></td>
-                            <td><strong>Overlay</strong></td>
-                            <td><code>rgba(0,69,84,0.35)</code></td>
-                            <td>モーダルオーバーレイ</td>
-                            <td>Midnight Green α35%</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <!-- セマンティック -->
-                <h4 style="font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: var(--space-lg) 0 8px;">Semantic</h4>
-                <table class="applied-color-table">
-                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>由来</th></tr></thead>
-                    <tbody>
                         <tr>
                             <td><span class="applied-dot" style="background:#5AB8C6;"></span></td>
-                            <td><strong>Success / 追加</strong></td>
+                            <td><strong>Light Moonstone</strong></td>
                             <td><code>#5AB8C6</code></td>
-                            <td>追加カード左線、追加バッジ、タイムライン追加ドット</td>
-                            <td>Light Moonstone</td>
-                        </tr>
-                        <tr>
-                            <td><span class="applied-dot" style="background:#DECCBE;"></span></td>
-                            <td><strong>Warning / 変更</strong></td>
-                            <td><code>#DECCBE</code></td>
-                            <td>変更カード左線、変更バッジ、競合バナー枠線</td>
-                            <td>Shell Beige（Timberwolf派生）</td>
-                        </tr>
-                        <tr>
-                            <td><span class="applied-dot" style="background:#5C4A33;"></span></td>
-                            <td><strong>Warning Text</strong></td>
-                            <td><code>#5C4A33</code></td>
-                            <td>変更バッジ文字色、競合バナー文字色</td>
-                            <td>Shell Beige暗色</td>
-                        </tr>
-                        <tr>
-                            <td><span class="applied-dot" style="background:#DB577B;"></span></td>
-                            <td><strong>Error / 削除</strong></td>
-                            <td><code>#DB577B</code></td>
-                            <td>削除カード左線、削除バッジ、取消線、元に戻すボタン</td>
-                            <td>Vivid Rose（新規）</td>
-                        </tr>
-                        <tr>
-                            <td><span class="applied-dot" style="background:#6B2040;"></span></td>
-                            <td><strong>Error Text</strong></td>
-                            <td><code>#6B2040</code></td>
-                            <td>削除タイムラインバッジ文字色</td>
-                            <td>Vivid Rose暗色</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <!-- コンテンツ -->
-                <h4 style="font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: var(--space-lg) 0 8px;">Content</h4>
-                <table class="applied-color-table">
-                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>由来</th></tr></thead>
-                    <tbody>
-                        <tr>
-                            <td><span class="applied-dot" style="background:#E9F1F6;"></span></td>
-                            <td><strong>Alice Blue</strong></td>
-                            <td><code>#E9F1F6</code></td>
-                            <td>モーダルボディ背景（カード型）</td>
-                            <td>Page Background</td>
-                        </tr>
-                        <tr>
-                            <td><span class="applied-dot" style="background:#FFFFFF;border:1px solid var(--divider);"></span></td>
-                            <td><strong>White</strong></td>
-                            <td><code>#FFFFFF</code></td>
-                            <td>モーダル内カード背景</td>
-                            <td>Surface</td>
-                        </tr>
-                        <tr>
-                            <td><span class="applied-dot" style="background:#B2D5E2;"></span></td>
-                            <td><strong>Light Blue</strong></td>
-                            <td><code>#B2D5E2</code></td>
-                            <td>カード枠線、区切り線、セクションバー線</td>
-                            <td>Divider</td>
+                            <td>モーダルヘッダー背景、Hoverハイライト</td>
+                            <td><code>--accent-light</code></td>
                         </tr>
                         <tr>
                             <td><span class="applied-dot" style="background:rgba(68,166,181,0.12);border:1px solid var(--divider);"></span></td>
                             <td><strong>Accent Dim</strong></td>
                             <td><code>rgba(68,166,181,0.12)</code></td>
-                            <td>ホバー背景、チップ選択背景、バッジ背景</td>
-                            <td>Moonstone α12%</td>
+                            <td>Hover背景、Chip selected、Focus ring、Active background</td>
+                            <td><code>--accent-dim</code></td>
                         </tr>
                         <tr>
-                            <td><span class="applied-dot" style="background:rgba(212,186,168,0.15);border:1px solid var(--divider);"></span></td>
+                            <td><span class="applied-dot" style="background:#F0EDE9;"></span></td>
+                            <td><strong>Timberwolf Light</strong></td>
+                            <td><code>#F0EDE9</code></td>
+                            <td>モーダルフッター背景、テーブルヘッダー、Secondary btn</td>
+                            <td><code>--bg-surface-2</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:rgba(0,69,84,0.35);border:1px solid var(--divider);"></span></td>
+                            <td><strong>Overlay</strong></td>
+                            <td><code>rgba(0,69,84,0.35)</code></td>
+                            <td>モーダル/ドロワーのオーバーレイ</td>
+                            <td>Midnight Green α35%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Secondary Accent (Phase D5.1) -->
+                <h4 style="font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: var(--space-lg) 0 var(--space-sm);">Secondary Accent（Phase D5.1）</h4>
+                <table class="applied-color-table">
+                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>トークン</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#E07856;"></span></td>
+                            <td><strong>Terracotta</strong></td>
+                            <td><code>#E07856</code></td>
+                            <td>テーブル編集中行のアウトライン、重要トグル（破壊的でない強調）</td>
+                            <td><code>--accent-2</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#EA9980;"></span></td>
+                            <td><strong>Light Terracotta</strong></td>
+                            <td><code>#EA9980</code></td>
+                            <td>Hover、Secondary Accentの明色</td>
+                            <td><code>--accent-2-light</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:rgba(224,120,86,0.12);border:1px solid var(--divider);"></span></td>
+                            <td><strong>Terracotta Dim</strong></td>
+                            <td><code>rgba(224,120,86,0.12)</code></td>
+                            <td>編集中行背景（テーブル）、強調ヒント</td>
+                            <td><code>--accent-2-dim</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Semantic -->
+                <h4 style="font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: var(--space-lg) 0 var(--space-sm);">Semantic（状態色 / WCAG AA準拠）</h4>
+                <table class="applied-color-table">
+                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>トークン</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#38A169;"></span></td>
+                            <td><strong>Forest Green</strong></td>
+                            <td><code>#38A169</code></td>
+                            <td>成功アイコン、追加カード左線、確定バッジ</td>
+                            <td><code>--success</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#276749;"></span></td>
+                            <td><strong>Deep Forest</strong></td>
+                            <td><code>#276749</code></td>
+                            <td>成功メッセージ本文（AA 4.5:1）</td>
+                            <td><code>--success-text</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#D69E2E;"></span></td>
+                            <td><strong>Amber</strong></td>
+                            <td><code>#D69E2E</code></td>
+                            <td>警告アイコン、注意バッジ</td>
+                            <td><code>--warning</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#92400E;"></span></td>
+                            <td><strong>Bronze</strong></td>
+                            <td><code>#92400E</code></td>
+                            <td>警告メッセージ本文（AA 4.5:1）</td>
+                            <td><code>--warning-text</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:rgba(214,158,46,0.10);border:1px solid var(--divider);"></span></td>
+                            <td><strong>Amber Dim</strong></td>
+                            <td><code>rgba(214,158,46,0.10)</code></td>
+                            <td>警告バナー背景、Field warning background</td>
+                            <td><code>--warning-bg</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#DB577B;"></span></td>
+                            <td><strong>Vivid Rose</strong></td>
+                            <td><code>#DB577B</code></td>
+                            <td>エラー、削除、破壊的操作、エラー枠色</td>
+                            <td><code>--error</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#6B2040;"></span></td>
+                            <td><strong>Deep Rose</strong></td>
+                            <td><code>#6B2040</code></td>
+                            <td>削除バッジ文字色（`#fed7d7` 背景上）、タイムライン削除文字</td>
+                            <td>Error Text（AA補助）</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Change Tracking（変更通知・モックアップ特有） -->
+                <h4 style="font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: var(--space-lg) 0 var(--space-sm);">Change Tracking（変更通知）</h4>
+                <p style="font-size: var(--fs-caption); color: var(--text-tertiary); margin-bottom: var(--space-sm);">
+                    変更通知（Conflict Banner / Toast / Timeline）用のドメイン特化カラー。Warning と視覚的に分離するため独立色相（Shell Beige 系）を採用。Phase D13 以降でトークン化検討。
+                </p>
+                <table class="applied-color-table">
+                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>トークン</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#DECCBE;"></span></td>
+                            <td><strong>Shell Beige</strong></td>
+                            <td><code>#DECCBE</code></td>
+                            <td>変更カード左線、変更バッジ、競合バナー枠線、タイムライン変更ドット</td>
+                            <td>未トークン化（mockup 由来）</td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:rgba(222,204,190,0.15);border:1px solid var(--divider);"></span></td>
                             <td><strong>Shell Dim</strong></td>
                             <td><code>rgba(222,204,190,0.15)</code></td>
-                            <td>競合バナー背景、予定（低）背景</td>
+                            <td>競合バナー背景、変更タイムライン項目背景</td>
                             <td>Shell Beige α15%</td>
                         </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#5C4A33;"></span></td>
+                            <td><strong>Shell Beige Dark</strong></td>
+                            <td><code>#5C4A33</code></td>
+                            <td>変更バッジ文字色、競合バナー文字色（Shell Beige上の可読性確保）</td>
+                            <td>Shell Beige 暗色</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Category Colors (Phase D5.2) -->
+                <h4 style="font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: var(--space-lg) 0 var(--space-sm);">Category Colors（カテゴリ4色相 / Phase D5.2）</h4>
+                <p style="font-size: var(--fs-caption); color: var(--text-tertiary); margin-bottom: var(--space-sm);">
+                    受注カテゴリの識別色。bg × text ペア運用で可読性確保（AAA）。彩度14%の淡色なのでバッジ並列時も色疲労なし。
+                </p>
+                <table class="applied-color-table">
+                    <thead><tr><th></th><th>カテゴリ</th><th>Hex (bg / text)</th><th>用途</th><th>トークン</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="applied-dot" style="background:rgba(68,166,181,0.14);border:1px solid var(--divider);"></span></td>
+                            <td><strong>Facility / 施設（teal）</strong></td>
+                            <td><code>rgba(68,166,181,.14)</code> / <code>#1c4d54</code></td>
+                            <td>受注簿カテゴリ、週間予定表カテゴリ、カード左線</td>
+                            <td><code>--cat-bg-facility</code> / <code>--cat-text-facility</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:rgba(122,140,196,0.14);border:1px solid var(--divider);"></span></td>
+                            <td><strong>Event / イベント（blue-violet）</strong></td>
+                            <td><code>rgba(122,140,196,.14)</code> / <code>#2d3e7a</code></td>
+                            <td>同上（Event カテゴリ）</td>
+                            <td><code>--cat-bg-event</code> / <code>--cat-text-event</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:rgba(180,135,100,0.14);border:1px solid var(--divider);"></span></td>
+                            <td><strong>Traffic / 交通誘導（warm brown）</strong></td>
+                            <td><code>rgba(180,135,100,.14)</code> / <code>#5a3f25</code></td>
+                            <td>同上（Traffic カテゴリ）</td>
+                            <td><code>--cat-bg-traffic</code> / <code>--cat-text-traffic</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:rgba(98,158,120,0.14);border:1px solid var(--divider);"></span></td>
+                            <td><strong>Highway / 高速道路（sage green）</strong></td>
+                            <td><code>rgba(98,158,120,.14)</code> / <code>#1f4e31</code></td>
+                            <td>同上（Highway カテゴリ）</td>
+                            <td><code>--cat-bg-highway</code> / <code>--cat-text-highway</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Surface / Content -->
+                <h4 style="font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: var(--space-lg) 0 var(--space-sm);">Surface / Content</h4>
+                <table class="applied-color-table">
+                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>トークン</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#E9F1F6;"></span></td>
+                            <td><strong>Alice Blue</strong></td>
+                            <td><code>#E9F1F6</code></td>
+                            <td>ページ背景、モーダルボディ（カード型）</td>
+                            <td><code>--bg-page</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#FFFFFF;border:1px solid var(--divider);"></span></td>
+                            <td><strong>White</strong></td>
+                            <td><code>#FFFFFF</code></td>
+                            <td>カード面、モーダル内カード、テーブル面</td>
+                            <td><code>--bg-surface</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#D3D0C8;"></span></td>
+                            <td><strong>Timberwolf</strong></td>
+                            <td><code>#D3D0C8</code></td>
+                            <td>テーブル集計行、Secondary btn hover、Zebra深色</td>
+                            <td><code>--bg-surface-3</code></td>
+                        </tr>
+                        <tr>
+                            <td><span class="applied-dot" style="background:#B2D5E2;"></span></td>
+                            <td><strong>Light Blue</strong></td>
+                            <td><code>#B2D5E2</code></td>
+                            <td>カード枠線、区切り線、セクションバー、入力枠線</td>
+                            <td><code>--divider</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Grid Base（受注簿/業務管理計画書のグリッド背景） -->
+                <h4 style="font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: var(--space-lg) 0 var(--space-sm);">Grid Base（業務カレンダー専用）</h4>
+                <p style="font-size: var(--fs-caption); color: var(--text-tertiary); margin-bottom: var(--space-sm);">
+                    受注簿・業務管理計画書の週/月カレンダーでニュートラルな背景が必要な箇所（土日祝セル合成の基盤）に限定使用。mockup CSS 内で <code>--base-grid</code> / <code>--base-grid-alt</code> として定義。
+                </p>
+                <table class="applied-color-table">
+                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>トークン</th></tr></thead>
+                    <tbody>
                         <tr>
                             <td><span class="applied-dot" style="background:#F5F5F5;border:1px solid var(--divider);"></span></td>
                             <td><strong>Neutral Gray</strong></td>
                             <td><code>#F5F5F5</code></td>
-                            <td>グリッドデータ行ベースカラー</td>
-                            <td>ニュートラルグレー（独立）</td>
+                            <td>カレンダー本体セル背景（Coastal の青味を中和）</td>
+                            <td><code>--base-grid</code>（mockup 限定）</td>
                         </tr>
                         <tr>
                             <td><span class="applied-dot" style="background:#F2F2F1;border:1px solid var(--divider);"></span></td>
                             <td><strong>Neutral Gray Dark</strong></td>
                             <td><code>#F2F2F1</code></td>
-                            <td>グリッド偶数行ストライプ</td>
-                            <td>Neutral Gray暗色</td>
+                            <td>カレンダー偶数行ストライプ</td>
+                            <td><code>--base-grid-alt</code>（mockup 限定）</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <!-- テキスト -->
-                <h4 style="font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: var(--space-lg) 0 8px;">Text</h4>
+                <!-- Text Hierarchy -->
+                <h4 style="font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-tertiary); margin: var(--space-lg) 0 var(--space-sm);">Text Hierarchy（Phase D6.1 AA準拠）</h4>
                 <table class="applied-color-table">
-                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>由来</th></tr></thead>
+                    <thead><tr><th></th><th>名前</th><th>Hex</th><th>用途</th><th>トークン</th></tr></thead>
                     <tbody>
                         <tr>
                             <td><span class="applied-dot" style="background:#004554;"></span></td>
                             <td><strong>Midnight Green</strong></td>
                             <td><code>#004554</code></td>
-                            <td>本文テキスト、見出し</td>
-                            <td>Text Primary</td>
+                            <td>本文、見出し、サイドバー背景</td>
+                            <td><code>--text-primary</code> / <code>--bg-sidebar</code></td>
                         </tr>
                         <tr>
                             <td><span class="applied-dot" style="background:#2A6B7A;"></span></td>
                             <td><strong>Deep Moonstone</strong></td>
                             <td><code>#2A6B7A</code></td>
                             <td>副テキスト、ラベル、バッジ文字</td>
-                            <td>Text Secondary</td>
+                            <td><code>--text-secondary</code></td>
                         </tr>
                         <tr>
-                            <td><span class="applied-dot" style="background:#6B9AA8;"></span></td>
-                            <td><strong>Muted Moonstone</strong></td>
-                            <td><code>#6B9AA8</code></td>
-                            <td>補助テキスト、プレースホルダー</td>
-                            <td>Text Tertiary</td>
+                            <td><span class="applied-dot" style="background:#5A8896;"></span></td>
+                            <td><strong>Slate Blue</strong></td>
+                            <td><code>#5A8896</code></td>
+                            <td>補助テキスト、プレースホルダー、キャプション</td>
+                            <td><code>--text-tertiary</code>（旧 #6B9AA8 → D6.1 で 4.6:1 に改善）</td>
                         </tr>
                         <tr>
-                            <td><span class="applied-dot" style="background:#A0BCC5;"></span></td>
-                            <td><strong>Pale Moonstone</strong></td>
-                            <td><code>#A0BCC5</code></td>
-                            <td>無効テキスト、ヒント</td>
-                            <td>Text Disabled</td>
+                            <td><span class="applied-dot" style="background:#8BAEB9;"></span></td>
+                            <td><strong>Pale Slate</strong></td>
+                            <td><code>#8BAEB9</code></td>
+                            <td>無効テキスト、空セル表記「—」、ヒント</td>
+                            <td><code>--text-disabled</code>（旧 #A0BCC5 → D6.1 で 3:1 確保）</td>
                         </tr>
                     </tbody>
                 </table>
