@@ -4249,58 +4249,102 @@
         var gcLine = el('div', 'md-ws-res-quick-gc', '\u4f9d\u983c\u5143\uff1a' + (gcLabel ? gcLabel.shortName : gcCode));
         body.appendChild(gcLine);
 
-        // 業者入力
+        // 業者入力（入力欄＋候補バッジ一覧）
         var partnerField = el('div', 'md-ws-res-quick-field');
         partnerField.appendChild(el('label', 'md-ws-res-quick-label', '\u5354\u529b\u696d\u8005'));
-        var hintLine = el('div', 'md-ws-res-quick-hint');
-        var stepper;
 
-        var autocomplete = createPartnerAutocomplete(gcCode, {
-            onSelect: function (sel) {
-                if (!sel) {
-                    hintLine.textContent = '';
-                    if (stepper) stepper.setValue(0);
-                    return;
-                }
-                if (sel.isNew) {
-                    hintLine.textContent = '\u65b0\u898f\u767b\u9332\uff08\u30de\u30b9\u30bf\u672a\u5b8c\u5099\u3068\u3057\u3066\u8b66\u544a\u30a2\u30a4\u30b3\u30f3\u4ed8\u4e0e\uff09';
-                    if (stepper) stepper.setValue(0);
-                } else {
-                    var current = getReservedCount(sel.id, dateKey);
-                    hintLine.textContent = current > 0
-                        ? '\u73fe\u5728 ' + current + '\u540d\uff08\u5909\u66f4\u5f8c\u306e\u4eba\u6570\u3067\u4e0a\u66f8\u304d\u3055\u308c\u307e\u3059\uff09'
-                        : '\u672a\u4e88\u7d04';
-                    if (stepper) stepper.setValue(current);
-                }
-            }
-        });
-        partnerField.appendChild(autocomplete);
+        var nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.className = 'md-ws-res-quick-input';
+        nameInput.placeholder = '\u7565\u79f0\u3092\u5165\u529b or \u4e0b\u306e\u30d0\u30c3\u30b8\u304b\u3089\u9078\u629e';
+        partnerField.appendChild(nameInput);
+
+        var hintLine = el('div', 'md-ws-res-quick-hint');
         partnerField.appendChild(hintLine);
+
+        var badgeListLabel = el('div', 'md-ws-res-quick-badges-label', '\u5019\u88dc\u696d\u8005');
+        partnerField.appendChild(badgeListLabel);
+        var badgeList = el('div', 'md-ws-res-quick-badges');
+        partnerField.appendChild(badgeList);
+
         body.appendChild(partnerField);
 
         // 人数ステッパー
         var countField = el('div', 'md-ws-res-quick-field');
         countField.appendChild(el('label', 'md-ws-res-quick-label', '\u4eba\u6570'));
-        stepper = createStepper(0, null, { min: 0 });
+        var stepper = createStepper(0, null, { min: 0 });
         countField.appendChild(stepper);
         body.appendChild(countField);
+
+        var selectedPartnerId = null;
+
+        function applyName(name) {
+            var existing = getActivePartners(gcCode).filter(function (p) { return p.shortName === name; })[0];
+            if (existing) {
+                selectedPartnerId = existing.id;
+                var current = getReservedCount(existing.id, dateKey);
+                hintLine.textContent = current > 0
+                    ? '\u73fe\u5728 ' + current + '\u540d\uff08\u5909\u66f4\u5f8c\u306e\u4eba\u6570\u3067\u4e0a\u66f8\u304d\u3055\u308c\u307e\u3059\uff09'
+                    : '\u672a\u4e88\u7d04';
+                stepper.setValue(current);
+            } else if (name) {
+                selectedPartnerId = null;
+                hintLine.textContent = '\u65b0\u898f\u767b\u9332\uff08\u30de\u30b9\u30bf\u672a\u5b8c\u5099\u3068\u3057\u3066\u8b66\u544a\u30a2\u30a4\u30b3\u30f3\u4ed8\u4e0e\uff09';
+                stepper.setValue(0);
+            } else {
+                selectedPartnerId = null;
+                hintLine.textContent = '';
+                stepper.setValue(0);
+            }
+            // バッジ選択状態を更新
+            Array.from(badgeList.children).forEach(function (b) {
+                b.classList.toggle('md-ws-res-quick-badge-selected', b.dataset.partnerName === name);
+            });
+        }
+
+        function renderBadges() {
+            badgeList.innerHTML = '';
+            var partners = getActivePartners(gcCode);
+            if (partners.length === 0) {
+                var empty = el('div', 'md-ws-res-quick-badges-empty', '\u767b\u9332\u6e08\u307f\u306e\u5354\u529b\u696d\u8005\u306f\u3042\u308a\u307e\u305b\u3093');
+                badgeList.appendChild(empty);
+                return;
+            }
+            partners.forEach(function (p) {
+                var badge = el('button', 'md-ws-res-quick-badge');
+                badge.type = 'button';
+                badge.dataset.partnerId = p.id;
+                badge.dataset.partnerName = p.shortName;
+                badge.appendChild(el('span', 'md-ws-res-quick-badge-name', p.shortName));
+                var reserved = getReservedCount(p.id, dateKey);
+                if (reserved > 0) {
+                    badge.appendChild(el('span', 'md-ws-res-quick-badge-count', '\u4e88' + reserved));
+                }
+                badge.addEventListener('click', function () {
+                    nameInput.value = p.shortName;
+                    applyName(p.shortName);
+                });
+                badgeList.appendChild(badge);
+            });
+        }
+        renderBadges();
+
+        nameInput.addEventListener('input', function () {
+            applyName(nameInput.value.trim());
+        });
 
         openReservationModal((gcLabel ? gcLabel.shortName : gcCode) + ' \u5fdc\u63f4\u4e88\u7d04\u8ffd\u52a0', body, [
             { label: '\u30ad\u30e3\u30f3\u30bb\u30eb', variant: 'secondary', onClick: function (ctx) { ctx.close(); } },
             { label: '\u4fdd\u5b58', variant: 'primary', onClick: function (ctx) {
-                var sel = autocomplete.getSelected();
-                var q = autocomplete.getQuery();
-                if (!sel && !q) {
+                var name = nameInput.value.trim();
+                if (!name) {
                     alert('\u5354\u529b\u696d\u8005\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044');
                     return;
                 }
                 var count = stepper.getValue();
-                var partnerId;
-                if (sel && !sel.isNew) {
-                    partnerId = sel.id;
-                } else {
+                var partnerId = selectedPartnerId;
+                if (!partnerId) {
                     // 入力文字列で新規登録（既存が無ければ）
-                    var name = sel ? sel.shortName : q;
                     var existing = getActivePartners(gcCode).filter(function (p) { return p.shortName === name; })[0];
                     partnerId = existing ? existing.id : addPartner(name, gcCode);
                 }
@@ -4311,7 +4355,7 @@
             } }
         ]);
 
-        setTimeout(function () { autocomplete.focus(); }, 50);
+        setTimeout(function () { nameInput.focus(); }, 50);
     }
 
     /**
