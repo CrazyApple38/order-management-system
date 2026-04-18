@@ -542,7 +542,7 @@
 
         // ×ボタン: 予約行バッジごと削除（当日の予約＋配置を一括キャンセル）
         if (!isPast) {
-            var removeBtn = el('span', 'md-ws-reserve-remove', '\u00d7');
+            var removeBtn = el('span', 'md-ws-chip-remove', '\u00d7');
             removeBtn.title = '\u3053\u306e\u65e5\u306e\u4e88\u7d04\u3092\u524a\u9664';
             (function (pid, dk) {
                 removeBtn.addEventListener('click', function (e) {

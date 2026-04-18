@@ -2620,33 +2620,25 @@ body {
     height: 11px;
 }
 
-/* 予約バッジの×削除ボタン（ホバー時のみ表示、レイアウトシフトなし） */
-.md-ws-reserve-remove {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 12px;
-    height: 12px;
-    margin-left: 2px;
-    border-radius: 50%;
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1;
-    cursor: pointer;
+/* 予約バッジの×削除ボタン（他チップの md-ws-chip-remove と同仕様） */
+.md-ws-reserve-badge .md-ws-chip-remove {
+    display: inline;
     visibility: hidden;
+    margin-left: 3px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--error);
+    cursor: pointer;
+    line-height: 1;
     opacity: 0;
-    background: rgba(0, 0, 0, 0.08);
-    color: var(--text-secondary);
-    transition: opacity 0.12s ease;
+    transition: opacity 0.1s;
 }
-.md-ws-reserve-badge:hover .md-ws-reserve-remove {
+.md-ws-reserve-badge:hover .md-ws-chip-remove {
     visibility: visible;
     opacity: 0.7;
 }
-.md-ws-reserve-remove:hover {
-    opacity: 1 !important;
-    background: var(--error-text, #B03A2E);
-    color: #fff;
+.md-ws-reserve-badge:hover .md-ws-chip-remove:hover {
+    opacity: 1;
 }
 
 /* 配置モード — 修理/点検中車両バッジ（警告枠） */
