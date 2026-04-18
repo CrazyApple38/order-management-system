@@ -2790,3 +2790,323 @@ body {
 }
 
 /* GCフィルタボタン・モーダルは共通ナビバー(co-navbar.css)に移動 */
+
+/* ==========================================================
+   応援予約モーダル（A5）
+   ========================================================== */
+
+/* 日付セル内の新規予約追加ボタン（常時表示、右上） */
+.md-ws-reserve-cell-add {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 1px dashed rgba(56, 161, 105, 0.45);
+    background: rgba(255, 255, 255, 0.55);
+    color: var(--success-text);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    align-self: flex-start;
+    margin-left: auto;
+}
+.md-ws-reserve-cell-add:hover {
+    background: rgba(56, 161, 105, 0.15);
+    border-style: solid;
+}
+
+/* モーダルオーバーレイ */
+.md-ws-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+.md-ws-modal-content {
+    background: var(--base-surface);
+    border-radius: 8px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    max-width: 92vw;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    min-width: 380px;
+}
+.md-ws-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--divider);
+}
+.md-ws-modal-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+.md-ws-modal-close {
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 4px 8px;
+}
+.md-ws-modal-body {
+    padding: 16px;
+    overflow: auto;
+    min-width: 0;
+}
+.md-ws-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--divider);
+}
+.md-ws-modal-btn {
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: 1px solid var(--divider);
+    background: var(--base-surface);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-weight: 600;
+}
+.md-ws-modal-btn-primary {
+    background: var(--brand-primary, #2C7A7B);
+    border-color: var(--brand-primary, #2C7A7B);
+    color: #fff;
+}
+.md-ws-modal-btn-secondary {
+    background: var(--base-surface-alt);
+}
+.md-ws-modal-btn:hover { filter: brightness(0.96); }
+
+/* ステッパー */
+.md-ws-stepper {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--base-surface);
+}
+.md-ws-stepper-btn {
+    width: 26px;
+    height: 28px;
+    border: none;
+    background: var(--base-surface-alt);
+    color: var(--text-primary);
+    font-weight: 700;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+}
+.md-ws-stepper-btn:hover { background: var(--base-muted); }
+.md-ws-stepper-input {
+    width: 44px;
+    height: 28px;
+    border: none;
+    border-left: 1px solid var(--divider);
+    border-right: 1px solid var(--divider);
+    text-align: center;
+    font-weight: 600;
+    font-size: 13px;
+    background: var(--base-surface);
+    color: var(--text-primary);
+    -moz-appearance: textfield;
+    appearance: textfield;
+    padding: 0;
+}
+.md-ws-stepper-input::-webkit-outer-spin-button,
+.md-ws-stepper-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* オートコンプリート */
+.md-ws-pac {
+    position: relative;
+    display: block;
+}
+.md-ws-pac-input {
+    width: 100%;
+    height: 30px;
+    padding: 0 8px;
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    font-size: 13px;
+    background: var(--base-surface);
+    color: var(--text-primary);
+    box-sizing: border-box;
+}
+.md-ws-pac-input:focus {
+    outline: none;
+    border-color: var(--brand-primary, #2C7A7B);
+    box-shadow: 0 0 0 2px rgba(44, 122, 123, 0.15);
+}
+.md-ws-pac-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    background: var(--base-surface);
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    margin-top: 2px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+.md-ws-pac-item {
+    padding: 6px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+.md-ws-pac-item:hover { background: var(--base-surface-alt); }
+.md-ws-pac-item-new {
+    color: var(--success-text);
+    font-weight: 600;
+    border-top: 1px dashed var(--divider);
+}
+
+/* 単日モーダル */
+.md-ws-res-quick-body { display: flex; flex-direction: column; gap: 12px; min-width: 360px; }
+.md-ws-res-quick-date { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.md-ws-res-quick-gc { font-size: 12px; color: var(--text-secondary); }
+.md-ws-res-quick-field { display: flex; flex-direction: column; gap: 4px; }
+.md-ws-res-quick-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+.md-ws-res-quick-hint {
+    font-size: 11px;
+    color: var(--text-secondary);
+    min-height: 14px;
+}
+
+/* 週全体モーダル */
+.md-ws-res-week-body { display: flex; flex-direction: column; gap: 10px; min-width: 640px; }
+.md-ws-res-week-intro { font-size: 12px; color: var(--text-secondary); }
+.md-ws-res-week-tablewrap { max-height: 50vh; overflow: auto; border: 1px solid var(--divider); border-radius: 4px; }
+.md-ws-res-week-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    font-size: 12px;
+}
+.md-ws-res-week-table th,
+.md-ws-res-week-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--divider);
+    text-align: center;
+    background: var(--base-surface);
+    white-space: pre-line;
+}
+.md-ws-res-week-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--base-surface-alt);
+    font-weight: 700;
+    z-index: 1;
+}
+.md-ws-res-week-th-partner,
+.md-ws-res-week-td-partner {
+    text-align: left;
+    min-width: 140px;
+}
+.md-ws-res-week-td-count { position: relative; }
+.md-ws-res-week-assigned-hint {
+    display: inline-block;
+    font-size: 10px;
+    color: var(--text-secondary);
+    background: var(--base-muted);
+    border-radius: 3px;
+    padding: 1px 4px;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+.md-ws-res-week-partner-name { font-weight: 600; }
+.md-ws-res-week-partner-warn {
+    display: inline-flex;
+    width: 14px;
+    height: 14px;
+    margin-left: 4px;
+    color: #DECCBE;
+    vertical-align: middle;
+}
+.md-ws-res-week-partner-warn svg { width: 14px; height: 14px; fill: currentColor; }
+.md-ws-res-week-menu-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    color: var(--text-secondary);
+    padding: 0;
+}
+.md-ws-res-week-menu-btn:hover {
+    border-color: var(--divider);
+    background: var(--base-surface-alt);
+}
+.md-ws-res-week-td-menu { width: 34px; }
+
+/* 週モーダル ＋業者追加 */
+.md-ws-res-week-add-row { display: flex; flex-direction: column; gap: 8px; }
+.md-ws-res-week-add-btn {
+    align-self: flex-start;
+    padding: 5px 12px;
+    border: 1px dashed var(--divider);
+    border-radius: 4px;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+.md-ws-res-week-add-btn:hover { background: var(--base-surface-alt); }
+.md-ws-res-week-add-panel {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    padding: 10px;
+    background: var(--base-surface-alt);
+    border-radius: 4px;
+}
+.md-ws-res-week-add-panel .md-ws-pac { flex: 1; min-width: 200px; }
+
+/* 行⋮メニュー */
+.md-ws-res-week-row-menu {
+    position: fixed;
+    z-index: 10100;
+    background: var(--base-surface);
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    min-width: 160px;
+    padding: 4px 0;
+}
+.md-ws-res-week-row-menu-item {
+    display: block;
+    width: 100%;
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+.md-ws-res-week-row-menu-item:hover { background: var(--base-surface-alt); }
+.md-ws-res-week-row-menu-danger { color: var(--error-text, #B03A2E); }
+

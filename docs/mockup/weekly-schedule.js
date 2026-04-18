@@ -1054,8 +1054,12 @@
                 var nameLabel = el('span', 'md-ws-reservation-name-label', gc.shortName + ' \u5fdc\u63f4\u4e88\u7d04');
                 rNameCell.appendChild(nameLabel);
                 var addBtn = el('button', 'md-ws-reservation-add-btn', '\uff0b');
-                addBtn.title = '\u5354\u529b\u696d\u8005\u3092\u8ffd\u52a0\u30fb\u4e88\u7d04\u4eba\u6570\u3092\u5165\u529b\uff08A5\u3067\u5b9f\u88c5\uff09';
-                addBtn.disabled = true;  // Phase A5で実装
+                addBtn.title = '\u9031\u5168\u4f53\u306e\u4e88\u7d04\u3092\u4e00\u89a7\u30fb\u7de8\u96c6';
+                (function (gcCode) {
+                    addBtn.addEventListener('click', function () {
+                        openReservationWeekModal(gcCode);
+                    });
+                })(gc.code);
                 rNameCell.appendChild(addBtn);
                 grid.appendChild(rNameCell);
 
@@ -1085,6 +1089,19 @@
                         var badge = createReservationBadge(slot, dk, isPast);
                         cell.appendChild(badge);
                     });
+
+                    // 日付セル内の新規予約追加ボタン（非過去日のみ）
+                    if (!isPast) {
+                        var cellAddBtn = el('button', 'md-ws-reserve-cell-add', '\uff0b');
+                        cellAddBtn.title = '\u3053\u306e\u65e5\u306e\u4e88\u7d04\u3092\u8ffd\u52a0';
+                        (function (gcCode, dateKey) {
+                            cellAddBtn.addEventListener('click', function (e) {
+                                e.stopPropagation();
+                                openReservationQuickModal(gcCode, dateKey);
+                            });
+                        })(gc.code, dk);
+                        cell.appendChild(cellAddBtn);
+                    }
 
                     grid.appendChild(cell);
                 });
@@ -3938,6 +3955,428 @@
             function onOutside(e) {
                 if (!popover.contains(e.target)) {
                     popover.remove();
+                    document.removeEventListener('mousedown', onOutside);
+                }
+            }
+            document.addEventListener('mousedown', onOutside);
+        }, 10);
+    }
+
+    // ==========================================================
+    // 応援予約モーダル（A5）
+    // ==========================================================
+
+    /**
+     * 汎用モーダル骨格を生成
+     * @param {string} title
+     * @param {HTMLElement} bodyNode
+     * @param {Array<{label: string, variant?: string, onClick: function}>} actions
+     * @returns {{ overlay: HTMLElement, close: function }}
+     */
+    function openReservationModal(title, bodyNode, actions) {
+        // 既存モーダル閉じる（多重起動防止）
+        var existing = document.querySelector('.md-ws-modal-overlay');
+        if (existing) existing.remove();
+
+        var overlay = el('div', 'md-ws-modal-overlay');
+        var content = el('div', 'md-ws-modal-content');
+
+        var header = el('div', 'md-ws-modal-header');
+        var titleEl = el('span', 'md-ws-modal-title', title);
+        var closeBtn = el('button', 'md-ws-modal-close', '\u2715');
+        closeBtn.addEventListener('click', function () { overlay.remove(); });
+        header.appendChild(titleEl);
+        header.appendChild(closeBtn);
+
+        var body = el('div', 'md-ws-modal-body');
+        body.appendChild(bodyNode);
+
+        var footer = el('div', 'md-ws-modal-footer');
+        (actions || []).forEach(function (a) {
+            var btn = el('button', 'md-ws-modal-btn' + (a.variant ? ' md-ws-modal-btn-' + a.variant : ''), a.label);
+            btn.addEventListener('click', function () { a.onClick({ close: function () { overlay.remove(); } }); });
+            footer.appendChild(btn);
+        });
+
+        content.appendChild(header);
+        content.appendChild(body);
+        if (actions && actions.length) content.appendChild(footer);
+        overlay.appendChild(content);
+
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) overlay.remove();
+        });
+        document.addEventListener('keydown', function onEsc(e) {
+            if (e.key === 'Escape') {
+                overlay.remove();
+                document.removeEventListener('keydown', onEsc);
+            }
+        });
+
+        document.body.appendChild(overlay);
+        return { overlay: overlay, close: function () { overlay.remove(); } };
+    }
+
+    /**
+     * 人数ステッパー（−/＋ ボタン付き）
+     */
+    function createStepper(initialValue, onChange, opts) {
+        opts = opts || {};
+        var min = typeof opts.min === 'number' ? opts.min : 0;
+        var wrap = el('div', 'md-ws-stepper');
+        var dec = el('button', 'md-ws-stepper-btn', '\u2212');
+        var inp = document.createElement('input');
+        inp.type = 'number';
+        inp.className = 'md-ws-stepper-input';
+        inp.min = String(min);
+        inp.value = String(initialValue | 0);
+        var inc = el('button', 'md-ws-stepper-btn', '\uff0b');
+
+        function commit(v) {
+            v = Math.max(min, v | 0);
+            inp.value = String(v);
+            if (onChange) onChange(v);
+        }
+        dec.addEventListener('click', function () { commit((parseInt(inp.value, 10) || 0) - 1); });
+        inc.addEventListener('click', function () { commit((parseInt(inp.value, 10) || 0) + 1); });
+        inp.addEventListener('change', function () { commit(parseInt(inp.value, 10) || 0); });
+
+        wrap.appendChild(dec);
+        wrap.appendChild(inp);
+        wrap.appendChild(inc);
+
+        wrap.getValue = function () { return parseInt(inp.value, 10) || 0; };
+        wrap.setValue = function (v) { commit(v); };
+        return wrap;
+    }
+
+    /**
+     * 協力業者オートコンプリート
+     * - 現GCの既存パートナー候補
+     * - マッチしない文字列は「+ 新規登録」候補
+     */
+    function createPartnerAutocomplete(gcCode, opts) {
+        opts = opts || {};
+        var wrap = el('div', 'md-ws-pac');
+        var inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'md-ws-pac-input';
+        inp.placeholder = '\u5354\u529b\u696d\u8005\u7565\u79f0\u3092\u5165\u529b\u2026';
+        var list = el('div', 'md-ws-pac-list');
+        list.style.display = 'none';
+
+        var selected = null; // { id, shortName } または null（新規）
+
+        function render() {
+            var q = inp.value.trim();
+            list.innerHTML = '';
+            var partners = getActivePartners(gcCode);
+            var excludeIds = opts.excludeIds || [];
+            partners = partners.filter(function (p) { return excludeIds.indexOf(p.id) < 0; });
+            var matches = q ? partners.filter(function (p) {
+                return p.shortName.toLowerCase().indexOf(q.toLowerCase()) >= 0;
+            }) : partners;
+
+            matches.forEach(function (p) {
+                var item = el('div', 'md-ws-pac-item', p.shortName);
+                item.addEventListener('mousedown', function (e) {
+                    e.preventDefault();
+                    selected = { id: p.id, shortName: p.shortName, isNew: false };
+                    inp.value = p.shortName;
+                    list.style.display = 'none';
+                    if (opts.onSelect) opts.onSelect(selected);
+                });
+                list.appendChild(item);
+            });
+
+            // 新規候補（マッチする既存がない or 完全一致しない）
+            var exact = partners.some(function (p) { return p.shortName === q; });
+            if (q && !exact) {
+                var newItem = el('div', 'md-ws-pac-item md-ws-pac-item-new', '\uff0b \u65b0\u898f\u767b\u9332: ' + q);
+                newItem.addEventListener('mousedown', function (e) {
+                    e.preventDefault();
+                    selected = { id: null, shortName: q, isNew: true };
+                    inp.value = q;
+                    list.style.display = 'none';
+                    if (opts.onSelect) opts.onSelect(selected);
+                });
+                list.appendChild(newItem);
+            }
+
+            list.style.display = list.children.length ? 'block' : 'none';
+        }
+
+        inp.addEventListener('focus', render);
+        inp.addEventListener('input', function () {
+            selected = null;
+            if (opts.onSelect) opts.onSelect(null);
+            render();
+        });
+        inp.addEventListener('blur', function () {
+            setTimeout(function () { list.style.display = 'none'; }, 120);
+        });
+
+        wrap.appendChild(inp);
+        wrap.appendChild(list);
+        wrap.getSelected = function () { return selected; };
+        wrap.getQuery = function () { return inp.value.trim(); };
+        wrap.focus = function () { inp.focus(); };
+        return wrap;
+    }
+
+    /**
+     * 単日モーダル: その日の応援予約を追加
+     */
+    function openReservationQuickModal(gcCode, dateKey) {
+        var body = el('div', 'md-ws-res-quick-body');
+
+        var dateLine = el('div', 'md-ws-res-quick-date');
+        var d = new Date(dateKey + 'T00:00:00');
+        var dow = ['\u65e5','\u6708','\u706b','\u6c34','\u6728','\u91d1','\u571f'][d.getDay()];
+        dateLine.textContent = (d.getMonth() + 1) + '/' + d.getDate() + '(' + dow + ')';
+        body.appendChild(dateLine);
+
+        var gcLabel = groupCompaniesData.filter(function (g) { return g.code === gcCode; })[0];
+        var gcLine = el('div', 'md-ws-res-quick-gc', '\u4f9d\u983c\u5143\uff1a' + (gcLabel ? gcLabel.shortName : gcCode));
+        body.appendChild(gcLine);
+
+        // 業者入力
+        var partnerField = el('div', 'md-ws-res-quick-field');
+        partnerField.appendChild(el('label', 'md-ws-res-quick-label', '\u5354\u529b\u696d\u8005'));
+        var hintLine = el('div', 'md-ws-res-quick-hint');
+        var stepper;
+
+        var autocomplete = createPartnerAutocomplete(gcCode, {
+            onSelect: function (sel) {
+                if (!sel) {
+                    hintLine.textContent = '';
+                    if (stepper) stepper.setValue(0);
+                    return;
+                }
+                if (sel.isNew) {
+                    hintLine.textContent = '\u65b0\u898f\u767b\u9332\uff08\u30de\u30b9\u30bf\u672a\u5b8c\u5099\u3068\u3057\u3066\u8b66\u544a\u30a2\u30a4\u30b3\u30f3\u4ed8\u4e0e\uff09';
+                    if (stepper) stepper.setValue(0);
+                } else {
+                    var current = getReservedCount(sel.id, dateKey);
+                    hintLine.textContent = current > 0
+                        ? '\u73fe\u5728 ' + current + '\u540d\uff08\u5909\u66f4\u5f8c\u306e\u4eba\u6570\u3067\u4e0a\u66f8\u304d\u3055\u308c\u307e\u3059\uff09'
+                        : '\u672a\u4e88\u7d04';
+                    if (stepper) stepper.setValue(current);
+                }
+            }
+        });
+        partnerField.appendChild(autocomplete);
+        partnerField.appendChild(hintLine);
+        body.appendChild(partnerField);
+
+        // 人数ステッパー
+        var countField = el('div', 'md-ws-res-quick-field');
+        countField.appendChild(el('label', 'md-ws-res-quick-label', '\u4eba\u6570'));
+        stepper = createStepper(0, null, { min: 0 });
+        countField.appendChild(stepper);
+        body.appendChild(countField);
+
+        openReservationModal((gcLabel ? gcLabel.shortName : gcCode) + ' \u5fdc\u63f4\u4e88\u7d04\u8ffd\u52a0', body, [
+            { label: '\u30ad\u30e3\u30f3\u30bb\u30eb', variant: 'secondary', onClick: function (ctx) { ctx.close(); } },
+            { label: '\u4fdd\u5b58', variant: 'primary', onClick: function (ctx) {
+                var sel = autocomplete.getSelected();
+                var q = autocomplete.getQuery();
+                if (!sel && !q) {
+                    alert('\u5354\u529b\u696d\u8005\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044');
+                    return;
+                }
+                var count = stepper.getValue();
+                var partnerId;
+                if (sel && !sel.isNew) {
+                    partnerId = sel.id;
+                } else {
+                    // 入力文字列で新規登録（既存が無ければ）
+                    var name = sel ? sel.shortName : q;
+                    var existing = getActivePartners(gcCode).filter(function (p) { return p.shortName === name; })[0];
+                    partnerId = existing ? existing.id : addPartner(name, gcCode);
+                }
+                setReservedCount(partnerId, dateKey, count);
+                ctx.close();
+                renderGrid();
+                renderSidebar();
+            } }
+        ]);
+
+        setTimeout(function () { autocomplete.focus(); }, 50);
+    }
+
+    /**
+     * 週全体モーダル: 業者×日付マトリクス
+     */
+    function openReservationWeekModal(gcCode) {
+        var dates = getVisibleDates();
+        var body = el('div', 'md-ws-res-week-body');
+
+        var gcLabel = groupCompaniesData.filter(function (g) { return g.code === gcCode; })[0];
+        var intro = el('div', 'md-ws-res-week-intro', (gcLabel ? gcLabel.shortName : gcCode) + ' \u9031\u5168\u4f53\u306e\u4e88\u7d04\u4eba\u6570\u3092\u7de8\u96c6\u3002\u5909\u66f4\u306f\u5373\u6642\u53cd\u6620\u3055\u308c\u307e\u3059\u3002');
+        body.appendChild(intro);
+
+        var tableWrap = el('div', 'md-ws-res-week-tablewrap');
+        var table = el('table', 'md-ws-res-week-table');
+        var thead = el('thead');
+        var headRow = el('tr');
+        headRow.appendChild(el('th', 'md-ws-res-week-th-partner', '\u5354\u529b\u696d\u8005'));
+        dates.forEach(function (d) {
+            var dow = ['\u65e5','\u6708','\u706b','\u6c34','\u6728','\u91d1','\u571f'][d.getDay()];
+            var th = el('th', 'md-ws-res-week-th-date', (d.getMonth() + 1) + '/' + d.getDate() + '\n(' + dow + ')');
+            headRow.appendChild(th);
+        });
+        headRow.appendChild(el('th', 'md-ws-res-week-th-menu', ''));
+        thead.appendChild(headRow);
+        table.appendChild(thead);
+        var tbody = el('tbody');
+        table.appendChild(tbody);
+
+        function renderBody() {
+            tbody.innerHTML = '';
+            var partners = getActivePartners(gcCode);
+            partners.forEach(function (p) {
+                var tr = el('tr');
+                tr.dataset.partnerId = p.id;
+
+                var nameTd = el('td', 'md-ws-res-week-td-partner');
+                var nameSpan = el('span', 'md-ws-res-week-partner-name', p.shortName);
+                nameTd.appendChild(nameSpan);
+                if (!p.isMasterComplete) {
+                    var warn = el('span', 'md-ws-res-week-partner-warn');
+                    warn.innerHTML = WARN_ICON_SVG;
+                    warn.title = '\u30de\u30b9\u30bf\u672a\u5b8c\u5099';
+                    nameTd.appendChild(warn);
+                }
+                tr.appendChild(nameTd);
+
+                dates.forEach(function (d) {
+                    var dk = formatDateKey(d);
+                    var td = el('td', 'md-ws-res-week-td-count');
+                    var reserved = getReservedCount(p.id, dk);
+                    var assigned = getAssignedCountForDate(p.id, dk);
+                    var stepper = createStepper(reserved, function (v) {
+                        // 配置済みより下には設定不可（整合性）
+                        if (v < assigned) {
+                            stepper.setValue(assigned);
+                            return;
+                        }
+                        setReservedCount(p.id, dk, v);
+                        renderGrid();
+                        renderSidebar();
+                    }, { min: 0 });
+                    if (assigned > 0) {
+                        var asHint = el('span', 'md-ws-res-week-assigned-hint', '\u914d' + assigned);
+                        asHint.title = '\u914d\u7f6e\u6e08\u307f';
+                        td.appendChild(asHint);
+                    }
+                    td.appendChild(stepper);
+                    tr.appendChild(td);
+                });
+
+                // ⋮ メニュー
+                var menuTd = el('td', 'md-ws-res-week-td-menu');
+                var menuBtn = el('button', 'md-ws-res-week-menu-btn', '\u22ee');
+                menuBtn.title = '\u30e1\u30cb\u30e5\u30fc';
+                (function (partner) {
+                    menuBtn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        showPartnerRowMenu(menuBtn, partner, gcCode, renderBody);
+                    });
+                })(p);
+                menuTd.appendChild(menuBtn);
+                tr.appendChild(menuTd);
+
+                tbody.appendChild(tr);
+            });
+        }
+        renderBody();
+
+        tableWrap.appendChild(table);
+        body.appendChild(tableWrap);
+
+        // ＋業者追加
+        var addRow = el('div', 'md-ws-res-week-add-row');
+        var addToggleBtn = el('button', 'md-ws-res-week-add-btn', '\uff0b \u696d\u8005\u8ffd\u52a0');
+        var addPanel = el('div', 'md-ws-res-week-add-panel');
+        addPanel.style.display = 'none';
+        var addAc = createPartnerAutocomplete(gcCode, {
+            excludeIds: getActivePartners(gcCode).map(function (p) { return p.id; })
+        });
+        var addConfirm = el('button', 'md-ws-modal-btn md-ws-modal-btn-primary', '\u767b\u9332');
+        var addCancel = el('button', 'md-ws-modal-btn md-ws-modal-btn-secondary', '\u30ad\u30e3\u30f3\u30bb\u30eb');
+        addPanel.appendChild(addAc);
+        addPanel.appendChild(addConfirm);
+        addPanel.appendChild(addCancel);
+
+        addToggleBtn.addEventListener('click', function () {
+            addPanel.style.display = addPanel.style.display === 'none' ? 'flex' : 'none';
+            if (addPanel.style.display === 'flex') setTimeout(function () { addAc.focus(); }, 30);
+        });
+        addCancel.addEventListener('click', function () {
+            addPanel.style.display = 'none';
+        });
+        addConfirm.addEventListener('click', function () {
+            var sel = addAc.getSelected();
+            var q = addAc.getQuery();
+            if (!sel && !q) { alert('\u5354\u529b\u696d\u8005\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044'); return; }
+            var name = sel ? sel.shortName : q;
+            addPartner(name, gcCode);
+            addPanel.style.display = 'none';
+            renderBody();
+            renderGrid();
+            renderSidebar();
+        });
+
+        addRow.appendChild(addToggleBtn);
+        addRow.appendChild(addPanel);
+        body.appendChild(addRow);
+
+        openReservationModal((gcLabel ? gcLabel.shortName : gcCode.toUpperCase()) + ' \u5fdc\u63f4\u4e88\u7d04 \u9031\u5168\u4f53\u7de8\u96c6', body, [
+            { label: '\u9589\u3058\u308b', variant: 'primary', onClick: function (ctx) { ctx.close(); } }
+        ]);
+    }
+
+    /**
+     * 週全体モーダルの⋮メニュー
+     */
+    function showPartnerRowMenu(btnEl, partner, gcCode, onChange) {
+        var existing = document.querySelector('.md-ws-res-week-row-menu');
+        if (existing) existing.remove();
+
+        var menu = el('div', 'md-ws-res-week-row-menu');
+        var clearBtn = el('button', 'md-ws-res-week-row-menu-item', '\u3053\u306e\u9031\u306e\u4e88\u7d04\u3092\u30af\u30ea\u30a2');
+        clearBtn.addEventListener('click', function () {
+            getVisibleDates().forEach(function (d) {
+                var dk = formatDateKey(d);
+                var assigned = getAssignedCountForDate(partner.id, dk);
+                setReservedCount(partner.id, dk, assigned); // 配置済みは残す
+            });
+            menu.remove();
+            onChange();
+            renderGrid();
+            renderSidebar();
+        });
+        var deleteBtn = el('button', 'md-ws-res-week-row-menu-item md-ws-res-week-row-menu-danger', '\u30de\u30b9\u30bf\u304b\u3089\u524a\u9664');
+        deleteBtn.addEventListener('click', function () {
+            if (!confirm(partner.shortName + ' \u3092\u30de\u30b9\u30bf\u304b\u3089\u524a\u9664\u3057\u307e\u3059\u3002\u3088\u308d\u3057\u3044\u3067\u3059\u304b\uff1f')) return;
+            deactivatePartner(partner.id);
+            menu.remove();
+            onChange();
+            renderGrid();
+            renderSidebar();
+        });
+        menu.appendChild(clearBtn);
+        menu.appendChild(deleteBtn);
+
+        document.body.appendChild(menu);
+        var rect = btnEl.getBoundingClientRect();
+        menu.style.top = (rect.bottom + 4) + 'px';
+        menu.style.left = (rect.right - 160) + 'px';
+        setTimeout(function () {
+            function onOutside(e) {
+                if (!menu.contains(e.target)) {
+                    menu.remove();
                     document.removeEventListener('mousedown', onOutside);
                 }
             }
