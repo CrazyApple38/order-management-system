@@ -765,7 +765,7 @@ function buildBranchPanel() {
     branches.sort();
     var panel = document.getElementById('filterBranchPanel');
     panel.innerHTML = branches.map(function(b) {
-        return '<label class="md-ob-filter-dd-item"><input type="checkbox" value="' + escapeHtml(b) + '" onchange="onBranchCheck()"> ' + escapeHtml(b) + '</label>';
+        return '<label class="md-ob-filter-dd-item md-fi-checkbox"><input type="checkbox" value="' + escapeHtml(b) + '" onchange="onBranchCheck()"> ' + escapeHtml(b) + '</label>';
     }).join('');
 }
 

@@ -4191,9 +4191,8 @@ h1 {
 .md-ob-modal-footer-right { display: flex; gap: 10px; }
 
 /* M-B1: .md-ob-form-row* は新DS .md-fi-* 体系に移行済 */
-/* SL 固有: 人数入力を18px/700に強調 */
-.md-sp-edit-modal .md-fi-input-number,
-.md-nav-modal .md-fi-input-number {
+/* SL 固有: 人数入力を18px/700に強調（M-B3: 実祖先 .md-ob-edit-form に合わせて修正） */
+.md-ob-edit-form .md-fi-input-number {
     font-size: 18px;
     font-weight: 700;
 }
