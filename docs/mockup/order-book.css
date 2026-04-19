@@ -4,29 +4,12 @@
    =========================== */
 
 :root {
-    /* ═══ Tier 1 — Base（60%）═══ */
-    --base-page:         #E9F1F6;
-    --base-surface:      #FFFFFF;
-    --base-surface-alt:  #F0EDE9;
-    --base-muted:        #D3D0C8;
+    /* OB固有トークン（co-tokens.css 未収載。Phase M-A で個別対応予定） */
+
+    /* OB Grid背景 */
     --base-grid:         #F5F5F5;
     --base-grid-alt:     #F2F2F1;
     --base-grid-total:   #F0F4F4;
-
-    /* ═══ Tier 2 — Sub（30%）═══ */
-    --sub-primary:       #004554;
-    --sub-secondary:     #B2D5E2;
-
-    /* ═══ Tier 3 — Accent（10%）═══ */
-    --accent-primary:    #44A6B5;
-    --accent-light:      #5AB8C6;
-    --accent-dim:        rgba(68, 166, 181, 0.12);
-
-    /* テキスト */
-    --text-primary:      #004554;
-    --text-secondary:    #2A6B7A;
-    --text-tertiary:     #5A8896;
-    --text-disabled:     #8BAEB9;
 
     /* 曜日オーバーレイ */
     --day-sat:           #EAF0F1;
@@ -36,26 +19,11 @@
     --day-sat-cal:       rgba(68, 166, 181, 0.06);
     --day-sun-cal:       rgba(220, 120, 120, 0.06);
 
-    /* ディバイダー・セマンティック */
-    --divider:           #B2D5E2;
-    --error:             #DB577B;
+    /* OB固有α値・用途特殊 */
     --error-bg:          rgba(219, 87, 123, 0.08);
     --night-text:        #DB577B;
-    --success:           #38A169;
-    --success-text:      #276749;
     --success-bg:        rgba(56, 161, 105, 0.1);
-    --warning:           #D69E2E;
-    --warning-text:      #975A16;
-    --warning-bg:        rgba(214, 158, 46, 0.1);
-
-    /* 後方互換（co-navbar.css等の共有CSS用） */
-    --bg-page: var(--base-page);
-    --bg-surface: var(--base-surface);
-    --bg-surface-2: var(--base-surface-alt);
-    --bg-surface-3: var(--base-muted);
-    --bg-sidebar: var(--sub-primary);
-    --accent: var(--accent-primary);
-    --secondary: var(--sub-secondary);
+    --warning-text:      #975A16;  /* 値不一致のため残留。Phase M-A2 で整合検討 */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: thin; }
