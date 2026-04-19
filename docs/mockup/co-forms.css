@@ -1,0 +1,256 @@
+/* ============================================================================
+   co-forms.css — Plaster UI Form Components (mockup-shared)
+   ----------------------------------------------------------------------------
+   参照元: docs/ui-components/styles-light.css フォームセクション（行約2336-3179）
+   スコープ: 4モックアップ（OB/WS/QA/SL）が `.md-fi-*` クラスを使用するために
+             必要な最小限のフォームCSSを抽出した共有ファイル。
+   同期方針: styles-light.css を唯一の正とし、本ファイルを手動で同期する。
+             styles-light.css の該当セクションが更新されたときは、本ファイルも
+             合わせて更新すること。
+   依存: co-tokens.css（CSS変数）
+   ============================================================================ */
+
+/* ----- 共通ラベル ----- */
+.md-fi-label {
+    display: block;
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-semibold);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--space-xs);
+}
+
+/* ----- フォーム行レイアウト ----- */
+.md-fi-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+.md-fi-row {
+    display: flex;
+    gap: var(--space-md);
+    align-items: flex-end;
+}
+.md-fi-row > .md-fi-field { flex: 1; }
+
+/* ----- テキスト入力 ----- */
+.md-fi-input {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    font-family: inherit;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    transition: border-color var(--duration-fast);
+}
+.md-fi-input:hover {
+    border-color: var(--accent);
+}
+.md-fi-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.md-fi-input::placeholder {
+    color: var(--text-disabled);
+}
+.md-fi-input:disabled {
+    background: var(--bg-surface-2);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+    border-color: var(--bg-surface-3);
+}
+.md-fi-input.md-fi-error {
+    border-color: var(--error);
+}
+.md-fi-input.md-fi-error:focus {
+    box-shadow: 0 0 0 3px rgba(219,87,123,0.12);
+}
+
+/* ----- 数値入力 ----- */
+.md-fi-input-number {
+    width: 80px;
+    text-align: center;
+    -moz-appearance: textfield;
+}
+.md-fi-input-number::-webkit-outer-spin-button,
+.md-fi-input-number::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* ----- テキストエリア ----- */
+.md-fi-textarea {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    font-family: inherit;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    transition: border-color var(--duration-fast);
+    resize: vertical;
+    min-height: 60px;
+    line-height: var(--lh-base);
+}
+.md-fi-textarea:hover { border-color: var(--accent); }
+.md-fi-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.md-fi-textarea::placeholder { color: var(--text-disabled); }
+.md-fi-textarea:disabled {
+    background: var(--bg-surface-2);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+}
+
+/* ----- タイムピッカー ----- */
+.md-fi-time-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.md-fi-time {
+    width: 100%;
+    padding: 7px 30px 7px 10px;
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    text-align: center;
+    cursor: pointer;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-family: inherit;
+    transition: border-color var(--duration-fast);
+}
+.md-fi-time:hover { border-color: var(--accent); }
+.md-fi-time:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.md-fi-time-icon {
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: var(--fs-base);
+    line-height: 1;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* ----- コンボボックス ----- */
+.md-fi-combo {
+    position: relative;
+}
+.md-fi-combo-input {
+    width: 100%;
+    padding: 8px 60px 8px 12px;
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    font-family: inherit;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    transition: border-color var(--duration-fast);
+}
+.md-fi-combo-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.md-fi-combo-input::placeholder { color: var(--text-disabled); }
+.md-fi-combo-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-tertiary);
+    font-size: var(--fs-caption);
+    padding: var(--space-xs);
+}
+.md-fi-combo-toggle:hover { color: var(--accent); }
+.md-fi-combo-clear {
+    position: absolute;
+    right: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-disabled);
+    font-size: var(--fs-sm);
+    padding: var(--space-xs);
+    display: none;
+}
+.md-fi-combo-clear.visible { display: block; }
+.md-fi-combo-clear:hover { color: var(--error); }
+.md-fi-combo-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-top: none;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    box-shadow: var(--shadow-medium);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+}
+.md-fi-combo-dropdown.open { display: block; }
+.md-fi-combo-option {
+    padding: var(--space-sm) var(--space-md);
+    cursor: pointer;
+    border-bottom: 1px solid var(--bg-surface-2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--text-primary);
+    font-size: var(--fs-sm);
+}
+.md-fi-combo-option:hover { background: var(--accent-dim); }
+.md-fi-combo-option:last-child { border-bottom: none; }
+
+/* ----- セレクト ----- */
+.md-fi-select {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    font-family: inherit;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: border-color var(--duration-fast);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236B9AA8'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 30px;
+}
+.md-fi-select:hover { border-color: var(--accent); }
+.md-fi-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.md-fi-select:disabled {
+    background: var(--bg-surface-2);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+}

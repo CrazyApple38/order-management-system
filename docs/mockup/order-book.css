@@ -539,26 +539,14 @@ body {
     display: flex; gap: 10px;
 }
 
-/* 編集フォーム */
+/* 編集フォーム（M-B1: .md-ob-form-row* → 新DS .md-fi-* 体系へ移行済） */
 .md-ob-edit-form { display: flex; flex-direction: column; gap: 14px; }
-.md-ob-form-row { display: flex; flex-direction: column; gap: 5px; }
-.md-ob-form-row label {
-    font-size: 11px; font-weight: 600; color: var(--text-secondary);
-    margin-bottom: 8px;
+
+/* OB 固有: 人数入力は新DS .md-fi-input-number を18px/700に強調 */
+.md-ob-edit-form .md-fi-input-number {
+    font-size: 18px;
+    font-weight: 700;
 }
-.md-ob-form-row input,
-.md-ob-form-row textarea {
-    padding: 10px; border: 1px solid var(--divider);
-    border-radius: 6px; font-size: 12px; font-family: inherit;
-    transition: border-color 0.15s;
-    background: var(--bg-surface); color: var(--text-primary);
-}
-.md-ob-form-row input:focus,
-.md-ob-form-row textarea:focus {
-    outline: none; border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-primary-dim);
-}
-.md-ob-form-row input[type="number"] { width: 80px; text-align: center; font-size: 18px; font-weight: 700; }
 
 /* サジェスト共通 */
 .md-ob-company-field, .md-ob-task-field { position: relative; }
@@ -589,7 +577,7 @@ body {
 .md-ob-count-confidence-row {
     display: flex; gap: 16px; align-items: flex-start;
 }
-.md-ob-count-confidence-row > .md-ob-form-row { flex-shrink: 0; }
+.md-ob-count-confidence-row > .md-fi-field { flex-shrink: 0; }
 .md-ob-confidence-field {
     flex: 1; display: flex; flex-direction: column; gap: 5px;
 }
@@ -795,8 +783,7 @@ body {
     background: var(--error-bg); color: var(--semantic-error); border-color: rgba(219,87,123,0.3);
 }
 
-.md-ob-form-row-half { display: flex; flex-direction: row; gap: 12px; }
-.md-ob-form-row-half > div { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+/* M-B1: .md-ob-form-row-half は .md-fi-row（新DS）に置換済 */
 
 /* カスタム時間ピッカー */
 .md-ob-time-picker-wrap {
@@ -885,17 +872,7 @@ body {
     background: var(--accent-primary-dim); border-color: var(--accent-primary); color: var(--accent-primary);
 }
 
-/* 行編集モーダル：セレクト・固定列カーソル */
-.md-ob-form-row select {
-    padding: 8px 12px; border: 1px solid var(--divider);
-    border-radius: 6px; font-size: 13px; font-family: inherit;
-    background: var(--bg-surface); color: var(--text-primary);
-    transition: border-color 0.15s; appearance: auto;
-}
-.md-ob-form-row select:focus {
-    outline: none; border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-primary-dim);
-}
+/* M-B1: .md-ob-form-row select の独自定義は新DS .md-fi-select に集約済 */
 /* 行編集モーダル：チップフィールド */
 .md-ob-chip-field {
     display: flex; flex-direction: column; gap: 5px;

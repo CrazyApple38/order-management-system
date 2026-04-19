@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>業務管理計画書 - 画面レイアウト設計</title>
     <link rel="stylesheet" href="mockup/co-tokens.css">
+    <link rel="stylesheet" href="mockup/co-forms.css">
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/co-navbar.css?v=3">
     <link rel="stylesheet" href="mockup/screen-layout.css?v=8">
@@ -469,7 +470,7 @@
                 <!-- 社員パネル -->
                 <div class="md-sp-main-panel" id="spEmployeePanel">
                     <div class="side-panel-search">
-                        <input type="text" id="spSearchInput" placeholder="社員検索...">
+                        <input type="text" class="md-fi-input" id="spSearchInput" placeholder="社員検索...">
                         <button type="button" class="sp-edit-btn" onclick="openStaffEditModal()" title="社員リスト編集">
                             <img src="assets/icons/business/im-12032-shimpuru-na-shomei-keiyaku.svg" alt="編集" class="sp-edit-icon">
                         </button>
@@ -482,7 +483,7 @@
                 <!-- 車両パネル -->
                 <div class="md-sp-main-panel" id="spVehiclePanel" style="display:none">
                     <div class="side-panel-search">
-                        <input type="text" id="spVehicleSearchInput" placeholder="車両検索...">
+                        <input type="text" class="md-fi-input" id="spVehicleSearchInput" placeholder="車両検索...">
                         <button type="button" class="sp-edit-btn" onclick="openVehicleEditModal()" title="車両リスト編集">
                             <img src="assets/icons/business/im-12032-shimpuru-na-shomei-keiyaku.svg" alt="編集" class="sp-edit-icon">
                         </button>
@@ -740,14 +741,14 @@
                     <!-- ━━ Fields ━━ -->
                     <div class="md-modal-body-field"><div class="md-modal-body-field-value">Fields</div></div>
                     <div class="md-modal-body-card">
-                        <div class="md-ob-form-row md-ob-company-field">
-                            <label>契約先名</label>
-                            <input type="text" id="smCompany" oninput="smCompanySuggest(); smUpdateSupervisorCandidates()" autocomplete="off">
+                        <div class="md-fi-field md-ob-company-field">
+                            <label class="md-fi-label">契約先名</label>
+                            <input type="text" class="md-fi-input" id="smCompany" oninput="smCompanySuggest(); smUpdateSupervisorCandidates()" autocomplete="off">
                             <div class="md-ob-company-suggest" id="smCompanySuggestPanel" style="display:none;"></div>
                         </div>
-                        <div class="md-ob-form-row md-ob-task-field">
-                            <label>業務名</label>
-                            <input type="text" id="smTask" placeholder="空欄で個別業務" oninput="smTaskSuggest(); smUpdateSupervisorCandidates()" autocomplete="off">
+                        <div class="md-fi-field md-ob-task-field">
+                            <label class="md-fi-label">業務名</label>
+                            <input type="text" class="md-fi-input" id="smTask" placeholder="空欄で個別業務" oninput="smTaskSuggest(); smUpdateSupervisorCandidates()" autocomplete="off">
                             <div class="md-ob-company-suggest" id="smTaskSuggestPanel" style="display:none;"></div>
                         </div>
                     </div>
@@ -759,12 +760,12 @@
                             <!-- 人数 + 信頼度 -->
                             <div class="md-modal-section-bar">配置情報</div>
                             <div class="md-ob-count-confidence-row">
-                                <div class="md-ob-form-row">
-                                    <label>人数</label>
-                                    <input type="number" id="smCount" min="0" max="99">
+                                <div class="md-fi-field">
+                                    <label class="md-fi-label">人数</label>
+                                    <input type="number" class="md-fi-input md-fi-input-number" id="smCount" min="0" max="99">
                                 </div>
                                 <div class="md-ob-confidence-field">
-                                    <label>信頼度</label>
+                                    <label class="md-fi-label">信頼度</label>
                                     <div class="md-ob-confidence-chips" id="smConfidenceChips"></div>
                                 </div>
                             </div>
@@ -792,17 +793,17 @@
                         <div class="md-ob-edit-form">
                             <!-- 集合 -->
                             <div class="md-modal-section-bar">集合</div>
-                            <div class="md-ob-form-row md-ob-form-row-half">
-                                <div>
-                                    <label>集合時間</label>
+                            <div class="md-fi-row">
+                                <div class="md-fi-field">
+                                    <label class="md-fi-label">集合時間</label>
                                     <div class="md-ob-time-picker-wrap" onclick="openTimePicker('smMeetingTime', this)">
                                         <input type="text" id="smMeetingTime" class="md-ob-time-input" readonly placeholder="--:--">
                                         <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
                                     </div>
                                 </div>
-                                <div>
-                                    <label>集合場所</label>
-                                    <input type="text" id="smMeetingPlace" placeholder="集合場所を入力">
+                                <div class="md-fi-field">
+                                    <label class="md-fi-label">集合場所</label>
+                                    <input type="text" class="md-fi-input" id="smMeetingPlace" placeholder="集合場所を入力">
                                 </div>
                             </div>
                             <div class="md-ob-chip-field">
@@ -810,16 +811,16 @@
                                 <div class="md-ob-row-chips" id="smContactChips"></div>
                             </div>
                             <!-- 開始/終了時間 -->
-                            <div class="md-ob-form-row md-ob-form-row-half">
-                                <div>
-                                    <label>開始時間</label>
+                            <div class="md-fi-row">
+                                <div class="md-fi-field">
+                                    <label class="md-fi-label">開始時間</label>
                                     <div class="md-ob-time-picker-wrap" onclick="openTimePicker('smStartTime', this)">
                                         <input type="text" id="smStartTime" class="md-ob-time-input" readonly placeholder="--:--">
                                         <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
                                     </div>
                                 </div>
-                                <div>
-                                    <label>終了時間</label>
+                                <div class="md-fi-field">
+                                    <label class="md-fi-label">終了時間</label>
                                     <div class="md-ob-time-picker-wrap" onclick="openTimePicker('smEndTime', this)">
                                         <input type="text" id="smEndTime" class="md-ob-time-input" readonly placeholder="--:--">
                                         <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
@@ -828,14 +829,14 @@
                             </div>
                             <!-- 担当者 -->
                             <div class="md-modal-section-bar">担当者</div>
-                            <div class="md-ob-form-row md-ob-form-row-half">
-                                <div>
-                                    <label>現場監督</label>
-                                    <input type="text" id="smSupervisor" placeholder="氏名">
+                            <div class="md-fi-row">
+                                <div class="md-fi-field">
+                                    <label class="md-fi-label">現場監督</label>
+                                    <input type="text" class="md-fi-input" id="smSupervisor" placeholder="氏名">
                                 </div>
-                                <div>
-                                    <label>連絡先</label>
-                                    <input type="tel" id="smSupervisorTel" placeholder="電話番号">
+                                <div class="md-fi-field">
+                                    <label class="md-fi-label">連絡先</label>
+                                    <input type="tel" class="md-fi-input" id="smSupervisorTel" placeholder="電話番号">
                                 </div>
                             </div>
                             <div class="md-ob-supervisor-candidates" id="smSupervisorCandidates" style="display:none;">
@@ -853,9 +854,9 @@
                             </div>
                             <!-- 備考 -->
                             <div class="md-modal-section-bar">備考</div>
-                            <div class="md-ob-form-row">
-                                <label>備考</label>
-                                <textarea id="smRemarks" rows="2"></textarea>
+                            <div class="md-fi-field">
+                                <label class="md-fi-label">備考</label>
+                                <textarea class="md-fi-textarea" id="smRemarks" rows="2"></textarea>
                             </div>
                         </div>
                     </div>
@@ -881,7 +882,7 @@
                     <div class="md-modal-body-field"><div class="md-modal-body-field-value">Meeting / Contact</div></div>
                     <div class="md-modal-body-card">
                         <div class="md-modal-section">
-                            <label>集合時間</label>
+                            <label class="md-fi-label">集合時間</label>
                             <div class="md-ob-time-picker-wrap" onclick="openTimePicker('mtMeetingTime', this)">
                                 <input type="text" id="mtMeetingTime" class="md-ob-time-input" readonly placeholder="--:--">
                                 <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
@@ -987,11 +988,11 @@
                     <div class="md-modal-body-card" id="smMapTabContent">
                     <div class="sm-map-tab-bar" id="smMapTabBar"></div>
                         <div class="sm-map-tab-title-row">
-                            <label>タイトル</label>
-                            <input type="text" id="smMapLabelInput" class="sm-map-title-input" placeholder="地図タイトル">
+                            <label class="md-fi-label">タイトル</label>
+                            <input type="text" class="sm-map-title-input" id="smMapLabelInput" placeholder="地図タイトル">
                         </div>
                         <div class="md-modal-section">
-                            <label>Google Maps URL</label>
+                            <label class="md-fi-label">Google Maps URL</label>
                             <div class="sm-map-url-row">
                                 <input type="url" id="smMapUrlInput" placeholder="https://maps.google.com/..." oninput="smUpdateMapPreview()">
                                 <button type="button" class="sm-map-preview-btn" onclick="smUpdateMapPreview()">表示</button>
@@ -999,7 +1000,7 @@
                             <p class="sm-map-hint">Google Mapsで場所を開き、URLをコピーして貼り付けてください</p>
                         </div>
                         <div class="md-modal-section" id="smMapPreviewSection" style="display: none;">
-                            <label>プレビュー</label>
+                            <label class="md-fi-label">プレビュー</label>
                             <div class="sm-map-preview-frame-wrap">
                                 <iframe id="smMapPreviewFrame" src=""></iframe>
                             </div>
@@ -1028,14 +1029,14 @@
                     <div class="md-modal-body-card">
                         <div class="md-modal-row">
                             <div class="md-modal-section" style="flex:1">
-                                <label>開始時間</label>
+                                <label class="md-fi-label">開始時間</label>
                                 <div class="md-ob-time-picker-wrap" onclick="openTimePicker('wtStartTime', this)">
                                     <input type="text" id="wtStartTime" class="md-ob-time-input" readonly placeholder="--:--">
                                     <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
                                 </div>
                             </div>
                             <div class="md-modal-section" style="flex:1">
-                                <label>終了時間</label>
+                                <label class="md-fi-label">終了時間</label>
                                 <div class="md-ob-time-picker-wrap" onclick="openTimePicker('wtEndTime', this)">
                                     <input type="text" id="wtEndTime" class="md-ob-time-input" readonly placeholder="--:--">
                                     <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
@@ -1060,7 +1061,7 @@
                 <!-- 動的に生成 -->
             </div>
             <div class="contact-popup-add">
-                <input type="text" id="newContactItemInput" placeholder="新しい項目名..." maxlength="10">
+                <input type="text" class="md-fi-input" id="newContactItemInput" placeholder="新しい項目名..." maxlength="10">
                 <button onclick="addContactItem()">追加</button>
             </div>
         </div>
@@ -1394,15 +1395,15 @@
                 <!-- ━━ Fields ━━ -->
                 <div class="md-modal-body-field"><div class="md-modal-body-field-value">Fields</div></div>
                 <div class="md-modal-body-card">
-                    <div class="md-ob-form-row md-ob-company-field">
-                        <label>契約先名</label>
-                        <input type="text" id="slAddCompany" oninput="slCompanySuggest(); slUpdateWarnings(); slAddUpdateSupervisorCandidates()" autocomplete="off">
+                    <div class="md-fi-field md-ob-company-field">
+                        <label class="md-fi-label">契約先名</label>
+                        <input type="text" class="md-fi-input" id="slAddCompany" oninput="slCompanySuggest(); slUpdateWarnings(); slAddUpdateSupervisorCandidates()" autocomplete="off">
                         <div class="md-ob-company-suggest" id="slCompanySuggestPanel" style="display:none;"></div>
                         <div class="md-ob-field-warning" id="slWarnCompany" style="display:none;">契約先名を入力してください</div>
                     </div>
-                    <div class="md-ob-form-row md-ob-task-field">
-                        <label>業務名</label>
-                        <input type="text" id="slAddTask" placeholder="空欄で個別業務" oninput="slTaskSuggest(); slAddUpdateSupervisorCandidates()" autocomplete="off">
+                    <div class="md-fi-field md-ob-task-field">
+                        <label class="md-fi-label">業務名</label>
+                        <input type="text" class="md-fi-input" id="slAddTask" placeholder="空欄で個別業務" oninput="slTaskSuggest(); slAddUpdateSupervisorCandidates()" autocomplete="off">
                         <div class="md-ob-company-suggest" id="slTaskSuggestPanel" style="display:none;"></div>
                     </div>
                 </div>
@@ -1414,12 +1415,12 @@
                         <!-- 人数 + 信頼度 -->
                         <div class="md-modal-section-bar">配置情報</div>
                         <div class="md-ob-count-confidence-row">
-                            <div class="md-ob-form-row">
-                                <label>人数</label>
-                                <input type="number" id="slAddCount" min="0" max="99">
+                            <div class="md-fi-field">
+                                <label class="md-fi-label">人数</label>
+                                <input type="number" class="md-fi-input md-fi-input-number" id="slAddCount" min="0" max="99">
                             </div>
                             <div class="md-ob-confidence-field">
-                                <label>信頼度</label>
+                                <label class="md-fi-label">信頼度</label>
                                 <div class="md-ob-confidence-chips" id="slAddConfidenceChips"></div>
                             </div>
                         </div>
@@ -1447,17 +1448,17 @@
                     <div class="md-ob-edit-form">
                         <!-- 集合 -->
                         <div class="md-modal-section-bar">集合</div>
-                        <div class="md-ob-form-row md-ob-form-row-half">
-                            <div>
-                                <label>集合時間</label>
+                        <div class="md-fi-row">
+                            <div class="md-fi-field">
+                                <label class="md-fi-label">集合時間</label>
                                 <div class="md-ob-time-picker-wrap" onclick="openTimePicker('slAddMeetingTime', this)">
                                     <input type="text" id="slAddMeetingTime" class="md-ob-time-input" readonly placeholder="--:--">
                                     <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
                                 </div>
                             </div>
-                            <div>
-                                <label>集合場所</label>
-                                <input type="text" id="slAddMeetingPlace" placeholder="集合場所を入力">
+                            <div class="md-fi-field">
+                                <label class="md-fi-label">集合場所</label>
+                                <input type="text" class="md-fi-input" id="slAddMeetingPlace" placeholder="集合場所を入力">
                             </div>
                         </div>
                         <div class="md-ob-chip-field">
@@ -1465,16 +1466,16 @@
                             <div class="md-ob-row-chips" id="slAddContactChips"></div>
                         </div>
                         <!-- 開始/終了時間 -->
-                        <div class="md-ob-form-row md-ob-form-row-half">
-                            <div>
-                                <label>開始時間</label>
+                        <div class="md-fi-row">
+                            <div class="md-fi-field">
+                                <label class="md-fi-label">開始時間</label>
                                 <div class="md-ob-time-picker-wrap" onclick="openTimePicker('slAddStartTime', this)">
                                     <input type="text" id="slAddStartTime" class="md-ob-time-input" readonly placeholder="--:--">
                                     <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
                                 </div>
                             </div>
-                            <div>
-                                <label>終了時間</label>
+                            <div class="md-fi-field">
+                                <label class="md-fi-label">終了時間</label>
                                 <div class="md-ob-time-picker-wrap" onclick="openTimePicker('slAddEndTime', this)">
                                     <input type="text" id="slAddEndTime" class="md-ob-time-input" readonly placeholder="--:--">
                                     <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
@@ -1483,14 +1484,14 @@
                         </div>
                         <!-- 担当者 -->
                         <div class="md-modal-section-bar">担当者</div>
-                        <div class="md-ob-form-row md-ob-form-row-half">
-                            <div>
-                                <label>現場監督</label>
-                                <input type="text" id="slAddSupervisor" placeholder="氏名">
+                        <div class="md-fi-row">
+                            <div class="md-fi-field">
+                                <label class="md-fi-label">現場監督</label>
+                                <input type="text" class="md-fi-input" id="slAddSupervisor" placeholder="氏名">
                             </div>
-                            <div>
-                                <label>連絡先</label>
-                                <input type="tel" id="slAddSupervisorTel" placeholder="電話番号">
+                            <div class="md-fi-field">
+                                <label class="md-fi-label">連絡先</label>
+                                <input type="tel" class="md-fi-input" id="slAddSupervisorTel" placeholder="電話番号">
                             </div>
                         </div>
                         <div class="md-ob-supervisor-candidates" id="slAddSupervisorCandidates" style="display:none;">
@@ -1508,9 +1509,9 @@
                         </div>
                         <!-- 備考 -->
                         <div class="md-modal-section-bar">備考</div>
-                        <div class="md-ob-form-row">
-                            <label>備考</label>
-                            <textarea id="slAddRemarks" rows="2"></textarea>
+                        <div class="md-fi-field">
+                            <label class="md-fi-label">備考</label>
+                            <textarea class="md-fi-textarea" id="slAddRemarks" rows="2"></textarea>
                         </div>
                     </div>
                 </div>
