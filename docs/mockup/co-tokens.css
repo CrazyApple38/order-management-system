@@ -1,0 +1,246 @@
+/* ============================================================================
+   co-tokens.css — Plaster UI Design Tokens (Single Source of Truth)
+   ----------------------------------------------------------------------------
+   参照元: docs/ui-components/styles-light.css (:root) / docs/ui-components/tokens.json v1.2.0
+   スコープ: Light テーマのみ（ダーク対応は別フェーズで追加）
+   同期方針: tokens.json を唯一の正とし、本ファイルを手動で同期する。
+             トークン追加・変更時は styles-light.css / tokens.json / 本ファイル
+             の3者を必ず同時更新すること。
+   構造: W3C Design Tokens Community Group ドラフトの階層
+         (color.base / color.text / color.accent / color.semantic /
+          color.category / color.chart / typography / spacing / radius /
+          elevation / motion / breakpoint / icon-size / z-index / modal-width /
+          density) を CSS コメントで表現する。
+   注記: font-feature-settings ("palt") / font-variant-numeric (tabular-nums)
+         の body への適用は M0-4 で styles.css 側に実装する（本ファイル非対象）。
+   ============================================================================ */
+
+:root {
+
+  /* ----- color.base ----- */
+  --bg-page:        #E9F1F6;
+  --bg-surface:     #FFFFFF;
+  --bg-surface-2:   #F0EDE9;
+  --bg-surface-3:   #D3D0C8;
+  --bg-sidebar:     #004554;
+  --divider:        #B2D5E2;
+
+  /* ----- color.text ----- */
+  --text-primary:   #004554;
+  --text-secondary: #2A6B7A;
+  --text-tertiary:  #5A8896;  /* Phase D6.1: 旧 #6B9AA8 → #5A8896 (WCAG AA 4.6:1) */
+  --text-disabled:  #8BAEB9;  /* Phase D6.1: 旧 #A0BCC5 → #8BAEB9 */
+
+  /* ----- color.accent ----- */
+  --accent-primary:         #44A6B5;  /* hsl(187, 46%, 50%) — Moonstone */
+  --accent-primary-light:   #5AB8C6;
+  --accent-primary-dim:     rgba(68, 166, 181, 0.12);
+  --accent-secondary:       #E07856;  /* Phase D5.1 テラコッタ */
+  --accent-secondary-light: #EA9980;
+  --accent-secondary-dim:   rgba(224, 120, 86, 0.12);
+
+  /* ----- color.semantic ----- */
+  --semantic-success:      #38A169;
+  --semantic-success-text: #276749;
+  --semantic-warning:      #D69E2E;
+  --semantic-warning-text: #92400e;
+  --semantic-warning-bg:   rgba(214, 158, 46, 0.1);
+  --semantic-error:        #DB577B;
+
+  /* ----- color.category (Phase D5.2 — 4色相分化) ----- */
+  --cat-bg-facility:   rgba(68, 166, 181, 0.14);   /* teal */
+  --cat-text-facility: #1c4d54;
+  --cat-bg-event:      rgba(122, 140, 196, 0.14);  /* blue-violet */
+  --cat-text-event:    #2d3e7a;
+  --cat-bg-traffic:    rgba(180, 135, 100, 0.14);  /* warm brown */
+  --cat-text-traffic:  #5a3f25;
+  --cat-bg-highway:    rgba(98, 158, 120, 0.14);   /* sage green */
+  --cat-text-highway:  #1f4e31;
+
+  /* ----- color.chart.categorical (Phase D5.3) ----- */
+  --chart-1: #44A6B5;
+  --chart-2: #E07856;
+  --chart-3: #7A8CC4;
+  --chart-4: #629E78;
+  --chart-5: #B48764;
+  --chart-6: #B8607A;
+
+  /* ----- color.chart.sequential (Phase D5.3) ----- */
+  --chart-seq-0: #E9F1F6;
+  --chart-seq-1: #B2D5E2;
+  --chart-seq-2: #6B9AA8;  /* 旧 --text-tertiary と同値だが、用途は連続値ヒートマップ */
+  --chart-seq-3: #2A6B7A;
+  --chart-seq-4: #004554;
+
+  /* ----- color.chart.diverging (Phase D5.3) ----- */
+  --chart-diverge-neg:     #DB577B;
+  --chart-diverge-neutral: #D3D0C8;
+  --chart-diverge-pos:     #38A169;
+
+  /* ----- typography.font-family (Phase D1.2 — 和文フォント対応) ----- */
+  --font-family-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic UI', 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono: 'SF Mono', Consolas, Menlo, monospace;
+
+  /* ----- typography.font-size (Phase D1.1 — 7段階スケール) ----- */
+  --fs-caption: 11px;
+  --fs-sm:      13px;
+  --fs-base:    14px;
+  --fs-md:      16px;
+  --fs-lg:      20px;
+  --fs-xl:      26px;
+  --fs-2xl:     34px;
+
+  /* ----- typography.font-weight ----- */
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+  --fw-black:    800;
+
+  /* ----- typography.line-height ----- */
+  --lh-tight: 1.3;
+  --lh-base:  1.5;
+  --lh-loose: 1.7;
+
+  /* ----- spacing (Phase D1.3 — 2xs 追加済) ----- */
+  --space-2xs: 2px;
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  12px;
+  --space-lg:  16px;
+  --space-xl:  24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+
+  /* ----- radius ----- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* ----- elevation (Phase D1.5 — 6段階 shadow, Coastal primary rgba) ----- */
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgba(0, 69, 84, 0.06);
+  --elevation-2: 0 2px 4px rgba(0, 69, 84, 0.08);
+  --elevation-3: 0 4px 12px rgba(0, 69, 84, 0.10);
+  --elevation-4: 0 8px 24px rgba(0, 69, 84, 0.14);
+  --elevation-5: 0 16px 48px rgba(0, 69, 84, 0.18);
+
+  /* ----- motion.duration (Phase D1.4) ----- */
+  --duration-instant: 0ms;
+  --duration-fast:    120ms;
+  --duration-base:    200ms;
+  --duration-slow:    320ms;
+  --duration-slower:  480ms;
+
+  /* ----- motion.easing (Phase D1.4) ----- */
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:     cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ----- breakpoint (Phase D1.6) ----- */
+  --bp-sm:  640px;
+  --bp-md:  768px;
+  --bp-lg:  1024px;
+  --bp-xl:  1280px;
+  --bp-2xl: 1536px;
+
+  /* ----- icon-size (Phase D1.7) ----- */
+  --icon-xs:  12px;
+  --icon-sm:  14px;
+  --icon-md:  16px;
+  --icon-lg:  20px;
+  --icon-xl:  24px;
+  --icon-2xl: 32px;
+
+  /* ----- z-index レイヤ ----- */
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-overlay:  900;
+  --z-modal:    1000;
+  --z-popover:  1100;
+  --z-tooltip:  1200;
+  --z-toast:    2000;
+
+  /* ----- modal.width ----- */
+  --modal-w-sm: 380px;
+  --modal-w-md: 480px;
+  --modal-w-lg: 600px;
+  --modal-w-xl: 800px;
+
+  /* ----- density (Phase D3 — 既定は comfortable) ----- */
+  --tbl-row-h:       36px;
+  --space-row:       8px;
+  --fs-density-base: 14px;
+
+  /* ============================================================
+     legacy aliases (deprecated)
+     Phase M0-2 — 段階移行期間限定の旧→新エイリアス
+     @deprecated — Phase M-G（旧クラス撤去）で削除予定
+     用途: 既存4モックアップCSS（order-book / weekly-schedule /
+           quick-access / screen-layout）が参照している旧変数名を、
+           モックアップ側を改変せずに新DS値へ解決するための単方向エイリアス。
+     注意: モックアップ :root 内で同名定義がある場合は、モックアップ側の
+           定義が後勝ちで上書きする。本エイリアスは co-tokens.css のみ
+           読み込んだ状態、または :root で未定義の変数を参照した場合の
+           フォールバック値として機能する。
+     非対象: --base-grid* (OB固有) / --cell-base-* (WS固有) /
+             --shift-bg-* (WS/SL固有) / --md-gc-bg-* (WS/SL固有) /
+             --shadow-color の単色rgba版 (WS/SL固有、新DS elevation と
+             値構造が異なるため本エイリアスでは扱わない。Phase M-A で再設計)
+     ============================================================ */
+
+  /* base */
+  --base-page:        var(--bg-page);
+  --base-surface:     var(--bg-surface);
+  --base-surface-alt: var(--bg-surface-2);
+  --base-muted:       var(--bg-surface-3);
+
+  /* sub */
+  --sub-primary:   var(--bg-sidebar);
+  --sub-secondary: var(--divider);
+
+  /* accent */
+  --accent:       var(--accent-primary);
+  --accent-light: var(--accent-primary-light);
+  --accent-dim:   var(--accent-primary-dim);
+
+  /* semantic */
+  --error:        var(--semantic-error);
+  --success:      var(--semantic-success);
+  --success-text: var(--semantic-success-text);
+  --warning:      var(--semantic-warning);
+  --warning-text: var(--semantic-warning-text);
+  --warning-bg:   var(--semantic-warning-bg);
+
+  /* shadow → elevation (Phase D1.5) */
+  --shadow-sm:     var(--elevation-1);
+  --shadow-md:     var(--elevation-3);
+  --shadow-lg:     var(--elevation-4);
+  --shadow-medium: var(--elevation-3);
+  --shadow-strong: var(--elevation-5);
+}
+
+/* ----- density mode overrides (Phase D3) -----
+   :root[data-density="..."] で一括切替。テーブル・フォーム・ボタンの
+   高さ・パディング・フォントサイズが --tbl-row-h / --space-row /
+   --fs-density-base 経由で連動する。 */
+
+:root[data-density="compact"] {
+  --tbl-row-h:       28px;
+  --space-row:       4px;
+  --fs-density-base: 13px;
+}
+
+:root[data-density="comfortable"] {
+  --tbl-row-h:       36px;
+  --space-row:       8px;
+  --fs-density-base: 14px;
+}
+
+:root[data-density="spacious"] {
+  --tbl-row-h:       44px;
+  --space-row:       12px;
+  --fs-density-base: 15px;
+}
