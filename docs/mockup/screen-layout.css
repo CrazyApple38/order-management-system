@@ -3099,21 +3099,34 @@ h1 {
 
 /* ==================== 変更通知システム ==================== */
 
-/* --- ヘッダー通知ボタン --- */
+/* --- ヘッダー通知ボタン（DSトークン準拠） --- */
 .md-cn-notify-btn {
     position: relative;
-    background: none;
-    border: 1px solid var(--divider);
-    border-radius: 6px;
-    padding: 4px 10px;
-    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--fs-md);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background var(--duration-fast) var(--ease-out),
+                border-color var(--duration-fast) var(--ease-out);
     line-height: 1;
 }
 .md-cn-notify-btn:hover {
-    background: var(--base-surface-alt);
-    border-color: var(--accent-primary);
+    background: rgba(255, 255, 255, 0.18);
+    border-color: var(--accent-primary-light);
+}
+.md-cn-notify-btn:focus-visible {
+    outline: 2px solid var(--accent-primary-light);
+    outline-offset: 2px;
+}
+.md-cn-bell-icon {
+    width: var(--icon-md);
+    height: var(--icon-md);
+    filter: brightness(0) invert(1);
 }
 /* .md-cn-badge + @keyframes → co-shared-badges.css */
 

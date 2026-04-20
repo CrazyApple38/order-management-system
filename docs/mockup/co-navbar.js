@@ -123,6 +123,42 @@
         +   '</div>'
         + '</div>';
 
+    // --- 画面横断通知モーダル（マスタ管理・休暇申請など全画面共通の変更通知） ---
+    // 各画面固有の行単位通知は、画面側のベル（obCnNotifyBtn / cnNotifyBtn 等）で扱う
+    var mdNavCnItems = [
+        { type: 'master',  icon: 'person.svg',   title: '社員マスタが更新されました',         desc: '佐藤 太郎 さんの所属が変更 (部署A → 部署B)', time: '10分前' },
+        { type: 'leave',   icon: 'clock.svg',    title: '休暇申請が承認待ちです',             desc: '鈴木 一郎 / 2026-04-24 (金) 有給休暇',         time: '32分前' },
+        { type: 'master',  icon: 'chart.svg',    title: '現場マスタに新規現場が追加されました', desc: '〇〇ビル新築工事 (東央警備)',                  time: '2時間前' }
+    ];
+    function mdNavCnBuildBody() {
+        if (mdNavCnItems.length === 0) {
+            return '<div class="md-nav-cn-empty">'
+                + '<div class="md-nav-cn-empty-icon">&#128276;</div>'
+                + '<div>新しい通知はありません</div>'
+                + '</div>';
+        }
+        return '<ul class="md-nav-cn-list">' + mdNavCnItems.map(function (it) {
+            return '<li class="md-nav-cn-item md-nav-cn-item--' + it.type + '">'
+                + '<img src="mockup/icons/' + it.icon + '" class="md-nav-cn-item-icon" alt="">'
+                + '<div class="md-nav-cn-item-body">'
+                +   '<div class="md-nav-cn-item-title">' + it.title + '</div>'
+                +   '<div class="md-nav-cn-item-desc">' + it.desc + '</div>'
+                + '</div>'
+                + '<div class="md-nav-cn-item-time">' + it.time + '</div>'
+                + '</li>';
+        }).join('') + '</ul>';
+    }
+    html += ''
+        + '<div class="md-nav-modal-overlay" id="mdNavCnModal">'
+        +   '<div class="md-nav-modal md-nav-cn-modal">'
+        +     '<div class="md-nav-modal-header">'
+        +       '<span class="md-nav-modal-title">変更通知（全画面共通）</span>'
+        +       '<button type="button" class="md-nav-modal-close" onclick="mdNavCnCloseModal()" aria-label="閉じる">&times;</button>'
+        +     '</div>'
+        +     '<div class="md-nav-modal-body" id="mdNavCnBody"></div>'
+        +   '</div>'
+        + '</div>';
+
     // --- GCフィルタモーダル ---
     html += ''
         + '<div class="md-nav-gcf-overlay" id="mdNavGcfModal">'
@@ -219,6 +255,7 @@
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             mdNavCloseModal();
+            mdNavCnCloseModal();
             gcfCloseModal();
             document.querySelectorAll('.md-nav-dropdown.md-nav-open').forEach(function (d) {
                 d.classList.remove('md-nav-open');
@@ -226,36 +263,32 @@
         }
     });
 
-    // --- 通知ボタン → 各画面の通知モーダルを呼び出す ---
-    document.getElementById('mdNavNotifyBtn').addEventListener('click', function () {
-        if (currentPage === 'screen-layout' && typeof openChangeNotifyModal === 'function') {
-            openChangeNotifyModal();
-        } else if (currentPage === 'order-book' && typeof obCnOpenModal === 'function') {
-            obCnOpenModal();
-        }
+    // --- ナビバー通知ボタン → 画面横断通知モーダルを開く ---
+    // 各画面固有の通知は画面側のベルで扱うため、ここでは画面モーダルを呼ばない
+    window.mdNavCnOpenModal = function () {
+        document.getElementById('mdNavCnBody').innerHTML = mdNavCnBuildBody();
+        document.getElementById('mdNavCnModal').classList.add('md-nav-modal-open');
+    };
+    window.mdNavCnCloseModal = function () {
+        document.getElementById('mdNavCnModal').classList.remove('md-nav-modal-open');
+    };
+    document.getElementById('mdNavNotifyBtn').addEventListener('click', mdNavCnOpenModal);
+    document.getElementById('mdNavCnModal').addEventListener('click', function (e) {
+        if (e.target === this) mdNavCnCloseModal();
     });
 
-    // --- 通知バッジ同期: 各画面のバッジ更新を検知してナビバーにも反映 ---
-    function syncNavBadge() {
-        var srcBadge = null;
-        if (currentPage === 'screen-layout') srcBadge = document.getElementById('cnBadge');
-        else if (currentPage === 'order-book') srcBadge = document.getElementById('obCnBadge');
+    // --- ナビバーバッジ: 画面横断通知の件数を独立カウント ---
+    (function initNavCnBadge() {
         var navBadge = document.getElementById('mdNavCnBadge');
-        if (srcBadge && navBadge) {
-            navBadge.textContent = srcBadge.textContent;
-            navBadge.style.display = srcBadge.style.display;
+        if (!navBadge) return;
+        var count = mdNavCnItems.length;
+        if (count > 0) {
+            navBadge.textContent = String(count);
+            navBadge.style.display = '';
+        } else {
+            navBadge.style.display = 'none';
         }
-    }
-    // MutationObserverでバッジの変更を監視
-    var observeTarget = currentPage === 'screen-layout'
-        ? document.getElementById('cnBadge')
-        : document.getElementById('obCnBadge');
-    if (observeTarget) {
-        var observer = new MutationObserver(syncNavBadge);
-        observer.observe(observeTarget, { childList: true, attributes: true, attributeFilter: ['style'] });
-    }
-    // 初回同期
-    setTimeout(syncNavBadge, 100);
+    })();
 
     // --- GCフィルタ共通ロジック ---
     // groupCompaniesData / orgUnitsData は demo-data.js で定義（co-navbar.jsより先に読み込まれる前提）
