@@ -64,7 +64,7 @@
     border-color: var(--bg-surface-3);
 }
 .md-fi-input.md-fi-error {
-    border-color: var(--error);
+    border-color: var(--semantic-error);
 }
 .md-fi-input.md-fi-error:focus {
     box-shadow: 0 0 0 3px rgba(219,87,123,0.12);
@@ -195,7 +195,7 @@
     display: none;
 }
 .md-fi-combo-clear.visible { display: block; }
-.md-fi-combo-clear:hover { color: var(--error); }
+.md-fi-combo-clear:hover { color: var(--semantic-error); }
 .md-fi-combo-dropdown {
     position: absolute;
     top: 100%;

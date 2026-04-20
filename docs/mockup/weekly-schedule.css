@@ -50,7 +50,7 @@
     --error-light:    #E88AA5;
     --error-bg:       rgba(219, 87, 123, 0.12);
     --success-bg:     rgba(56, 161, 105, 0.1);
-    --warning-text:   #975A16;  /* co-tokens は #92400e */
+    --semantic-warning-text:   #975A16;  /* co-tokens は #92400e */
     --night-text:     #DB577B;
 
     /* WS 固有: tooltip / ヘッダー内ボタン */
@@ -113,15 +113,15 @@
     --shadow-medium:  rgba(0, 0, 0, 0.2);
     --shadow-strong:  rgba(0, 0, 0, 0.4);
 
-    --error:          #E88AA5;
+    --semantic-error:          #E88AA5;
     --error-light:    #F0B0C2;
     --error-bg:       rgba(232, 138, 165, 0.2);
-    --success:        #68d391;
-    --success-text:   #68d391;
+    --semantic-success:        #68d391;
+    --semantic-success-text:   #68d391;
     --success-bg:     rgba(72, 187, 120, 0.2);
-    --warning:        #ecc94b;
-    --warning-text:   #ecc94b;
-    --warning-bg:     rgba(236, 201, 75, 0.2);
+    --semantic-warning:        #ecc94b;
+    --semantic-warning-text:   #ecc94b;
+    --semantic-warning-bg:     rgba(236, 201, 75, 0.2);
     --night-text:     #E88AA5;
 
     --tooltip-bg:     rgba(20, 24, 28, 0.95);
@@ -336,7 +336,7 @@ body {
 }
 .md-ws-date-header.md-ws-sun,
 .md-ws-date-header.md-ws-holiday {
-    color: var(--error);
+    color: var(--semantic-error);
     background: linear-gradient(rgba(219, 87, 123, 0.08), rgba(219, 87, 123, 0.08)), var(--bg-surface-3);
 }
 .md-ws-date-header.md-ws-today {
@@ -617,7 +617,7 @@ body {
 /* ドロップ対象 */
 .md-ws-cell.md-ws-drag-over {
     background: linear-gradient(rgba(56, 161, 105, 0.08), rgba(56, 161, 105, 0.08)), var(--cell-base-day) !important;
-    outline: 2px dashed var(--success);
+    outline: 2px dashed var(--semantic-success);
     outline-offset: -2px;
 }
 
@@ -629,7 +629,7 @@ body {
 .md-ws-holiday-mark {
     font-size: 10px;
     font-weight: 700;
-    color: var(--error);
+    color: var(--semantic-error);
     background: var(--error-dim, rgba(220, 38, 38, 0.1));
     border-radius: 4px;
     padding: 2px 8px;
@@ -661,7 +661,7 @@ body {
     background: var(--error-bg);
 }
 .md-ws-site-chip.md-ws-night-chip:hover {
-    border-color: var(--error);
+    border-color: var(--semantic-error);
 }
 .md-ws-site-chip.md-ws-dragging {
     opacity: 0.35;
@@ -804,16 +804,16 @@ body {
     border-bottom: 1px solid transparent;
 }
 .md-ws-staff-ok {
-    color: var(--success-text);
-    border-bottom-color: var(--success);
+    color: var(--semantic-success-text);
+    border-bottom-color: var(--semantic-success);
 }
 .md-ws-staff-short {
-    color: var(--error);
-    border-bottom-color: var(--error);
+    color: var(--semantic-error);
+    border-bottom-color: var(--semantic-error);
 }
 .md-ws-staff-over {
-    color: var(--warning-text);
-    border-bottom-color: var(--warning);
+    color: var(--semantic-warning-text);
+    border-bottom-color: var(--semantic-warning);
 }
 
 /* シフトバッジ（サイドバー内） */
@@ -872,7 +872,7 @@ body {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--success);
+    background: var(--semantic-success);
     flex-shrink: 0;
 }
 
@@ -1265,17 +1265,17 @@ body {
 .md-ws-candidate-item.md-ws-candidate-shortage {
     background: var(--error-bg);
     border-color: rgba(219, 87, 123, 0.25);
-    color: var(--error);
+    color: var(--semantic-error);
 }
 .md-ws-candidate-item.md-ws-candidate-fulfilled {
     background: var(--success-bg);
     border-color: rgba(56, 161, 105, 0.25);
-    color: var(--success-text);
+    color: var(--semantic-success-text);
 }
 .md-ws-candidate-item.md-ws-candidate-excess {
-    background: var(--warning-bg);
+    background: var(--semantic-warning-bg);
     border-color: rgba(214, 158, 46, 0.25);
-    color: var(--warning-text);
+    color: var(--semantic-warning-text);
 }
 .md-ws-candidate-item.md-ws-candidate-assigned {
     background: var(--accent-primary-dim);
@@ -1291,8 +1291,8 @@ body {
     border-radius: 50%;
     flex-shrink: 0;
 }
-.md-ws-candidate-dot.md-ws-dot-available { background: var(--success); }
-.md-ws-candidate-dot.md-ws-dot-busy { background: var(--warning); }
+.md-ws-candidate-dot.md-ws-dot-available { background: var(--semantic-success); }
+.md-ws-candidate-dot.md-ws-dot-busy { background: var(--semantic-warning); }
 .md-ws-candidate-dot.md-ws-dot-holiday { background: var(--text-disabled); }
 .md-ws-candidate-dot.md-ws-dot-assigned { background: var(--accent-primary); }
 .md-ws-candidate-name {
@@ -1603,13 +1603,13 @@ body {
 /* 配置モード — 他現場配置済バッジ */
 .md-ws-emp-tag.md-ws-tag-busy {
     background: var(--warning-dim);
-    border-color: var(--warning);
+    border-color: var(--semantic-warning);
     color: var(--text-primary);
 }
 .md-ws-emp-tag.md-ws-tag-busy:hover {
-    background: var(--warning);
+    background: var(--semantic-warning);
     color: #fff;
-    border-color: var(--warning);
+    border-color: var(--semantic-warning);
 }
 
 /* ==============================
@@ -1630,7 +1630,7 @@ body {
 }
 .md-ws-emp-tag.md-ws-support-tag:hover .md-ws-dow-badge {
     background: var(--success-bg);
-    color: var(--success-text);
+    color: var(--semantic-success-text);
 }
 .md-ws-emp-tag.md-ws-support-tag:hover .md-ws-support-remove {
     display: inline-flex;
@@ -1654,7 +1654,7 @@ body {
     margin-left: 3px;
     font-size: 12px;
     font-weight: 700;
-    color: var(--error);
+    color: var(--semantic-error);
     cursor: pointer;
     opacity: 0.7;
     flex-shrink: 0;
@@ -1763,7 +1763,7 @@ body {
 }
 .md-ws-support-input-cancel:hover {
     background: var(--error-bg);
-    color: var(--error);
+    color: var(--semantic-error);
 }
 
 /* プリセット応援バッジ（サイドバー） */
@@ -1866,7 +1866,7 @@ body {
 }
 .md-ws-link-cancel:hover {
     background: var(--error-bg);
-    color: var(--error);
+    color: var(--semantic-error);
 }
 /* ポップオーバー内: セクションタイトル・既存業者リスト */
 .md-ws-link-section-title {
@@ -1953,20 +1953,20 @@ body {
 .md-ws-chip-action-revert {
     background: var(--success-bg);
     border-color: rgba(56, 161, 105, 0.5);
-    color: var(--success-text);
+    color: var(--semantic-success-text);
 }
 .md-ws-chip-action-revert:hover {
     background: rgba(56, 161, 105, 0.2);
-    border-color: var(--success);
+    border-color: var(--semantic-success);
 }
 .md-ws-chip-action-delete {
     background: var(--error-bg);
     border-color: rgba(219, 87, 123, 0.5);
-    color: var(--error);
+    color: var(--semantic-error);
 }
 .md-ws-chip-action-delete:hover {
     background: rgba(219, 87, 123, 0.22);
-    border-color: var(--error);
+    border-color: var(--semantic-error);
 }
 .md-ws-chip-action-cancel {
     color: var(--text-tertiary);
@@ -1994,11 +1994,11 @@ body {
     border-radius: 3px;
     line-height: 16px;
     background: var(--success-bg);
-    color: var(--success-text);
+    color: var(--semantic-success-text);
 }
 .md-ws-dow-badge.md-ws-dow-holiday {
     background: var(--error-bg);
-    color: var(--error);
+    color: var(--semantic-error);
     font-weight: 600;
     opacity: 0.7;
 }
@@ -2046,7 +2046,7 @@ body {
     background: var(--error-bg);
 }
 .md-ws-emp-chip.md-ws-night-chip:hover {
-    border-color: var(--error);
+    border-color: var(--semantic-error);
 }
 /* 連続シフト矢印（▼▲） */
 .md-ws-chip-arrow {
@@ -2065,7 +2065,7 @@ body {
 }
 .md-ws-night-chip .md-ws-chip-arrow-prev,
 .md-ws-night-chip .md-ws-chip-arrow-next {
-    color: var(--error);
+    color: var(--semantic-error);
 }
 /* 配置済み解除ボタン（ホバーで可視化。常に同じスペースを確保してレイアウトシフトを防止） */
 .md-ws-emp-chip {
@@ -2077,7 +2077,7 @@ body {
     margin-left: 3px;
     font-size: 12px;
     font-weight: 700;
-    color: var(--error);
+    color: var(--semantic-error);
     cursor: pointer;
     line-height: 1;
     opacity: 0;
@@ -2103,7 +2103,7 @@ body {
     margin-left: 3px;
     font-size: 12px;
     font-weight: 700;
-    color: var(--error);
+    color: var(--semantic-error);
     cursor: pointer;
     line-height: 1;
     opacity: 0;
@@ -2193,7 +2193,7 @@ body {
 }
 .md-ws-cell.md-ws-drag-over .md-ws-vehicle-zone {
     background: rgba(56, 161, 105, 0.08);
-    border-top-color: var(--success);
+    border-top-color: var(--semantic-success);
 }
 
 /* ============================================================
@@ -2257,12 +2257,12 @@ body {
 /* 配置モード — 他現場使用中車両バッジ */
 .md-ws-vehicle-tag.md-ws-tag-busy {
     background: var(--warning-dim);
-    border-color: var(--warning);
+    border-color: var(--semantic-warning);
 }
 .md-ws-vehicle-tag.md-ws-tag-busy:hover {
-    background: var(--warning);
+    background: var(--semantic-warning);
     color: #fff;
-    border-color: var(--warning);
+    border-color: var(--semantic-warning);
 }
 .md-ws-vehicle-tag.md-ws-tag-busy:hover .md-ws-vt-model {
     color: rgba(255, 255, 255, 0.8);
@@ -2307,7 +2307,7 @@ body {
     position: fixed;
     z-index: 100000;
     pointer-events: none;
-    background: var(--error);
+    background: var(--semantic-error);
     color: var(--bg-surface);
     font-size: 12px;
     font-weight: 700;
@@ -2332,14 +2332,14 @@ body {
     font-weight: 700;
     padding: 1px 5px;
     border-radius: 3px;
-    background: var(--error);
+    background: var(--semantic-error);
     color: #fff;
 }
 
 /* 休み行名前セル */
 .md-ws-name-cell.md-ws-holiday-name {
     background: linear-gradient(rgba(219, 87, 123, 0.15), rgba(219, 87, 123, 0.15)), var(--bg-surface-2);
-    color: var(--error);
+    color: var(--semantic-error);
     font-weight: 700;
     font-size: 12px;
 }
@@ -2360,7 +2360,7 @@ body {
     padding: 2px 5px;
     border-radius: 4px;
     background: rgba(219, 87, 123, 0.12);
-    color: var(--error);
+    color: var(--semantic-error);
     border: 1px solid rgba(219, 87, 123, 0.25);
     white-space: nowrap;
     overflow: hidden;
@@ -2374,7 +2374,7 @@ body {
 }
 .md-ws-holiday-emp-chip:hover {
     background: rgba(219, 87, 123, 0.22);
-    border-color: var(--error);
+    border-color: var(--semantic-error);
 }
 .md-ws-holiday-emp-chip:active { cursor: grabbing; }
 
@@ -2399,7 +2399,7 @@ body {
     font-weight: 700;
     padding: 0 3px;
     border-radius: 2px;
-    background: var(--error);
+    background: var(--semantic-error);
     color: #fff;
     margin-left: 3px;
     line-height: 1.3;
@@ -2409,7 +2409,7 @@ body {
     border-color: rgba(219, 87, 123, 0.4);
 }
 .md-ws-emp-chip.md-ws-emp-holiday:hover {
-    border-color: var(--error);
+    border-color: var(--semantic-error);
 }
 
 /* ============================================================
@@ -2489,12 +2489,12 @@ body {
     font-weight: 700;
     padding: 1px 5px;
     border-radius: 3px;
-    background: var(--success);
+    background: var(--semantic-success);
     color: #fff;
 }
 .md-ws-name-cell.md-ws-reservation-name {
     background: linear-gradient(rgba(56, 161, 105, 0.10), rgba(56, 161, 105, 0.10)), var(--bg-surface-2);
-    color: var(--success-text);
+    color: var(--semantic-success-text);
     font-weight: 700;
     font-size: 12px;
     display: flex;
@@ -2553,7 +2553,7 @@ body {
     padding: 2px 5px;
     border-radius: 3px;
     background: var(--success-bg);
-    color: var(--success-text);
+    color: var(--semantic-success-text);
     border: 1px solid rgba(56, 161, 105, 0.35);
     white-space: nowrap;
     cursor: grab;
@@ -2562,7 +2562,7 @@ body {
 }
 .md-ws-reserve-badge:hover {
     background: rgba(56, 161, 105, 0.18);
-    border-color: var(--success);
+    border-color: var(--semantic-success);
 }
 .md-ws-reserve-badge:active {
     cursor: grabbing;
@@ -2604,7 +2604,7 @@ body {
     margin-left: 3px;
     font-size: 12px;
     font-weight: 700;
-    color: var(--error);
+    color: var(--semantic-error);
     cursor: pointer;
     line-height: 1;
     opacity: 0;
@@ -2800,7 +2800,7 @@ body {
     border-radius: 3px;
     border: 1px dashed rgba(56, 161, 105, 0.45);
     background: rgba(255, 255, 255, 0.55);
-    color: var(--success-text);
+    color: var(--semantic-success-text);
     font-size: 11px;
     font-weight: 700;
     line-height: 1;

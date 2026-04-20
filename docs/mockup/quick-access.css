@@ -114,7 +114,7 @@ body {
 .qa-login-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-primary-dim); } /* Q-D: a11y */
 .qa-login-error {
     display: none;
-    color: var(--error);
+    color: var(--semantic-error);
     font-size: 12px;
     text-align: center;
     margin-top: 4px;
@@ -709,13 +709,13 @@ body {
     background: rgba(68,166,181,0.06);
 }
 .qa-site-action-btn.qa-site-delete {
-    color: var(--error);
+    color: var(--semantic-error);
     border-color: rgba(220,120,120,0.3);
 }
 .qa-site-action-btn.qa-site-delete:hover {
     color: white;
-    background: var(--error);
-    border-color: var(--error);
+    background: var(--semantic-error);
+    border-color: var(--semantic-error);
 }
 
 /* ========== 現場情報モーダル ========== */
@@ -945,7 +945,7 @@ body {
     color: var(--text-tertiary);
     padding: 6px 2px;
 }
-.qa-cal-dow.qa-cal-sun { color: var(--error); }
+.qa-cal-dow.qa-cal-sun { color: var(--semantic-error); }
 .qa-cal-dow.qa-cal-sat { color: var(--accent-primary); }
 
 .qa-cal-cell {
@@ -977,7 +977,7 @@ body {
     color: var(--text-primary);
     align-self: center;
 }
-.qa-cal-cell.qa-cal-sun .qa-cal-day-num { color: var(--error); }
+.qa-cal-cell.qa-cal-sun .qa-cal-day-num { color: var(--semantic-error); }
 .qa-cal-cell.qa-cal-sat .qa-cal-day-num { color: var(--accent-primary); }
 .qa-cal-cell.qa-cal-today .qa-cal-day-num {
     background: var(--accent-primary);
@@ -1091,7 +1091,7 @@ body {
     padding: 5px 10px;
     background: rgba(219, 87, 123, 0.08); /* Q-D: btn-danger 相当（微塗り） */
     border: 1px solid rgba(219, 87, 123, 0.3);
-    color: var(--error);
+    color: var(--semantic-error);
     border-radius: var(--radius-sm); /* Q-D */
     font-size: var(--fs-caption); /* Q-D: 11px = DS caption */
     font-weight: var(--fw-semibold); /* Q-D */
@@ -1456,7 +1456,7 @@ body {
     background: none;
     border: 1px solid rgba(219,87,123,0.3);
     border-radius: 6px;
-    color: var(--error);
+    color: var(--semantic-error);
     font-size: 12px;
     cursor: pointer;
     display: flex;
@@ -1464,7 +1464,7 @@ body {
     justify-content: center;
     transition: all 0.15s;
 }
-.qa-sub-delete:hover { background: rgba(219,87,123,0.1); border-color: var(--error); }
+.qa-sub-delete:hover { background: rgba(219,87,123,0.1); border-color: var(--semantic-error); }
 
 /* バッジセクション */
 .qa-badge-section {
@@ -1748,8 +1748,8 @@ body {
     /* QA 通知系で使用する値不一致トークン（co-tokens.css 同名トークンを上書き） */
     /* --warning-text: co-tokens=#92400e に対し QA は #975A16（通知カード文字色の視認性調整） */
     /* --warning-bg: co-tokens=rgba(214,158,46,0.1) に対し QA は #FEFCBF（通知カード背景の明度上げ） */
-    --warning-text: #975A16;
-    --warning-bg: #FEFCBF;
+    --semantic-warning-text: #975A16;
+    --semantic-warning-bg: #FEFCBF;
     /* --success / --success-text / --warning は co-tokens.css 同値のため削除（legacy alias で解決） */
 }
 
@@ -1776,7 +1776,7 @@ body {
     position: absolute;
     top: -6px;
     right: -6px;
-    background: var(--error);
+    background: var(--semantic-error);
     color: white;
     font-size: 10px;
     font-weight: 700;
@@ -1970,9 +1970,9 @@ body {
     overflow: hidden;
     background: var(--bg-surface);
 }
-.md-cn-card-add { border-left: 4px solid var(--success); }
-.md-cn-card-modify { border-left: 4px solid var(--warning); }
-.md-cn-card-delete { border-left: 4px solid var(--error); }
+.md-cn-card-add { border-left: 4px solid var(--semantic-success); }
+.md-cn-card-modify { border-left: 4px solid var(--semantic-warning); }
+.md-cn-card-delete { border-left: 4px solid var(--semantic-error); }
 
 /* 取消済カード */
 /* .md-cn-reverted/approved-badge, card-header, type-badge → co-shared-badges.css */
@@ -2026,12 +2026,12 @@ body {
     flex-shrink: 0;
 }
 .md-cn-diff-old {
-    color: var(--error);
+    color: var(--semantic-error);
     text-decoration: line-through;
 }
 .md-cn-diff-arrow { color: var(--text-disabled); flex-shrink: 0; }
 .md-cn-diff-new {
-    color: var(--success-text);
+    color: var(--semantic-success-text);
     font-weight: 600;
 }
 
@@ -2059,9 +2059,9 @@ body {
     border: 1px solid var(--divider);
 }
 .md-cn-btn-revert:hover {
-    background: var(--error);
+    background: var(--semantic-error);
     color: #fff;
-    border-color: var(--error);
+    border-color: var(--semantic-error);
 }
 .md-cn-btn-reapprove {
     background: var(--accent-primary);

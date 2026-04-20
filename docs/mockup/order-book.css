@@ -23,7 +23,7 @@
     --error-bg:          rgba(219, 87, 123, 0.08);
     --night-text:        #DB577B;
     --success-bg:        rgba(56, 161, 105, 0.1);
-    --warning-text:      #975A16;  /* 値不一致のため残留。Phase M-A2 で整合検討 */
+    --semantic-warning-text:      #975A16;  /* 値不一致のため残留。Phase M-A2 で整合検討 */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: thin; }
@@ -523,7 +523,7 @@ body {
     font-size: 10px; font-weight: 700; color: var(--text-tertiary);
     padding: 6px 10px 2px; text-transform: uppercase; letter-spacing: 0.5px;
 }
-.md-ob-cs-warn { color: var(--warning-text); }
+.md-ob-cs-warn { color: var(--semantic-warning-text); }
 .md-ob-cs-item {
     padding: 6px 10px; font-size: 13px; cursor: pointer;
     transition: background 0.1s;
@@ -533,7 +533,7 @@ body {
     display: flex; align-items: center; justify-content: space-between; gap: 8px;
 }
 .md-ob-cs-name { font-weight: 500; }
-.md-ob-cs-reason { font-size: 10px; color: var(--warning-text); white-space: nowrap; }
+.md-ob-cs-reason { font-size: 10px; color: var(--semantic-warning-text); white-space: nowrap; }
 
 /* 人数＋信頼度 横並び */
 .md-ob-count-confidence-row {
@@ -807,7 +807,7 @@ body {
     padding: 6px 0 0; margin-top: 4px;
 }
 .md-ob-field-warning {
-    color: var(--warning-text); font-size: 11px; font-weight: 500;
+    color: var(--semantic-warning-text); font-size: 11px; font-weight: 500;
     padding: 3px 0 0; margin-top: 2px;
 }
 /* 過去データ簡易入力アコーディオン */
@@ -907,7 +907,7 @@ body {
     display: flex; align-items: center; gap: 8px;
     width: 100%; padding: 4px 10px;
     background: var(--semantic-warning-bg); border-radius: 6px;
-    font-size: 11px; color: var(--warning-text);
+    font-size: 11px; color: var(--semantic-warning-text);
     margin-top: 4px;
 }
 /* ========== 複数配置先 ========== */
@@ -1652,7 +1652,7 @@ body {
 .md-cn-conflict-close {
     background: none;
     border: none;
-    color: var(--warning-text);
+    color: var(--semantic-warning-text);
     font-size: 12px;
     cursor: pointer;
     padding: 2px 6px;

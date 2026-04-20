@@ -13,7 +13,7 @@
     position: absolute;
     top: -6px;
     right: -6px;
-    background: var(--error);
+    background: var(--semantic-error);
     color: white;
     font-size: 10px;
     font-weight: 700;
@@ -39,9 +39,9 @@
     border-radius: 4px;
     flex-shrink: 0;
 }
-.md-cn-type-badge-add { background: rgba(56,161,105,0.15); color: var(--success-text); }
-.md-cn-type-badge-modify { background: rgba(214,158,46,0.15); color: var(--warning-text); }
-.md-cn-type-badge-delete { background: rgba(219,87,123,0.15); color: var(--error); }
+.md-cn-type-badge-add { background: rgba(56,161,105,0.15); color: var(--semantic-success-text); }
+.md-cn-type-badge-modify { background: rgba(214,158,46,0.15); color: var(--semantic-warning-text); }
+.md-cn-type-badge-delete { background: rgba(219,87,123,0.15); color: var(--semantic-error); }
 
 /* キャンセル・承認バッジ */
 .md-cn-reverted-badge {
@@ -59,7 +59,7 @@
     padding: 2px 8px;
     border-radius: 4px;
     background: rgba(56, 161, 105, 0.15);
-    color: var(--success-text);
+    color: var(--semantic-success-text);
     margin-left: 6px;
 }
 

@@ -26,7 +26,7 @@
     --error-light: #E88AA5;
     --error-bg: rgba(219, 87, 123, 0.12);
     --success-bg: rgba(56, 161, 105, 0.1);
-    --warning-text: #975A16;  /* 値不一致のため残留。co-tokens: #92400e */
+    --semantic-warning-text: #975A16;  /* 値不一致のため残留。co-tokens: #92400e */
     --night-text: #DB577B;
     --tooltip-bg: rgba(0, 69, 84, 0.95);
     --tooltip-color: white;
@@ -77,15 +77,15 @@
     --shadow-color: rgba(0, 0, 0, 0.3);
     --shadow-medium: rgba(0, 0, 0, 0.2);
     --shadow-strong: rgba(0, 0, 0, 0.4);
-    --error: #E88AA5;
+    --semantic-error: #E88AA5;
     --error-light: #F0B0C2;
     --error-bg: rgba(232, 138, 165, 0.2);
-    --success: #68d391;
-    --success-text: #68d391;
+    --semantic-success: #68d391;
+    --semantic-success-text: #68d391;
     --success-bg: rgba(72, 187, 120, 0.2);
-    --warning: #ecc94b;
-    --warning-text: #ecc94b;
-    --warning-bg: rgba(236, 201, 75, 0.2);
+    --semantic-warning: #ecc94b;
+    --semantic-warning-text: #ecc94b;
+    --semantic-warning-bg: rgba(236, 201, 75, 0.2);
     --night-text: #E88AA5;
     --tooltip-bg: rgba(20, 24, 28, 0.95);
     --tooltip-color: #D9D4D1;
@@ -239,9 +239,9 @@ h1 {
 .vehicle-list-tag.assigned {
     background: var(--success-bg);
     border-color: rgba(56, 161, 105, 0.3);
-    color: var(--success-text);
+    color: var(--semantic-success-text);
 }
-.vehicle-list-tag.assigned .vlt-model { color: var(--success-text); opacity: 0.7; }
+.vehicle-list-tag.assigned .vlt-model { color: var(--semantic-success-text); opacity: 0.7; }
 .vlt-model {
     font-size: 11px;
     color: var(--text-tertiary);
@@ -271,7 +271,7 @@ h1 {
 .etc-list-tag.assigned {
     background: var(--success-bg);
     border-color: rgba(56, 161, 105, 0.3);
-    color: var(--success-text);
+    color: var(--semantic-success-text);
 }
 
 .md-sp-etc-label {
@@ -382,8 +382,8 @@ h1 {
     text-align: right;
 }
 
-.minimap-count.count-ok { color: var(--success-text); }
-.minimap-count.shortage { color: var(--error); }
+.minimap-count.count-ok { color: var(--semantic-success-text); }
+.minimap-count.shortage { color: var(--semantic-error); }
 
 @keyframes minimapPulse {
     0%, 100% { background: transparent; }
@@ -623,7 +623,7 @@ h1 {
 .employee-tag.assigned {
     background: var(--success-bg);
     border-color: rgba(56, 161, 105, 0.3);
-    color: var(--success-text);
+    color: var(--semantic-success-text);
 }
 
 /* ヘッダー部 */
@@ -754,13 +754,13 @@ h1 {
 
 .toolbar button.danger {
     background: rgba(219, 87, 123, 0.08);
-    color: var(--error);
+    color: var(--semantic-error);
     border-color: rgba(219, 87, 123, 0.3);
 }
 
 .toolbar button.danger:hover {
     background: rgba(219, 87, 123, 0.15);
-    color: var(--error);
+    color: var(--semantic-error);
 }
 
 .toolbar button:disabled {
@@ -968,7 +968,7 @@ h1 {
 }
 
 .assignment-zone.drag-over {
-    border-color: var(--success);
+    border-color: var(--semantic-success);
     background: rgba(56, 161, 105, 0.08);
 }
 
@@ -983,7 +983,7 @@ h1 {
     border: 1px solid rgba(56, 161, 105, 0.25);
     border-radius: 4px;
     font-size: 13px;
-    color: var(--success-text);
+    color: var(--semantic-success-text);
     cursor: grab;
     transition: opacity 0.15s, transform 0.15s;
 }
@@ -1002,7 +1002,7 @@ h1 {
     line-height: 12px;
     text-align: center;
     border-radius: 50%;
-    background: var(--error);
+    background: var(--semantic-error);
     color: white;
     font-size: 10px;
     font-weight: bold;
@@ -1015,7 +1015,7 @@ h1 {
 }
 
 .assigned-employee .remove-btn:hover {
-    background: var(--error);
+    background: var(--semantic-error);
 }
 
 .assigned-employee .indicator {
@@ -1098,7 +1098,7 @@ h1 {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: var(--error);
+    background: var(--semantic-error);
     color: white;
     font-size: 9px;
     line-height: 14px;
@@ -1114,7 +1114,7 @@ h1 {
 
 .contact-popup-btn.opt-clear {
     border-color: rgba(219, 87, 123, 0.3);
-    color: var(--error);
+    color: var(--semantic-error);
     font-size: 12px;
     background: rgba(219, 87, 123, 0.06);
 }
@@ -1166,8 +1166,8 @@ h1 {
 
 /* 個別バッジ追加色 (light theme) */
 .contact-pickup {
-    background: var(--warning-bg);
-    color: var(--warning-text);
+    background: var(--semantic-warning-bg);
+    color: var(--semantic-warning-text);
 }
 
 .contact-op {
@@ -1228,11 +1228,11 @@ h1 {
 .category-event,           [data-category="event"]           { background: var(--cat-bg-event); color: var(--cat-text-event); }
 .category-traffic,         [data-category="traffic"]         { background: var(--cat-bg-traffic); color: var(--cat-text-traffic); }
 .category-highway,         [data-category="highway"]         { background: var(--cat-bg-highway); color: var(--cat-text-highway); }
-.category-support-event,   [data-category="support-event"]   { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
-.category-support-traffic, [data-category="support-traffic"] { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
-.category-support-highway, [data-category="support-highway"] { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
-.category-training,        [data-category="training"]        { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
-.category-company,         [data-category="company"]         { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
+.category-support-event,   [data-category="support-event"]   { background: rgba(56, 161, 105, 0.12); color: var(--semantic-success-text); }
+.category-support-traffic, [data-category="support-traffic"] { background: rgba(56, 161, 105, 0.12); color: var(--semantic-success-text); }
+.category-support-highway, [data-category="support-highway"] { background: rgba(56, 161, 105, 0.12); color: var(--semantic-success-text); }
+.category-training,        [data-category="training"]        { background: rgba(56, 161, 105, 0.12); color: var(--semantic-success-text); }
+.category-company,         [data-category="company"]         { background: rgba(56, 161, 105, 0.12); color: var(--semantic-success-text); }
 
 .shift-day,   [data-shift="day"]   { background: var(--shift-bg-day); color: var(--shift-text-day); }
 .shift-night, [data-shift="night"] { background: var(--shift-bg-night); color: var(--shift-text-night); }
@@ -1338,7 +1338,7 @@ h1 {
 
 .contact-direct {
     background: rgba(56, 161, 105, 0.12);
-    color: var(--success-text);
+    color: var(--semantic-success-text);
 }
 
 .contact-line {
@@ -1351,16 +1351,16 @@ h1 {
     font-weight: bold;
 }
 
-.count-ok { color: var(--success-text); }
-.count-shortage { color: var(--error); background: rgba(219, 87, 123, 0.08); }
+.count-ok { color: var(--semantic-success-text); }
+.count-shortage { color: var(--semantic-error); background: rgba(219, 87, 123, 0.08); }
 
 .count-shortage-badge {
     display: block;
     margin-top: 2px;
     font-size: 10px;
     font-weight: bold;
-    color: var(--error);
-    border: 1px solid var(--error);
+    color: var(--semantic-error);
+    border: 1px solid var(--semantic-error);
     border-radius: 3px;
     padding: 0 3px;
     line-height: 1.4;
@@ -1523,12 +1523,12 @@ h1 {
 
 .indicator-continuous {
     background: rgba(214, 158, 46, 0.15);
-    color: var(--warning-text);
+    color: var(--semantic-warning-text);
 }
 
 .indicator-conflict {
     background: var(--error-bg);
-    color: var(--error);
+    color: var(--semantic-error);
 }
 
 /* 連勤バッジ（▼表示） */
@@ -1542,7 +1542,7 @@ h1 {
 .continuous-badge {
     font-size: 10px;
     line-height: 1;
-    color: var(--warning-text);
+    color: var(--semantic-warning-text);
 }
 
 .continuous-badge-above {
@@ -1649,7 +1649,7 @@ h1 {
     width: 14px;
     height: 14px;
     background: rgba(219, 87, 123, 0.1);
-    color: var(--error);
+    color: var(--semantic-error);
     border: none;
     border-radius: 50%;
     font-size: 10px;
@@ -1671,7 +1671,7 @@ h1 {
 }
 
 .vehicle-drop-zone.drag-over {
-    border-color: var(--success);
+    border-color: var(--semantic-success);
     background: rgba(56, 161, 105, 0.08);
 }
 
@@ -1696,7 +1696,7 @@ h1 {
     width: 14px;
     height: 14px;
     background: rgba(219, 87, 123, 0.1);
-    color: var(--error);
+    color: var(--semantic-error);
     border: none;
     border-radius: 50%;
     font-size: 10px;
@@ -1802,7 +1802,7 @@ h1 {
     height: 26px;
     border: none;
     background: rgba(219, 87, 123, 0.08);
-    color: var(--error);
+    color: var(--semantic-error);
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
@@ -1811,7 +1811,7 @@ h1 {
 
 .vt-item-row .vt-remove-btn:hover {
     background: rgba(219, 87, 123, 0.18);
-    color: var(--error);
+    color: var(--semantic-error);
 }
 
 
@@ -1867,8 +1867,8 @@ h1 {
 
 .transport-badge {
     display: inline-block;
-    background: var(--warning-bg);
-    color: var(--warning-text);
+    background: var(--semantic-warning-bg);
+    color: var(--semantic-warning-text);
     padding: 1px 5px;
     border-radius: 3px;
     font-size: 11px;
@@ -1974,7 +1974,7 @@ h1 {
 .md-modal-buttons .btn-danger {
     background: rgba(219, 87, 123, 0.08);
     border: 1px solid rgba(219, 87, 123, 0.3);
-    color: var(--error);
+    color: var(--semantic-error);
     margin-right: auto;
     transition: background 0.15s;
 }
@@ -2233,7 +2233,7 @@ h1 {
 }
 
 .md-cb-clear:hover {
-    color: var(--error);
+    color: var(--semantic-error);
 }
 
 .md-cb-dropdown {
@@ -2278,7 +2278,7 @@ h1 {
 .md-cb-option.selected {
     background: rgba(56, 161, 105, 0.08);
     font-weight: 500;
-    color: var(--success-text);
+    color: var(--semantic-success-text);
 }
 
 .md-cb-option-icon {
@@ -2316,7 +2316,7 @@ h1 {
 .md-cb-match {
     background: rgba(214, 158, 46, 0.2);
     font-weight: bold;
-    color: var(--warning-text);
+    color: var(--semantic-warning-text);
 }
 
 /* ===== ソート設定モーダル ===== */
@@ -2507,13 +2507,13 @@ h1 {
 
 .sort-btn-reset {
     background: rgba(219, 87, 123, 0.08);
-    color: var(--error);
+    color: var(--semantic-error);
     border-color: rgba(219, 87, 123, 0.3);
 }
 
 .sort-btn-reset:hover {
     background: rgba(219, 87, 123, 0.15);
-    color: var(--error);
+    color: var(--semantic-error);
 }
 
 .sort-btn-cancel {
@@ -2986,7 +2986,7 @@ h1 {
     position: relative;
 }
 .sub-item-section:nth-child(even) {
-    border-left-color: var(--success);
+    border-left-color: var(--semantic-success);
     background: rgba(56, 161, 105, 0.06);
 }
 .sub-item-header {
@@ -3013,7 +3013,7 @@ h1 {
 }
 .sub-item-remove-btn:hover {
     background: rgba(219, 87, 123, 0.08);
-    color: var(--error);
+    color: var(--semantic-error);
 }
 .add-sub-item-btn {
     display: flex;
@@ -3181,7 +3181,7 @@ h1 {
     right: 0;
     width: 7px;
     height: 7px;
-    background: var(--error);
+    background: var(--semantic-error);
     border-radius: 50%;
     border: 1px solid white;
 }
@@ -3215,7 +3215,7 @@ h1 {
 /* セル内差分表示 */
 .md-cn-cell-old {
     text-decoration: line-through;
-    color: var(--error);
+    color: var(--semantic-error);
     opacity: 0.7;
     font-size: 0.85em;
     position: relative;
@@ -3439,9 +3439,9 @@ h1 {
     overflow: hidden;
     background: var(--bg-surface);
 }
-.md-cn-card-add { border-left: 4px solid var(--success); }
-.md-cn-card-modify { border-left: 4px solid var(--warning); }
-.md-cn-card-delete { border-left: 4px solid var(--error); }
+.md-cn-card-add { border-left: 4px solid var(--semantic-success); }
+.md-cn-card-modify { border-left: 4px solid var(--semantic-warning); }
+.md-cn-card-delete { border-left: 4px solid var(--semantic-error); }
 
 /* .md-cn-card-header → co-shared-badges.css */
 /* .md-cn-type-badge, -add/-modify/-delete → co-shared-badges.css */
@@ -3493,7 +3493,7 @@ h1 {
     flex-shrink: 0;
 }
 .md-cn-diff-old {
-    color: var(--error);
+    color: var(--semantic-error);
     text-decoration: line-through;
 }
 .md-cn-diff-arrow {
@@ -3501,7 +3501,7 @@ h1 {
     flex-shrink: 0;
 }
 .md-cn-diff-new {
-    color: var(--success-text);
+    color: var(--semantic-success-text);
     font-weight: 600;
 }
 
@@ -3610,9 +3610,9 @@ h1 {
     border: 1px solid var(--divider);
 }
 .md-cn-btn-revert:hover {
-    background: var(--error);
+    background: var(--semantic-error);
     color: #fff;
-    border-color: var(--error);
+    border-color: var(--semantic-error);
 }
 .md-cn-btn-reapprove {
     background: var(--accent-primary);
@@ -3672,7 +3672,7 @@ h1 {
 .md-cn-conflict-close {
     background: none;
     border: none;
-    color: var(--warning-text);
+    color: var(--semantic-warning-text);
     font-size: 12px;
     cursor: pointer;
     padding: 2px 6px;

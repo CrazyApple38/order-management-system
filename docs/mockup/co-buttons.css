@@ -62,7 +62,7 @@
 .btn-danger {
     background: rgba(219, 87, 123, 0.08);
     border-color: rgba(219, 87, 123, 0.3);
-    color: var(--error);
+    color: var(--semantic-error);
 }
 .btn-danger:hover { background: rgba(219, 87, 123, 0.15); border-color: rgba(219, 87, 123, 0.5); }
 .btn-danger:active { background: rgba(219, 87, 123, 0.2); }
@@ -192,7 +192,7 @@
 .btn-ghost--danger-hover:hover {
     background: rgba(219, 87, 123, 0.06);
     border-color: rgba(219, 87, 123, 0.3);
-    color: var(--error);
+    color: var(--semantic-error);
 }
 
 /* ===========================
