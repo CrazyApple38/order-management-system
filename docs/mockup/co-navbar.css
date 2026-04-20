@@ -9,7 +9,7 @@
     align-items: center;
     height: 36px;
     padding: 0 12px;
-    background: var(--sub-primary);
+    background: var(--bg-sidebar);
     color: #fff;
     font-size: 13px;
     flex-shrink: 0;
@@ -123,7 +123,7 @@
     top: calc(100% + 4px);
     left: 0;
     min-width: 200px;
-    background: var(--base-surface);
+    background: var(--bg-surface);
     border: 1px solid var(--divider);
     border-radius: 8px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
@@ -243,7 +243,7 @@
     to   { opacity: 1; }
 }
 .md-nav-modal {
-    background: var(--base-surface);
+    background: var(--bg-surface);
     border-radius: 12px;
     box-shadow: 0 16px 48px rgba(0,0,0,0.2);
     width: 90%;
@@ -263,7 +263,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 20px;
-    background: var(--sub-primary);
+    background: var(--bg-sidebar);
     color: #fff;
 }
 .md-nav-modal-title {
@@ -417,7 +417,7 @@
     to   { opacity: 1; }
 }
 .md-nav-gcf-modal {
-    background: var(--base-surface);
+    background: var(--bg-surface);
     border: 1px solid var(--divider);
     border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0, 69, 84, 0.15);
@@ -529,7 +529,7 @@
     gap: 8px;
     padding: 14px 24px;
     border-top: 1px solid var(--divider);
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     border-radius: 0 0 12px 12px;
 }
 .md-nav-gcf-btn-cancel,
@@ -543,11 +543,11 @@
     transition: background 0.15s;
 }
 .md-nav-gcf-btn-cancel {
-    background: var(--base-surface);
+    background: var(--bg-surface);
     color: var(--text-secondary);
 }
 .md-nav-gcf-btn-cancel:hover {
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
 }
 .md-nav-gcf-btn-apply {
     background: var(--accent-primary);

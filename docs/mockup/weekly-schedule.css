@@ -63,15 +63,14 @@
 /* --- ダークテーマ --- */
 [data-theme="dark"] {
     /* Tier 1 — Base */
-    --base-page:         #1a1e22;
-    --base-surface:      #2a3038;
-    --base-surface-alt:  #3D444B;
-    --base-muted:        #505A63;
+    --bg-page:         #1a1e22;
+    --bg-surface:      #2a3038;
+    --bg-surface-2:    #3D444B;
+    --bg-surface-3:    #505A63;
     --cell-base-day:     #2a3038;
     --cell-base-night:   #3D444B;
     /* Tier 2 — Sub */
-    --sub-primary:       #14181c;
-    --sub-secondary:     #AEC0C2;
+    --bg-sidebar:      #14181c;
     /* Tier 3 — Accent (Phase W-A: WCAG AA 確保のため明度を上げる) */
     --accent-primary:    #55B5C4;   /* 4.8:1 on #2a3038 */
     --accent-light:      #6AC5D4;
@@ -81,7 +80,7 @@
     --text-secondary: #BAB1AD;
     --text-tertiary:  #8a8480;
     --text-disabled:  #5a5550;
-    --divider:        #4a5259;
+    --divider:        #AEC0C2;
 
     --md-gc-bg-touo:      #2a3038;
     --md-gc-bg-nikkei:    #2d3540;
@@ -131,13 +130,8 @@
     --header-btn-hover: rgba(255, 255, 255, 0.15);
 
     /* 後方互換 */
-    --bg-page: var(--base-page);
-    --bg-surface: var(--base-surface);
-    --bg-surface-2: var(--base-surface-alt);
-    --bg-surface-3: var(--base-muted);
-    --bg-sidebar: var(--sub-primary);
     --accent: var(--accent-primary);
-    --secondary: var(--sub-secondary);
+    --secondary: var(--divider);
 }
 
 /* --- リセット・ベース --- */
@@ -146,7 +140,7 @@ body {
     font-family: var(--font-family-body);
     font-feature-settings: "palt" 1;
     font-variant-numeric: tabular-nums;
-    background: var(--base-page);
+    background: var(--bg-page);
     color: var(--text-primary);
     font-size: 13px;
     line-height: 1.4;
@@ -164,7 +158,7 @@ body {
 
 /* --- ヘッダー --- */
 .md-ws-header {
-    background: var(--sub-primary);
+    background: var(--bg-sidebar);
     color: #fff;
     padding: 8px 16px;
     display: flex;
@@ -228,7 +222,7 @@ body {
 
 /* --- ツールバー --- */
 .md-ws-toolbar {
-    background: var(--base-surface);
+    background: var(--bg-surface);
     border-bottom: 1px solid var(--divider);
     padding: 6px 12px;
     display: flex;
@@ -237,7 +231,7 @@ body {
     flex-shrink: 0;
 }
 .md-ws-toolbar .md-tb-btn {
-    background: var(--base-surface);
+    background: var(--bg-surface);
     border: 1px solid var(--divider);
     color: var(--text-secondary);
     padding: 4px 10px;
@@ -301,14 +295,14 @@ body {
     position: sticky;
     left: 0;
     z-index: 20;
-    background: var(--base-muted);
+    background: var(--bg-surface-3);
     color: var(--text-primary);
     font-size: 11px;
     font-weight: 700;
     padding: 6px 8px;
     display: flex;
     align-items: center;
-    border-right: 2px solid var(--sub-secondary);
+    border-right: 2px solid var(--divider);
     border-bottom: 1px solid rgba(0,69,84,0.1);
 }
 /* 日付行・昼夜行を上部に固定 */
@@ -325,7 +319,7 @@ body {
     /* top は JS で設定 */
 }
 .md-ws-date-header {
-    background: var(--base-muted);
+    background: var(--bg-surface-3);
     color: var(--text-primary);
     font-size: 11px;
     font-weight: 700;
@@ -339,17 +333,17 @@ body {
 }
 .md-ws-date-header.md-ws-sat {
     color: var(--text-secondary);
-    background: linear-gradient(rgba(90, 184, 198, 0.08), rgba(90, 184, 198, 0.08)), var(--base-muted);
+    background: linear-gradient(rgba(90, 184, 198, 0.08), rgba(90, 184, 198, 0.08)), var(--bg-surface-3);
 }
 .md-ws-date-header.md-ws-sun,
 .md-ws-date-header.md-ws-holiday {
     color: var(--error);
-    background: linear-gradient(rgba(219, 87, 123, 0.08), rgba(219, 87, 123, 0.08)), var(--base-muted);
+    background: linear-gradient(rgba(219, 87, 123, 0.08), rgba(219, 87, 123, 0.08)), var(--bg-surface-3);
 }
 .md-ws-date-header.md-ws-today {
     background: var(--accent-primary);
     color: #fff;
-    border-bottom: 2px solid var(--sub-primary);
+    border-bottom: 2px solid var(--bg-sidebar);
 }
 .md-ws-date-header.md-ws-date-selected {
     background: var(--accent-primary) !important;
@@ -358,13 +352,13 @@ body {
 
 /* --- サブヘッダー（昼/夜） --- */
 .md-ws-shift-header {
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     color: var(--text-secondary);
     font-size: 10px;
     font-weight: 600;
     text-align: center;
     padding: 2px 0;
-    border-bottom: 2px solid var(--sub-secondary);
+    border-bottom: 2px solid var(--divider);
     border-left: 1px solid rgba(0,69,84,0.06);
     position: sticky;
     z-index: 11;
@@ -374,22 +368,22 @@ body {
     color: var(--night-text);
 }
 .md-ws-shift-header.md-ws-shift-sat {
-    background: linear-gradient(rgba(90, 184, 198, 0.08), rgba(90, 184, 198, 0.08)), var(--base-surface-alt);
+    background: linear-gradient(rgba(90, 184, 198, 0.08), rgba(90, 184, 198, 0.08)), var(--bg-surface-2);
 }
 .md-ws-shift-header.md-ws-shift-sun,
 .md-ws-shift-header.md-ws-shift-holiday {
-    background: linear-gradient(rgba(219, 87, 123, 0.08), rgba(219, 87, 123, 0.08)), var(--base-surface-alt);
+    background: linear-gradient(rgba(219, 87, 123, 0.08), rgba(219, 87, 123, 0.08)), var(--bg-surface-2);
 }
 
 /* --- グループヘッダー行 --- */
 /* --- グループヘッダー（名前列） --- */
 .md-ws-group-name {
     grid-column: 1;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     border: 3px solid var(--divider);
     border-bottom: none;
     border-left: none;
-    border-top: 2px solid var(--sub-secondary);
+    border-top: 2px solid var(--divider);
     border-radius: 0 12px 0 0;
     padding: 4px 10px;
     font-size: 12px;
@@ -410,9 +404,9 @@ body {
 /* --- グループヘッダー（日付列） --- */
 .md-ws-group-dates {
     grid-column: 2 / -1;
-    background: var(--base-page);
+    background: var(--bg-page);
     border-bottom: 1px solid var(--divider);
-    border-top: 2px solid var(--sub-secondary);
+    border-top: 2px solid var(--divider);
     cursor: pointer;
 }
 .md-ws-group-chevron {
@@ -439,8 +433,8 @@ body {
     position: sticky;
     left: 0;
     z-index: 10;
-    background: var(--base-surface-alt);
-    border-right: 2px solid var(--sub-secondary);
+    background: var(--bg-surface-2);
+    border-right: 2px solid var(--divider);
     border-bottom: 1px solid var(--divider);
     padding: 4px 8px;
     font-size: 12px;
@@ -533,7 +527,7 @@ body {
 /* 今日カラム左境界線（過去と現在の境目） */
 /* 今日カラム：昼夜ヘッダーにもオーバーレイ適用 */
 .md-ws-shift-header.md-ws-today-shift {
-    background: linear-gradient(rgba(90, 184, 198, 0.10), rgba(90, 184, 198, 0.10)), var(--base-surface-alt);
+    background: linear-gradient(rgba(90, 184, 198, 0.10), rgba(90, 184, 198, 0.10)), var(--bg-surface-2);
 }
 .md-ws-cell.md-ws-today-col.md-ws-day-col,
 .md-ws-date-header.md-ws-today,
@@ -548,13 +542,13 @@ body {
 .md-ws-date-header.md-ws-past {
     background:
         linear-gradient(var(--past-overlay), var(--past-overlay)),
-        var(--base-muted) !important;
+        var(--bg-surface-3) !important;
 }
 /* シフトヘッダー */
 .md-ws-shift-header.md-ws-past {
     background:
         linear-gradient(var(--past-overlay), var(--past-overlay)),
-        var(--base-surface-alt);
+        var(--bg-surface-2);
 }
 /* データセル（昼） — ベース色 + 黒オーバーレイ */
 .md-ws-cell.md-ws-past-col {
@@ -712,7 +706,7 @@ body {
     font-weight: 600;
     padding: 2px 6px;
     border-radius: 4px;
-    background: linear-gradient(90deg, var(--base-surface-alt) 0%, rgba(240,237,233,0.85) 100%);
+    background: linear-gradient(90deg, var(--bg-surface-2) 0%, rgba(240,237,233,0.85) 100%);
     color: var(--text-secondary);
     border: 1px solid var(--accent-primary);
     display: flex;
@@ -728,8 +722,8 @@ body {
 .md-ws-sidebar {
     width: 340px;
     min-width: 340px;
-    background: var(--base-surface);
-    border-left: 2px solid var(--sub-secondary);
+    background: var(--bg-surface);
+    border-left: 2px solid var(--divider);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -737,7 +731,7 @@ body {
 }
 
 .md-ws-sidebar-header {
-    background: var(--sub-primary);
+    background: var(--bg-sidebar);
     color: #fff;
     padding: 10px 12px;
     font-size: 12px;
@@ -764,7 +758,7 @@ body {
 
 /* --- 現場カード --- */
 .md-ws-site-card {
-    background: var(--base-surface);
+    background: var(--bg-surface);
     border: 1px solid var(--divider);
     border-radius: 8px;
     margin-bottom: 6px;
@@ -947,9 +941,9 @@ body {
    スクロールバー
    ============================================================ */
 .md-ws-grid-wrapper::-webkit-scrollbar { width: 8px; height: 8px; }
-.md-ws-grid-wrapper::-webkit-scrollbar-track { background: var(--base-surface-alt); }
+.md-ws-grid-wrapper::-webkit-scrollbar-track { background: var(--bg-surface-2); }
 .md-ws-grid-wrapper::-webkit-scrollbar-thumb {
-    background: var(--base-muted);
+    background: var(--bg-surface-3);
     border-radius: 4px;
 }
 .md-ws-grid-wrapper::-webkit-scrollbar-thumb:hover { background: var(--text-disabled); }
@@ -957,7 +951,7 @@ body {
 .md-ws-sidebar-body::-webkit-scrollbar { width: 6px; }
 .md-ws-sidebar-body::-webkit-scrollbar-track { background: transparent; }
 .md-ws-sidebar-body::-webkit-scrollbar-thumb {
-    background: var(--base-muted);
+    background: var(--bg-surface-3);
     border-radius: 3px;
 }
 
@@ -986,7 +980,7 @@ body {
     align-items: center;
     gap: 0;
     flex-shrink: 0;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     border-radius: 6px;
     border: 1px solid var(--divider);
     overflow: hidden;
@@ -1348,7 +1342,7 @@ body {
     font-weight: 700;
     padding: 1px 4px;
     border-radius: 3px;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     color: var(--text-tertiary);
 }
 .md-ws-candidate-section {
@@ -1378,8 +1372,8 @@ body {
 }
 /* GCレベル */
 .md-ws-site-accordion-gc {
-    background: var(--base-surface-alt);
-    border-top: 2px solid var(--sub-secondary);
+    background: var(--bg-surface-2);
+    border-top: 2px solid var(--divider);
     border-radius: 0;
     padding: 6px 8px;
     margin-top: 2px;
@@ -1430,7 +1424,7 @@ body {
     flex-direction: column;
     width: 34px;
     min-width: 34px;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     border-right: 1px solid var(--divider);
     overflow-y: auto;
     overflow-x: hidden;
@@ -1460,7 +1454,7 @@ body {
 .md-ws-vtab.active {
     color: var(--accent-primary);
     border-left-color: var(--accent-primary);
-    background: var(--base-surface);
+    background: var(--bg-surface);
     font-weight: 600;
 }
 
@@ -1468,7 +1462,7 @@ body {
 .md-ws-gc-header {
     padding: 6px 5px;
     color: var(--text-secondary);
-    background: var(--base-muted);
+    background: var(--bg-surface-3);
     border-top: 1px solid var(--divider);
     cursor: pointer;
     user-select: none;
@@ -1559,7 +1553,7 @@ body {
     align-items: flex-start;
     gap: var(--space-xs, 4px);
     padding: var(--space-xs, 4px) var(--space-sm, 8px);
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     border: 1px solid var(--divider);
     border-radius: var(--radius-md, 8px);
     font-size: var(--fs-sm, 12px);
@@ -1735,7 +1729,7 @@ body {
     border-radius: 4px;
     font-size: 12px;
     outline: none;
-    background: var(--base-surface);
+    background: var(--bg-surface);
     color: var(--text-primary);
 }
 .md-ws-support-input:focus {
@@ -1814,7 +1808,7 @@ body {
 .md-ws-link-popover {
     position: fixed;
     z-index: 9999;
-    background: var(--base-surface);
+    background: var(--bg-surface);
     border: 1px solid var(--divider);
     border-radius: 8px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.18);
@@ -1835,7 +1829,7 @@ body {
     border-radius: 4px;
     font-size: 12px;
     outline: none;
-    background: var(--base-surface);
+    background: var(--bg-surface);
     color: var(--text-primary);
     box-sizing: border-box;
     margin-bottom: 8px;
@@ -1900,7 +1894,7 @@ body {
     padding: 5px 8px;
     font-size: 12px;
     font-weight: 500;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     color: var(--text-primary);
     border: 1px solid var(--divider);
     border-radius: 4px;
@@ -1914,7 +1908,7 @@ body {
 .md-ws-link-partner-btn.md-ws-link-partner-disabled,
 .md-ws-link-partner-btn:disabled {
     opacity: 0.45;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     color: var(--text-tertiary);
     cursor: not-allowed;
     filter: grayscale(0.5);
@@ -1949,7 +1943,7 @@ body {
     font-weight: 600;
     cursor: pointer;
     border: 1px solid var(--divider);
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     color: var(--text-primary);
     text-align: left;
 }
@@ -2140,7 +2134,7 @@ body {
    ============================================================ */
 .md-ws-main-tabs {
     display: flex;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     border-bottom: 2px solid var(--divider);
     flex-shrink: 0;
 }
@@ -2168,7 +2162,7 @@ body {
 .md-ws-main-tab.active {
     color: var(--accent-primary);
     border-bottom-color: var(--accent-primary);
-    background: var(--base-surface);
+    background: var(--bg-surface);
 }
 .md-ws-main-tab img {
     width: 12px;
@@ -2213,7 +2207,7 @@ body {
     gap: 4px;
     padding: 5px 10px;
     margin: 3px;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     border: 1px solid var(--divider);
     border-radius: 6px;
     font-size: 12px;
@@ -2315,7 +2309,7 @@ body {
     z-index: 100000;
     pointer-events: none;
     background: var(--error);
-    color: var(--base-surface);
+    color: var(--bg-surface);
     font-size: 12px;
     font-weight: 700;
     font-family: system-ui, sans-serif;
@@ -2332,7 +2326,7 @@ body {
 .md-ws-group-name.md-ws-holiday-group-header {
     border-color: var(--divider);
     border-bottom: none;
-    background: linear-gradient(rgba(219, 87, 123, 0.15), rgba(219, 87, 123, 0.15)), var(--base-surface-alt);
+    background: linear-gradient(rgba(219, 87, 123, 0.15), rgba(219, 87, 123, 0.15)), var(--bg-surface-2);
 }
 .md-ws-holiday-badge {
     font-size: 9px;
@@ -2345,7 +2339,7 @@ body {
 
 /* 休み行名前セル */
 .md-ws-name-cell.md-ws-holiday-name {
-    background: linear-gradient(rgba(219, 87, 123, 0.15), rgba(219, 87, 123, 0.15)), var(--base-surface-alt);
+    background: linear-gradient(rgba(219, 87, 123, 0.15), rgba(219, 87, 123, 0.15)), var(--bg-surface-2);
     color: var(--error);
     font-weight: 700;
     font-size: 12px;
@@ -2388,7 +2382,7 @@ body {
 /* 配置済みの休み社員（グレーアウト） */
 .md-ws-holiday-emp-chip.md-ws-holiday-assigned {
     opacity: 0.5;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     border-color: var(--divider);
     color: var(--text-tertiary);
 }
@@ -2425,24 +2419,24 @@ body {
 .md-ws-group-name.md-ws-maint-group-header {
     border-color: var(--divider);
     border-bottom: none;
-    background: linear-gradient(rgba(211, 208, 200, 0.30), rgba(211, 208, 200, 0.30)), var(--base-surface-alt);
+    background: linear-gradient(rgba(211, 208, 200, 0.30), rgba(211, 208, 200, 0.30)), var(--bg-surface-2);
 }
 .md-ws-maint-badge {
     font-size: 9px;
     font-weight: 700;
     padding: 1px 5px;
     border-radius: 3px;
-    background: var(--base-muted);
+    background: var(--bg-surface-3);
     color: var(--text-secondary);
 }
 .md-ws-name-cell.md-ws-maint-name {
-    background: linear-gradient(rgba(211, 208, 200, 0.30), rgba(211, 208, 200, 0.30)), var(--base-surface-alt);
+    background: linear-gradient(rgba(211, 208, 200, 0.30), rgba(211, 208, 200, 0.30)), var(--bg-surface-2);
     color: var(--text-secondary);
     font-weight: 700;
     font-size: 12px;
 }
 .md-ws-cell.md-ws-maint-row-cell {
-    border-bottom: 2px solid var(--base-muted);
+    border-bottom: 2px solid var(--bg-surface-3);
 }
 .md-ws-cell.md-ws-maint-row-cell.md-ws-past-col {
     background:
@@ -2464,7 +2458,7 @@ body {
     border-radius: 4px;
     background: rgba(240, 237, 233, 0.4);
     color: var(--text-secondary);
-    border: 1px solid var(--base-muted);
+    border: 1px solid var(--bg-surface-3);
     margin-bottom: 2px;
     display: inline-flex;
     align-items: center;
@@ -2473,7 +2467,7 @@ body {
 }
 .md-ws-maint-vehicle-chip.md-ws-maint-assigned {
     opacity: 0.5;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     border-color: var(--divider);
     color: var(--text-tertiary);
 }
@@ -2489,7 +2483,7 @@ body {
 .md-ws-group-name.md-ws-reservation-group-header {
     border-color: var(--divider);
     border-bottom: none;
-    background: linear-gradient(rgba(56, 161, 105, 0.15), rgba(56, 161, 105, 0.15)), var(--base-surface-alt);
+    background: linear-gradient(rgba(56, 161, 105, 0.15), rgba(56, 161, 105, 0.15)), var(--bg-surface-2);
 }
 .md-ws-reservation-badge {
     font-size: 9px;
@@ -2500,7 +2494,7 @@ body {
     color: #fff;
 }
 .md-ws-name-cell.md-ws-reservation-name {
-    background: linear-gradient(rgba(56, 161, 105, 0.10), rgba(56, 161, 105, 0.10)), var(--base-surface-alt);
+    background: linear-gradient(rgba(56, 161, 105, 0.10), rgba(56, 161, 105, 0.10)), var(--bg-surface-2);
     color: var(--success-text);
     font-weight: 700;
     font-size: 12px;
@@ -2521,7 +2515,7 @@ body {
     height: 20px;
     border-radius: 3px;
     border: 1px solid var(--divider);
-    background: var(--base-surface);
+    background: var(--bg-surface);
     color: var(--text-secondary);
     font-size: 14px;
     font-weight: 700;
@@ -2576,14 +2570,14 @@ body {
 }
 .md-ws-reserve-badge.md-ws-reserve-empty {
     opacity: 0.45;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     border-color: var(--divider);
     color: var(--text-tertiary);
     cursor: not-allowed;
     filter: grayscale(0.5);
 }
 .md-ws-reserve-badge.md-ws-reserve-empty:hover {
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     border-color: var(--divider);
 }
 .md-ws-reserve-badge.md-ws-dragging {
@@ -2627,7 +2621,7 @@ body {
 
 /* 配置モード — 修理/点検中車両バッジ（警告枠） */
 .md-ws-vehicle-tag.md-ws-tag-maintenance {
-    border: 2px dashed var(--base-muted);
+    border: 2px dashed var(--bg-surface-3);
     background: rgba(240, 237, 233, 0.25);
 }
 .md-ws-vehicle-tag.md-ws-tag-maintenance::after {
@@ -2753,7 +2747,7 @@ body {
     flex-direction: column;
     width: 34px;
     min-width: 34px;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     border-right: 1px solid var(--divider);
     overflow-y: auto;
     overflow-x: hidden;
@@ -2782,7 +2776,7 @@ body {
 .md-ws-site-vtab.active {
     color: var(--accent-primary);
     border-left-color: var(--accent-primary);
-    background: var(--base-surface);
+    background: var(--bg-surface);
     font-weight: 600;
 }
 
@@ -2836,7 +2830,7 @@ body {
     padding: 24px;
 }
 .md-ws-modal-content {
-    background: var(--base-surface);
+    background: var(--bg-surface);
     border: 1px solid var(--divider);
     border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0, 69, 84, 0.15);
@@ -2891,7 +2885,7 @@ body {
     gap: 10px;
     padding: 14px 20px;
     border-top: 1px solid var(--divider);
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
 }
 /* .md-ws-modal-btn は co-buttons.css `.btn` と互換 */
 .md-ws-modal-btn {
@@ -2903,7 +2897,7 @@ body {
     font-size: 12px;
     border-radius: 6px;
     border: 1px solid transparent;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     color: var(--text-secondary);
     cursor: pointer;
     font-weight: 600;
@@ -2912,8 +2906,8 @@ body {
     white-space: nowrap;
 }
 .md-ws-modal-btn:hover {
-    background: var(--base-muted);
-    border-color: var(--base-muted);
+    background: var(--bg-surface-3);
+    border-color: var(--bg-surface-3);
 }
 .md-ws-modal-btn:focus-visible {
     outline: none;
@@ -2930,13 +2924,13 @@ body {
     box-shadow: 0 2px 8px rgba(68, 166, 181, 0.3);
 }
 .md-ws-modal-btn-secondary {
-    background: var(--base-surface-alt);
-    border-color: var(--base-surface-alt);
+    background: var(--bg-surface-2);
+    border-color: var(--bg-surface-2);
     color: var(--text-secondary);
 }
 .md-ws-modal-btn-secondary:hover {
-    background: var(--base-muted);
-    border-color: var(--base-muted);
+    background: var(--bg-surface-3);
+    border-color: var(--bg-surface-3);
 }
 
 /* ステッパー */
@@ -2946,13 +2940,13 @@ body {
     border: 1px solid var(--divider);
     border-radius: 4px;
     overflow: hidden;
-    background: var(--base-surface);
+    background: var(--bg-surface);
 }
 .md-ws-stepper-btn {
     width: 28px;
     height: 30px;
     border: none;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     color: var(--text-secondary);
     font-weight: 700;
     cursor: pointer;
@@ -2976,7 +2970,7 @@ body {
     text-align: center;
     font-weight: 600;
     font-size: 12px;
-    background: var(--base-surface);
+    background: var(--bg-surface);
     color: var(--text-primary);
     -moz-appearance: textfield;
     appearance: textfield;
@@ -3003,7 +2997,7 @@ body {
     border: 1px solid var(--divider);
     border-radius: 6px;
     font-size: 12px;
-    background: var(--base-surface);
+    background: var(--bg-surface);
     color: var(--text-primary);
     box-sizing: border-box;
     transition: border-color var(--duration-fast, 120ms) var(--ease-out), box-shadow var(--duration-fast, 120ms) var(--ease-out);
@@ -3026,7 +3020,7 @@ body {
     right: 0;
     max-height: 200px;
     overflow-y: auto;
-    background: var(--base-surface);
+    background: var(--bg-surface);
     border: 1px solid var(--divider);
     border-radius: 4px;
     margin-top: 2px;
@@ -3038,7 +3032,7 @@ body {
     font-size: 12px;
     cursor: pointer;
     color: var(--text-primary);
-    border-bottom: 1px solid var(--base-surface-alt);
+    border-bottom: 1px solid var(--bg-surface-2);
 }
 .md-ws-pac-item:last-child { border-bottom: none; }
 .md-ws-pac-item:hover { background: var(--accent-dim); }
@@ -3065,7 +3059,7 @@ body {
     border: 1px solid var(--divider);
     border-radius: 6px;
     font-size: 12px;
-    background: var(--base-surface);
+    background: var(--bg-surface);
     color: var(--text-primary);
     box-sizing: border-box;
     transition: border-color var(--duration-fast, 120ms) var(--ease-out), box-shadow var(--duration-fast, 120ms) var(--ease-out);
@@ -3120,7 +3114,7 @@ body {
     padding: 2px 8px;
     border: 1px solid var(--divider);
     border-radius: 12px;
-    background: var(--base-surface);
+    background: var(--bg-surface);
     color: var(--text-secondary);
     font-size: 10px;
     font-weight: 600;
@@ -3180,13 +3174,13 @@ body {
     padding: 6px 8px;
     border-bottom: 1px solid var(--divider);
     text-align: center;
-    background: var(--base-surface);
+    background: var(--bg-surface);
     white-space: pre-line;
 }
 .md-ws-res-week-table thead th {
     position: sticky;
     top: 0;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     font-weight: 700;
     z-index: 1;
 }
@@ -3200,7 +3194,7 @@ body {
     display: inline-block;
     font-size: 10px;
     color: var(--text-secondary);
-    background: var(--base-muted);
+    background: var(--bg-surface-3);
     border-radius: 3px;
     padding: 1px 4px;
     margin-right: 4px;
@@ -3230,7 +3224,7 @@ body {
 }
 .md-ws-res-week-menu-btn:hover {
     border-color: var(--divider);
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
 }
 .md-ws-res-week-td-menu { width: 34px; }
 
@@ -3247,13 +3241,13 @@ body {
     color: var(--text-secondary);
     cursor: pointer;
 }
-.md-ws-res-week-add-btn:hover { background: var(--base-surface-alt); }
+.md-ws-res-week-add-btn:hover { background: var(--bg-surface-2); }
 .md-ws-res-week-add-panel {
     display: flex;
     gap: 8px;
     align-items: stretch;
     padding: 10px;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2);
     border-radius: 4px;
 }
 .md-ws-res-week-add-panel .md-ws-pac { flex: 1; min-width: 200px; }
@@ -3307,7 +3301,7 @@ body {
 .md-ws-res-week-row-menu {
     position: fixed;
     z-index: 10100;
-    background: var(--base-surface);
+    background: var(--bg-surface);
     border: 1px solid var(--divider);
     border-radius: 4px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
@@ -3325,7 +3319,7 @@ body {
     cursor: pointer;
     color: var(--text-primary);
 }
-.md-ws-res-week-row-menu-item:hover { background: var(--base-surface-alt); }
+.md-ws-res-week-row-menu-item:hover { background: var(--bg-surface-2); }
 .md-ws-res-week-row-menu-danger { color: var(--error-text, #B03A2E); }
 
 /* ============================================================
