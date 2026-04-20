@@ -42,11 +42,11 @@
 
 /* --- Variant: Primary --- */
 .btn-primary {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
     color: #fff;
 }
-.btn-primary:hover { background: var(--accent-light); border-color: var(--accent-light); }
+.btn-primary:hover { background: var(--accent-primary-light); border-color: var(--accent-primary-light); }
 .btn-primary:active { background: #0a9db0; border-color: #0a9db0; }
 
 /* --- Variant: Secondary --- */
@@ -73,17 +73,17 @@
     border-color: transparent;
     color: var(--text-secondary);
 }
-.btn-ghost:hover { background: var(--accent-dim); color: var(--accent); }
+.btn-ghost:hover { background: var(--accent-primary-dim); color: var(--accent-primary); }
 .btn-ghost:active { background: rgba(68, 166, 181, 0.2); }
 
 /* --- Variant: Outline（アクセント枠） --- */
 .btn-outline {
     background: transparent;
-    border-color: var(--accent);
-    color: var(--accent);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
 }
-.btn-outline:hover { background: var(--accent-dim); }
-.btn-outline:active { background: var(--accent); color: #fff; }
+.btn-outline:hover { background: var(--accent-primary-dim); }
+.btn-outline:active { background: var(--accent-primary); color: #fff; }
 
 /* --- Size: Small --- */
 .btn-sm {
@@ -178,14 +178,14 @@
 /* --- Ghost + 破線ピル型（add-chip / add-badge / add-gc 置換用） --- */
 .btn-ghost--pill-dashed {
     border-style: dashed;
-    border-color: var(--accent);
+    border-color: var(--accent-primary);
     border-radius: 14px;
-    color: var(--accent);
+    color: var(--accent-primary);
 }
 .btn-ghost--pill-dashed:hover {
-    background: var(--accent-dim);
-    border-color: var(--accent);
-    color: var(--accent);
+    background: var(--accent-primary-dim);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
 }
 
 /* --- Ghost + hover時 danger色（remove-sub 置換用） --- */

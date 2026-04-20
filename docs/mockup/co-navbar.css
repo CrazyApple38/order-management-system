@@ -156,7 +156,7 @@
     white-space: nowrap;
 }
 .md-nav-menu-item:hover {
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
     color: var(--accent-primary);
 }
 .md-nav-menu-item-icon {

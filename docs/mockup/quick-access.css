@@ -94,12 +94,12 @@ body {
 .qa-login-field input:hover { border-color: var(--accent-primary); } /* Q-B */
 .qa-login-field input:focus {
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-dim);
+    box-shadow: 0 0 0 3px var(--accent-primary-dim);
 }
 .qa-login-btn {
     width: 100%;
     padding: 14px;
-    background: var(--accent); /* Q-D: alias で解決 */
+    background: var(--accent-primary); /* Q-D: alias で解決 */
     color: #FFFFFF;
     border: none;
     border-radius: 10px;
@@ -109,9 +109,9 @@ body {
     transition: background var(--duration-base); /* Q-D */
     margin-top: 4px;
 }
-.qa-login-btn:hover { background: var(--accent-light); }
+.qa-login-btn:hover { background: var(--accent-primary-light); }
 .qa-login-btn:active { transform: scale(0.98); }
-.qa-login-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-D: a11y */
+.qa-login-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-primary-dim); } /* Q-D: a11y */
 .qa-login-error {
     display: none;
     color: var(--error);
@@ -206,7 +206,7 @@ body {
 .qa-tab:hover { color: rgba(255,255,255,0.85); }
 .qa-tab.active {
     color: #FFFFFF;
-    border-bottom-color: var(--accent-light);
+    border-bottom-color: var(--accent-primary-light);
 }
 .qa-tab.qa-tab-hidden {
     color: rgba(255,255,255,0.5);
@@ -337,10 +337,10 @@ body {
     gap: var(--space-sm); /* Q-E: 6px ≈ DS sm */
     flex: 1;
     padding: 12px;
-    background: var(--accent-dim); /* Q-E */
-    border: 1.5px dashed var(--accent); /* Q-E: alias */
+    background: var(--accent-primary-dim); /* Q-E */
+    border: 1.5px dashed var(--accent-primary); /* Q-E: alias */
     border-radius: var(--radius-lg); /* Q-E */
-    color: var(--accent); /* Q-E */
+    color: var(--accent-primary); /* Q-E */
     font-size: var(--fs-base); /* Q-E */
     font-weight: var(--fw-semibold); /* Q-E */
     cursor: pointer;
@@ -349,7 +349,7 @@ body {
 .qa-add-client-btn:hover {
     background: rgba(68,166,181,0.18);
 }
-.qa-add-client-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-E: a11y */
+.qa-add-client-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-primary-dim); } /* Q-E: a11y */
 
 /* 新規契約先入力フォーム（非表示状態） */
 .qa-add-client-form {
@@ -387,11 +387,11 @@ body {
 .qa-add-client-input:hover { border-color: var(--accent-primary); } /* Q-B */
 .qa-add-client-input:focus {
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B: DS 3px リングへ統一 */
+    box-shadow: 0 0 0 3px var(--accent-primary-dim); /* Q-B: DS 3px リングへ統一 */
 }
 .qa-add-client-submit {
     padding: 6px 14px;
-    background: var(--accent); /* Q-D: btn-primary 相当 */
+    background: var(--accent-primary); /* Q-D: btn-primary 相当 */
     color: #fff;
     border: none;
     border-radius: var(--radius-sm); /* Q-D */
@@ -401,8 +401,8 @@ body {
     white-space: nowrap;
     transition: background var(--duration-fast); /* Q-D */
 }
-.qa-add-client-submit:hover { background: var(--accent-light); }
-.qa-add-client-submit:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-D: a11y */
+.qa-add-client-submit:hover { background: var(--accent-primary-light); }
+.qa-add-client-submit:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-primary-dim); } /* Q-D: a11y */
 .qa-add-client-cancel {
     padding: 6px 10px;
     background: var(--bg-surface-2); /* Q-D: btn-secondary 相当 */
@@ -414,7 +414,7 @@ body {
     transition: background var(--duration-fast); /* Q-D */
 }
 .qa-add-client-cancel:hover { background: var(--bg-surface-3); } /* Q-D: btn-secondary hover 相当 */
-.qa-add-client-cancel:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-D */
+.qa-add-client-cancel:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-primary-dim); } /* Q-D */
 
 /* 契約先サジェスト */
 .qa-client-suggest {
@@ -490,11 +490,11 @@ body {
     transition: background 0.15s;
 }
 .qa-client-card-header:hover {
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
 }
 .qa-client-icon {
     width: 40px; height: 40px;
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -620,7 +620,7 @@ body {
 .qa-add-site-row:hover { background: rgba(68,166,181,0.06); }
 .qa-add-site-icon {
     width: 28px; height: 28px;
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
     border: 1.5px dashed var(--accent-primary);
     border-radius: 8px;
     display: flex;
@@ -778,7 +778,7 @@ body {
 .qa-modal-field input:hover { border-color: var(--accent-primary); } /* Q-B */
 .qa-modal-field input:focus {
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B: DS トークン化 */
+    box-shadow: 0 0 0 3px var(--accent-primary-dim); /* Q-B: DS トークン化 */
 }
 .qa-modal-chips {
     display: flex;
@@ -824,7 +824,7 @@ body {
     transition: background var(--duration-fast), border-color var(--duration-fast), color var(--duration-fast); /* Q-D: all 禁止、個別 transition */
     min-height: 44px; /* Q-D: モバイル・タッチターゲット 44px */
 }
-.qa-modal-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-D: a11y */
+.qa-modal-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-primary-dim); } /* Q-D: a11y */
 .qa-modal-btn-cancel {
     background: var(--bg-surface); /* btn-secondary の軽量版 */
     color: var(--text-secondary);
@@ -833,13 +833,13 @@ body {
     background: var(--bg-surface-2); /* Q-D: alias */
 }
 .qa-modal-btn-save {
-    background: var(--accent); /* Q-D: btn-primary */
+    background: var(--accent-primary); /* Q-D: btn-primary */
     color: #fff; /* Q-D: white → #fff（全DS統一） */
-    border-color: var(--accent);
+    border-color: var(--accent-primary);
 }
 .qa-modal-btn-save:hover {
-    background: var(--accent-light); /* Q-D: btn-primary hover 相当（旧 opacity 0.85 → 明確な色変化） */
-    border-color: var(--accent-light);
+    background: var(--accent-primary-light); /* Q-D: btn-primary hover 相当（旧 opacity 0.85 → 明確な色変化） */
+    border-color: var(--accent-primary-light);
 }
 
 /* ========== カレンダー入力画面 ========== */
@@ -959,7 +959,7 @@ body {
     transition: all 0.15s;
     background: #FFFFFF;
 }
-.qa-cal-cell:hover { border-color: var(--accent-primary); background: var(--accent-dim); }
+.qa-cal-cell:hover { border-color: var(--accent-primary); background: var(--accent-primary-dim); }
 .qa-cal-cell.qa-cal-outside {
     background: rgba(0,0,0,0.02);
     opacity: 0.5;
@@ -1047,7 +1047,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 10px 16px;
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
     cursor: pointer;
     position: sticky;
     top: 0;
@@ -1102,8 +1102,8 @@ body {
 .qa-header-delete-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(219,87,123,0.2); } /* Q-D: a11y */
 .qa-header-save-btn {
     padding: 5px 12px;
-    background: var(--accent); /* Q-D: btn-primary */
-    border: 1px solid var(--accent);
+    background: var(--accent-primary); /* Q-D: btn-primary */
+    border: 1px solid var(--accent-primary);
     color: #fff;
     border-radius: var(--radius-sm); /* Q-D */
     font-size: var(--fs-caption); /* Q-D */
@@ -1111,8 +1111,8 @@ body {
     cursor: pointer;
     transition: background var(--duration-fast), border-color var(--duration-fast); /* Q-D */
 }
-.qa-header-save-btn:hover { background: var(--accent-light); border-color: var(--accent-light); }
-.qa-header-save-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-D: a11y */
+.qa-header-save-btn:hover { background: var(--accent-primary-light); border-color: var(--accent-primary-light); }
+.qa-header-save-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-primary-dim); } /* Q-D: a11y */
 .qa-cal-edit-close {
     background: none;
     border: none;
@@ -1231,7 +1231,7 @@ body {
 .qa-cal-edit-field input:focus,
 .qa-cal-edit-field select:focus {
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B */
+    box-shadow: 0 0 0 3px var(--accent-primary-dim); /* Q-B */
 }
 .qa-cal-edit-row {
     display: flex;
@@ -1280,8 +1280,8 @@ body {
 }
 .qa-section-bar-btn {
     background: none;
-    border: 1px solid var(--accent); /* Q-D: btn-outline 相当 */
-    color: var(--accent);
+    border: 1px solid var(--accent-primary); /* Q-D: btn-outline 相当 */
+    color: var(--accent-primary);
     font-size: var(--fs-caption); /* Q-D */
     font-weight: var(--fw-semibold); /* Q-D */
     padding: 2px 8px;
@@ -1289,8 +1289,8 @@ body {
     cursor: pointer;
     transition: background var(--duration-fast); /* Q-D */
 }
-.qa-section-bar-btn:hover { background: var(--accent-dim); }
-.qa-section-bar-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-D: a11y */
+.qa-section-bar-btn:hover { background: var(--accent-primary-dim); }
+.qa-section-bar-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-primary-dim); } /* Q-D: a11y */
 
 /* 配置先タブ（受注簿準拠：ボーダーボトム式） */
 .qa-placement-tabs {
@@ -1371,7 +1371,7 @@ body {
 .qa-count-inline-input:hover { border-color: var(--accent-primary); } /* Q-B */
 .qa-count-inline-input:focus {
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B: 3px リング */
+    box-shadow: 0 0 0 3px var(--accent-primary-dim); /* Q-B: 3px リング */
 }
 
 /* タイムセレクト（時・分） */
@@ -1399,7 +1399,7 @@ body {
 .qa-time-hour:focus,
 .qa-time-min:focus {
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B */
+    box-shadow: 0 0 0 3px var(--accent-primary-dim); /* Q-B */
 }
 .qa-time-colon {
     font-size: 16px;
@@ -1431,7 +1431,7 @@ body {
 .qa-sub-label:hover { border-color: var(--accent-primary); } /* Q-B */
 .qa-sub-label:focus {
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B */
+    box-shadow: 0 0 0 3px var(--accent-primary-dim); /* Q-B */
 }
 .qa-sub-value {
     flex: 1;
@@ -1448,7 +1448,7 @@ body {
 .qa-sub-value:hover { border-color: var(--accent-primary); } /* Q-B */
 .qa-sub-value:focus {
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B */
+    box-shadow: 0 0 0 3px var(--accent-primary-dim); /* Q-B */
 }
 .qa-sub-delete {
     flex-shrink: 0;
@@ -1488,9 +1488,9 @@ body {
 .qa-badge-parent {
     font-size: var(--fs-caption); /* Q-E */
     font-weight: var(--fw-bold); /* Q-E */
-    color: var(--accent); /* Q-E */
+    color: var(--accent-primary); /* Q-E */
     padding: 3px 10px;
-    background: var(--accent-dim); /* Q-E */
+    background: var(--accent-primary-dim); /* Q-E */
     border-radius: 14px; /* QA 固有のピル半径（co-shared-badges bt-count 近似） */
 }
 .qa-badge-chips {
@@ -1526,7 +1526,7 @@ body {
     cursor: pointer;
     transition: all 0.15s;
 }
-.qa-badge-add-btn:hover { background: var(--accent-dim); }
+.qa-badge-add-btn:hover { background: var(--accent-primary-dim); }
 
 /* 地図セクション（複数エントリ対応） */
 .qa-map-fields {
@@ -1564,12 +1564,12 @@ body {
 .qa-map-url-row input:hover { border-color: var(--accent-primary); } /* Q-B */
 .qa-map-url-row input:focus {
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B */
+    box-shadow: 0 0 0 3px var(--accent-primary-dim); /* Q-B */
 }
 .qa-map-preview-btn {
     flex-shrink: 0;
     padding: 10px 14px;
-    background: var(--accent); /* Q-D: btn-primary */
+    background: var(--accent-primary); /* Q-D: btn-primary */
     color: #fff;
     border: none;
     border-radius: var(--radius-md); /* Q-D: 8px = DS md */
@@ -1578,8 +1578,8 @@ body {
     cursor: pointer;
     transition: background var(--duration-fast); /* Q-D */
 }
-.qa-map-preview-btn:hover { background: var(--accent-light); }
-.qa-map-preview-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-D: a11y */
+.qa-map-preview-btn:hover { background: var(--accent-primary-light); }
+.qa-map-preview-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-primary-dim); } /* Q-D: a11y */
 
 /* テキストエリア */
 .qa-cal-edit-field textarea {
@@ -1598,7 +1598,7 @@ body {
 .qa-cal-edit-field textarea:hover { border-color: var(--accent-primary); } /* Q-B */
 .qa-cal-edit-field textarea:focus {
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B */
+    box-shadow: 0 0 0 3px var(--accent-primary-dim); /* Q-B */
 }
 
 
@@ -1653,11 +1653,11 @@ body {
 .md-cn-btn-revert:focus-visible,
 .md-cn-btn-reapprove:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px var(--accent-dim);
+    box-shadow: 0 0 0 3px var(--accent-primary-dim);
 }
 
 .qa-tab:focus-visible {
-    outline: 2px solid var(--accent-light);
+    outline: 2px solid var(--accent-primary-light);
     outline-offset: -2px;
 }
 
@@ -1906,7 +1906,7 @@ body {
 .md-cn-filter-select:focus {
     outline: none;
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 2px var(--accent-dim);
+    box-shadow: 0 0 0 2px var(--accent-primary-dim);
 }
 .md-cn-close {
     background: none;
@@ -1918,7 +1918,7 @@ body {
     border-radius: 4px;
     transition: all 0.15s;
 }
-.md-cn-close:hover { background: var(--accent-dim); color: var(--accent-primary); }
+.md-cn-close:hover { background: var(--accent-primary-dim); color: var(--accent-primary); }
 
 /* タブ */
 .md-cn-tabs {

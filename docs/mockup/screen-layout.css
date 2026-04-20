@@ -47,9 +47,9 @@
     /* Tier 2 — Sub */
     --bg-sidebar:      #14181c;
     /* Tier 3 — Accent */
-    --accent-primary:    #098698;
-    --accent-light:      #0a9db0;
-    --accent-dim:        rgba(9, 134, 152, 0.2);
+    --accent-primary:        #098698;
+    --accent-primary-light:  #0a9db0;
+    --accent-primary-dim:    rgba(9, 134, 152, 0.2);
     /* テキスト */
     --text-primary:   #D9D4D1;
     --text-secondary: #BAB1AD;
@@ -93,7 +93,6 @@
     --header-btn-hover: rgba(255, 255, 255, 0.15);
 
     /* 後方互換 */
-    --accent: var(--accent-primary);
     --secondary: var(--divider);
 }
 
@@ -493,7 +492,7 @@ h1 {
 
 .md-sp-vtab:hover {
     color: var(--text-secondary);
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
 }
 
 .md-sp-vtab.active {
@@ -738,7 +737,7 @@ h1 {
 }
 
 .toolbar button:hover {
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
     color: var(--accent-primary);
     border-color: var(--accent-primary);
 }
@@ -750,7 +749,7 @@ h1 {
 }
 
 .toolbar button.primary:hover {
-    background: var(--accent-light);
+    background: var(--accent-primary-light);
 }
 
 .toolbar button.danger {
@@ -920,7 +919,7 @@ h1 {
     white-space: nowrap;
     vertical-align: middle;
 }
-.map-tag:hover { background: var(--accent-light); }
+.map-tag:hover { background: var(--accent-primary-light); }
 
 .map-link {
     display: inline-block;
@@ -936,7 +935,7 @@ h1 {
 }
 
 .map-link:hover {
-    background: var(--accent-light);
+    background: var(--accent-primary-light);
 }
 
 .map-empty {
@@ -965,7 +964,7 @@ h1 {
 
 .assignment-zone:hover {
     border-color: var(--accent-primary);
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
 }
 
 .assignment-zone.drag-over {
@@ -1162,7 +1161,7 @@ h1 {
 }
 
 .contact-popup-add button:hover {
-    background: var(--accent-light);
+    background: var(--accent-primary-light);
 }
 
 /* 個別バッジ追加色 (light theme) */
@@ -1183,7 +1182,7 @@ h1 {
 }
 
 .clickable-cell:hover {
-    background: var(--accent-dim) !important;
+    background: var(--accent-primary-dim) !important;
 }
 
 /* 現場情報セル（横並びレイアウト） */
@@ -1308,7 +1307,7 @@ h1 {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
     color: var(--accent-primary);
     border: 1px solid rgba(68, 166, 181, 0.25);
 }
@@ -1423,13 +1422,13 @@ h1 {
 .tbl tbody tr[aria-selected="true"] {
     outline: 2px solid var(--accent-primary);
     outline-offset: -2px;
-    background: var(--accent-dim) !important;
+    background: var(--accent-primary-dim) !important;
 }
 
 .grid-table tbody tr.selected td,
 .grid-table tbody tr[aria-selected="true"] td,
 .tbl tbody tr[aria-selected="true"] td {
-    background: var(--accent-dim) !important;
+    background: var(--accent-primary-dim) !important;
 }
 
 .grid-table tbody tr.selected .col-no,
@@ -1668,7 +1667,7 @@ h1 {
 
 .vehicle-drop-zone:hover {
     border-color: var(--accent-primary);
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
 }
 
 .vehicle-drop-zone.drag-over {
@@ -1769,7 +1768,7 @@ h1 {
 .vt-item-row input[type="text"]:focus {
     outline: none;
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 2px var(--accent-dim);
+    box-shadow: 0 0 0 2px var(--accent-primary-dim);
 }
 
 .vt-item-row select {
@@ -1785,7 +1784,7 @@ h1 {
 .vt-item-row select:focus {
     outline: none;
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 2px var(--accent-dim);
+    box-shadow: 0 0 0 2px var(--accent-primary-dim);
 }
 
 .vt-item-row input[type="color"] {
@@ -1830,7 +1829,7 @@ h1 {
 }
 
 .vt-add-item-btn:hover {
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
     border-color: var(--accent-primary);
 }
 
@@ -1862,7 +1861,7 @@ h1 {
 }
 
 .vt-preset-btn:hover {
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
     border-color: var(--accent-primary);
 }
 
@@ -1949,7 +1948,7 @@ h1 {
 .md-modal-section select:focus {
     outline: none;
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-dim);
+    box-shadow: 0 0 0 3px var(--accent-primary-dim);
 }
 
 .md-modal-buttons {
@@ -2191,7 +2190,7 @@ h1 {
 .md-cb-input:focus {
     outline: none;
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px var(--accent-dim);
+    box-shadow: 0 0 0 3px var(--accent-primary-dim);
 }
 
 .md-cb-input::placeholder {
@@ -2269,7 +2268,7 @@ h1 {
 
 .md-cb-option:hover,
 .md-cb-option.highlighted {
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
 }
 
 .md-cb-option:last-child {
@@ -2300,7 +2299,7 @@ h1 {
 }
 
 .md-cb-add-new:hover {
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
 }
 
 .md-cb-add-new-icon {
@@ -2362,7 +2361,7 @@ h1 {
 }
 
 .sort-modal-close:hover {
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
     color: var(--accent-primary);
 }
 
@@ -2429,7 +2428,7 @@ h1 {
 }
 
 .sort-list-item.selected {
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
     border-left: 3px solid var(--accent-primary);
     padding-left: 9px;
 }
@@ -2530,7 +2529,7 @@ h1 {
 }
 
 .sort-btn-apply:hover {
-    background: var(--accent-light);
+    background: var(--accent-primary-light);
 }
 
 
@@ -2812,7 +2811,7 @@ h1 {
     font-size: 12px; font-weight: 600; white-space: nowrap;
     transition: background 0.15s;
 }
-.sm-map-preview-btn:hover { background: var(--accent-light); }
+.sm-map-preview-btn:hover { background: var(--accent-primary-light); }
 .sm-map-hint {
     color: var(--text-tertiary); font-size: 10px; margin-top: 5px;
 }
@@ -2864,7 +2863,7 @@ h1 {
 .md-modal-site-header {
     padding: 14px 24px;
     border-bottom: 1px solid rgba(0,0,0,0.1);
-    background: var(--accent-light);
+    background: var(--accent-primary-light);
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -2970,7 +2969,7 @@ h1 {
     border-color: var(--accent-primary);
 }
 .md-modal-site-footer button:last-child:hover {
-    background: var(--accent-light);
+    background: var(--accent-primary-light);
 }
 
 /* 追加項目セクション */
@@ -3034,7 +3033,7 @@ h1 {
 .add-sub-item-btn:hover {
     border-color: var(--accent-primary);
     color: var(--accent-primary);
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
 }
 
 /* モーダル内フォーム要素の統一 */
@@ -3378,7 +3377,7 @@ h1 {
     transition: all 0.15s;
 }
 .md-cn-close:hover {
-    background: var(--accent-dim);
+    background: var(--accent-primary-dim);
     color: var(--accent-primary);
 }
 
@@ -3714,7 +3713,7 @@ h1 {
     font-family: inherit; transition: border-color 0.15s;
 }
 .md-ob-time-input:hover { border-color: var(--accent-primary); }
-.md-ob-time-input:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px var(--accent-dim); }
+.md-ob-time-input:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px var(--accent-primary-dim); }
 .md-ob-time-picker-icon {
     position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
     font-size: 14px; line-height: 1; pointer-events: none; opacity: 0.6;
@@ -3746,7 +3745,7 @@ h1 {
     min-width: 50px;
 }
 .md-ob-time-option:hover {
-    background: var(--accent-dim); color: var(--accent-primary);
+    background: var(--accent-primary-dim); color: var(--accent-primary);
 }
 .md-ob-time-option.md-ob-time-selected {
     background: var(--accent-primary); color: #fff;
@@ -3863,7 +3862,7 @@ h1 {
 .md-ob-sub-label-input:focus,
 .md-modal-site-body input.md-ob-sub-label-input:focus {
     outline: none; border-color: var(--accent-primary); border-style: solid;
-    box-shadow: 0 0 0 2px var(--accent-dim);
+    box-shadow: 0 0 0 2px var(--accent-primary-dim);
 }
 .md-ob-sub-value-input,
 .md-modal-site-body input.md-ob-sub-value-input {
@@ -3876,7 +3875,7 @@ h1 {
 .md-ob-sub-value-input:focus,
 .md-modal-site-body input.md-ob-sub-value-input:focus {
     outline: none; border-color: var(--accent-primary);
-    box-shadow: 0 0 0 2px var(--accent-dim);
+    box-shadow: 0 0 0 2px var(--accent-primary-dim);
 }
 /* 計画書業務名行（読み取り専用） */
 .md-ob-plan-name-row {
@@ -4099,7 +4098,7 @@ h1 {
 .md-ob-company-suggest .suggest-item {
     padding: 6px 12px; cursor: pointer; font-size: 12px; color: var(--text-primary);
 }
-.md-ob-company-suggest .suggest-item:hover { background: var(--accent-dim); }
+.md-ob-company-suggest .suggest-item:hover { background: var(--accent-primary-dim); }
 .md-ob-company-suggest .suggest-header {
     padding: 4px 12px; font-size: 10px; font-weight: 600; color: var(--text-tertiary);
     border-bottom: 1px solid var(--divider); background: var(--bg-surface-2);
