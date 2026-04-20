@@ -15,7 +15,8 @@
 | S (A〜G) | Screen Layout | 完了 | `a26a118` (S/W/Q統合) | S-G: 97/100 PASS、JS依存クラスは永続残置 |
 | W (A〜G) | Weekly Schedule | 完了 | `a26a118` | W-G: 91/100 PASS、`--md-gc-bg-*` 温存 |
 | Q (A〜G) | Quick Access | 完了 | `a26a118` | Q-G: 93/100 PASS |
-| ベル復活 | OB/SL 画面ベル + ナビバー独立モーダル | **未コミット** | — | 下記2参照 |
+| ベル復活 | OB/SL 画面ベル + ナビバー独立モーダル | 完了 | `7692b79` | ナビバーv=4、独立モーダル + バッジ独立カウント |
+| LC (1〜5) | co-tokens.css legacy aliases 全廃 | **完了** | `4057513` → `c0fe1ee` | LC-1〜5 全サブフェーズ SC 99〜100点 PASS |
 
 **参照すべき既存成果物**
 - マスタープラン: [docs/plan/ds-migration-plan.md](../plan/ds-migration-plan.md)
