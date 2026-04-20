@@ -137,14 +137,16 @@
     border-radius: 0;
 }
 
-/* 14-2: badge-chip → B (screen-layout: bg-surface) */
+/* 14-2: badge-chip → B (screen-layout: bg-surface)
+   M-E1: 新DS .bt-chip / .bt-chip-child / .bt-chip.active と意味等価。
+         定義値をトークン参照化（半径は既存 14px 維持。.bt-* 側は var(--radius-lg)=12px） */
 .md-ob-badge-chip {
     display: inline-flex; align-items: center;
     padding: 3px 10px; border-radius: 14px;
     border: 1px solid var(--divider);
     background: var(--base-surface); color: var(--text-secondary);
-    font-size: 11px; font-weight: 500;
-    cursor: pointer; transition: all 0.15s;
+    font-size: var(--fs-caption); font-weight: var(--fw-medium);
+    cursor: pointer; transition: all var(--duration-fast);
     user-select: none;
 }
 .md-ob-badge-chip:hover {
@@ -156,20 +158,21 @@
     border-color: var(--accent-primary);
 }
 .md-ob-badge-chip.md-ob-badge-child {
-    font-size: 10px; padding: 2px 8px; border-radius: 12px;
+    font-size: 10px; padding: 2px 8px; border-radius: var(--radius-lg);
 }
 .md-ob-badge-chip.md-ob-badge-child.md-ob-badge-selected {
     background: var(--sub-secondary); color: var(--primary);
     border-color: var(--sub-secondary);
 }
 
-/* 14-3: delete-btn → カスタム（✕色を文字色と同色、hover時は半透明背景） */
+/* 14-3: delete-btn → カスタム（✕色を文字色と同色、hover時は半透明背景）
+   M-E1: transition を --duration-fast にトークン化 */
 .md-ob-badge-delete-btn {
     display: inline-flex; align-items: center; justify-content: center;
     width: 16px; height: 16px; border-radius: 50%;
     border: none; background: transparent;
     color: inherit; font-size: 9px;
-    cursor: pointer; transition: all 0.15s;
+    cursor: pointer; transition: all var(--duration-fast);
     padding: 0; line-height: 1;
 }
 .md-ob-badge-delete-btn:hover {
@@ -180,30 +183,20 @@
     background: rgba(255,255,255,0.25);
 }
 
-/* 14-4: btn-add-badge → B (screen-layout: 小さめ/12px) */
-.md-ob-btn-add-badge {
-    align-self: flex-start;
-    padding: 2px 8px; border: 1px dashed var(--divider);
-    border-radius: 12px; background: transparent;
-    color: var(--text-tertiary); font-size: 11px;
-    cursor: pointer; transition: all 0.15s;
-}
-.md-ob-btn-add-badge:hover {
-    border-color: var(--accent-primary); color: var(--accent-primary);
-    background: rgba(68,166,181,0.06);
-}
+/* 14-4: btn-add-badge → M-D1 で .btn.btn-sm.btn-ghost.btn-ghost--pill-dashed に置換済（co-buttons.css 参照） */
 
-/* 14-5: row-chips → B (screen-layout: gap 4px) */
+/* 14-5: row-chips → B (screen-layout: gap 4px)
+   M-E1: 新DS .bt-chip / .bt-chip.active と意味等価。トークン参照化 */
 .md-ob-row-chips {
-    display: flex; flex-wrap: wrap; gap: 4px;
+    display: flex; flex-wrap: wrap; gap: var(--space-xs);
 }
 .md-ob-row-chip {
     display: inline-flex; align-items: center;
     padding: 3px 10px; border-radius: 14px;
     border: 1px solid var(--divider);
     background: var(--base-surface); color: var(--text-secondary);
-    font-size: 11px; font-weight: 500;
-    cursor: pointer; transition: all 0.15s;
+    font-size: var(--fs-caption); font-weight: var(--fw-medium);
+    cursor: pointer; transition: all var(--duration-fast);
     user-select: none;
 }
 .md-ob-row-chip:hover {
@@ -247,11 +240,13 @@
     font-size: 11px; color: var(--text-disabled); font-style: italic;
 }
 
-/* ドラッグ＆ドロップ */
+/* ドラッグ＆ドロップ
+   M-E1: transition を --duration-fast にトークン化。
+         新DS .bt-drag-tag は別レイアウト（大サイズ）のため意味的別物 */
 .md-ob-badge-drag-item {
     display: inline-flex; align-items: center; gap: 2px;
     border-radius: 14px;
-    transition: transform 0.15s, box-shadow 0.15s;
+    transition: transform var(--duration-fast), box-shadow var(--duration-fast);
 }
 .md-ob-badge-drag-item[draggable="true"] { cursor: grab; }
 .md-ob-badge-drag-item.md-ob-badge-dragging {
@@ -278,8 +273,8 @@
 .md-ob-badge-undo-btn {
     padding: 2px 10px; border-radius: 10px;
     border: 1px solid #f59e0b; background: #fff;
-    color: #d97706; font-size: 11px; font-weight: 600;
-    cursor: pointer; transition: all 0.15s;
+    color: #d97706; font-size: var(--fs-caption); font-weight: var(--fw-semibold);
+    cursor: pointer; transition: all var(--duration-fast);
 }
 .md-ob-badge-undo-btn:hover {
     background: #f59e0b; color: #fff;
@@ -299,31 +294,34 @@
     border-radius: 0 6px 6px 0;
 }
 .md-ob-badge-grandchild {
-    font-size: 10px; padding: 2px 8px; border-radius: 12px;
+    font-size: 10px; padding: 2px 8px; border-radius: var(--radius-lg);
 }
 .md-ob-badge-grandchild.md-ob-badge-selected {
     background: var(--sub-secondary); color: var(--text-primary);
     border-color: var(--sub-secondary);
 }
-.md-ob-gc-drag-item { border-radius: 12px; }
+.md-ob-gc-drag-item { border-radius: var(--radius-lg); }
 .md-ob-gc-undo-bar { margin-top: 6px; }
-.md-ob-btn-add-gc { font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+/* M-D1: Grandchild 追加ボタンは .btn.btn-sm.btn-ghost.btn-ghost--pill-dashed.md-ob-gc-add に置換。小粒寸法のみここで override */
+.md-ob-gc-add { font-size: var(--fs-caption); padding: 2px 8px; border-radius: 10px; }
 
 /* タッチドラッグ共通 */
 .md-ob-touch-dragging { opacity: 0.4; transform: scale(0.95); }
 .md-ob-touch-drag-over { box-shadow: 0 0 0 2px var(--accent-primary); }
 
-/* ── md-ob: 信頼度チップ ── */
+/* ── md-ob: 信頼度チップ ──
+   M-E1: 新DS .bt-chip 系と機能的に類似（選択式 + active-variant）。
+         active-tentative_* はハードコード色（warning/neutral）を維持 */
 .md-ob-confidence-chips {
     display: flex; flex-wrap: wrap; gap: 5px;
 }
 .md-ob-confidence-chip {
     display: inline-flex; align-items: center;
-    padding: 2px 8px; border-radius: 12px;
+    padding: 2px 8px; border-radius: var(--radius-lg);
     border: 1px solid var(--divider);
     background: var(--base-surface); color: var(--text-secondary);
-    font-size: 10px; font-weight: 500;
-    cursor: pointer; transition: all 0.15s;
+    font-size: 10px; font-weight: var(--fw-medium);
+    cursor: pointer; transition: all var(--duration-fast);
     user-select: none;
 }
 .md-ob-confidence-chip:hover {
@@ -341,17 +339,9 @@
 }
 
 /* ────────────────────────────────────────────────────────────
-   5. md-ob: モーダル閉じるボタン
-   対象: order-book / screen-layout
-   統一先: A (order-book: 白系・濃色ヘッダー前提)
+   5. モーダル閉じるボタン
+   M-D2: 本定義は co-modal.css の .modal-close / .modal-close:hover に移管
    ──────────────────────────────────────────────────────────── */
-
-.md-ob-modal-close {
-    background: none; border: none;
-    color: rgba(255,255,255,0.8); font-size: 18px;
-    cursor: pointer; padding: 2px 6px; border-radius: 4px;
-}
-.md-ob-modal-close:hover { background: rgba(255,255,255,0.2); color: #FFFFFF; }
 
 /* ────────────────────────────────────────────────────────────
    6. 表示専用バッジ（グリッド・一覧表示用）
@@ -396,4 +386,124 @@
     font-size: 0;
     overflow: hidden;
     margin: 3px 0 1px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   7. 新DS .bt-* エイリアス定義（M-E1）
+   Upstream: docs/ui-components/styles-light.css L2008-2327
+   Policy: 将来の M-G 物理リネーム時の互換ブリッジ。
+           OB/SL の HTML/JS は従来 .md-ob-* を使い続け、
+           将来の新コード（WS/QA 等）は .bt-* を直接使える。
+   対応表:
+     .bt-chip / .bt-chip.active / .bt-chip-child → .md-ob-badge-chip / -selected / -child
+     .bt-cell-tag / .bt-cell-child / .bt-cell-grandchild → 表示用タグ（screen-layout .badge-*-tag と同値）
+     .bt-drag-tag / .bt-drag-tag.assigned / .bt-drag-tag-sub → 大サイズ ドラッグ可能タグ（.md-ob-badge-drag-item とは別寸法）
+     .bt-tooltip-badge / .bt-tooltip-badge-accent → .md-ob-tt-badge と同値
+     .bt-cal-badge → カレンダーセル内バッジ
+     .bt-info-badge / .bt-info-badge-child / .bt-info-badge-grandchild → インフォバッジ
+   ──────────────────────────────────────────────────────────── */
+
+/* .bt-chip: 選択チップ（モーダル内） */
+.bt-chip {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: var(--radius-lg);
+    border: 1px solid var(--divider);
+    background: var(--bg-surface); color: var(--text-secondary);
+    font-size: var(--fs-caption); font-weight: var(--fw-medium);
+    cursor: pointer; transition: all var(--duration-fast);
+    -webkit-user-select: none; user-select: none;
+}
+.bt-chip:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: var(--accent-dim);
+}
+.bt-chip.active {
+    background: var(--accent); color: #fff;
+    border-color: var(--accent);
+}
+.bt-chip-child {
+    font-size: var(--fs-caption);
+    padding: var(--space-2xs) var(--space-sm);
+    border-radius: var(--radius-lg);
+}
+.bt-chip-child.active {
+    background: var(--secondary); color: var(--text-primary);
+    border-color: var(--secondary);
+}
+
+/* .bt-cell-tag: セル表示タグ */
+.bt-cell-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: var(--radius-md);
+    font-size: var(--fs-caption); font-weight: var(--fw-semibold);
+    line-height: var(--lh-base); white-space: nowrap;
+}
+.bt-cell-child {
+    background: var(--accent-dim); color: var(--accent);
+    border: 1px solid rgba(68,166,181,0.25);
+}
+.bt-cell-grandchild {
+    background: rgba(178,213,226,0.25); color: var(--text-tertiary);
+    border: 1px solid rgba(178,213,226,0.4);
+    font-weight: var(--fw-medium);
+}
+
+/* .bt-drag-tag: ドラッグ可能タグ（大サイズ） */
+.bt-drag-tag {
+    display: inline-flex; align-items: center; gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--bg-surface-2); border: 1px solid var(--divider);
+    border-radius: var(--radius-md);
+    cursor: grab; transition: all var(--duration-base);
+    -webkit-user-select: none; user-select: none;
+    color: var(--text-primary); font-size: var(--fs-sm);
+}
+.bt-drag-tag:hover {
+    background: var(--accent); color: white; border-color: var(--accent);
+}
+.bt-drag-tag.assigned {
+    background: var(--accent-dim); border-color: rgba(68,166,181,0.30);
+    color: var(--text-secondary);
+}
+.bt-drag-tag-sub {
+    font-size: 0.7rem; color: var(--text-tertiary);
+}
+.bt-drag-tag:hover .bt-drag-tag-sub { color: rgba(255,255,255,0.7); }
+
+/* .bt-tooltip-badge: ツールチップ内バッジ */
+.bt-tooltip-badge {
+    display: inline-block;
+    padding: var(--space-2xs) var(--space-sm);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-caption); font-weight: var(--fw-semibold);
+    line-height: var(--lh-base); white-space: nowrap;
+}
+.bt-tooltip-badge-accent {
+    background: rgba(68,166,181,0.15); color: var(--accent);
+}
+
+/* .bt-cal-badge: カレンダーセル内バッジ */
+.bt-cal-badge {
+    font-size: var(--fs-caption); color: var(--accent);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    max-width: 100%; line-height: 1;
+}
+
+/* .bt-info-badge: インフォバッジ */
+.bt-info-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: var(--radius-md);
+    font-size: var(--fs-caption); font-weight: var(--fw-semibold);
+    line-height: var(--lh-base); white-space: nowrap;
+}
+.bt-info-badge-child {
+    background: var(--accent-dim); color: var(--accent);
+    border: 1px solid rgba(68,166,181,0.25);
+}
+.bt-info-badge-grandchild {
+    background: rgba(178,213,226,0.25); color: var(--text-tertiary);
+    border: 1px solid rgba(178,213,226,0.4);
+    font-weight: var(--fw-medium);
 }

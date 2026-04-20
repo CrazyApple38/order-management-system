@@ -4318,7 +4318,7 @@
                 entry.innerHTML =
                     `<input type="text" class="md-ob-sub-label-input" value="${escapeHtml(st.label)}" placeholder="項目名" oninput="smUpdatePlanTaskName()">` +
                     `<input type="text" class="md-ob-sub-value-input" value="${escapeHtml(st.value)}" placeholder="内容を入力" oninput="smUpdatePlanTaskName()">` +
-                    `<button type="button" class="md-ob-btn-remove-sub" onclick="smRemoveSubTask(${idx})" title="削除">×</button>`;
+                    `<button type="button" class="btn btn-sm btn-icon btn-ghost btn-ghost--danger-hover" onclick="smRemoveSubTask(${idx})" title="削除">×</button>`;
                 list.appendChild(entry);
             });
             smUpdatePlanTaskName();
@@ -4338,7 +4338,7 @@
             entry.innerHTML =
                 `<input type="text" class="md-ob-sub-label-input" value="${escapeHtml(defaultLabel)}" placeholder="項目名" oninput="smUpdatePlanTaskName()">` +
                 `<input type="text" class="md-ob-sub-value-input" value="" placeholder="内容を入力" oninput="smUpdatePlanTaskName()">` +
-                `<button type="button" class="md-ob-btn-remove-sub" onclick="smRemoveSubTask(${idx})" title="削除">×</button>`;
+                `<button type="button" class="btn btn-sm btn-icon btn-ghost btn-ghost--danger-hover" onclick="smRemoveSubTask(${idx})" title="削除">×</button>`;
             list.appendChild(entry);
             entry.querySelector('.md-ob-sub-value-input').focus();
             smUpdatePlanTaskName();
@@ -4351,7 +4351,7 @@
             if (entries[idx]) entries[idx].remove();
             list.querySelectorAll('.md-ob-sub-task-entry').forEach((entry, i) => {
                 entry.dataset.idx = i;
-                entry.querySelector('.md-ob-btn-remove-sub').setAttribute('onclick', `smRemoveSubTask(${i})`);
+                entry.querySelector('.btn-ghost--danger-hover').setAttribute('onclick', `smRemoveSubTask(${i})`);
             });
             smUpdatePlanTaskName();
         }
@@ -4438,7 +4438,7 @@
             let html = `<div class="md-ob-grandchild-section" data-child-id="${childBadge.id}">`;
             html += `<div class="md-ob-grandchild-header">`;
             html += `<span class="md-ob-grandchild-label">${escapeHtml(childBadge.name)} <span class="md-ob-grandchild-arrow">›</span> 詳細</span>`;
-            html += `<button type="button" class="md-ob-btn-add-badge md-ob-btn-add-gc" onclick="smAddGrandchildBadge('${childBadge.id}')">+ 追加</button>`;
+            html += `<button type="button" class="btn btn-sm btn-ghost btn-ghost--pill-dashed md-ob-gc-add" onclick="smAddGrandchildBadge('${childBadge.id}')">+ 追加</button>`;
             html += `</div>`;
             if (!childBadge.children || childBadge.children.length === 0) {
                 html += `<div class="md-ob-grandchild-chips"><span class="md-ob-badge-empty">詳細なし</span></div>`;
@@ -5500,7 +5500,7 @@
             entry.innerHTML =
                 '<input type="text" class="md-ob-sub-label-input" value="' + escapeHtml(defaultLabel) + '" placeholder="項目名" title="項目名を編集">' +
                 '<input type="text" class="md-ob-sub-value-input" value="" placeholder="内容を入力">' +
-                '<button type="button" class="md-ob-btn-remove-sub" onclick="slAddRemoveSubTaskEntry(' + idx + ')" title="削除">×</button>';
+                '<button type="button" class="btn btn-sm btn-icon btn-ghost btn-ghost--danger-hover" onclick="slAddRemoveSubTaskEntry(' + idx + ')" title="削除">×</button>';
             list.appendChild(entry);
             entry.querySelector('.md-ob-sub-value-input').focus();
         }
@@ -5512,7 +5512,7 @@
                 entries[idx].remove();
                 list.querySelectorAll('.md-ob-sub-task-entry').forEach(function(entry, i) {
                     entry.dataset.idx = i;
-                    entry.querySelector('.md-ob-btn-remove-sub').setAttribute('onclick', 'slAddRemoveSubTaskEntry(' + i + ')');
+                    entry.querySelector('.btn-ghost--danger-hover').setAttribute('onclick', 'slAddRemoveSubTaskEntry(' + i + ')');
                 });
             }
         }
@@ -5673,7 +5673,7 @@
             var html = '<div class="md-ob-grandchild-section" data-child-id="' + childBadge.id + '">';
             html += '<div class="md-ob-grandchild-header">';
             html += '<span class="md-ob-grandchild-label">' + escapeHtml(childBadge.name) + ' <span class="md-ob-grandchild-arrow">›</span> 詳細</span>';
-            html += '<button type="button" class="md-ob-btn-add-badge md-ob-btn-add-gc" onclick="slAddAddGrandchildBadge(\'' + childBadge.id + '\')">+ 追加</button>';
+            html += '<button type="button" class="btn btn-sm btn-ghost btn-ghost--pill-dashed md-ob-gc-add" onclick="slAddAddGrandchildBadge(\'' + childBadge.id + '\')">+ 追加</button>';
             html += '</div>';
             if (childBadge.children) {
                 childBadge.children.forEach(function(gc, i) {
@@ -5947,15 +5947,15 @@
             entry.innerHTML =
                 '<div class="md-ob-map-entry-header">' +
                     '<input type="text" class="md-ob-sub-label-input md-ob-map-label-input" value="" placeholder="タイトル" title="タイトルを編集">' +
-                    '<button type="button" class="md-ob-btn-remove-sub" onclick="slAddRemoveMapEntry(' + idx + ')" title="削除">×</button>' +
+                    '<button type="button" class="btn btn-sm btn-icon btn-ghost btn-ghost--danger-hover" onclick="slAddRemoveMapEntry(' + idx + ')" title="削除">×</button>' +
                 '</div>' +
                 '<div class="md-ob-map-url-row">' +
                     '<input type="url" class="md-ob-map-url-input" placeholder="Google Maps等のURLを入力">' +
-                    '<button type="button" class="md-ob-btn-map-preview" onclick="slAddPreviewMap(this)">プレビュー</button>' +
+                    '<button type="button" class="btn btn-sm btn-outline" onclick="slAddPreviewMap(this)">プレビュー</button>' +
                 '</div>' +
                 '<div class="md-ob-map-preview" style="display:none;">' +
                     '<iframe sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>' +
-                    '<button type="button" class="md-ob-btn-map-clear" onclick="slAddClearMapPreview(this)" title="プレビューを閉じる">✕</button>' +
+                    '<button type="button" class="btn btn-sm btn-icon btn-ghost" onclick="slAddClearMapPreview(this)" title="プレビューを閉じる">✕</button>' +
                 '</div>';
             list.appendChild(entry);
             entry.querySelector('.md-ob-map-label-input').focus();
@@ -5968,7 +5968,7 @@
                 entries[idx].remove();
                 list.querySelectorAll('.md-ob-map-entry').forEach(function(entry, i) {
                     entry.dataset.idx = i;
-                    entry.querySelector('.md-ob-btn-remove-sub').setAttribute('onclick', 'slAddRemoveMapEntry(' + i + ')');
+                    entry.querySelector('.btn-ghost--danger-hover').setAttribute('onclick', 'slAddRemoveMapEntry(' + i + ')');
                 });
             }
         }

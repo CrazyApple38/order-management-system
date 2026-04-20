@@ -3000,12 +3000,7 @@ h1 {
 .md-modal-site-footer button:first-child:hover {
     background: var(--base-surface-alt);
 }
-.md-modal-site-footer button.md-ob-btn-danger {
-    background: rgba(219, 87, 123, 0.08); color: var(--error); border: 1px solid rgba(219, 87, 123, 0.3);
-}
-.md-modal-site-footer button.md-ob-btn-danger:hover {
-    background: rgba(219, 87, 123, 0.15); color: var(--error);
-}
+/* M-D1: site-footer の danger ボタンは co-buttons.css の .btn-danger で代替済 */
 .md-modal-site-footer button:last-child {
     background: var(--accent-primary);
     color: white;
@@ -3785,7 +3780,7 @@ h1 {
    現場詳細入力モーダル — 追加スタイル
    ============================================ */
 
-/* .md-ob-modal-close, :hover, .md-modal-site-header variants → co-shared-badges.css */
+/* M-D2: モーダル close は co-modal.css (.modal-close) に移管。site-header variants は co-shared-badges.css */
 
 /* 現場名 + 業務詳細グループ */
 .md-sm-site-group {
@@ -3835,17 +3830,7 @@ h1 {
     min-width: 0;
 }
 
-/* ボタン共通 */
-.md-ob-btn {
-    padding: 5px 10px; border: none; border-radius: 6px;
-    font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
-}
-.md-ob-btn-primary { background: var(--accent-primary); color: white; }
-.md-ob-btn-primary:hover { background: var(--accent-light); box-shadow: 0 2px 8px rgba(68,166,181,0.3); }
-.md-ob-btn-secondary { background: var(--base-surface-alt); color: var(--text-secondary); border: none; }
-.md-ob-btn-secondary:hover { background: var(--base-muted); }
-.md-ob-btn-danger { background: rgba(219, 87, 123, 0.08); color: var(--error); border: 1px solid rgba(219, 87, 123, 0.3); }
-.md-ob-btn-danger:hover { background: rgba(219, 87, 123, 0.15); color: var(--error); }
+/* M-D1: モーダル共通ボタンは co-buttons.css の .btn / .btn-primary / .btn-secondary / .btn-danger に置換済 */
 
 /* ── チップ選択フィールド ── */
 .md-ob-chip-field {
@@ -3862,18 +3847,6 @@ h1 {
     letter-spacing: 0.5px;
 }
 /* .md-ob-row-chips, .md-ob-row-chip, :hover, .md-ob-chip-active → co-shared-badges.css */
-.md-ob-btn-add-chip {
-    align-self: flex-start;
-    padding: 3px 12px; border: 1px dashed var(--divider);
-    border-radius: 14px; background: transparent;
-    color: var(--text-tertiary); font-size: 11px;
-    cursor: pointer; transition: all 0.15s;
-}
-.md-ob-btn-add-chip:hover {
-    border-color: var(--accent-primary); color: var(--accent-primary);
-    background: rgba(68,166,181,0.06);
-}
-
 /* ── 業務詳細（サブタスク） ── */
 .md-ob-sub-task-fields {
     display: flex; flex-direction: column; gap: 10px;
@@ -3897,15 +3870,6 @@ h1 {
 .md-ob-sub-task-title {
     font-size: 11px; font-weight: 600; color: var(--accent-primary);
     letter-spacing: 0.5px;
-}
-.md-ob-btn-add-sub {
-    background: var(--accent-dim); border: 1px solid var(--accent-primary);
-    color: var(--accent-primary); padding: 2px 8px; border-radius: 4px;
-    font-size: 11px; font-weight: 600; cursor: pointer;
-    transition: all 0.15s;
-}
-.md-ob-btn-add-sub:hover {
-    background: var(--accent-primary); color: white;
 }
 .md-ob-sub-task-entry {
     display: flex; align-items: center; gap: 6px;
@@ -3938,18 +3902,6 @@ h1 {
     outline: none; border-color: var(--accent-primary);
     box-shadow: 0 0 0 2px var(--accent-dim);
 }
-.md-ob-btn-remove-sub {
-    background: none; border: 1px solid transparent;
-    color: var(--text-disabled); font-size: 16px;
-    cursor: pointer; padding: 2px 6px; border-radius: 4px;
-    transition: all 0.15s; flex-shrink: 0;
-    line-height: 1;
-}
-.md-ob-btn-remove-sub:hover {
-    color: #DB577B; border-color: rgba(219,87,123,0.3);
-    background: rgba(219,87,123,0.06);
-}
-
 /* 計画書業務名行（読み取り専用） */
 .md-ob-plan-name-row {
     padding: 10px 14px;
@@ -4144,51 +4096,16 @@ h1 {
 
 /* ============================================================
    新規追加モーダル
+   M-D2: モーダルシェル定義（overlay / modal / header / body / footer / footer-right / sm）は
+          docs/mockup/co-modal.css に移管（.modal-* プレフィクス）
+          本セクションは内部コンテンツ専用の md-modal-body-field* のみ残す
    ============================================================ */
-.md-ob-modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,69,84,0.35);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 500;
-}
-.md-ob-modal {
-    background: var(--base-surface); border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0,69,84,0.15);
-    width: 480px; max-height: 90vh;
-    display: flex; flex-direction: column;
-    overflow: hidden; border: 1px solid var(--divider);
-}
-.md-ob-modal.md-ob-modal-sm { width: 380px; }
-.md-ob-modal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 24px;
-    background: var(--accent-light); color: #FFFFFF;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-    border-radius: 12px 12px 0 0;
-    flex-wrap: wrap; gap: 6px;
-    position: relative;
-}
-.md-ob-modal-header span { font-size: 15px; font-weight: 600; color: #FFFFFF; }
-.md-ob-modal-body {
-    padding: 20px 24px; overflow-y: auto; flex: 1;
-    background: #E9F1F6; display: flex; flex-direction: column; gap: 16px;
-    scrollbar-width: thin; scrollbar-color: var(--divider) transparent;
-}
-.md-ob-modal-body::-webkit-scrollbar { width: 5px; }
-.md-ob-modal-body::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 3px; }
-.md-ob-modal-body::-webkit-scrollbar-track { background: transparent; }
 .md-modal-body-field { margin-bottom: 4px; }
 .md-modal-body-field-value {
     padding: 6px 0; border-bottom: 2px solid var(--accent-primary);
     font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
     color: var(--accent-primary); font-weight: 600;
 }
-.md-ob-modal-footer {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 20px; border-top: 1px solid var(--divider);
-    background: var(--base-surface-alt);
-}
-.md-ob-modal-footer-right { display: flex; gap: 10px; }
 
 /* M-B1: .md-ob-form-row* は新DS .md-fi-* 体系に移行済 */
 /* SL 固有: 人数入力を18px/700に強調（M-B3: 実祖先 .md-ob-edit-form に合わせて修正） */
@@ -4342,16 +4259,6 @@ h1 {
     outline: none; border-color: var(--accent-primary);
     box-shadow: 0 0 0 2px rgba(68,166,181,0.15);
 }
-.md-ob-btn-map-preview {
-    padding: 5px 10px; border: 1px solid var(--accent-primary);
-    border-radius: 6px; background: var(--accent-dim);
-    color: var(--accent-primary); font-size: 12px; font-weight: 600;
-    cursor: pointer; white-space: nowrap;
-    transition: all 0.15s;
-}
-.md-ob-btn-map-preview:hover {
-    background: var(--accent-primary); color: #fff;
-}
 .md-ob-map-preview {
     position: relative;
     border: 1px solid var(--divider); border-radius: 6px;
@@ -4360,17 +4267,11 @@ h1 {
 .md-ob-map-preview iframe {
     width: 100%; height: 180px; border: none; display: block;
 }
-.md-ob-btn-map-clear {
+/* M-D1: map-clear ボタンの絶対配置/寸法は親セレクタに残す（ボタン見た目は .btn .btn-icon .btn-ghost で担当） */
+.md-ob-map-preview > .btn-icon {
     position: absolute; top: 4px; right: 4px;
     width: 22px; height: 22px;
-    border: 1px solid var(--divider); border-radius: 4px;
-    background: rgba(255,255,255,0.9); color: var(--text-tertiary);
-    font-size: 11px; cursor: pointer; display: flex;
-    align-items: center; justify-content: center;
-    transition: all 0.15s;
-}
-.md-ob-btn-map-clear:hover {
-    background: #fee2e2; color: #DB577B; border-color: rgba(219,87,123,0.3);
+    background: rgba(255,255,255,0.9);
 }
 
 /* 担当者候補チップ */

@@ -949,7 +949,7 @@ function renderSubTaskEntries(subTasks, category) {
         entry.innerHTML =
             `<input type="text" class="md-ob-sub-label-input" value="${escapeHtml(st.label)}" placeholder="項目名" title="項目名を編集" oninput="updateDailyTaskNamePreview()">` +
             `<input type="text" class="md-ob-sub-value-input" value="${escapeHtml(st.value)}" placeholder="内容を入力" oninput="updateDailyTaskNamePreview()">` +
-            `<button type="button" class="md-ob-btn-remove-sub" onclick="removeSubTaskEntry(${idx})" title="削除">×</button>`;
+            `<button type="button" class="btn btn-sm btn-icon btn-ghost btn-ghost--danger-hover" onclick="removeSubTaskEntry(${idx})" title="削除">×</button>`;
         list.appendChild(entry);
     });
 }
@@ -973,7 +973,7 @@ function addSubTaskEntry() {
     entry.innerHTML =
         `<input type="text" class="md-ob-sub-label-input" value="${escapeHtml(defaultLabel)}" placeholder="項目名" title="項目名を編集" oninput="updateDailyTaskNamePreview()">` +
         `<input type="text" class="md-ob-sub-value-input" value="" placeholder="内容を入力" oninput="updateDailyTaskNamePreview()">` +
-        `<button type="button" class="md-ob-btn-remove-sub" onclick="removeSubTaskEntry(${idx})" title="削除">×</button>`;
+        `<button type="button" class="btn btn-sm btn-icon btn-ghost btn-ghost--danger-hover" onclick="removeSubTaskEntry(${idx})" title="削除">×</button>`;
     list.appendChild(entry);
     // フォーカスを新しいエントリに移動
     entry.querySelector('.md-ob-sub-value-input').focus();
@@ -989,7 +989,7 @@ function removeSubTaskEntry(idx) {
         // インデックスを再割り当て
         list.querySelectorAll('.md-ob-sub-task-entry').forEach((entry, i) => {
             entry.dataset.idx = i;
-            entry.querySelector('.md-ob-btn-remove-sub').setAttribute('onclick', `removeSubTaskEntry(${i})`);
+            entry.querySelector('.btn-ghost--danger-hover').setAttribute('onclick', `removeSubTaskEntry(${i})`);
         });
     }
     updateDailyTaskNamePreview();
@@ -1170,7 +1170,7 @@ function renderGrandchildSection(childBadge) {
     let html = `<div class="md-ob-grandchild-section" data-child-id="${childBadge.id}">`;
     html += `<div class="md-ob-grandchild-header">`;
     html += `<span class="md-ob-grandchild-label">${escapeHtml(childBadge.name)} <span class="md-ob-grandchild-arrow">›</span> 詳細</span>`;
-    html += `<button type="button" class="md-ob-btn-add-badge md-ob-btn-add-gc" onclick="addGrandchildBadge('${childBadge.id}')">+ 追加</button>`;
+    html += `<button type="button" class="btn btn-sm btn-ghost btn-ghost--pill-dashed md-ob-gc-add" onclick="addGrandchildBadge('${childBadge.id}')">+ 追加</button>`;
     html += `</div>`;
     if (!childBadge.children || childBadge.children.length === 0) {
         html += `<div class="md-ob-grandchild-chips"><span class="md-ob-badge-empty">詳細なし</span></div>`;
@@ -1553,15 +1553,15 @@ function addMapEntry() {
     entry.innerHTML =
         `<div class="md-ob-map-entry-header">` +
             `<input type="text" class="md-ob-sub-label-input md-ob-map-label-input" value="" placeholder="タイトル" title="タイトルを編集">` +
-            `<button type="button" class="md-ob-btn-remove-sub" onclick="removeMapEntry(${idx})" title="削除">×</button>` +
+            `<button type="button" class="btn btn-sm btn-icon btn-ghost btn-ghost--danger-hover" onclick="removeMapEntry(${idx})" title="削除">×</button>` +
         `</div>` +
         `<div class="md-ob-map-url-row">` +
             `<input type="url" class="md-ob-map-url-input" placeholder="Google Maps等のURLを入力">` +
-            `<button type="button" class="md-ob-btn-map-preview" onclick="previewMap(this)">プレビュー</button>` +
+            `<button type="button" class="btn btn-sm btn-outline" onclick="previewMap(this)">プレビュー</button>` +
         `</div>` +
         `<div class="md-ob-map-preview" style="display:none;">` +
             `<iframe sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>` +
-            `<button type="button" class="md-ob-btn-map-clear" onclick="clearMapPreview(this)" title="プレビューを閉じる">✕</button>` +
+            `<button type="button" class="btn btn-sm btn-icon btn-ghost" onclick="clearMapPreview(this)" title="プレビューを閉じる">✕</button>` +
         `</div>`;
     list.appendChild(entry);
     entry.querySelector('.md-ob-map-label-input').focus();
@@ -1574,7 +1574,7 @@ function removeMapEntry(idx) {
         entries[idx].remove();
         list.querySelectorAll('.md-ob-map-entry').forEach((entry, i) => {
             entry.dataset.idx = i;
-            entry.querySelector('.md-ob-btn-remove-sub').setAttribute('onclick', `removeMapEntry(${i})`);
+            entry.querySelector('.btn-ghost--danger-hover').setAttribute('onclick', `removeMapEntry(${i})`);
         });
     }
 }
@@ -1619,15 +1619,15 @@ function renderMapEntries(maps) {
         entry.innerHTML =
             `<div class="md-ob-map-entry-header">` +
                 `<input type="text" class="md-ob-sub-label-input md-ob-map-label-input" value="${escapeHtml(m.label || '')}" placeholder="タイトル" title="タイトルを編集">` +
-                `<button type="button" class="md-ob-btn-remove-sub" onclick="removeMapEntry(${i})" title="削除">×</button>` +
+                `<button type="button" class="btn btn-sm btn-icon btn-ghost btn-ghost--danger-hover" onclick="removeMapEntry(${i})" title="削除">×</button>` +
             `</div>` +
             `<div class="md-ob-map-url-row">` +
                 `<input type="url" class="md-ob-map-url-input" value="${escapeHtml(m.url || '')}" placeholder="Google Maps等のURLを入力">` +
-                `<button type="button" class="md-ob-btn-map-preview" onclick="previewMap(this)">プレビュー</button>` +
+                `<button type="button" class="btn btn-sm btn-outline" onclick="previewMap(this)">プレビュー</button>` +
             `</div>` +
             `<div class="md-ob-map-preview" style="display:none;">` +
                 `<iframe sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>` +
-                `<button type="button" class="md-ob-btn-map-clear" onclick="clearMapPreview(this)" title="プレビューを閉じる">✕</button>` +
+                `<button type="button" class="btn btn-sm btn-icon btn-ghost" onclick="clearMapPreview(this)" title="プレビューを閉じる">✕</button>` +
             `</div>`;
         list.appendChild(entry);
         // URLがあれば自動プレビュー
@@ -1822,7 +1822,7 @@ function openEditModal(ri, day, siteIdx) {
     if (row.shift === '夜') editMeta.setAttribute('data-shift', 'night'); else editMeta.removeAttribute('data-shift');
 
     // 夜勤スタイル切替
-    const modalBody = document.getElementById('editCount').closest('.md-ob-modal-body');
+    const modalBody = document.getElementById('editCount').closest('.modal-body');
     if (modalBody) modalBody.classList.toggle('md-ob-edit-night', row.shift === '夜');
 
     // 配置先ナビゲーション更新
@@ -3395,8 +3395,8 @@ function openCalendarWithEdit(ri, day, siteIdx) {
 function _setupCalEditPanel() {
     if (calEditPanelActive) return; // 重複呼び出し防止
     const panelBody = document.getElementById('calEditPanelBody');
-    const editModal = document.querySelector('#editModalOverlay .md-ob-modal');
-    const modalBody = editModal.querySelector('.md-ob-modal-body');
+    const editModal = document.querySelector('#editModalOverlay .modal');
+    const modalBody = editModal.querySelector('.modal-body');
     // DOM移動（bodyのみ、footerはカレンダーフッターに固定）
     panelBody.appendChild(modalBody);
     document.getElementById('calEditPanel').style.display = '';
@@ -3405,9 +3405,9 @@ function _setupCalEditPanel() {
 
 function _teardownCalEditPanel() {
     const panelBody = document.getElementById('calEditPanelBody');
-    const editModal = document.querySelector('#editModalOverlay .md-ob-modal');
-    const modalBody = panelBody.querySelector('.md-ob-modal-body');
-    if (modalBody) editModal.insertBefore(modalBody, editModal.querySelector('.md-ob-modal-footer'));
+    const editModal = document.querySelector('#editModalOverlay .modal');
+    const modalBody = panelBody.querySelector('.modal-body');
+    if (modalBody) editModal.insertBefore(modalBody, editModal.querySelector('.modal-footer'));
     _setCalFooterBtnsDisabled(true);
     document.getElementById('calEditPanel').style.display = 'none';
     document.getElementById('calEditPanel').classList.remove('collapsed');

@@ -281,3 +281,42 @@
     color: var(--text-disabled);
     cursor: not-allowed;
 }
+
+/* ============================================================================
+   Phase M-F1 — アクセシビリティ・ユーティリティ
+   参照元: docs/ui-components/styles-light.css L4316-4414 (Phase D7 / D9)
+   ============================================================================ */
+
+/* スクリーンリーダー専用（視覚非表示、フォーカス時も視覚に出ない） */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* スキップリンク（Tab キー初回でフォーカス時に画面左上へ可視表示） */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: var(--space-md);
+    z-index: var(--z-toast);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--accent);
+    color: #fff;
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: top var(--duration-fast) var(--ease-out);
+}
+.skip-link:focus {
+    top: var(--space-md);
+    outline: none;
+    box-shadow: var(--focus-ring);
+}

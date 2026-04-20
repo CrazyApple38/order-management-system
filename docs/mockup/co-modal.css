@@ -1,0 +1,101 @@
+/* ============================================================
+   co-modal.css — モーダル共通プリミティブ (M-D2)
+   Upstream: docs/ui-components/styles-light.css L1262-1305 (.ob-modal-*)
+   Tokens:   co-tokens.css (--z-modal / --modal-w-sm/-md/-lg/-xl)
+   適用画面: order-book / screen-layout （将来 quick-access / weekly-schedule にも流用）
+
+   命名: プレフィクス無しの `.modal-*` を新DS規範として採択
+        （styles-light.css 内 `.ob-modal-*` はプレフィクス撤去版を配布する暫定形）
+   スコープ: モーダルの "シェル"（overlay / container / header / body / footer / close）のみ。
+            モーダル内コンテンツ（md-modal-body-field / -card / -section-bar 等）は
+            画面個別CSS / 他 co-*.css で管理。
+   ============================================================ */
+
+/* --- オーバーレイ --- */
+.modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,69,84,0.35);
+    display: flex; align-items: center; justify-content: center;
+    z-index: var(--z-modal);
+}
+
+/* --- コンテナ基本 --- */
+.modal {
+    background: var(--bg-surface);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,69,84,0.15);
+    width: var(--modal-w-md);
+    max-height: 90vh;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--divider);
+}
+
+/* --- サイズ派生 --- */
+.modal.modal-sm { width: var(--modal-w-sm); }
+.modal.modal-lg { width: var(--modal-w-lg); }
+.modal.modal-xl { width: var(--modal-w-xl); }
+
+/* --- ヘッダ --- */
+.modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px;
+    background: var(--accent-primary-light);
+    color: #FFFFFF;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px 12px 0 0;
+    flex-wrap: wrap; gap: 6px;
+    position: relative;
+}
+.modal-header h3,
+.modal-header span {
+    font-size: 15px; font-weight: 600; color: #FFFFFF; margin: 0;
+}
+
+/* --- 閉じるボタン --- */
+.modal-close {
+    background: none; border: none;
+    color: rgba(255,255,255,0.8);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.modal-close:hover {
+    background: rgba(255,255,255,0.2);
+    color: #FFFFFF;
+}
+
+/* --- 本体 --- */
+.modal-body {
+    padding: 20px 24px;
+    overflow-y: auto;
+    flex: 1;
+    background: #E9F1F6;
+    display: flex; flex-direction: column;
+    gap: 16px;
+    scrollbar-width: thin; scrollbar-color: var(--divider) transparent;
+}
+.modal-body::-webkit-scrollbar { width: 5px; }
+.modal-body::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 3px; }
+.modal-body::-webkit-scrollbar-track { background: transparent; }
+
+/* --- フッタ --- */
+.modal-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px;
+    border-top: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+}
+.modal-footer-right {
+    display: flex;
+    gap: 10px;
+}
+
+/* --- カレンダーモーダル固有（OB） --- */
+.modal.modal-calendar {
+    width: 500px;
+    max-width: 95vw;
+    max-height: 90vh;
+    position: relative;
+}

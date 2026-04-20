@@ -467,40 +467,9 @@ body {
     font-weight: 400;
 }
 
-/* ========== モーダル ========== */
-.md-ob-modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,69,84,0.35);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 500;
-}
-.md-ob-modal {
-    background: var(--bg-surface); border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0,69,84,0.15);
-    width: 480px; max-height: 90vh;
-    display: flex; flex-direction: column;
-    overflow: hidden; border: 1px solid var(--divider);
-}
-.md-ob-modal.md-ob-modal-sm { width: 380px; }
-.md-ob-modal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 24px;
-    background: var(--accent-primary-light); color: #FFFFFF;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-    border-radius: 12px 12px 0 0;
-    flex-wrap: wrap; gap: 6px;
-    position: relative;
-}
-.md-ob-modal-header h3 { font-size: 15px; font-weight: 600; color: #FFFFFF; }
-/* .md-ob-modal-close → co-shared-badges.css */
-.md-ob-modal-body {
-    padding: 20px 24px; overflow-y: auto; flex: 1;
-    background: #E9F1F6; display: flex; flex-direction: column; gap: 16px;
-    scrollbar-width: thin; scrollbar-color: var(--divider) transparent;
-}
-.md-ob-modal-body::-webkit-scrollbar { width: 5px; }
-.md-ob-modal-body::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 3px; }
-.md-ob-modal-body::-webkit-scrollbar-track { background: transparent; }
+/* ========== モーダル ==========
+   M-D2: モーダルシェル定義は docs/mockup/co-modal.css に移管（.modal-overlay / .modal / .modal-header / .modal-body / .modal-footer / .modal-close 等）
+   本セクションは内部コンテンツ用ヘルパー（md-modal-body-field / -card / -section-bar / md-ob-cal-display-value）のみ残す */
 /* カード型サブタイトル */
 .md-modal-body-field { margin-bottom: 4px; }
 .md-modal-body-field-value {
@@ -530,14 +499,7 @@ body {
     padding: 12px 0 8px;
     border-bottom: 1px solid var(--divider);
 }
-.md-ob-modal-footer {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 20px; border-top: 1px solid var(--divider);
-    background: var(--bg-surface-2);
-}
-.md-ob-modal-footer-right {
-    display: flex; gap: 10px;
-}
+/* M-D2: モーダルフッタ定義は co-modal.css の .modal-footer / .modal-footer-right に移管 */
 
 /* 編集フォーム（M-B1: .md-ob-form-row* → 新DS .md-fi-* 体系へ移行済） */
 .md-ob-edit-form { display: flex; flex-direction: column; gap: 14px; }
@@ -606,16 +568,6 @@ body {
     font-size: 12px; font-weight: 600; color: var(--accent-primary);
     letter-spacing: 0.5px;
 }
-.md-ob-btn-add-sub {
-    background: var(--accent-primary-dim); border: 1px solid var(--accent-primary);
-    color: var(--accent-primary); padding: 2px 8px; border-radius: 4px;
-    font-size: 11px; font-weight: 600; cursor: pointer;
-    transition: all 0.15s;
-}
-.md-ob-btn-add-sub:hover {
-    background: var(--accent-primary); color: white;
-}
-
 /* サブタスクエントリ */
 .md-ob-sub-task-entry {
     display: flex; align-items: center; gap: 6px;
@@ -644,18 +596,6 @@ body {
     outline: none; border-color: var(--accent-primary);
     box-shadow: 0 0 0 2px var(--accent-primary-dim);
 }
-.md-ob-btn-remove-sub {
-    background: none; border: 1px solid transparent;
-    color: var(--text-disabled); font-size: 16px;
-    cursor: pointer; padding: 2px 6px; border-radius: 4px;
-    transition: all 0.15s; flex-shrink: 0;
-    line-height: 1;
-}
-.md-ob-btn-remove-sub:hover {
-    color: #DB577B; border-color: rgba(219,87,123,0.3);
-    background: rgba(219,87,123,0.06);
-}
-
 /* 計画書業務名行（読み取り専用） */
 .md-ob-plan-name-row {
     padding: 10px 14px;
@@ -680,15 +620,9 @@ body {
 
 /* バッジセクション → co-shared-badges.css */
 
-/* 孫バッジセクション（固有部分） */
-.md-ob-grandchild-section {
-    width: 100%;
-    margin: 4px 0 6px 0;
-    padding: 8px 10px 6px 14px;
-    border-left: 2px solid var(--divider);
-    background: rgba(68,166,181,0.04);
-    border-radius: 0 6px 6px 0;
-}
+/* 孫バッジセクション（固有部分）
+   M-E1: .md-ob-grandchild-section は co-shared-badges.css L282-289 に集約。
+         ここでは header/label/arrow/chips のみ定義。 */
 .md-ob-grandchild-header {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 6px;
@@ -706,12 +640,14 @@ body {
 }
 /* .md-ob-badge-grandchild, gc-*, btn-add-gc → co-shared-badges.css */
 
-/* ツールチップ内バッジ */
+/* ツールチップ内バッジ
+   M-E1: 新DS .bt-tooltip-badge-accent (styles-light L2218-2230) と値同一。
+         font-size/weight/radius/color をトークン参照化 */
 .md-ob-tt-badge {
     display: inline-block;
-    padding: 2px 8px; border-radius: 10px;
+    padding: 2px 8px; border-radius: var(--radius-md);
     background: rgba(68,166,181,0.15); color: var(--accent-primary);
-    font-size: 10px; font-weight: 600;
+    font-size: var(--fs-caption); font-weight: var(--fw-semibold);
 }
 
 /* 個別業務ラベル */
@@ -752,16 +688,6 @@ body {
     outline: none; border-color: var(--accent-primary);
     box-shadow: 0 0 0 2px rgba(68,166,181,0.15);
 }
-.md-ob-btn-map-preview {
-    padding: 5px 10px; border: 1px solid var(--accent-primary);
-    border-radius: 6px; background: var(--accent-primary-dim);
-    color: var(--accent-primary); font-size: 12px; font-weight: 600;
-    cursor: pointer; white-space: nowrap;
-    transition: all 0.15s;
-}
-.md-ob-btn-map-preview:hover {
-    background: var(--accent-primary); color: #fff;
-}
 .md-ob-map-preview {
     position: relative;
     border: 1px solid var(--divider); border-radius: 6px;
@@ -770,17 +696,11 @@ body {
 .md-ob-map-preview iframe {
     width: 100%; height: 180px; border: none; display: block;
 }
-.md-ob-btn-map-clear {
+/* M-D1: map-clear ボタンの絶対配置/寸法は親セレクタに残す（ボタン見た目は .btn .btn-icon .btn-ghost で担当） */
+.md-ob-map-preview > .btn-icon {
     position: absolute; top: 4px; right: 4px;
     width: 22px; height: 22px;
-    border: 1px solid var(--divider); border-radius: 4px;
-    background: rgba(255,255,255,0.9); color: var(--text-tertiary);
-    font-size: 11px; cursor: pointer; display: flex;
-    align-items: center; justify-content: center;
-    transition: all 0.15s;
-}
-.md-ob-btn-map-clear:hover {
-    background: var(--error-bg); color: var(--semantic-error); border-color: rgba(219,87,123,0.3);
+    background: rgba(255,255,255,0.9);
 }
 
 /* M-B1: .md-ob-form-row-half は .md-fi-row（新DS）に置換済 */
@@ -835,19 +755,7 @@ body {
     background: var(--accent-primary); color: #fff;
 }
 
-/* ボタン */
-.md-ob-btn {
-    padding: 5px 10px; border: none; border-radius: 6px;
-    font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
-}
-.md-ob-btn-primary { background: var(--accent-primary); color: white; }
-.md-ob-btn-primary:hover { background: var(--accent-primary-light); box-shadow: 0 2px 8px rgba(68,166,181,0.3); }
-.md-ob-btn-primary:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
-.md-ob-btn-primary:disabled:hover { background: var(--accent-primary); box-shadow: none; }
-.md-ob-btn-secondary { background: var(--bg-surface-2); color: var(--text-secondary); border: none; }
-.md-ob-btn-secondary:hover { background: var(--bg-surface-3); }
-.md-ob-btn-danger { background: rgba(219, 87, 123, 0.08); color: var(--semantic-error); border: 1px solid rgba(219, 87, 123, 0.3); }
-.md-ob-btn-danger:hover { background: rgba(219, 87, 123, 0.15); color: var(--semantic-error); }
+/* M-D1: モーダル共通ボタンは co-buttons.css の .btn / .btn-primary / .btn-secondary / .btn-danger に置換済 */
 
 /* ソート設定 */
 .md-ob-sort-desc { font-size: 12px; color: var(--text-tertiary); margin-bottom: 10px; }
@@ -1002,18 +910,6 @@ body {
     font-size: 11px; color: var(--warning-text);
     margin-top: 4px;
 }
-.md-ob-btn-add-chip {
-    align-self: flex-start;
-    padding: 2px 8px; border: 1px dashed var(--divider);
-    border-radius: 14px; background: transparent;
-    color: var(--text-tertiary); font-size: 11px;
-    cursor: pointer; transition: all 0.15s;
-}
-.md-ob-btn-add-chip:hover {
-    border-color: var(--accent-primary); color: var(--accent-primary);
-    background: rgba(68,166,181,0.06);
-}
-
 /* ========== 複数配置先 ========== */
 
 /* グリッド内の配置先エントリ（縦並び） */
@@ -1075,25 +971,6 @@ body {
 .md-ob-site-nav-label {
     display: none;
 }
-.md-ob-btn-add-site {
-    padding: 6px 16px; border: none; background: transparent;
-    color: var(--text-tertiary); font-size: 11px; font-weight: 600;
-    cursor: pointer; transition: all 0.15s;
-    border-bottom: 2px solid transparent; margin-bottom: -2px;
-}
-.md-ob-btn-add-site:hover {
-    color: var(--accent-primary);
-}
-.md-ob-btn-delete-site {
-    padding: 4px 10px; border: 1px solid rgba(219,87,123,0.3);
-    border-radius: 6px; background: rgba(219,87,123,0.06);
-    color: #DB577B; font-size: 11px; font-weight: 500;
-    cursor: pointer; transition: all 0.15s;
-}
-.md-ob-btn-delete-site:hover {
-    background: rgba(219, 87, 123, 0.15); color: var(--semantic-error);
-}
-
 /* ツールチップ内の配置先ヘッダー */
 .md-ob-tt-site-header {
     font-size: 10px; font-weight: 700; color: var(--accent-primary-light);
@@ -1115,8 +992,8 @@ body {
     color: var(--accent-primary);
 }
 
-/* ========== カレンダー入力モーダル ========== */
-.md-ob-modal-calendar { width: 500px; max-width: 95vw; max-height: 90vh; position: relative; }
+/* ========== カレンダー入力モーダル ==========
+   M-D2: カレンダー幅ルールは co-modal.css の .modal.modal-calendar に移管 */
 .md-ob-cal-close {
     position: absolute; top: 6px; right: 6px; z-index: 10;
 }
@@ -1146,7 +1023,7 @@ body {
     flex: 1; min-width: 0;
 }
 .md-ob-cal-info-meta .md-ob-cal-meta-company {
-    font-size: 12px; font-weight: 600; color: var(--accent);
+    font-size: 12px; font-weight: 600; color: var(--accent-primary);
     padding: 2px 8px; background: rgba(68,166,181,0.1);
     border: 1px solid rgba(68,166,181,0.25); border-radius: 12px;
     white-space: nowrap;
@@ -1281,7 +1158,7 @@ body {
     display: flex; align-items: center; gap: 3px; white-space: nowrap;
 }
 .md-ob-cal-badge-btn .md-ob-icon { width: 11px; height: 11px; }
-.md-ob-cal-badge-btn.active { background: rgba(0,0,0,0.12); border-color: var(--accent); color: var(--accent); }
+.md-ob-cal-badge-btn.active { background: rgba(0,0,0,0.12); border-color: var(--accent-primary); color: var(--accent-primary); }
 
 /* カレンダー内 編集アコーディオンパネル */
 .md-ob-cal-edit-panel {
@@ -1814,4 +1691,139 @@ body {
 @keyframes md-cn-glow-red {
     0%, 100% { box-shadow: none; }
     50% { box-shadow: inset 0 0 0 100px rgba(245, 101, 101, 0.3); }
+}
+
+/* ============================================================================
+   Phase M-F2 — 印刷CSS（A4 縦 / 画面UI非表示 / sticky 解除 / 帳票最適化）
+   参照元: docs/ui-components/styles-light.css L3980-4165 (Phase D4)
+   ============================================================================ */
+
+/* 画面モードでは print-only を非表示（印刷時のみ表示） */
+.print-only { display: none !important; }
+
+@media print {
+    /* ─── ページ設定 ─── */
+    @page {
+        size: A4;
+        margin: 15mm 10mm;
+    }
+
+    /* ─── カラー・影・背景のリセット（トナー節約 + 白黒最適化） ─── */
+    *,
+    *::before,
+    *::after {
+        color: #000 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    /* ─── body 印刷基本スタイル ─── */
+    html,
+    body {
+        display: block !important;
+        width: 100% !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        font-size: 10pt;
+        line-height: var(--lh-base);
+        background: #fff !important;
+    }
+
+    /* ─── 画面専用UIの一括非表示 ─── */
+    .no-print,
+    .md-ob-toolbar,
+    .md-ob-filter-bar,
+    .md-ob-tooltip,
+    .md-ob-time-dropdown,
+    .md-ob-month-nav,
+    .modal-overlay,
+    #obChangeNotifyModal,
+    #obCnToastContainer,
+    .skip-link,
+    button:not(.print-include) {
+        display: none !important;
+    }
+
+    /* ─── ヘッダ（帳票タイトルとして印刷） ─── */
+    .md-ob-header {
+        display: flex !important;
+        border-bottom: 1px solid #000 !important;
+        padding-bottom: 4pt !important;
+        margin-bottom: 8pt !important;
+    }
+    .md-ob-header h1 { font-size: 14pt !important; }
+    .md-ob-today-label { font-size: 10pt !important; }
+    .md-ob-month-label { font-size: 12pt !important; font-weight: var(--fw-bold); }
+
+    /* ─── グリッドの sticky 解除（紙面では無意味、レイアウト崩壊防止） ─── */
+    .tbl-grid__cell.tbl-grid__header,
+    .tbl-grid__sticky--0,
+    .tbl-grid__sticky--1,
+    .tbl-grid__sticky--2,
+    .tbl-grid__sticky--3,
+    .tbl-grid__sticky--4,
+    .tbl-grid__sticky--5,
+    .tbl-grid__sticky--6,
+    .tbl-grid__sticky--7,
+    .tbl-grid__sticky--8 {
+        position: static !important;
+        left: auto !important;
+        top: auto !important;
+        z-index: auto !important;
+    }
+
+    /* ─── グリッドコンテナを紙面幅いっぱいに ─── */
+    .tbl-grid__wrapper,
+    .tbl-grid__scroll {
+        overflow: visible !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    .tbl-grid {
+        width: 100% !important;
+    }
+
+    /* ─── セル内で行の破断を避ける ─── */
+    .tbl-grid__cell {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    /* ─── ヘッダ直後の破断抑制 ─── */
+    .tbl-grid__header {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    /* ─── 通知フラッシュ・セル明滅アニメを停止 ─── */
+    [class*="md-cn-cell-glow-"],
+    [class*="md-cn-flash-"] {
+        animation: none !important;
+    }
+
+    /* ─── ページブレイク・ユーティリティ ─── */
+    .page-break,
+    .page-break-before {
+        page-break-before: always;
+        break-before: page;
+    }
+    .page-break-after {
+        page-break-after: always;
+        break-after: page;
+    }
+    .avoid-break,
+    .page-break-avoid {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* ─── 印刷専用要素を表示 ─── */
+    .print-only {
+        display: block !important;
+    }
+    span.print-only,
+    .print-only-inline {
+        display: inline !important;
+    }
 }

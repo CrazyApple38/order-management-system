@@ -6,6 +6,8 @@
     <title>業務管理計画書 - 画面レイアウト設計</title>
     <link rel="stylesheet" href="mockup/co-tokens.css">
     <link rel="stylesheet" href="mockup/co-forms.css">
+    <link rel="stylesheet" href="mockup/co-buttons.css">
+    <link rel="stylesheet" href="mockup/co-modal.css">
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/co-navbar.css?v=3">
     <link rel="stylesheet" href="mockup/screen-layout.css?v=8">
@@ -502,7 +504,7 @@
             <div class="md-modal-content md-modal-staff-edit">
                 <div class="md-modal-site-header">
                     <h3>車両リスト編集</h3>
-                    <button type="button" class="md-ob-modal-close" onclick="closeVehicleEditModal()">✕</button>
+                    <button type="button" class="modal-close" onclick="closeVehicleEditModal()">✕</button>
                 </div>
                 <div class="md-modal-site-body">
                     <div class="md-modal-body-field"><div class="md-modal-body-field-value">Vehicle & ETC Visibility</div></div>
@@ -512,8 +514,8 @@
                 </div>
                 <div class="md-modal-site-footer">
                     <div class="md-modal-site-footer-right">
-                        <button type="button" class="md-ob-btn md-ob-btn-secondary" onclick="closeVehicleEditModal()">キャンセル</button>
-                        <button type="button" class="md-ob-btn md-ob-btn-primary" onclick="saveVehicleEditModal()">保存</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeVehicleEditModal()">キャンセル</button>
+                        <button type="button" class="btn btn-primary" onclick="saveVehicleEditModal()">保存</button>
                     </div>
                 </div>
             </div>
@@ -524,7 +526,7 @@
             <div class="md-modal-content md-modal-staff-edit">
                 <div class="md-modal-site-header">
                     <h3>社員リスト編集</h3>
-                    <button type="button" class="md-ob-modal-close" onclick="closeStaffEditModal()">✕</button>
+                    <button type="button" class="modal-close" onclick="closeStaffEditModal()">✕</button>
                 </div>
                 <div class="md-modal-site-body">
                     <div class="md-modal-body-field"><div class="md-modal-body-field-value">Staff Visibility & Order</div></div>
@@ -534,8 +536,8 @@
                 </div>
                 <div class="md-modal-site-footer">
                     <div class="md-modal-site-footer-right">
-                        <button type="button" class="md-ob-btn md-ob-btn-secondary" onclick="closeStaffEditModal()">キャンセル</button>
-                        <button type="button" class="md-ob-btn md-ob-btn-primary" onclick="saveStaffEditModal()">保存</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeStaffEditModal()">キャンセル</button>
+                        <button type="button" class="btn btn-primary" onclick="saveStaffEditModal()">保存</button>
                     </div>
                 </div>
             </div>
@@ -686,11 +688,11 @@
         </div>
 
         <!-- 現場詳細入力モーダル -->
-        <div class="md-ob-modal-overlay" id="siteModal" style="display:none;" onclick="if(event.target===this)closeSiteModal()">
-            <div class="md-ob-modal" onclick="event.stopPropagation()">
-                <div class="md-ob-modal-header">
+        <div class="modal-overlay" id="siteModal" style="display:none;" onclick="if(event.target===this)closeSiteModal()">
+            <div class="modal" onclick="event.stopPropagation()">
+                <div class="modal-header">
                     <span>現場詳細入力</span>
-                    <button class="md-ob-modal-close" onclick="closeSiteModal()">✕</button>
+                    <button class="modal-close" onclick="closeSiteModal()">✕</button>
                     <!-- コンフリクト警告バナー -->
                     <div class="md-cn-conflict-banner" id="cnConflictBanner" style="display:none;">
                         <span class="md-cn-conflict-icon">⚠</span>
@@ -698,7 +700,7 @@
                         <button class="md-cn-conflict-close" onclick="hideConflictBanner()">✕</button>
                     </div>
                 </div>
-                <div class="md-ob-modal-body">
+                <div class="modal-body">
                     <!-- ━━ Row Information ━━ -->
                     <div class="md-modal-body-field"><div class="md-modal-body-field-value">Row Information</div></div>
                     <div class="md-modal-body-card">
@@ -770,7 +772,7 @@
                                 </div>
                             </div>
                             <!-- 業務詳細 -->
-                            <div class="md-modal-section-bar">業務詳細 <button type="button" class="md-ob-btn-add-sub" onclick="smAddSubTask()">+ 追加</button></div>
+                            <div class="md-modal-section-bar">業務詳細 <button type="button" class="btn btn-sm btn-outline" onclick="smAddSubTask()">+ 追加</button></div>
                             <div class="md-ob-sub-task-fields" id="smSubTaskFields">
                                 <div id="smSubTaskList"></div>
                             </div>
@@ -782,7 +784,7 @@
                     <div class="md-modal-body-card">
                         <div class="md-ob-badge-group md-ob-badge-child-group" id="smBadgeChildSection" style="display:none;">
                             <div class="md-ob-badge-chips" id="smBadgeChildList"></div>
-                            <button type="button" class="md-ob-btn-add-badge" onclick="smAddChildBadge()">+ 作業内容追加</button>
+                            <button type="button" class="btn btn-sm btn-ghost btn-ghost--pill-dashed" onclick="smAddChildBadge()">+ 作業内容追加</button>
                         </div>
                         <div class="md-ob-badge-empty" id="smBadgeHint">区分を選択すると作業内容が表示されます</div>
                     </div>
@@ -807,7 +809,7 @@
                                 </div>
                             </div>
                             <div class="md-ob-chip-field">
-                                <div class="md-modal-section-bar">連絡 <button type="button" class="md-ob-btn-add-sub" onclick="smAddContact()">+ 追加</button></div>
+                                <div class="md-modal-section-bar">連絡 <button type="button" class="btn btn-sm btn-outline" onclick="smAddContact()">+ 追加</button></div>
                                 <div class="md-ob-row-chips" id="smContactChips"></div>
                             </div>
                             <!-- 開始/終了時間 -->
@@ -848,7 +850,7 @@
                                 </div>
                             </div>
                             <!-- 地図 -->
-                            <div class="md-modal-section-bar">地図 <button type="button" class="md-ob-btn-add-sub" onclick="smAddMapEntry()">+ 追加</button></div>
+                            <div class="md-modal-section-bar">地図 <button type="button" class="btn btn-sm btn-outline" onclick="smAddMapEntry()">+ 追加</button></div>
                             <div class="md-ob-map-fields" id="smMapFields">
                                 <div id="smMapEntryList"></div>
                             </div>
@@ -861,11 +863,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="md-ob-modal-footer">
-                    <button class="md-ob-btn md-ob-btn-danger" onclick="smDeleteSite()">削除</button>
-                    <div class="md-ob-modal-footer-right">
-                        <button class="md-ob-btn md-ob-btn-secondary" onclick="closeSiteModal()">キャンセル</button>
-                        <button class="md-ob-btn md-ob-btn-primary" onclick="saveSiteModal()">保存</button>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" onclick="smDeleteSite()">削除</button>
+                    <div class="modal-footer-right">
+                        <button class="btn btn-secondary" onclick="closeSiteModal()">キャンセル</button>
+                        <button class="btn btn-primary" onclick="saveSiteModal()">保存</button>
                     </div>
                 </div>
             </div>
@@ -876,7 +878,7 @@
             <div class="md-modal-content md-modal-meeting-detail">
                 <div class="md-modal-site-header">
                     <h3>集合</h3>
-                    <button class="md-ob-modal-close" onclick="closeMeetingModal()">✕</button>
+                    <button class="modal-close" onclick="closeMeetingModal()">✕</button>
                 </div>
                 <div class="md-modal-site-body">
                     <div class="md-modal-body-field"><div class="md-modal-body-field-value">Meeting / Contact</div></div>
@@ -889,15 +891,15 @@
                             </div>
                         </div>
                         <div class="md-ob-chip-field">
-                            <div class="md-modal-section-bar">連絡 <button type="button" class="md-ob-btn-add-sub" onclick="mtAddContact()">+ 追加</button></div>
+                            <div class="md-modal-section-bar">連絡 <button type="button" class="btn btn-sm btn-outline" onclick="mtAddContact()">+ 追加</button></div>
                             <div class="md-ob-row-chips" id="mtContactChips"></div>
                         </div>
                     </div>
                 </div>
                 <div class="md-modal-site-footer">
                     <div class="md-modal-site-footer-right">
-                        <button class="md-ob-btn md-ob-btn-secondary" onclick="closeMeetingModal()">キャンセル</button>
-                        <button class="md-ob-btn md-ob-btn-primary" onclick="saveMeetingModal()">保存</button>
+                        <button class="btn btn-secondary" onclick="closeMeetingModal()">キャンセル</button>
+                        <button class="btn btn-primary" onclick="saveMeetingModal()">保存</button>
                     </div>
                 </div>
             </div>
@@ -908,7 +910,7 @@
             <div class="md-modal-content md-modal-work-detail">
                 <div class="md-modal-site-header">
                     <h3>作業内容</h3>
-                    <button class="md-ob-modal-close" onclick="closeWorkModal()">✕</button>
+                    <button class="modal-close" onclick="closeWorkModal()">✕</button>
                 </div>
                 <div class="md-modal-site-body">
                     <div class="md-modal-body-field"><div class="md-modal-body-field-value">Category / Tasks</div></div>
@@ -931,7 +933,7 @@
                                     <span id="wmBadgeUndoMsg"></span>
                                     <button type="button" class="md-ob-badge-undo-btn" onclick="smUndoDeleteBadge()">戻す</button>
                                 </div>
-                                <button type="button" class="md-ob-btn-add-badge" onclick="smAddChildBadge()">+ 作業内容追加</button>
+                                <button type="button" class="btn btn-sm btn-ghost btn-ghost--pill-dashed" onclick="smAddChildBadge()">+ 作業内容追加</button>
                             </div>
                             <div class="md-ob-badge-empty" id="wmBadgeHint">区分を選択すると作業内容が表示されます</div>
                         </div>
@@ -939,8 +941,8 @@
                 </div>
                 <div class="md-modal-site-footer">
                     <div class="md-modal-site-footer-right">
-                        <button class="md-ob-btn md-ob-btn-secondary" onclick="closeWorkModal()">キャンセル</button>
-                        <button class="md-ob-btn md-ob-btn-primary" onclick="saveWorkModal()">保存</button>
+                        <button class="btn btn-secondary" onclick="closeWorkModal()">キャンセル</button>
+                        <button class="btn btn-primary" onclick="saveWorkModal()">保存</button>
                     </div>
                 </div>
             </div>
@@ -951,7 +953,7 @@
             <div class="md-modal-content md-modal-notes-detail">
                 <div class="md-modal-site-header">
                     <h3>送迎・備考</h3>
-                    <button class="md-ob-modal-close" onclick="closeNotesModal()">✕</button>
+                    <button class="modal-close" onclick="closeNotesModal()">✕</button>
                 </div>
                 <div class="md-modal-site-body">
                     <div class="md-modal-body-field"><div class="md-modal-body-field-value">Transport / Notes</div></div>
@@ -970,8 +972,8 @@
                 </div>
                 <div class="md-modal-site-footer">
                     <div class="md-modal-site-footer-right">
-                        <button class="md-ob-btn md-ob-btn-secondary" onclick="closeNotesModal()">キャンセル</button>
-                        <button class="md-ob-btn md-ob-btn-primary" onclick="saveNotesModal()">保存</button>
+                        <button class="btn btn-secondary" onclick="closeNotesModal()">キャンセル</button>
+                        <button class="btn btn-primary" onclick="saveNotesModal()">保存</button>
                     </div>
                 </div>
             </div>
@@ -982,7 +984,7 @@
             <div class="md-modal-content md-modal-map-detail">
                 <div class="md-modal-site-header">
                     <h3>地図URL設定</h3>
-                    <button class="md-ob-modal-close" onclick="closeMapModal()">✕</button>
+                    <button class="modal-close" onclick="closeMapModal()">✕</button>
                 </div>
                 <div class="md-modal-site-body">
                     <div class="md-modal-body-card" id="smMapTabContent">
@@ -1008,10 +1010,10 @@
                     </div>
                 </div>
                 <div class="md-modal-site-footer">
-                    <button class="md-ob-btn md-ob-btn-danger" onclick="smDeleteMapTab()">このタブを削除</button>
+                    <button class="btn btn-danger" onclick="smDeleteMapTab()">このタブを削除</button>
                     <div class="md-modal-site-footer-right">
-                        <button class="md-ob-btn md-ob-btn-secondary" onclick="closeMapModal()">キャンセル</button>
-                        <button class="md-ob-btn md-ob-btn-primary" onclick="saveMapModal()">保存</button>
+                        <button class="btn btn-secondary" onclick="closeMapModal()">キャンセル</button>
+                        <button class="btn btn-primary" onclick="saveMapModal()">保存</button>
                     </div>
                 </div>
             </div>
@@ -1022,7 +1024,7 @@
             <div class="md-modal-content md-modal-work-time-detail">
                 <div class="md-modal-site-header">
                     <h3>時間</h3>
-                    <button class="md-ob-modal-close" onclick="closeWorkTimeModal()">✕</button>
+                    <button class="modal-close" onclick="closeWorkTimeModal()">✕</button>
                 </div>
                 <div class="md-modal-site-body">
                     <div class="md-modal-body-field"><div class="md-modal-body-field-value">Work Time</div></div>
@@ -1047,8 +1049,8 @@
                 </div>
                 <div class="md-modal-site-footer">
                     <div class="md-modal-site-footer-right">
-                        <button class="md-ob-btn md-ob-btn-secondary" onclick="closeWorkTimeModal()">キャンセル</button>
-                        <button class="md-ob-btn md-ob-btn-primary" onclick="saveWorkTimeModal()">保存</button>
+                        <button class="btn btn-secondary" onclick="closeWorkTimeModal()">キャンセル</button>
+                        <button class="btn btn-primary" onclick="saveWorkTimeModal()">保存</button>
                     </div>
                 </div>
             </div>
@@ -1114,10 +1116,10 @@
                     </div>
                 </div>
                 <div class="sort-modal-footer">
-                    <button class="md-ob-btn md-ob-btn-danger" onclick="resetSortSettings()">リセット</button>
+                    <button class="btn btn-danger" onclick="resetSortSettings()">リセット</button>
                     <div class="sort-footer-right">
-                        <button class="md-ob-btn md-ob-btn-secondary" onclick="closeSortModal()">キャンセル</button>
-                        <button class="md-ob-btn md-ob-btn-primary" onclick="applySortSettings()">ソート実行</button>
+                        <button class="btn btn-secondary" onclick="closeSortModal()">キャンセル</button>
+                        <button class="btn btn-primary" onclick="applySortSettings()">ソート実行</button>
                     </div>
                 </div>
             </div>
@@ -1338,18 +1340,18 @@
                 </div>
             </div>
             <div class="md-cn-footer">
-                <button class="md-ob-btn md-ob-btn-secondary" onclick="closeChangeNotifyModal()">閉じる</button>
+                <button class="btn btn-secondary" onclick="closeChangeNotifyModal()">閉じる</button>
             </div>
         </div>
     </div>
 
     <!-- 新規追加モーダル -->
-    <div class="md-ob-modal-overlay" id="slAddModalOverlay" style="display:none;" onclick="slCloseAddModal(event)">
-        <div class="md-ob-modal" onclick="event.stopPropagation()">
-            <div class="md-ob-modal-header">
+    <div class="modal-overlay" id="slAddModalOverlay" style="display:none;" onclick="slCloseAddModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
                 <span>新規追加</span>
             </div>
-            <div class="md-ob-modal-body">
+            <div class="modal-body">
                 <!-- ━━ Row Information ━━ -->
                 <div class="md-modal-body-field"><div class="md-modal-body-field-value">Row Information</div></div>
                 <div class="md-modal-body-card">
@@ -1425,7 +1427,7 @@
                             </div>
                         </div>
                         <!-- 業務詳細 -->
-                        <div class="md-modal-section-bar">業務詳細 <button type="button" class="md-ob-btn-add-sub" onclick="slAddAddSubTaskEntry()">+ 追加</button></div>
+                        <div class="md-modal-section-bar">業務詳細 <button type="button" class="btn btn-sm btn-outline" onclick="slAddAddSubTaskEntry()">+ 追加</button></div>
                         <div class="md-ob-sub-task-fields" id="slAddSubTaskFields">
                             <div id="slAddSubTaskList"></div>
                         </div>
@@ -1437,7 +1439,7 @@
                 <div class="md-modal-body-card">
                     <div class="md-ob-badge-group md-ob-badge-child-group" id="slAddBadgeChildSection" style="display:none;">
                         <div class="md-ob-badge-chips" id="slAddBadgeChildList"></div>
-                        <button type="button" class="md-ob-btn-add-badge" onclick="slAddAddChildBadge()">+ 作業内容追加</button>
+                        <button type="button" class="btn btn-sm btn-ghost btn-ghost--pill-dashed" onclick="slAddAddChildBadge()">+ 作業内容追加</button>
                     </div>
                     <div class="md-ob-badge-empty" id="slAddBadgeHint">区分を選択すると作業内容が表示されます</div>
                 </div>
@@ -1462,7 +1464,7 @@
                             </div>
                         </div>
                         <div class="md-ob-chip-field">
-                            <div class="md-modal-section-bar">連絡 <button type="button" class="md-ob-btn-add-sub" onclick="slAddAddContact()">+ 追加</button></div>
+                            <div class="md-modal-section-bar">連絡 <button type="button" class="btn btn-sm btn-outline" onclick="slAddAddContact()">+ 追加</button></div>
                             <div class="md-ob-row-chips" id="slAddContactChips"></div>
                         </div>
                         <!-- 開始/終了時間 -->
@@ -1503,7 +1505,7 @@
                             </div>
                         </div>
                         <!-- 地図 -->
-                        <div class="md-modal-section-bar">地図 <button type="button" class="md-ob-btn-add-sub" onclick="slAddAddMapEntry()">+ 追加</button></div>
+                        <div class="md-modal-section-bar">地図 <button type="button" class="btn btn-sm btn-outline" onclick="slAddAddMapEntry()">+ 追加</button></div>
                         <div class="md-ob-map-fields" id="slAddMapFields">
                             <div id="slAddMapEntryList"></div>
                         </div>
@@ -1516,11 +1518,11 @@
                     </div>
                 </div>
             </div>
-            <div class="md-ob-modal-footer">
+            <div class="modal-footer">
                 <div></div>
-                <div class="md-ob-modal-footer-right">
-                    <button class="md-ob-btn md-ob-btn-secondary" onclick="slCloseAddModal()">キャンセル</button>
-                    <button class="md-ob-btn md-ob-btn-primary" id="slAddSaveBtn" onclick="slSaveNewRow()">追加</button>
+                <div class="modal-footer-right">
+                    <button class="btn btn-secondary" onclick="slCloseAddModal()">キャンセル</button>
+                    <button class="btn btn-primary" id="slAddSaveBtn" onclick="slSaveNewRow()">追加</button>
                 </div>
             </div>
         </div>

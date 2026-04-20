@@ -6,11 +6,16 @@
     <title>受注簿</title>
     <link rel="stylesheet" href="mockup/co-tokens.css">
     <link rel="stylesheet" href="mockup/co-forms.css">
+    <link rel="stylesheet" href="mockup/co-buttons.css">
+    <link rel="stylesheet" href="mockup/co-modal.css">
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/co-navbar.css?v=3">
     <link rel="stylesheet" href="mockup/order-book.css">
 </head>
 <body>
+
+    <!-- スキップリンク（a11y: Tab キー初回でフォーカス時に可視表示） -->
+    <a class="skip-link" href="#obGrid">メインコンテンツへスキップ</a>
 
     <!-- ヘッダー -->
     <header class="md-ob-header">
@@ -32,7 +37,7 @@
     </header>
 
     <!-- ツールバー -->
-    <div class="md-ob-toolbar">
+    <div class="md-ob-toolbar no-print" role="toolbar" aria-label="受注簿操作バー">
         <div class="md-ob-toolbar-left">
             <button class="md-ob-tb-btn md-ob-tb-btn-add" onclick="addNewRow()">＋ 新規追加</button>
             <button class="md-ob-tb-btn" id="undoBtn" onclick="undo()" disabled>↩ 戻る</button>
@@ -52,7 +57,7 @@
 
     <!-- フィルタ行（トグル表示） -->
     <!-- 【モックアップ専用】フィルタの選択肢は本番ではDBから動的に生成 -->
-    <div class="md-ob-filter-bar" id="filterBar" style="display:none;">
+    <div class="md-ob-filter-bar no-print" id="filterBar" style="display:none;" role="region" aria-label="フィルタ条件">
         <label>会社:</label>
         <div class="md-ob-filter-dd" id="filterBranchDD">
             <button type="button" class="md-ob-filter-dd-btn" onclick="toggleBranchDD()">
@@ -85,21 +90,21 @@
         <label>契約先:
             <input type="text" id="filterCompany" placeholder="契約先名で絞込" oninput="applyFilters()">
         </label>
-        <button class="md-ob-filter-clear" onclick="clearFilters()">✕ クリア</button>
+        <button class="md-ob-filter-clear" onclick="clearFilters()" aria-label="フィルタをクリア">✕ クリア</button>
     </div>
 
     <!-- グリッドコンテナ -->
     <div class="tbl-grid__wrapper">
         <div class="tbl-grid__scroll" id="gridScroll">
-            <div class="tbl-grid" id="obGrid"></div>
+            <div class="tbl-grid" id="obGrid" role="grid" tabindex="-1" aria-label="受注簿データグリッド"></div>
         </div>
     </div>
 
     <!-- ツールチップ -->
-    <div class="md-ob-tooltip" id="cellTooltip" style="display:none;"></div>
+    <div class="md-ob-tooltip no-print" id="cellTooltip" style="display:none;" role="tooltip" aria-hidden="true"></div>
 
     <!-- カスタム時間ピッカー -->
-    <div class="md-ob-time-dropdown" id="timePickerDropdown" style="display:none;">
+    <div class="md-ob-time-dropdown no-print" id="timePickerDropdown" style="display:none;" role="dialog" aria-label="時刻を選択">
         <div class="md-ob-time-col-wrap">
             <div class="md-ob-time-col-header">時</div>
             <div class="md-ob-time-col" id="timePickerHours"></div>
@@ -111,9 +116,9 @@
     </div>
 
     <!-- セル編集モーダル -->
-    <div class="md-ob-modal-overlay" id="editModalOverlay" style="display:none;" onclick="closeEditModal(event)">
-        <div class="md-ob-modal" onclick="event.stopPropagation()">
-            <div class="md-ob-modal-header">
+    <div class="modal-overlay no-print" id="editModalOverlay" style="display:none;" onclick="closeEditModal(event)">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle" onclick="event.stopPropagation()">
+            <div class="modal-header">
                 <div class="md-ob-cal-header-info">
                     <h3 id="editModalTitle">セル編集</h3>
                     <div class="md-ob-cal-header-meta" id="editModalMeta"></div>
@@ -123,9 +128,9 @@
                     <span class="md-cn-conflict-text" id="obCnConflictText"></span>
                     <button class="md-cn-conflict-close" onclick="obCnHideConflictBanner()">✕</button>
                 </div>
-                <button class="md-ob-modal-close" onclick="closeEditModal()">✕</button>
+                <button class="modal-close" onclick="closeEditModal()" aria-label="モーダルを閉じる">✕</button>
             </div>
-            <div class="md-ob-modal-body">
+            <div class="modal-body">
                 <!-- ━━ Placement / Details ━━ -->
                 <div class="md-modal-body-field"><div class="md-modal-body-field-value">Placement / Details</div></div>
                 <div class="md-modal-body-card">
@@ -147,7 +152,7 @@
                         <!-- 業務名表示 -->
                         <div class="md-ob-cal-display-value" id="editDailyTaskName">-</div>
                         <!-- 業務詳細 -->
-                        <div class="md-modal-section-bar">業務詳細 <button type="button" class="md-ob-btn-add-sub" onclick="addSubTaskEntry()">+ 追加</button></div>
+                        <div class="md-modal-section-bar">業務詳細 <button type="button" class="btn btn-sm btn-outline" onclick="addSubTaskEntry()">+ 追加</button></div>
                         <div class="md-ob-sub-task-fields" id="subTaskFields">
                             <div id="subTaskList"></div>
                         </div>
@@ -173,7 +178,7 @@
                                 <span id="badgeUndoMsg"></span>
                                 <button type="button" class="md-ob-badge-undo-btn" onclick="undoDeleteBadge()">戻す</button>
                             </div>
-                            <button type="button" class="md-ob-btn-add-badge" onclick="addChildBadge()">+ 作業内容追加</button>
+                            <button type="button" class="btn btn-sm btn-ghost btn-ghost--pill-dashed" onclick="addChildBadge()">+ 作業内容追加</button>
                         </div>
                     </div>
                 </div>
@@ -235,21 +240,21 @@
                             </div>
                         </div>
                         <!-- 地図 -->
-                        <div class="md-modal-section-bar">地図 <button type="button" class="md-ob-btn-add-sub" onclick="addMapEntry()">+ 追加</button></div>
+                        <div class="md-modal-section-bar">地図 <button type="button" class="btn btn-sm btn-outline" onclick="addMapEntry()">+ 追加</button></div>
                         <div class="md-ob-map-fields" id="mapFields">
                             <div id="mapEntryList">
                                 <div class="md-ob-map-entry" data-idx="0">
                                     <div class="md-ob-map-entry-header">
                                         <input type="text" class="md-ob-sub-label-input md-ob-map-label-input" value="現場地図" placeholder="タイトル" title="タイトルを編集">
-                                        <button type="button" class="md-ob-btn-remove-sub" onclick="removeMapEntry(0)" title="削除">×</button>
+                                        <button type="button" class="btn btn-sm btn-icon btn-ghost btn-ghost--danger-hover" onclick="removeMapEntry(0)" title="削除">×</button>
                                     </div>
                                     <div class="md-ob-map-url-row">
                                         <input type="url" class="md-ob-map-url-input" placeholder="Google Maps等のURLを入力">
-                                        <button type="button" class="md-ob-btn-map-preview" onclick="previewMap(this)">プレビュー</button>
+                                        <button type="button" class="btn btn-sm btn-outline" onclick="previewMap(this)">プレビュー</button>
                                     </div>
                                     <div class="md-ob-map-preview" style="display:none;">
                                         <iframe sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>
-                                        <button type="button" class="md-ob-btn-map-clear" onclick="clearMapPreview(this)" title="プレビューを閉じる">✕</button>
+                                        <button type="button" class="btn btn-sm btn-icon btn-ghost" onclick="clearMapPreview(this)" title="プレビューを閉じる">✕</button>
                                     </div>
                                 </div>
                             </div>
@@ -263,23 +268,23 @@
                     </div>
                 </div>
             </div>
-            <div class="md-ob-modal-footer">
-                <button class="md-ob-btn md-ob-btn-danger" onclick="deleteCell()">削除</button>
-                <div class="md-ob-modal-footer-right">
-                    <button class="md-ob-btn md-ob-btn-secondary" onclick="closeEditModal()">キャンセル</button>
-                    <button class="md-ob-btn md-ob-btn-primary" onclick="saveEdit()">保存</button>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="deleteCell()">削除</button>
+                <div class="modal-footer-right">
+                    <button class="btn btn-secondary" onclick="closeEditModal()">キャンセル</button>
+                    <button class="btn btn-primary" onclick="saveEdit()">保存</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 行情報編集モーダル -->
-    <div class="md-ob-modal-overlay" id="rowEditModalOverlay" style="display:none;" onclick="closeRowEditModal(event)">
-        <div class="md-ob-modal md-ob-modal-sm" onclick="event.stopPropagation()">
-            <div class="md-ob-modal-header">
+    <div class="modal-overlay no-print" id="rowEditModalOverlay" style="display:none;" onclick="closeRowEditModal(event)">
+        <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="rowEditModalTitle" onclick="event.stopPropagation()">
+            <div class="modal-header">
                 <span id="rowEditModalTitle">行情報編集</span>
             </div>
-            <div class="md-ob-modal-body">
+            <div class="modal-body">
                 <!-- ━━ Row Information ━━ -->
                 <div class="md-modal-body-field"><div class="md-modal-body-field-value">Row Information</div></div>
                 <div class="md-modal-body-card">
@@ -291,7 +296,7 @@
                         <div class="md-ob-field-warning" id="warnBranch" style="display:none;">会社を選択してください</div>
                     </div>
                     <div class="md-ob-chip-field">
-                        <div class="md-modal-section-bar">区分 <button type="button" class="md-ob-btn-add-sub" onclick="addRowCategory()">+ 追加</button></div>
+                        <div class="md-modal-section-bar">区分 <button type="button" class="btn btn-sm btn-outline" onclick="addRowCategory()">+ 追加</button></div>
                         <div class="md-ob-row-chips" id="rowEditCategoryChips"></div>
                         <div class="md-ob-field-warning" id="warnCategory" style="display:none;">区分を選択してください</div>
                     </div>
@@ -355,24 +360,24 @@
                     <div class="md-ob-row-dup-warning" id="rowDupWarning" style="display:none;">※ この組み合わせは既に存在します</div>
                 </div>
             </div>
-            <div class="md-ob-modal-footer">
+            <div class="modal-footer">
                 <div></div>
-                <div class="md-ob-modal-footer-right">
-                    <button class="md-ob-btn md-ob-btn-secondary" onclick="closeRowEditModal()">キャンセル</button>
-                    <button class="md-ob-btn md-ob-btn-primary" id="rowEditSaveBtn" onclick="saveRowEdit()">保存</button>
+                <div class="modal-footer-right">
+                    <button class="btn btn-secondary" onclick="closeRowEditModal()">キャンセル</button>
+                    <button class="btn btn-primary" id="rowEditSaveBtn" onclick="saveRowEdit()">保存</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- ソート設定モーダル -->
-    <div class="md-ob-modal-overlay" id="sortModalOverlay" style="display:none;" onclick="closeSortModal(event)">
-        <div class="md-ob-modal md-ob-modal-sm" onclick="event.stopPropagation()">
-            <div class="md-ob-modal-header">
-                <h3>ソート設定</h3>
-                <button class="md-ob-modal-close" onclick="closeSortModal()">✕</button>
+    <div class="modal-overlay no-print" id="sortModalOverlay" style="display:none;" onclick="closeSortModal(event)">
+        <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="sortModalTitle" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="sortModalTitle">ソート設定</h3>
+                <button class="modal-close" onclick="closeSortModal()" aria-label="モーダルを閉じる">✕</button>
             </div>
-            <div class="md-ob-modal-body">
+            <div class="modal-body">
                 <div class="md-modal-body-field"><div class="md-modal-body-field-value">Sort Order</div></div>
                 <div class="md-modal-body-card">
                     <p class="md-ob-sort-desc">ドラッグで優先順位を変更できます</p>
@@ -385,18 +390,18 @@
                     </ul>
                 </div>
             </div>
-            <div class="md-ob-modal-footer">
-                <button class="md-ob-btn md-ob-btn-secondary" onclick="closeSortModal()">キャンセル</button>
-                <button class="md-ob-btn md-ob-btn-primary" onclick="applySort()">適用</button>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeSortModal()">キャンセル</button>
+                <button class="btn btn-primary" onclick="applySort()">適用</button>
             </div>
         </div>
     </div>
 
     <!-- カレンダー入力モーダル -->
-    <div class="md-ob-modal-overlay" id="calendarModalOverlay" style="display:none;" onclick="closeCalendarModal(event)">
-        <div class="md-ob-modal md-ob-modal-calendar" onclick="event.stopPropagation()">
-            <button class="md-ob-modal-close md-ob-cal-close" onclick="closeCalendarModal()">✕</button>
-            <div class="md-ob-modal-header md-ob-cal-header">
+    <div class="modal-overlay no-print" id="calendarModalOverlay" style="display:none;" onclick="closeCalendarModal(event)">
+        <div class="modal modal-calendar" role="dialog" aria-modal="true" aria-labelledby="calendarModalTitle" onclick="event.stopPropagation()">
+            <button class="modal-close md-ob-cal-close" onclick="closeCalendarModal()" aria-label="モーダルを閉じる">✕</button>
+            <div class="modal-header md-ob-cal-header">
                 <h3 id="calendarModalTitle">カレンダー入力</h3>
                 <div class="md-cn-conflict-banner" id="obCnConflictBannerCal" style="display:none;">
                     <span class="md-cn-conflict-icon">⚠</span>
@@ -421,7 +426,7 @@
                     </button>
                 </div>
             </div>
-            <div class="md-ob-modal-body md-ob-cal-body">
+            <div class="modal-body md-ob-cal-body">
                 <div class="md-ob-cal-grid" id="calendarGrid"></div>
             </div>
             <!-- セル編集アコーディオンパネル -->
@@ -432,32 +437,32 @@
                 </div>
                 <div class="md-ob-cal-edit-panel-body" id="calEditPanelBody"></div>
             </div>
-            <div class="md-ob-modal-footer md-ob-cal-footer">
-                <button class="md-ob-btn md-ob-btn-danger md-ob-cal-footer-btn" onclick="deleteCell()" disabled>削除</button>
-                <div class="md-ob-modal-footer-right">
-                    <button class="md-ob-btn md-ob-btn-secondary md-ob-cal-footer-btn" onclick="closeEditModal()" disabled>カレンダー表示</button>
-                    <button class="md-ob-btn md-ob-btn-primary md-ob-cal-footer-btn" onclick="saveEdit()" disabled>保存</button>
+            <div class="modal-footer md-ob-cal-footer">
+                <button class="btn btn-danger md-ob-cal-footer-btn" onclick="deleteCell()" disabled>削除</button>
+                <div class="modal-footer-right">
+                    <button class="btn btn-secondary md-ob-cal-footer-btn" onclick="closeEditModal()" disabled>カレンダー表示</button>
+                    <button class="btn btn-primary md-ob-cal-footer-btn" onclick="saveEdit()" disabled>保存</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- トースト通知コンテナ -->
-    <div id="obCnToastContainer"></div>
+    <!-- トースト通知コンテナ（aria-live: 内容変化をスクリーンリーダーに通知） -->
+    <div id="obCnToastContainer" class="no-print" role="status" aria-live="polite" aria-atomic="true"></div>
 
     <!-- 変更通知モーダル -->
-    <div class="md-ob-modal-overlay" id="obChangeNotifyModal" style="display:none;" onclick="if(event.target===this)obCnCloseModal()">
-        <div class="md-cn-modal" onclick="event.stopPropagation()">
+    <div class="modal-overlay no-print" id="obChangeNotifyModal" style="display:none;" onclick="if(event.target===this)obCnCloseModal()">
+        <div class="md-cn-modal" role="dialog" aria-modal="true" aria-labelledby="obChangeNotifyTitle" onclick="event.stopPropagation()">
             <div class="md-cn-header">
                 <div class="md-cn-header-left">
-                    <h3>変更通知</h3>
+                    <h3 id="obChangeNotifyTitle">変更通知</h3>
                     <span class="md-cn-row-info" id="obCnRowInfo" style="display:none;"></span>
                 </div>
                 <div class="md-cn-header-right">
                     <span id="obCnFilterWrap"><select class="md-cn-filter-select" id="obCnFilterSelect" onchange="obCnSetFilter(this.value)">
                         <option value="">すべての業務</option>
                     </select></span>
-                    <button class="md-cn-close" onclick="obCnCloseModal()">✕</button>
+                    <button class="md-cn-close" onclick="obCnCloseModal()" aria-label="モーダルを閉じる">✕</button>
                 </div>
             </div>
             <div class="md-cn-tabs">
