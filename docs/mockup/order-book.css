@@ -226,19 +226,19 @@ body {
 .md-ob-filter-clear:hover { text-decoration: underline; }
 
 /* ========== CSS Grid グリッド ========== */
-.md-ob-grid-wrapper {
+.tbl-grid__wrapper {
     flex: 1;
     overflow: hidden;
     position: relative;
 }
 
-.md-ob-grid-scroll {
+.tbl-grid__scroll {
     overflow: auto;
     height: 100%;
     width: 100%;
 }
 
-.md-ob-grid {
+.tbl-grid {
     display: grid;
     /* grid-template-columns is set dynamically by JS */
     font-size: 12px;
@@ -246,79 +246,79 @@ body {
 }
 
 /* 全セル共通 */
-.md-ob-cell {
-    padding: 4px 6px;
+.tbl-grid__cell {
+    padding: var(--space-row) 6px;
     text-align: center;
     border-bottom: 1px solid rgba(178,213,226,0.4);
     border-right: 1px solid rgba(178,213,226,0.25);
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 28px;
+    min-height: var(--tbl-row-h);
     background: var(--base-grid);
 }
 
 /* ヘッダー行 */
-.md-ob-cell.md-ob-header {
+.tbl-grid__cell.tbl-grid__header {
     background: var(--bg-surface-3);
     color: var(--text-primary);
     font-weight: 600;
     font-size: 11px;
     position: sticky;
     top: 0;
-    z-index: 20;
+    z-index: calc(var(--z-sticky) + 1);
     border-bottom: 2px solid var(--accent-primary);
     border-right: 1px solid rgba(0,69,84,0.1);
 }
 
 /* 固定列 */
-.md-ob-frozen-0 { position: sticky; left: 0; z-index: 10; background: var(--base-grid); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; line-height: 28px; }
-.md-ob-frozen-1 { position: sticky; left: 100px; z-index: 10; background: var(--base-grid); }
-.md-ob-frozen-2 { position: sticky; left: 164px; z-index: 10; background: var(--base-grid); }
-.md-ob-frozen-3 { position: sticky; left: 200px; z-index: 10; background: var(--base-grid); text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
-.md-ob-frozen-4 { position: sticky; left: 330px; z-index: 10; background: var(--base-grid); }
-.md-ob-frozen-5 { position: sticky; left: 358px; z-index: 10; background: var(--base-grid); text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
-.md-ob-frozen-6 { position: sticky; left: 488px; z-index: 10; background: var(--base-grid); }
-.md-ob-frozen-7 { position: sticky; left: 516px; z-index: 10; background: var(--base-grid); }
-.md-ob-frozen-8 { position: sticky; left: 552px; z-index: 10; background: var(--base-grid); border-right: 2px solid var(--divider); }
+.tbl-grid__sticky--0 { position: sticky; left: 0; z-index: var(--z-sticky); background: var(--base-grid); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; line-height: var(--tbl-row-h); }
+.tbl-grid__sticky--1 { position: sticky; left: 100px; z-index: var(--z-sticky); background: var(--base-grid); }
+.tbl-grid__sticky--2 { position: sticky; left: 164px; z-index: var(--z-sticky); background: var(--base-grid); }
+.tbl-grid__sticky--3 { position: sticky; left: 200px; z-index: var(--z-sticky); background: var(--base-grid); text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
+.tbl-grid__sticky--4 { position: sticky; left: 330px; z-index: var(--z-sticky); background: var(--base-grid); }
+.tbl-grid__sticky--5 { position: sticky; left: 358px; z-index: var(--z-sticky); background: var(--base-grid); text-align: left; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
+.tbl-grid__sticky--6 { position: sticky; left: 488px; z-index: var(--z-sticky); background: var(--base-grid); }
+.tbl-grid__sticky--7 { position: sticky; left: 516px; z-index: var(--z-sticky); background: var(--base-grid); }
+.tbl-grid__sticky--8 { position: sticky; left: 552px; z-index: var(--z-sticky); background: var(--base-grid); border-right: 2px solid var(--divider); }
 
 /* ヘッダー + 固定列（最高優先） */
-.md-ob-cell.md-ob-header.md-ob-frozen-0,
-.md-ob-cell.md-ob-header.md-ob-frozen-1,
-.md-ob-cell.md-ob-header.md-ob-frozen-2,
-.md-ob-cell.md-ob-header.md-ob-frozen-3,
-.md-ob-cell.md-ob-header.md-ob-frozen-4,
-.md-ob-cell.md-ob-header.md-ob-frozen-5,
-.md-ob-cell.md-ob-header.md-ob-frozen-6,
-.md-ob-cell.md-ob-header.md-ob-frozen-7,
-.md-ob-cell.md-ob-header.md-ob-frozen-8 {
-    z-index: 30;
+.tbl-grid__cell.tbl-grid__header.tbl-grid__sticky--0,
+.tbl-grid__cell.tbl-grid__header.tbl-grid__sticky--1,
+.tbl-grid__cell.tbl-grid__header.tbl-grid__sticky--2,
+.tbl-grid__cell.tbl-grid__header.tbl-grid__sticky--3,
+.tbl-grid__cell.tbl-grid__header.tbl-grid__sticky--4,
+.tbl-grid__cell.tbl-grid__header.tbl-grid__sticky--5,
+.tbl-grid__cell.tbl-grid__header.tbl-grid__sticky--6,
+.tbl-grid__cell.tbl-grid__header.tbl-grid__sticky--7,
+.tbl-grid__cell.tbl-grid__header.tbl-grid__sticky--8 {
+    z-index: calc(var(--z-sticky) + 2);
     background: var(--bg-surface-3);
 }
 
 /* 日付ヘッダー */
-.md-ob-date-header {
+.tbl-grid__date-header {
     flex-direction: column;
     line-height: 1.2;
     padding: 3px 2px;
 }
-.md-ob-day-num { font-size: 13px; font-weight: 700; }
+.tbl-grid__day-num { font-size: 13px; font-weight: 700; }
 .md-ob-day-name { font-size: 9px; font-weight: 400; opacity: 0.7; }
 
 /* 日付セル */
-.md-ob-date-cell {
+.tbl-grid__date-cell {
     cursor: pointer;
     transition: background 0.1s;
-    font-size: 13px;
+    font-size: var(--fs-density-base);
     font-weight: 500;
     flex-direction: column;
     line-height: 1.1;
     padding: 1px 2px;
 }
-.md-ob-cell-count {
+.tbl-grid__cell-count {
     font-size: 13px; font-weight: 500;
 }
-.md-ob-cell-subtask {
+.tbl-grid__cell-subtask {
     font-size: 7px; font-weight: 500;
     color: var(--text-secondary);
     white-space: nowrap;
@@ -326,7 +326,7 @@ body {
     max-width: 100%;
     line-height: 1;
 }
-.md-ob-cell-badge-text {
+.tbl-grid__cell-badge-text {
     font-size: 7px; font-weight: 500;
     color: var(--accent-primary);
     white-space: nowrap;
@@ -334,38 +334,38 @@ body {
     max-width: 100%;
     line-height: 1;
 }
-.md-ob-date-cell:hover {
+.tbl-grid__date-cell:hover {
     background: var(--accent-primary-dim) !important;
     box-shadow: inset 0 0 0 2px var(--accent-primary);
 }
 
 /* 土日祝（ボディセル: #F5F5F5上で合成済み不透明色） */
-.md-ob-sat { background-color: var(--day-sat) !important; }
-.md-ob-sun { background-color: var(--day-sun) !important; }
+.tbl-grid__cell[data-dow="sat"] { background-color: var(--day-sat) !important; }
+.tbl-grid__cell[data-dow="sun"] { background-color: var(--day-sun) !important; }
 .md-ob-holiday { background-color: var(--day-sun) !important; }
 /* 土日祝（ヘッダー: base-muted + 薄い色ティント混合） */
-.md-ob-sat-head { background-color: var(--day-sat-head) !important; color: var(--text-primary) !important; }
-.md-ob-sun-head { background-color: var(--day-sun-head) !important; color: var(--text-primary) !important; }
+.tbl-grid__cell[data-dow="sat-head"] { background-color: var(--day-sat-head) !important; color: var(--text-primary) !important; }
+.tbl-grid__cell[data-dow="sun-head"] { background-color: var(--day-sun-head) !important; color: var(--text-primary) !important; }
 .md-ob-holiday-head { background-color: var(--day-sun-head) !important; color: var(--text-primary) !important; }
 
 /* 夜勤 */
-.md-ob-cell.md-ob-night {
+.tbl-grid__cell[data-shift="night"] {
     color: var(--night-text);
 }
-.md-ob-night.md-ob-frozen-2 { font-weight: 700; }
+[data-shift="night"].tbl-grid__sticky--2 { font-weight: 700; }
 
 /* 非表示行 */
 .md-ob-row-hidden { display: none; }
 .md-ob-row-dimmed { opacity: 0.35; }
 
 /* 合計セル */
-.md-ob-total-cell {
+.tbl-grid__cell--total {
     font-weight: 700;
     background: var(--base-grid-total);
     font-size: 11px;
     white-space: nowrap;
 }
-.md-ob-grand-total {
+.tbl-grid__cell--grand-total {
     background: rgba(68,166,181,0.12) !important;
 }
 .md-ob-total-max {
@@ -374,67 +374,70 @@ body {
 }
 
 /* 合計行 */
-.md-ob-total-row {
+.tbl-grid__row--total {
     font-weight: 700; font-size: 11px;
     background: rgba(68,166,181,0.08);
     border-top: 2px solid var(--divider);
     white-space: nowrap;
 }
-.md-ob-total-row.md-ob-frozen-0,
-.md-ob-total-row.md-ob-frozen-1,
-.md-ob-total-row.md-ob-frozen-2,
-.md-ob-total-row.md-ob-frozen-3,
-.md-ob-total-row.md-ob-frozen-4,
-.md-ob-total-row.md-ob-frozen-5,
-.md-ob-total-row.md-ob-frozen-6,
-.md-ob-total-row.md-ob-frozen-7,
-.md-ob-total-row.md-ob-frozen-8 {
+.tbl-grid__row--total.tbl-grid__sticky--0,
+.tbl-grid__row--total.tbl-grid__sticky--1,
+.tbl-grid__row--total.tbl-grid__sticky--2,
+.tbl-grid__row--total.tbl-grid__sticky--3,
+.tbl-grid__row--total.tbl-grid__sticky--4,
+.tbl-grid__row--total.tbl-grid__sticky--5,
+.tbl-grid__row--total.tbl-grid__sticky--6,
+.tbl-grid__row--total.tbl-grid__sticky--7,
+.tbl-grid__row--total.tbl-grid__sticky--8 {
     background: rgba(68,166,181,0.12);
 }
 
 /* データ行ホバー — JS側で.md-ob-data-rowクラスを付与した行グループにホバー効果 */
 /* (CSS Gridでは行グループが無いため、JSでhover処理) */
 
+/* M-C4: 空セルマーカー（装飾は M-G で --cell--empty 共通化予定、現状は視覚不変） */
+.tbl-grid__cell--empty { /* placeholder: 視覚変更なし */ }
+
 /* 偶数行（Timberwolf系の薄いティント — #F5F5F5上で合成済み不透明色） */
-.md-ob-even-row {
+.tbl-grid__row--zebra {
     background: var(--base-grid-alt);
 }
-.md-ob-even-row.md-ob-frozen-0,
-.md-ob-even-row.md-ob-frozen-1,
-.md-ob-even-row.md-ob-frozen-2,
-.md-ob-even-row.md-ob-frozen-3,
-.md-ob-even-row.md-ob-frozen-4,
-.md-ob-even-row.md-ob-frozen-5,
-.md-ob-even-row.md-ob-frozen-6,
-.md-ob-even-row.md-ob-frozen-7,
-.md-ob-even-row.md-ob-frozen-8 {
+.tbl-grid__row--zebra.tbl-grid__sticky--0,
+.tbl-grid__row--zebra.tbl-grid__sticky--1,
+.tbl-grid__row--zebra.tbl-grid__sticky--2,
+.tbl-grid__row--zebra.tbl-grid__sticky--3,
+.tbl-grid__row--zebra.tbl-grid__sticky--4,
+.tbl-grid__row--zebra.tbl-grid__sticky--5,
+.tbl-grid__row--zebra.tbl-grid__sticky--6,
+.tbl-grid__row--zebra.tbl-grid__sticky--7,
+.tbl-grid__row--zebra.tbl-grid__sticky--8 {
     background: var(--base-grid-alt);
 }
 
 /* 行複製＋ボタン列 */
-.md-ob-row-add-btn {
+.tbl-grid__row-add-btn {
     background: none; border: none; cursor: pointer;
     padding: 2px; border-radius: 4px;
     color: var(--text-tertiary); font-size: 14px; font-weight: 700;
     transition: all 0.15s; line-height: 1;
 }
-.md-ob-row-add-btn:hover { background: var(--accent-primary-dim); color: var(--accent-primary); }
+.tbl-grid__row-add-btn:hover { background: var(--accent-primary-dim); color: var(--accent-primary); }
 
 /* カレンダーボタン列 */
-.md-ob-cal-open-btn {
+.tbl-grid__cal-open-btn {
     background: none; border: none; cursor: pointer;
     padding: 2px; border-radius: 4px;
     transition: all 0.15s; color: var(--text-tertiary);
     display: flex; align-items: center; justify-content: center;
 }
-.md-ob-cal-open-btn img {
+.tbl-grid__cal-open-btn img {
     width: 16px; height: 16px;
     opacity: 0.45; transition: opacity 0.15s;
 }
-.md-ob-cal-open-btn:hover {
+.tbl-grid__cal-open-btn:hover {
     background: var(--accent-primary-dim);
 }
-.md-ob-cal-open-btn:hover img {
+.tbl-grid__cal-open-btn:hover img {
     opacity: 0.85;
 }
 
@@ -585,8 +588,8 @@ body {
 /* .md-ob-confidence-chips/chip → co-shared-badges.css */
 
 /* グリッド信頼度による文字色 */
-.md-ob-date-cell.md-ob-conf-tentative_high .md-ob-cell-count { opacity: 0.5; }
-.md-ob-date-cell.md-ob-conf-tentative_low .md-ob-cell-count { opacity: 0.25; }
+.tbl-grid__date-cell.md-ob-conf-tentative_high .tbl-grid__cell-count { opacity: 0.5; }
+.tbl-grid__date-cell.md-ob-conf-tentative_low .tbl-grid__cell-count { opacity: 0.25; }
 
 /* 業務詳細フィールド */
 .md-ob-sub-task-fields {
@@ -1014,22 +1017,22 @@ body {
 /* ========== 複数配置先 ========== */
 
 /* グリッド内の配置先エントリ（縦並び） */
-.md-ob-site-entry {
+.tbl-grid__site-entry {
     cursor: pointer; width: 100%;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 1px 0;
     transition: background 0.1s;
     border-radius: 2px;
 }
-.md-ob-site-entry:hover {
+.tbl-grid__site-entry:hover {
     background: var(--accent-primary-dim);
     box-shadow: inset 0 0 0 1px var(--accent-primary);
 }
-.md-ob-site-entry + .md-ob-site-entry {
+.tbl-grid__site-entry + .tbl-grid__site-entry {
     border-top: 1px dotted var(--divider);
 }
-.md-ob-site-entry.md-ob-conf-tentative_high .md-ob-cell-count { opacity: 0.5; }
-.md-ob-site-entry.md-ob-conf-tentative_low .md-ob-cell-count { opacity: 0.25; }
+.tbl-grid__site-entry.md-ob-conf-tentative_high .tbl-grid__cell-count { opacity: 0.5; }
+.tbl-grid__site-entry.md-ob-conf-tentative_low .tbl-grid__cell-count { opacity: 0.25; }
 
 /* 配置先ナビゲーション */
 /* 配置先タブ */
@@ -1104,10 +1107,10 @@ body {
     margin: 6px 0;
 }
 
-.md-ob-frozen-clickable {
+.tbl-grid__clickable {
     cursor: pointer; transition: background 0.1s;
 }
-.md-ob-frozen-clickable:hover {
+.tbl-grid__clickable:hover {
     background: var(--accent-primary-dim) !important;
     color: var(--accent-primary);
 }
@@ -1164,10 +1167,10 @@ body {
     font-size: 13px; font-weight: 600; color: var(--text-primary);
     line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.md-ob-cal-info-meta.md-ob-night .md-ob-cal-meta-company { color: var(--night-text); background: rgba(208,80,80,0.12); border-color: rgba(208,80,80,0.3); }
-.md-ob-cal-info-meta.md-ob-night .md-ob-cal-meta-contract { color: var(--night-text); }
-.md-ob-cal-info-meta.md-ob-night .md-ob-cal-meta-task { color: var(--night-text); }
-.md-ob-cal-info-meta.md-ob-night .md-ob-cal-meta-tags { color: var(--night-text); background: rgba(208,80,80,0.1); }
+.md-ob-cal-info-meta[data-shift="night"] .md-ob-cal-meta-company { color: var(--night-text); background: rgba(208,80,80,0.12); border-color: rgba(208,80,80,0.3); }
+.md-ob-cal-info-meta[data-shift="night"] .md-ob-cal-meta-contract { color: var(--night-text); }
+.md-ob-cal-info-meta[data-shift="night"] .md-ob-cal-meta-task { color: var(--night-text); }
+.md-ob-cal-info-meta[data-shift="night"] .md-ob-cal-meta-tags { color: var(--night-text); background: rgba(208,80,80,0.1); }
 .md-ob-cal-info-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .md-ob-cal-undo-redo { display: flex; gap: 2px; }
 .md-ob-cal-info-btn {

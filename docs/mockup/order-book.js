@@ -538,27 +538,28 @@ function renderGrid() {
     // === ヘッダー行 ===
     const frozenHeaders = ['会社', '区分', '昼夜', '契約先名'];
     frozenHeaders.forEach((h, i) => {
-        html += `<div class="md-ob-cell md-ob-header md-ob-frozen-${i}">${h}</div>`;
+        html += `<div class="tbl-grid__cell tbl-grid__header tbl-grid__sticky--${i}">${h}</div>`;
     });
-    html += '<div class="md-ob-cell md-ob-header md-ob-frozen-4"></div>';
-    html += '<div class="md-ob-cell md-ob-header md-ob-frozen-5">業務名</div>';
-    html += '<div class="md-ob-cell md-ob-header md-ob-frozen-6"></div>';
-    html += '<div class="md-ob-cell md-ob-header md-ob-frozen-7"><img src="mockup/icons/calendar.svg" alt="" style="width:14px;height:14px;opacity:0.7;"></div>';
-    html += '<div class="md-ob-cell md-ob-header md-ob-frozen-8"><img src="mockup/icons/bell.svg" alt="" style="width:13px;height:13px;opacity:0.5;"></div>';
+    html += '<div class="tbl-grid__cell tbl-grid__header tbl-grid__sticky--4"></div>';
+    html += '<div class="tbl-grid__cell tbl-grid__header tbl-grid__sticky--5">業務名</div>';
+    html += '<div class="tbl-grid__cell tbl-grid__header tbl-grid__sticky--6"></div>';
+    html += '<div class="tbl-grid__cell tbl-grid__header tbl-grid__sticky--7"><img src="mockup/icons/calendar.svg" alt="" style="width:14px;height:14px;opacity:0.7;"></div>';
+    html += '<div class="tbl-grid__cell tbl-grid__header tbl-grid__sticky--8"><img src="mockup/icons/bell.svg" alt="" style="width:13px;height:13px;opacity:0.5;"></div>';
     for (let d = 1; d <= daysInMonth; d++) {
         const dt = new Date(currentYear, currentMonth - 1, d);
         const dow = dt.getDay();
         const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        let cls = 'md-ob-cell md-ob-header md-ob-date-header';
+        let cls = 'tbl-grid__cell tbl-grid__header tbl-grid__date-header';
+        let dowAttr = '';
         if (weekendColorsEnabled) {
             if (holidays[dateStr]) cls += ' md-ob-holiday-head';
-            else if (dow === 0) cls += ' md-ob-sun-head';
-            else if (dow === 6) cls += ' md-ob-sat-head';
+            else if (dow === 0) dowAttr = ' data-dow="sun-head"';
+            else if (dow === 6) dowAttr = ' data-dow="sat-head"';
         }
-        html += `<div class="${cls}"><span class="md-ob-day-num">${d}</span><span class="md-ob-day-name">${dayNames[dow]}</span></div>`;
+        html += `<div class="${cls}"${dowAttr}><span class="tbl-grid__day-num">${d}</span><span class="md-ob-day-name">${dayNames[dow]}</span></div>`;
     }
     // 合計列ヘッダー
-    html += '<div class="md-ob-cell md-ob-header md-ob-date-header"><span class="md-ob-day-num">計</span></div>';
+    html += '<div class="tbl-grid__cell tbl-grid__header tbl-grid__date-header"><span class="tbl-grid__day-num">計</span></div>';
 
     // === データ行 ===
     let visibleCount = 0;
@@ -574,31 +575,31 @@ function renderGrid() {
         let rowCls = '';
         if (isHidden) rowCls = 'md-ob-row-hidden';
         else if (isDimmed) rowCls = 'md-ob-row-dimmed';
-        if (row.shift === '夜') rowCls += ' md-ob-night';
+        const shiftAttr = (row.shift === '夜') ? ' data-shift="night"' : '';
 
         const isEven = (!isHidden) && (visibleRowIndex % 2 === 1);
-        const evenCls = isEven ? ' md-ob-even-row' : '';
+        const evenCls = isEven ? ' tbl-grid__row--zebra' : '';
 
         if (!isHidden) { visibleCount++; visibleRowIndex++; }
 
         // Frozen cells（クリックで行編集モーダルを開く）
-        html += `<div class="md-ob-cell md-ob-frozen-0 md-ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${obBranchShort(row.branch)}</div>`;
-        html += `<div class="md-ob-cell md-ob-frozen-1 md-ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.category}</div>`;
-        html += `<div class="md-ob-cell md-ob-frozen-2 md-ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.shift}</div>`;
-        html += `<div class="md-ob-cell md-ob-frozen-3 md-ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${row.company}</div>`;
-        html += `<div class="md-ob-cell md-ob-frozen-4 ${rowCls}${evenCls}" data-ri="${ri}"><button class="md-ob-row-add-btn" onclick="event.stopPropagation(); addNewRowFromRow(${ri})" title="この現場を複製して追加">＋</button></div>`;
+        html += `<div class="tbl-grid__cell tbl-grid__sticky--0 tbl-grid__clickable ${rowCls}${evenCls}" data-ri="${ri}"${shiftAttr} onclick="openRowEditModal(${ri})">${obBranchShort(row.branch)}</div>`;
+        html += `<div class="tbl-grid__cell tbl-grid__sticky--1 tbl-grid__clickable ${rowCls}${evenCls}" data-ri="${ri}"${shiftAttr} onclick="openRowEditModal(${ri})">${row.category}</div>`;
+        html += `<div class="tbl-grid__cell tbl-grid__sticky--2 tbl-grid__clickable ${rowCls}${evenCls}" data-ri="${ri}"${shiftAttr} onclick="openRowEditModal(${ri})">${row.shift}</div>`;
+        html += `<div class="tbl-grid__cell tbl-grid__sticky--3 tbl-grid__clickable ${rowCls}${evenCls}" data-ri="${ri}"${shiftAttr} onclick="openRowEditModal(${ri})">${row.company}</div>`;
+        html += `<div class="tbl-grid__cell tbl-grid__sticky--4 ${rowCls}${evenCls}" data-ri="${ri}"${shiftAttr}><button class="tbl-grid__row-add-btn" onclick="event.stopPropagation(); addNewRowFromRow(${ri})" title="この現場を複製して追加">＋</button></div>`;
         const taskLabel = row.task || '<span class="md-ob-individual-task">(個別業務)</span>';
-        html += `<div class="md-ob-cell md-ob-frozen-5 md-ob-frozen-clickable ${rowCls}${evenCls}" data-ri="${ri}" onclick="openRowEditModal(${ri})">${taskLabel}</div>`;
+        html += `<div class="tbl-grid__cell tbl-grid__sticky--5 tbl-grid__clickable ${rowCls}${evenCls}" data-ri="${ri}"${shiftAttr} onclick="openRowEditModal(${ri})">${taskLabel}</div>`;
         // 昼夜＋ボタン: 対になるシフトの行が無い場合のみ表示
         const oppositeShift = row.shift === '昼' ? '夜' : '昼';
         const hasPair = sampleRows.some((r, j) => j !== ri && r.branch === row.branch && r.category === row.category && r.company === row.company && r.task === row.task && r.shift === oppositeShift);
         if (hasPair) {
-            html += `<div class="md-ob-cell md-ob-frozen-6 ${rowCls}${evenCls}" data-ri="${ri}"></div>`;
+            html += `<div class="tbl-grid__cell tbl-grid__sticky--6 ${rowCls}${evenCls}" data-ri="${ri}"${shiftAttr}></div>`;
         } else {
-            html += `<div class="md-ob-cell md-ob-frozen-6 ${rowCls}${evenCls}" data-ri="${ri}"><button class="md-ob-row-add-btn" onclick="event.stopPropagation(); addShiftRow(${ri})" title="${oppositeShift}を追加">＋</button></div>`;
+            html += `<div class="tbl-grid__cell tbl-grid__sticky--6 ${rowCls}${evenCls}" data-ri="${ri}"${shiftAttr}><button class="tbl-grid__row-add-btn" onclick="event.stopPropagation(); addShiftRow(${ri})" title="${oppositeShift}を追加">＋</button></div>`;
         }
-        html += `<div class="md-ob-cell md-ob-frozen-7 ${rowCls}${evenCls}" data-ri="${ri}"><button class="md-ob-cal-open-btn" onclick="event.stopPropagation(); openCalendarModal(${ri})" title="カレンダー入力"><img src="mockup/icons/calendar.svg" alt="カレンダー"></button></div>`;
-        html += `<div class="md-ob-cell md-ob-frozen-8 ${rowCls}${evenCls}" data-ri="${ri}">${obCnGetRowBellHtml(ri)}</div>`;
+        html += `<div class="tbl-grid__cell tbl-grid__sticky--7 ${rowCls}${evenCls}" data-ri="${ri}"${shiftAttr}><button class="tbl-grid__cal-open-btn" onclick="event.stopPropagation(); openCalendarModal(${ri})" title="カレンダー入力"><img src="mockup/icons/calendar.svg" alt="カレンダー"></button></div>`;
+        html += `<div class="tbl-grid__cell tbl-grid__sticky--8 ${rowCls}${evenCls}" data-ri="${ri}"${shiftAttr}>${obCnGetRowBellHtml(ri)}</div>`;
 
         // Date cells
         let rowTotalMin = 0; // 確定のみ
@@ -608,11 +609,13 @@ function renderGrid() {
             const dow = dt.getDay();
             const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
             const entries = getCellEntries(ri, d);
-            let cls = `md-ob-cell md-ob-date-cell ${rowCls}${evenCls}`;
+            let cls = `tbl-grid__cell tbl-grid__date-cell ${rowCls}${evenCls}`;
+            if (entries.length === 0) cls += ' tbl-grid__cell--empty';
+            let dowAttr = '';
             if (weekendColorsEnabled) {
                 if (holidays[dateStr]) cls += ' md-ob-holiday';
-                else if (dow === 0) cls += ' md-ob-sun';
-                else if (dow === 6) cls += ' md-ob-sat';
+                else if (dow === 0) dowAttr = ' data-dow="sun"';
+                else if (dow === 6) dowAttr = ' data-dow="sat"';
             }
             // 信頼度クラス（単一エントリ時のみセルに適用）
             if (entries.length === 1) {
@@ -623,11 +626,11 @@ function renderGrid() {
             if (entries.length === 1) {
                 // 単一配置先: 従来通り
                 const entry = entries[0];
-                cellContent = `<span class="md-ob-cell-count">${entry.count}</span>`;
+                cellContent = `<span class="tbl-grid__cell-count">${entry.count}</span>`;
                 // 個別業務の場合、業務詳細テキストを表示
                 if (!row.task && entry.subTasks && entry.subTasks.length > 0) {
                     const subText = entry.subTasks.map(st => st.value).filter(Boolean).join('・');
-                    if (subText) cellContent += `<span class="md-ob-cell-subtask">${escapeHtml(subText)}</span>`;
+                    if (subText) cellContent += `<span class="tbl-grid__cell-subtask">${escapeHtml(subText)}</span>`;
                 }
                 if (showBadges && entry.badge && entry.badge.childIds && entry.badge.childIds.length > 0) {
                     const parent = badgeDefinitions.find(p => p.id === entry.badge.parentId);
@@ -637,7 +640,7 @@ function renderGrid() {
                             .filter(Boolean)
                             .map(c => c.name);
                         if (names.length > 0) {
-                            cellContent += `<span class="md-ob-cell-badge-text">${escapeHtml(names.join('・'))}</span>`;
+                            cellContent += `<span class="tbl-grid__cell-badge-text">${escapeHtml(names.join('・'))}</span>`;
                         }
                     }
                 }
@@ -656,16 +659,16 @@ function renderGrid() {
                                 .filter(Boolean)
                                 .map(c => c.name);
                             if (names.length > 0) {
-                                badgeHtml = `<span class="md-ob-cell-badge-text">${escapeHtml(names.join('・'))}</span>`;
+                                badgeHtml = `<span class="tbl-grid__cell-badge-text">${escapeHtml(names.join('・'))}</span>`;
                             }
                         }
                     }
                     let subTaskHtml = '';
                     if (!row.task && entry.subTasks && entry.subTasks.length > 0) {
                         const subText = entry.subTasks.map(st => st.value).filter(Boolean).join('・');
-                        if (subText) subTaskHtml = `<span class="md-ob-cell-subtask">${escapeHtml(subText)}</span>`;
+                        if (subText) subTaskHtml = `<span class="tbl-grid__cell-subtask">${escapeHtml(subText)}</span>`;
                     }
-                    return `<div class="md-ob-site-entry${confCls}" data-ri="${ri}" data-day="${d}" data-si="${si}" onclick="event.stopPropagation(); openCalendarWithEdit(${ri},${d},${si})" onmouseenter="showTooltip(event,${ri},${d},${si})" onmouseleave="hideTooltip()"><span class="md-ob-cell-count">${entry.count}</span>${subTaskHtml}${badgeHtml}</div>`;
+                    return `<div class="tbl-grid__site-entry${confCls}" data-ri="${ri}" data-day="${d}" data-si="${si}" onclick="event.stopPropagation(); openCalendarWithEdit(${ri},${d},${si})" onmouseenter="showTooltip(event,${ri},${d},${si})" onmouseleave="hideTooltip()"><span class="tbl-grid__cell-count">${entry.count}</span>${subTaskHtml}${badgeHtml}</div>`;
                 }).join('');
             }
             if (entries.length > 0 && !isHidden) {
@@ -680,34 +683,36 @@ function renderGrid() {
             }
             const cellClick = entries.length > 1 ? '' : `onclick="openCalendarWithEdit(${ri},${d},0)"`;
             const cellHover = entries.length > 1 ? '' : `onmouseenter="showTooltip(event,${ri},${d})" onmouseleave="hideTooltip()"`;
-            html += `<div class="${cls}" data-ri="${ri}" data-day="${d}" ${cellHover} ${cellClick}>${cellContent}</div>`;
+            html += `<div class="${cls}" data-ri="${ri}" data-day="${d}"${dowAttr}${shiftAttr} ${cellHover} ${cellClick}>${cellContent}</div>`;
         }
 
         // Row total（最小～最大）
         const rowTotalLabel = rowTotalMax === 0 ? '' : (rowTotalMin === rowTotalMax ? `${rowTotalMax}` : `${rowTotalMin}<span class="md-ob-total-max">~${rowTotalMax}</span>`);
-        html += `<div class="md-ob-cell md-ob-total-cell ${rowCls}${evenCls}" data-ri="${ri}">${rowTotalLabel}</div>`;
+        const rowTotalEmptyCls = rowTotalMax === 0 ? ' tbl-grid__cell--empty' : '';
+        html += `<div class="tbl-grid__cell tbl-grid__cell--total ${rowCls}${evenCls}${rowTotalEmptyCls}" data-ri="${ri}"${shiftAttr}>${rowTotalLabel}</div>`;
     });
 
     // === 合計行 ===
-    html += '<div class="md-ob-cell md-ob-total-row md-ob-frozen-0"></div>';
-    html += '<div class="md-ob-cell md-ob-total-row md-ob-frozen-1"></div>';
-    html += '<div class="md-ob-cell md-ob-total-row md-ob-frozen-2"></div>';
-    html += '<div class="md-ob-cell md-ob-total-row md-ob-frozen-3"></div>';
-    html += '<div class="md-ob-cell md-ob-total-row md-ob-frozen-4"></div>';
-    html += '<div class="md-ob-cell md-ob-total-row md-ob-frozen-5" style="justify-content:flex-end;">合計</div>';
-    html += '<div class="md-ob-cell md-ob-total-row md-ob-frozen-6"></div>';
-    html += '<div class="md-ob-cell md-ob-total-row md-ob-frozen-7"></div>';
-    html += '<div class="md-ob-cell md-ob-total-row md-ob-frozen-8"></div>';
+    html += '<div class="tbl-grid__cell tbl-grid__row--total tbl-grid__sticky--0"></div>';
+    html += '<div class="tbl-grid__cell tbl-grid__row--total tbl-grid__sticky--1"></div>';
+    html += '<div class="tbl-grid__cell tbl-grid__row--total tbl-grid__sticky--2"></div>';
+    html += '<div class="tbl-grid__cell tbl-grid__row--total tbl-grid__sticky--3"></div>';
+    html += '<div class="tbl-grid__cell tbl-grid__row--total tbl-grid__sticky--4"></div>';
+    html += '<div class="tbl-grid__cell tbl-grid__row--total tbl-grid__sticky--5" style="justify-content:flex-end;">合計</div>';
+    html += '<div class="tbl-grid__cell tbl-grid__row--total tbl-grid__sticky--6"></div>';
+    html += '<div class="tbl-grid__cell tbl-grid__row--total tbl-grid__sticky--7"></div>';
+    html += '<div class="tbl-grid__cell tbl-grid__row--total tbl-grid__sticky--8"></div>';
     let grandTotalMin = 0;
     let grandTotalMax = 0;
     for (let d = 0; d < daysInMonth; d++) {
         grandTotalMin += dailyTotalsMin[d];
         grandTotalMax += dailyTotalsMax[d];
         const dayLabel = dailyTotalsMax[d] === 0 ? '' : (dailyTotalsMin[d] === dailyTotalsMax[d] ? `${dailyTotalsMax[d]}` : `${dailyTotalsMin[d]}<span class="md-ob-total-max">~${dailyTotalsMax[d]}</span>`);
-        html += `<div class="md-ob-cell md-ob-total-row">${dayLabel}</div>`;
+        const dayEmptyCls = dailyTotalsMax[d] === 0 ? ' tbl-grid__cell--empty' : '';
+        html += `<div class="tbl-grid__cell tbl-grid__row--total${dayEmptyCls}">${dayLabel}</div>`;
     }
     const grandLabel = grandTotalMin === grandTotalMax ? `${grandTotalMax}` : `${grandTotalMin}<span class="md-ob-total-max">~${grandTotalMax}</span>`;
-    html += `<div class="md-ob-cell md-ob-total-row md-ob-grand-total">${grandLabel}</div>`;
+    html += `<div class="tbl-grid__cell tbl-grid__row--total tbl-grid__cell--grand-total">${grandLabel}</div>`;
 
     grid.innerHTML = html;
     document.getElementById('summaryText').textContent = `全 ${sampleRows.length} 件 / 表示 ${visibleCount} 件`;
@@ -1814,7 +1819,7 @@ function openEditModal(ri, day, siteIdx) {
         `<span class="md-ob-cal-meta-company">${escapeHtml(obBranchShort(row.branch))}</span>` +
         `<span class="md-ob-cal-meta-task">${escapeHtml(row.company)} / ${taskDisplay}</span>` +
         `<span class="md-ob-cal-meta-tags">${escapeHtml(row.category)} | ${escapeHtml(row.shift)}勤</span>`;
-    editMeta.classList.toggle('md-ob-night', row.shift === '夜');
+    if (row.shift === '夜') editMeta.setAttribute('data-shift', 'night'); else editMeta.removeAttribute('data-shift');
 
     // 夜勤スタイル切替
     const modalBody = document.getElementById('editCount').closest('.md-ob-modal-body');
@@ -3090,7 +3095,7 @@ function openCalendarModal(ri) {
             `<span class="md-ob-cal-meta-contract">${escapeHtml(row.company)}</span>` +
             `<span class="md-ob-cal-meta-task">${taskDisplay}</span>` +
         `</div>`;
-    calMeta.classList.toggle('md-ob-night', row.shift === '夜');
+    if (row.shift === '夜') calMeta.setAttribute('data-shift', 'night'); else calMeta.removeAttribute('data-shift');
 
     // 現在月のデータ参照をキャッシュ（直接参照：同月編集は即時反映）
     const cacheKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
@@ -3677,16 +3682,16 @@ function obCnHighlightCells(ri, day, type, si) {
     if (day != null) {
         // 特定日セル — 複数エントリがある場合はサブエントリだけを対象にする
         var subEntry = si != null
-            ? document.querySelector('.md-ob-site-entry[data-ri="' + ri + '"][data-day="' + day + '"][data-si="' + si + '"]')
+            ? document.querySelector('.tbl-grid__site-entry[data-ri="' + ri + '"][data-day="' + day + '"][data-si="' + si + '"]')
             : null;
         if (subEntry) {
             targets = [subEntry];
         } else {
-            targets = document.querySelectorAll('.md-ob-cell[data-ri="' + ri + '"][data-day="' + day + '"]');
+            targets = document.querySelectorAll('.tbl-grid__cell[data-ri="' + ri + '"][data-day="' + day + '"]');
         }
     } else {
         // 行全体（frozen列 + 日付セル + 合計）
-        targets = document.querySelectorAll('.md-ob-cell[data-ri="' + ri + '"]');
+        targets = document.querySelectorAll('.tbl-grid__cell[data-ri="' + ri + '"]');
     }
     var glowClass = 'md-cn-cell-glow-' + (type || 'modify');
     if (targets.forEach) {
