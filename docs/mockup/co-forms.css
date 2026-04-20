@@ -205,7 +205,7 @@
     border: 1px solid var(--divider);
     border-top: none;
     border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-    box-shadow: var(--shadow-medium);
+    box-shadow: var(--elevation-3);
     max-height: 200px;
     overflow-y: auto;
     z-index: 100;
