@@ -3,42 +3,10 @@
    モバイルファースト
    =========================== */
 
-:root {
-    /* ═══ Tier 1 — Base（60%）═══ */
-    --base-page:         #E9F1F6;
-    --base-surface:      #FFFFFF;
-    --base-surface-alt:  #F0EDE9;
-    --base-muted:        #D3D0C8;
-
-    /* ═══ Tier 2 — Sub（30%）═══ */
-    --sub-primary:       #004554;
-    --sub-secondary:     #B2D5E2;
-
-    /* ═══ Tier 3 — Accent（10%）═══ */
-    --accent-primary:    #44A6B5;
-    --accent-light:      #5AB8C6;
-    --accent-dim:        rgba(68, 166, 181, 0.12);
-
-    /* テキスト */
-    --text-primary:      #004554;
-    --text-secondary:    #2A6B7A;
-    --text-tertiary:     #5A8896;
-    --text-disabled:     #8BAEB9;
-
-    /* ディバイダー・セマンティック */
-    --divider:           #B2D5E2;
-    --error: #DB577B;
-    --night-text: #DB577B;
-
-    /* 後方互換（co-navbar.css等の共有CSS用） */
-    --bg-page: var(--base-page);
-    --bg-surface: var(--base-surface);
-    --bg-surface-2: var(--base-surface-alt);
-    --bg-surface-3: var(--base-muted);
-    --bg-sidebar: var(--sub-primary);
-    --accent: var(--accent-primary);
-    --secondary: var(--sub-secondary);
-}
+/* QA `:root` — Phase Q-G 最終整理後
+   共通トークン（base/sub/accent/text/divider/error/後方互換）は co-tokens.css で解決。
+   QA 固有の値不一致トークン（--warning-text / --warning-bg）は L1750 付近の通知用 :root で定義。
+   Phase Q-G で死変数 `--night-text`（QA 本文参照ゼロ）を削除。 */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -119,8 +87,11 @@ body {
     color: var(--text-primary);
     background: var(--base-surface);
     outline: none;
-    transition: border-color 0.2s;
+    /* Phase Q-B: transition を DS トークン化 */
+    transition: border-color var(--duration-fast);
 }
+.qa-login-field input::placeholder { color: var(--text-disabled); } /* Q-B */
+.qa-login-field input:hover { border-color: var(--accent-primary); } /* Q-B */
 .qa-login-field input:focus {
     border-color: var(--accent-primary);
     box-shadow: 0 0 0 3px var(--accent-dim);
@@ -128,18 +99,19 @@ body {
 .qa-login-btn {
     width: 100%;
     padding: 14px;
-    background: var(--accent-primary);
+    background: var(--accent); /* Q-D: alias で解決 */
     color: #FFFFFF;
     border: none;
     border-radius: 10px;
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background var(--duration-base); /* Q-D */
     margin-top: 4px;
 }
 .qa-login-btn:hover { background: var(--accent-light); }
 .qa-login-btn:active { transform: scale(0.98); }
+.qa-login-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-D: a11y */
 .qa-login-error {
     display: none;
     color: var(--error);
@@ -357,26 +329,27 @@ body {
     color: var(--accent-primary);
 }
 
-/* 新規契約先ボタン */
+/* 新規契約先ボタン（btn-ghost--pill-dashed 相当の DS 破線ピル） */
 .qa-add-client-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: var(--space-sm); /* Q-E: 6px ≈ DS sm */
     flex: 1;
     padding: 12px;
-    background: var(--accent-dim);
-    border: 1.5px dashed var(--accent-primary);
-    border-radius: 12px;
-    color: var(--accent-primary);
-    font-size: 14px;
-    font-weight: 600;
+    background: var(--accent-dim); /* Q-E */
+    border: 1.5px dashed var(--accent); /* Q-E: alias */
+    border-radius: var(--radius-lg); /* Q-E */
+    color: var(--accent); /* Q-E */
+    font-size: var(--fs-base); /* Q-E */
+    font-weight: var(--fw-semibold); /* Q-E */
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background var(--duration-base), border-color var(--duration-base); /* Q-E: 個別 */
 }
 .qa-add-client-btn:hover {
     background: rgba(68,166,181,0.18);
 }
+.qa-add-client-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-E: a11y */
 
 /* 新規契約先入力フォーム（非表示状態） */
 .qa-add-client-form {
@@ -407,32 +380,41 @@ body {
     font-size: 13px;
     outline: none;
     color: var(--text-primary);
+    background: var(--base-surface); /* Q-B */
+    transition: border-color var(--duration-fast); /* Q-B */
 }
+.qa-add-client-input::placeholder { color: var(--text-disabled); } /* Q-B */
+.qa-add-client-input:hover { border-color: var(--accent-primary); } /* Q-B */
 .qa-add-client-input:focus {
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 2px rgba(68,166,181,0.12);
+    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B: DS 3px リングへ統一 */
 }
 .qa-add-client-submit {
     padding: 6px 14px;
-    background: var(--accent-primary);
+    background: var(--accent); /* Q-D: btn-primary 相当 */
     color: #fff;
     border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
+    border-radius: var(--radius-sm); /* Q-D */
+    font-size: var(--fs-sm); /* Q-D: 12px → 13px DS sm */
+    font-weight: var(--fw-semibold); /* Q-D */
     cursor: pointer;
     white-space: nowrap;
+    transition: background var(--duration-fast); /* Q-D */
 }
 .qa-add-client-submit:hover { background: var(--accent-light); }
+.qa-add-client-submit:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-D: a11y */
 .qa-add-client-cancel {
     padding: 6px 10px;
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2); /* Q-D: btn-secondary 相当 */
     color: var(--text-secondary);
     border: 1px solid var(--divider);
-    border-radius: 6px;
-    font-size: 12px;
+    border-radius: var(--radius-sm); /* Q-D */
+    font-size: var(--fs-sm); /* Q-D */
     cursor: pointer;
+    transition: background var(--duration-fast); /* Q-D */
 }
+.qa-add-client-cancel:hover { background: var(--bg-surface-3); } /* Q-D: btn-secondary hover 相当 */
+.qa-add-client-cancel:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-D */
 
 /* 契約先サジェスト */
 .qa-client-suggest {
@@ -490,14 +472,14 @@ body {
 /* 契約先カード */
 .qa-client-card {
     background: var(--base-surface);
-    border-radius: 12px;
-    box-shadow: 0 1px 6px rgba(0,69,84,0.07);
+    border-radius: var(--radius-lg); /* Q-E: 12px = DS lg */
+    box-shadow: var(--elevation-2); /* Q-E: DS elevation トークン（旧 0 1px 6px rgba(0,69,84,0.07) から近似） */
     margin-bottom: 10px;
     overflow: hidden;
-    transition: box-shadow 0.2s;
+    transition: box-shadow var(--duration-base); /* Q-E */
 }
 .qa-client-card:active {
-    box-shadow: 0 1px 10px rgba(0,69,84,0.14);
+    box-shadow: var(--elevation-3); /* Q-E: 押下時の elevation 強調 */
 }
 .qa-client-card-header {
     display: flex;
@@ -749,13 +731,13 @@ body {
 }
 .qa-modal {
     background: var(--base-surface);
-    border-radius: 14px;
+    border-radius: 14px; /* Q-D: モバイル UI 向けに大きめ radius を維持（DS radius-xl=16px に近い） */
     width: 100%;
     max-width: 420px;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    box-shadow: var(--elevation-4); /* Q-D: DS elevation トークン化（旧値と近似） */
     overflow: hidden;
 }
 .qa-modal-header {
@@ -788,12 +770,15 @@ body {
     border-radius: 6px;
     outline: none;
     color: var(--text-primary);
-    background: white;
+    background: var(--base-surface); /* Q-B: white → token */
     box-sizing: border-box;
+    transition: border-color var(--duration-fast); /* Q-B */
 }
+.qa-modal-field input::placeholder { color: var(--text-disabled); } /* Q-B */
+.qa-modal-field input:hover { border-color: var(--accent-primary); } /* Q-B */
 .qa-modal-field input:focus {
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px rgba(68,166,181,0.12);
+    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B: DS トークン化 */
 }
 .qa-modal-chips {
     display: flex;
@@ -830,28 +815,31 @@ body {
     background: var(--base-surface-alt);
 }
 .qa-modal-btn {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: var(--fs-base); /* Q-D: 14px = DS fs-base */
+    font-weight: var(--fw-semibold); /* Q-D */
     padding: 10px 20px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm); /* Q-D */
     border: 1px solid var(--divider);
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background var(--duration-fast), border-color var(--duration-fast), color var(--duration-fast); /* Q-D: all 禁止、個別 transition */
+    min-height: 44px; /* Q-D: モバイル・タッチターゲット 44px */
 }
+.qa-modal-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-D: a11y */
 .qa-modal-btn-cancel {
-    background: var(--base-surface);
+    background: var(--base-surface); /* btn-secondary の軽量版 */
     color: var(--text-secondary);
 }
 .qa-modal-btn-cancel:hover {
-    background: var(--base-surface-alt);
+    background: var(--bg-surface-2); /* Q-D: alias */
 }
 .qa-modal-btn-save {
-    background: var(--accent-primary);
-    color: white;
-    border-color: var(--accent-primary);
+    background: var(--accent); /* Q-D: btn-primary */
+    color: #fff; /* Q-D: white → #fff（全DS統一） */
+    border-color: var(--accent);
 }
 .qa-modal-btn-save:hover {
-    opacity: 0.85;
+    background: var(--accent-light); /* Q-D: btn-primary hover 相当（旧 opacity 0.85 → 明確な色変化） */
+    border-color: var(--accent-light);
 }
 
 /* ========== カレンダー入力画面 ========== */
@@ -1101,28 +1089,30 @@ body {
 }
 .qa-header-delete-btn {
     padding: 5px 10px;
-    background: none;
-    border: 1px solid var(--error);
+    background: rgba(219, 87, 123, 0.08); /* Q-D: btn-danger 相当（微塗り） */
+    border: 1px solid rgba(219, 87, 123, 0.3);
     color: var(--error);
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 600;
+    border-radius: var(--radius-sm); /* Q-D */
+    font-size: var(--fs-caption); /* Q-D: 11px = DS caption */
+    font-weight: var(--fw-semibold); /* Q-D */
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background var(--duration-fast), border-color var(--duration-fast); /* Q-D: 個別 */
 }
-.qa-header-delete-btn:hover { background: rgba(219,87,123,0.08); }
+.qa-header-delete-btn:hover { background: rgba(219,87,123,0.15); border-color: rgba(219,87,123,0.5); }
+.qa-header-delete-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(219,87,123,0.2); } /* Q-D: a11y */
 .qa-header-save-btn {
     padding: 5px 12px;
-    background: var(--accent-primary);
-    border: 1px solid var(--accent-primary);
+    background: var(--accent); /* Q-D: btn-primary */
+    border: 1px solid var(--accent);
     color: #fff;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 600;
+    border-radius: var(--radius-sm); /* Q-D */
+    font-size: var(--fs-caption); /* Q-D */
+    font-weight: var(--fw-semibold); /* Q-D */
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background var(--duration-fast), border-color var(--duration-fast); /* Q-D */
 }
-.qa-header-save-btn:hover { background: var(--accent-light); }
+.qa-header-save-btn:hover { background: var(--accent-light); border-color: var(--accent-light); }
+.qa-header-save-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-D: a11y */
 .qa-cal-edit-close {
     background: none;
     border: none;
@@ -1233,10 +1223,15 @@ body {
     color: var(--text-primary);
     outline: none;
     background: var(--base-surface);
+    transition: border-color var(--duration-fast); /* Q-B */
 }
+.qa-cal-edit-field input::placeholder { color: var(--text-disabled); } /* Q-B */
+.qa-cal-edit-field input:hover,
+.qa-cal-edit-field select:hover { border-color: var(--accent-primary); } /* Q-B */
 .qa-cal-edit-field input:focus,
 .qa-cal-edit-field select:focus {
     border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B */
 }
 .qa-cal-edit-row {
     display: flex;
@@ -1285,16 +1280,17 @@ body {
 }
 .qa-section-bar-btn {
     background: none;
-    border: 1px solid var(--accent-primary);
-    color: var(--accent-primary);
-    font-size: 11px;
-    font-weight: 600;
+    border: 1px solid var(--accent); /* Q-D: btn-outline 相当 */
+    color: var(--accent);
+    font-size: var(--fs-caption); /* Q-D */
+    font-weight: var(--fw-semibold); /* Q-D */
     padding: 2px 8px;
-    border-radius: 5px;
+    border-radius: var(--radius-sm); /* Q-D */
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background var(--duration-fast); /* Q-D */
 }
 .qa-section-bar-btn:hover { background: var(--accent-dim); }
+.qa-section-bar-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-D: a11y */
 
 /* 配置先タブ（受注簿準拠：ボーダーボトム式） */
 .qa-placement-tabs {
@@ -1364,8 +1360,19 @@ body {
     background: var(--base-surface);
     text-align: center;
     flex-shrink: 0;
+    /* Q-B: DS トークン化 */
+    transition: border-color var(--duration-fast);
+    -moz-appearance: textfield;
+    appearance: textfield;
 }
-.qa-count-inline-input:focus { border-color: var(--accent-primary); }
+.qa-count-inline-input::-webkit-outer-spin-button,
+.qa-count-inline-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } /* Q-B: co-forms md-fi-input-number 同等 */
+.qa-count-inline-input::placeholder { color: var(--text-disabled); } /* Q-B */
+.qa-count-inline-input:hover { border-color: var(--accent-primary); } /* Q-B */
+.qa-count-inline-input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B: 3px リング */
+}
 
 /* タイムセレクト（時・分） */
 .qa-time-select-row {
@@ -1385,9 +1392,15 @@ body {
     outline: none;
     text-align: center;
     min-width: 0;
+    transition: border-color var(--duration-fast); /* Q-B */
 }
+.qa-time-hour:hover,
+.qa-time-min:hover { border-color: var(--accent-primary); } /* Q-B */
 .qa-time-hour:focus,
-.qa-time-min:focus { border-color: var(--accent-primary); }
+.qa-time-min:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B */
+}
 .qa-time-colon {
     font-size: 16px;
     font-weight: 700;
@@ -1412,8 +1425,14 @@ body {
     color: var(--text-secondary);
     outline: none;
     background: var(--base-surface-alt);
+    transition: border-color var(--duration-fast); /* Q-B */
 }
-.qa-sub-label:focus { border-color: var(--accent-primary); }
+.qa-sub-label::placeholder { color: var(--text-disabled); } /* Q-B */
+.qa-sub-label:hover { border-color: var(--accent-primary); } /* Q-B */
+.qa-sub-label:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B */
+}
 .qa-sub-value {
     flex: 1;
     padding: 8px 10px;
@@ -1423,8 +1442,14 @@ body {
     color: var(--text-primary);
     outline: none;
     background: var(--base-surface);
+    transition: border-color var(--duration-fast); /* Q-B */
 }
-.qa-sub-value:focus { border-color: var(--accent-primary); }
+.qa-sub-value::placeholder { color: var(--text-disabled); } /* Q-B */
+.qa-sub-value:hover { border-color: var(--accent-primary); } /* Q-B */
+.qa-sub-value:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B */
+}
 .qa-sub-delete {
     flex-shrink: 0;
     width: 26px; height: 26px;
@@ -1461,12 +1486,12 @@ body {
     flex-shrink: 0;
 }
 .qa-badge-parent {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--accent-primary);
+    font-size: var(--fs-caption); /* Q-E */
+    font-weight: var(--fw-bold); /* Q-E */
+    color: var(--accent); /* Q-E */
     padding: 3px 10px;
-    background: var(--accent-dim);
-    border-radius: 14px;
+    background: var(--accent-dim); /* Q-E */
+    border-radius: 14px; /* QA 固有のピル半径（co-shared-badges bt-count 近似） */
 }
 .qa-badge-chips {
     display: flex;
@@ -1532,20 +1557,29 @@ body {
     font-size: 13px;
     color: var(--text-primary);
     outline: none;
+    background: var(--base-surface); /* Q-B */
+    transition: border-color var(--duration-fast); /* Q-B */
 }
-.qa-map-url-row input:focus { border-color: var(--accent-primary); }
+.qa-map-url-row input::placeholder { color: var(--text-disabled); } /* Q-B */
+.qa-map-url-row input:hover { border-color: var(--accent-primary); } /* Q-B */
+.qa-map-url-row input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B */
+}
 .qa-map-preview-btn {
     flex-shrink: 0;
     padding: 10px 14px;
-    background: var(--accent-primary);
+    background: var(--accent); /* Q-D: btn-primary */
     color: #fff;
     border: none;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
+    border-radius: var(--radius-md); /* Q-D: 8px = DS md */
+    font-size: var(--fs-sm); /* Q-D: 12px → 13px DS sm */
+    font-weight: var(--fw-semibold);
     cursor: pointer;
+    transition: background var(--duration-fast); /* Q-D */
 }
 .qa-map-preview-btn:hover { background: var(--accent-light); }
+.qa-map-preview-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-dim); } /* Q-D: a11y */
 
 /* テキストエリア */
 .qa-cal-edit-field textarea {
@@ -1558,8 +1592,14 @@ body {
     background: var(--base-surface);
     resize: vertical;
     font-family: inherit;
+    transition: border-color var(--duration-fast); /* Q-B */
 }
-.qa-cal-edit-field textarea:focus { border-color: var(--accent-primary); }
+.qa-cal-edit-field textarea::placeholder { color: var(--text-disabled); } /* Q-B */
+.qa-cal-edit-field textarea:hover { border-color: var(--accent-primary); } /* Q-B */
+.qa-cal-edit-field textarea:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--accent-dim); /* Q-B */
+}
 
 
 /* ========== トースト ========== */
@@ -1586,14 +1626,131 @@ body {
 /* ========== ユーティリティ ========== */
 .qa-hidden { display: none !important; }
 
+/* ============================================================
+   Phase Q-F: a11y / 印刷 / reduced-motion
+   ============================================================ */
+
+/* --- :focus-visible 拡充（残る主要ボタン） --- */
+.qa-cn-btn:focus-visible,
+.qa-logout-btn:focus-visible,
+.qa-cal-back-btn:focus-visible,
+.qa-cal-nav-btn:focus-visible,
+.qa-cal-edit-close:focus-visible,
+.qa-sub-delete:focus-visible,
+.qa-placement-tab:focus-visible,
+.qa-placement-add:focus-visible,
+.qa-badge-chip:focus-visible,
+.qa-badge-add-btn:focus-visible,
+.qa-reliability-chip:focus-visible,
+.qa-modal-chip:focus-visible,
+.qa-client-action-btn:focus-visible,
+.qa-site-action-btn:focus-visible,
+.qa-hidden-restore-btn:focus-visible,
+.qa-cn-demo-btn:focus-visible,
+.md-cn-close:focus-visible,
+.md-cn-footer-btn:focus-visible,
+.md-cn-tab:focus-visible,
+.md-cn-btn-revert:focus-visible,
+.md-cn-btn-reapprove:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.qa-tab:focus-visible {
+    outline: 2px solid var(--accent-light);
+    outline-offset: -2px;
+}
+
+/* --- タッチターゲット 44px（モバイル・主要操作） --- */
+.qa-cal-back-btn,
+.qa-cal-edit-close,
+.qa-placement-tab,
+.qa-cn-btn,
+.qa-logout-btn {
+    min-width: 44px;
+    min-height: 44px;
+}
+.qa-cal-nav-btn { min-height: 36px; } /* ヘッダー内の補助ボタン（サイズ優先） */
+
+/* --- empty-state 規範（.md-cn-empty / 将来の他 empty slot） --- */
+.md-cn-empty,
+.qa-empty-state {
+    text-align: center;
+    color: var(--text-disabled);
+    font-size: var(--fs-base);
+    padding: 40px var(--space-lg);
+    line-height: var(--lh-base);
+}
+
+/* --- prefers-reduced-motion --- */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .qa-cn-badge { animation: none !important; }
+    .md-cn-card-highlight { animation: none !important; }
+    .qa-cal-cell.md-cn-cell-glow-modify,
+    .qa-cal-cell.md-cn-cell-glow-add,
+    .qa-cal-cell.md-cn-cell-glow-delete { animation: none !important; }
+}
+
+/* --- @media print --- */
+@media print {
+    .qa-header,
+    .qa-content-toolbar,
+    .qa-toast,
+    #qaCnToastContainer,
+    .qa-modal-overlay,
+    .qa-cn-modal-overlay,
+    .qa-cal-back-btn,
+    .qa-cal-nav-btn,
+    .qa-logout-btn,
+    .qa-cn-btn,
+    .qa-cn-demo-btn,
+    .qa-cal-edit-panel,
+    .qa-add-client-form { display: none !important; }
+
+    body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+    }
+    .qa-home-screen,
+    .qa-calendar-screen {
+        display: block !important;
+        min-height: 0;
+        height: auto;
+    }
+    .qa-client-card {
+        box-shadow: none !important;
+        border: 1px solid #000;
+        page-break-inside: avoid;
+    }
+    .qa-cal-grid {
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0;
+    }
+    .qa-cal-cell {
+        border: 1px solid #999 !important;
+        min-height: 44px;
+        background: #FFFFFF !important;
+    }
+}
+
 /* ==================== 変更通知システム ==================== */
 
 :root {
-    --success: #38A169;
-    --success-text: #276749;
-    --warning: #D69E2E;
+    /* QA 通知系で使用する値不一致トークン（co-tokens.css 同名トークンを上書き） */
+    /* --warning-text: co-tokens=#92400e に対し QA は #975A16（通知カード文字色の視認性調整） */
+    /* --warning-bg: co-tokens=rgba(214,158,46,0.1) に対し QA は #FEFCBF（通知カード背景の明度上げ） */
     --warning-text: #975A16;
     --warning-bg: #FEFCBF;
+    /* --success / --success-text / --warning は co-tokens.css 同値のため削除（legacy alias で解決） */
 }
 
 /* --- ヘッダー通知ボタン --- */

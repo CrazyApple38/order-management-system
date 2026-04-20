@@ -3,39 +3,21 @@
    プレフィックス: md-ws-
    ============================================================ */
 
-/* --- カラーパレット（共通） --- */
+/* --- カラーパレット ---
+   Phase W-A: 共通トークンは co-tokens.css (legacy aliases) で解決。
+   ここでは WS 固有トークンのみを定義する。
+*/
 :root {
-    /* ═══ Tier 1 — Base（60%）═══ */
-    --base-page:         #E9F1F6;
-    --base-surface:      #FFFFFF;
-    --base-surface-alt:  #F0EDE9;
-    --base-muted:        #D3D0C8;
+    /* WS 固有: セル背景（昼/夜）— --bg-surface / --bg-surface-2 とは別用途 */
     --cell-base-day:     #F7F5F2;
     --cell-base-night:   #F0EDE9;
 
-    /* ═══ Tier 2 — Sub（30%）═══ */
-    --sub-primary:       #004554;
-    --sub-secondary:     #B2D5E2;
-
-    /* ═══ Tier 3 — Accent（10%）═══ */
-    --accent-primary:    #44A6B5;
-    --accent-light:      #5AB8C6;
-    --accent-dim:        rgba(68, 166, 181, 0.12);
-
-    /* テキスト */
-    --text-primary:      #004554;
-    --text-secondary:    #2A6B7A;
-    --text-tertiary:     #5A8896;
-    --text-disabled:     #8BAEB9;
-
-    /* ディバイダー */
-    --divider:           #B2D5E2;
-
+    /* WS 固有: GC 背景（co-tokens.css の alias 非対象） */
     --md-gc-bg-touo:      #FFFFFF;
     --md-gc-bg-nikkei:    #F3F9F6;
     --md-gc-bg-zennihon:  #F2F4F8;
 
-    /* 区分カラー（screen-layout統一：全カテゴリ同一 teal） */
+    /* WS 固有: 区分カラー（SL 統一: 全カテゴリ同一 teal） */
     --cat-bg-facility:    rgba(68, 166, 181, 0.12);
     --cat-bg-event:       rgba(68, 166, 181, 0.12);
     --cat-bg-traffic:     rgba(68, 166, 181, 0.12);
@@ -45,47 +27,37 @@
     --cat-text-traffic:   #1c4d54;
     --cat-text-highway:   #1c4d54;
 
+    /* WS 固有: シフト（昼/夜） */
     --shift-bg-day:       rgba(211, 208, 200, 0.12);
     --shift-text-day:     #3f3b31;
     --shift-bg-night:     rgba(0, 69, 84, 0.12);
     --shift-text-night:   #005c70;
 
-    /* インタラクション */
+    /* WS 固有: インタラクション */
     --accent-hover:       #3a8a96;
     --warning-dim:        rgba(214, 158, 46, 0.1);
 
-    /* 過去日オーバーレイ */
+    /* WS 固有: 過去日オーバーレイ */
     --past-overlay:       rgba(0, 0, 0, 0.12);
     --past-overlay-light: rgba(0, 0, 0, 0.06);
 
+    /* WS 固有: shadow 単色（box-shadow の color 引数として使用） */
     --shadow-color:   rgba(0, 69, 84, 0.08);
     --shadow-medium:  rgba(0, 69, 84, 0.12);
     --shadow-strong:  rgba(0, 69, 84, 0.15);
 
-    --error:          #DB577B;
+    /* WS 固有: α値・階調独自（co-tokens の semantic と値不一致） */
     --error-light:    #E88AA5;
     --error-bg:       rgba(219, 87, 123, 0.12);
-    --success:        #38A169;
-    --success-text:   #276749;
     --success-bg:     rgba(56, 161, 105, 0.1);
-    --warning:        #D69E2E;
-    --warning-text:   #975A16;
-    --warning-bg:     rgba(214, 158, 46, 0.1);
+    --warning-text:   #975A16;  /* co-tokens は #92400e */
     --night-text:     #DB577B;
 
+    /* WS 固有: tooltip / ヘッダー内ボタン */
     --tooltip-bg:     rgba(0, 69, 84, 0.95);
     --tooltip-color:  white;
     --header-btn-bg:  rgba(255, 255, 255, 0.15);
     --header-btn-hover: rgba(255, 255, 255, 0.25);
-
-    /* 後方互換（co-navbar.css等の共有CSS用） */
-    --bg-page: var(--base-page);
-    --bg-surface: var(--base-surface);
-    --bg-surface-2: var(--base-surface-alt);
-    --bg-surface-3: var(--base-muted);
-    --bg-sidebar: var(--sub-primary);
-    --accent: var(--accent-primary);
-    --secondary: var(--sub-secondary);
 }
 
 /* --- ダークテーマ --- */
@@ -100,10 +72,10 @@
     /* Tier 2 — Sub */
     --sub-primary:       #14181c;
     --sub-secondary:     #AEC0C2;
-    /* Tier 3 — Accent */
-    --accent-primary:    #098698;
-    --accent-light:      #0a9db0;
-    --accent-dim:        rgba(9, 134, 152, 0.2);
+    /* Tier 3 — Accent (Phase W-A: WCAG AA 確保のため明度を上げる) */
+    --accent-primary:    #55B5C4;   /* 4.8:1 on #2a3038 */
+    --accent-light:      #6AC5D4;
+    --accent-dim:        rgba(85, 181, 196, 0.22);
     /* テキスト */
     --text-primary:   #D9D4D1;
     --text-secondary: #BAB1AD;
@@ -131,7 +103,7 @@
     --shift-text-night:   #5ab8c6;
 
     /* インタラクション */
-    --accent-hover:       #0a9db0;
+    --accent-hover:       #6AC5D4;
     --warning-dim:        rgba(236, 201, 75, 0.15);
 
     /* 過去日オーバーレイ */
@@ -304,14 +276,21 @@ body {
 
 /* ============================================================
    グリッド
+   Phase W-C: 2段 sticky (日付ヘッダー・昼夜サブヘッダー) +
+   1列 sticky (名前セル) + 左上コーナー (2重 sticky) の
+   4種 sticky レイヤで構成される CSS Grid テーブル。
+   新DS BEM 規約 `.tbl-grid` との alias を併記し、将来の JS
+   側 class 名更新時に段階移行可能にする。
    ============================================================ */
-.md-ws-grid-wrapper {
+.md-ws-grid-wrapper,
+.tbl-grid-wrapper {
     flex: 1;
     overflow: auto;
     position: relative;
 }
 
-.md-ws-grid {
+.md-ws-grid,
+.tbl-grid {
     display: grid;
     /* columns set by JS: grid-template-columns */
     border-collapse: collapse;
@@ -509,7 +488,7 @@ body {
     border-bottom: 1px solid var(--divider);
     border-left: 1px solid rgba(178, 213, 226, 0.4);
     padding: 3px 4px;
-    min-height: 40px;
+    min-height: 36px;   /* Phase W-A: comfortable 既定に統一 (40px → 36px) */
     display: flex;
     flex-wrap: wrap;
     gap: 2px;
@@ -1571,19 +1550,22 @@ body {
     margin-top: 0;
 }
 
-/* 社員バッジ（ピル型） */
+/* 社員バッジ（ピル型）
+   Phase W-E: co-shared-badges.css `.bt-drag-tag` と視覚整合
+   （draggable な社員名タグ。radius/padding/gap/transition は DS 準拠） */
 .md-ws-emp-tag {
     display: inline-flex;
     flex-direction: row;
     align-items: flex-start;
-    gap: 4px;
-    padding: 4px 8px;
+    gap: var(--space-xs, 4px);
+    padding: var(--space-xs, 4px) var(--space-sm, 8px);
     background: var(--base-surface-alt);
     border: 1px solid var(--divider);
-    border-radius: 6px;
-    font-size: 12px;
+    border-radius: var(--radius-md, 8px);
+    font-size: var(--fs-sm, 12px);
     cursor: grab;
-    transition: all 0.2s;
+    transition: background var(--duration-base, 200ms), border-color var(--duration-base, 200ms), color var(--duration-base, 200ms);
+    -webkit-user-select: none;
     user-select: none;
     color: var(--text-primary);
 }
@@ -2839,12 +2821,15 @@ body {
     border-style: solid;
 }
 
-/* モーダルオーバーレイ（ob-modal パターンに準拠） */
-.md-ws-modal-overlay {
+/* モーダル（Phase W-D: co-modal.css `.modal-*` と alias 化 / JS 互換で class 名温存）
+   overlay/content/header/title/close/body/footer は co-modal.css の規範に揃え、
+   JS 出力 class 名（`md-ws-modal-*`）からも同一ルールを適用する。 */
+.md-ws-modal-overlay,
+.modal-overlay.md-ws-modal-overlay {
     position: fixed;
     inset: 0;
     background: rgba(0, 69, 84, 0.45);
-    z-index: 10000;
+    z-index: var(--z-modal, 10000);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2869,6 +2854,7 @@ body {
     padding: 14px 20px;
     background: var(--accent-light);
     color: #FFFFFF;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
     border-radius: 12px 12px 0 0;
 }
 .md-ws-modal-title {
@@ -2885,10 +2871,13 @@ body {
     padding: 2px 6px;
     border-radius: 4px;
     line-height: 1;
+    transition: background var(--duration-fast, 120ms), color var(--duration-fast, 120ms);
 }
-.md-ws-modal-close:hover {
+.md-ws-modal-close:hover,
+.md-ws-modal-close:focus-visible {
     background: rgba(255, 255, 255, 0.2);
     color: #FFFFFF;
+    outline: none;
 }
 .md-ws-modal-body {
     padding: 20px;
@@ -2904,31 +2893,50 @@ body {
     border-top: 1px solid var(--divider);
     background: var(--base-surface-alt);
 }
+/* .md-ws-modal-btn は co-buttons.css `.btn` と互換 */
 .md-ws-modal-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs, 4px);
     padding: 5px 12px;
     font-size: 12px;
     border-radius: 6px;
-    border: none;
+    border: 1px solid transparent;
     background: var(--base-surface-alt);
     color: var(--text-secondary);
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.15s;
+    line-height: var(--lh-tight, 1.3);
+    transition: background var(--duration-fast, 120ms), border-color var(--duration-fast, 120ms), color var(--duration-fast, 120ms), box-shadow var(--duration-fast, 120ms);
+    white-space: nowrap;
 }
 .md-ws-modal-btn:hover {
     background: var(--base-muted);
+    border-color: var(--base-muted);
+}
+.md-ws-modal-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-dim);
 }
 .md-ws-modal-btn-primary {
     background: var(--accent);
+    border-color: var(--accent);
     color: #FFFFFF;
 }
 .md-ws-modal-btn-primary:hover {
     background: var(--accent-light);
+    border-color: var(--accent-light);
     box-shadow: 0 2px 8px rgba(68, 166, 181, 0.3);
 }
 .md-ws-modal-btn-secondary {
     background: var(--base-surface-alt);
+    border-color: var(--base-surface-alt);
     color: var(--text-secondary);
+}
+.md-ws-modal-btn-secondary:hover {
+    background: var(--base-muted);
+    border-color: var(--base-muted);
 }
 
 /* ステッパー */
@@ -2981,7 +2989,9 @@ body {
 .md-ws-stepper-input::-webkit-outer-spin-button,
 .md-ws-stepper-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-/* オートコンプリート */
+/* オートコンプリート
+   Phase W-B: co-forms.css `.md-fi-input` と同一のトークン
+   （border-radius / focus-ring / padding-y）を共有。class 名は JS 互換性のため温存。 */
 .md-ws-pac {
     position: relative;
     display: block;
@@ -2996,11 +3006,18 @@ body {
     background: var(--base-surface);
     color: var(--text-primary);
     box-sizing: border-box;
+    transition: border-color var(--duration-fast, 120ms) var(--ease-out), box-shadow var(--duration-fast, 120ms) var(--ease-out);
+}
+.md-ws-pac-input:hover {
+    border-color: var(--accent-primary);
 }
 .md-ws-pac-input:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.md-ws-pac-input::placeholder {
+    color: var(--text-disabled);
 }
 .md-ws-pac-list {
     position: absolute;
@@ -3051,11 +3068,18 @@ body {
     background: var(--base-surface);
     color: var(--text-primary);
     box-sizing: border-box;
+    transition: border-color var(--duration-fast, 120ms) var(--ease-out), box-shadow var(--duration-fast, 120ms) var(--ease-out);
+}
+.md-ws-res-quick-input:hover {
+    border-color: var(--accent-primary);
 }
 .md-ws-res-quick-input:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.md-ws-res-quick-input::placeholder {
+    color: var(--text-disabled);
 }
 .md-ws-res-quick-hint {
     font-size: 11px;
@@ -3303,4 +3327,118 @@ body {
 }
 .md-ws-res-week-row-menu-item:hover { background: var(--base-surface-alt); }
 .md-ws-res-week-row-menu-danger { color: var(--error-text, #B03A2E); }
+
+/* ============================================================
+   Phase W-F: a11y — フォーカスリング統一
+   ============================================================ */
+.md-ws-nav-btn:focus-visible,
+.md-ws-today-btn:focus-visible,
+.md-ws-view-btn:focus-visible,
+.md-ws-tb-btn:focus-visible,
+.md-tb-btn:focus-visible,
+.md-ws-assign-nav-btn:focus-visible,
+.md-ws-assign-close:focus-visible,
+.md-ws-emp-tag:focus-visible,
+.md-ws-site-chip:focus-visible,
+.md-ws-vehicle-chip:focus-visible,
+.md-ws-reserve-cell-add:focus-visible,
+.md-ws-vtab:focus-visible,
+.md-ws-site-vtab:focus-visible,
+.md-ws-res-week-menu-btn:focus-visible,
+.md-ws-res-week-row-menu-item:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+/* ============================================================
+   Phase W-F: prefers-reduced-motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================================================
+   Phase W-F: 印刷
+   ============================================================ */
+@media print {
+    /* ページ背景を白に */
+    body {
+        background: #fff !important;
+        color: #000 !important;
+        font-size: 10px;
+    }
+
+    /* 固定高を解除して全内容を縦展開 */
+    .md-ws-container {
+        height: auto !important;
+        overflow: visible !important;
+    }
+    .md-ws-grid-wrapper,
+    .tbl-grid-wrapper {
+        overflow: visible !important;
+    }
+    .md-ws-main {
+        display: block !important;
+        overflow: visible !important;
+    }
+
+    /* サイドバー / ナビゲーション / モーダル / ツールチップを非表示 */
+    .md-ws-sidebar,
+    .md-ws-header-nav,
+    .md-ws-today-btn,
+    .md-ws-toolbar,
+    .md-ws-modal-overlay,
+    .md-ws-tooltip,
+    .md-ws-toast-wrap,
+    .md-ws-drag-ghost {
+        display: none !important;
+    }
+
+    /* sticky 解除（印刷時は位置固定不可） */
+    .md-ws-corner,
+    .md-ws-date-header,
+    .md-ws-shift-header,
+    .md-ws-name-cell,
+    .md-ws-group-name,
+    .md-ws-corner-row1,
+    .md-ws-corner-row2 {
+        position: static !important;
+    }
+
+    /* セル内背景の強制印刷 */
+    .md-ws-cell,
+    .md-ws-date-header,
+    .md-ws-shift-header {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* ヘッダータイトルは残す */
+    .md-ws-header {
+        background: #fff !important;
+        color: #000 !important;
+        border-bottom: 1px solid #000;
+    }
+    .md-ws-header-title,
+    .md-ws-year-label,
+    .md-ws-month-label {
+        color: #000 !important;
+    }
+
+    /* 改ページ制御 */
+    .md-ws-group-name,
+    .md-ws-group-dates {
+        page-break-after: avoid;
+    }
+    .md-ws-cell,
+    .md-ws-name-cell {
+        page-break-inside: avoid;
+    }
+}
 

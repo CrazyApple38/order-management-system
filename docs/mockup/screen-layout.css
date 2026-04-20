@@ -5,83 +5,35 @@
    ============================================= */
 
 /* === CSS Variables (Light Theme - Default) === */
+/* Phase S-A: co-tokens.css で解決可能な共通トークンは削除し、SL固有のみ残留。
+   Dark 側は co-tokens.css が Light のみのため、SL 側で全オーバーライドを維持。 */
 :root {
-    /* ═══ Tier 1 — Base（60%）═══
-       ページ背景・コンテンツ・テーブルセル
-       Timberwolf / Sand 系 */
-    --base-page:         #E9F1F6;
-    --base-surface:      #FFFFFF;
-    --base-surface-alt:  #F0EDE9;
-    --base-muted:        #D3D0C8;
-
-    /* ═══ Tier 2 — Sub（30%）═══
-       ナビバー・サイドバーヘッダーなど帯要素
-       Moonstone / Teal 系 */
-    --sub-primary:       #004554;
-    --sub-secondary:     #B2D5E2;
-
-    /* ═══ Tier 3 — Accent（10%）═══
-       ボタン・バッジ・選択状態
-       Moonstone 系 */
-    --accent-primary:    #44A6B5;
-    --accent-light:      #5AB8C6;
-    --accent-dim:        rgba(68, 166, 181, 0.12);
-
-    /* テキスト */
-    --text-primary:      #004554;
-    --text-secondary:    #2A6B7A;
-    --text-tertiary:     #5A8896;
-    --text-disabled:     #8BAEB9;
-
-    /* ディバイダー */
-    --divider:           #B2D5E2;
-
-    /* グループ会社背景色 */
+    /* SL固有: グループ会社背景色 */
     --md-gc-bg-touo: #FFFFFF;
     --md-gc-bg-nikkei: #F3F9F6;
     --md-gc-bg-zennihon: #F2F4F8;
-    /* 区分カラー（背景: 半透明） */
-    --cat-bg-facility: rgba(68, 166, 181, 0.12);
-    --cat-bg-event: rgba(68, 166, 181, 0.12);
-    --cat-bg-traffic: rgba(68, 166, 181, 0.12);
-    --cat-bg-highway: rgba(68, 166, 181, 0.12);
-    /* 区分カラー（文字） */
-    --cat-text-facility: #1c4d54;
-    --cat-text-event: #1c4d54;
-    --cat-text-traffic: #1c4d54;
-    --cat-text-highway: #1c4d54;
-    /* シフト区分 */
+
+    /* SL固有: シフト区分 */
     --shift-bg-day: rgba(211, 208, 200, 0.12);
     --shift-text-day: #3f3b31;
     --shift-bg-night: rgba(0, 69, 84, 0.12);
     --shift-text-night: #005c70;
 
-    /* セマンティック変数 */
+    /* SL固有: α値独自・意味が異なる色 */
     --shadow-color: rgba(0, 69, 84, 0.08);
     --shadow-medium: rgba(0, 69, 84, 0.12);
     --shadow-strong: rgba(0, 69, 84, 0.15);
-    --error: #DB577B;
     --error-light: #E88AA5;
     --error-bg: rgba(219, 87, 123, 0.12);
-    --success: #38A169;
-    --success-text: #276749;
     --success-bg: rgba(56, 161, 105, 0.1);
-    --warning: #D69E2E;
-    --warning-text: #975A16;
-    --warning-bg: rgba(214, 158, 46, 0.1);
+    --warning-text: #975A16;  /* 値不一致のため残留。co-tokens: #92400e */
     --night-text: #DB577B;
     --tooltip-bg: rgba(0, 69, 84, 0.95);
     --tooltip-color: white;
     --header-btn-bg: rgba(255, 255, 255, 0.15);
     --header-btn-hover: rgba(255, 255, 255, 0.25);
 
-    /* 後方互換（co-navbar.css等の共有CSS用） */
-    --bg-page: var(--base-page);
-    --bg-surface: var(--base-surface);
-    --bg-surface-2: var(--base-surface-alt);
-    --bg-surface-3: var(--base-muted);
-    --bg-sidebar: var(--sub-primary);
-    --accent: var(--accent-primary);
+    /* 後方互換（co-shared-badges.css 参照用） */
     --secondary: var(--sub-secondary);
 }
 
@@ -109,14 +61,15 @@
     --md-gc-bg-touo: #2a3038;
     --md-gc-bg-nikkei: #2d3540;
     --md-gc-bg-zennihon: #303848;
-    --cat-bg-facility: rgba(68, 166, 181, 0.2);
-    --cat-bg-event: rgba(68, 166, 181, 0.2);
-    --cat-bg-traffic: rgba(68, 166, 181, 0.2);
-    --cat-bg-highway: rgba(68, 166, 181, 0.2);
+    /* Phase D5.2: カテゴリ4色相分化（Dark 用トーン） */
+    --cat-bg-facility: rgba(68, 166, 181, 0.22);   /* teal */
     --cat-text-facility: #76d6e4;
-    --cat-text-event: #76d6e4;
-    --cat-text-traffic: #76d6e4;
-    --cat-text-highway: #76d6e4;
+    --cat-bg-event: rgba(122, 140, 196, 0.22);     /* blue-violet */
+    --cat-text-event: #a8b6e2;
+    --cat-bg-traffic: rgba(180, 135, 100, 0.22);   /* warm brown */
+    --cat-text-traffic: #d9b28c;
+    --cat-bg-highway: rgba(98, 158, 120, 0.22);    /* sage green */
+    --cat-text-highway: #9dc9ab;
     --shift-bg-day: rgba(211, 208, 200, 0.2);
     --shift-text-day: #d3d0c8;
     --shift-bg-night: rgba(0, 69, 84, 0.2);
@@ -837,30 +790,36 @@ h1 {
     overflow-y: auto;
 }
 
-.grid-table {
+/* Phase S-C: .grid-table は JS互換のため残置。.tbl / .tbl--sticky-head を DS エイリアスとして併設。 */
+.grid-table,
+.tbl {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: var(--fs-base);
 }
 
 .grid-table th,
-.grid-table td {
+.grid-table td,
+.tbl th,
+.tbl td {
     border: 1px solid var(--divider);
-    padding: 8px 10px;
+    padding: var(--space-sm) 10px;
     text-align: center;
     white-space: nowrap;
 }
 
-.grid-table thead {
+.grid-table thead,
+.tbl--sticky-head thead {
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: var(--z-sticky);
 }
 
-.grid-table thead th {
-    background: var(--base-muted);
+.grid-table thead th,
+.tbl thead th {
+    background: var(--bg-surface-3);
     color: var(--text-primary);
-    font-weight: 600;
+    font-weight: var(--fw-semibold);
 }
 
 /* 左側固定列のスタイル */
@@ -1271,19 +1230,19 @@ h1 {
     min-width: 50px;
 }
 
-/* カラー設定: CSS変数で一括管理 */
-.category-facility { background: var(--cat-bg-facility); color: var(--cat-text-facility); }
-.category-event { background: var(--cat-bg-event); color: var(--cat-text-event); }
-.category-traffic { background: var(--cat-bg-traffic); color: var(--cat-text-traffic); }
-.category-highway { background: var(--cat-bg-highway); color: var(--cat-text-highway); }
-.category-support-event { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
-.category-support-traffic { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
-.category-support-highway { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
-.category-training { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
-.category-company { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
+/* カラー設定: CSS変数で一括管理（Phase S-C/S-E: data-* 属性版も併設、Phase D5.2 4色相適用） */
+.category-facility,        [data-category="facility"]        { background: var(--cat-bg-facility); color: var(--cat-text-facility); }
+.category-event,           [data-category="event"]           { background: var(--cat-bg-event); color: var(--cat-text-event); }
+.category-traffic,         [data-category="traffic"]         { background: var(--cat-bg-traffic); color: var(--cat-text-traffic); }
+.category-highway,         [data-category="highway"]         { background: var(--cat-bg-highway); color: var(--cat-text-highway); }
+.category-support-event,   [data-category="support-event"]   { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
+.category-support-traffic, [data-category="support-traffic"] { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
+.category-support-highway, [data-category="support-highway"] { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
+.category-training,        [data-category="training"]        { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
+.category-company,         [data-category="company"]         { background: rgba(56, 161, 105, 0.12); color: var(--success-text); }
 
-.shift-day { background: var(--shift-bg-day); color: var(--shift-text-day); }
-.shift-night { background: var(--shift-bg-night); color: var(--shift-text-night); }
+.shift-day,   [data-shift="day"]   { background: var(--shift-bg-day); color: var(--shift-text-day); }
+.shift-night, [data-shift="night"] { background: var(--shift-bg-night); color: var(--shift-text-night); }
 
 /* グループ会社: 行背景色 */
 .md-gc-row-touo,
@@ -1458,28 +1417,38 @@ h1 {
 }
 
 /* 選択行のスタイル */
-.grid-table tbody tr {
+/* Phase S-C: .tbl / .tbl--sticky-head DS エイリアス + aria-selected 対応 */
+.grid-table tbody tr,
+.tbl tbody tr {
     cursor: pointer;
     transition: outline 0.1s;
 }
 
-.grid-table tbody tr.selected {
+.grid-table tbody tr.selected,
+.grid-table tbody tr[aria-selected="true"],
+.tbl tbody tr[aria-selected="true"] {
     outline: 2px solid var(--accent-primary);
     outline-offset: -2px;
     background: var(--accent-dim) !important;
 }
 
-.grid-table tbody tr.selected td {
+.grid-table tbody tr.selected td,
+.grid-table tbody tr[aria-selected="true"] td,
+.tbl tbody tr[aria-selected="true"] td {
     background: var(--accent-dim) !important;
 }
 
-.grid-table tbody tr.selected .col-no {
+.grid-table tbody tr.selected .col-no,
+.grid-table tbody tr[aria-selected="true"] .col-no,
+.tbl tbody tr[aria-selected="true"] .col-no {
     background: rgba(68, 166, 181, 0.2) !important;
     color: #004554;
     font-weight: bold;
 }
 
-.grid-table tbody tr.selected .assignment-zone {
+.grid-table tbody tr.selected .assignment-zone,
+.grid-table tbody tr[aria-selected="true"] .assignment-zone,
+.tbl tbody tr[aria-selected="true"] .assignment-zone {
     background: rgba(68, 166, 181, 0.08);
 }
 
@@ -4302,4 +4271,117 @@ h1 {
 #slAddModalOverlay .md-ob-badge-child-group {
     border-top: none;
     padding-top: 0;
+}
+
+/* ============================================================
+   Phase S-F: アクセシビリティ + 印刷
+   ============================================================ */
+
+/* sr-only: 視覚的には隠すがスクリーンリーダーには伝える */
+.sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* 画面モードでは print-only を非表示 */
+.print-only { display: none !important; }
+
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 10mm;
+    }
+
+    *,
+    *::before,
+    *::after {
+        color: #000 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    html,
+    body {
+        display: block !important;
+        width: 100% !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        font-size: 9pt;
+        line-height: var(--lh-base);
+        background: #fff !important;
+    }
+
+    /* 画面専用UIの一括非表示 */
+    .no-print,
+    .side-panel,
+    .md-nav-bar,
+    .toolbar,
+    .header-right,
+    .theme-toggle-btn,
+    .md-modal-overlay,
+    .footer-toggle-btn,
+    .color-settings-panel,
+    .sort-modal,
+    .md-cb-dropdown,
+    .md-cn-modal,
+    .md-cn-toast,
+    button:not(.print-include) {
+        display: none !important;
+    }
+
+    .main-layout,
+    .screen-mockup,
+    .container {
+        display: block !important;
+        overflow: visible !important;
+        height: auto !important;
+        border: 0 !important;
+    }
+
+    /* テーブル sticky 解除、ヘッダ継続 */
+    .grid-container {
+        overflow: visible !important;
+    }
+    .grid-table,
+    .tbl {
+        page-break-inside: auto;
+    }
+    .grid-table thead,
+    .tbl thead,
+    .tbl--sticky-head thead {
+        position: static !important;
+        display: table-header-group;
+    }
+    .grid-table thead th,
+    .tbl thead th {
+        border-bottom: 1.5pt solid #000 !important;
+    }
+    .grid-table tbody tr,
+    .tbl tbody tr {
+        page-break-inside: avoid;
+    }
+    .grid-table tr,
+    .tbl tr {
+        border: 0.5pt solid #000 !important;
+    }
+    .grid-table td,
+    .tbl td,
+    .grid-table th,
+    .tbl th {
+        border: 0.5pt solid #000 !important;
+        padding: 2pt 4pt !important;
+    }
+
+    /* 行選択・ハイライトの解除 */
+    .grid-table tbody tr.selected,
+    .grid-table tbody tr[aria-selected="true"],
+    .tbl tbody tr[aria-selected="true"] {
+        outline: none !important;
+    }
 }
