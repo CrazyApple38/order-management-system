@@ -5,21 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Quick Access — 受注クイック入力</title>
     <link rel="stylesheet" href="mockup/co-tokens.css">
-    <link rel="stylesheet" href="mockup/co-forms.css">
+    <link rel="stylesheet" href="mockup/co-forms.css?v=2">
     <link rel="stylesheet" href="mockup/co-buttons.css">
-    <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/quick-access.css">
 </head>
 <body>
+
+    <!-- ========== SVG アイコンスプライト（DS: docs/ui-components と同一シンボル） ========== -->
+    <svg class="qa-icon-sprite" aria-hidden="true" focusable="false">
+        <defs>
+            <symbol id="ui-icon-caution" viewBox="0 0 512 512">
+                <path d="M505.095,407.125L300.77,53.208c-9.206-15.944-26.361-25.849-44.774-25.849 c-18.412,0-35.552,9.905-44.751,25.849L6.905,407.109c-9.206,15.944-9.206,35.746,0,51.69 c9.206,15.944,26.354,25.842,44.758,25.842h408.674c18.405,0,35.568-9.897,44.759-25.842 C514.302,442.855,514.302,423.053,505.095,407.125z M256.004,426.437c-17.668,0-32.013-14.33-32.013-32.004 c0-17.668,14.345-31.997,32.013-31.997c17.667,0,31.997,14.329,31.997,31.997C288.001,412.108,273.671,426.437,256.004,426.437z M275.72,324.011c0,10.89-8.834,19.709-19.716,19.709c-10.898,0-19.717-8.818-19.717-19.709l-12.296-144.724 c0-17.676,14.345-32.005,32.013-32.005c17.667,0,31.997,14.33,31.997,32.005L275.72,324.011z"/>
+            </symbol>
+            <symbol id="ui-icon-close" viewBox="0 0 512 512">
+                <polygon points="512,52.535 459.467,0.002 256.002,203.462 52.538,0.002 0,52.535 203.47,256.005 0,459.465 52.533,511.998 256.002,308.527 459.467,511.998 512,459.475 308.536,256.005"/>
+            </symbol>
+            <symbol id="ui-icon-plus" viewBox="0 0 512 512">
+                <path d="M359.244,224.004h-59.988c-6.217,0-11.258-5.043-11.258-11.258v-59.992c0-6.215-5.039-11.254-11.256-11.254 h-41.486c-6.217,0-11.258,5.039-11.258,11.254v59.992c0,6.215-5.039,11.258-11.256,11.258h-59.988 c-6.219,0-11.258,5.039-11.258,11.258v41.484c0,6.215,5.039,11.258,11.258,11.258h59.988c6.217,0,11.256,5.039,11.256,11.258 v59.984c0,6.219,5.041,11.258,11.258,11.258h41.486c6.217,0,11.256-5.039,11.256-11.258v-59.984 c0-6.219,5.041-11.258,11.258-11.258h59.988c6.217,0,11.258-5.043,11.258-11.258v-41.484 C370.502,229.043,365.461,224.004,359.244,224.004z"/>
+                <path d="M256,0C114.613,0,0,114.617,0,256c0,141.387,114.613,256,256,256c141.383,0,256-114.613,256-256 C512,114.617,397.383,0,256,0z M256,448c-105.871,0-192-86.129-192-192c0-105.867,86.129-192,192-192c105.867,0,192,86.133,192,192 C448,361.871,361.867,448,256,448z"/>
+            </symbol>
+            <symbol id="ui-icon-chevron-down" viewBox="0 0 512 512">
+                <path d="M487.129,235.987c-16.613-16.438-43.417-16.294-59.85,0.328L298.323,366.669V42.328 C298.323,18.966,279.374,0,256.007,0c-23.388,0-42.328,18.966-42.328,42.328v324.34L84.729,236.316 c-16.438-16.622-43.242-16.766-59.864-0.328c-16.618,16.438-16.767,43.252-0.33,59.875l201.37,203.563 C233.867,507.48,244.695,512,256.007,512c11.312,0,22.124-4.52,30.091-12.575l201.364-203.563 C503.895,279.239,503.766,252.425,487.129,235.987z"/>
+            </symbol>
+            <symbol id="ui-icon-chevron-left" viewBox="0 0 512 512">
+                <path d="M276.013,24.871c-16.438-16.613-43.252-16.758-59.875-0.328L12.575,225.907 C4.52,233.874,0,244.686,0,255.998c0,11.312,4.52,22.14,12.575,30.091l203.563,201.37 c16.623,16.437,43.437,16.288,59.875-0.33c16.438-16.622,16.294-43.416-0.328-59.854L145.332,298.324h324.34 C493.034,298.324,512,279.378,512,256.007c0-23.388-18.966-42.328-42.328-42.328H145.332L275.685,84.729 C292.307,68.29,292.451,41.493,276.013,24.871z"/>
+            </symbol>
+            <symbol id="ui-icon-chevron-right" viewBox="0 0 512 512">
+                <path d="M499.425,225.907L295.862,24.543C287.895,16.488,277.083,11.97,265.771,11.97 c-11.312,0-22.14,4.518-30.091,12.573c-16.437,16.623-16.288,43.437,0.33,59.875l130.351,128.955H42.328 C18.966,213.373,0,232.338,0,255.711c0,23.382,18.966,42.327,42.328,42.327h324.034L236.01,426.39 c-16.618,16.438-16.767,43.252-0.33,59.864c16.438,16.612,43.252,16.758,59.875,0.328l203.864-201.364 c8.056-7.951,12.576-18.779,12.576-30.091C512.001,244.7,507.481,233.872,499.425,225.907z"/>
+            </symbol>
+        </defs>
+    </svg>
 
     <!-- ========== 画面1: ログイン ========== -->
     <div class="qa-login-screen" id="qaLoginScreen">
         <div class="qa-login-card">
             <div class="qa-login-logo">
                 <div class="qa-login-logo-icon">
-                    <img src="mockup/icons/shield.svg" alt=""
-                         onerror="this.style.display='none'; this.parentElement.textContent='🛡️'">
+                    <img src="mockup/icons/shield.svg" alt="">
                 </div>
                 <h1>受注管理システム</h1>
                 <p>Quick Access</p>
@@ -45,15 +68,20 @@
         <!-- ヘッダー -->
         <div class="qa-header">
             <div class="qa-header-top">
-                <h1>Quick Access</h1>
-                <div class="qa-header-user">
-                    <button type="button" class="md-cn-notify-btn qa-cn-btn" id="qaCnNotifyBtn" onclick="qaCnOpenModal()" title="変更通知">
-                        <img src="mockup/icons/bell.svg" class="md-cn-bell-icon" alt="通知">
+                <div class="qa-brand">
+                    <img class="qa-brand-icon" src="mockup/icons/shield.svg" alt="">
+                    <h1 class="qa-brand-title">Quick Access</h1>
+                </div>
+                <div class="qa-header-actions">
+                    <button type="button" class="md-cn-notify-btn qa-cn-btn" id="qaCnNotifyBtn" onclick="qaCnOpenModal()" title="変更通知" aria-label="変更通知を開く">
+                        <img src="mockup/icons/bell.svg" class="md-cn-bell-icon" alt="">
                         <span class="md-cn-badge qa-cn-badge" id="qaCnBadge" style="display:none;">0</span>
                     </button>
-                    <div class="qa-header-avatar" id="qaUserInitials"></div>
-                    <span id="qaUserName"></span>
-                    <button class="qa-logout-btn" onclick="qaLogout()">ログアウト</button>
+                    <div class="qa-account">
+                        <button type="button" class="qa-avatar-btn" id="qaAvatarBtn" onclick="qaToggleAccountMenu(event)" aria-haspopup="menu" aria-expanded="false" aria-controls="qaAccountMenu" title="アカウント">
+                            <span id="qaUserInitials"></span>
+                        </button>
+                    </div>
                 </div>
             </div>
             <!-- カテゴリタブ -->
@@ -64,8 +92,8 @@
         <div class="qa-content">
             <!-- ツールバー（新規契約先 + デモ） -->
             <div class="qa-content-toolbar">
-                <button class="qa-add-client-btn" id="qaAddClientBtn" onclick="qaShowAddClient()">＋ 新規契約先を追加</button>
-                <button class="qa-cn-demo-btn" id="qaCnDemoBtn" onclick="qaCnToggleDemo()">▶ デモ</button>
+                <button class="qa-add-client-btn" id="qaAddClientBtn" onclick="qaShowAddClient()"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg>新規契約先を追加</button>
+                <button class="qa-cn-demo-btn" id="qaCnDemoBtn" onclick="qaCnToggleDemo()"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-right"/></svg>デモ</button>
             </div>
 
             <!-- 新規契約先入力フォーム -->
@@ -90,20 +118,27 @@
         <!-- カレンダーヘッダー -->
         <div class="qa-cal-header">
             <div class="qa-cal-header-top">
-                <button class="qa-cal-back-btn" onclick="qaCloseCalendar()">◀</button>
+                <button class="qa-cal-back-btn" onclick="qaCloseCalendar()" aria-label="戻る"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-left"/></svg></button>
                 <div class="qa-cal-header-info">
                     <div class="qa-cal-client-name" id="qaCalClientName"></div>
                     <div class="qa-cal-site-name" id="qaCalSiteName"></div>
                 </div>
-                <button type="button" class="md-cn-notify-btn qa-cn-btn" id="qaCnNotifyBtnCal" onclick="qaCnOpenModal()" title="変更通知">
-                    <img src="mockup/icons/bell.svg" class="md-cn-bell-icon" alt="通知">
-                    <span class="md-cn-badge qa-cn-badge" id="qaCnBadgeCal" style="display:none;">0</span>
-                </button>
+                <div class="qa-header-actions">
+                    <button type="button" class="md-cn-notify-btn qa-cn-btn" id="qaCnNotifyBtnCal" onclick="qaCnOpenModal()" title="変更通知" aria-label="変更通知を開く">
+                        <img src="mockup/icons/bell.svg" class="md-cn-bell-icon" alt="">
+                        <span class="md-cn-badge qa-cn-badge" id="qaCnBadgeCal" style="display:none;">0</span>
+                    </button>
+                    <div class="qa-account">
+                        <button type="button" class="qa-avatar-btn" id="qaAvatarBtnCal" onclick="qaToggleAccountMenu(event)" aria-haspopup="menu" aria-expanded="false" aria-controls="qaAccountMenu" title="アカウント">
+                            <span id="qaUserInitialsCal"></span>
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="qa-cal-month-nav">
-                <button class="qa-cal-nav-btn" id="qaCalNavPrev" onclick="qaChangeMonth(-1)">◀ 前月</button>
+                <button class="qa-cal-nav-btn qa-cal-nav-btn--prev" id="qaCalNavPrev" onclick="qaChangeMonth(-1)" aria-label="前月"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-left"/></svg><span>前月</span></button>
                 <span class="qa-cal-month-label" id="qaCalMonthLabel"></span>
-                <button class="qa-cal-nav-btn" id="qaCalNavNext" onclick="qaChangeMonth(1)">次月 ▶</button>
+                <button class="qa-cal-nav-btn qa-cal-nav-btn--next" id="qaCalNavNext" onclick="qaChangeMonth(1)" aria-label="次月"><span>次月</span><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-right"/></svg></button>
             </div>
         </div>
 
@@ -118,12 +153,12 @@
             <div class="qa-cal-edit-accordion-header" onclick="qaToggleEditPanel()">
                 <div class="qa-cal-edit-accordion-left">
                     <span class="qa-cal-edit-date" id="qaCalEditDate"></span>
-                    <span class="qa-cal-edit-toggle" id="qaCalEditToggle">▼</span>
+                    <span class="qa-cal-edit-toggle" id="qaCalEditToggle" aria-hidden="true"><svg class="ui-icon"><use href="#ui-icon-chevron-down"/></svg></span>
                 </div>
                 <div class="qa-cal-edit-header-actions">
                     <button type="button" class="qa-header-delete-btn" onclick="event.stopPropagation(); qaDeletePlacement()">削除</button>
                     <button type="button" class="qa-header-save-btn" onclick="event.stopPropagation(); qaSaveEntry()">保存</button>
-                    <button type="button" class="qa-cal-edit-close" onclick="event.stopPropagation(); qaCloseEditPanel()">✕</button>
+                    <button type="button" class="qa-cal-edit-close" onclick="event.stopPropagation(); qaCloseEditPanel()" aria-label="閉じる"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-close"/></svg></button>
                 </div>
             </div>
             <!-- アコーディオンボディ -->
@@ -135,7 +170,7 @@
                     <!-- 配置先タブ -->
                     <div class="qa-placement-tabs" id="qaPlacementTabs">
                         <button type="button" class="qa-placement-tab active" data-idx="0" onclick="qaSelectPlacement(0)">配置先1</button>
-                        <button type="button" class="qa-placement-add" onclick="qaAddPlacement()">+ 追加</button>
+                        <button type="button" class="qa-placement-add" onclick="qaAddPlacement()" aria-label="配置先を追加"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg><span>追加</span></button>
                     </div>
                     <!-- 人数 + 信頼度（1行） -->
                     <div class="qa-card-section-bar">配置情報</div>
@@ -152,12 +187,12 @@
                     <!-- 業務名表示 -->
                     <div class="qa-daily-task-name" id="qaDailyTaskName">-</div>
                     <!-- 業務詳細 -->
-                    <div class="qa-card-section-bar">業務詳細 <button type="button" class="qa-section-bar-btn" onclick="qaAddSubTask()">+ 追加</button></div>
+                    <div class="qa-card-section-bar">業務詳細 <button type="button" class="qa-section-bar-btn" onclick="qaAddSubTask()" aria-label="業務詳細を追加"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg><span>追加</span></button></div>
                     <div id="qaSubTaskList">
                         <div class="qa-sub-task-row" data-idx="0">
                             <input type="text" class="qa-sub-label" placeholder="ラベル" value="工事名1">
                             <input type="text" class="qa-sub-value" placeholder="内容を入力…">
-                            <button type="button" class="qa-sub-delete" onclick="qaRemoveSubTask(this)" title="削除">✕</button>
+                            <button type="button" class="qa-sub-delete" onclick="qaRemoveSubTask(this)" title="削除" aria-label="削除"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-close"/></svg></button>
                         </div>
                     </div>
                 </div>
@@ -177,7 +212,7 @@
                                 <div class="qa-badge-chip" onclick="qaToggleBadge(this)">片側交互</div>
                                 <div class="qa-badge-chip" onclick="qaToggleBadge(this)">通行止め</div>
                             </div>
-                            <button type="button" class="qa-badge-add-btn" onclick="qaAddBadge()">+ 作業内容追加</button>
+                            <button type="button" class="qa-badge-add-btn" onclick="qaAddBadge()" aria-label="作業内容を追加"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg><span>作業内容追加</span></button>
                         </div>
                     </div>
                 </div>
@@ -234,13 +269,13 @@
                         </div>
                     </div>
                     <!-- 地図 -->
-                    <div class="qa-card-section-bar">地図 <button type="button" class="qa-section-bar-btn" onclick="qaAddMapEntry()">+ 追加</button></div>
+                    <div class="qa-card-section-bar">地図 <button type="button" class="qa-section-bar-btn" onclick="qaAddMapEntry()" aria-label="地図を追加"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg><span>追加</span></button></div>
                     <div class="qa-map-fields" id="qaMapFields">
                         <div id="qaMapEntryList">
                             <div class="qa-map-entry" data-idx="0">
                                 <div class="qa-map-entry-header">
                                     <input type="text" class="qa-sub-label qa-map-label" value="現場地図" placeholder="タイトル">
-                                    <button type="button" class="qa-sub-delete" onclick="qaRemoveMapEntry(0)" title="削除">×</button>
+                                    <button type="button" class="qa-sub-delete" onclick="qaRemoveMapEntry(0)" title="削除" aria-label="削除"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-close"/></svg></button>
                                 </div>
                                 <div class="qa-map-url-row">
                                     <input type="url" class="qa-map-url-input" placeholder="Google Maps等のURLを入力">
@@ -292,11 +327,11 @@
                     <label>現場名</label>
                     <input type="text" id="qaSiteModalName" placeholder="空欄で個別業務">
                 </div>
-                <div class="qa-card-section-bar" id="qaSiteModalBranchLabel">会社<span class="qa-field-warn" id="qaSiteModalBranchWarn">⚠ 未選択</span></div>
+                <div class="qa-card-section-bar" id="qaSiteModalBranchLabel">会社<span class="qa-field-warn" id="qaSiteModalBranchWarn"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-caution"/></svg>未選択</span></div>
                 <div class="qa-modal-chips" id="qaSiteModalBranch"></div>
-                <div class="qa-card-section-bar" id="qaSiteModalCategoryLabel">区分<span class="qa-field-warn" id="qaSiteModalCategoryWarn">⚠ 未選択</span></div>
+                <div class="qa-card-section-bar" id="qaSiteModalCategoryLabel">区分<span class="qa-field-warn" id="qaSiteModalCategoryWarn"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-caution"/></svg>未選択</span></div>
                 <div class="qa-modal-chips" id="qaSiteModalCategory"></div>
-                <div class="qa-card-section-bar" id="qaSiteModalShiftLabel">昼夜<span class="qa-field-warn" id="qaSiteModalShiftWarn">⚠ 未選択</span></div>
+                <div class="qa-card-section-bar" id="qaSiteModalShiftLabel">昼夜<span class="qa-field-warn" id="qaSiteModalShiftWarn"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-caution"/></svg>未選択</span></div>
                 <div class="qa-modal-chips" id="qaSiteModalShift"></div>
                 <div class="qa-card-section-bar">プリセット時間</div>
                 <div class="qa-cal-edit-row">
@@ -342,7 +377,7 @@
                     <select class="md-cn-filter-select" id="qaCnFilterSelect" onchange="qaCnSetFilter(this.value)">
                         <option value="">すべての現場</option>
                     </select>
-                    <button type="button" class="md-cn-close" onclick="qaCnCloseModal()">✕</button>
+                    <button type="button" class="md-cn-close" onclick="qaCnCloseModal()" aria-label="閉じる"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-close"/></svg></button>
                 </div>
             </div>
             <div class="md-cn-tabs">
@@ -367,8 +402,31 @@
         </div>
     </div>
 
+    <!-- アカウントメニュー（ドロップダウン） -->
+    <div class="qa-account-menu" id="qaAccountMenu" role="menu" aria-labelledby="qaAvatarBtn" hidden>
+        <div class="qa-account-header">
+            <div class="qa-account-name" id="qaAccountName"></div>
+            <div class="qa-account-email" id="qaAccountEmail"></div>
+        </div>
+        <button type="button" class="qa-account-item qa-account-item--danger" role="menuitem" onclick="qaLogoutConfirmOpen()">
+            <img class="qa-account-item-icon" src="assets/icons/person/im-14965-exit.svg" alt="">
+            <span>ログアウト</span>
+        </button>
+    </div>
+
+    <!-- ログアウト確認モーダル -->
+    <div class="qa-modal-overlay qa-logout-confirm-overlay" id="qaLogoutConfirmOverlay" hidden onclick="if(event.target===this)qaLogoutConfirmClose()">
+        <div class="qa-logout-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="qaLogoutConfirmTitle" onclick="event.stopPropagation()">
+            <h3 class="qa-logout-confirm-title" id="qaLogoutConfirmTitle">ログアウトしますか？</h3>
+            <p class="qa-logout-confirm-body">再度ご利用になる際は、メールアドレスとパスワードの入力が必要です。</p>
+            <div class="qa-logout-confirm-actions">
+                <button type="button" class="qa-logout-confirm-btn qa-logout-confirm-btn--cancel" onclick="qaLogoutConfirmClose()">キャンセル</button>
+                <button type="button" class="qa-logout-confirm-btn qa-logout-confirm-btn--ok" onclick="qaLogoutConfirmOk()">ログアウト</button>
+            </div>
+        </div>
+    </div>
+
     <script src="mockup/demo-data.js?v=2"></script>
-    <script src="mockup/co-navbar.js?v=4"></script>
     <script src="mockup/quick-access.js"></script>
 </body>
 </html>

@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>業務管理計画書 - 画面レイアウト設計</title>
     <link rel="stylesheet" href="mockup/co-tokens.css">
-    <link rel="stylesheet" href="mockup/co-forms.css">
+    <link rel="stylesheet" href="mockup/co-forms.css?v=2">
     <link rel="stylesheet" href="mockup/co-buttons.css">
     <link rel="stylesheet" href="mockup/co-modal.css">
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
     <link rel="stylesheet" href="mockup/screen-layout.css?v=8">
+    <link rel="stylesheet" href="mockup/print-touo-nikkei.css?v=8">
 </head>
 <body>
     <div class="container">
@@ -55,6 +56,8 @@
                     <div class="toolbar-separator"></div>
                     <button onclick="resetDemoData('random')"><img src="mockup/icons/refresh.svg" class="md-ob-icon" alt="再生成" onerror="this.style.display='none'"> デモデータ再生成</button>
                     <button onclick="resetDemoData('default')">デフォルトに戻す</button>
+                    <div class="toolbar-separator"></div>
+                    <button onclick="openPrintPreview()" title="業務管理計画書を東央警備&Nikkei書式で印刷"><img src="assets/icons/pc-tech/im-12915-purintaa-no-muryou.svg" class="md-ob-icon" alt="印刷" onerror="this.style.display='none'"> 印刷</button>
                 </div>
 
                 <!-- グリッドテーブル -->
@@ -450,6 +453,72 @@
                                     <div class="notes-transport" style="color:#2A6B7A;"><span class="notes-label" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">集合場所</span>◇◇工業 本社前</div>
                                     <div class="notes-transport" style="color:#6B7280;"><span class="notes-label" style="background:rgba(160,160,160,0.15); color:#6B7280;">備考</span>渡辺・加藤 相性注意</div>
                                 </td>
+                            </tr>
+
+                            <!-- 固定行: 会社 -->
+                            <tr class="md-row-fixed md-row-fixed-company" data-fixed="true" onclick="selectRow(this, event)">
+                                <td class="col-no">—</td>
+                                <td class="col-site-info">
+                                    <div class="site-info">
+                                        <div class="site-details">
+                                            <div class="site-name md-row-fixed-label">会社</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td></td>
+                                <td class="col-work-time"></td>
+                                <td></td>
+                                <td>
+                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                                </td>
+                                <td class="col-badge"></td>
+                                <td class="col-map"></td>
+                                <td class="col-vt"></td>
+                                <td class="col-notes"></td>
+                            </tr>
+
+                            <!-- 固定行: 休み（申請なし） -->
+                            <tr class="md-row-fixed md-row-fixed-off-unapproved" data-fixed="true" onclick="selectRow(this, event)">
+                                <td class="col-no">—</td>
+                                <td class="col-site-info">
+                                    <div class="site-info">
+                                        <div class="site-details">
+                                            <div class="site-name md-row-fixed-label">休み（申請なし）</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td></td>
+                                <td class="col-work-time"></td>
+                                <td></td>
+                                <td>
+                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                                </td>
+                                <td class="col-badge"></td>
+                                <td class="col-map"></td>
+                                <td class="col-vt"></td>
+                                <td class="col-notes"></td>
+                            </tr>
+
+                            <!-- 固定行: 休み（申請あり） -->
+                            <tr class="md-row-fixed md-row-fixed-off-approved" data-fixed="true" onclick="selectRow(this, event)">
+                                <td class="col-no">—</td>
+                                <td class="col-site-info">
+                                    <div class="site-info">
+                                        <div class="site-details">
+                                            <div class="site-name md-row-fixed-label">休み（申請あり）</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td></td>
+                                <td class="col-work-time"></td>
+                                <td></td>
+                                <td>
+                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+                                </td>
+                                <td class="col-badge"></td>
+                                <td class="col-map"></td>
+                                <td class="col-vt"></td>
+                                <td class="col-notes"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -1531,8 +1600,9 @@
         </div>
     </div>
 
-    <script src="mockup/demo-data.js?v=2"></script>
+    <script src="mockup/demo-data.js?v=4"></script>
     <script src="mockup/co-navbar.js?v=4"></script>
     <script src="mockup/screen-layout.js?v=10"></script>
+    <script src="mockup/print-touo-nikkei.js?v=1"></script>
 </body>
 </html>

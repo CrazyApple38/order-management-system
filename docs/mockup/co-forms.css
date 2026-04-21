@@ -70,16 +70,12 @@
     box-shadow: 0 0 0 3px rgba(219,87,123,0.12);
 }
 
-/* ----- 数値入力 ----- */
+/* ----- 数値入力（ネイティブスピナー表示） -----
+   ブラウザ標準の spinner（▲▼）をそのまま使うため、
+   -moz-appearance: textfield や ::-webkit-*-spin-button の非表示指定は入れない。 */
 .md-fi-input-number {
     width: 80px;
     text-align: center;
-    -moz-appearance: textfield;
-}
-.md-fi-input-number::-webkit-outer-spin-button,
-.md-fi-input-number::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
 }
 
 /* ----- テキストエリア ----- */

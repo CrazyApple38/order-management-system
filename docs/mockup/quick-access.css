@@ -21,6 +21,26 @@ body {
     min-height: 100dvh;
 }
 
+/* ========== アイコン（DS: docs/ui-components 準拠） ========== */
+.qa-icon-sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+.ui-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+    vertical-align: -0.125em;
+    flex-shrink: 0;
+    pointer-events: none;
+}
+.ui-icon--sm { font-size: 14px; }
+.ui-icon--md { font-size: 18px; }
+.ui-icon--lg { font-size: 22px; }
+
 /* ========== ログイン画面 ========== */
 .qa-login-screen {
     display: flex;
@@ -132,46 +152,209 @@ body {
 .qa-header {
     background: var(--bg-sidebar);
     color: white;
-    padding: 14px 16px;
+    padding: 10px 16px;
     flex-shrink: 0;
 }
 .qa-header-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
 }
-.qa-header h1 {
-    font-size: 17px;
-    font-weight: 700;
-}
-.qa-header-user {
+
+/* ブランド（アイコン + タイトル） */
+.qa-brand {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 12px;
-    opacity: 0.85;
+    min-width: 0;
 }
-.qa-header-avatar {
-    width: 28px; height: 28px;
-    background: rgba(255,255,255,0.2);
+.qa-brand-icon {
+    width: 22px;
+    height: 22px;
+    filter: brightness(0) invert(1);
+    flex-shrink: 0;
+}
+.qa-brand-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+}
+
+/* ヘッダーアクション群（通知 + アカウント） */
+.qa-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* アカウント（アバター + ドロップダウン） */
+.qa-account {
+    position: relative;
+}
+.qa-avatar-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.15);
+    color: #fff;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
-}
-.qa-logout-btn {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: rgba(255,255,255,0.8);
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 11px;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background 0.15s, border-color 0.15s;
 }
-.qa-logout-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+.qa-avatar-btn:hover { background: rgba(255,255,255,0.25); }
+.qa-avatar-btn[aria-expanded="true"] {
+    background: rgba(255,255,255,0.28);
+    border-color: rgba(255,255,255,0.55);
+}
+
+/* アカウントメニュー（ドロップダウン） */
+.qa-account-menu {
+    position: fixed;
+    top: 58px;
+    right: 12px;
+    min-width: 232px;
+    max-width: calc(100vw - 24px);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--divider);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 42, 51, 0.22), 0 2px 8px rgba(0, 42, 51, 0.08);
+    z-index: 1200;
+    overflow: hidden;
+    transform-origin: top right;
+    animation: qa-account-menu-in 0.14s ease-out;
+}
+@keyframes qa-account-menu-in {
+    from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.qa-account-menu[hidden] { display: none; }
+.qa-account-header {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 14px 16px 12px;
+    background: var(--bg-surface-2);
+    border-bottom: 1px solid var(--divider);
+}
+.qa-account-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.qa-account-email {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.qa-account-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 16px;
+    min-height: 44px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.qa-account-item:hover,
+.qa-account-item:focus-visible {
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    outline: none;
+}
+.qa-account-item-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+.qa-account-item--danger { color: var(--semantic-error); }
+.qa-account-item--danger:hover,
+.qa-account-item--danger:focus-visible {
+    background: rgba(219, 87, 123, 0.08);
+    color: var(--semantic-error);
+}
+
+/* ログアウト確認モーダル */
+.qa-logout-confirm-modal {
+    background: var(--bg-surface);
+    border-radius: 16px;
+    max-width: 360px;
+    width: 100%;
+    padding: 24px 20px 20px;
+    box-shadow: 0 20px 40px rgba(0, 42, 51, 0.28);
+}
+.qa-logout-confirm-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+}
+.qa-logout-confirm-body {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin: 0 0 20px;
+}
+.qa-logout-confirm-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+.qa-logout-confirm-btn {
+    padding: 10px 18px;
+    min-height: 44px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    transition: background 0.15s, color 0.15s, border-color 0.15s, filter 0.15s;
+}
+.qa-logout-confirm-btn--cancel:hover,
+.qa-logout-confirm-btn--cancel:focus-visible {
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    outline: none;
+}
+.qa-logout-confirm-btn--ok {
+    background: var(--semantic-error);
+    border-color: var(--semantic-error);
+    color: #fff;
+}
+.qa-logout-confirm-btn--ok:hover,
+.qa-logout-confirm-btn--ok:focus-visible {
+    filter: brightness(0.94);
+    outline: none;
+}
+.qa-logout-confirm-btn:focus-visible {
+    box-shadow: 0 0 0 3px var(--accent-primary-dim);
+}
 
 /* カテゴリタブ */
 .qa-tabs {
@@ -551,20 +734,20 @@ body {
 .qa-client-actions {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 6px;
 }
 .qa-client-action-btn {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 4px;
+    padding: 8px 12px;
+    min-height: 40px;
+    border-radius: 6px;
     border: 1px solid var(--divider);
     background: var(--bg-surface-2);
     color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.15s;
     white-space: nowrap;
-    font-size: 10px;
     text-align: center;
 }
 .qa-client-action-btn:hover {
@@ -687,15 +870,16 @@ body {
 }
 .qa-site-actions {
     display: flex;
-    gap: 4px;
+    gap: 6px;
     padding: 0 10px;
     flex-shrink: 0;
 }
 .qa-site-action-btn {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 4px;
+    padding: 8px 12px;
+    min-height: 40px;
+    border-radius: 6px;
     border: 1px solid var(--divider);
     background: var(--bg-surface-2);
     color: var(--text-secondary);
@@ -729,6 +913,7 @@ body {
     z-index: 9000;
     padding: 16px;
 }
+.qa-modal-overlay[hidden] { display: none !important; }
 .qa-modal {
     background: var(--bg-surface);
     border-radius: 14px; /* Q-D: モバイル UI 向けに大きめ radius を維持（DS radius-xl=16px に近い） */
@@ -1047,6 +1232,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 10px 16px;
+    min-height: 52px;
     background: var(--accent-primary-dim);
     cursor: pointer;
     position: sticky;
@@ -1085,15 +1271,16 @@ body {
 .qa-cal-edit-header-actions {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 .qa-header-delete-btn {
-    padding: 5px 10px;
+    padding: 8px 14px;
+    min-height: 36px;
     background: rgba(219, 87, 123, 0.08); /* Q-D: btn-danger 相当（微塗り） */
     border: 1px solid rgba(219, 87, 123, 0.3);
     color: var(--semantic-error);
     border-radius: var(--radius-sm); /* Q-D */
-    font-size: var(--fs-caption); /* Q-D: 11px = DS caption */
+    font-size: 12px;
     font-weight: var(--fw-semibold); /* Q-D */
     cursor: pointer;
     transition: background var(--duration-fast), border-color var(--duration-fast); /* Q-D: 個別 */
@@ -1101,12 +1288,13 @@ body {
 .qa-header-delete-btn:hover { background: rgba(219,87,123,0.15); border-color: rgba(219,87,123,0.5); }
 .qa-header-delete-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(219,87,123,0.2); } /* Q-D: a11y */
 .qa-header-save-btn {
-    padding: 5px 12px;
+    padding: 8px 14px;
+    min-height: 36px;
     background: var(--accent-primary); /* Q-D: btn-primary */
     border: 1px solid var(--accent-primary);
     color: #fff;
     border-radius: var(--radius-sm); /* Q-D */
-    font-size: var(--fs-caption); /* Q-D */
+    font-size: 12px;
     font-weight: var(--fw-semibold); /* Q-D */
     cursor: pointer;
     transition: background var(--duration-fast), border-color var(--duration-fast); /* Q-D */
@@ -1284,7 +1472,8 @@ body {
     color: var(--accent-primary);
     font-size: var(--fs-caption); /* Q-D */
     font-weight: var(--fw-semibold); /* Q-D */
-    padding: 2px 8px;
+    padding: 6px 10px;
+    min-height: 32px;
     border-radius: var(--radius-sm); /* Q-D */
     cursor: pointer;
     transition: background var(--duration-fast); /* Q-D */
@@ -1321,7 +1510,8 @@ body {
 }
 .qa-placement-add {
     flex-shrink: 0;
-    padding: 2px 8px;
+    padding: 8px 12px;
+    min-height: 36px;
     border: none;
     background: transparent;
     color: var(--text-tertiary);
@@ -1350,7 +1540,7 @@ body {
     flex-shrink: 0;
 }
 .qa-count-inline-input {
-    width: 48px;
+    width: 56px;
     padding: 6px 8px;
     border: 1.5px solid var(--divider);
     border-radius: 6px;
@@ -1360,13 +1550,9 @@ body {
     background: var(--bg-surface);
     text-align: center;
     flex-shrink: 0;
-    /* Q-B: DS トークン化 */
+    /* Q-B: DS トークン化 / ネイティブスピナー表示 */
     transition: border-color var(--duration-fast);
-    -moz-appearance: textfield;
-    appearance: textfield;
 }
-.qa-count-inline-input::-webkit-outer-spin-button,
-.qa-count-inline-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } /* Q-B: co-forms md-fi-input-number 同等 */
 .qa-count-inline-input::placeholder { color: var(--text-disabled); } /* Q-B */
 .qa-count-inline-input:hover { border-color: var(--accent-primary); } /* Q-B */
 .qa-count-inline-input:focus {
@@ -1452,12 +1638,11 @@ body {
 }
 .qa-sub-delete {
     flex-shrink: 0;
-    width: 26px; height: 26px;
+    width: 40px; height: 40px;
     background: none;
     border: 1px solid rgba(219,87,123,0.3);
-    border-radius: 6px;
+    border-radius: 8px;
     color: var(--semantic-error);
-    font-size: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1521,7 +1706,8 @@ body {
     color: var(--accent-primary);
     font-size: 11px;
     font-weight: 600;
-    padding: 2px 8px;
+    padding: 8px 12px;
+    min-height: 36px;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s;
@@ -1632,7 +1818,7 @@ body {
 
 /* --- :focus-visible 拡充（残る主要ボタン） --- */
 .qa-cn-btn:focus-visible,
-.qa-logout-btn:focus-visible,
+.qa-avatar-btn:focus-visible,
 .qa-cal-back-btn:focus-visible,
 .qa-cal-nav-btn:focus-visible,
 .qa-cal-edit-close:focus-visible,
@@ -1665,8 +1851,7 @@ body {
 .qa-cal-back-btn,
 .qa-cal-edit-close,
 .qa-placement-tab,
-.qa-cn-btn,
-.qa-logout-btn {
+.qa-cn-btn {
     min-width: 44px;
     min-height: 44px;
 }
@@ -1709,7 +1894,8 @@ body {
     .qa-cn-modal-overlay,
     .qa-cal-back-btn,
     .qa-cal-nav-btn,
-    .qa-logout-btn,
+    .qa-avatar-btn,
+    .qa-account-menu,
     .qa-cn-btn,
     .qa-cn-demo-btn,
     .qa-cal-edit-panel,
@@ -2196,3 +2382,108 @@ body {
     0%, 100% { box-shadow: none; }
     50% { box-shadow: inset 0 0 0 100px rgba(245, 101, 101, 0.35); }
 }
+
+/* ============================================================
+   Phase A: Unicode 記号 → DS SVG アイコン置換に伴うレイアウト補正
+   ============================================================ */
+
+/* デモボタン：flex でアイコン+テキスト配置 */
+.qa-content-toolbar .qa-cn-demo-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.qa-content-toolbar .qa-cn-demo-btn .ui-icon { font-size: 14px; }
+
+/* 新規契約先ボタン：SVG サイズ調整（flex は既存） */
+.qa-add-client-btn .ui-icon { font-size: 16px; }
+
+/* カレンダー戻る：SVG 中央配置（flex は既存） */
+.qa-cal-back-btn .ui-icon { font-size: 18px; }
+
+/* カレンダー月ナビ：アイコン+ラベル flex */
+.qa-cal-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.qa-cal-nav-btn .ui-icon { font-size: 14px; }
+
+/* アコーディオントグル：SVG 回転アニメーションを維持 */
+.qa-cal-edit-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px; /* SVG サイズ基準 */
+    line-height: 1;
+}
+
+/* アコーディオン閉じる：SVG 中央配置 */
+.qa-cal-edit-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.qa-cal-edit-close .ui-icon { font-size: 16px; }
+
+/* サブタスク削除：26×26 ボタン内の SVG */
+.qa-sub-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.qa-sub-delete .ui-icon { font-size: 14px; color: var(--semantic-error); }
+
+/* 契約先カード矢印：chevron-right、展開時 90deg */
+.qa-client-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+}
+
+/* 現場行の go 矢印 */
+.qa-site-go {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+}
+
+/* 新規現場追加アイコン（破線ボックス内） */
+.qa-add-site-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.qa-add-site-icon .ui-icon { font-size: 16px; color: var(--accent-primary); }
+
+/* + 追加系セクションバー内ボタン：テキストとの横並び */
+.qa-section-bar-btn,
+.qa-placement-add,
+.qa-badge-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.qa-section-bar-btn .ui-icon,
+.qa-placement-add .ui-icon,
+.qa-badge-add-btn .ui-icon { font-size: 12px; }
+
+/* フィールド警告：caution + ラベル */
+.qa-field-warn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.qa-field-warn .ui-icon { font-size: 12px; }
+
+/* 変更通知モーダル閉じる */
+.md-cn-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.md-cn-close .ui-icon { font-size: 14px; }

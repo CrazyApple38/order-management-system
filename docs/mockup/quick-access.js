@@ -102,6 +102,7 @@ function qaLogin() {
 }
 
 function qaLogout() {
+    qaCloseAccountMenu();
     document.getElementById('qaHomeScreen').style.display = 'none';
     document.getElementById('qaCalendarScreen').classList.remove('active');
     document.getElementById('qaLoginScreen').style.display = 'flex';
@@ -109,10 +110,79 @@ function qaLogout() {
     document.getElementById('qaPassword').value = '';
 }
 
+// --- アカウントメニュー（ドロップダウン） ---
+function qaToggleAccountMenu(event) {
+    if (event) event.stopPropagation();
+    const menu = document.getElementById('qaAccountMenu');
+    const expanded = !menu.hasAttribute('hidden');
+    if (expanded) { qaCloseAccountMenu(); return; }
+
+    // ユーザー情報を反映
+    document.getElementById('qaAccountName').textContent = qaCurrentUser.name;
+    document.getElementById('qaAccountEmail').textContent = qaCurrentUser.email;
+
+    // 現在アクティブなアバターボタンの直下に配置
+    const btn = event && event.currentTarget
+        ? event.currentTarget
+        : (document.getElementById('qaAvatarBtnCal')?.offsetParent
+            ? document.getElementById('qaAvatarBtnCal')
+            : document.getElementById('qaAvatarBtn'));
+    const rect = btn.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 6) + 'px';
+    menu.style.right = Math.max(8, window.innerWidth - rect.right) + 'px';
+
+    menu.removeAttribute('hidden');
+    ['qaAvatarBtn', 'qaAvatarBtnCal'].forEach(id => {
+        const b = document.getElementById(id);
+        if (b) b.setAttribute('aria-expanded', 'true');
+    });
+
+    // 外側クリック/ESCで閉じる
+    setTimeout(() => {
+        document.addEventListener('click', qaAccountMenuOutsideClick);
+        document.addEventListener('keydown', qaAccountMenuKeydown);
+    }, 0);
+}
+function qaCloseAccountMenu() {
+    const menu = document.getElementById('qaAccountMenu');
+    if (!menu || menu.hasAttribute('hidden')) return;
+    menu.setAttribute('hidden', '');
+    ['qaAvatarBtn', 'qaAvatarBtnCal'].forEach(id => {
+        const b = document.getElementById(id);
+        if (b) b.setAttribute('aria-expanded', 'false');
+    });
+    document.removeEventListener('click', qaAccountMenuOutsideClick);
+    document.removeEventListener('keydown', qaAccountMenuKeydown);
+}
+function qaAccountMenuOutsideClick(e) {
+    const menu = document.getElementById('qaAccountMenu');
+    if (menu.contains(e.target)) return;
+    if (e.target.closest('.qa-avatar-btn')) return;
+    qaCloseAccountMenu();
+}
+function qaAccountMenuKeydown(e) {
+    if (e.key === 'Escape') qaCloseAccountMenu();
+}
+
+// --- ログアウト確認 ---
+function qaLogoutConfirmOpen() {
+    qaCloseAccountMenu();
+    document.getElementById('qaLogoutConfirmOverlay').removeAttribute('hidden');
+}
+function qaLogoutConfirmClose() {
+    document.getElementById('qaLogoutConfirmOverlay').setAttribute('hidden', '');
+}
+function qaLogoutConfirmOk() {
+    qaLogoutConfirmClose();
+    qaLogout();
+}
+
 // --- ホーム画面 ---
 function qaRenderHome() {
-    document.getElementById('qaUserName').textContent = qaCurrentUser.name;
-    document.getElementById('qaUserInitials').textContent = qaCurrentUser.initials;
+    const initials = qaCurrentUser.initials;
+    document.getElementById('qaUserInitials').textContent = initials;
+    const calEl = document.getElementById('qaUserInitialsCal');
+    if (calEl) calEl.textContent = initials;
     qaRenderTabs();
     qaRenderClients();
 }
@@ -191,12 +261,12 @@ function qaRenderClients() {
                         <button class="qa-client-action-btn" onclick="event.stopPropagation(); qaOpenClientEditModal(${client.id})" title="契約先名を修正">修正</button>
                         <button class="qa-client-action-btn qa-client-hide" onclick="event.stopPropagation(); qaHideClient(${client.id})" title="このリストから非表示にする">非表示</button>
                     </div>
-                    <span class="qa-client-arrow">▶</span>
+                    <span class="qa-client-arrow" aria-hidden="true"><svg class="ui-icon"><use href="#ui-icon-chevron-right"/></svg></span>
                 </div>
             </div>
             <div class="qa-site-list">
                 <div class="qa-add-site-row" onclick="qaAddSiteModal(${client.id})">
-                    <div class="qa-add-site-icon">＋</div>
+                    <div class="qa-add-site-icon" aria-hidden="true"><svg class="ui-icon"><use href="#ui-icon-plus"/></svg></div>
                     <span class="qa-add-site-label">新規現場を追加</span>
                 </div>
                 ${visibleSites.map(site => {
@@ -212,7 +282,7 @@ function qaRenderClients() {
                                 ${site.shift ? `<span>${escHtml(site.shift)}</span>` : ''}
                             </div>
                         </div>
-                        <span class="qa-site-go">▶</span>
+                        <span class="qa-site-go" aria-hidden="true"><svg class="ui-icon"><use href="#ui-icon-chevron-right"/></svg></span>
                     </div>
                     <div class="qa-site-actions">
                         <button class="qa-site-action-btn qa-site-edit" onclick="event.stopPropagation(); qaEditSite(${client.id}, ${site.id})" title="修正">修正</button>
@@ -903,13 +973,12 @@ function qaToggleEditPanel() {
 function qaUpdateNavLabels() {
     const prevBtn = document.getElementById('qaCalNavPrev');
     const nextBtn = document.getElementById('qaCalNavNext');
-    if (qaWeekMode) {
-        prevBtn.textContent = '◀ 前週';
-        nextBtn.textContent = '次週 ▶';
-    } else {
-        prevBtn.textContent = '◀ 前月';
-        nextBtn.textContent = '次月 ▶';
-    }
+    const prevLabel = qaWeekMode ? '前週' : '前月';
+    const nextLabel = qaWeekMode ? '次週' : '次月';
+    prevBtn.querySelector('span').textContent = prevLabel;
+    nextBtn.querySelector('span').textContent = nextLabel;
+    prevBtn.setAttribute('aria-label', prevLabel);
+    nextBtn.setAttribute('aria-label', nextLabel);
     document.getElementById('qaCalMonthLabel').textContent = `${qaCalendarYear}年${qaCalendarMonth + 1}月`;
 }
 
@@ -1291,7 +1360,7 @@ function qaRenderSubTasks(tasks) {
         <div class="qa-sub-task-row" data-idx="${i}">
             <input type="text" class="qa-sub-label" placeholder="ラベル" value="${escHtml(t.label)}">
             <input type="text" class="qa-sub-value" placeholder="内容を入力…" value="${escHtml(t.value)}" oninput="qaUpdateDailyTaskName()">
-            <button type="button" class="qa-sub-delete" onclick="qaRemoveSubTask(this)" title="削除">✕</button>
+            <button type="button" class="qa-sub-delete" onclick="qaRemoveSubTask(this)" title="削除" aria-label="削除"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-close"/></svg></button>
         </div>
     `).join('');
 }
@@ -1309,7 +1378,7 @@ function qaAddSubTask() {
     row.innerHTML = `
         <input type="text" class="qa-sub-label" placeholder="ラベル" value="${qaSubTaskLabel(nextNum)}">
         <input type="text" class="qa-sub-value" placeholder="内容を入力…" oninput="qaUpdateDailyTaskName()">
-        <button type="button" class="qa-sub-delete" onclick="qaRemoveSubTask(this)" title="削除">✕</button>
+        <button type="button" class="qa-sub-delete" onclick="qaRemoveSubTask(this)" title="削除" aria-label="削除"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-close"/></svg></button>
     `;
     container.appendChild(row);
     row.querySelector('.qa-sub-label').focus();
@@ -1352,7 +1421,7 @@ function qaAddMapEntry() {
     entry.innerHTML =
         `<div class="qa-map-entry-header">` +
             `<input type="text" class="qa-sub-label qa-map-label" value="" placeholder="タイトル">` +
-            `<button type="button" class="qa-sub-delete" onclick="qaRemoveMapEntry(${idx})" title="削除">×</button>` +
+            `<button type="button" class="qa-sub-delete" onclick="qaRemoveMapEntry(${idx})" title="削除" aria-label="削除"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-close"/></svg></button>` +
         `</div>` +
         `<div class="qa-map-url-row">` +
             `<input type="url" class="qa-map-url-input" placeholder="Google Maps等のURLを入力">` +
@@ -1399,7 +1468,7 @@ function qaRenderMapEntries(maps) {
         entry.innerHTML =
             `<div class="qa-map-entry-header">` +
                 `<input type="text" class="qa-sub-label qa-map-label" value="${safeLabel}" placeholder="タイトル">` +
-                `<button type="button" class="qa-sub-delete" onclick="qaRemoveMapEntry(${i})" title="削除">×</button>` +
+                `<button type="button" class="qa-sub-delete" onclick="qaRemoveMapEntry(${i})" title="削除" aria-label="削除"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-close"/></svg></button>` +
             `</div>` +
             `<div class="qa-map-url-row">` +
                 `<input type="url" class="qa-map-url-input" value="${safeUrl}" placeholder="Google Maps等のURLを入力">` +
@@ -2509,7 +2578,7 @@ function qaCnToggleDemo() {
         clearInterval(qaCnDemoInterval);
         qaCnDemoInterval = null;
         qaCnDemoRunning = false;
-        btn.textContent = '▶ デモ';
+        btn.innerHTML = '<svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-right"/></svg>デモ';
         btn.style.background = '';
         btn.style.color = '';
     } else {
@@ -2521,7 +2590,7 @@ function qaCnToggleDemo() {
         qaCnUpdateBadge();
         qaCnDemoIndex = 0;
         qaCnDemoRunning = true;
-        btn.textContent = '⏹ 停止';
+        btn.innerHTML = '<svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-close"/></svg>停止';
         btn.style.background = '#DB577B';
         btn.style.color = '#fff';
         qaCnSendDemoNotification();

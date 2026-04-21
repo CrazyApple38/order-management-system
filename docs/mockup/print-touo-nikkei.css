@@ -1,0 +1,538 @@
+/* ============================================================================
+   print-touo-nikkei.css — 業務管理計画書 プリント書式（東央警備 & Nikkei 共通）
+   ----------------------------------------------------------------------------
+   - 画面プレビュー: 全画面オーバーレイ + A4縦シート
+   - 印刷: @media print で画面UIを非表示にし、シートのみを印刷
+   - デザインシステム準拠 (co-tokens.css のトークンを使用)
+   ============================================================================ */
+
+/* ========== オーバーレイ（画面プレビュー） ========== */
+.pr-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 69, 84, 0.55);
+    z-index: var(--z-modal);
+    display: none;
+    overflow: auto;
+    padding: var(--space-lg) 0 var(--space-2xl);
+}
+.pr-overlay.pr-active {
+    display: block;
+}
+
+.pr-overlay-toolbar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--divider);
+    box-shadow: var(--elevation-2);
+    z-index: 1;
+    margin-bottom: var(--space-lg);
+}
+.pr-overlay-toolbar button {
+    padding: 6px 14px;
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.pr-overlay-toolbar button:hover {
+    background: var(--bg-surface-2);
+}
+.pr-overlay-toolbar button.pr-btn-primary {
+    background: var(--accent-primary);
+    color: #fff;
+    border-color: var(--accent-primary);
+}
+.pr-overlay-toolbar button.pr-btn-primary:hover {
+    background: var(--accent-primary-light);
+}
+.pr-overlay-toolbar .pr-tb-input {
+    padding: 4px 8px;
+    font-size: var(--fs-sm);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    width: 140px;
+}
+.pr-overlay-toolbar .pr-tb-label {
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+}
+
+/* ========== A4 縦シート ========== */
+.pr-sheet {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 10mm 10mm 10mm 10mm;
+    background: #FFFFFF;
+    color: #222;
+    box-shadow: var(--elevation-4);
+    font-family: 'Yu Gothic UI', 'Hiragino Sans', 'Noto Sans JP', 'Segoe UI', sans-serif;
+    font-feature-settings: "palt" 1;
+    font-size: 9pt;
+    line-height: 1.25;
+}
+
+/* ========== シートヘッダー ========== */
+.pr-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4mm;
+    padding-bottom: 2mm;
+    margin-bottom: 1mm;
+    white-space: nowrap;
+}
+.pr-header-center {
+    display: flex;
+    align-items: baseline;
+    gap: 4mm;
+    flex: 0 0 auto;
+}
+.pr-header-right {
+    display: flex;
+    gap: 6mm;
+    align-items: center;
+    flex: 0 0 auto;
+}
+.pr-header-title {
+    font-size: 15pt;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    padding-right: 2mm;
+}
+.pr-header-date {
+    font-size: 11pt;
+    font-weight: 600;
+}
+.pr-header-weekday {
+    font-size: 11pt;
+    font-weight: 600;
+    margin-left: 2mm;
+}
+.pr-header-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5mm;
+    white-space: nowrap;
+}
+.pr-header-field-label {
+    font-size: 8pt;
+    color: #444;
+    padding: 1px 4px;
+    border: 0.5pt solid #888;
+    border-radius: 1px;
+    background: #f3f3f3;
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+}
+.pr-header-field-value {
+    font-size: 10pt;
+    font-weight: 600;
+    min-width: 14mm;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* ========== メインテーブル ========== */
+.pr-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+.pr-table th,
+.pr-table td {
+    border: 0.5pt solid #555;
+    padding: 1mm 1mm;
+    font-size: 8.5pt;
+    vertical-align: middle;
+    word-break: break-all;
+}
+.pr-table thead th {
+    background: #F3F0EA;
+    font-weight: 600;
+    text-align: center;
+    font-size: 9pt;
+    padding: 1.5mm 1mm;
+}
+
+/* 列幅指定（合計 190mm 印刷可能領域を想定） */
+.pr-col-highway   { width: 7mm; }
+.pr-col-client    { width: 42mm; }
+.pr-col-meet      { width: 14mm; }
+.pr-col-worktime  { width: 13mm; }
+.pr-col-count     { width: 9mm; }
+.pr-col-assign    { width: 79mm; } /* JS で assign-slots 10分割 */
+.pr-col-remarks   { width: 18mm; }
+.pr-col-report    { width: 8mm; }
+
+/* 契約先セル */
+.pr-client-company {
+    font-size: 8.5pt;
+    font-weight: 600;
+    line-height: 1.3;
+}
+.pr-client-task {
+    font-size: 8pt;
+    color: #333;
+    margin-top: 0.5mm;
+    line-height: 1.3;
+}
+
+/* 集合・出発セル */
+.pr-meet-cell {
+    text-align: center;
+    line-height: 1.2;
+}
+.pr-meet-place {
+    display: block;
+    font-size: 7.5pt;
+}
+.pr-meet-time {
+    display: block;
+    font-size: 9pt;
+    font-weight: 600;
+}
+.pr-worktime-cell {
+    text-align: center;
+    line-height: 1.2;
+}
+.pr-worktime-cell .pr-wt-start,
+.pr-worktime-cell .pr-wt-end {
+    display: block;
+    font-size: 9pt;
+    font-weight: 600;
+}
+
+/* 人数セル */
+.pr-count-cell {
+    text-align: center;
+    vertical-align: top;
+    padding-top: 1mm;
+}
+.pr-count-cell .pr-count-num {
+    font-size: 11pt;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.8mm;
+}
+
+/* 集合・休憩インジケーター（人数列の下に小さく表示。テンプレ準拠） */
+.pr-meet-rest-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2mm;
+    font-size: 6.5pt;
+    line-height: 1.1;
+    margin-top: 1mm;
+}
+.pr-mr-shugo { color: #333; }
+.pr-mr-kyukei { color: #B0454C; font-weight: 600; }
+
+/* ========== 配置社員氏名エリア ========== */
+.pr-assign-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 0;
+    height: 100%;
+    min-height: 10mm;
+}
+.pr-assign-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-left: 0.3pt solid #B8B8B8;
+    padding: 0.5mm 0.3mm;
+    min-height: 9mm;
+    line-height: 1.1;
+}
+.pr-assign-cell:first-child {
+    border-left: none;
+}
+.pr-assign-cell.pr-assign-empty {
+    background: #FFFFFF;
+}
+
+/* 社員名ブロック — GC 別に色分け */
+.pr-assign-cell .pr-name {
+    font-size: 9pt;
+    font-weight: 600;
+    text-align: center;
+    color: #222;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+}
+.pr-assign-cell .pr-role {
+    font-size: 6.5pt;
+    color: #C83A4A;
+    margin-top: 0.3mm;
+    line-height: 1;
+}
+
+.pr-assign-cell.pr-gc-touo {
+    background: #D9E6F2; /* 薄青 */
+}
+.pr-assign-cell.pr-gc-nikkei {
+    background: #DDEBDD; /* 薄緑 */
+}
+
+/* ========== 備考・目報 ========== */
+.pr-remarks-cell {
+    font-size: 7.5pt;
+    line-height: 1.3;
+    white-space: pre-line;
+}
+.pr-report-cell {
+    text-align: center;
+    font-size: 8pt;
+    color: #555;
+}
+
+/* ========== 行の色分け ========== */
+.pr-row-touo td {
+    background: #FFFFFF;
+}
+.pr-row-nikkei td {
+    background: #F3F9F6; /* --md-gc-bg-nikkei と同値 */
+}
+.pr-row-off-approved td {
+    background: #FBE4E9; /* 薄ピンク */
+}
+.pr-row-off-approved .pr-client-company,
+.pr-row-off-approved .pr-client-task {
+    color: #B0454C;
+    font-weight: 600;
+}
+.pr-row-fixed td {
+    background: #F5F2EC; /* 中性色 (--bg-surface-2 相当) */
+}
+.pr-row-fixed .pr-client-company {
+    font-weight: 600;
+    color: #333;
+}
+
+/* ========== 高速縦書き列 ========== */
+.pr-col-group-label {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    text-align: center;
+    font-size: 10pt;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: #333;
+    padding: 2mm 1mm;
+    background: #F8F6F1;
+    vertical-align: middle;
+}
+
+/* ========== カラー保持（全メディア） ==========
+   @media print だけで print-color-adjust を指定しても、ブラウザによっては
+   スクリーン→プリントの切替時に一瞬の空白が出ることがあるため、
+   シート内は常時 exact を有効にする。印刷品質は変わらない。 */
+.pr-sheet,
+.pr-sheet * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+/* ========== 印刷時 (@media print) ========== */
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 8mm;
+    }
+    html, body {
+        background: #FFFFFF !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    /* 画面UIは全て非表示 */
+    body > *:not(.pr-overlay) {
+        display: none !important;
+    }
+    .pr-overlay {
+        position: static !important;
+        background: none !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        display: block !important;
+    }
+    .pr-overlay-toolbar {
+        display: none !important;
+    }
+    .pr-sheet {
+        width: 100% !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+    /* ページ内で不自然に切れないように */
+    .pr-table tr {
+        page-break-inside: avoid;
+    }
+}
+
+/* ========== スクリーンレイアウト側 固定3行 ========== */
+/* 固定行は screen-layout.css に置くべきだが、このファイルに集約し、
+   印刷レイアウトとセットでメンテナンス可能にする。
+   No.列から備考列まで全列同一背景を保証するため、すべての td に同じ背景を当てる。 */
+.grid-table tr.md-row-fixed td {
+    background: var(--bg-surface-2);
+}
+.grid-table tr.md-row-fixed .md-row-fixed-label {
+    font-weight: var(--fw-semibold);
+    font-size: 14px;
+    color: var(--text-primary);
+    padding: 4px 0;
+}
+/* 休み（申請あり）= サイトDS の --error-bg トークンをそのまま適用する。
+   独自の合成配色は使わず、他の error 表現（行削除ボタンなど）と
+   色体系を揃える。No.列 .col-no は screen-layout.css で background !important
+   指定があるため、同等の !important で上書きして全列均一にする。 */
+.grid-table tr.md-row-fixed-off-approved td,
+.grid-table tr.md-row-fixed-off-approved td.col-no {
+    background: var(--error-bg) !important;
+}
+.grid-table tr.md-row-fixed-off-approved .md-row-fixed-label {
+    color: #B0454C;
+}
+.grid-table tr.md-row-fixed .col-no {
+    color: var(--text-disabled);
+    text-align: center;
+}
+
+/* ========== 休み申請あり行 社員チップ ==========
+   ウィークリースケジュールの md-ws-holiday-emp-chip / md-ws-holiday-assigned を
+   screen-layout 流に移植したもの。 */
+.assignment-zone .sl-holiday-chip {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    background: rgba(219, 87, 123, 0.12);
+    color: var(--semantic-error);
+    border: 1px solid rgba(219, 87, 123, 0.25);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: grab;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: background var(--duration-fast), border-color var(--duration-fast), opacity var(--duration-fast);
+}
+.assignment-zone .sl-holiday-chip:hover {
+    background: rgba(219, 87, 123, 0.22);
+    border-color: var(--semantic-error);
+}
+.assignment-zone .sl-holiday-chip:active {
+    cursor: grabbing;
+}
+/* 配置済みの休み社員チップ（半透明グレーアウト） */
+.assignment-zone .sl-holiday-chip.sl-holiday-assigned {
+    opacity: 0.5;
+    background: var(--bg-surface-2);
+    border-color: var(--divider);
+    color: var(--text-tertiary);
+}
+/* 配置先情報（→ 現場名） */
+.assignment-zone .sl-holiday-assign-info {
+    font-size: 9px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ========== 現場セル内: 休み申請ありの社員への「休」サブバッジ ==========
+   WS の md-ws-holiday-sub 相当。 */
+.assigned-employee.sl-on-leave .sl-holiday-sub {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 0 4px;
+    margin-left: 4px;
+    border-radius: 3px;
+    background: var(--semantic-error);
+    color: #fff;
+    line-height: 1.4;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+/* ========== サイドパネル社員リスト: 休み社員インジケータ ==========
+   バッジ全体を赤系に着色し、左端に「休」インラインバッジを配置する。
+   ベース: sl-holiday-chip と同じカラーパレット。 */
+.employee-tag.emp-on-leave {
+    background: rgba(219, 87, 123, 0.12);
+    border-color: rgba(219, 87, 123, 0.3);
+    color: var(--semantic-error);
+}
+.employee-tag.emp-on-leave:hover {
+    background: rgba(219, 87, 123, 0.22);
+    border-color: var(--semantic-error);
+    color: var(--semantic-error);
+}
+.employee-tag.emp-on-leave::before {
+    content: '休';
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 2px 4px;
+    margin-right: 5px;
+    border-radius: 3px;
+    background: var(--semantic-error);
+    color: #fff;
+    vertical-align: middle;
+}
+/* 配置済み（.assigned）と休み（.emp-on-leave）の併用時も休み色を優先 */
+.employee-tag.emp-on-leave.assigned {
+    background: rgba(219, 87, 123, 0.18);
+    border-color: rgba(219, 87, 123, 0.4);
+    color: var(--semantic-error);
+}
+
+/* ========== サイドパネル社員リスト: 前日夜勤明けインジケータ ==========
+   バッジ本体は通常色のまま、左端に「明け」インラインバッジのみ配置。
+   色は Applied Color Palette の Shell Beige ペア（背景 #DECCBE / 文字 Shell Beige Dark #5C4A33）。
+   変更通知系と同じ色相を用い、Warning（ゴールド）と視覚的に分離する。 */
+.employee-tag.emp-after-night::before {
+    content: '明け';
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 2px 4px;
+    margin-right: 5px;
+    border-radius: 3px;
+    background: #DECCBE;
+    color: #5C4A33;
+    vertical-align: middle;
+}
+/* 休み申請ありと明けが同時に成立した場合は休みバッジを優先 */
+.employee-tag.emp-on-leave.emp-after-night::before {
+    content: '休';
+    background: var(--semantic-error);
+}

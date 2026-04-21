@@ -1856,20 +1856,34 @@
                     contentHtml += '<div class="md-sp-gc-section-label">' + gc.shortName + '</div>';
                     companyEmps.forEach(function(emp) {
                         const isAssigned = assignedNames.has(emp.name);
-                        contentHtml += '<span class="employee-tag' + (isAssigned ? ' assigned' : '') + '"'
+                        contentHtml += '<span class="employee-tag'
+                            + (isAssigned ? ' assigned' : '')
+                            + (emp.isOnLeave ? ' emp-on-leave' : '')
+                            + (emp.workedPrevNight && !emp.isOnLeave ? ' emp-after-night' : '')
+                            + '"'
                             + ' draggable="true" ondragstart="drag(event)"'
                             + ' data-company="' + emp.company + '"'
-                            + ' data-dept="' + emp.dept + '">' + emp.name + '</span>';
+                            + ' data-dept="' + emp.dept + '"'
+                            + (emp.isOnLeave ? ' title="休み申請あり"'
+                                : emp.workedPrevNight ? ' title="前日夜勤明け"' : '')
+                            + '>' + emp.name + '</span>';
                     });
                 });
             } else {
                 // 組織ノード別フラット表示
                 filtered.forEach(function(emp) {
                     const isAssigned = assignedNames.has(emp.name);
-                    contentHtml += '<span class="employee-tag' + (isAssigned ? ' assigned' : '') + '"'
+                    contentHtml += '<span class="employee-tag'
+                        + (isAssigned ? ' assigned' : '')
+                        + (emp.isOnLeave ? ' emp-on-leave' : '')
+                        + (emp.workedPrevNight && !emp.isOnLeave ? ' emp-after-night' : '')
+                        + '"'
                         + ' draggable="true" ondragstart="drag(event)"'
                         + ' data-company="' + emp.company + '"'
-                        + ' data-dept="' + emp.dept + '">' + emp.name + '</span>';
+                        + ' data-dept="' + emp.dept + '"'
+                        + (emp.isOnLeave ? ' title="休み申請あり"'
+                            : emp.workedPrevNight ? ' title="前日夜勤明け"' : '')
+                        + '>' + emp.name + '</span>';
                 });
             }
             content.innerHTML = contentHtml;
@@ -2294,6 +2308,8 @@
                 employeeTag.remove();
                 if (zone) updateRowCount(zone);
                 updateEmployeeListStatus();
+                slRenderHolidayRow();
+                slRefreshContinuousBadges();
             }
         }
 
@@ -2303,7 +2319,198 @@
             for (var i = 0; i < assigned.length; i++) {
                 assigned[i].remove();
             }
-            if (assigned.length > 0) updateEmployeeListStatus();
+            if (assigned.length > 0) {
+                updateEmployeeListStatus();
+                slRenderHolidayRow();
+                slRefreshContinuousBadges();
+            }
+        }
+
+        // ============================================================
+        // 休み申請あり行（sl-holiday-chip）管理
+        // ============================================================
+        // 将来は休み申請スケジュール画面から取得するが、現在は
+        // employeesData の isOnLeave フラグを情報源にしている。
+
+        function slIsEmployeeOnLeave(name) {
+            if (typeof employeesData === 'undefined' || !name) return false;
+            var emp = employeesData.find(function(e) { return e.name === name; });
+            return !!(emp && emp.isOnLeave);
+        }
+
+        // 指定社員が配置されている現場名一覧（固定行・休み申請あり行は除外）
+        function slGetAssignedSitesFor(name) {
+            var sites = [];
+            document.querySelectorAll('.grid-table tbody tr').forEach(function(tr) {
+                if (tr.dataset.fixed === 'true') return;
+                tr.querySelectorAll('.assignment-zone .assigned-employee').forEach(function(emp) {
+                    if (getEmployeeName(emp) !== name) return;
+                    var siteInfo = tr.querySelector('.col-site-info');
+                    var siteNameEl = siteInfo ? siteInfo.querySelector('.site-name') : null;
+                    var sn = siteNameEl ? siteNameEl.textContent.trim() : '';
+                    if (sn && sites.indexOf(sn) === -1) sites.push(sn);
+                });
+            });
+            return sites;
+        }
+
+        // 休み申請あり行のチップを再描画
+        function slRenderHolidayRow() {
+            if (typeof employeesData === 'undefined') return;
+            var row = document.querySelector('.md-row-fixed-off-approved');
+            if (!row) return;
+            var zone = row.querySelector('.assignment-zone');
+            if (!zone) return;
+
+            zone.innerHTML = '';
+            employeesData.filter(function(e) { return e.isOnLeave; }).forEach(function(emp) {
+                var chip = document.createElement('span');
+                chip.className = 'sl-holiday-chip';
+                chip.draggable = true;
+                chip.dataset.empName = emp.name;
+
+                var nameEl = document.createElement('span');
+                nameEl.textContent = emp.name;
+                chip.appendChild(nameEl);
+
+                var sites = slGetAssignedSitesFor(emp.name);
+                if (sites.length > 0) {
+                    chip.classList.add('sl-holiday-assigned');
+                    var info = document.createElement('span');
+                    info.className = 'sl-holiday-assign-info';
+                    var truncated = sites.map(function(s) {
+                        return s.length > 8 ? s.substring(0, 8) + '…' : s;
+                    });
+                    info.textContent = '→ ' + truncated.join(', ');
+                    chip.appendChild(info);
+                }
+
+                chip.addEventListener('dragstart', function(ev) {
+                    ev.dataTransfer.setData('text', emp.name);
+                    ev.dataTransfer.effectAllowed = 'move';
+                    chip.classList.add('dragging');
+                });
+                chip.addEventListener('dragend', function() {
+                    chip.classList.remove('dragging');
+                });
+
+                zone.appendChild(chip);
+            });
+        }
+
+        // 配置用 .assigned-employee の HTML を組み立てる共通ヘルパ。
+        // 休み申請あり（sl-on-leave + 休サブバッジ）のみ付与する。
+        // 連勤マーク（▼）は slRefreshContinuousBadges() が配置状態から
+        // 一括で判定・付与するため、ここでは付けない。
+        function slBuildAssignedEmployeeMarkup(name) {
+            var emp = (typeof employeesData !== 'undefined')
+                ? employeesData.find(function(e) { return e.name === name; })
+                : null;
+            var isLeave = !!(emp && emp.isOnLeave);
+            var leaveSub = isLeave ? '<span class="sl-holiday-sub" title="休み申請あり">休</span>' : '';
+
+            return {
+                className: 'assigned-employee' + (isLeave ? ' sl-on-leave' : ''),
+                innerHTML: '<span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">'
+                    + '<span>' + name + '</span>'
+                    + '</span>'
+                    + leaveSub
+                    + '<span class="remove-btn" onclick="removeEmployee(this, event)">×</span>'
+            };
+        }
+
+        // 全配置の連勤マーク（▼）を再計算・再描画する。
+        // ルール:
+        //   - 昼配置: 前日夜勤明け（workedPrevNight）なら ▼上、同日夜にも配置ありなら ▼下
+        //   - 夜配置: 同日昼にも配置ありなら ▼上、▼下は常に無し
+        //   - 固定行（会社・休み）は対象外
+        // 配置・解除の毎に呼び出し、状態の整合性を保証する。
+        function slRefreshContinuousBadges() {
+            var tbody = document.querySelector('.grid-table tbody');
+            if (!tbody) return;
+
+            // Step 1: 社員ごとに本日の昼/夜配置有無を集計
+            var empState = {};
+            tbody.querySelectorAll('.assignment-zone .assigned-employee').forEach(function(el) {
+                var tr = el.closest('tr');
+                if (!tr || tr.dataset.fixed === 'true') return;
+                var shiftBadge = tr.querySelector('.shift-badge');
+                if (!shiftBadge) return;
+                var name = getEmployeeName(el);
+                if (!name) return;
+                if (!empState[name]) empState[name] = { hasDay: false, hasNight: false };
+                if (shiftBadge.classList.contains('shift-day'))   empState[name].hasDay = true;
+                if (shiftBadge.classList.contains('shift-night')) empState[name].hasNight = true;
+            });
+
+            // Step 2: 各 .assigned-employee の name-block を再構築
+            tbody.querySelectorAll('.assignment-zone .assigned-employee').forEach(function(el) {
+                var tr = el.closest('tr');
+                if (!tr || tr.dataset.fixed === 'true') return;
+                var nameBlock = el.querySelector('.employee-name-block');
+                if (!nameBlock) return;
+                var shiftBadge = tr.querySelector('.shift-badge');
+                if (!shiftBadge) return;
+
+                var name = getEmployeeName(el);
+                if (!name) return;
+                var emp = (typeof employeesData !== 'undefined')
+                    ? employeesData.find(function(e) { return e.name === name; }) : null;
+                var workedPrevNight = !!(emp && emp.workedPrevNight);
+                var state = empState[name] || { hasDay: false, hasNight: false };
+                var isDay   = shiftBadge.classList.contains('shift-day');
+                var isNight = shiftBadge.classList.contains('shift-night');
+
+                var needsAbove = false, needsBelow = false;
+                if (isDay) {
+                    needsAbove = workedPrevNight;   // 夜(前日) → 昼
+                    needsBelow = state.hasNight;    // 昼 → 夜(同日)
+                } else if (isNight) {
+                    needsAbove = state.hasDay;      // 昼(同日) → 夜
+                }
+
+                // 既存 contact-badge を保持して name-block を再構築
+                var contactBadge = nameBlock.querySelector('.contact-badge');
+                var contactHTML = contactBadge ? contactBadge.outerHTML : '';
+
+                var inner;
+                if (needsAbove || needsBelow) {
+                    inner = '<span class="employee-with-continuous">';
+                    if (needsAbove) inner += '<span class="continuous-badge continuous-badge-above" title="連続勤務">▼</span>';
+                    inner += '<span>' + name + '</span>';
+                    if (needsBelow) inner += '<span class="continuous-badge continuous-badge-below" title="連続勤務">▼</span>';
+                    inner += '</span>';
+                } else {
+                    inner = '<span>' + name + '</span>';
+                }
+                nameBlock.innerHTML = inner + contactHTML;
+            });
+        }
+
+        // 既存の .assigned-employee 配列を走査して、休み社員には sl-on-leave を付与する。
+        // 初期デフォルトHTMLには休み社員の配置は無いが、リセット時の保険として実装。
+        function slApplyOnLeaveMarkersToAllAssigned() {
+            document.querySelectorAll('.assignment-zone .assigned-employee').forEach(function(el) {
+                var name = getEmployeeName(el);
+                if (slIsEmployeeOnLeave(name)) {
+                    if (!el.classList.contains('sl-on-leave')) {
+                        el.classList.add('sl-on-leave');
+                        if (!el.querySelector('.sl-holiday-sub')) {
+                            var sub = document.createElement('span');
+                            sub.className = 'sl-holiday-sub';
+                            sub.title = '休み申請あり';
+                            sub.textContent = '休';
+                            // employee-name-block の直後に挿入
+                            var nameBlock = el.querySelector('.employee-name-block');
+                            if (nameBlock && nameBlock.nextSibling) {
+                                el.insertBefore(sub, nameBlock.nextSibling);
+                            } else {
+                                el.appendChild(sub);
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         // ===== ミニマップ =====
@@ -2456,6 +2663,13 @@
             if (!zone) return;
             zone.classList.remove('drag-over');
 
+            // 休み申請あり行はドロップ先として無効（源泉は休み申請スケジュール画面）
+            var targetTr = zone.closest('tr');
+            if (targetTr && targetTr.classList.contains('md-row-fixed-off-approved')) {
+                dragSourceAssignedEmployee = null;
+                return;
+            }
+
             if (dragSourceAssignedEmployee) {
                 // 配置済み社員の行間移動
                 const sourceZone = dragSourceAssignedEmployee.closest('.assignment-zone');
@@ -2493,12 +2707,10 @@
                 dragSourceAssignedEmployee.remove();
 
                 // 移動先に新規作成（連絡方法リセット）
+                var mkMv = slBuildAssignedEmployeeMarkup(name);
                 var newTag = document.createElement('span');
-                newTag.className = 'assigned-employee';
-                newTag.innerHTML = '<span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">'
-                    + '<span>' + name + '</span>'
-                    + '</span>'
-                    + '<span class="remove-btn" onclick="removeEmployee(this, event)">×</span>';
+                newTag.className = mkMv.className;
+                newTag.innerHTML = mkMv.innerHTML;
                 zone.appendChild(newTag);
                 makeAssignedEmployeeDraggable(newTag);
 
@@ -2506,6 +2718,8 @@
                 updateRowCount(sourceZone);
                 updateRowCount(zone);
                 updateEmployeeListStatus();
+                slRenderHolidayRow();
+                slRefreshContinuousBadges();
 
                 dragSourceAssignedEmployee = null;
             } else {
@@ -2538,17 +2752,17 @@
                     }
                 }
 
+                var mkNew = slBuildAssignedEmployeeMarkup(data);
                 var newTag = document.createElement('span');
-                newTag.className = 'assigned-employee';
-                newTag.innerHTML = '<span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">'
-                    + '<span>' + data + '</span>'
-                    + '</span>'
-                    + '<span class="remove-btn" onclick="removeEmployee(this, event)">×</span>';
+                newTag.className = mkNew.className;
+                newTag.innerHTML = mkNew.innerHTML;
                 zone.appendChild(newTag);
                 makeAssignedEmployeeDraggable(newTag);
                 updateRowCount(zone);
                 for (var m = 0; m < movedFromZones.length; m++) { updateRowCount(movedFromZones[m]); }
                 updateEmployeeListStatus();
+                slRenderHolidayRow();
+                slRefreshContinuousBadges();
             }
         }
 
@@ -2571,8 +2785,9 @@
 
         function moveRowUp() {
             if (!selectedGridRow) { alert('移動する行を選択してください'); return; }
+            if (selectedGridRow.dataset.fixed === 'true') { alert('固定行は移動できません'); return; }
             const prev = selectedGridRow.previousElementSibling;
-            if (prev) {
+            if (prev && prev.dataset.fixed !== 'true') {
                 pushUndo();
                 selectedGridRow.parentNode.insertBefore(selectedGridRow, prev);
                 renumberRows();
@@ -2581,8 +2796,9 @@
 
         function moveRowDown() {
             if (!selectedGridRow) { alert('移動する行を選択してください'); return; }
+            if (selectedGridRow.dataset.fixed === 'true') { alert('固定行は移動できません'); return; }
             const next = selectedGridRow.nextElementSibling;
-            if (next) {
+            if (next && next.dataset.fixed !== 'true') {
                 pushUndo();
                 selectedGridRow.parentNode.insertBefore(next, selectedGridRow);
                 renumberRows();
@@ -2591,6 +2807,7 @@
 
         function deleteRow() {
             if (!selectedGridRow) { alert('削除する行を選択してください'); return; }
+            if (selectedGridRow.dataset.fixed === 'true') { alert('固定行は削除できません'); return; }
             if (!confirm('この行を削除しますか？\n配置中の社員は自動的に解除されます。')) return;
             pushUndo();
             // --- 変更通知: 削除通知 ---
@@ -2604,17 +2821,32 @@
             renumberRows();
         }
 
+        // 固定3行（会社/休み申請なし/休み申請あり）の直前に行を挿入する。
+        // 新規追加・変更通知等で tbody へ追加する際は必ずこの関数を通し、
+        // 固定行を末尾に維持する。
+        function insertBeforeFixedRows(tbody, tr) {
+            const firstFixed = tbody.querySelector('tr[data-fixed="true"]');
+            if (firstFixed) {
+                tbody.insertBefore(tr, firstFixed);
+            } else {
+                tbody.appendChild(tr);
+            }
+        }
+
         function renumberRows() {
             const rows = document.querySelectorAll('.grid-table tbody tr');
-            rows.forEach((row, index) => {
+            let seq = 0;
+            rows.forEach((row) => {
                 const noCell = row.querySelector('.col-no');
                 if (!noCell) return;
+                const isFixed = row.dataset.fixed === 'true';
+                const label = isFixed ? '—' : String(++seq);
                 // テキストノードのみ更新（ベルアイコン等の子要素を保持）
                 const textNode = Array.from(noCell.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
                 if (textNode) {
-                    textNode.textContent = index + 1;
+                    textNode.textContent = label;
                 } else {
-                    noCell.insertBefore(document.createTextNode(index + 1), noCell.firstChild);
+                    noCell.insertBefore(document.createTextNode(label), noCell.firstChild);
                 }
             });
             renderMinimap();
@@ -2801,9 +3033,12 @@
         function applySortSettings() {
             pushUndo();
             const tbody = document.querySelector('.grid-table tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const allRows = Array.from(tbody.querySelectorAll('tr'));
+            // 固定3行はソート対象外。末尾に維持する。
+            const fixedRows = allRows.filter(r => r.dataset.fixed === 'true');
+            const sortableRows = allRows.filter(r => r.dataset.fixed !== 'true');
 
-            rows.sort((a, b) => {
+            sortableRows.sort((a, b) => {
                 const dataA = extractRowData(a), dataB = extractRowData(b);
                 let cmp = getSortPriority(sortState.category, dataA.category) - getSortPriority(sortState.category, dataB.category);
                 if (cmp !== 0) return cmp;
@@ -2818,7 +3053,8 @@
                 return getSortPriority(siteOrderA, dataA.site) - getSortPriority(siteOrderB, dataB.site);
             });
 
-            rows.forEach(row => tbody.appendChild(row));
+            sortableRows.forEach(row => tbody.appendChild(row));
+            fixedRows.forEach(row => tbody.appendChild(row));
             renumberRows();
             closeSortModal();
         }
@@ -3515,7 +3751,7 @@
                       categoryClass: 'category-facility', categoryLabel: '施設', company: '△△不動産',
                       siteName: '△△マンション 常駐警備', meetingTime: '19:30', meetingMethod: '直', meetingMethodClass: 'method-direct',
                       timeStart: '20:00', timeEnd: '08:00', count: '0/2', shortage: true });
-                  tbody.appendChild(tr);
+                  insertBeforeFixedRows(tbody, tr);
                   if (typeof renderMinimap === 'function') renderMinimap();
                   cnMarkPending(tr, 'add', function() {});
               }},
@@ -3549,7 +3785,7 @@
                       categoryClass: 'category-event', categoryLabel: 'イベント', company: '□□イベント',
                       siteName: '□□公園 花火大会警備', meetingTime: '15:00', meetingMethod: '会社', meetingMethodClass: 'method-company',
                       timeStart: '16:00', timeEnd: '22:00', count: '0/5', shortage: true });
-                  tbody.appendChild(tr);
+                  insertBeforeFixedRows(tbody, tr);
                   if (typeof renderMinimap === 'function') renderMinimap();
                   cnMarkPending(tr, 'add', function() {});
               }},
@@ -4957,6 +5193,9 @@
         });
         renderSidePanel();
         renderMinimap();
+        slApplyOnLeaveMarkersToAllAssigned();
+        slRenderHolidayRow();
+        slRefreshContinuousBadges();
 
         // 地図セルの初期表示を data-maps から再描画（onclick ハンドラ付与）
         document.querySelectorAll('td.col-map[data-maps]').forEach(function(cell) {
@@ -6453,7 +6692,7 @@
             tr.dataset.slAddMaps = JSON.stringify(maps);
             tr.dataset.slAddRemarks = document.getElementById('slAddRemarks').value;
 
-            tbody.appendChild(tr);
+            insertBeforeFixedRows(tbody, tr);
             renumberRows();
 
             // 変更通知
