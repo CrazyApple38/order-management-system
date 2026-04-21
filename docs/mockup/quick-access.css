@@ -37,9 +37,11 @@ body {
     flex-shrink: 0;
     pointer-events: none;
 }
-.ui-icon--sm { font-size: 14px; }
-.ui-icon--md { font-size: 18px; }
-.ui-icon--lg { font-size: 22px; }
+/* QA アイコン 4段階スケール（DS 準拠） */
+.ui-icon--xs { font-size: 14px; }  /* 装飾・インライン矢印 */
+.ui-icon--sm { font-size: 16px; }  /* ボタン内、メニュー項目 */
+.ui-icon--md { font-size: 20px; }  /* タップ可能アイコンボタン（kebab/戻る） */
+.ui-icon--lg { font-size: 32px; }  /* ロゴ・ブランド */
 
 /* ========== ログイン画面 ========== */
 .qa-login-screen {
@@ -66,16 +68,14 @@ body {
 .qa-login-logo-icon {
     width: 56px; height: 56px;
     background: var(--bg-sidebar);
+    color: #fff;
     border-radius: 14px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 12px;
 }
-.qa-login-logo-icon img {
-    width: 32px; height: 32px;
-    filter: brightness(0) invert(1);
-}
+.qa-login-logo-icon .ui-icon { font-size: 32px; }
 .qa-login-logo h1 {
     font-size: 20px;
     font-weight: 700;
@@ -171,8 +171,8 @@ body {
     min-width: 0;
 }
 .qa-brand-icon {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     filter: brightness(0) invert(1);
     flex-shrink: 0;
 }
@@ -420,7 +420,7 @@ body {
     box-shadow: 0 1px 4px rgba(0,69,84,0.06);
 }
 .qa-hidden-item-icon {
-    width: 34px; height: 34px;
+    width: 36px; height: 36px;
     background: var(--bg-surface-2);
     border-radius: 8px;
     display: flex;
@@ -724,46 +724,92 @@ body {
 /* 契約先右カラム（ボタン + 矢印） */
 .qa-client-right {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     flex-shrink: 0;
 }
 
 /* 契約先アクションボタン行 */
-.qa-client-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-.qa-client-action-btn {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 8px 12px;
-    min-height: 40px;
-    border-radius: 6px;
-    border: 1px solid var(--divider);
-    background: var(--bg-surface-2);
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
-    text-align: center;
-}
-.qa-client-action-btn:hover {
-    border-color: var(--accent-primary);
-    color: var(--accent-primary);
-    background: rgba(68,166,181,0.06);
-}
-.qa-client-action-btn.qa-client-hide {
+/* Kebab ボタン（契約先/現場 共通） */
+.qa-kebab-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid transparent;
+    background: transparent;
     color: var(--text-tertiary);
-    border-color: rgba(178,213,226,0.5);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
-.qa-client-action-btn.qa-client-hide:hover {
-    color: #856404;
-    background: #fff3cd;
-    border-color: #ffc107;
+.qa-kebab-btn:hover,
+.qa-kebab-btn:focus-visible {
+    background: var(--bg-surface-2);
+    color: var(--accent-primary);
+    border-color: var(--divider);
+    outline: none;
 }
+.qa-kebab-btn[aria-expanded="true"] {
+    background: var(--accent-primary-dim);
+    color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+.qa-kebab-btn .ui-icon { font-size: 20px; } /* md */
+
+/* アクションメニュー（kebab 共用ポップオーバー） */
+.qa-action-menu {
+    position: fixed;
+    min-width: 168px;
+    max-width: calc(100vw - 24px);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--divider);
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(0, 42, 51, 0.18), 0 2px 8px rgba(0, 42, 51, 0.06);
+    z-index: 1300;
+    overflow: hidden;
+    transform-origin: top right;
+    animation: qa-action-menu-in 0.12s ease-out;
+}
+.qa-action-menu[hidden] { display: none; }
+@keyframes qa-action-menu-in {
+    from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.qa-action-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 16px;
+    min-height: 44px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.qa-action-menu-item:hover,
+.qa-action-menu-item:focus-visible {
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    outline: none;
+}
+.qa-action-menu-item--danger { color: var(--semantic-error); }
+.qa-action-menu-item--danger:hover,
+.qa-action-menu-item--danger:focus-visible {
+    background: rgba(219, 87, 123, 0.08);
+    color: var(--semantic-error);
+}
+.qa-action-menu-item .ui-icon { font-size: 16px; flex-shrink: 0; }
 
 /* 小さいモーダル */
 .qa-modal.qa-modal-sm { max-width: 360px; }
@@ -1056,7 +1102,7 @@ body {
     background: rgba(255,255,255,0.15);
     border: none;
     color: white;
-    width: 32px; height: 32px;
+    width: 40px; height: 40px;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -2384,7 +2430,8 @@ body {
 }
 
 /* ============================================================
-   Phase A: Unicode 記号 → DS SVG アイコン置換に伴うレイアウト補正
+   Phase A/C: Unicode → DS SVG 置換に伴うレイアウト補正
+   アイコンサイズは 4段階スケール（xs=14 / sm=16 / md=20 / lg=32）に統一
    ============================================================ */
 
 /* デモボタン：flex でアイコン+テキスト配置 */
@@ -2393,13 +2440,13 @@ body {
     align-items: center;
     gap: 6px;
 }
-.qa-content-toolbar .qa-cn-demo-btn .ui-icon { font-size: 14px; }
+.qa-content-toolbar .qa-cn-demo-btn .ui-icon { font-size: 14px; } /* xs */
 
 /* 新規契約先ボタン：SVG サイズ調整（flex は既存） */
-.qa-add-client-btn .ui-icon { font-size: 16px; }
+.qa-add-client-btn .ui-icon { font-size: 16px; } /* sm */
 
 /* カレンダー戻る：SVG 中央配置（flex は既存） */
-.qa-cal-back-btn .ui-icon { font-size: 18px; }
+.qa-cal-back-btn .ui-icon { font-size: 20px; } /* md */
 
 /* カレンダー月ナビ：アイコン+ラベル flex */
 .qa-cal-nav-btn {
@@ -2407,14 +2454,14 @@ body {
     align-items: center;
     gap: 6px;
 }
-.qa-cal-nav-btn .ui-icon { font-size: 14px; }
+.qa-cal-nav-btn .ui-icon { font-size: 14px; } /* xs */
 
 /* アコーディオントグル：SVG 回転アニメーションを維持 */
 .qa-cal-edit-toggle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px; /* SVG サイズ基準 */
+    font-size: 16px; /* sm */
     line-height: 1;
 }
 
@@ -2424,22 +2471,22 @@ body {
     align-items: center;
     justify-content: center;
 }
-.qa-cal-edit-close .ui-icon { font-size: 16px; }
+.qa-cal-edit-close .ui-icon { font-size: 20px; } /* md */
 
-/* サブタスク削除：26×26 ボタン内の SVG */
+/* サブタスク削除：40×40 ボタン内の SVG */
 .qa-sub-delete {
     display: inline-flex;
     align-items: center;
     justify-content: center;
 }
-.qa-sub-delete .ui-icon { font-size: 14px; color: var(--semantic-error); }
+.qa-sub-delete .ui-icon { font-size: 16px; color: var(--semantic-error); } /* sm */
 
 /* 契約先カード矢印：chevron-right、展開時 90deg */
 .qa-client-arrow {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 14px; /* xs */
     line-height: 1;
 }
 
@@ -2448,7 +2495,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 14px; /* xs */
     line-height: 1;
 }
 
@@ -2458,7 +2505,7 @@ body {
     align-items: center;
     justify-content: center;
 }
-.qa-add-site-icon .ui-icon { font-size: 16px; color: var(--accent-primary); }
+.qa-add-site-icon .ui-icon { font-size: 16px; color: var(--accent-primary); } /* sm */
 
 /* + 追加系セクションバー内ボタン：テキストとの横並び */
 .qa-section-bar-btn,
@@ -2470,7 +2517,7 @@ body {
 }
 .qa-section-bar-btn .ui-icon,
 .qa-placement-add .ui-icon,
-.qa-badge-add-btn .ui-icon { font-size: 12px; }
+.qa-badge-add-btn .ui-icon { font-size: 14px; } /* xs */
 
 /* フィールド警告：caution + ラベル */
 .qa-field-warn {
@@ -2478,7 +2525,7 @@ body {
     align-items: center;
     gap: 4px;
 }
-.qa-field-warn .ui-icon { font-size: 12px; }
+.qa-field-warn .ui-icon { font-size: 14px; } /* xs */
 
 /* 変更通知モーダル閉じる */
 .md-cn-close {
@@ -2486,4 +2533,4 @@ body {
     align-items: center;
     justify-content: center;
 }
-.md-cn-close .ui-icon { font-size: 14px; }
+.md-cn-close .ui-icon { font-size: 16px; } /* sm */

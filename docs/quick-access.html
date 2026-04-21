@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="mockup/co-forms.css?v=2">
     <link rel="stylesheet" href="mockup/co-buttons.css">
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
-    <link rel="stylesheet" href="mockup/quick-access.css">
+    <link rel="stylesheet" href="mockup/quick-access.css?v=phase-ab">
 </head>
 <body>
 
@@ -34,6 +34,14 @@
             <symbol id="ui-icon-chevron-right" viewBox="0 0 512 512">
                 <path d="M499.425,225.907L295.862,24.543C287.895,16.488,277.083,11.97,265.771,11.97 c-11.312,0-22.14,4.518-30.091,12.573c-16.437,16.623-16.288,43.437,0.33,59.875l130.351,128.955H42.328 C18.966,213.373,0,232.338,0,255.711c0,23.382,18.966,42.327,42.328,42.327h324.034L236.01,426.39 c-16.618,16.438-16.767,43.252-0.33,59.864c16.438,16.612,43.252,16.758,59.875,0.328l203.864-201.364 c8.056-7.951,12.576-18.779,12.576-30.091C512.001,244.7,507.481,233.872,499.425,225.907z"/>
             </symbol>
+            <symbol id="ui-icon-kebab" viewBox="0 0 512 512">
+                <circle cx="256" cy="112" r="48"/>
+                <circle cx="256" cy="256" r="48"/>
+                <circle cx="256" cy="400" r="48"/>
+            </symbol>
+            <symbol id="ui-icon-shield" viewBox="0 0 512 512">
+                <path d="M256,0H20.757v271.864c0,58.317,27.482,111.818,71.378,138.918L256,512l163.865-101.217 c43.896-27.1,71.378-80.602,71.378-138.918V0H256z M109.696,267.5V92.513h256.149L109.841,272.536 C109.756,270.869,109.696,269.192,109.696,267.5z M402.304,267.5c0,32.281-14.873,62.316-37.897,76.534L256,410.986 l-108.407-66.953c-3.25-2.008-6.322-4.365-9.231-6.969L402.304,151.46V267.5z"/>
+            </symbol>
         </defs>
     </svg>
 
@@ -42,7 +50,7 @@
         <div class="qa-login-card">
             <div class="qa-login-logo">
                 <div class="qa-login-logo-icon">
-                    <img src="mockup/icons/shield.svg" alt="">
+                    <svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-shield"/></svg>
                 </div>
                 <h1>受注管理システム</h1>
                 <p>Quick Access</p>
@@ -402,6 +410,9 @@
         </div>
     </div>
 
+    <!-- アクションメニュー（契約先/現場 kebab 共用） -->
+    <div class="qa-action-menu" id="qaActionMenu" role="menu" hidden></div>
+
     <!-- アカウントメニュー（ドロップダウン） -->
     <div class="qa-account-menu" id="qaAccountMenu" role="menu" aria-labelledby="qaAvatarBtn" hidden>
         <div class="qa-account-header">
@@ -427,6 +438,6 @@
     </div>
 
     <script src="mockup/demo-data.js?v=2"></script>
-    <script src="mockup/quick-access.js"></script>
+    <script src="mockup/quick-access.js?v=phase-ab"></script>
 </body>
 </html>

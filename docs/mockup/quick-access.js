@@ -103,6 +103,7 @@ function qaLogin() {
 
 function qaLogout() {
     qaCloseAccountMenu();
+    qaCloseActionMenu();
     document.getElementById('qaHomeScreen').style.display = 'none';
     document.getElementById('qaCalendarScreen').classList.remove('active');
     document.getElementById('qaLoginScreen').style.display = 'flex';
@@ -175,6 +176,95 @@ function qaLogoutConfirmClose() {
 function qaLogoutConfirmOk() {
     qaLogoutConfirmClose();
     qaLogout();
+}
+
+// --- アクションメニュー（契約先/現場 kebab 共用） ---
+let qaActionMenuBtn = null;
+
+function qaRenderActionMenu(items) {
+    const menu = document.getElementById('qaActionMenu');
+    menu.innerHTML = items.map(item => {
+        const iconHtml = item.icon
+            ? `<svg class="ui-icon" aria-hidden="true"><use href="#${item.icon}"/></svg>`
+            : '';
+        const danger = item.danger ? ' qa-action-menu-item--danger' : '';
+        return `<button type="button" class="qa-action-menu-item${danger}" role="menuitem" data-action-idx="${item.idx}">${iconHtml}<span>${item.label}</span></button>`;
+    }).join('');
+    menu.querySelectorAll('.qa-action-menu-item').forEach((btn, i) => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            qaCloseActionMenu();
+            items[i].onClick();
+        });
+    });
+}
+
+function qaPositionActionMenu(triggerBtn) {
+    const menu = document.getElementById('qaActionMenu');
+    const rect = triggerBtn.getBoundingClientRect();
+    menu.removeAttribute('hidden');
+    const mw = menu.offsetWidth;
+    const mh = menu.offsetHeight;
+    let top = rect.bottom + 6;
+    if (top + mh > window.innerHeight - 8) top = Math.max(8, rect.top - mh - 6);
+    let right = Math.max(8, window.innerWidth - rect.right);
+    if (right + mw > window.innerWidth - 8) right = 8;
+    menu.style.top = top + 'px';
+    menu.style.right = right + 'px';
+}
+
+function qaOpenActionMenu(event, items) {
+    const btn = event.currentTarget;
+    if (qaActionMenuBtn === btn) { qaCloseActionMenu(); return; }
+    qaCloseActionMenu();
+    qaRenderActionMenu(items);
+    qaPositionActionMenu(btn);
+    btn.setAttribute('aria-expanded', 'true');
+    qaActionMenuBtn = btn;
+    setTimeout(() => {
+        document.addEventListener('click', qaActionMenuOutsideClick);
+        document.addEventListener('keydown', qaActionMenuKeydown);
+    }, 0);
+}
+
+function qaCloseActionMenu() {
+    const menu = document.getElementById('qaActionMenu');
+    if (!menu || menu.hasAttribute('hidden')) return;
+    menu.setAttribute('hidden', '');
+    if (qaActionMenuBtn) qaActionMenuBtn.setAttribute('aria-expanded', 'false');
+    qaActionMenuBtn = null;
+    document.removeEventListener('click', qaActionMenuOutsideClick);
+    document.removeEventListener('keydown', qaActionMenuKeydown);
+}
+
+function qaActionMenuOutsideClick(e) {
+    const menu = document.getElementById('qaActionMenu');
+    if (menu.contains(e.target)) return;
+    if (e.target.closest('.qa-kebab-btn')) return;
+    qaCloseActionMenu();
+}
+
+function qaActionMenuKeydown(e) {
+    if (e.key === 'Escape') qaCloseActionMenu();
+}
+
+function qaOpenClientMenu(event, clientId) {
+    qaOpenActionMenu(event, [
+        { idx: 0, label: '修正', onClick: () => qaOpenClientEditModal(clientId) },
+        { idx: 1, label: '非表示', onClick: () => qaHideClient(clientId) },
+    ]);
+}
+
+function qaOpenSiteMenu(event, clientId, siteId, hasOrders) {
+    const items = [
+        { idx: 0, label: '修正', onClick: () => qaEditSite(clientId, siteId) },
+    ];
+    if (hasOrders) {
+        items.push({ idx: 1, label: '非表示', onClick: () => qaHideSite(clientId, siteId) });
+    } else {
+        items.push({ idx: 1, label: '削除', danger: true, onClick: () => qaDeleteSite(clientId, siteId) });
+    }
+    qaOpenActionMenu(event, items);
 }
 
 // --- ホーム画面 ---
@@ -257,10 +347,7 @@ function qaRenderClients() {
                     </div>
                 </div>
                 <div class="qa-client-right">
-                    <div class="qa-client-actions">
-                        <button class="qa-client-action-btn" onclick="event.stopPropagation(); qaOpenClientEditModal(${client.id})" title="契約先名を修正">修正</button>
-                        <button class="qa-client-action-btn qa-client-hide" onclick="event.stopPropagation(); qaHideClient(${client.id})" title="このリストから非表示にする">非表示</button>
-                    </div>
+                    <button type="button" class="qa-kebab-btn" onclick="event.stopPropagation(); qaOpenClientMenu(event, ${client.id})" aria-haspopup="menu" aria-expanded="false" aria-label="契約先の操作メニュー"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-kebab"/></svg></button>
                     <span class="qa-client-arrow" aria-hidden="true"><svg class="ui-icon"><use href="#ui-icon-chevron-right"/></svg></span>
                 </div>
             </div>
@@ -285,11 +372,7 @@ function qaRenderClients() {
                         <span class="qa-site-go" aria-hidden="true"><svg class="ui-icon"><use href="#ui-icon-chevron-right"/></svg></span>
                     </div>
                     <div class="qa-site-actions">
-                        <button class="qa-site-action-btn qa-site-edit" onclick="event.stopPropagation(); qaEditSite(${client.id}, ${site.id})" title="修正">修正</button>
-                        ${hasOrders
-                            ? `<button class="qa-site-action-btn qa-site-hide" onclick="event.stopPropagation(); qaHideSite(${client.id}, ${site.id})" title="このリストから非表示にする">非表示</button>`
-                            : `<button class="qa-site-action-btn qa-site-delete" onclick="event.stopPropagation(); qaDeleteSite(${client.id}, ${site.id})" title="削除">削除</button>`
-                        }
+                        <button type="button" class="qa-kebab-btn" onclick="event.stopPropagation(); qaOpenSiteMenu(event, ${client.id}, ${site.id}, ${hasOrders})" aria-haspopup="menu" aria-expanded="false" aria-label="現場の操作メニュー"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-kebab"/></svg></button>
                     </div>
                 </div>`;
                 }).join('')}
