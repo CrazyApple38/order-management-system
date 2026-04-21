@@ -695,12 +695,6 @@
                 <div class="modal-header">
                     <span>現場詳細入力</span>
                     <button class="modal-close" onclick="closeSiteModal()">✕</button>
-                    <!-- コンフリクト警告バナー -->
-                    <div class="md-cn-conflict-banner" id="cnConflictBanner" style="display:none;">
-                        <span class="md-cn-conflict-icon">⚠</span>
-                        <span class="md-cn-conflict-text" id="cnConflictText">他のユーザーがこの現場を変更しました。最新のデータに更新されます。</span>
-                        <button class="md-cn-conflict-close" onclick="hideConflictBanner()">✕</button>
-                    </div>
                 </div>
                 <div class="modal-body">
                     <!-- ━━ Row Information ━━ -->
@@ -870,6 +864,13 @@
                     <div class="modal-footer-right">
                         <button class="btn btn-secondary" onclick="closeSiteModal()">キャンセル</button>
                         <button class="btn btn-primary" onclick="saveSiteModal()">保存</button>
+                    </div>
+                </div>
+                <div class="md-cn-body-overlay" id="cnBodyOverlay" style="display:none;" onclick="hideConflictBanner()">
+                    <div class="md-cn-body-overlay-card">
+                        <span class="md-cn-body-overlay-icon">⚠</span>
+                        <div class="md-cn-body-overlay-text" id="cnBodyOverlayText"></div>
+                        <div class="md-cn-body-overlay-hint">クリックで閉じる</div>
                     </div>
                 </div>
             </div>

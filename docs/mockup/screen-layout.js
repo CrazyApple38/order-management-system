@@ -3275,7 +3275,7 @@
                     '</div>';
                 }
 
-                return '<div class="' + cardClass + stateClass + '">' +
+                return '<div class="' + cardClass + stateClass + '" data-nid="' + n.id + '">' +
                     '<div class="md-cn-card-header">' +
                         '<span class="' + badgeClass + '">' + typeLabels[n.type] + '</span>' +
                         statusBadge +
@@ -3313,7 +3313,11 @@
             const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
 
             timeline.innerHTML = filtered.map(function(h) {
-                return '<div class="md-cn-timeline-item md-cn-tl-' + h.type + '">' +
+                var clickable = h.notificationId != null;
+                var clickAttrs = clickable
+                    ? ' md-cn-tl-clickable" onclick="cnJumpToCard(' + h.notificationId + ')'
+                    : '';
+                return '<div class="md-cn-timeline-item md-cn-tl-' + h.type + clickAttrs + '">' +
                     '<div class="md-cn-tl-header">' +
                         '<span class="md-cn-tl-time">' + h.time + '</span>' +
                         '<span class="md-cn-tl-user">' + escapeHtml(h.user) + '</span>' +
@@ -3324,6 +3328,17 @@
             }).join('');
         }
 
+        function cnJumpToCard(notificationId) {
+            switchCnTab('latest');
+            setTimeout(function() {
+                var card = document.querySelector('.md-cn-card[data-nid="' + notificationId + '"]');
+                if (!card) return;
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.classList.add('md-cn-card-highlight');
+                setTimeout(function() { card.classList.remove('md-cn-card-highlight'); }, 1500);
+            }, 50);
+        }
+
         function checkConflict(notification) {
             const siteModal = document.getElementById('siteModal');
             if (siteModal.style.display === 'none' || siteModal.style.display === '') return false;
@@ -3331,14 +3346,21 @@
         }
 
         function showConflictBanner(notification) {
-            const banner = document.getElementById('cnConflictBanner');
-            const text = document.getElementById('cnConflictText');
-            text.textContent = notification.user + 'が「' + notification.siteName + '」を変更しました。最新のデータに更新されます。';
-            banner.style.display = 'flex';
+            const siteModal = document.getElementById('siteModal');
+            if (!siteModal || siteModal.style.display === 'none') return;
+            const overlay = document.getElementById('cnBodyOverlay');
+            if (!overlay) return;
+            const modal = overlay.parentElement;
+            const header = modal && modal.querySelector('.modal-header');
+            overlay.style.top = (header ? header.offsetHeight : 0) + 'px';
+            const text = document.getElementById('cnBodyOverlayText');
+            if (text) text.textContent = notification.user + 'が「' + notification.siteName + '」を変更しました。最新のデータに更新されます。';
+            overlay.style.display = 'flex';
         }
 
         function hideConflictBanner() {
-            document.getElementById('cnConflictBanner').style.display = 'none';
+            const overlay = document.getElementById('cnBodyOverlay');
+            if (overlay) overlay.style.display = 'none';
         }
 
         // 行要素からグループ会社コードを取得
@@ -3362,6 +3384,7 @@
             }
             cnState.notifications.unshift(notification);
             cnState.history.unshift({
+                notificationId: notification.id,
                 type: notification.type,
                 user: notification.user,
                 time: notification.time,

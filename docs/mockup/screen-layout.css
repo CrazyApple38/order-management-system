@@ -3523,6 +3523,22 @@ h1 {
     position: relative;
     padding: 8px 0 16px 0;
 }
+.md-cn-tl-clickable {
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.15s;
+    padding-left: 6px;
+    padding-right: 6px;
+    margin-left: -6px;
+    margin-right: -6px;
+}
+.md-cn-tl-clickable:hover { background: var(--bg-surface-2); }
+
+.md-cn-card-highlight { animation: md-cn-highlight 1.5s ease; }
+@keyframes md-cn-highlight {
+    0%, 30% { box-shadow: 0 0 0 3px var(--accent-primary); }
+    100% { box-shadow: none; }
+}
 .md-cn-timeline-item::before {
     content: '';
     position: absolute;
@@ -3642,47 +3658,7 @@ h1 {
 }
 /* .md-cn-approved-badge → co-shared-badges.css */
 
-/* --- コンフリクト警告バナー --- */
-.md-cn-conflict-banner {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    background: #F0EDE9;
-    border: 1px solid var(--divider);
-    border-radius: 6px;
-    margin-top: 10px;
-    animation: md-cn-conflict-slide 0.3s ease-out;
-}
-@keyframes md-cn-conflict-slide {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-.md-cn-conflict-icon {
-    font-size: 14px;
-    flex-shrink: 0;
-    color: var(--text-primary);
-}
-.md-cn-conflict-text {
-    flex: 1;
-    font-size: 12.5px;
-    color: var(--text-primary);
-    font-weight: 500;
-}
-.md-cn-conflict-close {
-    background: none;
-    border: none;
-    color: var(--semantic-warning-text);
-    font-size: 12px;
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 4px;
-    opacity: 0.7;
-    transition: opacity 0.15s;
-}
-.md-cn-conflict-close:hover {
-    opacity: 1;
-}
+/* コンフリクト警告オーバーレイは co-modal.css の .md-cn-body-overlay を使用 */
 
 /* モバイル対応 */
 @media (max-width: 700px) {

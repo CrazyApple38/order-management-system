@@ -125,11 +125,6 @@
                     <h3 id="editModalTitle">セル編集</h3>
                     <div class="md-ob-cal-header-meta" id="editModalMeta"></div>
                 </div>
-                <div class="md-cn-conflict-banner" id="obCnConflictBanner" style="display:none;">
-                    <span class="md-cn-conflict-icon">⚠</span>
-                    <span class="md-cn-conflict-text" id="obCnConflictText"></span>
-                    <button class="md-cn-conflict-close" onclick="obCnHideConflictBanner()">✕</button>
-                </div>
                 <button class="modal-close" onclick="closeEditModal()" aria-label="モーダルを閉じる">✕</button>
             </div>
             <div class="modal-body">
@@ -277,6 +272,13 @@
                     <button class="btn btn-primary" onclick="saveEdit()">保存</button>
                 </div>
             </div>
+            <div class="md-cn-body-overlay" id="obCnBodyOverlay" style="display:none;" onclick="obCnHideConflictBanner()">
+                <div class="md-cn-body-overlay-card">
+                    <span class="md-cn-body-overlay-icon">⚠</span>
+                    <div class="md-cn-body-overlay-text" id="obCnBodyOverlayText"></div>
+                    <div class="md-cn-body-overlay-hint">クリックで閉じる</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -405,11 +407,6 @@
             <button class="modal-close md-ob-cal-close" onclick="closeCalendarModal()" aria-label="モーダルを閉じる">✕</button>
             <div class="modal-header md-ob-cal-header">
                 <h3 id="calendarModalTitle">カレンダー入力</h3>
-                <div class="md-cn-conflict-banner" id="obCnConflictBannerCal" style="display:none;">
-                    <span class="md-cn-conflict-icon">⚠</span>
-                    <span class="md-cn-conflict-text" id="obCnConflictTextCal"></span>
-                    <button class="md-cn-conflict-close" onclick="obCnHideConflictBanner()">✕</button>
-                </div>
                 <div class="md-ob-cal-month-nav">
                     <button class="md-ob-cal-nav-btn" onclick="calendarNav(-1)">◀</button>
                     <span class="md-ob-cal-month-label" id="calMonthLabel"></span>
@@ -444,6 +441,13 @@
                 <div class="modal-footer-right">
                     <button class="btn btn-secondary md-ob-cal-footer-btn" onclick="closeEditModal()" disabled>カレンダー表示</button>
                     <button class="btn btn-primary md-ob-cal-footer-btn" onclick="saveEdit()" disabled>保存</button>
+                </div>
+            </div>
+            <div class="md-cn-body-overlay" id="obCnBodyOverlayCal" style="display:none;" onclick="obCnHideConflictBanner()">
+                <div class="md-cn-body-overlay-card">
+                    <span class="md-cn-body-overlay-icon">⚠</span>
+                    <div class="md-cn-body-overlay-text" id="obCnBodyOverlayTextCal"></div>
+                    <div class="md-cn-body-overlay-hint">クリックで閉じる</div>
                 </div>
             </div>
         </div>

@@ -4062,25 +4062,28 @@ function obCnCheckConflict(n) {
 
 function obCnShowConflictBanner(n) {
     const msg = n.user + 'が「' + (n.taskName || n.siteName || '') + '」を変更しました。最新のデータに更新されます。';
-    // セル編集モーダル
-    const banner1 = document.getElementById('obCnConflictBanner');
-    if (banner1) {
-        document.getElementById('obCnConflictText').textContent = msg;
-        banner1.style.display = 'flex';
-    }
-    // カレンダーモーダル
-    const banner2 = document.getElementById('obCnConflictBannerCal');
-    if (banner2) {
-        document.getElementById('obCnConflictTextCal').textContent = msg;
-        banner2.style.display = 'flex';
-    }
+    obCnShowBodyOverlay('editModalOverlay', 'obCnBodyOverlay', 'obCnBodyOverlayText', msg);
+    obCnShowBodyOverlay('calendarModalOverlay', 'obCnBodyOverlayCal', 'obCnBodyOverlayTextCal', msg);
+}
+
+function obCnShowBodyOverlay(modalOverlayId, overlayId, textId, msg) {
+    const modalOverlay = document.getElementById(modalOverlayId);
+    if (!modalOverlay || modalOverlay.style.display === 'none') return;
+    const overlay = document.getElementById(overlayId);
+    if (!overlay) return;
+    const modal = overlay.parentElement;
+    const header = modal && modal.querySelector('.modal-header');
+    overlay.style.top = (header ? header.offsetHeight : 0) + 'px';
+    const txt = document.getElementById(textId);
+    if (txt) txt.textContent = msg;
+    overlay.style.display = 'flex';
 }
 
 function obCnHideConflictBanner() {
-    var b1 = document.getElementById('obCnConflictBanner');
-    var b2 = document.getElementById('obCnConflictBannerCal');
-    if (b1) b1.style.display = 'none';
-    if (b2) b2.style.display = 'none';
+    ['obCnBodyOverlay', 'obCnBodyOverlayCal'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
 }
 
 // --- 元に戻す / やっぱり反映 ---
