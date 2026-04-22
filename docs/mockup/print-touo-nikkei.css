@@ -188,19 +188,33 @@
     text-align: center;
     font-size: 9pt;
     padding: 1.5mm 1mm;
+    overflow: hidden;
+}
+/* thead のタイトル文字。JS が実幅超過時に transform:scale() で縮小する */
+.pr-table thead th .pr-th-text {
+    display: inline-block;
+    white-space: nowrap;
+    transform-origin: center;
 }
 
-/* 列幅指定（B4縦 合計 237mm 印刷可能領域を想定 = 257 - 10mm×2 余白） */
+/* 列幅指定（B4縦 印刷可能幅 237mm = 257 - 10mm×2 に対し、右端の罫線が
+   見切れないよう合計 230mm に抑え 7mm の余裕を確保） */
 .pr-col-highway   { width: 7mm; }
 .pr-col-client    { width: 42mm; }
 .pr-col-meet      { width: 14mm; }
 .pr-col-worktime  { width: 13mm; }
 .pr-col-count     { width: 9mm; }
 .pr-col-assign    { width: 79mm; } /* JS で assign-slots 8分割（1段あたり） */
-.pr-col-remarks   { width: 65mm; } /* A4→B4 で +47mm を備考欄に割当 */
+.pr-col-remarks   { width: 58mm; } /* A4→B4 で備考欄を拡張（右端余裕確保のため 65→58mm） */
 .pr-col-report    { width: 8mm; }
 
-/* 契約先セル */
+/* 契約先セル — 長い契約先名/現場名は列幅 (42mm) 内で折り返す */
+.pr-client-company,
+.pr-client-task {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
 .pr-client-company {
     font-size: 8.5pt;
     font-weight: 600;
@@ -402,17 +416,18 @@
     white-space: nowrap;
 }
 /* 事務員手書きチェック欄（印刷後の運用で ✓ 等を書き込む空枠）。
-   grid 最終行(7)は 1fr で余白を吸収 → 多段時も各段のセル最下端に罫線が乗る。 */
+   grid 最終行(7)は 1fr で余白を吸収 → 多段時も各段のセル最下端に罫線が乗る。
+   社員名とチェック欄の境界は点線で視覚的に区切る。 */
 .pr-assign-cell .pr-assign-check {
     grid-row: 7;
     align-self: end;
     width: 100%;
     height: 3.5mm;
     justify-self: stretch;
-    border-top: 0.3pt solid #B8B8B8;
+    border-top: 0.3pt dashed #B8B8B8;
 }
 
-/* ========== 備考・目報 ========== */
+/* ========== 備考・日報 ========== */
 .pr-remarks-cell {
     font-size: 7.5pt;
     line-height: 1.3;
@@ -469,13 +484,13 @@
 .pr-row-fixed td:not(.pr-col-group-label) {
     background: #FFFFFF;
 }
-/* Nikkei 行 の配置社員・備考・目報列は白抜き（GC 色は左側の情報列にのみ適用） */
+/* Nikkei 行 の配置社員・備考・日報列は白抜き（GC 色は左側の情報列にのみ適用） */
 .pr-row-nikkei td.pr-col-assign,
 .pr-row-nikkei td.pr-remarks-cell,
 .pr-row-nikkei td.pr-report-cell {
     background: #FFFFFF;
 }
-/* 休み（申請あり）行は配置・備考・目報列も含め全セルを --error-bg で統一
+/* 休み（申請あり）行は配置・備考・日報列も含め全セルを --error-bg で統一
    （.pr-row-off-approved td の一括指定がそのまま適用される） */
 .pr-row-fixed .pr-client-company {
     font-weight: 600;
@@ -511,7 +526,7 @@
 @media print {
     @page {
         size: B4 portrait;
-        margin: 8mm;
+        margin: 10mm;
     }
     html, body {
         background: #FFFFFF !important;

@@ -391,17 +391,10 @@
         html += `</td>`;
 
         // 人数 (n/m 表記のうち右側 m を採用。count-display は "2/2" 形式)
-        // ＋ 集合/休憩 インジケーター（テンプレ準拠）
         html += `<td class="pr-count-cell">`;
         if (r.count) {
             const m = r.count.match(/(\d+)\s*\/\s*(\d+)/);
             html += `<div class="pr-count-num">${esc(m ? m[2] : r.count)}</div>`;
-        }
-        if (!r.isFixed) {
-            html += `<div class="pr-meet-rest-indicator">`;
-            html += `<span class="pr-mr-shugo">集合</span>`;
-            html += `<span class="pr-mr-kyukei">休憩</span>`;
-            html += `</div>`;
         }
         html += `</td>`;
 
@@ -411,7 +404,7 @@
         // 備考（構造化済み HTML をそのまま差し込む。内部テキストは extractRowData 側で esc 済み）
         html += `<td class="pr-remarks-cell">${r.remarksHtml || ''}</td>`;
 
-        // 目報
+        // 日報
         html += `<td class="pr-report-cell"></td>`;
 
         html += `</tr>`;
@@ -450,15 +443,16 @@
         html += `<col class="pr-col-remarks">`;
         html += `<col class="pr-col-report">`;
         html += `</colgroup>`;
+        // th 内のテキストは .pr-th-text で包み、レンダリング後に列幅へ自動フィットさせる
         html += `<thead><tr>`;
         html += `<th></th>`;
-        html += `<th>契約先</th>`;
-        html += `<th>集合・出発</th>`;
-        html += `<th>業務時間</th>`;
-        html += `<th>人数</th>`;
-        html += `<th>配置社員氏名</th>`;
-        html += `<th>備考</th>`;
-        html += `<th>目報</th>`;
+        html += `<th><span class="pr-th-text">契約先</span></th>`;
+        html += `<th><span class="pr-th-text">集合・出発</span></th>`;
+        html += `<th><span class="pr-th-text">業務時間</span></th>`;
+        html += `<th><span class="pr-th-text">人数</span></th>`;
+        html += `<th><span class="pr-th-text">配置社員氏名</span></th>`;
+        html += `<th><span class="pr-th-text">備考</span></th>`;
+        html += `<th><span class="pr-th-text">日報</span></th>`;
         html += `</tr></thead>`;
         html += `<tbody>`;
 
@@ -474,6 +468,28 @@
         html += `</tbody></table>`;
         html += `</div>`;
         return html;
+    }
+
+    // ---------- thead 文字の自動フィット ----------
+    // 各 <th> の実幅に対し、内部 .pr-th-text の自然幅が超過する場合は
+    // transform: scale() でテキストだけを縮小してはみ出しを防ぐ。
+    function autoFitThText(container) {
+        if (!container) return;
+        const spans = container.querySelectorAll('.pr-table thead th .pr-th-text');
+        spans.forEach(span => {
+            span.style.transform = '';
+            const th = span.parentElement;
+            if (!th) return;
+            // padding 分を除いた利用可能幅
+            const csTh = window.getComputedStyle(th);
+            const padX = parseFloat(csTh.paddingLeft) + parseFloat(csTh.paddingRight);
+            const avail = th.clientWidth - padX;
+            const natural = span.offsetWidth;
+            if (avail <= 0 || natural <= avail) return;
+            const scale = Math.max(0.5, avail / natural);
+            span.style.transformOrigin = 'center';
+            span.style.transform = `scale(${scale})`;
+        });
     }
 
     // ---------- 拡大・縮小制御 ----------
@@ -541,11 +557,14 @@
             `;
             document.body.appendChild(overlay);
         }
-        document.getElementById('prSheetContainer').innerHTML = renderSheet();
+        const container = document.getElementById('prSheetContainer');
+        container.innerHTML = renderSheet();
         overlay.classList.add('pr-active');
         document.body.style.overflow = 'hidden';
         prZoomScale = 1;
         applyZoom();
+        // thead 文字を列幅に合わせて自動縮小 (レイアウト確定後に実行)
+        requestAnimationFrame(() => autoFitThText(container));
     }
 
     function closePrintPreview() {
