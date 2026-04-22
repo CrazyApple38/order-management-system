@@ -4,7 +4,7 @@
    - screen-layout.html のグリッドテーブルから行データを抽出
    - 東央警備 + Nikkei + 固定3行（会社・休み・休み申請あり）のみを印刷
    - カテゴリ別グルーピング + 縦書きラベル
-   - 印刷ヘッダー固定値: 同席担当者=片岡 / 電話当番=渋谷・正木
+   - 印刷ヘッダー固定値: 当番=片岡 / 電話当番=渋谷・正木
    ============================================================================ */
 
 (function() {
@@ -23,7 +23,7 @@
         'category-company':         '会社'
     };
 
-    const ASSIGN_SLOTS = 10; // 配置社員氏名セル数
+    const ASSIGN_SLOTS = 8; // 配置社員氏名セル数（1段あたり）
 
     // ---------- 社員 GC マッピング ----------
     function getEmployeeGc(name) {
@@ -163,27 +163,52 @@
             });
         }
 
-        // 備考（車両プレート + notes テキスト合成）
+        // 備考（車両プレート + ETC プレート + notes テキスト合成）
         const vehiclePlates = [];
-        tr.querySelectorAll('.col-vt .vehicle-tag').forEach(v => {
+        tr.querySelectorAll('.col-vt .vehicle-drop-zone .vehicle-tag').forEach(v => {
             const clone = v.cloneNode(true);
             clone.querySelectorAll('button').forEach(b => b.remove());
             vehiclePlates.push(clone.textContent.trim());
         });
+        const etcPlates = [];
+        tr.querySelectorAll('.col-vt .etc-drop-zone .etc-tag').forEach(e => {
+            const clone = e.cloneNode(true);
+            clone.querySelectorAll('button').forEach(b => b.remove());
+            etcPlates.push(clone.textContent.trim());
+        });
+        // 備考セルに載せる notes 項目（備考 / 集合場所 / 送迎 を対象）
+        const NOTES_INCLUDE = ['備考', '集合場所', '送迎'];
         const notesParts = [];
         const notesCell = tr.querySelector('.col-notes');
         if (notesCell && notesCell.dataset.vtItems) {
             try {
                 const items = JSON.parse(notesCell.dataset.vtItems);
                 items.forEach(it => {
-                    if (it.label === '備考' && it.value) notesParts.push(it.value);
+                    if (!it.value) return;
+                    if (NOTES_INCLUDE.includes(it.label)) {
+                        notesParts.push({ label: it.label, value: it.value });
+                    }
                 });
             } catch (_) {}
         }
-        const remarksLines = [];
-        if (vehiclePlates.length) remarksLines.push(vehiclePlates.join(' / '));
-        notesParts.forEach(n => remarksLines.push(n));
-        const remarks = remarksLines.join('\n');
+        // 備考セルを構造化: 車両プレート / ETCプレート / 備考テキスト行を別要素にして、
+        // 間に点線の区切り線を描画できるようにする。
+        const remarksParts = [];
+        if (vehiclePlates.length) {
+            remarksParts.push(`<div class="pr-remarks-vehicles">${esc(vehiclePlates.join(' / '))}</div>`);
+        }
+        if (etcPlates.length) {
+            remarksParts.push(`<div class="pr-remarks-etc">${esc(etcPlates.join(' / '))}</div>`);
+        }
+        notesParts.forEach(n => {
+            // 「備考」はラベルを省略、その他（集合場所 / 送迎）は項目名を前置
+            if (n.label === '備考') {
+                remarksParts.push(`<div class="pr-remarks-notes">${esc(n.value)}</div>`);
+            } else {
+                remarksParts.push(`<div class="pr-remarks-notes"><span class="pr-remarks-label">${esc(n.label)}</span>${esc(n.value)}</div>`);
+            }
+        });
+        const remarksHtml = remarksParts.join('');
 
         return {
             isFixed,
@@ -201,8 +226,35 @@
             wtEnd,
             count: countText,
             assigned,
-            remarks
+            remarksHtml
         };
+    }
+
+    // 「休み（申請なし）」行に入れる未配置社員を算出する。
+    // 対象: 東央警備 + Nikkei の社員のうち、
+    //   - どの通常現場にも配置されていない
+    //   - 休み申請（isOnLeave）も出していない
+    function collectUnassignedEmployees(rows) {
+        if (typeof employeesData === 'undefined') return [];
+        const assignedNames = new Set();
+        rows.forEach(r => {
+            if (r.isFixed) return;
+            (r.assigned || []).forEach(a => { if (a.name) assignedNames.add(a.name); });
+        });
+        const result = [];
+        employeesData.forEach(emp => {
+            if (emp.company !== 'touo' && emp.company !== 'nikkei') return;
+            if (emp.isOnLeave) return;
+            if (assignedNames.has(emp.name)) return;
+            result.push({
+                name: emp.name,
+                contactText: '', contactClass: '',
+                continuousAbove: false, continuousBelow: false,
+                isOnLeave: false,
+                gc: emp.company
+            });
+        });
+        return result;
     }
 
     function extractAllRows() {
@@ -213,6 +265,15 @@
             const data = extractRowData(tr);
             if (data) rows.push(data);
         });
+        // 休み（申請なし）行に未配置社員を自動注入（手動配置がある場合は上書きしない）
+        const unassigned = collectUnassignedEmployees(rows);
+        if (unassigned.length) {
+            rows.forEach(r => {
+                if (r.isFixed && r.fixedKind === 'off-unapproved' && r.assigned.length === 0) {
+                    r.assigned = unassigned;
+                }
+            });
+        }
         return rows;
     }
 
@@ -253,7 +314,7 @@
     }
 
     function renderAssignCells(assigned, isFixed) {
-        // 配置人数が ASSIGN_SLOTS(10) を超えた場合は段数を増やし、
+        // 配置人数が ASSIGN_SLOTS(8) を超えた場合は段数を増やし、
         // 各セルは通常サイズを保ったまま 2 段目以降に折り返す。
         const rows = Math.max(1, Math.ceil(assigned.length / ASSIGN_SLOTS));
         const totalSlots = rows * ASSIGN_SLOTS;
@@ -269,10 +330,11 @@
                 html += `<div class="pr-assign-cell ${gcCls}${leaveCls}${holidayChipCls}${holidayAssignedCls}">`;
                 // 連勤マーク（▼ 上）
                 if (a.continuousAbove) html += `<span class="continuous-badge continuous-above">▼</span>`;
-                // 名前 + 休 サブバッジ
-                html += `<span class="pr-name">${esc(a.name)}`;
+                // 名前（文字数に応じて縮小クラスを付与。セル幅を揃えるため）
+                const nameLen = Math.min(6, Math.max(1, (a.name || '').length));
+                html += `<span class="pr-name pr-name-len-${nameLen}">${esc(a.name)}</span>`;
+                // 休 サブバッジ（名前の下に独立表示）
                 if (a.isOnLeave && !a.isHolidayChip) html += `<span class="sl-holiday-sub">休</span>`;
-                html += `</span>`;
                 // 連勤マーク（▼ 下）
                 if (a.continuousBelow) html += `<span class="continuous-badge continuous-below">▼</span>`;
                 // 連絡方法バッジ
@@ -284,9 +346,11 @@
                 if (a.holidayAssignInfo) {
                     html += `<span class="pr-holiday-info">${esc(a.holidayAssignInfo)}</span>`;
                 }
+                // 事務員の手書きチェック欄（印刷後に運用で使用）
+                html += `<div class="pr-assign-check"></div>`;
                 html += `</div>`;
             } else {
-                html += `<div class="pr-assign-cell pr-assign-empty"></div>`;
+                html += `<div class="pr-assign-cell pr-assign-empty"><div class="pr-assign-check"></div></div>`;
             }
         }
         html += '</div>';
@@ -344,8 +408,8 @@
         // 配置社員
         html += `<td class="pr-col-assign" style="padding:0;">${renderAssignCells(r.assigned, r.isFixed)}</td>`;
 
-        // 備考
-        html += `<td class="pr-remarks-cell">${esc(r.remarks)}</td>`;
+        // 備考（構造化済み HTML をそのまま差し込む。内部テキストは extractRowData 側で esc 済み）
+        html += `<td class="pr-remarks-cell">${r.remarksHtml || ''}</td>`;
 
         // 目報
         html += `<td class="pr-report-cell"></td>`;
@@ -370,7 +434,7 @@
         html += `<span class="pr-header-weekday">${esc(header.weekday)}</span>`;
         html += `</div>`;
         html += `<div class="pr-header-right">`;
-        html += `<div class="pr-header-field"><span class="pr-header-field-label">同席担当者</span><span class="pr-header-field-value">${esc(header.attendant)}</span></div>`;
+        html += `<div class="pr-header-field"><span class="pr-header-field-label">当番</span><span class="pr-header-field-value">${esc(header.attendant)}</span></div>`;
         html += `<div class="pr-header-field"><span class="pr-header-field-label">電話当番</span><span class="pr-header-field-value">${esc(header.phoneDuty)}</span></div>`;
         html += `</div>`;
         html += `</div>`;
@@ -412,6 +476,49 @@
         return html;
     }
 
+    // ---------- 拡大・縮小制御 ----------
+    const PR_ZOOM_MIN = 0.3;
+    const PR_ZOOM_MAX = 2.5;
+    const PR_ZOOM_STEP = 0.1;
+    let prZoomScale = 1;
+
+    function applyZoom() {
+        const container = document.getElementById('prSheetContainer');
+        if (!container) return;
+        container.style.zoom = prZoomScale;
+        const label = document.getElementById('prZoomLabel');
+        if (label) label.textContent = Math.round(prZoomScale * 100) + '%';
+    }
+    function zoomIn() {
+        prZoomScale = Math.min(PR_ZOOM_MAX, Math.round((prZoomScale + PR_ZOOM_STEP) * 100) / 100);
+        applyZoom();
+    }
+    function zoomOut() {
+        prZoomScale = Math.max(PR_ZOOM_MIN, Math.round((prZoomScale - PR_ZOOM_STEP) * 100) / 100);
+        applyZoom();
+    }
+    function zoomReset() {
+        prZoomScale = 1;
+        applyZoom();
+    }
+    function zoomFit() {
+        const overlay = document.getElementById('printOverlay');
+        const container = document.getElementById('prSheetContainer');
+        if (!overlay || !container) return;
+        // zoom=1 の実寸で測定
+        container.style.zoom = 1;
+        const sheet = container.querySelector('.pr-sheet');
+        if (!sheet) return;
+        const toolbar = overlay.querySelector('.pr-overlay-toolbar');
+        const availW = overlay.clientWidth - 40;
+        const availH = overlay.clientHeight - (toolbar ? toolbar.offsetHeight : 60) - 40;
+        const sw = sheet.offsetWidth;
+        const sh = sheet.offsetHeight;
+        const ratio = Math.min(availW / sw, availH / sh);
+        prZoomScale = Math.max(PR_ZOOM_MIN, Math.min(PR_ZOOM_MAX, ratio));
+        applyZoom();
+    }
+
     // ---------- オーバーレイ制御 ----------
     function openPrintPreview() {
         let overlay = document.getElementById('printOverlay');
@@ -422,6 +529,12 @@
             overlay.innerHTML = `
                 <div class="pr-overlay-toolbar">
                     <button class="pr-btn-primary" onclick="prDoPrint()">🖨 プリンタで印刷</button>
+                    <span class="pr-tb-sep"></span>
+                    <button onclick="prZoomOut()" title="縮小">−</button>
+                    <button onclick="prZoomReset()" title="等倍 (100%)"><span id="prZoomLabel">100%</span></button>
+                    <button onclick="prZoomIn()" title="拡大">＋</button>
+                    <button onclick="prZoomFit()" title="ウィンドウにフィット">全体表示</button>
+                    <span class="pr-tb-sep"></span>
                     <button onclick="prClosePreview()">✕ 閉じる</button>
                 </div>
                 <div id="prSheetContainer"></div>
@@ -431,6 +544,8 @@
         document.getElementById('prSheetContainer').innerHTML = renderSheet();
         overlay.classList.add('pr-active');
         document.body.style.overflow = 'hidden';
+        prZoomScale = 1;
+        applyZoom();
     }
 
     function closePrintPreview() {
@@ -440,16 +555,29 @@
     }
 
     function doPrint() {
+        // 印刷時は zoom を一時的に 1 に戻し、終了後に復元
+        const container = document.getElementById('prSheetContainer');
+        const prev = prZoomScale;
+        if (container) container.style.zoom = 1;
         window.print();
+        if (container) container.style.zoom = prev;
     }
 
-    // Escキーで閉じる
+    // Escキーで閉じる / Ctrl+=/-/0 で拡大縮小
     document.addEventListener('keydown', function(e) {
+        const overlay = document.getElementById('printOverlay');
+        if (!overlay || !overlay.classList.contains('pr-active')) return;
         if (e.key === 'Escape') {
-            const overlay = document.getElementById('printOverlay');
-            if (overlay && overlay.classList.contains('pr-active')) {
-                closePrintPreview();
-            }
+            closePrintPreview();
+        } else if (e.ctrlKey && (e.key === '+' || e.key === '=')) {
+            e.preventDefault();
+            zoomIn();
+        } else if (e.ctrlKey && e.key === '-') {
+            e.preventDefault();
+            zoomOut();
+        } else if (e.ctrlKey && e.key === '0') {
+            e.preventDefault();
+            zoomReset();
         }
     });
 
@@ -457,4 +585,8 @@
     window.openPrintPreview = openPrintPreview;
     window.prClosePreview = closePrintPreview;
     window.prDoPrint = doPrint;
+    window.prZoomIn = zoomIn;
+    window.prZoomOut = zoomOut;
+    window.prZoomReset = zoomReset;
+    window.prZoomFit = zoomFit;
 })();

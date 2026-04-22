@@ -70,9 +70,30 @@
     font-size: var(--fs-sm);
     color: var(--text-secondary);
 }
+/* ツールバー内の区切り（拡大縮小ボタン群とその他を視覚的に分離） */
+.pr-overlay-toolbar .pr-tb-sep {
+    width: 1px;
+    align-self: stretch;
+    background: var(--divider);
+    margin: 2px 4px;
+}
+/* zoom ラベル表示用 */
+#prZoomLabel {
+    display: inline-block;
+    min-width: 3.5em;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
 
 /* ========== B4 縦シート ========== */
 .pr-sheet {
+    /* プリント書式スコープ: 色付き行はくすみを避けた鮮明な色に上書き。
+       淡色だが彩度を上げて紙面でもはっきり見えるトーンを採用。 */
+    --md-gc-bg-touo: #FFFFFF;
+    --md-gc-bg-nikkei: #E0EDCB;        /* Nikkei 社員名バッジと同色の薄黄緑 */
+    --error-bg: #FADCE1;               /* 薄ピンク（休み申請あり行 全セル統一色） */
+    --bg-surface-2: #F2E4B6;           /* 鮮明なクリーム */
+
     width: 257mm;
     min-height: 364mm;
     margin: 0 auto;
@@ -131,11 +152,11 @@
 }
 .pr-header-field-label {
     font-size: 8pt;
-    color: #444;
+    color: #333;
     padding: 1px 4px;
     border: 0.5pt solid #888;
     border-radius: 1px;
-    background: #f3f3f3;
+    background: #F3F0EA;       /* .pr-table thead th と同色 */
     white-space: nowrap;
     letter-spacing: 0.05em;
 }
@@ -175,7 +196,7 @@
 .pr-col-meet      { width: 14mm; }
 .pr-col-worktime  { width: 13mm; }
 .pr-col-count     { width: 9mm; }
-.pr-col-assign    { width: 79mm; } /* JS で assign-slots 10分割 */
+.pr-col-assign    { width: 79mm; } /* JS で assign-slots 8分割（1段あたり） */
 .pr-col-remarks   { width: 65mm; } /* A4→B4 で +47mm を備考欄に割当 */
 .pr-col-report    { width: 8mm; }
 
@@ -206,6 +227,20 @@
     display: inline-block;
     margin-top: 1mm;
     font-size: 7.5pt;
+}
+/* プリント書式: 連絡項目（会社/直/LINE/迎え/OP 等）はテキスト表示に統一。
+   色のみ .contact-company/.contact-direct/.contact-line から継承。
+   「休」サブバッジ (.sl-holiday-sub) は対象外（別セレクタでバッジ維持）。 */
+.pr-sheet .contact-badge,
+.pr-sheet .contact-company,
+.pr-sheet .contact-direct,
+.pr-sheet .contact-line,
+.pr-sheet .contact-pickup,
+.pr-sheet .contact-op {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    border: 0;
 }
 .pr-worktime-cell {
     text-align: center;
@@ -247,22 +282,23 @@
 /* ========== 配置社員氏名エリア ========== */
 .pr-assign-grid {
     display: grid;
-    grid-template-columns: repeat(10, 1fr);
+    grid-template-columns: repeat(8, 1fr);
     gap: 0;
     height: 100%;
     min-height: 10mm;
 }
 .pr-assign-cell {
     /* グリッドで行を固定し、社員名の縦位置を全セルで揃える。
-       1行目: 連勤▼上（予約高さ） / 2行目: 名前 / 3行目: 連勤▼下 /
-       4行目: 連絡バッジ / 5行目: 休配置先情報 */
+       1行目: 連勤▼上（予約高さ） / 2行目: 名前 / 3行目: 休バッジ /
+       4行目: 連勤▼下（予約高さ） / 5行目: 連絡バッジ /
+       6行目: 休配置先情報 / 7行目: 余白 + 事務員手書きチェック欄 */
     display: grid;
-    grid-template-rows: 2.2mm auto 2.2mm auto auto;
+    grid-template-rows: 2.2mm auto auto 2.2mm auto auto 1fr;
     justify-items: center;
     align-items: center;
     border-left: 0.3pt solid #B8B8B8;
-    padding: 0.5mm 0.3mm;
-    min-height: 10mm;
+    padding: 0.5mm 0.3mm 0 0.3mm;
+    min-height: 14mm;
     line-height: 1.1;
     /* 配置セル自体は透過。背景色は td (.pr-row-*) から継承して
        スクリーンレイアウトと同じ行色を見せる */
@@ -271,49 +307,83 @@
 .pr-assign-cell:first-child {
     border-left: none;
 }
+/* 配置された社員のバッジ化: 社員名だけを GC 別の角丸バッジで囲む。
+   セル枠は変えず、名前スパンに background + border + border-radius + padding を付与。 */
 
-/* 社員名ブロック — grid 2行目に固定（全セルで縦位置を揃える） */
+/* 社員名ブロック — grid 2行目に固定（全セルで縦位置を揃える）。
+   文字数に応じて .pr-name-len-N を付与し、セル枠 (約 9mm 幅) に収める。
+   inline-block にして GC 色バッジの padding/border-radius を効かせる。 */
 .pr-assign-cell .pr-name {
     grid-row: 2;
+    display: inline-block;
     font-size: 9pt;
     font-weight: 600;
     text-align: center;
     color: #222;
     letter-spacing: -0.02em;
     white-space: nowrap;
+    padding: 0 1.2mm;
+    border-radius: 0.5mm;
+}
+/* GC 別の角丸バッジ色（枠線なし） */
+.pr-assign-cell.pr-gc-touo .pr-name {
+    background: #D9E6F2;       /* 淡青 */
+    color: #1E3F66;
+}
+.pr-assign-cell.pr-gc-nikkei .pr-name {
+    background: #E0EDCB;       /* 淡黄緑 */
+    color: #3E5F1F;
+}
+/* 1〜2 文字: デフォルト 9pt */
+.pr-assign-cell .pr-name.pr-name-len-3 {
+    font-size: 7.5pt;
+    letter-spacing: -0.04em;
+}
+.pr-assign-cell .pr-name.pr-name-len-4 {
+    font-size: 6.5pt;
+    letter-spacing: -0.06em;
+}
+.pr-assign-cell .pr-name.pr-name-len-5 {
+    font-size: 5.5pt;
+    letter-spacing: -0.08em;
+}
+.pr-assign-cell .pr-name.pr-name-len-6 {
+    font-size: 5pt;
+    letter-spacing: -0.1em;
 }
 
 /* ========== 配置セル内 バッジ群 ========== */
-/* 連絡方法バッジ（直/会社/LINE/迎え/OP 等）— 色は screen-layout.css の
-   .contact-direct/.contact-company/.contact-line から継承 */
+/* 連絡方法（直/会社/LINE/迎え/OP 等）— プリント書式ではテキスト表示。
+   色のみ screen-layout.css の .contact-direct/.contact-company/.contact-line から継承。 */
 .pr-assign-cell .contact-badge {
-    grid-row: 4;
+    grid-row: 5;
     font-size: 6.5pt;
     font-weight: 700;
-    padding: 0 3px;
-    border-radius: 2px;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
     line-height: 1.2;
 }
-/* 連勤マーク ▼ — 上(1行目)/下(3行目)に分離配置 */
+/* 連勤マーク ▼ — 上(1行目)/下(4行目)に分離配置 */
 .pr-assign-cell .continuous-badge {
     font-size: 7pt;
     line-height: 1;
     color: var(--semantic-warning-text, #B7791F);
 }
 .pr-assign-cell .continuous-badge.continuous-above { grid-row: 1; }
-.pr-assign-cell .continuous-badge.continuous-below { grid-row: 3; }
-/* 休 サブバッジ（配置済み休み社員）— pr-name 内インライン */
-.pr-assign-cell .pr-name .sl-holiday-sub {
+.pr-assign-cell .continuous-badge.continuous-below { grid-row: 4; }
+/* 休 サブバッジ（配置済み休み社員）— 名前の下段（grid 3行目）に独立配置 */
+.pr-assign-cell .sl-holiday-sub {
+    grid-row: 3;
     display: inline-block;
     font-size: 6pt;
     font-weight: 700;
     padding: 0 3px;
-    margin-left: 2px;
+    margin-top: 0.3mm;
     border-radius: 2px;
     background: var(--semantic-error, #C83A4A);
     color: #fff;
     line-height: 1.4;
-    vertical-align: middle;
 }
 /* 休み申請社員の識別は「休」サブバッジに委ね、セル背景は行色を透過で継承 */
 .pr-assign-cell.pr-holiday-assigned {
@@ -321,7 +391,7 @@
 }
 /* 配置先情報（→ 現場名） */
 .pr-assign-cell .pr-holiday-info {
-    grid-row: 5;
+    grid-row: 6;
     font-size: 6pt;
     color: #555;
     line-height: 1.1;
@@ -331,12 +401,44 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+/* 事務員手書きチェック欄（印刷後の運用で ✓ 等を書き込む空枠）。
+   grid 最終行(7)は 1fr で余白を吸収 → 多段時も各段のセル最下端に罫線が乗る。 */
+.pr-assign-cell .pr-assign-check {
+    grid-row: 7;
+    align-self: end;
+    width: 100%;
+    height: 3.5mm;
+    justify-self: stretch;
+    border-top: 0.3pt solid #B8B8B8;
+}
 
 /* ========== 備考・目報 ========== */
 .pr-remarks-cell {
     font-size: 7.5pt;
     line-height: 1.3;
-    white-space: pre-line;
+}
+/* 備考セル内: 車両プレート行 / ETCプレート行 / 備考テキスト行の間に点線区切りを挿入 */
+.pr-remarks-cell .pr-remarks-vehicles,
+.pr-remarks-cell .pr-remarks-etc,
+.pr-remarks-cell .pr-remarks-notes {
+    padding: 0.4mm 0;
+}
+/* 集合場所 / 送迎 等のラベル（項目名を本文の前に表示） */
+.pr-remarks-cell .pr-remarks-label {
+    font-weight: 700;
+    color: #555;
+    margin-right: 3px;
+}
+.pr-remarks-cell > *:not(:first-child) {
+    border-top: 0.3pt dashed #999;
+}
+/* 車両行の直後の ETC行 は同種の車両情報なので点線を解除 */
+.pr-remarks-cell > .pr-remarks-vehicles + .pr-remarks-etc {
+    border-top: none;
+}
+/* notes 系（集合場所 / 送迎 / 備考）同士の間も点線なし */
+.pr-remarks-cell > .pr-remarks-notes + .pr-remarks-notes {
+    border-top: none;
 }
 .pr-report-cell {
     text-align: center;
@@ -345,12 +447,16 @@
 }
 
 /* ========== 行の色分け — SL と同一トークンを使用 ========== */
-.pr-row-touo td {
+/* 縦書きカテゴリラベル列 (.pr-col-group-label) は会社別配色の対象外とし、
+   GC に関係なく常に固定色 (#F8F6F1) を維持する。 */
+.pr-row-touo td:not(.pr-col-group-label) {
     background: var(--md-gc-bg-touo);
 }
-.pr-row-nikkei td {
+.pr-row-nikkei td:not(.pr-col-group-label) {
     background: var(--md-gc-bg-nikkei);
 }
+/* 休み（申請あり）行は縦書きカテゴリラベル列にも赤背景を適用する
+   （他の行色ルールとは異なり label 列も例外的に色付け対象に含める） */
 .pr-row-off-approved td {
     background: var(--error-bg);
 }
@@ -359,9 +465,18 @@
     color: #B0454C;
     font-weight: 600;
 }
-.pr-row-fixed td {
-    background: var(--bg-surface-2);
+/* 会社 / 休み（申請なし）行は全セル白背景 */
+.pr-row-fixed td:not(.pr-col-group-label) {
+    background: #FFFFFF;
 }
+/* Nikkei 行 の配置社員・備考・目報列は白抜き（GC 色は左側の情報列にのみ適用） */
+.pr-row-nikkei td.pr-col-assign,
+.pr-row-nikkei td.pr-remarks-cell,
+.pr-row-nikkei td.pr-report-cell {
+    background: #FFFFFF;
+}
+/* 休み（申請あり）行は配置・備考・目報列も含め全セルを --error-bg で統一
+   （.pr-row-off-approved td の一括指定がそのまま適用される） */
 .pr-row-fixed .pr-client-company {
     font-weight: 600;
     color: #333;
@@ -377,7 +492,7 @@
     letter-spacing: 0.3em;
     color: #333;
     padding: 2mm 1mm;
-    background: #F8F6F1;
+    background: #FFFFFF;
     vertical-align: middle;
 }
 
@@ -428,6 +543,10 @@
     }
     .pr-overlay-toolbar {
         display: none !important;
+    }
+    /* 画面プレビューの拡大縮小は印刷出力に持ち込まない */
+    #prSheetContainer {
+        zoom: 1 !important;
     }
     .pr-sheet {
         width: 100% !important;
