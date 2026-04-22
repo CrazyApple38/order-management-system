@@ -253,8 +253,13 @@
     }
 
     function renderAssignCells(assigned, isFixed) {
-        let html = '<div class="pr-assign-grid">';
-        for (let i = 0; i < ASSIGN_SLOTS; i++) {
+        // 配置人数が ASSIGN_SLOTS(10) を超えた場合は段数を増やし、
+        // 各セルは通常サイズを保ったまま 2 段目以降に折り返す。
+        const rows = Math.max(1, Math.ceil(assigned.length / ASSIGN_SLOTS));
+        const totalSlots = rows * ASSIGN_SLOTS;
+        const gridCls = rows > 1 ? 'pr-assign-grid pr-assign-grid--multi' : 'pr-assign-grid';
+        let html = `<div class="${gridCls}">`;
+        for (let i = 0; i < totalSlots; i++) {
             const a = assigned[i];
             if (a && a.name) {
                 const gcCls = a.gc === 'nikkei' ? 'pr-gc-nikkei' : (a.gc === 'touo' ? 'pr-gc-touo' : '');
@@ -263,13 +268,13 @@
                 const holidayAssignedCls = a.isHolidayAssigned ? ' pr-holiday-assigned' : '';
                 html += `<div class="pr-assign-cell ${gcCls}${leaveCls}${holidayChipCls}${holidayAssignedCls}">`;
                 // 連勤マーク（▼ 上）
-                if (a.continuousAbove) html += `<span class="continuous-badge">▼</span>`;
+                if (a.continuousAbove) html += `<span class="continuous-badge continuous-above">▼</span>`;
                 // 名前 + 休 サブバッジ
                 html += `<span class="pr-name">${esc(a.name)}`;
                 if (a.isOnLeave && !a.isHolidayChip) html += `<span class="sl-holiday-sub">休</span>`;
                 html += `</span>`;
                 // 連勤マーク（▼ 下）
-                if (a.continuousBelow) html += `<span class="continuous-badge">▼</span>`;
+                if (a.continuousBelow) html += `<span class="continuous-badge continuous-below">▼</span>`;
                 // 連絡方法バッジ
                 if (a.contactText) {
                     const ck = a.contactClass ? ' ' + esc(a.contactClass) : '';
@@ -285,11 +290,6 @@
             }
         }
         html += '</div>';
-        // 溢れた社員（11人目以降）は備考寄せの小文字表示
-        if (assigned.length > ASSIGN_SLOTS) {
-            const overflow = assigned.slice(ASSIGN_SLOTS).map(a => a.name).filter(Boolean).join(', ');
-            html += `<div style="font-size:7pt;color:#888;margin-top:0.5mm;">+他: ${esc(overflow)}</div>`;
-        }
         return html;
     }
 
