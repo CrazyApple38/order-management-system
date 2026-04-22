@@ -4001,15 +4001,14 @@ strong.bt-diff {
         page: landscape;
     }
 
-    /* ─── 色・背景のクリア（トナー節約 + 白黒最適化） ─── */
+    /* ─── 影のみリセット（背景色・文字色はカラー印刷で保持） ─── */
     *,
     *::before,
     *::after {
-        color: #000 !important;
-        background: transparent !important;
         box-shadow: none !important;
         text-shadow: none !important;
-        filter: none !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     /* ─── body 印刷基本スタイル ─── */
@@ -4022,6 +4021,8 @@ strong.bt-diff {
         font-size: 10pt;
         line-height: var(--lh-base);
         background: #fff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     /* ─── 印刷で非表示にする要素 ─── */
@@ -4081,7 +4082,6 @@ strong.bt-diff {
     .tbl th,
     .tbl td {
         border: 1px solid #666 !important;
-        background: transparent !important;
         padding: 4pt 6pt !important;
         vertical-align: middle;
         white-space: normal;

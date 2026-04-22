@@ -2526,6 +2526,7 @@
 
             rows.forEach(function(row, idx) {
                 if (row.style.display === 'none') return;
+                if (row.classList.contains('md-row-fixed-off-unapproved')) return;
 
                 var shiftBadge = row.querySelector('.shift-badge');
                 var shift = shiftBadge ? shiftBadge.textContent.trim() : '';
@@ -2577,6 +2578,7 @@
             var visibleIdx = 0;
             for (var i = 0; i < rows.length; i++) {
                 if (rows[i].style.display === 'none') continue;
+                if (rows[i].classList.contains('md-row-fixed-off-unapproved')) continue;
                 if (visibleIdx === idx) {
                     rows[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
                     rows[i].classList.add('highlight-flash');

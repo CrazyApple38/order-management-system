@@ -3360,10 +3360,17 @@ body {
    Phase W-F: 印刷
    ============================================================ */
 @media print {
+    /* 全要素で背景色・文字色を強制保持（ブラウザの「背景のグラフィック OFF」を上書き） */
+    *,
+    *::before,
+    *::after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
     /* ページ背景を白に */
     body {
         background: #fff !important;
-        color: #000 !important;
         font-size: 10px;
     }
 

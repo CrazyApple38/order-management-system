@@ -89,18 +89,16 @@
 
         // 集合: 時刻 + 連絡方法
         const meetCell = tr.querySelector('td.clickable-cell[onclick*="openMeetingModal"]');
-        let meetTime = '', meetContact = '';
+        let meetTime = '', meetContact = '', meetContactClass = '';
         if (meetCell) {
             const td = meetCell.querySelector('.time-display');
             const cb = meetCell.querySelector('.contact-badge');
             meetTime = td ? td.textContent.trim() : '';
-            meetContact = cb ? cb.textContent.trim() : '';
-        }
-
-        // 集合場所 (data-meeting-place から)
-        let meetPlace = '';
-        if (siteInfoCell && siteInfoCell.dataset.meetingPlace) {
-            meetPlace = siteInfoCell.dataset.meetingPlace;
+            if (cb) {
+                meetContact = cb.textContent.trim();
+                const kindCls = Array.from(cb.classList).find(c => c.startsWith('contact-') && c !== 'contact-badge');
+                meetContactClass = kindCls || '';
+            }
         }
 
         // 業務時間 (data-start-time / data-end-time)
@@ -128,12 +126,42 @@
                 );
             }
             const name = nameEl ? nameEl.textContent.trim() : '';
+            // 連絡方法バッジ
             const cb = block.querySelector('.contact-badge');
-            const role = cb ? cb.textContent.trim() : '';
-            // 役割のうち「直/会社/LINE」は印刷非表示、「迎え/OP/帰高」などは表示
-            const showRole = role && !['直', '会社', 'LINE'].includes(role);
-            assigned.push({ name, role: showRole ? role : '', gc: getEmployeeGc(name) });
+            let contactText = '', contactClass = '';
+            if (cb) {
+                contactText = cb.textContent.trim();
+                contactClass = Array.from(cb.classList).find(c => c.startsWith('contact-') && c !== 'contact-badge') || '';
+            }
+            // 連勤マーク（▼ 上下）
+            const continuousAbove = !!block.querySelector('.continuous-badge-above');
+            const continuousBelow = !!block.querySelector('.continuous-badge-below');
+            // 休み申請あり社員（配置済み）
+            const isOnLeave = aEl.classList.contains('sl-on-leave');
+            assigned.push({
+                name, contactText, contactClass,
+                continuousAbove, continuousBelow, isOnLeave,
+                gc: getEmployeeGc(name)
+            });
         });
+        // 休（申請あり）固定行: sl-holiday-chip からも抽出
+        if (isFixed && tr.classList.contains('md-row-fixed-off-approved')) {
+            tr.querySelectorAll('.assignment-zone .sl-holiday-chip').forEach(chip => {
+                const name = chip.dataset.empName
+                    || (chip.querySelector('span:not(.sl-holiday-assign-info)')?.textContent.trim() || '');
+                if (!name) return;
+                const infoEl = chip.querySelector('.sl-holiday-assign-info');
+                const holidayAssignInfo = infoEl ? infoEl.textContent.trim() : '';
+                const isHolidayAssigned = chip.classList.contains('sl-holiday-assigned');
+                assigned.push({
+                    name, contactText: '', contactClass: '',
+                    continuousAbove: false, continuousBelow: false,
+                    isOnLeave: true, isHolidayChip: true,
+                    isHolidayAssigned, holidayAssignInfo,
+                    gc: getEmployeeGc(name)
+                });
+            });
+        }
 
         // 備考（車両プレート + notes テキスト合成）
         const vehiclePlates = [];
@@ -166,9 +194,9 @@
             categoryClass,
             company,
             taskName,
-            meetPlace,
             meetTime,
             meetContact,
+            meetContactClass,
             wtStart,
             wtEnd,
             count: countText,
@@ -230,9 +258,27 @@
             const a = assigned[i];
             if (a && a.name) {
                 const gcCls = a.gc === 'nikkei' ? 'pr-gc-nikkei' : (a.gc === 'touo' ? 'pr-gc-touo' : '');
-                html += `<div class="pr-assign-cell ${gcCls}">`;
-                html += `<span class="pr-name">${esc(a.name)}</span>`;
-                if (a.role) html += `<span class="pr-role">${esc(a.role)}</span>`;
+                const leaveCls = a.isOnLeave ? ' pr-on-leave' : '';
+                const holidayChipCls = a.isHolidayChip ? ' pr-holiday-chip' : '';
+                const holidayAssignedCls = a.isHolidayAssigned ? ' pr-holiday-assigned' : '';
+                html += `<div class="pr-assign-cell ${gcCls}${leaveCls}${holidayChipCls}${holidayAssignedCls}">`;
+                // 連勤マーク（▼ 上）
+                if (a.continuousAbove) html += `<span class="continuous-badge">▼</span>`;
+                // 名前 + 休 サブバッジ
+                html += `<span class="pr-name">${esc(a.name)}`;
+                if (a.isOnLeave && !a.isHolidayChip) html += `<span class="sl-holiday-sub">休</span>`;
+                html += `</span>`;
+                // 連勤マーク（▼ 下）
+                if (a.continuousBelow) html += `<span class="continuous-badge">▼</span>`;
+                // 連絡方法バッジ
+                if (a.contactText) {
+                    const ck = a.contactClass ? ' ' + esc(a.contactClass) : '';
+                    html += `<span class="contact-badge${ck}">${esc(a.contactText)}</span>`;
+                }
+                // 休（申請あり）行のチップ: 配置先情報
+                if (a.holidayAssignInfo) {
+                    html += `<span class="pr-holiday-info">${esc(a.holidayAssignInfo)}</span>`;
+                }
                 html += `</div>`;
             } else {
                 html += `<div class="pr-assign-cell pr-assign-empty"></div>`;
@@ -267,8 +313,11 @@
 
         // 集合・出発
         html += `<td class="pr-meet-cell">`;
-        if (r.meetPlace) html += `<span class="pr-meet-place">${esc(r.meetPlace.length > 6 ? r.meetPlace.substring(0,6) : r.meetPlace)}</span>`;
         if (r.meetTime) html += `<span class="pr-meet-time">${esc(r.meetTime)}</span>`;
+        if (r.meetContact) {
+            const kindCls = r.meetContactClass ? ' ' + esc(r.meetContactClass) : '';
+            html += `<span class="pr-meet-contact contact-badge${kindCls}">${esc(r.meetContact)}</span>`;
+        }
         html += `</td>`;
 
         // 業務時間

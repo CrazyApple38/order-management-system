@@ -197,14 +197,15 @@
     text-align: center;
     line-height: 1.2;
 }
-.pr-meet-place {
-    display: block;
-    font-size: 7.5pt;
-}
 .pr-meet-time {
     display: block;
     font-size: 9pt;
     font-weight: 600;
+}
+.pr-meet-contact {
+    display: inline-block;
+    margin-top: 1mm;
+    font-size: 7.5pt;
 }
 .pr-worktime-cell {
     text-align: center;
@@ -277,18 +278,61 @@
     letter-spacing: -0.02em;
     white-space: nowrap;
 }
-.pr-assign-cell .pr-role {
-    font-size: 6.5pt;
-    color: #C83A4A;
-    margin-top: 0.3mm;
-    line-height: 1;
-}
-
 .pr-assign-cell.pr-gc-touo {
     background: #D9E6F2; /* 薄青 */
 }
 .pr-assign-cell.pr-gc-nikkei {
     background: #DDEBDD; /* 薄緑 */
+}
+
+/* ========== 配置セル内 バッジ群 ========== */
+/* 連絡方法バッジ（直/会社/LINE/迎え/OP 等）— 色は screen-layout.css の
+   .contact-direct/.contact-company/.contact-line から継承 */
+.pr-assign-cell .contact-badge {
+    font-size: 6.5pt;
+    font-weight: 700;
+    padding: 0 3px;
+    border-radius: 2px;
+    margin-top: 0.3mm;
+    line-height: 1.2;
+}
+/* 連勤マーク ▼ */
+.pr-assign-cell .continuous-badge {
+    font-size: 7pt;
+    line-height: 1;
+    color: var(--semantic-warning-text, #B7791F);
+}
+/* 休 サブバッジ（配置済み休み社員）— pr-name 内インライン */
+.pr-assign-cell .pr-name .sl-holiday-sub {
+    display: inline-block;
+    font-size: 6pt;
+    font-weight: 700;
+    padding: 0 3px;
+    margin-left: 2px;
+    border-radius: 2px;
+    background: var(--semantic-error, #C83A4A);
+    color: #fff;
+    line-height: 1.4;
+    vertical-align: middle;
+}
+/* 休（申請あり）行: on-leave セルの背景 */
+.pr-assign-cell.pr-on-leave {
+    background: rgba(219, 87, 123, 0.10);
+}
+.pr-assign-cell.pr-holiday-assigned {
+    opacity: 0.55;
+}
+/* 配置先情報（→ 現場名） */
+.pr-assign-cell .pr-holiday-info {
+    font-size: 6pt;
+    color: #555;
+    line-height: 1.1;
+    text-align: center;
+    margin-top: 0.3mm;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* ========== 備考・目報 ========== */
@@ -343,11 +387,12 @@
 /* ========== カラー保持（全メディア） ==========
    @media print だけで print-color-adjust を指定しても、ブラウザによっては
    スクリーン→プリントの切替時に一瞬の空白が出ることがあるため、
-   シート内は常時 exact を有効にする。印刷品質は変わらない。 */
+   シート内は常時 exact を有効にする。印刷品質は変わらない。
+   !important は他CSS（ブラウザデフォルトの economy 含む）からの上書きを防ぐ。 */
 .pr-sheet,
 .pr-sheet * {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
 }
 
 /* ========== 印刷時 (@media print) ========== */
@@ -362,6 +407,16 @@
         padding: 0 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    /* シート配下の全要素に exact を強制（ブラウザの背景グラフィック OFF を上書き） */
+    .pr-overlay,
+    .pr-overlay *,
+    .pr-sheet,
+    .pr-sheet * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
     }
     /* 画面UIは全て非表示 */
     body > *:not(.pr-overlay) {
@@ -417,6 +472,12 @@
 .grid-table tr.md-row-fixed .col-no {
     color: var(--text-disabled);
     text-align: center;
+}
+/* 「休み（申請なし）」固定行は画面では非表示。
+   印刷プレビュー側 (extractAllRows) は tr.style.display のインライン値のみ
+   チェックするため、CSS 非表示は印刷出力に影響しない。 */
+.grid-table tr.md-row-fixed-off-unapproved {
+    display: none;
 }
 
 /* ========== 休み申請あり行 社員チップ ==========

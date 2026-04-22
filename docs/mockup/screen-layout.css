@@ -4279,9 +4279,11 @@ h1 {
         margin: 10mm;
     }
 
-    *,
-    *::before,
-    *::after {
+    /* 画面用印刷リセット — .pr-overlay 配下（業務管理計画書プリント書式）は
+       独自の配色を保つため除外する。CSS Selectors Level 4 の :not() を使用。 */
+    :not(.pr-overlay, .pr-overlay *),
+    :not(.pr-overlay, .pr-overlay *)::before,
+    :not(.pr-overlay, .pr-overlay *)::after {
         color: #000 !important;
         background: transparent !important;
         box-shadow: none !important;

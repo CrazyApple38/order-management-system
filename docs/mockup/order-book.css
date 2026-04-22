@@ -1673,14 +1673,14 @@ body {
         margin: 15mm 10mm;
     }
 
-    /* ─── カラー・影・背景のリセット（トナー節約 + 白黒最適化） ─── */
+    /* ─── 影のみリセット（背景色・文字色はカラー印刷で保持） ─── */
     *,
     *::before,
     *::after {
-        color: #000 !important;
-        background: transparent !important;
         box-shadow: none !important;
         text-shadow: none !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     /* ─── body 印刷基本スタイル ─── */
@@ -1693,6 +1693,8 @@ body {
         font-size: 10pt;
         line-height: var(--lh-base);
         background: #fff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     /* ─── 画面専用UIの一括非表示 ─── */
