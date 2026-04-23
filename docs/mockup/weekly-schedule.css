@@ -8,9 +8,9 @@
    ここでは WS 固有トークンのみを定義する。
 */
 :root {
-    /* WS 固有: セル背景（昼/夜）— --bg-surface / --bg-surface-2 とは別用途 */
-    --cell-base-day:     #F7F5F2;
-    --cell-base-night:   #F0EDE9;
+    /* WS 固有: セル背景（昼/夜）— Phase D15-2: warm beige → neutral gray (DS 経由) */
+    --cell-base-day:     var(--bg-surface-neutral);       /* Phase D15-2: warm beige → neutral gray */
+    --cell-base-night:   var(--bg-surface-neutral-alt);   /* Phase D15-2: warm beige → neutral gray (alt) */
 
     /* WS 固有: GC 背景（co-tokens.css の alias 非対象） */
     --md-gc-bg-touo:      #FFFFFF;
@@ -367,11 +367,11 @@ body {
     color: var(--night-text);
 }
 .md-ws-shift-header.md-ws-shift-sat {
-    background: linear-gradient(rgba(90, 184, 198, 0.08), rgba(90, 184, 198, 0.08)), var(--bg-surface-2);
+    background: var(--day-sat);   /* Phase D15-2: linear-gradient → solid tint */
 }
 .md-ws-shift-header.md-ws-shift-sun,
 .md-ws-shift-header.md-ws-shift-holiday {
-    background: linear-gradient(rgba(219, 87, 123, 0.08), rgba(219, 87, 123, 0.08)), var(--bg-surface-2);
+    background: var(--day-sun);   /* Phase D15-2: linear-gradient → solid tint */
 }
 
 /* --- グループヘッダー行 --- */
