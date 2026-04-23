@@ -1,7 +1,7 @@
 /* ============================================================================
    co-tokens.css — Plaster UI Design Tokens (Single Source of Truth)
    ----------------------------------------------------------------------------
-   参照元: docs/ui-components/styles-light.css (:root) / docs/ui-components/tokens.json v1.3.0
+   参照元: docs/ui-components/styles-light.css (:root) / docs/ui-components/tokens.json v1.3.1
    スコープ: Light テーマのみ（ダーク対応は別フェーズで追加）
    同期方針: tokens.json を唯一の正とし、本ファイルを手動で同期する。
              トークン追加・変更時は styles-light.css / tokens.json / 本ファイル
@@ -42,7 +42,7 @@
   /* ----- color.text ----- */
   --text-primary:   #004554;
   --text-secondary: #2A6B7A;
-  --text-tertiary:  #5A8896;  /* Phase D6.1: 旧 #6B9AA8 → #5A8896 (WCAG AA 4.6:1) */
+  --text-tertiary:  #476E7B;  /* Phase D15-3: #5A8896 → #476E7B で全neutral背景でAA達成 (5.09:1 on #F5F5F5, 4.94:1 on #F2F2F1, 5.55:1 on #FFFFFF) */
   --text-disabled:  #8BAEB9;  /* Phase D6.1: 旧 #A0BCC5 → #8BAEB9 */
 
   /* ----- color.accent ----- */

@@ -705,6 +705,76 @@ Phase D1-D12 で整備した全トークン・規約を UIコンポーネント�
 
 ---
 
+### 🟠品質 Phase D15 — 画面間カラー調和（Surface Tier 拡張 + WS 色切替）
+
+**目的**: WS/OB/SL 間で分散していた「データグリッド用 neutral surface」「曜日別セル色」
+を DS に昇格し、WS のメインセルを warm beige から neutral gray に切り替える。
+
+**背景課題**:
+- WS 昼セル `#F7F5F2` / 夜セル `#F0EDE9`（warm beige）が OB `#F5F5F5` / `#F2F2F1`（neutral）と色温度不一致
+- 曜日色（`--day-sat` / `--day-sun` 系）が OB 独自トークンとして DS に未昇格
+- ユーザーから「WS の茶色感を抜いて OB と同じ明度・色味に揃えたい」との明示要望（2026-04-24）
+
+#### D15-1 Surface Tier 拡張（DS昇格のみ、ビジュアル変化なし）
+- `co-tokens.css` / `styles-light.css` / `tokens.json` に以下を追加（3者同時更新）
+  - `--bg-surface-neutral: #F5F5F5` / `--bg-surface-neutral-alt: #F2F2F1`
+  - `--day-sat: #EAF0F1` / `--day-sun: #F3ECEE`
+  - `--day-sat-head: #BECAC5` / `--day-sun-head: #D4BEBD`
+  - `--day-sat-cal: rgba(68,166,181,0.06)` / `--day-sun-cal: rgba(220,120,120,0.06)`
+- `order-book.css` の `:root` から同名独自定義を撤去し DS 継承に一本化（`--base-grid` 系はエイリアスで参照互換を維持）
+- `tokens.json` `$version`: 1.2.0 → 1.3.0、`$lastUpdated` 更新
+
+**合格条件（70点以上、重大Claim=0）**
+- A(DS準拠) 25/30: 3者同期が完全、命名が既存トークン群と整合
+- B(カラー) 15/20: 既存画面の見た目に劣化なし（ビジュアル差分ゼロ）
+- E(機能回帰) 10/10: OB の既存表示が不変
+- 重大Claim: Coastal Palette外の色混入なし、絵文字代用なし
+
+#### D15-2 WS メインセル neutral 切替
+- `weekly-schedule.css` `:root`：
+  - `--cell-base-day` / `--cell-base-night` を neutral 参照に差し替え
+  - 土/日ヘッダの `linear-gradient(rgba(...))` 処理を solid `var(--day-sat/sun)` に単純化
+- Dark テーマ値は既存維持（スコープ外）
+
+**合格条件（70点以上、重大Claim=0）**
+- A(DS準拠) 25/30: 新トークン経由、WS独自値の温存なし
+- B(カラー) 18/20: WS の色温度が OB と整合、AA コントラスト維持
+- E(機能回帰) 10/10: カレンダー描画・DnD・選択に変化なし
+- 重大Claim: 可読性低下（本文字対セル背景 AA未達）なし
+
+**依存**: D15-1 合格後に D15-2 着手
+**所要時間目安**: 各2〜3h（TD+IM+TE+SC 反復込み）
+**ステータス**: ✅ D15-1 / D15-2 合格済（2026-04-24、99/100 / 100/100）
+
+#### D15-3 `--text-tertiary` AA 達成（D15-2 a11y 補完）
+
+**目的**: D15-2 の neutral 背景切替により `--text-tertiary: #5A8896` が AA 未達
+（#F5F5F5 上 3.57:1、#F2F2F1 上 3.47:1、#FFFFFF 上 3.92:1）となった件を解消。
+
+**作業内容**:
+- `co-tokens.css` / `styles-light.css` / `tokens.json` の `--text-tertiary` を `#5A8896` → `#476E7B` に差し替え（3者同期）
+  - #476E7B は #F5F5F5 上 5.09:1、#F2F2F1 上 4.94:1、#FFFFFF 上 5.55:1 で全主要surface AA 達成想定
+- tokens.json: `$version` 1.3.0 → 1.3.1（PATCH、既存値変更）、`$lastUpdated` 2026-04-24 を維持
+- co-tokens.css / styles-light.css の `--text-tertiary` コメントを Phase D15-3 記述に更新
+
+**スコープ外**:
+- Dark テーマ（`--text-tertiary: #8a8480`）は別フェーズ
+- `--text-disabled`（AA対象外の補助色）は対象外
+- 他トークンへの波及編集なし
+
+**合格条件（70点以上、重大Claim=0）**
+- A(DS準拠) 25/30: 3者同期完全、`$version` PATCH バンプ適切
+- B(カラー) 15/20: Coastal Palette 整合、teal/blue-gray 色相維持
+- F(a11y) 25/25: `#476E7B` × [`#FFFFFF`, `#F5F5F5`, `#F2F2F1`, `#F0EDE9`] の全組み合わせで WCAG AA 4.5:1 以上（数値実測必須）
+- E(機能回帰) 10/10: `--text-tertiary` 参照箇所で表示は変化するが機能に影響なし
+- 重大Claim: AA未達が1組合せでも残る場合
+
+**依存**: D15-2 合格後に着手
+**所要時間目安**: 1〜2h
+**ステータス**: 未着手（本計画で新設、2026-04-24）
+
+---
+
 ## 5. フェーズ進捗サマリー
 
 | Tier | Phase | 内容 | 所要時間 | ステータス |
@@ -726,6 +796,9 @@ Phase D1-D12 で整備した全トークン・規約を UIコンポーネント�
 | 🟢反映 | D14-B | order-book 反映 | 大 | 未着手 |
 | 🟢反映 | D14-C | quick-access 反映 | 小〜中 | 未着手 |
 | 🟢反映 | D14-D | screen-layout 反映 | 中 | 未着手 |
+| 🟠品質 | D15-1 | Surface Tier 拡張（DS昇格） | 2-3h | ✅ 完了（99/100） |
+| 🟠品質 | D15-2 | WS メインセル neutral 切替 | 2-3h | ✅ 完了（100/100） |
+| 🟠品質 | D15-3 | --text-tertiary AA 達成 | 1-2h | 未着手 |
 
 **総所要時間目安**: 約65-95時間（Phase D14除く）
 

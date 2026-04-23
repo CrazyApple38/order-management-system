@@ -22,7 +22,7 @@
     --bg-sidebar: #004554;
     --text-primary: #004554;
     --text-secondary: #2A6B7A;
-    --text-tertiary: #5A8896;  /* Phase D6.1: 旧 #6B9AA8（3.1:1 AA未達）→ 約4.6:1 */
+    --text-tertiary: #476E7B;  /* Phase D15-3: #5A8896 → #476E7B で全neutral背景でAA達成 (5.09:1 on #F5F5F5, 4.94:1 on #F2F2F1, 5.55:1 on #FFFFFF) */
     --text-disabled: #8BAEB9;  /* Phase D6.1: 旧 #A0BCC5 → 3:1 許容 */
     --accent: #44A6B5;
     --accent-light: #5AB8C6;
