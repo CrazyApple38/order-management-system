@@ -4,22 +4,14 @@
    =========================== */
 
 :root {
-    /* OB固有トークン（co-tokens.css 未収載。Phase M-A で個別対応予定） */
-
-    /* OB Grid背景 */
-    --base-grid:         #F5F5F5;
-    --base-grid-alt:     #F2F2F1;
+    /* OB Grid背景 — Phase D15-1: --bg-surface-neutral/-alt 系へ DS 昇格済（エイリアス維持）、--base-grid-total は OB 独自残留 */
+    --base-grid:         var(--bg-surface-neutral);
+    --base-grid-alt:     var(--bg-surface-neutral-alt);
     --base-grid-total:   #F0F4F4;
 
-    /* 曜日オーバーレイ */
-    --day-sat:           #EAF0F1;
-    --day-sun:           #F3ECEE;
-    --day-sat-head:      #BECAC5;
-    --day-sun-head:      #D4BEBD;
-    --day-sat-cal:       rgba(68, 166, 181, 0.06);
-    --day-sun-cal:       rgba(220, 120, 120, 0.06);
+    /* 曜日オーバーレイ — Phase D15-1 で co-tokens.css に昇格済。OB 側の再定義は撤去し、DS からの継承に一本化 */
 
-    /* OB固有α値・用途特殊 */
+    /* OB固有α値・用途特殊（co-tokens.css 未収載。Phase M-A で個別対応予定） */
     --error-bg:          rgba(219, 87, 123, 0.08);
     --night-text:        #DB577B;
     --success-bg:        rgba(56, 161, 105, 0.1);

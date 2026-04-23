@@ -1,16 +1,19 @@
 /* ============================================================================
    co-tokens.css — Plaster UI Design Tokens (Single Source of Truth)
    ----------------------------------------------------------------------------
-   参照元: docs/ui-components/styles-light.css (:root) / docs/ui-components/tokens.json v1.2.0
+   参照元: docs/ui-components/styles-light.css (:root) / docs/ui-components/tokens.json v1.3.0
    スコープ: Light テーマのみ（ダーク対応は別フェーズで追加）
    同期方針: tokens.json を唯一の正とし、本ファイルを手動で同期する。
              トークン追加・変更時は styles-light.css / tokens.json / 本ファイル
              の3者を必ず同時更新すること。
    構造: W3C Design Tokens Community Group ドラフトの階層
          (color.base / color.text / color.accent / color.semantic /
-          color.category / color.chart / typography / spacing / radius /
-          elevation / motion / breakpoint / icon-size / z-index / modal-width /
-          density) を CSS コメントで表現する。
+          color.category / color.day / color.chart / typography / spacing /
+          radius / elevation / motion / breakpoint / icon-size / z-index /
+          modal-width / density) を CSS コメントで表現する。
+         ※ color.base には Phase D15-1 で Surface Tier 拡張
+           (--bg-surface-neutral / --bg-surface-neutral-alt) を追加。
+           color.day は Phase D15-1 で新設（曜日別セル色、WS/OB 共通）。
    注記: font-feature-settings ("palt") / font-variant-numeric (tabular-nums)
          の body への適用は M0-4 で styles.css 側に実装する（本ファイル非対象）。
    ============================================================================ */
@@ -24,6 +27,17 @@
   --bg-surface-3:   #D3D0C8;
   --bg-sidebar:     #004554;
   --divider:        #B2D5E2;
+  /* Phase D15-1 — Surface Tier 拡張（WS/OB データグリッド用 neutral surface） */
+  --bg-surface-neutral:     #F5F5F5;
+  --bg-surface-neutral-alt: #F2F2F1;
+
+  /* ----- color.day (Phase D15-1 — 曜日別セル色、WS/OB 共通) ----- */
+  --day-sat:       #EAF0F1;
+  --day-sun:       #F3ECEE;
+  --day-sat-head:  #BECAC5;
+  --day-sun-head:  #D4BEBD;
+  --day-sat-cal:   rgba(68, 166, 181, 0.06);
+  --day-sun-cal:   rgba(220, 120, 120, 0.06);
 
   /* ----- color.text ----- */
   --text-primary:   #004554;
