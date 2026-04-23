@@ -1913,6 +1913,32 @@ body {
     line-height: var(--lh-base);
 }
 
+/* --- PCプレビュー: スマホ幅に制限して中央表示 ---
+   実機スマホ幅 (< 768px) では body は全幅のまま。
+   タブレット以上では 420px に制限し、周囲を暗い背景でフレーム風に見せる。 */
+@media (min-width: 768px) {
+    html {
+        background: #1a2428;
+        min-height: 100vh;
+        min-height: 100dvh;
+    }
+    body {
+        max-width: 420px;
+        margin: 0 auto;
+        box-shadow: 0 0 32px rgba(0, 0, 0, 0.4);
+        position: relative;
+    }
+    /* フルビュー前提のオーバーレイ/トーストを body 幅内に収める */
+    .qa-modal-overlay,
+    .qa-cn-modal-overlay,
+    .qa-toast,
+    #qaCnToastContainer {
+        max-width: 420px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
 /* --- prefers-reduced-motion --- */
 @media (prefers-reduced-motion: reduce) {
     *,

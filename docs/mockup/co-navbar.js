@@ -66,6 +66,9 @@
         +   '<a href="weekly-schedule.html" class="md-nav-tab' + (currentPage === 'weekly-schedule' ? ' md-nav-active' : '') + '">'
         +     icon('calendar.svg') + '週間予定表'
         +   '</a>'
+        +   '<a href="quick-access.html" target="_blank" rel="noopener" class="md-nav-tab' + (currentPage === 'quick-access' ? ' md-nav-active' : '') + '">'
+        +     icon('smartphone.svg') + 'モバイル'
+        +   '</a>'
         +   '<div class="md-nav-sep"></div>'
         // --- マスタ管理ドロップダウン ---
         +   '<div class="md-nav-dropdown" id="mdNavMasterDD">'
