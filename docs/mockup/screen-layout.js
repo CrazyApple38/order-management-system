@@ -2338,20 +2338,20 @@
             return !!(emp && emp.isOnLeave);
         }
 
-        // 指定社員が配置されている現場名一覧（固定行・休み申請あり行は除外）
+        // 指定社員が配置されている契約先名一覧（固定行・休み申請あり行は除外）
         function slGetAssignedSitesFor(name) {
-            var sites = [];
+            var companies = [];
             document.querySelectorAll('.grid-table tbody tr').forEach(function(tr) {
                 if (tr.dataset.fixed === 'true') return;
                 tr.querySelectorAll('.assignment-zone .assigned-employee').forEach(function(emp) {
                     if (getEmployeeName(emp) !== name) return;
                     var siteInfo = tr.querySelector('.col-site-info');
-                    var siteNameEl = siteInfo ? siteInfo.querySelector('.site-name') : null;
-                    var sn = siteNameEl ? siteNameEl.textContent.trim() : '';
-                    if (sn && sites.indexOf(sn) === -1) sites.push(sn);
+                    var companyEl = siteInfo ? siteInfo.querySelector('.company') : null;
+                    var cn = companyEl ? companyEl.textContent.trim() : '';
+                    if (cn && companies.indexOf(cn) === -1) companies.push(cn);
                 });
             });
-            return sites;
+            return companies;
         }
 
         // 休み申請あり行のチップを再描画
@@ -3216,14 +3216,9 @@
             '--md-gc-bg-nikkei': '#F3F9F6',
             '--md-gc-bg-zennihon': '#F2F4F8',
             'cat-facility': '#44A6B5',
-            'cat-event': '#44A6B5',
-            'cat-traffic': '#44A6B5',
-            'cat-highway': '#44A6B5',
-            'cat-support-event': '#44A6B5',
-            'cat-support-traffic': '#44A6B5',
-            'cat-support-highway': '#44A6B5',
-            'cat-training': '#44A6B5',
-            'cat-company': '#44A6B5',
+            'cat-event': '#7A8CC4',
+            'cat-traffic': '#B48764',
+            'cat-highway': '#629E78',
             'shift-day': '#D3D0C8',
             'shift-night': '#004554',
             // 社員バッジ色（基本色から背景/文字を自動生成、プリント書式と SL サイドメニュー共通）

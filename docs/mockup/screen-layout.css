@@ -611,6 +611,7 @@ h1 {
 }
 
 .employee-tag {
+    position: relative; /* 休/明け サブバッジを absolute で重ねるため */
     display: inline-block;
     padding: 6px 12px;
     margin: 3px;

@@ -681,16 +681,18 @@
 }
 .employee-tag.emp-on-leave::before {
     content: '休';
-    display: inline-block;
+    position: absolute;
+    top: -6px;
+    left: -6px;
     font-size: 10px;
     font-weight: 700;
     line-height: 1;
     padding: 2px 4px;
-    margin-right: 5px;
     border-radius: 3px;
     background: var(--semantic-error);
     color: #fff;
-    vertical-align: middle;
+    z-index: 2;
+    pointer-events: none;
 }
 /* 配置済み（.assigned）と休み（.emp-on-leave）の併用時も休み色を優先。
    さらに opacity を下げて「もう割り当て済み」のニュアンスを伝える。 */
@@ -707,16 +709,18 @@
    変更通知系と同じ色相を用い、Warning（ゴールド）と視覚的に分離する。 */
 .employee-tag.emp-after-night::before {
     content: '明け';
-    display: inline-block;
+    position: absolute;
+    top: -6px;
+    left: -6px;
     font-size: 10px;
     font-weight: 700;
     line-height: 1;
     padding: 2px 4px;
-    margin-right: 5px;
     border-radius: 3px;
     background: #DECCBE;
     color: #5C4A33;
-    vertical-align: middle;
+    z-index: 2;
+    pointer-events: none;
 }
 /* 休み申請ありと明けが同時に成立した場合は休みバッジを優先 */
 .employee-tag.emp-on-leave.emp-after-night::before {
