@@ -2890,22 +2890,8 @@
         };
 
         function extractGridData() {
-            const rows = document.querySelectorAll('.grid-table tbody tr');
-            const data = [];
-            rows.forEach(row => {
-                const categoryBadge = row.querySelector('.category-badge');
-                const shiftBadge = row.querySelector('.shift-badge');
-                const company = row.querySelector('.site-info .company');
-                const siteName = row.querySelector('.site-info .site-name');
-                data.push({
-                    row: row,
-                    category: categoryBadge ? categoryBadge.textContent.trim() : '',
-                    shift: shiftBadge ? shiftBadge.textContent.trim() : '',
-                    contractor: company ? company.textContent.trim() : '',
-                    site: siteName ? siteName.textContent.trim() : ''
-                });
-            });
-            return data;
+            return Array.from(document.querySelectorAll('.grid-table tbody tr'))
+                .map(row => Object.assign({ row }, extractRowData(row)));
         }
 
         function getUniqueValues(dataArray, key) {
@@ -2929,7 +2915,7 @@
             return result;
         }
 
-        function openSortModal() {
+        function initSortStateFromGrid() {
             const gridData = extractGridData();
             // デフォルト順序を適用（グリッドに存在する値のみ）
             const gridCategories = getUniqueValues(gridData, 'category');
@@ -2955,12 +2941,24 @@
             sortState.selected = { category: null, shift: null, contractor: null, site: null };
             sortState.filterCategory = null;
             sortState.filterContractor = null;
+        }
 
+        function renderAllSortLists() {
             renderSortList('category'); renderSortList('shift');
             renderSortList('contractor'); renderSortList('site');
             updateSortFilters();
+            updateSortModifiedBadge();
+        }
 
-            document.getElementById('sortModal').classList.add('active');
+        function openSortModal() {
+            initSortStateFromGrid();
+            sortState.initialSnapshot = snapshotSortState();
+            renderAllSortLists();
+            const modal = document.getElementById('sortModal');
+            modal.classList.add('active');
+            // 初期フォーカスを閉じるボタンに
+            const closeBtn = modal.querySelector('.sort-modal-close');
+            if (closeBtn) closeBtn.focus();
         }
 
         function closeSortModal() { document.getElementById('sortModal').classList.remove('active'); }
@@ -2968,6 +2966,159 @@
         document.getElementById('sortModal').addEventListener('click', function(e) {
             if (e.target === this) closeSortModal();
         });
+
+        // ソートモーダル内のクリックをイベント委譲で処理
+        document.getElementById('sortModal').addEventListener('click', function(e) {
+            const upBtn = e.target.closest('.sort-btn-move-up');
+            if (upBtn) { sortMoveUp(upBtn.dataset.column); return; }
+            const downBtn = e.target.closest('.sort-btn-move-down');
+            if (downBtn) { sortMoveDown(downBtn.dataset.column); return; }
+            const listItem = e.target.closest('.sort-list-item');
+            if (listItem && !listItem.dataset.empty) {
+                const list = listItem.closest('.sort-column-list');
+                const col = list && list.dataset.column;
+                const idx = parseInt(listItem.dataset.index, 10);
+                if (col && !isNaN(idx)) selectSortItem(col, idx);
+            }
+        });
+
+        // ソートモーダル内のドラッグ&ドロップ（列内でのみ並べ替え可能）
+        let sortDragState = null;
+        document.getElementById('sortModal').addEventListener('dragstart', function(e) {
+            const item = e.target.closest && e.target.closest('.sort-list-item');
+            if (!item) return;
+            const list = item.closest('.sort-column-list');
+            const col = list && list.dataset.column;
+            const idx = parseInt(item.dataset.index, 10);
+            if (!col || isNaN(idx)) return;
+            sortDragState = { column: col, fromIndex: idx };
+            item.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            try { e.dataTransfer.setData('text/plain', String(idx)); } catch (_) {}
+        });
+
+        document.getElementById('sortModal').addEventListener('dragend', function(e) {
+            const item = e.target.closest && e.target.closest('.sort-list-item');
+            if (item) item.classList.remove('dragging');
+            document.querySelectorAll('.sort-list-item.drop-before, .sort-list-item.drop-after')
+                .forEach(el => el.classList.remove('drop-before', 'drop-after'));
+            sortDragState = null;
+        });
+
+        document.getElementById('sortModal').addEventListener('dragover', function(e) {
+            if (!sortDragState) return;
+            const list = e.target.closest && e.target.closest('.sort-column-list');
+            if (!list || list.dataset.column !== sortDragState.column) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const over = e.target.closest('.sort-list-item');
+            list.querySelectorAll('.sort-list-item.drop-before, .sort-list-item.drop-after')
+                .forEach(el => el.classList.remove('drop-before', 'drop-after'));
+            if (!over || over.classList.contains('dragging')) return;
+            const rect = over.getBoundingClientRect();
+            const mid = rect.top + rect.height / 2;
+            over.classList.add(e.clientY < mid ? 'drop-before' : 'drop-after');
+        });
+
+        // ソートモーダル キーボード操作 + フォーカストラップ
+        document.getElementById('sortModal').addEventListener('keydown', function(e) {
+            if (!this.classList.contains('active')) return;
+
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeSortModal();
+                return;
+            }
+
+            // Tab フォーカストラップ
+            if (e.key === 'Tab') {
+                const focusables = this.querySelectorAll(
+                    'button:not([disabled]), [tabindex="0"], input, select, textarea'
+                );
+                if (focusables.length === 0) return;
+                const first = focusables[0];
+                const last = focusables[focusables.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault(); last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault(); first.focus();
+                }
+                return;
+            }
+
+            // リスト内矢印キー操作
+            const listbox = e.target.closest('.sort-column-list[role="listbox"]');
+            if (!listbox) return;
+            const col = listbox.dataset.column;
+            if (!col) return;
+            const items = getCurrentSortItems(col) || [];
+            if (items.length === 0) return;
+            const cur = sortState.selected[col];
+
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (e.ctrlKey || e.metaKey) {
+                    // Ctrl+↑/↓ で順位入れ替え
+                    if (e.key === 'ArrowUp') sortMoveUp(col); else sortMoveDown(col);
+                } else {
+                    // ↑/↓ で選択移動
+                    const next = (cur === null || cur === undefined)
+                        ? 0
+                        : Math.max(0, Math.min(items.length - 1, cur + (e.key === 'ArrowDown' ? 1 : -1)));
+                    if (next !== cur) selectSortItem(col, next);
+                }
+                // フォーカスを新しい選択に移す
+                const newSel = listbox.querySelector('.sort-list-item.selected');
+                if (newSel) newSel.focus();
+            }
+        });
+
+        document.getElementById('sortModal').addEventListener('drop', function(e) {
+            if (!sortDragState) return;
+            const list = e.target.closest && e.target.closest('.sort-column-list');
+            if (!list || list.dataset.column !== sortDragState.column) return;
+            e.preventDefault();
+            const over = e.target.closest('.sort-list-item');
+            const items = getCurrentSortItems(sortDragState.column);
+            if (!items) return;
+            const from = sortDragState.fromIndex;
+            let to;
+            if (!over) {
+                to = items.length - 1;
+            } else {
+                const overIdx = parseInt(over.dataset.index, 10);
+                const rect = over.getBoundingClientRect();
+                const before = e.clientY < rect.top + rect.height / 2;
+                to = before ? overIdx : overIdx + 1;
+                if (from < to) to -= 1;
+            }
+            if (from === to) return;
+            const moved = items.splice(from, 1)[0];
+            items.splice(to, 0, moved);
+            sortState.selected[sortDragState.column] = to;
+            renderSortList(sortDragState.column);
+            if (sortDragState.column === 'category') { updateSortFilters(); }
+            updateSortModifiedBadge();
+        });
+
+        function snapshotSortState() {
+            // モーダル開時の初期状態スナップショット。以降の変更検知用。
+            return JSON.stringify({
+                category: sortState.category,
+                shift: sortState.shift,
+                contractor: sortState.contractor,
+                site: sortState.site,
+                categoryContractorOrders: sortState.categoryContractorOrders,
+                contractorSiteOrders: sortState.contractorSiteOrders
+            });
+        }
+
+        function updateSortModifiedBadge() {
+            const badge = document.getElementById('sortModifiedBadge');
+            if (!badge) return;
+            const current = snapshotSortState();
+            badge.hidden = (current === sortState.initialSnapshot);
+        }
 
         function renderSortList(column) {
             const container = document.getElementById('sortList' + column.charAt(0).toUpperCase() + column.slice(1));
@@ -2983,16 +3134,18 @@
             let html = '';
             items.forEach((item, index) => {
                 const isSelected = sortState.selected[column] === index;
-                html += '<div class="sort-list-item' + (isSelected ? ' selected' : '') + '" onclick="selectSortItem(\'' + column + '\', ' + index + ')">'
+                html += '<div class="sort-list-item' + (isSelected ? ' selected' : '') + '" data-index="' + index + '" draggable="true"'
+                    + ' role="option" aria-selected="' + (isSelected ? 'true' : 'false') + '" tabindex="' + (isSelected ? '0' : '-1') + '">'
                     + '<span class="sort-item-number">' + (index + 1) + '.</span>'
                     + '<span class="sort-item-name">' + escapeHtml(item) + '</span>'
                     + '</div>';
             });
 
             if (items.length === 0) {
-                html = '<div style="padding: 20px; text-align: center; color: var(--text-disabled); font-size: 0.8rem;">項目なし</div>';
+                html = '<div class="sort-list-empty">項目なし</div>';
             }
             container.innerHTML = html;
+            updateSortButtonState(column);
         }
 
         function selectSortItem(column, index) {
@@ -3025,8 +3178,29 @@
         function updateSortFilters() {
             const contractorFilter = document.getElementById('sortContractorFilter');
             const siteFilter = document.getElementById('sortSiteFilter');
-            contractorFilter.textContent = sortState.filterCategory ? '▸ ' + sortState.filterCategory : '';
-            siteFilter.textContent = sortState.filterContractor ? '▸ ' + sortState.filterContractor : '';
+            const arrowSvg = '<svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-arrow-right"/></svg> ';
+            contractorFilter.innerHTML = sortState.filterCategory ? arrowSvg + escapeHtml(sortState.filterCategory) : '';
+            siteFilter.innerHTML = sortState.filterContractor ? arrowSvg + escapeHtml(sortState.filterContractor) : '';
+        }
+
+        function updateSortButtonState(column) {
+            let selIdx = sortState.selected[column];
+            const items = getCurrentSortItems(column) || [];
+            // 境界外の選択インデックスは無効とみなす（filter変更時等の防御）
+            if (selIdx !== null && selIdx !== undefined && (selIdx < 0 || selIdx >= items.length)) {
+                sortState.selected[column] = null;
+                selIdx = null;
+            }
+            const upBtn = document.querySelector('.sort-btn-move-up[data-column="' + column + '"]');
+            const downBtn = document.querySelector('.sort-btn-move-down[data-column="' + column + '"]');
+            if (!upBtn || !downBtn) return;
+            const noSelection = (selIdx === null || selIdx === undefined);
+            upBtn.disabled = noSelection || selIdx <= 0;
+            downBtn.disabled = noSelection || selIdx >= items.length - 1;
+        }
+
+        function updateAllSortButtonStates() {
+            ['category', 'shift', 'contractor', 'site'].forEach(updateSortButtonState);
         }
 
         function sortMoveUp(column) {
@@ -3036,6 +3210,7 @@
             const temp = items[idx - 1]; items[idx - 1] = items[idx]; items[idx] = temp;
             sortState.selected[column] = idx - 1;
             renderSortList(column);
+            updateSortModifiedBadge();
         }
 
         function sortMoveDown(column) {
@@ -3045,6 +3220,7 @@
             const temp = items[idx + 1]; items[idx + 1] = items[idx]; items[idx] = temp;
             sortState.selected[column] = idx + 1;
             renderSortList(column);
+            updateSortModifiedBadge();
         }
 
         function getCurrentSortItems(column) {
@@ -3054,12 +3230,12 @@
         }
 
         function applySortSettings() {
-            pushUndo();
             const tbody = document.querySelector('.grid-table tbody');
             const allRows = Array.from(tbody.querySelectorAll('tr'));
             // 固定3行はソート対象外。末尾に維持する。
             const fixedRows = allRows.filter(r => r.dataset.fixed === 'true');
             const sortableRows = allRows.filter(r => r.dataset.fixed !== 'true');
+            const beforeOrder = sortableRows.slice();
 
             sortableRows.sort((a, b) => {
                 const dataA = extractRowData(a), dataB = extractRowData(b);
@@ -3076,9 +3252,14 @@
                 return getSortPriority(siteOrderA, dataA.site) - getSortPriority(siteOrderB, dataB.site);
             });
 
-            sortableRows.forEach(row => tbody.appendChild(row));
-            fixedRows.forEach(row => tbody.appendChild(row));
-            renumberRows();
+            // 並びが実際に変わった時だけ undo に積む
+            const changed = sortableRows.some((r, i) => r !== beforeOrder[i]);
+            if (changed) {
+                pushUndo();
+                sortableRows.forEach(row => tbody.appendChild(row));
+                fixedRows.forEach(row => tbody.appendChild(row));
+                renumberRows();
+            }
             closeSortModal();
         }
 
@@ -3095,41 +3276,15 @@
             };
         }
 
+        const SORT_UNKNOWN_PRIORITY = Number.MAX_SAFE_INTEGER;
         function getSortPriority(orderArray, value) {
             const idx = orderArray.indexOf(value);
-            return idx >= 0 ? idx : 9999;
+            return idx >= 0 ? idx : SORT_UNKNOWN_PRIORITY;
         }
 
         function resetSortSettings() {
-            const gridData = extractGridData();
-            // デフォルト順序を適用（グリッドに存在する値のみ）
-            const gridCategories = getUniqueValues(gridData, 'category');
-            sortState.category = DEFAULT_SORT_ORDER.category.filter(c => gridCategories.includes(c));
-            gridCategories.forEach(c => { if (!sortState.category.includes(c)) sortState.category.push(c); });
-
-            const gridShifts = getUniqueValues(gridData, 'shift');
-            sortState.shift = DEFAULT_SORT_ORDER.shift.filter(s => gridShifts.includes(s));
-            gridShifts.forEach(s => { if (!sortState.shift.includes(s)) sortState.shift.push(s); });
-
-            sortState.contractor = getUniqueValues(gridData, 'contractor');
-            sortState.site = getUniqueValues(gridData, 'site');
-
-            sortState.categoryContractorOrders = {};
-            sortState.category.forEach(cat => {
-                sortState.categoryContractorOrders[cat] = getFilteredUniqueValues(gridData, 'contractor', 'category', cat);
-            });
-            sortState.contractorSiteOrders = {};
-            sortState.contractor.forEach(con => {
-                sortState.contractorSiteOrders[con] = getFilteredUniqueValues(gridData, 'site', 'contractor', con);
-            });
-
-            sortState.selected = { category: null, shift: null, contractor: null, site: null };
-            sortState.filterCategory = null;
-            sortState.filterContractor = null;
-
-            renderSortList('category'); renderSortList('shift');
-            renderSortList('contractor'); renderSortList('site');
-            updateSortFilters();
+            initSortStateFromGrid();
+            renderAllSortLists();
         }
 
         // ==================== カラー設定パネル ====================
