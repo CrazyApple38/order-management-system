@@ -1009,9 +1009,11 @@ h1 {
     position: relative;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 4px;
     padding: 4px 8px;
-    padding-right: 14px;
+    box-sizing: border-box;
+    width: 52px;
     background: rgba(56, 161, 105, 0.08);
     border: 1px solid rgba(56, 161, 105, 0.25);
     border-radius: 4px;
@@ -1072,22 +1074,94 @@ h1 {
     margin-left: 2px;
 }
 
-/* 社員名ブロック（名前＋個別連絡バッジ） */
-.employee-name-block {
+/* 休み申請あり社員が配置された場合の「休」サブバッジ
+   社員バッジの左上に枠線と重なるように配置する（remove-btn と対称）。形状は丸。 */
+.assigned-employee.sl-on-leave .sl-holiday-sub {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    width: 20px;
+    height: 20px;
+    box-sizing: border-box;
+    border-radius: 50%;
     display: inline-flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1;
+    background: var(--semantic-error);
+    color: #fff;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* 配置制約（相性警告）注意マーク — バッジ左上に枠線重なりで配置。
+   休バッジ（sl-holiday-sub）が同時表示される場合は、休バッジの右隣に横並び配置。
+   形状は丸、薄ピンク地に赤字、赤い枠線付き。 */
+.assigned-employee .indicator-conflict {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    width: 20px;
+    height: 20px;
+    box-sizing: border-box;
+    border: 1px solid var(--semantic-error);
+    background: #FADCE1; /* var(--error-bg) の solid 版（rgba(219,87,123,0.12) を白地合成） */
+    z-index: 2;
+    pointer-events: none;
+}
+
+.assigned-employee.sl-on-leave .indicator-conflict {
+    left: 16px; /* 休バッジ(直径20px, left:-6) の右端(14px) + 2px gap */
+}
+
+/* 社員名ブロック（名前＋個別連絡バッジ）
+   CSS Grid で行を固定し、社員名の縦位置を全社員で揃える。
+   1行目: 連勤▼上（予約高さ） / 2行目: 名前 / 3行目: 連勤▼下（予約高さ） / 4行目: 連絡バッジ
+   プリント書式 (.pr-assign-cell) と同じ考え方。 */
+.employee-name-block {
+    display: inline-grid;
+    grid-template-rows: [above] 9px [name] auto [below] 9px [contact] auto;
+    justify-items: center;
+    align-items: center;
+    align-self: start; /* 親 .assigned-employee の align-items:center を打ち消し、名前の Y 位置を揃える */
+    width: 100%;
+    min-width: 0; /* grid 内で overflow: hidden を効かせるため */
     cursor: pointer;
-    gap: 1px;
 }
 
 .employee-name-block:hover {
     opacity: 0.8;
 }
 
-.employee-name-block .contact-badge {
-    margin-top: 1px;
+/* .employee-with-continuous の子要素を外側 grid に直接参加させる */
+.employee-name-block .employee-with-continuous {
+    display: contents;
 }
+
+.employee-name-block .continuous-badge-above { grid-row: above; }
+.employee-name-block .continuous-badge-below { grid-row: below; }
+/* 名前 span を grid 2行目に固定（.sl-name-len-N 等の長さ判定クラスが付与されても一致するよう、
+   .contact-badge / .employee-with-continuous 以外のすべての直下 span を対象とする） */
+.employee-name-block > span:not(.contact-badge):not(.employee-with-continuous),
+.employee-name-block .employee-with-continuous > span:not(.continuous-badge) {
+    grid-row: name;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.employee-name-block > .contact-badge {
+    grid-row: contact;
+}
+
+/* 社員名の文字数別 font-size（プリント書式 .pr-name-len-N と同パターン）
+   コンテンツ領域 34px (width 52px - padding 8*2 - border 2) に収まるよう調整。 */
+.employee-name-block .sl-name-len-3 { font-size: 11px; letter-spacing: -0.04em; }
+.employee-name-block .sl-name-len-4 { font-size: 8.5px; letter-spacing: -0.08em; }
+.employee-name-block .sl-name-len-5 { font-size: 7px; letter-spacing: -0.1em; }
+.employee-name-block .sl-name-len-6 { font-size: 6px; letter-spacing: -0.12em; }
 
 /* 個別連絡選択ポップアップ */
 .contact-popup {
@@ -1581,26 +1655,13 @@ h1 {
     color: var(--semantic-error);
 }
 
-/* 連勤バッジ（▼表示） */
-.employee-with-continuous {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1px;
-}
-
+/* 連勤バッジ（▼表示）
+   配置セル (.employee-name-block) では CSS Grid で above/below 行（9px 固定）に配置される。
+   .employee-with-continuous は display: contents で外側 grid に参加する（上記セレクタ参照）。 */
 .continuous-badge {
     font-size: 10px;
     line-height: 1;
     color: var(--semantic-warning-text);
-}
-
-.continuous-badge-above {
-    margin-bottom: -2px;
-}
-
-.continuous-badge-below {
-    margin-top: -2px;
 }
 
 /* 車両表示 */

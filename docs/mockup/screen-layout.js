@@ -2486,6 +2486,24 @@
                 }
                 nameBlock.innerHTML = inner + contactHTML;
             });
+
+            slUpdateNameLengthClasses();
+        }
+
+        // 配置済み社員名の span に文字数別クラス (.sl-name-len-3 〜 -6) を付与。
+        // 固定幅 (.assigned-employee { width: 52px }) 内で自動縮小表示するため。
+        function slUpdateNameLengthClasses() {
+            document.querySelectorAll('.assignment-zone .employee-name-block').forEach(function(block) {
+                var nameSpan = block.querySelector(':scope > span:not(.contact-badge):not(.employee-with-continuous)')
+                    || block.querySelector(':scope > .employee-with-continuous > span:not(.continuous-badge)');
+                if (!nameSpan) return;
+                var len = (nameSpan.textContent || '').trim().length;
+                nameSpan.classList.remove('sl-name-len-3', 'sl-name-len-4', 'sl-name-len-5', 'sl-name-len-6');
+                if (len >= 6) nameSpan.classList.add('sl-name-len-6');
+                else if (len === 5) nameSpan.classList.add('sl-name-len-5');
+                else if (len === 4) nameSpan.classList.add('sl-name-len-4');
+                else if (len === 3) nameSpan.classList.add('sl-name-len-3');
+            });
         }
 
         // 既存の .assigned-employee 配列を走査して、休み社員には sl-on-leave を付与する。

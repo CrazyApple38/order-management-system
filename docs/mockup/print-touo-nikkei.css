@@ -663,21 +663,8 @@
     text-overflow: ellipsis;
 }
 
-/* ========== 現場セル内: 休み申請ありの社員への「休」サブバッジ ==========
-   WS の md-ws-holiday-sub 相当。 */
-.assigned-employee.sl-on-leave .sl-holiday-sub {
-    display: inline-block;
-    font-size: 9px;
-    font-weight: 700;
-    padding: 0 4px;
-    margin-left: 4px;
-    border-radius: 3px;
-    background: var(--semantic-error);
-    color: #fff;
-    line-height: 1.4;
-    vertical-align: middle;
-    flex-shrink: 0;
-}
+/* 画面側 (.assigned-employee.sl-on-leave .sl-holiday-sub) の「休」サブバッジは
+   screen-layout.css 側で絶対配置に定義している（バッジ左上・枠線重なり）。 */
 
 /* ========== サイドパネル社員リスト: 休み社員インジケータ ==========
    バッジ全体を赤系に着色し、左端に「休」インラインバッジを配置する。
