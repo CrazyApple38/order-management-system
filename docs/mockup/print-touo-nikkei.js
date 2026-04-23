@@ -323,7 +323,10 @@
         for (let i = 0; i < totalSlots; i++) {
             const a = assigned[i];
             if (a && a.name) {
-                const gcCls = a.gc === 'nikkei' ? 'pr-gc-nikkei' : (a.gc === 'touo' ? 'pr-gc-touo' : '');
+                const gcCls = a.gc === 'nikkei' ? 'pr-gc-nikkei'
+                            : a.gc === 'touo' ? 'pr-gc-touo'
+                            : a.gc === 'zennihon' ? 'pr-gc-zennihon'
+                            : '';
                 const leaveCls = a.isOnLeave ? ' pr-on-leave' : '';
                 const holidayChipCls = a.isHolidayChip ? ' pr-holiday-chip' : '';
                 const holidayAssignedCls = a.isHolidayAssigned ? ' pr-holiday-assigned' : '';

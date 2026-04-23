@@ -13,6 +13,16 @@
     --md-gc-bg-nikkei: #F3F9F6;
     --md-gc-bg-zennihon: #F2F4F8;
 
+    /* SL固有: 社員バッジ色（GC 別、カラー設定パネルの「社員バッジ色」と連動）。
+       基本色: touo=#5B8BB8 / nikkei=#7AA55A / zennihon=#6B7A99 を
+       deriveColors で変換したデフォルト値。JS 側で適用されるまでこれらが有効。 */
+    --emp-badge-bg-touo: rgba(91, 139, 184, 0.12);
+    --emp-badge-text-touo: #1E3F66;
+    --emp-badge-bg-nikkei: rgba(122, 165, 90, 0.12);
+    --emp-badge-text-nikkei: #3E5F1F;
+    --emp-badge-bg-zennihon: rgba(107, 122, 153, 0.12);
+    --emp-badge-text-zennihon: #2E3A5A;
+
     /* SL固有: シフト区分 */
     --shift-bg-day: rgba(211, 208, 200, 0.12);
     --shift-text-day: #3f3b31;
@@ -610,6 +620,24 @@ h1 {
     color: var(--text-primary);
 }
 
+/* 会社（GC）別の社員タグ色（カラー設定の「社員バッジ色」と連動）
+   .assigned / .emp-on-leave の状態色は後続セレクタで上書きされる */
+.employee-tag[data-company="touo"] {
+    background: var(--emp-badge-bg-touo);
+    color: var(--emp-badge-text-touo);
+    border-color: var(--emp-badge-text-touo);
+}
+.employee-tag[data-company="nikkei"] {
+    background: var(--emp-badge-bg-nikkei);
+    color: var(--emp-badge-text-nikkei);
+    border-color: var(--emp-badge-text-nikkei);
+}
+.employee-tag[data-company="zennihon"] {
+    background: var(--emp-badge-bg-zennihon);
+    color: var(--emp-badge-text-zennihon);
+    border-color: var(--emp-badge-text-zennihon);
+}
+
 .employee-tag:hover {
     background: var(--accent-primary);
     color: white;
@@ -620,10 +648,10 @@ h1 {
     cursor: grabbing;
 }
 
+/* 配置済み: 会社色はそのまま残し、opacity で「済み」感を表現。
+   休み申請あり (.emp-on-leave) は print-touo-nikkei.css 側で赤色に個別上書き。 */
 .employee-tag.assigned {
-    background: var(--success-bg);
-    border-color: rgba(56, 161, 105, 0.3);
-    color: var(--semantic-success-text);
+    opacity: 0.55;
 }
 
 /* ヘッダー部 */

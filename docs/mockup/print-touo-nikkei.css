@@ -339,14 +339,20 @@
     padding: 0 1.2mm;
     border-radius: 0.5mm;
 }
-/* GC 別の角丸バッジ色（枠線なし） */
+/* GC 別の角丸バッジ色（枠線なし）
+   CSS 変数はカラー設定パネルの「社員バッジ色」(基本色 → applyBaseColor で生成)
+   から設定される。デフォルトは touo=#5B8BB8, nikkei=#7AA55A, zennihon=#6B7A99。 */
 .pr-assign-cell.pr-gc-touo .pr-name {
-    background: #D9E6F2;       /* 淡青 */
-    color: #1E3F66;
+    background: var(--emp-badge-bg-touo);
+    color: var(--emp-badge-text-touo);
 }
 .pr-assign-cell.pr-gc-nikkei .pr-name {
-    background: #E0EDCB;       /* 淡黄緑 */
-    color: #3E5F1F;
+    background: var(--emp-badge-bg-nikkei);
+    color: var(--emp-badge-text-nikkei);
+}
+.pr-assign-cell.pr-gc-zennihon .pr-name {
+    background: var(--emp-badge-bg-zennihon);
+    color: var(--emp-badge-text-zennihon);
 }
 /* 1〜2 文字: デフォルト 9pt */
 .pr-assign-cell .pr-name.pr-name-len-3 {
@@ -699,11 +705,13 @@
     color: #fff;
     vertical-align: middle;
 }
-/* 配置済み（.assigned）と休み（.emp-on-leave）の併用時も休み色を優先 */
+/* 配置済み（.assigned）と休み（.emp-on-leave）の併用時も休み色を優先。
+   さらに opacity を下げて「もう割り当て済み」のニュアンスを伝える。 */
 .employee-tag.emp-on-leave.assigned {
     background: rgba(219, 87, 123, 0.18);
     border-color: rgba(219, 87, 123, 0.4);
     color: var(--semantic-error);
+    opacity: 0.55;
 }
 
 /* ========== サイドパネル社員リスト: 前日夜勤明けインジケータ ==========

@@ -547,6 +547,9 @@
                         <button type="button" class="sp-edit-btn" onclick="openStaffEditModal()" title="社員リスト編集">
                             <img src="assets/icons/business/im-12032-shimpuru-na-shomei-keiyaku.svg" alt="編集" class="sp-edit-icon">
                         </button>
+                        <button type="button" class="sp-edit-btn" onclick="toggleColorSettingsPanel()" title="バッジカラー">
+                            <img src="assets/icons/stationery/im-12928-paretto-no-muryou.svg" alt="バッジカラー" class="sp-edit-icon">
+                        </button>
                     </div>
                     <div class="side-panel-body">
                         <div class="md-sp-vtabs" id="spVtabs"><!-- JS動的生成 --></div>
@@ -678,6 +681,28 @@
                     <input type="color" class="color-setting-picker" data-css-var="--md-gc-bg-zennihon" value="#F2F4F8">
                     <span class="color-setting-name">全日本エンタープライズ</span>
                     <input type="text" class="color-setting-hex" data-css-var="--md-gc-bg-zennihon" value="#F2F4F8">
+                </div>
+            </div>
+
+            <hr class="color-settings-divider">
+
+            <!-- 社員バッジ色（基本色から背景・文字を自動生成。プリント書式と SL サイドメニュー共通） -->
+            <div class="color-settings-section">
+                <label class="color-settings-label">社員バッジ色</label>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="emp-badge-touo" value="#5B8BB8">
+                    <span class="color-setting-name">東央警備</span>
+                    <input type="text" class="color-setting-hex" data-base-key="emp-badge-touo" value="#5B8BB8">
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="emp-badge-nikkei" value="#7AA55A">
+                    <span class="color-setting-name">Nikkeiホールディングス</span>
+                    <input type="text" class="color-setting-hex" data-base-key="emp-badge-nikkei" value="#7AA55A">
+                </div>
+                <div class="color-setting-row">
+                    <input type="color" class="color-setting-picker color-base-picker" data-base-key="emp-badge-zennihon" value="#6B7A99">
+                    <span class="color-setting-name">全日本エンタープライズ</span>
+                    <input type="text" class="color-setting-hex" data-base-key="emp-badge-zennihon" value="#6B7A99">
                 </div>
             </div>
 

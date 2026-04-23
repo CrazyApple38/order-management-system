@@ -3167,6 +3167,11 @@
             if (baseKey.startsWith('cat-')) {
                 return { bg: '--cat-bg-' + baseKey.slice(4), text: '--cat-text-' + baseKey.slice(4) };
             }
+            if (baseKey.startsWith('emp-badge-')) {
+                // emp-badge-touo / emp-badge-nikkei / emp-badge-zennihon
+                const gc = baseKey.slice('emp-badge-'.length);
+                return { bg: '--emp-badge-bg-' + gc, text: '--emp-badge-text-' + gc };
+            }
             // shift-day, shift-night
             return { bg: '--shift-bg-' + baseKey.slice(6), text: '--shift-text-' + baseKey.slice(6) };
         }
@@ -3193,7 +3198,11 @@
             'cat-training': '#44A6B5',
             'cat-company': '#44A6B5',
             'shift-day': '#D3D0C8',
-            'shift-night': '#004554'
+            'shift-night': '#004554',
+            // 社員バッジ色（基本色から背景/文字を自動生成、プリント書式と SL サイドメニュー共通）
+            'emp-badge-touo': '#5B8BB8',
+            'emp-badge-nikkei': '#7AA55A',
+            'emp-badge-zennihon': '#6B7A99'
         };
         const MAX_PRESETS = 5;
         const STORAGE_KEY = 'colorPresets_v2_light';
@@ -3206,9 +3215,11 @@
             var panel = document.getElementById('colorSettingsPanel');
             if (!panel.classList.contains('open')) return;
             if (panel.contains(e.target)) return;
-            // カラー設定ボタン自体のクリックはtoggleに任せる
-            var btn = document.querySelector('[onclick*="toggleColorSettingsPanel"]');
-            if (btn && btn.contains(e.target)) return;
+            // カラー設定ボタン自体のクリックはtoggleに任せる（複数箇所にあるため querySelectorAll で全て確認）
+            var btns = document.querySelectorAll('[onclick*="toggleColorSettingsPanel"]');
+            for (var i = 0; i < btns.length; i++) {
+                if (btns[i].contains(e.target)) return;
+            }
             panel.classList.remove('open');
         });
 
