@@ -32,6 +32,7 @@
 
     // --- スケジュールメニュー項目 ---
     var scheduleItems = [
+        { id: 'weekly-schedule', label: '週間予定表',     icon: 'calendar.svg' },
         { id: 'leave-request',   label: '休暇申請管理',   icon: 'clock.svg' }
     ];
 
@@ -63,12 +64,15 @@
         +   '<a href="order-book.html" class="md-nav-tab' + (currentPage === 'order-book' ? ' md-nav-active' : '') + '">'
         +     icon('chart.svg') + '受注簿'
         +   '</a>'
-        +   '<a href="weekly-schedule.html" class="md-nav-tab' + (currentPage === 'weekly-schedule' ? ' md-nav-active' : '') + '">'
-        +     icon('calendar.svg') + '週間予定表'
-        +   '</a>'
-        +   '<a href="quick-access.html" target="_blank" rel="noopener" class="md-nav-tab' + (currentPage === 'quick-access' ? ' md-nav-active' : '') + '">'
-        +     icon('smartphone.svg') + 'モバイル'
-        +   '</a>'
+        // --- スケジュールドロップダウン ---
+        +   '<div class="md-nav-dropdown" id="mdNavScheduleDD">'
+        +     '<button class="md-nav-dropdown-btn' + (currentPage === 'weekly-schedule' ? ' md-nav-active' : '') + '" onclick="mdNavToggleDD(\'mdNavScheduleDD\')">'
+        +       'スケジュール <span class="md-nav-dropdown-arrow">▼</span>'
+        +     '</button>'
+        +     '<div class="md-nav-dropdown-panel">'
+        +       buildMenuItems(scheduleItems)
+        +     '</div>'
+        +   '</div>'
         +   '<div class="md-nav-sep"></div>'
         // --- マスタ管理ドロップダウン ---
         +   '<div class="md-nav-dropdown" id="mdNavMasterDD">'
@@ -79,15 +83,6 @@
         +       buildMenuItems(masterItems)
         +     '</div>'
         +   '</div>'
-        // --- スケジュールドロップダウン ---
-        +   '<div class="md-nav-dropdown" id="mdNavScheduleDD">'
-        +     '<button class="md-nav-dropdown-btn" onclick="mdNavToggleDD(\'mdNavScheduleDD\')">'
-        +       'スケジュール <span class="md-nav-dropdown-arrow">▼</span>'
-        +     '</button>'
-        +     '<div class="md-nav-dropdown-panel">'
-        +       buildMenuItems(scheduleItems)
-        +     '</div>'
-        +   '</div>'
         // --- GCフィルタボタン ---
         +   '<div class="md-nav-sep"></div>'
         +   '<button class="md-nav-gcf-btn" id="mdNavGcfBtn">'
@@ -96,6 +91,10 @@
         +   '</button>'
         // --- スペーサー ---
         +   '<div class="md-nav-spacer"></div>'
+        // --- モバイルタブ ---
+        +   '<a href="quick-access.html" target="_blank" rel="noopener" class="md-nav-tab' + (currentPage === 'quick-access' ? ' md-nav-active' : '') + '">'
+        +     icon('smartphone.svg') + 'モバイル'
+        +   '</a>'
         // --- 右端アクション ---
         +   '<div class="md-nav-actions">'
         +     '<button class="md-nav-action-btn" id="mdNavNotifyBtn" title="変更通知">'
@@ -215,7 +214,9 @@
     });
 
     // ページ遷移するメニュー項目
-    var pageLinks = {};
+    var pageLinks = {
+        'weekly-schedule': 'weekly-schedule.html'
+    };
 
     document.querySelectorAll('.md-nav-menu-item[data-master]').forEach(function (btn) {
         btn.addEventListener('click', function () {

@@ -108,6 +108,11 @@
     color: #fff;
     background: rgba(255,255,255,0.1);
 }
+.md-nav-dropdown-btn.md-nav-active {
+    color: #fff;
+    background: rgba(255,255,255,0.18);
+    font-weight: 600;
+}
 .md-nav-dropdown-arrow {
     font-size: 9px;
     transition: transform 0.15s;
