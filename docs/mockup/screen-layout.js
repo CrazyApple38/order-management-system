@@ -2411,6 +2411,7 @@
 
             return {
                 className: 'assigned-employee' + (isLeave ? ' sl-on-leave' : ''),
+                company: emp ? emp.company : null,
                 innerHTML: '<span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">'
                     + '<span>' + name + '</span>'
                     + '</span>'
@@ -2712,6 +2713,7 @@
                 var mkMv = slBuildAssignedEmployeeMarkup(name);
                 var newTag = document.createElement('span');
                 newTag.className = mkMv.className;
+                if (mkMv.company) newTag.setAttribute('data-company', mkMv.company);
                 newTag.innerHTML = mkMv.innerHTML;
                 zone.appendChild(newTag);
                 makeAssignedEmployeeDraggable(newTag);
@@ -2757,6 +2759,7 @@
                 var mkNew = slBuildAssignedEmployeeMarkup(data);
                 var newTag = document.createElement('span');
                 newTag.className = mkNew.className;
+                if (mkNew.company) newTag.setAttribute('data-company', mkNew.company);
                 newTag.innerHTML = mkNew.innerHTML;
                 zone.appendChild(newTag);
                 makeAssignedEmployeeDraggable(newTag);
@@ -3154,13 +3157,14 @@
             const toHex = v => { const h = Math.round(v * 255).toString(16); return h.length === 1 ? '0' + h : h; };
             return '#' + toHex(r) + toHex(g) + toHex(b);
         }
-        /** ベース色HEXから背景rgbaと文字HEXを生成 */
+        /** ベース色HEXから背景rgba・枠線rgba・文字HEXを生成 */
         function deriveColors(baseHex) {
             const { r, g, b } = hexToRgb(baseHex);
             const bg = 'rgba(' + r + ', ' + g + ', ' + b + ', 0.12)';
+            const border = 'rgba(' + r + ', ' + g + ', ' + b + ', 0.45)';
             const { h, s } = rgbToHsl(r, g, b);
             const textHex = hslToHex(h, Math.min(s * 1.1, 1), 0.22);
-            return { bg, text: textHex };
+            return { bg, border, text: textHex };
         }
         /** ベース色キーからCSS変数名を解決 */
         function baseKeyToCssVars(baseKey) {
@@ -3170,17 +3174,22 @@
             if (baseKey.startsWith('emp-badge-')) {
                 // emp-badge-touo / emp-badge-nikkei / emp-badge-zennihon
                 const gc = baseKey.slice('emp-badge-'.length);
-                return { bg: '--emp-badge-bg-' + gc, text: '--emp-badge-text-' + gc };
+                return {
+                    bg: '--emp-badge-bg-' + gc,
+                    border: '--emp-badge-border-' + gc,
+                    text: '--emp-badge-text-' + gc
+                };
             }
             // shift-day, shift-night
             return { bg: '--shift-bg-' + baseKey.slice(6), text: '--shift-text-' + baseKey.slice(6) };
         }
-        /** ベース色を適用（背景・文字のCSS変数を自動設定） */
+        /** ベース色を適用（背景・枠線・文字のCSS変数を自動設定） */
         function applyBaseColor(baseKey, baseHex) {
             const vars = baseKeyToCssVars(baseKey);
-            const { bg, text } = deriveColors(baseHex);
+            const { bg, border, text } = deriveColors(baseHex);
             document.documentElement.style.setProperty(vars.bg, bg);
             document.documentElement.style.setProperty(vars.text, text);
+            if (vars.border) document.documentElement.style.setProperty(vars.border, border);
         }
 
         // --- ベース色のデフォルト値 ---

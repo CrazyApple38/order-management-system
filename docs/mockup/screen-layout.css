@@ -15,12 +15,16 @@
 
     /* SL固有: 社員バッジ色（GC 別、カラー設定パネルの「社員バッジ色」と連動）。
        基本色: touo=#5B8BB8 / nikkei=#7AA55A / zennihon=#6B7A99 を
-       deriveColors で変換したデフォルト値。JS 側で適用されるまでこれらが有効。 */
+       deriveColors で変換したデフォルト値。JS 側で適用されるまでこれらが有効。
+       枠線はベース色を α=0.45 で柔らかく表現（文字色と同じ濃さにはしない）。 */
     --emp-badge-bg-touo: rgba(91, 139, 184, 0.12);
+    --emp-badge-border-touo: rgba(91, 139, 184, 0.45);
     --emp-badge-text-touo: #1E3F66;
     --emp-badge-bg-nikkei: rgba(122, 165, 90, 0.12);
+    --emp-badge-border-nikkei: rgba(122, 165, 90, 0.45);
     --emp-badge-text-nikkei: #3E5F1F;
     --emp-badge-bg-zennihon: rgba(107, 122, 153, 0.12);
+    --emp-badge-border-zennihon: rgba(107, 122, 153, 0.45);
     --emp-badge-text-zennihon: #2E3A5A;
 
     /* SL固有: シフト区分 */
@@ -625,17 +629,17 @@ h1 {
 .employee-tag[data-company="touo"] {
     background: var(--emp-badge-bg-touo);
     color: var(--emp-badge-text-touo);
-    border-color: var(--emp-badge-text-touo);
+    border-color: var(--emp-badge-border-touo);
 }
 .employee-tag[data-company="nikkei"] {
     background: var(--emp-badge-bg-nikkei);
     color: var(--emp-badge-text-nikkei);
-    border-color: var(--emp-badge-text-nikkei);
+    border-color: var(--emp-badge-border-nikkei);
 }
 .employee-tag[data-company="zennihon"] {
     background: var(--emp-badge-bg-zennihon);
     color: var(--emp-badge-text-zennihon);
-    border-color: var(--emp-badge-text-zennihon);
+    border-color: var(--emp-badge-border-zennihon);
 }
 
 .employee-tag:hover {
@@ -649,9 +653,10 @@ h1 {
 }
 
 /* 配置済み: 会社色はそのまま残し、opacity で「済み」感を表現。
+   0.55 だと枠線（α=0.45）と乗算されて輪郭が薄くなりすぎるため 0.6 に調整。
    休み申請あり (.emp-on-leave) は print-touo-nikkei.css 側で赤色に個別上書き。 */
 .employee-tag.assigned {
-    opacity: 0.55;
+    opacity: 0.6;
 }
 
 /* ヘッダー部 */
@@ -1014,6 +1019,23 @@ h1 {
     color: var(--semantic-success-text);
     cursor: grab;
     transition: opacity 0.15s, transform 0.15s;
+}
+
+/* 配置済み社員バッジ: サイドメニュー .employee-tag と同じ会社別カラー（カラー設定「社員バッジ色」と連動） */
+.assigned-employee[data-company="touo"] {
+    background: var(--emp-badge-bg-touo);
+    color: var(--emp-badge-text-touo);
+    border-color: var(--emp-badge-border-touo);
+}
+.assigned-employee[data-company="nikkei"] {
+    background: var(--emp-badge-bg-nikkei);
+    color: var(--emp-badge-text-nikkei);
+    border-color: var(--emp-badge-border-nikkei);
+}
+.assigned-employee[data-company="zennihon"] {
+    background: var(--emp-badge-bg-zennihon);
+    color: var(--emp-badge-text-zennihon);
+    border-color: var(--emp-badge-border-zennihon);
 }
 .assigned-employee:active { cursor: grabbing; }
 .assigned-employee.dragging {
