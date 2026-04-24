@@ -718,7 +718,7 @@ body {
     position: fixed; display: flex;
     background: var(--bg-surface); border: 1px solid var(--divider);
     border-radius: 10px; box-shadow: 0 8px 24px rgba(0,69,84,0.18);
-    z-index: 600; overflow: hidden;
+    z-index: var(--z-popover); overflow: hidden;
 }
 .md-ob-time-col-wrap {
     display: flex; flex-direction: column;
