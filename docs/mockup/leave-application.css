@@ -397,6 +397,22 @@ body {
     color: var(--text-primary);
 }
 
+/* WS配置済み衝突インジケータ (E4) */
+.md-la-badge.is-ws-conflict {
+    box-shadow: 0 0 0 1px var(--semantic-error) inset;
+}
+.md-la-badge-conflict {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--semantic-error);
+    font-size: 10px;
+    line-height: 1;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+.md-la-calendar.is-compact .md-la-badge-conflict { font-size: 8px; }
+
 /* バッジ 端ドラッグハンドル (E3 予定、今は placeholder) */
 .md-la-badge-edge {
     position: absolute;
@@ -411,6 +427,126 @@ body {
 .md-la-badge:hover .md-la-badge-edge {
     opacity: 1;
     background: rgba(0,0,0,0.18);
+}
+
+/* ============================================================
+   週間ビュー (E4: 社員×日 スワイムレーン)
+   ============================================================ */
+.md-la-week {
+    background: var(--bg-surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--elevation-1);
+    overflow: auto;
+    max-height: 100%;
+}
+.md-la-hidden { display: none !important; }
+.md-la-week-grid {
+    display: grid;
+    /* 左1: 社員名列 (160px), 右7: 日付列 (1fr each) */
+    grid-template-columns: 160px repeat(7, minmax(110px, 1fr));
+    gap: 1px;
+    background-color: var(--divider);
+}
+.md-la-week-corner,
+.md-la-week-day-head {
+    background: var(--bg-surface-3);
+    color: var(--text-primary);
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-bold);
+    padding: 6px 8px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.md-la-week-corner {
+    left: 0;
+    z-index: 20;
+}
+.md-la-week-day-head {
+    text-align: center;
+}
+.md-la-week-day-head.is-sat { color: var(--accent-primary); }
+.md-la-week-day-head.is-sun { color: var(--semantic-error); }
+.md-la-week-day-head.is-today {
+    background: var(--accent-primary);
+    color: #fff;
+}
+.md-la-week-emp {
+    background: var(--bg-surface-2);
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    border-left: 3px solid transparent;
+}
+.md-la-week-emp.gc-touo     { border-left-color: #9FA8B4; }
+.md-la-week-emp.gc-nikkei   { border-left-color: #5FB895; }
+.md-la-week-emp.gc-zennihon { border-left-color: #6B82B8; }
+.md-la-week-emp-name {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    color: var(--text-primary);
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.md-la-week-emp-role {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    padding: 1px 4px;
+    background: var(--bg-surface);
+    border-radius: 3px;
+}
+.md-la-week-cell {
+    background: var(--bg-surface);
+    padding: 4px;
+    min-height: 46px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: background var(--duration-fast);
+    position: relative;
+}
+.md-la-week-cell.is-sat { background: var(--day-sat); }
+.md-la-week-cell.is-sun { background: var(--day-sun); }
+.md-la-week-cell.is-today {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: -2px;
+}
+.md-la-week-cell.is-past {
+    background: linear-gradient(rgba(0,0,0,0.04), rgba(0,0,0,0.04)), var(--bg-surface);
+}
+.md-la-week-cell.is-drop-target {
+    background: var(--la-drop-target) !important;
+    outline: 2px dashed var(--la-drop-border);
+    outline-offset: -2px;
+}
+.md-la-week-cell.is-range-preview {
+    background: rgba(68, 166, 181, 0.14) !important;
+    outline: 1px dashed var(--accent-primary);
+    outline-offset: -1px;
+}
+.md-la-week-cell.is-range-conflict {
+    background: rgba(219, 87, 123, 0.12) !important;
+    outline: 1px dashed var(--semantic-error);
+    outline-offset: -1px;
+}
+/* WS配置済みセル (空でも背景を薄赤で示す) */
+.md-la-week-cell.is-ws-assigned::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 6px;
+    height: 6px;
+    background: var(--semantic-error);
+    border-radius: 50%;
+    opacity: 0.6;
 }
 
 /* ============================================================

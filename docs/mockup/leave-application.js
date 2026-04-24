@@ -40,9 +40,14 @@
     var laLeaves = [];
     var nextLeaveId = 1;
 
+    // WS 配置モック: employeeId + date → 現場名
+    // 本来は WS 画面側のデータソースから参照するが、モックなのでここで固定
+    var laWsAssignments = {}; // 'emp-id|YYYY-MM-DD' → { siteName, shift }
+
     // ビュー状態
     var currentDate = new Date(2026, 3, 1); // 2026-04-01 起点 (デモデータの想定月)
     var currentView = 'month'; // 'month' | 'week' | 'year' (E5 以降で拡張)
+    var currentWeekAnchor = new Date(2026, 3, 13); // 2026-04-13 (月曜) 起点
     var sidebarCollapsed = false;
     var sidebarActiveTab = 'all'; // 'all' | 'touo' | 'nikkei' | 'zennihon'
     var gcFilter = { touo: true, nikkei: true, zennihon: true };
@@ -69,6 +74,35 @@
                 paidLeaveUsedThisMonth: (idx * 7) % 5      // 0〜4
             };
         });
+    }
+
+    function seedWsAssignments() {
+        // 当月 (2026-04) に WS 配置がある想定のデモデータを仕込む
+        // 休暇申請と競合する日を含めることで衝突警告の動作確認ができる
+        var seeds = [
+            // 林 (empIdx=5) が 4/3, 4/4 に休暇申請中 → 4/4 に配置済み (衝突)
+            { empIdx: 5,  date: '2026-04-04', siteName: '〇〇ビル', shift: '昼' },
+            // 清水 (empIdx=14) が 4/8, 4/9 に休暇申請中 → 4/9 に配置済み (衝突)
+            { empIdx: 14, date: '2026-04-09', siteName: '□□イベント', shift: '夜' },
+            // 山田 (empIdx=18) が 4/15 に休暇申請中 → 4/15 に配置済み (衝突)
+            { empIdx: 18, date: '2026-04-15', siteName: '高速SA補修', shift: '昼' },
+            // 衝突しない配置も混ぜる (一覧での通常表示用)
+            { empIdx: 3,  date: '2026-04-20', siteName: '△△マンション', shift: '昼' },
+            { empIdx: 10, date: '2026-04-22', siteName: '△△マンション', shift: '昼' }
+        ];
+        seeds.forEach(function (s) {
+            if (!laEmployees[s.empIdx]) return;
+            var key = laEmployees[s.empIdx].id + '|' + s.date;
+            laWsAssignments[key] = { siteName: s.siteName, shift: s.shift };
+        });
+    }
+
+    function hasWsConflict(employeeId, dateKey) {
+        return !!laWsAssignments[employeeId + '|' + dateKey];
+    }
+
+    function getWsAssignment(employeeId, dateKey) {
+        return laWsAssignments[employeeId + '|' + dateKey] || null;
     }
 
     function seedDemoLeaves() {
@@ -141,16 +175,44 @@
     }
 
     function render() {
-        renderMonthLabel();
-        renderCalendar();
+        renderLabel();
+        updateViewVisibility();
+        if (currentView === 'month') renderCalendar();
+        if (currentView === 'week')  renderWeek();
         renderSidebar();
     }
 
-    function renderMonthLabel() {
-        var y = currentDate.getFullYear();
-        var m = currentDate.getMonth() + 1;
+    function updateViewVisibility() {
+        var cal = document.getElementById('laCalendar');
+        var week = document.getElementById('laWeek');
+        if (cal)  cal.classList.toggle('md-la-hidden', currentView !== 'month');
+        if (week) week.classList.toggle('md-la-hidden', currentView !== 'week');
+    }
+
+    function renderLabel() {
         var el = document.getElementById('laMonthLabel');
-        if (el) el.textContent = y + '年' + m + '月';
+        if (!el) return;
+        if (currentView === 'week') {
+            var start = weekAnchorMonday(currentWeekAnchor);
+            var end = new Date(start);
+            end.setDate(end.getDate() + 6);
+            el.textContent =
+                start.getFullYear() + '年' +
+                (start.getMonth() + 1) + '/' + start.getDate() +
+                ' 〜 ' +
+                (end.getMonth() + 1) + '/' + end.getDate();
+        } else {
+            el.textContent = currentDate.getFullYear() + '年' + (currentDate.getMonth() + 1) + '月';
+        }
+    }
+
+    function weekAnchorMonday(d) {
+        var dow = d.getDay();
+        var offset = (dow + 6) % 7;
+        var mon = new Date(d);
+        mon.setDate(mon.getDate() - offset);
+        mon.setHours(0, 0, 0, 0);
+        return mon;
     }
 
     function renderCalendar() {
@@ -235,6 +297,140 @@
         });
     }
 
+    // ==========================================================
+    // 週間ビュー描画 (E4)
+    // ==========================================================
+
+    function renderWeek() {
+        var grid = document.getElementById('laWeekGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        var monday = weekAnchorMonday(currentWeekAnchor);
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // ヘッダー行: 左コーナー + 7日
+        var corner = document.createElement('div');
+        corner.className = 'md-la-week-corner';
+        corner.textContent = '社員 ＼ 日付';
+        grid.appendChild(corner);
+
+        var days = [];
+        for (var i = 0; i < 7; i++) {
+            var d = new Date(monday);
+            d.setDate(monday.getDate() + i);
+            days.push(d);
+            var head = document.createElement('div');
+            head.className = 'md-la-week-day-head';
+            var dow = d.getDay();
+            if (dow === 6) head.classList.add('is-sat');
+            if (dow === 0) head.classList.add('is-sun');
+            if (sameDay(d, today)) head.classList.add('is-today');
+            var dowNames = ['日', '月', '火', '水', '木', '金', '土'];
+            head.innerHTML = '<div>' + (d.getMonth() + 1) + '/' + d.getDate() + '</div>'
+                + '<div style="font-weight:500;font-size:10px;opacity:0.7;">(' + dowNames[dow] + ')</div>';
+            grid.appendChild(head);
+        }
+
+        // 社員行 (フィルタ適用)
+        var employees = laEmployees.filter(function (e) { return gcFilter[e.company] === true; });
+        employees.forEach(function (emp) {
+            var empCell = document.createElement('div');
+            empCell.className = 'md-la-week-emp gc-' + emp.company;
+            var n = document.createElement('span');
+            n.className = 'md-la-week-emp-name';
+            n.textContent = emp.name;
+            empCell.appendChild(n);
+            var role = document.createElement('span');
+            role.className = 'md-la-week-emp-role';
+            role.textContent = emp.role === 'dcp' ? 'DCP' : (emp.role === 'chief' ? '責' : '');
+            if (role.textContent) empCell.appendChild(role);
+            grid.appendChild(empCell);
+
+            days.forEach(function (d) {
+                var key = fmtDate(d);
+                var cell = document.createElement('div');
+                cell.className = 'md-la-week-cell';
+                cell.dataset.date = key;
+                cell.dataset.employeeId = emp.id;
+                var dow = d.getDay();
+                if (dow === 6) cell.classList.add('is-sat');
+                if (dow === 0) cell.classList.add('is-sun');
+                if (sameDay(d, today)) cell.classList.add('is-today');
+                if (d < today) cell.classList.add('is-past');
+
+                // WS配置済み (休暇がなくてもマーカー表示)
+                var ws = getWsAssignment(emp.id, key);
+                if (ws) {
+                    cell.classList.add('is-ws-assigned');
+                    cell.title = 'WS配置済み: ' + ws.siteName + '（' + ws.shift + '）';
+                }
+
+                // この社員・日の休暇レコード
+                var lvs = laLeaves.filter(function (lv) {
+                    return lv.employeeId === emp.id && lv.date === key;
+                });
+                lvs.forEach(function (lv) {
+                    cell.appendChild(buildBadge(lv));
+                });
+
+                // D&D ドロップ受け入れ (社員行にドロップ = 指定社員の休暇を作成)
+                cell.addEventListener('dragover', onWeekCellDragOver);
+                cell.addEventListener('dragleave', onWeekCellDragLeave);
+                cell.addEventListener('drop', onWeekCellDrop);
+
+                grid.appendChild(cell);
+            });
+        });
+
+        // grid-template-columns を動的に更新 (CSS で固定しているので不要)
+    }
+
+    function onWeekCellDragOver(e) {
+        if (!dragState) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = (dragState.sourceType === 'employee') ? 'copy' : 'move';
+        this.classList.add('is-drop-target');
+    }
+    function onWeekCellDragLeave() {
+        this.classList.remove('is-drop-target');
+    }
+    function onWeekCellDrop(e) {
+        e.preventDefault();
+        this.classList.remove('is-drop-target');
+        if (!dragState) return;
+        var targetDate = this.dataset.date;
+        var rowEmpId = this.dataset.employeeId;
+        if (!targetDate || !rowEmpId) return;
+
+        if (dragState.sourceType === 'employee') {
+            // サイドパネルから他人の行へドロップされた場合、行の社員IDを優先（直感に合う）
+            var empId = rowEmpId;
+            var dup = laLeaves.find(function (lv) {
+                return lv.employeeId === empId && lv.date === targetDate && lv.status !== 'rejected';
+            });
+            if (dup) return;
+            laLeaves.push({
+                id: 'lv-' + (nextLeaveId++),
+                employeeId: empId,
+                date: targetDate,
+                partition: 'full',
+                kind: 'paid',
+                status: 'pending',
+                reason: '',
+                memo: ''
+            });
+        } else if (dragState.sourceType === 'badge') {
+            var lv = laLeaves.find(function (x) { return x.id === dragState.leaveId; });
+            if (!lv) return;
+            // 同社員行の場合は日付変更、別社員行の場合は社員と日付変更
+            lv.date = targetDate;
+            lv.employeeId = rowEmpId;
+        }
+        renderWeek();
+        renderSidebar();
+    }
+
     function buildBadge(lv) {
         var emp = laEmployees.find(function (e) { return e.id === lv.employeeId; });
         if (!emp) return document.createElement('span');
@@ -243,7 +439,10 @@
         b.className = 'md-la-badge kind-' + lv.kind + ' is-' + lv.status;
         b.dataset.leaveId = lv.id;
         b.draggable = true;
-        b.title = emp.name + ' — ' + KIND[lv.kind] + ' (' + PART[lv.partition] + '休) / ' + STATUS[lv.status];
+        var conflict = getWsAssignment(lv.employeeId, lv.date);
+        if (conflict) b.classList.add('is-ws-conflict');
+        b.title = emp.name + ' — ' + KIND[lv.kind] + ' (' + PART[lv.partition] + '休) / ' + STATUS[lv.status]
+            + (conflict ? '\n⚠ WS配置済み: ' + conflict.siteName + '（' + conflict.shift + '）' : '');
 
         var gc = document.createElement('span');
         gc.className = 'md-la-badge-gc gc-' + emp.company;
@@ -263,6 +462,14 @@
         initial.className = 'md-la-badge-initial';
         initial.textContent = emp.name.charAt(0);
         b.appendChild(initial);
+
+        if (conflict) {
+            var warn = document.createElement('span');
+            warn.className = 'md-la-badge-conflict';
+            warn.title = 'WS配置済み: ' + conflict.siteName + '（' + conflict.shift + '）';
+            warn.innerHTML = '<svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-caution"/></svg>';
+            b.appendChild(warn);
+        }
 
         // 端ドラッグハンドル (E3: 連続日延長)
         var eL = document.createElement('span');
@@ -930,16 +1137,30 @@
     // ==========================================================
 
     function navigatePrev() {
-        currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        if (currentView === 'week') {
+            currentWeekAnchor = new Date(currentWeekAnchor);
+            currentWeekAnchor.setDate(currentWeekAnchor.getDate() - 7);
+        } else {
+            currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        }
         render();
     }
     function navigateNext() {
-        currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+        if (currentView === 'week') {
+            currentWeekAnchor = new Date(currentWeekAnchor);
+            currentWeekAnchor.setDate(currentWeekAnchor.getDate() + 7);
+        } else {
+            currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+        }
         render();
     }
     function navigateToday() {
         var t = new Date();
-        currentDate = new Date(t.getFullYear(), t.getMonth(), 1);
+        if (currentView === 'week') {
+            currentWeekAnchor = new Date(t);
+        } else {
+            currentDate = new Date(t.getFullYear(), t.getMonth(), 1);
+        }
         render();
     }
 
@@ -986,6 +1207,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         buildEmployees();
+        seedWsAssignments();
         seedDemoLeaves();
 
         // ヘッダー操作
@@ -993,21 +1215,33 @@
         document.getElementById('laNextBtn').addEventListener('click', navigateNext);
         document.getElementById('laTodayBtn').addEventListener('click', navigateToday);
 
-        // ビュータブ (E1 では月間のみ動作、他は placeholder)
+        // ビュータブ (月間・週間は実装、年間は E5 で実装予定)
         document.querySelectorAll('.md-la-view-tab').forEach(function (el) {
             el.addEventListener('click', function () {
-                document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
-                    t.classList.remove('is-active');
-                });
-                el.classList.add('is-active');
                 var v = el.dataset.view;
-                if (v !== 'month') {
-                    alert('「' + el.textContent.trim() + 'ビュー」は Phase E4 / E5 で実装予定です。');
-                    // 月間に戻す
-                    document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
-                        t.classList.toggle('is-active', t.dataset.view === 'month');
-                    });
+                if (v === 'year') {
+                    alert('「年間ビュー」は Phase E5 で実装予定です。');
+                    return;
                 }
+                document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
+                    t.classList.toggle('is-active', t === el);
+                });
+                // 月→週へ遷移する時は currentDate の月の中心日から週アンカーを作る
+                if (currentView !== v) {
+                    if (v === 'week') {
+                        var anchor = new Date(currentDate);
+                        anchor.setDate(15);
+                        currentWeekAnchor = anchor;
+                    } else if (v === 'month') {
+                        currentDate = new Date(
+                            currentWeekAnchor.getFullYear(),
+                            currentWeekAnchor.getMonth(),
+                            1
+                        );
+                    }
+                }
+                currentView = v;
+                render();
             });
         });
 

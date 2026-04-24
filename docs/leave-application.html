@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="mockup/co-modal.css">
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
-    <link rel="stylesheet" href="mockup/leave-application.css?v=3">
+    <link rel="stylesheet" href="mockup/leave-application.css?v=4">
 </head>
 <body>
     <!-- SVG icon sprite (CLAUDE.md アイコン運用ルール準拠) -->
@@ -80,10 +80,15 @@
 
         <!-- メインエリア -->
         <div class="md-la-main">
-            <!-- カレンダー -->
+            <!-- カレンダー (月間) / 週間グリッド -->
             <div class="md-la-calendar-wrapper">
                 <div class="md-la-calendar" id="laCalendar">
-                    <!-- JS で描画 -->
+                    <!-- JS で描画 (月間ビュー) -->
+                </div>
+                <div class="md-la-week md-la-hidden" id="laWeek">
+                    <div class="md-la-week-grid" id="laWeekGrid">
+                        <!-- JS で描画 (週間ビュー) -->
+                    </div>
                 </div>
             </div>
 
