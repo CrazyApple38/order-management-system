@@ -288,21 +288,19 @@ body {
     background: rgba(68, 166, 181, 0.10) !important;
 }
 
-/* --- セル内 休み バッジ (SL の 3/4 サイズ 35×16 ミニコンパクト) ---
-   月間: イニシャル + 上辺GC色 + 区分角バッジ (35×16)
-   週間: 氏名フル + 上辺GC色 + 区分角バッジ (可変幅) */
+/* --- セル内 休み バッジ (SL .assigned-employee と完全同寸 46×~25px) ---
+   月間/週間ともに surname (略称) を表示。上辺 GC 色 + 左上角に区分角バッジ */
 .md-la-badge {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    padding: 1px 4px;
-    min-height: 16px;
-    border-radius: 3px;
-    font-size: 10px;
-    font-weight: var(--fw-bold);
-    line-height: 1.1;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: normal;
     background: var(--la-kind-other-bg);
     color: var(--la-kind-other-text);
     border: 1px solid rgba(0,0,0,0.08);
@@ -369,18 +367,18 @@ body {
 .md-la-badge.gc-nikkei   { --gc-accent: #5FB895; }
 .md-la-badge.gc-zennihon { --gc-accent: #6B82B8; }
 
-/* 区分インジケータ (左上角の小バッジ、全/前/後) */
+/* 区分インジケータ (左上角の小バッジ、全/前/後) — SL 連続勤務▼等の小マーカー相当 */
 .md-la-badge-part {
     position: absolute;
-    top: -4px;
-    left: -3px;
+    top: -5px;
+    left: -5px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    font-size: 8px;
+    width: 13px;
+    height: 13px;
+    border-radius: 3px;
+    font-size: 9px;
     font-weight: var(--fw-bold);
     background: var(--bg-sidebar);
     color: #E9F1F6;
@@ -401,14 +399,13 @@ body {
 .md-la-badge.md-la-mode-initial .md-la-badge-initial { display: inline; }
 .md-la-badge.md-la-mode-full    .md-la-badge-name    { display: inline; }
 
-/* 月間: 35px 固定幅 (SL の 3/4) */
-.md-la-badge.md-la-mode-initial { width: 35px; }
-/* 週間: セル幅に応じて可変 */
+/* 月間: 46px 固定幅 (SL と同一)、週間: セル幅に応じて可変 */
+.md-la-badge.md-la-mode-initial { width: 46px; }
 .md-la-badge.md-la-mode-full    { max-width: 100%; }
 
-/* 「圧縮」ON の週間ビューでも氏名→イニシャル */
+/* 「圧縮」ON の週間ビューでは SL と同じ 46px 固定に */
 .md-la-calendar.is-compact .md-la-badge.md-la-mode-full {
-    width: 35px;
+    width: 46px;
 }
 .md-la-calendar.is-compact .md-la-badge.md-la-mode-full .md-la-badge-name    { display: none; }
 .md-la-calendar.is-compact .md-la-badge.md-la-mode-full .md-la-badge-initial { display: inline; }

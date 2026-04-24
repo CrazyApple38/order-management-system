@@ -1023,9 +1023,10 @@
         name.textContent = emp.name;
         b.appendChild(name);
 
+        // 略称 (SL と同じく surname 丸ごと表示)。月間=46px幅で溢れる場合は CSS で ellipsis
         var initial = document.createElement('span');
         initial.className = 'md-la-badge-initial';
-        initial.textContent = emp.name.charAt(0);
+        initial.textContent = emp.name;
         b.appendChild(initial);
 
         // 端ドラッグハンドル (E3: 連続日延長)
