@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="mockup/co-modal.css">
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
-    <link rel="stylesheet" href="mockup/leave-application.css?v=5">
+    <link rel="stylesheet" href="mockup/leave-application.css?v=6">
 </head>
 <body>
     <!-- SVG icon sprite (CLAUDE.md アイコン運用ルール準拠) -->
@@ -39,6 +39,10 @@
             <!-- chevron-right: 矢印右 -->
             <symbol id="ui-icon-chevron-right" viewBox="0 0 512 512">
                 <path d="M275.99,499.426L72.428,298.063C64.372,290.095,59.854,279.284,59.854,267.971 c0-11.312,4.518-22.14,12.573-30.091C88.85,221.459,115.665,221.608,132.102,238.226l128.955,130.351V42.328 C261.057,18.966,280.022,0,303.384,0c23.382,0,42.328,18.965,42.328,42.328V368.34l128.955-130.351 c16.438-16.618,43.252-16.767,59.864,0.33c16.612,16.438,16.758,43.252,0.328,59.875L333.496,499.555 C325.528,507.612,314.717,512.13,303.404,512.13C292.093,512.13,281.265,507.61,275.99,499.426z" transform="rotate(-90 256 256)"/>
+            </symbol>
+            <!-- bell: 通知ベル (シンプル表現) -->
+            <symbol id="ui-icon-bell" viewBox="0 0 512 512">
+                <path d="M256,480c26.51,0,48-21.49,48-48h-96C208,458.51,229.49,480,256,480z M438.66,347.31 C414.41,315.11,384,272.77,384,208c0-69.11-45.56-127.76-108.8-146.93c3.2-7.12,4.8-14.77,4.8-22.4C280,17.33,259.09,0,234.67,0 S192,17.33,192,40c0,7.63,1.6,15.28,4.8,22.4C133.56,80.24,88,138.89,88,208c0,64.77-30.41,107.11-54.66,139.31 C28.65,353.41,24,359.62,24,367.57C24,383.03,35.96,400,55.43,400h401.14c19.47,0,31.43-16.97,31.43-32.43 C488,359.62,483.35,353.41,438.66,347.31z"/>
             </symbol>
         </defs>
     </svg>
@@ -69,6 +73,18 @@
 
             <!-- アクション -->
             <div class="md-la-header-actions">
+                <!-- ロール切替 (モック) -->
+                <div class="md-la-role-switcher" id="laRoleSwitcher">
+                    <span class="md-la-role-label">ロール:</span>
+                    <button class="md-la-role-btn" data-role="self" title="本人 (自分の申請のみ編集可)">本人</button>
+                    <button class="md-la-role-btn is-active" data-role="dcp" title="所属GCのDCP (承認可能)">DCP</button>
+                    <button class="md-la-role-btn" data-role="admin" title="管理者 (全権限)">管理</button>
+                </div>
+                <!-- 通知鈴 -->
+                <button class="md-la-header-action md-la-notify-btn" id="laNotifyBtn" title="通知">
+                    <svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-bell"/></svg>
+                    <span class="md-la-notify-count md-la-hidden" id="laNotifyCount">0</span>
+                </button>
                 <button class="md-la-header-action" id="laCompactBtn" title="イニシャル圧縮表示">圧縮</button>
                 <button class="md-la-header-action" id="laReportBtn" title="月次集計・CSV出力">集計</button>
                 <button class="md-la-header-action" id="laNewBtn" title="新規申請">
