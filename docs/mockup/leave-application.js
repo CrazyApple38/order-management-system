@@ -48,6 +48,7 @@
     var currentDate = new Date(2026, 3, 1); // 2026-04-01 起点 (デモデータの想定月)
     var currentView = 'month'; // 'month' | 'week' | 'year' (E5 以降で拡張)
     var currentWeekAnchor = new Date(2026, 3, 13); // 2026-04-13 (月曜) 起点
+    var sidebarMode = 'emp'; // 'emp' | 'alerts' — 縦タブで切替
     var sidebarCollapsed = false;
     var sidebarActiveTab = 'all'; // 'all' | 'touo' | 'nikkei' | 'zennihon'
     var gcFilter = { touo: true, nikkei: true, zennihon: true };
@@ -996,12 +997,17 @@
         setTimeout(function () { URL.revokeObjectURL(url); }, 200);
     }
 
-    function buildBadge(lv) {
+    function buildBadge(lv, opts) {
+        opts = opts || {};
         var emp = laEmployees.find(function (e) { return e.id === lv.employeeId; });
         if (!emp) return document.createElement('span');
 
+        // 表示モード: 月間/年間=イニシャル, 週間=氏名フル。opts.mode で明示指定可
+        var mode = opts.mode || (currentView === 'week' ? 'full' : 'initial');
+
         var b = document.createElement('div');
-        b.className = 'md-la-badge kind-' + lv.kind + ' is-' + lv.status;
+        b.className = 'md-la-badge kind-' + lv.kind + ' is-' + lv.status
+            + ' gc-' + emp.company + ' md-la-mode-' + mode;
         b.dataset.leaveId = lv.id;
         b.draggable = true;
         var conflict = getWsAssignment(lv.employeeId, lv.date);
@@ -1014,15 +1020,13 @@
         b.addEventListener('mouseenter', function (e) { scheduleTooltip(lv, b, e); });
         b.addEventListener('mouseleave', cancelTooltip);
 
-        var gc = document.createElement('span');
-        gc.className = 'md-la-badge-gc gc-' + emp.company;
-        b.appendChild(gc);
-
+        // 区分インジケータ (角) — 全/前/後
         var part = document.createElement('span');
         part.className = 'md-la-badge-part';
         part.textContent = PART[lv.partition];
         b.appendChild(part);
 
+        // 氏名・イニシャル (CSS でどちらかのみ表示)
         var name = document.createElement('span');
         name.className = 'md-la-badge-name';
         name.textContent = emp.name;
@@ -1032,14 +1036,6 @@
         initial.className = 'md-la-badge-initial';
         initial.textContent = emp.name.charAt(0);
         b.appendChild(initial);
-
-        if (conflict) {
-            var warn = document.createElement('span');
-            warn.className = 'md-la-badge-conflict';
-            warn.title = 'WS配置済み: ' + conflict.siteName + '（' + conflict.shift + '）';
-            warn.innerHTML = '<svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-caution"/></svg>';
-            b.appendChild(warn);
-        }
 
         // 端ドラッグハンドル (E3: 連続日延長)
         var eL = document.createElement('span');
@@ -1084,10 +1080,28 @@
 
     function renderSidebar() {
         var body = document.getElementById('laSidebarBody');
+        var title = document.getElementById('laSidebarTitle');
         var count = document.getElementById('laSidebarCount');
+        var search = document.querySelector('.md-la-sidebar-search');
         if (!body) return;
         body.innerHTML = '';
+        body.classList.toggle('mode-emp',    sidebarMode === 'emp');
+        body.classList.toggle('mode-alerts', sidebarMode === 'alerts');
 
+        if (sidebarMode === 'alerts') {
+            if (title) title.textContent = '要対応';
+            if (search) search.classList.add('md-la-hidden');
+            renderAlertList(body, count);
+        } else {
+            if (title) title.textContent = '社員';
+            if (search) search.classList.remove('md-la-hidden');
+            renderEmployeeList(body, count);
+        }
+
+        renderAlertTabBadge();
+    }
+
+    function renderEmployeeList(body, count) {
         var filtered = laEmployees.filter(function (e) {
             if (sidebarActiveTab !== 'all' && e.company !== sidebarActiveTab) return false;
             if (searchQuery && e.name.indexOf(searchQuery) === -1) return false;
@@ -1123,53 +1137,36 @@
         c.className = 'md-la-emp gc-' + emp.company;
         c.draggable = true;
         c.dataset.employeeId = emp.id;
+        c.title = emp.name + '（' + (emp.role === 'dcp' ? 'DCP' : emp.role === 'chief' ? '現場責任' : '一般')
+            + '）\n有給残 ' + emp.paidLeaveRemaining + '日 / 今月 ' + emp.paidLeaveUsedThisMonth + '日';
 
-        var main = document.createElement('div');
-        main.className = 'md-la-emp-main';
+        // 役職ドット (DCP/現場責任時のみ)
+        if (emp.role === 'dcp' || emp.role === 'chief') {
+            var dot = document.createElement('span');
+            dot.className = 'md-la-emp-role-dot is-' + emp.role;
+            c.appendChild(dot);
+        }
 
-        var top = document.createElement('div');
-        top.className = 'md-la-emp-top';
         var name = document.createElement('span');
         name.className = 'md-la-emp-name';
         name.textContent = emp.name;
-        top.appendChild(name);
-        var role = document.createElement('span');
-        role.className = 'md-la-emp-role';
-        role.textContent = emp.role === 'dcp' ? 'DCP' : (emp.role === 'chief' ? '現場責任' : '一般');
-        top.appendChild(role);
-        main.appendChild(top);
+        c.appendChild(name);
 
-        var bottom = document.createElement('div');
-        bottom.className = 'md-la-emp-bottom';
-        var stats = document.createElement('span');
-        stats.className = 'md-la-emp-leave-stats';
-        stats.innerHTML = '有給残 <strong>' + emp.paidLeaveRemaining + '</strong>日 / 今月 <strong>'
-            + emp.paidLeaveUsedThisMonth + '</strong>日';
-        bottom.appendChild(stats);
+        var leave = document.createElement('span');
+        leave.className = 'md-la-emp-leave';
+        leave.textContent = emp.paidLeaveRemaining + '日';
+        c.appendChild(leave);
 
-        var alerts = document.createElement('span');
-        alerts.className = 'md-la-emp-alerts';
-        if (emp.paidLeaveUsedThisMonth === 0) {
-            var u = document.createElement('span');
-            u.className = 'md-la-emp-alert unsubmitted';
-            u.title = '今月未申請';
-            u.textContent = '!';
-            alerts.appendChild(u);
-        }
+        // 未承認申請数のドット (右上)
         var pendingCount = laLeaves.filter(function (lv) {
             return lv.employeeId === emp.id && lv.status === 'pending';
         }).length;
         if (pendingCount > 0) {
-            var p = document.createElement('span');
-            p.className = 'md-la-emp-alert pending';
-            p.title = '未承認 ' + pendingCount + '件';
-            p.textContent = pendingCount;
-            alerts.appendChild(p);
+            var ad = document.createElement('span');
+            ad.className = 'md-la-emp-alert-dot';
+            ad.textContent = pendingCount;
+            c.appendChild(ad);
         }
-        bottom.appendChild(alerts);
-
-        main.appendChild(bottom);
-        c.appendChild(main);
 
         // D&D 起点
         c.addEventListener('dragstart', function (e) {
@@ -1188,6 +1185,147 @@
         c.addEventListener('drag', laMoveGhost);
 
         return c;
+    }
+
+    // ==========================================================
+    // 要対応タブ: アラートリスト描画
+    // ==========================================================
+
+    function collectAlerts() {
+        var pending = [];
+        var conflicts = [];
+        laLeaves.forEach(function (lv) {
+            if (lv.status === 'rejected') return;
+            if (lv.status === 'pending') pending.push(lv);
+            if (getWsAssignment(lv.employeeId, lv.date)) conflicts.push(lv);
+        });
+        // 日付順 (降順: 最新から — 未承認は早く気付くべき)
+        var cmp = function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; };
+        pending.sort(cmp);
+        conflicts.sort(cmp);
+        return { pending: pending, conflicts: conflicts };
+    }
+
+    function renderAlertList(body, count) {
+        var alerts = collectAlerts();
+        var total = alerts.pending.length + alerts.conflicts.length;
+        if (count) count.textContent = total + '件';
+
+        // 未承認セクション
+        body.appendChild(buildAlertSection('pending', '未承認の申請', alerts.pending));
+        // 衝突セクション
+        body.appendChild(buildAlertSection('conflict', 'WS配置との衝突', alerts.conflicts));
+
+        if (total === 0) {
+            var empty = document.createElement('div');
+            empty.className = 'md-la-alert-empty';
+            empty.textContent = '対応が必要な項目はありません ✓';
+            body.appendChild(empty);
+        }
+    }
+
+    function buildAlertSection(type, title, items) {
+        var sec = document.createElement('div');
+        sec.className = 'md-la-alert-section is-' + type;
+        var head = document.createElement('div');
+        head.className = 'md-la-alert-section-title';
+        head.innerHTML = title + '<span class="md-la-alert-count">' + items.length + '</span>';
+        sec.appendChild(head);
+        items.forEach(function (lv) { sec.appendChild(buildAlertItem(type, lv)); });
+        if (items.length === 0) {
+            var none = document.createElement('div');
+            none.className = 'md-la-alert-empty';
+            none.style.padding = '6px 4px';
+            none.textContent = '（該当なし）';
+            sec.appendChild(none);
+        }
+        return sec;
+    }
+
+    function buildAlertItem(type, lv) {
+        var emp = laEmployees.find(function (e) { return e.id === lv.employeeId; });
+        var d = parseDate(lv.date);
+        var item = document.createElement('div');
+        item.className = 'md-la-alert-item is-' + type;
+        item.dataset.leaveId = lv.id;
+
+        // 日付ブロック
+        var dateEl = document.createElement('div');
+        dateEl.className = 'md-la-alert-date';
+        dateEl.innerHTML = (d.getMonth() + 1) + '月<strong>' + d.getDate() + '日</strong>';
+        item.appendChild(dateEl);
+
+        // 本体
+        var body = document.createElement('div');
+        body.className = 'md-la-alert-body';
+        var name = document.createElement('div');
+        name.className = 'md-la-alert-name';
+        name.textContent = (emp ? emp.name : '(不明)') + ' — ' + KIND[lv.kind] + '(' + PART[lv.partition] + ')';
+        var detail = document.createElement('div');
+        detail.className = 'md-la-alert-detail';
+        if (type === 'pending') {
+            detail.textContent = '申請中 · 承認待ち';
+        } else {
+            var ws = getWsAssignment(lv.employeeId, lv.date);
+            detail.textContent = 'WS: ' + (ws ? ws.siteName + '(' + ws.shift + ')' : '配置済み');
+        }
+        body.appendChild(name);
+        body.appendChild(detail);
+        item.appendChild(body);
+
+        // アイコン
+        var icon = document.createElement('div');
+        icon.className = 'md-la-alert-icon';
+        icon.textContent = type === 'pending' ? '!' : '⚠';
+        item.appendChild(icon);
+
+        // クリック → 該当日へジャンプ + ポップオーバーオープン
+        item.addEventListener('click', function () { jumpToLeave(lv); });
+
+        return item;
+    }
+
+    function renderAlertTabBadge() {
+        var badge = document.getElementById('laAlertTabBadge');
+        if (!badge) return;
+        var alerts = collectAlerts();
+        var total = alerts.pending.length + alerts.conflicts.length;
+        if (total === 0) {
+            badge.classList.add('md-la-hidden');
+        } else {
+            badge.classList.remove('md-la-hidden');
+            badge.textContent = total > 99 ? '99+' : total;
+        }
+    }
+
+    function jumpToLeave(lv) {
+        var d = parseDate(lv.date);
+        // ビューに応じて表示範囲を合わせる
+        if (currentView === 'year') {
+            currentView = 'month';
+            currentDate = new Date(d.getFullYear(), d.getMonth(), 1);
+            document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
+                t.classList.toggle('is-active', t.dataset.view === 'month');
+            });
+        } else if (currentView === 'week') {
+            currentWeekAnchor = new Date(d);
+        } else {
+            // month
+            if (currentDate.getFullYear() !== d.getFullYear()
+                || currentDate.getMonth() !== d.getMonth()) {
+                currentDate = new Date(d.getFullYear(), d.getMonth(), 1);
+            }
+        }
+        render();
+        setTimeout(function () {
+            var badge = document.querySelector('.md-la-badge[data-leave-id="' + lv.id + '"]');
+            if (!badge) return;
+            // スクロール + ハイライトアニメ + ポップオーバー
+            badge.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            badge.classList.add('is-jump-highlight');
+            setTimeout(function () { badge.classList.remove('is-jump-highlight'); }, 2000);
+            laShowBadgeInfo(lv, badge);
+        }, 60);
     }
 
     // ==========================================================
@@ -1235,7 +1373,7 @@
             var lv = laLeaves.find(function (x) { return x.id === dragState.leaveId; });
             if (lv) lv.date = targetDate;
         }
-        renderCalendar();
+        render();
     }
 
     function clearDropHighlights() {
@@ -1589,8 +1727,7 @@
         }
 
         cleanupRangeDrag();
-        renderCalendar();
-        renderSidebar();
+        render();
     }
 
     function cleanupRangeDrag() {
@@ -2087,9 +2224,14 @@
     }
 
     function selectSidebarTab(tab) {
-        sidebarActiveTab = tab;
+        if (tab === 'alerts') {
+            sidebarMode = 'alerts';
+        } else {
+            sidebarMode = 'emp';
+            sidebarActiveTab = tab;
+        }
         // UI 更新
-        document.querySelectorAll('.md-la-sidebar-vtab').forEach(function (el) {
+        document.querySelectorAll('.md-la-sidebar-vtab[data-tab]').forEach(function (el) {
             el.classList.toggle('is-active', el.dataset.tab === tab);
         });
         // 折り畳みから復帰

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="mockup/co-modal.css">
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
-    <link rel="stylesheet" href="mockup/leave-application.css?v=8">
+    <link rel="stylesheet" href="mockup/leave-application.css?v=9">
 </head>
 <body>
     <!-- SVG icon sprite (CLAUDE.md アイコン運用ルール準拠) -->
@@ -119,13 +119,17 @@
                     <button class="md-la-sidebar-vtab" data-tab="touo" title="東央警備">東央</button>
                     <button class="md-la-sidebar-vtab" data-tab="nikkei" title="Nikkei">Nikkei</button>
                     <button class="md-la-sidebar-vtab" data-tab="zennihon" title="全日本">全日本</button>
+                    <button class="md-la-sidebar-vtab is-alerts" data-tab="alerts" title="要対応アラート">
+                        要対応
+                        <span class="md-la-sidebar-vtab-badge md-la-hidden" id="laAlertTabBadge">0</span>
+                    </button>
                     <div style="flex:1;"></div>
                     <button class="md-la-sidebar-vtab" id="laSidebarToggle" title="折り畳み／展開">⇔</button>
                 </div>
                 <!-- パネル本体 -->
                 <div class="md-la-sidebar-panel">
                     <div class="md-la-sidebar-header">
-                        <span class="md-la-sidebar-title">社員</span>
+                        <span class="md-la-sidebar-title" id="laSidebarTitle">社員</span>
                         <span class="md-la-sidebar-count" id="laSidebarCount"></span>
                     </div>
                     <div class="md-la-sidebar-search">
