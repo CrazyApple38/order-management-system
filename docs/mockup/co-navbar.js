@@ -12,6 +12,7 @@
     if (path.indexOf('screen-layout') !== -1) currentPage = 'screen-layout';
     else if (path.indexOf('order-book') !== -1) currentPage = 'order-book';
     else if (path.indexOf('weekly-schedule') !== -1) currentPage = 'weekly-schedule';
+    else if (path.indexOf('leave-application') !== -1) currentPage = 'leave-application';
     else if (path.indexOf('quick-access') !== -1) currentPage = 'quick-access';
 
     // --- マスタ管理メニュー項目 ---
@@ -32,8 +33,8 @@
 
     // --- スケジュールメニュー項目 ---
     var scheduleItems = [
-        { id: 'weekly-schedule', label: '週間予定表',     icon: 'calendar.svg' },
-        { id: 'leave-request',   label: '休暇申請管理',   icon: 'clock.svg' }
+        { id: 'weekly-schedule',   label: '週間予定表',     icon: 'calendar.svg' },
+        { id: 'leave-application', label: '休暇申請管理',   icon: 'clock.svg' }
     ];
 
     // --- HTML構築 ---
@@ -66,7 +67,7 @@
         +   '</a>'
         // --- スケジュールドロップダウン ---
         +   '<div class="md-nav-dropdown" id="mdNavScheduleDD">'
-        +     '<button class="md-nav-dropdown-btn' + (currentPage === 'weekly-schedule' ? ' md-nav-active' : '') + '" onclick="mdNavToggleDD(\'mdNavScheduleDD\')">'
+        +     '<button class="md-nav-dropdown-btn' + ((currentPage === 'weekly-schedule' || currentPage === 'leave-application') ? ' md-nav-active' : '') + '" onclick="mdNavToggleDD(\'mdNavScheduleDD\')">'
         +       'スケジュール <span class="md-nav-dropdown-arrow">▼</span>'
         +     '</button>'
         +     '<div class="md-nav-dropdown-panel">'
@@ -215,7 +216,8 @@
 
     // ページ遷移するメニュー項目
     var pageLinks = {
-        'weekly-schedule': 'weekly-schedule.html'
+        'weekly-schedule':   'weekly-schedule.html',
+        'leave-application': 'leave-application.html'
     };
 
     document.querySelectorAll('.md-nav-menu-item[data-master]').forEach(function (btn) {

@@ -1,0 +1,674 @@
+/* ============================================================
+   leave-application.css — 休暇申請管理モックアップ
+   プレフィックス: md-la-
+   Phase E1: 画面骨格 + 月間ビュー + 右サイドパネル + D&D 最小動作
+   ============================================================ */
+
+:root {
+    /* LA 固有: 休み種別カラー */
+    --la-kind-paid-bg:    rgba(68, 166, 181, 0.14);   /* 有給: teal */
+    --la-kind-paid-text:  #1c4d54;
+    --la-kind-absent-bg:  rgba(219, 87, 123, 0.14);   /* 欠勤: rose */
+    --la-kind-absent-text: #8e2c4a;
+    --la-kind-other-bg:   rgba(211, 208, 200, 0.35);  /* その他: neutral */
+    --la-kind-other-text: #3f3b31;
+
+    /* LA 固有: ステータス */
+    --la-status-pending-border: dashed;
+    --la-status-approved-border: solid;
+    --la-status-rejected-opacity: 0.35;
+
+    /* LA 固有: GC 背景 (WS と合わせる) */
+    --la-gc-bg-touo:     #FFFFFF;
+    --la-gc-bg-nikkei:   #F3F9F6;
+    --la-gc-bg-zennihon: #F2F4F8;
+
+    /* LA 固有: D&D */
+    --la-drop-target: rgba(56, 161, 105, 0.10);
+    --la-drop-border: var(--semantic-success);
+
+    /* LA 固有: 警告 */
+    --la-warn-bg: rgba(214, 158, 46, 0.12);
+    --la-warn-border: var(--semantic-warning);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--font-family-body);
+    font-feature-settings: "palt" 1;
+    font-variant-numeric: tabular-nums;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-base);
+}
+
+.ui-icon-sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.ui-icon {
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+    vertical-align: -0.125em;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   レイアウト
+   ============================================================ */
+.md-la-container {
+    height: calc(100vh - 36px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* --- ヘッダー --- */
+.md-la-header {
+    background: var(--bg-sidebar);
+    color: #fff;
+    padding: var(--space-sm) var(--space-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-shrink: 0;
+}
+.md-la-header-title {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-bold);
+    white-space: nowrap;
+}
+.md-la-view-tabs {
+    display: flex;
+    background: rgba(255,255,255,0.10);
+    border-radius: var(--radius-md);
+    padding: 2px;
+    margin-left: var(--space-md);
+}
+.md-la-view-tab {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.75);
+    padding: 4px 14px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-semibold);
+    transition: background var(--duration-fast);
+}
+.md-la-view-tab:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.md-la-view-tab.is-active {
+    background: #fff;
+    color: var(--text-primary);
+}
+
+.md-la-header-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: var(--space-md);
+}
+.md-la-nav-btn {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #fff;
+    height: 28px;
+    padding: 0 var(--space-sm);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-medium);
+    transition: background var(--duration-fast);
+}
+.md-la-nav-btn:hover { background: rgba(255,255,255,0.25); }
+.md-la-month-label {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    text-align: center;
+    min-width: 140px;
+}
+.md-la-today-btn {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-semibold);
+    margin-left: 4px;
+}
+.md-la-today-btn:hover { background: rgba(255,255,255,0.25); }
+
+.md-la-header-spacer { flex: 1; }
+
+.md-la-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.md-la-header-action {
+    background: rgba(255,255,255,0.12);
+    border: none;
+    color: #fff;
+    height: 28px;
+    padding: 0 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-semibold);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background var(--duration-fast);
+}
+.md-la-header-action:hover { background: rgba(255,255,255,0.22); }
+.md-la-header-action .ui-icon { font-size: 14px; }
+
+/* --- メインエリア --- */
+.md-la-main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ============================================================
+   カレンダー (月間ビュー)
+   ============================================================ */
+.md-la-calendar-wrapper {
+    flex: 1;
+    overflow: auto;
+    background: var(--bg-page);
+    padding: var(--space-md);
+}
+
+.md-la-calendar {
+    background: var(--bg-surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--elevation-1);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: minmax(112px, 1fr);
+    gap: 1px;
+    background-color: var(--divider);
+}
+
+.md-la-dow-header {
+    background: var(--bg-surface-3);
+    color: var(--text-primary);
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-bold);
+    padding: 6px 8px;
+    text-align: center;
+}
+.md-la-dow-header.is-sat { color: var(--accent-primary); }
+.md-la-dow-header.is-sun { color: var(--semantic-error); }
+
+.md-la-cell {
+    background: var(--bg-surface);
+    padding: 4px 5px 4px 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 112px;
+    position: relative;
+    cursor: default;
+    transition: background var(--duration-fast);
+}
+.md-la-cell.is-other-month {
+    background: var(--bg-surface-2);
+    color: var(--text-disabled);
+}
+.md-la-cell.is-sat {
+    background: var(--day-sat);
+}
+.md-la-cell.is-sun,
+.md-la-cell.is-holiday {
+    background: var(--day-sun);
+}
+.md-la-cell.is-today {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: -2px;
+    z-index: 1;
+}
+.md-la-cell.is-past .md-la-cell-day {
+    color: var(--text-tertiary);
+}
+
+.md-la-cell-head {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 18px;
+}
+.md-la-cell-day {
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-bold);
+    color: var(--text-primary);
+}
+.md-la-cell.is-sat .md-la-cell-day { color: var(--accent-primary); }
+.md-la-cell.is-sun .md-la-cell-day,
+.md-la-cell.is-holiday .md-la-cell-day { color: var(--semantic-error); }
+
+.md-la-cell-warn {
+    margin-left: auto;
+    color: var(--semantic-warning);
+    font-size: 12px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+}
+
+.md-la-cell-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-height: 0;
+}
+
+.md-la-cell.is-drop-target {
+    background: var(--la-drop-target) !important;
+    outline: 2px dashed var(--la-drop-border);
+    outline-offset: -2px;
+    z-index: 2;
+}
+.md-la-cell.is-drop-preview {
+    background: rgba(68, 166, 181, 0.10) !important;
+}
+
+/* --- セル内 休み バッジ --- */
+.md-la-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 5px 2px 4px;
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-semibold);
+    line-height: 1.2;
+    background: var(--la-kind-other-bg);
+    color: var(--la-kind-other-text);
+    border: 1px solid transparent;
+    cursor: grab;
+    user-select: none;
+    position: relative;
+}
+.md-la-badge:hover {
+    filter: brightness(0.95);
+}
+.md-la-badge.is-pending {
+    border: 1px dashed rgba(0,0,0,0.25);
+}
+.md-la-badge.is-approved {
+    border: 1px solid rgba(0,0,0,0.10);
+}
+.md-la-badge.is-rejected {
+    opacity: var(--la-status-rejected-opacity);
+    text-decoration: line-through;
+}
+.md-la-badge.is-dragging {
+    opacity: 0.4;
+}
+
+.md-la-badge.kind-paid {
+    background: var(--la-kind-paid-bg);
+    color: var(--la-kind-paid-text);
+}
+.md-la-badge.kind-absent {
+    background: var(--la-kind-absent-bg);
+    color: var(--la-kind-absent-text);
+}
+.md-la-badge.kind-other {
+    background: var(--la-kind-other-bg);
+    color: var(--la-kind-other-text);
+}
+
+/* GC 色コード (左アクセントバー) */
+.md-la-badge-gc {
+    width: 3px;
+    align-self: stretch;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+.md-la-badge-gc.gc-touo     { background: #9FA8B4; }
+.md-la-badge-gc.gc-nikkei   { background: #5FB895; }
+.md-la-badge-gc.gc-zennihon { background: #6B82B8; }
+
+/* 区分アイコン (左上, 全/前/後) */
+.md-la-badge-part {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: var(--fw-bold);
+    background: rgba(0,0,0,0.14);
+    color: inherit;
+    flex-shrink: 0;
+    letter-spacing: -0.02em;
+}
+
+.md-la-badge-name {
+    font-size: var(--fs-caption);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+/* イニシャル モード */
+.md-la-calendar.is-compact .md-la-badge-name {
+    display: none;
+}
+.md-la-calendar.is-compact .md-la-badge-initial {
+    display: inline;
+}
+.md-la-badge-initial {
+    display: none;
+    font-weight: var(--fw-bold);
+}
+
+/* 「+N 件」折畳 */
+.md-la-badge-more {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    padding: 1px 4px;
+    cursor: pointer;
+    text-align: center;
+    background: transparent;
+    border: 1px dashed var(--divider);
+    border-radius: var(--radius-sm);
+}
+.md-la-badge-more:hover {
+    background: var(--accent-primary-dim);
+    color: var(--text-primary);
+}
+
+/* バッジ 端ドラッグハンドル (E3 予定、今は placeholder) */
+.md-la-badge-edge {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    cursor: ew-resize;
+    opacity: 0;
+}
+.md-la-badge-edge.left { left: -2px; }
+.md-la-badge-edge.right { right: -2px; }
+.md-la-badge:hover .md-la-badge-edge {
+    opacity: 1;
+    background: rgba(0,0,0,0.18);
+}
+
+/* ============================================================
+   右サイドパネル (縦タブ折畳)
+   ============================================================ */
+.md-la-sidebar {
+    display: flex;
+    flex-direction: row;
+    flex-shrink: 0;
+    background: var(--bg-surface);
+    border-left: 1px solid var(--divider);
+    height: 100%;
+    overflow: hidden;
+}
+
+.md-la-sidebar-vtabs {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-surface-2);
+    border-right: 1px solid var(--divider);
+    width: 38px;
+    flex-shrink: 0;
+}
+.md-la-sidebar-vtab {
+    border: none;
+    background: transparent;
+    color: var(--text-tertiary);
+    padding: var(--space-sm) 0;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: var(--fw-bold);
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    border-left: 2px solid transparent;
+    transition: all var(--duration-fast);
+    letter-spacing: 0.05em;
+}
+.md-la-sidebar-vtab:hover {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+.md-la-sidebar-vtab.is-active {
+    background: var(--bg-surface);
+    color: var(--accent-primary);
+    border-left-color: var(--accent-primary);
+}
+
+.md-la-sidebar-panel {
+    width: 260px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: width var(--duration-base) var(--ease-out);
+}
+.md-la-sidebar.is-collapsed .md-la-sidebar-panel {
+    width: 0;
+}
+
+.md-la-sidebar-header {
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-surface-2);
+    border-bottom: 1px solid var(--divider);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+.md-la-sidebar-title {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    flex: 1;
+}
+.md-la-sidebar-count {
+    font-size: var(--fs-caption);
+    color: var(--text-tertiary);
+}
+
+.md-la-sidebar-search {
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--divider);
+    flex-shrink: 0;
+}
+.md-la-sidebar-search input {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-caption);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+.md-la-sidebar-search input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.md-la-sidebar-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-xs) var(--space-sm);
+}
+
+/* --- 社員 カード (サイドパネル内) --- */
+.md-la-emp {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    margin: 3px 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-left: 3px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: grab;
+    user-select: none;
+    transition: all var(--duration-fast);
+    position: relative;
+}
+.md-la-emp:hover {
+    box-shadow: var(--elevation-2);
+    border-color: var(--accent-primary-light);
+}
+.md-la-emp.gc-touo     { border-left-color: #9FA8B4; }
+.md-la-emp.gc-nikkei   { border-left-color: #5FB895; }
+.md-la-emp.gc-zennihon { border-left-color: #6B82B8; }
+.md-la-emp.is-dragging { opacity: 0.4; }
+
+.md-la-emp-main {
+    flex: 1;
+    min-width: 0;
+}
+.md-la-emp-top {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+.md-la-emp-name {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    color: var(--text-primary);
+}
+.md-la-emp-role {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    padding: 1px 4px;
+    background: var(--bg-surface-2);
+    border-radius: 3px;
+}
+.md-la-emp-bottom {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+.md-la-emp-leave-stats {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+.md-la-emp-leave-stats strong {
+    color: var(--text-secondary);
+    font-weight: var(--fw-bold);
+}
+.md-la-emp-alerts {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: auto;
+}
+.md-la-emp-alert {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    font-size: 9px;
+    font-weight: var(--fw-bold);
+    color: #fff;
+}
+.md-la-emp-alert.unsubmitted {
+    background: var(--semantic-warning);
+}
+.md-la-emp-alert.pending {
+    background: var(--accent-secondary);
+}
+
+/* グループヘッダー (GC 区切り) */
+.md-la-emp-group {
+    padding: 6px 4px 3px;
+    font-size: 10px;
+    font-weight: var(--fw-bold);
+    color: var(--text-tertiary);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--divider);
+    margin: 6px 0 2px;
+}
+.md-la-emp-group:first-child { margin-top: 0; }
+
+/* ============================================================
+   凡例バー (フッター)
+   ============================================================ */
+.md-la-legend {
+    flex-shrink: 0;
+    background: var(--bg-surface);
+    border-top: 1px solid var(--divider);
+    padding: 4px 12px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.md-la-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.md-la-legend-chip {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    vertical-align: middle;
+}
+.md-la-legend-chip.kind-paid { background: var(--la-kind-paid-bg); border: 1px solid var(--la-kind-paid-text); }
+.md-la-legend-chip.kind-absent { background: var(--la-kind-absent-bg); border: 1px solid var(--la-kind-absent-text); }
+.md-la-legend-chip.kind-other { background: var(--la-kind-other-bg); border: 1px solid var(--text-tertiary); }
+.md-la-legend-chip.status-pending { border: 1px dashed var(--text-tertiary); background: transparent; }
+.md-la-legend-chip.status-approved { border: 1px solid var(--text-secondary); background: transparent; }
+
+/* ============================================================
+   D&D ゴースト
+   ============================================================ */
+.md-la-drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    padding: 4px 10px;
+    background: var(--bg-sidebar);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-bold);
+    box-shadow: var(--elevation-3);
+    opacity: 0.92;
+}
+
+/* ============================================================
+   プレースホルダー (E1 範囲外機能の明示)
+   ============================================================ */
+.md-la-placeholder-hint {
+    text-align: center;
+    padding: var(--space-md);
+    color: var(--text-tertiary);
+    font-size: var(--fs-caption);
+    font-style: italic;
+}

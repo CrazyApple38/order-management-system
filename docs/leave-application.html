@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>休暇申請管理 - 受注管理システム</title>
+    <link rel="stylesheet" href="mockup/co-tokens.css">
+    <link rel="stylesheet" href="mockup/co-forms.css">
+    <link rel="stylesheet" href="mockup/co-buttons.css">
+    <link rel="stylesheet" href="mockup/co-modal.css">
+    <link rel="stylesheet" href="mockup/co-shared-badges.css">
+    <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
+    <link rel="stylesheet" href="mockup/leave-application.css?v=1">
+</head>
+<body>
+    <!-- SVG icon sprite (CLAUDE.md アイコン運用ルール準拠) -->
+    <svg class="ui-icon-sprite" aria-hidden="true" focusable="false">
+        <defs>
+            <!-- caution: sign-mark/im-11908-chuui-maaku.svg -->
+            <symbol id="ui-icon-caution" viewBox="0 0 512 512">
+                <path d="M504.874,399.04l-224.96-379.52C274.554,10.2,264.794,4.48,254.074,4.48c-10.72,0-20.48,5.72-25.84,14.88 L3.274,399.04c-5.36,9.16-5.36,20.6,0,29.76c5.36,9.16,15.12,14.88,25.84,14.88h449.92c10.72,0,20.48-5.72,25.84-14.88 C510.234,419.64,510.234,408.2,504.874,399.04z M254.074,368.92c-13.76,0-24.88-11.12-24.88-24.88s11.12-24.88,24.88-24.88 c13.76,0,24.88,11.12,24.88,24.88S267.834,368.92,254.074,368.92z M278.954,264.2c0,13.76-11.12,24.88-24.88,24.88 c-13.76,0-24.88-11.12-24.88-24.88v-99.52c0-13.76,11.12-24.88,24.88-24.88c13.76,0,24.88,11.12,24.88,24.88V264.2z"/>
+            </symbol>
+            <!-- check: sign-mark/im-11451-chekku-maaku-no-muryou.svg -->
+            <symbol id="ui-icon-check" viewBox="0 0 512 512">
+                <polygon points="434.252,76.923 184.84,326.326 77.762,219.262 0,297.033 184.84,481.859 512,154.684"/>
+            </symbol>
+            <!-- close: sign-mark/im-11911-hosoi-batsu.svg -->
+            <symbol id="ui-icon-close" viewBox="0 0 512 512">
+                <polygon points="512,52.535 459.467,0.002 256.002,203.462 52.538,0.002 0,52.535 203.47,256.005 0,459.465 52.533,511.998 256.002,308.527 459.467,511.998 512,459.475 308.536,256.005"/>
+            </symbol>
+            <!-- plus: sign-mark/im-00105-purasu.svg -->
+            <symbol id="ui-icon-plus" viewBox="0 0 512 512">
+                <polygon points="512,224.5 287.5,224.5 287.5,0 224.5,0 224.5,224.5 0,224.5 0,287.5 224.5,287.5 224.5,512 287.5,512 287.5,287.5 512,287.5"/>
+            </symbol>
+            <!-- chevron-left: 矢印左 -->
+            <symbol id="ui-icon-chevron-left" viewBox="0 0 512 512">
+                <path d="M275.99,499.426L72.428,298.063C64.372,290.095,59.854,279.284,59.854,267.971 c0-11.312,4.518-22.14,12.573-30.091C88.85,221.459,115.665,221.608,132.102,238.226l128.955,130.351V42.328 C261.057,18.966,280.022,0,303.384,0c23.382,0,42.328,18.965,42.328,42.328V368.34l128.955-130.351 c16.438-16.618,43.252-16.767,59.864,0.33c16.612,16.438,16.758,43.252,0.328,59.875L333.496,499.555 C325.528,507.612,314.717,512.13,303.404,512.13C292.093,512.13,281.265,507.61,275.99,499.426z" transform="rotate(90 256 256)"/>
+            </symbol>
+            <!-- chevron-right: 矢印右 -->
+            <symbol id="ui-icon-chevron-right" viewBox="0 0 512 512">
+                <path d="M275.99,499.426L72.428,298.063C64.372,290.095,59.854,279.284,59.854,267.971 c0-11.312,4.518-22.14,12.573-30.091C88.85,221.459,115.665,221.608,132.102,238.226l128.955,130.351V42.328 C261.057,18.966,280.022,0,303.384,0c23.382,0,42.328,18.965,42.328,42.328V368.34l128.955-130.351 c16.438-16.618,43.252-16.767,59.864,0.33c16.612,16.438,16.758,43.252,0.328,59.875L333.496,499.555 C325.528,507.612,314.717,512.13,303.404,512.13C292.093,512.13,281.265,507.61,275.99,499.426z" transform="rotate(-90 256 256)"/>
+            </symbol>
+        </defs>
+    </svg>
+
+    <!-- co-navbar.js が自動挿入 -->
+
+    <div class="md-la-container">
+        <!-- ヘッダー -->
+        <div class="md-la-header">
+            <span class="md-la-header-title">休暇申請管理</span>
+
+            <!-- ビュータブ -->
+            <div class="md-la-view-tabs">
+                <button class="md-la-view-tab is-active" data-view="month">月間</button>
+                <button class="md-la-view-tab" data-view="week">週間</button>
+                <button class="md-la-view-tab" data-view="year">年間</button>
+            </div>
+
+            <!-- 月ナビ -->
+            <div class="md-la-header-nav">
+                <button class="md-la-nav-btn" id="laPrevBtn" title="前月">◀</button>
+                <span class="md-la-month-label" id="laMonthLabel">2026年4月</span>
+                <button class="md-la-nav-btn" id="laNextBtn" title="翌月">▶</button>
+                <button class="md-la-today-btn" id="laTodayBtn">今日</button>
+            </div>
+
+            <div class="md-la-header-spacer"></div>
+
+            <!-- アクション -->
+            <div class="md-la-header-actions">
+                <button class="md-la-header-action" id="laCompactBtn" title="イニシャル圧縮表示">圧縮</button>
+                <button class="md-la-header-action" id="laReportBtn" title="月次集計・CSV出力">集計</button>
+                <button class="md-la-header-action" id="laNewBtn" title="新規申請">
+                    <svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg>
+                    新規申請
+                </button>
+            </div>
+        </div>
+
+        <!-- メインエリア -->
+        <div class="md-la-main">
+            <!-- カレンダー -->
+            <div class="md-la-calendar-wrapper">
+                <div class="md-la-calendar" id="laCalendar">
+                    <!-- JS で描画 -->
+                </div>
+            </div>
+
+            <!-- 右サイドパネル -->
+            <div class="md-la-sidebar" id="laSidebar">
+                <!-- 縦タブ -->
+                <div class="md-la-sidebar-vtabs">
+                    <button class="md-la-sidebar-vtab is-active" data-tab="all" title="全社員">全員</button>
+                    <button class="md-la-sidebar-vtab" data-tab="touo" title="東央警備">東央</button>
+                    <button class="md-la-sidebar-vtab" data-tab="nikkei" title="Nikkei">Nikkei</button>
+                    <button class="md-la-sidebar-vtab" data-tab="zennihon" title="全日本">全日本</button>
+                    <div style="flex:1;"></div>
+                    <button class="md-la-sidebar-vtab" id="laSidebarToggle" title="折り畳み／展開">⇔</button>
+                </div>
+                <!-- パネル本体 -->
+                <div class="md-la-sidebar-panel">
+                    <div class="md-la-sidebar-header">
+                        <span class="md-la-sidebar-title">社員</span>
+                        <span class="md-la-sidebar-count" id="laSidebarCount"></span>
+                    </div>
+                    <div class="md-la-sidebar-search">
+                        <input type="text" id="laSidebarSearch" placeholder="氏名で検索...">
+                    </div>
+                    <div class="md-la-sidebar-body" id="laSidebarBody">
+                        <!-- JS で描画 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 凡例 -->
+        <div class="md-la-legend">
+            <span class="md-la-legend-item">
+                <span class="md-la-legend-chip kind-paid"></span>有給
+            </span>
+            <span class="md-la-legend-item">
+                <span class="md-la-legend-chip kind-absent"></span>欠勤
+            </span>
+            <span class="md-la-legend-item">
+                <span class="md-la-legend-chip kind-other"></span>その他
+            </span>
+            <span style="width:1px;height:12px;background:var(--divider);"></span>
+            <span class="md-la-legend-item">
+                <span class="md-la-legend-chip status-pending"></span>申請中（破線）
+            </span>
+            <span class="md-la-legend-item">
+                <span class="md-la-legend-chip status-approved"></span>承認済（実線）
+            </span>
+            <span style="width:1px;height:12px;background:var(--divider);"></span>
+            <span class="md-la-legend-item" style="color:var(--text-tertiary);font-style:italic;">
+                Phase E1: 月間ビュー + D&amp;D 基盤のみ実装。詳細編集・承認・週年ビューは後続フェーズで拡張。
+            </span>
+        </div>
+    </div>
+
+    <script src="mockup/demo-data.js?v=2"></script>
+    <script src="mockup/co-navbar.js?v=4"></script>
+    <script src="mockup/leave-application.js?v=1"></script>
+</body>
+</html>
