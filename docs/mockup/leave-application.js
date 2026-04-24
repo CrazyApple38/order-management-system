@@ -1007,8 +1007,12 @@
         var conflict = getWsAssignment(lv.employeeId, lv.date);
         if (conflict) b.classList.add('is-ws-conflict');
         if (!canEditLeave(lv)) b.classList.add('is-readonly');
-        b.title = emp.name + ' — ' + KIND[lv.kind] + ' (' + PART[lv.partition] + '休) / ' + STATUS[lv.status]
-            + (conflict ? '\n⚠ WS配置済み: ' + conflict.siteName + '（' + conflict.shift + '）' : '');
+        // ネイティブ tooltip はアクセシビリティ/スクリーンリーダー用の最小テキストに留める
+        b.setAttribute('aria-label',
+            emp.name + ' — ' + KIND[lv.kind] + ' (' + PART[lv.partition] + '休) / ' + STATUS[lv.status]);
+        // リッチ tooltip をホバーで表示 (カスタム)
+        b.addEventListener('mouseenter', function (e) { scheduleTooltip(lv, b, e); });
+        b.addEventListener('mouseleave', cancelTooltip);
 
         var gc = document.createElement('span');
         gc.className = 'md-la-badge-gc gc-' + emp.company;
@@ -1248,6 +1252,183 @@
         cell.style.boxShadow = '0 0 0 2px var(--semantic-error) inset';
         setTimeout(function () { cell.style.boxShadow = ''; }, 800);
     }
+
+    // ==========================================================
+    // バッジ ホバー ツールチップ (リッチ版)
+    // ==========================================================
+
+    var tooltipEl = null;
+    var tooltipTimer = null;
+    var TOOLTIP_DELAY = 280;
+
+    function scheduleTooltip(lv, anchor, mouseEvt) {
+        cancelTooltip();
+        // ドラッグ中・ポップオーバー表示中は抑止
+        if (dragState || rangeDragState || popoverState) return;
+        tooltipTimer = setTimeout(function () {
+            showTooltip(lv, anchor);
+        }, TOOLTIP_DELAY);
+    }
+
+    function cancelTooltip() {
+        if (tooltipTimer) { clearTimeout(tooltipTimer); tooltipTimer = null; }
+        hideTooltip();
+    }
+
+    function hideTooltip() {
+        if (tooltipEl && tooltipEl.parentNode) tooltipEl.parentNode.removeChild(tooltipEl);
+        tooltipEl = null;
+    }
+
+    function showTooltip(lv, anchor) {
+        hideTooltip();
+        var emp = laEmployees.find(function (e) { return e.id === lv.employeeId; });
+        if (!emp) return;
+        var conflict = getWsAssignment(lv.employeeId, lv.date);
+        tooltipEl = buildTooltipEl(lv, emp, conflict);
+        document.body.appendChild(tooltipEl);
+        positionTooltip(tooltipEl, anchor);
+    }
+
+    function buildTooltipEl(lv, emp, conflict) {
+        var tip = document.createElement('div');
+        tip.className = 'md-la-tooltip';
+
+        // ヘッダー
+        var header = document.createElement('div');
+        header.className = 'md-la-tooltip-header';
+        var gc = document.createElement('span');
+        gc.className = 'md-la-tooltip-gc gc-' + emp.company;
+        header.appendChild(gc);
+
+        var hmain = document.createElement('div');
+        hmain.className = 'md-la-tooltip-hmain';
+        var gcLabel = (groupCompaniesData.find(function (g) { return g.code === emp.company; }) || {}).shortName || emp.company;
+        var roleText = emp.role === 'dcp' ? 'DCP' : (emp.role === 'chief' ? '現場責任' : '一般');
+        var nameRow = document.createElement('div');
+        nameRow.className = 'md-la-tooltip-hname';
+        var nameSpan = document.createElement('span');
+        nameSpan.textContent = emp.name;
+        var roleSpan = document.createElement('span');
+        roleSpan.className = 'md-la-tooltip-hrole';
+        roleSpan.textContent = gcLabel + ' ・ ' + roleText;
+        nameRow.appendChild(nameSpan);
+        nameRow.appendChild(roleSpan);
+        hmain.appendChild(nameRow);
+        var dateRow = document.createElement('div');
+        dateRow.className = 'md-la-tooltip-hdate';
+        dateRow.textContent = formatJpDate(lv.date);
+        hmain.appendChild(dateRow);
+        header.appendChild(hmain);
+
+        var status = document.createElement('span');
+        status.className = 'md-la-tooltip-hstatus status-' + lv.status;
+        status.textContent = STATUS[lv.status];
+        header.appendChild(status);
+        tip.appendChild(header);
+
+        // テーブル
+        var table = document.createElement('table');
+        table.className = 'md-la-tooltip-table';
+        var tbody = document.createElement('tbody');
+        // 区分
+        tbody.appendChild(tooltipTr('区分',
+            '<span class="md-la-tooltip-chip part-' + lv.partition + '">' + PART[lv.partition] + '休</span>'));
+        // 種別
+        tbody.appendChild(tooltipTr('種別',
+            '<span class="md-la-tooltip-chip kind-' + lv.kind + '">' + KIND[lv.kind] + '</span>'));
+        // 理由
+        tbody.appendChild(tooltipTr('理由', lv.reason, '（未入力）'));
+        // メモ
+        tbody.appendChild(tooltipTr('メモ', lv.memo, '（なし）'));
+        table.appendChild(tbody);
+        tip.appendChild(table);
+
+        // 繰り返し
+        if (lv.recurrence && lv.recurrence.rule === 'weekly') {
+            var rec = document.createElement('div');
+            rec.className = 'md-la-tooltip-rec';
+            var dowName = ['日', '月', '火', '水', '木', '金', '土'][lv.recurrence.dayOfWeek];
+            rec.textContent = '↻ 毎週' + dowName + '曜 繰り返し（～' + lv.recurrence.until + '）';
+            tip.appendChild(rec);
+        }
+
+        // WS衝突警告
+        if (conflict) {
+            var warn = document.createElement('div');
+            warn.className = 'md-la-tooltip-warn';
+            warn.innerHTML =
+                '<span class="md-la-tooltip-warn-icon">' +
+                  '<svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-caution"/></svg>' +
+                '</span>' +
+                '<span class="md-la-tooltip-warn-body">' +
+                  '<strong>WS配置済みで衝突しています</strong>' +
+                  conflict.siteName + '（' + conflict.shift + 'シフト）' +
+                '</span>';
+            tip.appendChild(warn);
+        }
+
+        // 監査情報
+        if (lv.status === 'approved' && lv.approvedBy) {
+            var au = document.createElement('div');
+            au.className = 'md-la-tooltip-audit';
+            au.innerHTML = '<span class="md-la-tooltip-audit-icon">✓</span> 承認: ' + lv.approvedBy + ' / ' + (lv.approvedAt || '');
+            tip.appendChild(au);
+        } else if (lv.status === 'rejected' && lv.rejectedBy) {
+            var au2 = document.createElement('div');
+            au2.className = 'md-la-tooltip-audit';
+            au2.innerHTML = '<span class="md-la-tooltip-audit-icon" style="color:var(--semantic-error);">✗</span> 却下: ' + lv.rejectedBy + ' / ' + (lv.rejectedAt || '');
+            tip.appendChild(au2);
+        }
+
+        return tip;
+    }
+
+    function tooltipTr(label, value, emptyPlaceholder) {
+        var tr = document.createElement('tr');
+        var th = document.createElement('th');
+        th.textContent = label;
+        var td = document.createElement('td');
+        if (!value || !String(value).trim()) {
+            td.className = 'is-empty';
+            td.textContent = emptyPlaceholder || '（なし）';
+        } else if (String(value).indexOf('<') === 0) {
+            td.innerHTML = value;
+        } else {
+            td.textContent = value;
+        }
+        tr.appendChild(th);
+        tr.appendChild(td);
+        return tr;
+    }
+
+    function positionTooltip(tip, anchor) {
+        var ar = anchor.getBoundingClientRect();
+        var margin = 8;
+        var vw = window.innerWidth;
+        var vh = window.innerHeight;
+        // まずは非表示のまま配置して寸法を測る
+        tip.style.visibility = 'hidden';
+        tip.style.left = '0px';
+        tip.style.top = '0px';
+        var tw = tip.offsetWidth;
+        var th = tip.offsetHeight;
+        // 既定: バッジの下に中央寄せ
+        var left = ar.left + (ar.width / 2) - (tw / 2);
+        var top  = ar.bottom + margin;
+        // 下に入らなければ上へフリップ
+        if (top + th + margin > vh) top = ar.top - th - margin;
+        // 左右調整
+        if (left + tw + margin > vw) left = vw - tw - margin;
+        if (left < margin) left = margin;
+        if (top < margin) top = margin;
+        tip.style.left = Math.round(left) + 'px';
+        tip.style.top  = Math.round(top)  + 'px';
+        tip.style.visibility = '';
+    }
+
+    // スクロール時は追従させずに閉じる (軽量化)
+    window.addEventListener('scroll', cancelTooltip, true);
 
     // ==========================================================
     // D&D ゴースト

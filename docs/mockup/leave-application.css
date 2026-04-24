@@ -1307,6 +1307,209 @@ body {
 .md-la-legend-chip.status-approved { border: 1px solid var(--text-secondary); background: transparent; }
 
 /* ============================================================
+   バッジ ホバー ツールチップ (リッチ版)
+   ============================================================ */
+.md-la-tooltip {
+    position: fixed;
+    pointer-events: none;
+    z-index: 950;
+    min-width: 240px;
+    max-width: 320px;
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-md);
+    box-shadow: var(--elevation-4);
+    overflow: hidden;
+    font-size: var(--fs-caption);
+    color: var(--text-primary);
+    animation: mdLaTipIn var(--duration-fast) var(--ease-out);
+}
+@keyframes mdLaTipIn {
+    from { opacity: 0; transform: translateY(-3px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ヘッダー: GC色バー + 氏名 + 役職 + 日付 */
+.md-la-tooltip-header {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px 12px 8px;
+    border-bottom: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+}
+.md-la-tooltip-gc {
+    width: 3px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+.md-la-tooltip-gc.gc-touo     { background: #9FA8B4; }
+.md-la-tooltip-gc.gc-nikkei   { background: #5FB895; }
+.md-la-tooltip-gc.gc-zennihon { background: #6B82B8; }
+.md-la-tooltip-hmain {
+    flex: 1;
+    min-width: 0;
+}
+.md-la-tooltip-hname {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    color: var(--text-primary);
+    line-height: 1.3;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.md-la-tooltip-hrole {
+    font-size: 9px;
+    color: var(--text-tertiary);
+    padding: 1px 5px;
+    background: var(--bg-surface-3);
+    border-radius: 3px;
+    font-weight: var(--fw-semibold);
+}
+.md-la-tooltip-hdate {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 3px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ステータスピル (右上) */
+.md-la-tooltip-hstatus {
+    align-self: flex-start;
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.02em;
+}
+.md-la-tooltip-hstatus.status-pending {
+    background: transparent;
+    border: 1px dashed var(--text-secondary);
+    color: var(--text-secondary);
+}
+.md-la-tooltip-hstatus.status-approved {
+    background: var(--semantic-success);
+    color: #fff;
+}
+.md-la-tooltip-hstatus.status-rejected {
+    background: rgba(219, 87, 123, 0.12);
+    color: var(--semantic-error);
+    text-decoration: line-through;
+    border: 1px solid var(--semantic-error);
+}
+
+/* 詳細テーブル */
+.md-la-tooltip-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.md-la-tooltip-table tr + tr td,
+.md-la-tooltip-table tr + tr th {
+    border-top: 1px solid var(--divider);
+}
+.md-la-tooltip-table th {
+    text-align: left;
+    padding: 6px 10px;
+    font-weight: var(--fw-bold);
+    color: var(--text-tertiary);
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    background: rgba(68, 166, 181, 0.04);
+    width: 72px;
+    vertical-align: top;
+}
+.md-la-tooltip-table td {
+    padding: 6px 10px 6px 4px;
+    color: var(--text-primary);
+    vertical-align: top;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+.md-la-tooltip-table td.is-empty {
+    color: var(--text-disabled);
+    font-style: italic;
+}
+
+/* 区分・種別チップ (テーブル内) */
+.md-la-tooltip-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: var(--fw-bold);
+    vertical-align: middle;
+}
+.md-la-tooltip-chip.kind-paid   { background: var(--la-kind-paid-bg);   color: var(--la-kind-paid-text); }
+.md-la-tooltip-chip.kind-absent { background: var(--la-kind-absent-bg); color: var(--la-kind-absent-text); }
+.md-la-tooltip-chip.kind-other  { background: var(--la-kind-other-bg);  color: var(--la-kind-other-text); }
+.md-la-tooltip-chip.part-full   { background: var(--bg-surface-3);      color: var(--text-primary); }
+.md-la-tooltip-chip.part-am     { background: rgba(90, 184, 198, 0.18); color: var(--text-secondary); }
+.md-la-tooltip-chip.part-pm     { background: rgba(122, 140, 196, 0.18); color: #2d3e7a; }
+
+/* 警告バナー (WS衝突) */
+.md-la-tooltip-warn {
+    display: flex;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(219, 87, 123, 0.10);
+    border-top: 1px solid rgba(219, 87, 123, 0.30);
+    color: var(--semantic-error);
+    font-weight: var(--fw-semibold);
+    align-items: flex-start;
+}
+.md-la-tooltip-warn-icon {
+    color: var(--semantic-error);
+    flex-shrink: 0;
+    font-size: 12px;
+    line-height: 1.4;
+}
+.md-la-tooltip-warn-body {
+    flex: 1;
+    font-size: var(--fs-caption);
+    line-height: 1.4;
+}
+.md-la-tooltip-warn-body strong {
+    color: var(--text-primary);
+    display: block;
+    font-size: 11px;
+    margin-bottom: 2px;
+}
+
+/* 監査フッター */
+.md-la-tooltip-audit {
+    padding: 6px 12px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    background: var(--bg-surface-2);
+    border-top: 1px solid var(--divider);
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+.md-la-tooltip-audit-icon {
+    color: var(--semantic-success);
+    font-weight: var(--fw-bold);
+}
+
+/* 繰り返しインジケータ */
+.md-la-tooltip-rec {
+    padding: 6px 12px;
+    font-size: 10px;
+    color: var(--accent-primary);
+    background: var(--accent-primary-dim);
+    border-top: 1px solid var(--divider);
+    font-weight: var(--fw-semibold);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ============================================================
    D&D ゴースト
    ============================================================ */
 .md-la-drag-ghost {
