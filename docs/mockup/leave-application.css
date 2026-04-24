@@ -550,6 +550,278 @@ body {
 }
 
 /* ============================================================
+   年間ビュー (E5: 12ヶ月サムネイル + ヒートマップ)
+   ============================================================ */
+.md-la-year {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    max-width: 1280px;
+}
+.md-la-year-month {
+    background: var(--bg-surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--elevation-1);
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: box-shadow var(--duration-fast), transform var(--duration-fast);
+}
+.md-la-year-month:hover {
+    box-shadow: var(--elevation-2);
+    transform: translateY(-1px);
+}
+.md-la-year-month-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--divider);
+}
+.md-la-year-month-title {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    color: var(--text-primary);
+}
+.md-la-year-month-summary {
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+.md-la-year-month-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+}
+.md-la-year-dow {
+    font-size: 9px;
+    color: var(--text-tertiary);
+    text-align: center;
+    padding: 1px 0;
+    font-weight: var(--fw-bold);
+}
+.md-la-year-dow.is-sat { color: var(--accent-primary); }
+.md-la-year-dow.is-sun { color: var(--semantic-error); }
+
+.md-la-year-cell {
+    aspect-ratio: 1;
+    font-size: 9px;
+    text-align: center;
+    padding: 2px 0;
+    border-radius: 2px;
+    color: var(--text-primary);
+    position: relative;
+    background: var(--bg-surface-2);
+}
+.md-la-year-cell.is-other-month {
+    background: transparent;
+    color: var(--text-disabled);
+}
+.md-la-year-cell.is-sat { color: var(--accent-primary); }
+.md-la-year-cell.is-sun { color: var(--semantic-error); }
+.md-la-year-cell.is-today {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: -2px;
+    font-weight: var(--fw-bold);
+}
+
+/* ヒートマップレベル (N人休) */
+.md-la-year-cell.lv-1 { background: var(--chart-seq-0); }
+.md-la-year-cell.lv-2 { background: var(--chart-seq-1); }
+.md-la-year-cell.lv-3 { background: var(--chart-seq-2); color: #fff; }
+.md-la-year-cell.lv-4 { background: var(--chart-seq-3); color: #fff; }
+.md-la-year-cell.lv-5 { background: var(--chart-seq-4); color: #fff; }
+
+.md-la-year-legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    padding: 4px 8px;
+    margin-bottom: 8px;
+}
+.md-la-year-legend-scale {
+    display: inline-flex;
+    gap: 2px;
+}
+.md-la-year-legend-chip {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+/* ============================================================
+   月次集計モーダル (E5)
+   ============================================================ */
+.md-la-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 69, 84, 0.48);
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: mdLaFadeIn var(--duration-base) var(--ease-out);
+}
+@keyframes mdLaFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.md-la-modal {
+    background: var(--bg-surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--elevation-5);
+    width: min(920px, 94vw);
+    max-height: 86vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.md-la-modal-header {
+    padding: 12px 16px;
+    background: var(--bg-sidebar);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+.md-la-modal-title {
+    font-size: var(--fs-md);
+    font-weight: var(--fw-bold);
+    flex: 1;
+}
+.md-la-modal-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.md-la-modal-nav button {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-semibold);
+}
+.md-la-modal-nav button:hover { background: rgba(255,255,255,0.25); }
+.md-la-modal-close {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.md-la-modal-close:hover { background: rgba(255,255,255,0.18); }
+
+.md-la-modal-body {
+    padding: 12px 16px;
+    flex: 1;
+    overflow: auto;
+}
+.md-la-modal-footer {
+    padding: 10px 16px;
+    border-top: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.md-la-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.md-la-summary-card {
+    background: var(--bg-surface-2);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+}
+.md-la-summary-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.05em;
+}
+.md-la-summary-value {
+    font-size: 20px;
+    font-weight: var(--fw-bold);
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+.md-la-summary-value small {
+    font-size: 11px;
+    font-weight: var(--fw-medium);
+    color: var(--text-tertiary);
+    margin-left: 4px;
+}
+
+.md-la-report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-caption);
+}
+.md-la-report-table thead th {
+    background: var(--bg-surface-2);
+    color: var(--text-secondary);
+    padding: 6px 8px;
+    text-align: left;
+    font-weight: var(--fw-bold);
+    border-bottom: 1px solid var(--divider);
+    position: sticky;
+    top: 0;
+}
+.md-la-report-table tbody td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--divider);
+}
+.md-la-report-table tbody tr:hover { background: var(--accent-primary-dim); }
+.md-la-report-table .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.md-la-report-table .gc-pill {
+    display: inline-block;
+    padding: 1px 6px;
+    font-size: 10px;
+    border-radius: 3px;
+    font-weight: var(--fw-bold);
+    color: #fff;
+}
+.md-la-report-table .gc-pill.gc-touo     { background: #9FA8B4; }
+.md-la-report-table .gc-pill.gc-nikkei   { background: #5FB895; }
+.md-la-report-table .gc-pill.gc-zennihon { background: #6B82B8; }
+
+.md-la-progress {
+    display: inline-block;
+    width: 60px;
+    height: 5px;
+    background: var(--bg-surface-3);
+    border-radius: 2px;
+    overflow: hidden;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+.md-la-progress-fill {
+    height: 100%;
+    background: var(--accent-primary);
+    transition: width var(--duration-base);
+}
+.md-la-progress-fill.warn { background: var(--semantic-warning); }
+.md-la-progress-fill.danger { background: var(--semantic-error); }
+
+/* ============================================================
    右サイドパネル (縦タブ折畳)
    ============================================================ */
 .md-la-sidebar {

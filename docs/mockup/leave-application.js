@@ -179,14 +179,17 @@
         updateViewVisibility();
         if (currentView === 'month') renderCalendar();
         if (currentView === 'week')  renderWeek();
+        if (currentView === 'year')  renderYear();
         renderSidebar();
     }
 
     function updateViewVisibility() {
         var cal = document.getElementById('laCalendar');
         var week = document.getElementById('laWeek');
+        var year = document.getElementById('laYear');
         if (cal)  cal.classList.toggle('md-la-hidden', currentView !== 'month');
         if (week) week.classList.toggle('md-la-hidden', currentView !== 'week');
+        if (year) year.classList.toggle('md-la-hidden', currentView !== 'year');
     }
 
     function renderLabel() {
@@ -201,6 +204,8 @@
                 (start.getMonth() + 1) + '/' + start.getDate() +
                 ' 〜 ' +
                 (end.getMonth() + 1) + '/' + end.getDate();
+        } else if (currentView === 'year') {
+            el.textContent = currentDate.getFullYear() + '年（年間）';
         } else {
             el.textContent = currentDate.getFullYear() + '年' + (currentDate.getMonth() + 1) + '月';
         }
@@ -429,6 +434,361 @@
         }
         renderWeek();
         renderSidebar();
+    }
+
+    // ==========================================================
+    // 年間ビュー (E5: 12ヶ月サムネイル + ヒートマップ)
+    // ==========================================================
+
+    function renderYear() {
+        var root = document.getElementById('laYear');
+        if (!root) return;
+        root.innerHTML = '';
+
+        // 凡例
+        var legend = document.createElement('div');
+        legend.className = 'md-la-year-legend';
+        legend.innerHTML =
+            '日毎の休暇人数（少 ' +
+            '<span class="md-la-year-legend-scale">' +
+            '<span class="md-la-year-legend-chip md-la-year-cell lv-1"></span>' +
+            '<span class="md-la-year-legend-chip md-la-year-cell lv-2"></span>' +
+            '<span class="md-la-year-legend-chip md-la-year-cell lv-3"></span>' +
+            '<span class="md-la-year-legend-chip md-la-year-cell lv-4"></span>' +
+            '<span class="md-la-year-legend-chip md-la-year-cell lv-5"></span>' +
+            '</span> 多）';
+        legend.style.gridColumn = '1 / -1';
+        root.appendChild(legend);
+
+        var year = currentDate.getFullYear();
+        var today = new Date(); today.setHours(0, 0, 0, 0);
+        var byDate = leavesByDate();
+
+        for (var m = 0; m < 12; m++) {
+            root.appendChild(buildYearMonthCard(year, m, byDate, today));
+        }
+    }
+
+    function buildYearMonthCard(year, month, byDate, today) {
+        var card = document.createElement('div');
+        card.className = 'md-la-year-month';
+        card.addEventListener('click', function () {
+            // 月間ビューへ遷移
+            currentDate = new Date(year, month, 1);
+            currentView = 'month';
+            document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
+                t.classList.toggle('is-active', t.dataset.view === 'month');
+            });
+            render();
+        });
+
+        // ヘッダー
+        var header = document.createElement('div');
+        header.className = 'md-la-year-month-header';
+        var title = document.createElement('span');
+        title.className = 'md-la-year-month-title';
+        title.textContent = (month + 1) + '月';
+        header.appendChild(title);
+        var summary = document.createElement('span');
+        summary.className = 'md-la-year-month-summary';
+        var monthTotal = countLeavesInMonth(year, month, byDate);
+        summary.textContent = '延 ' + monthTotal.days + '日 / ' + monthTotal.people + '人';
+        header.appendChild(summary);
+        card.appendChild(header);
+
+        // ミニカレンダー
+        var grid = document.createElement('div');
+        grid.className = 'md-la-year-month-grid';
+
+        // 曜日
+        ['月', '火', '水', '木', '金', '土', '日'].forEach(function (n, i) {
+            var d = document.createElement('div');
+            d.className = 'md-la-year-dow';
+            if (i === 5) d.classList.add('is-sat');
+            if (i === 6) d.classList.add('is-sun');
+            d.textContent = n;
+            grid.appendChild(d);
+        });
+
+        // 日付セル
+        var first = new Date(year, month, 1);
+        var offsetFromMon = (first.getDay() + 6) % 7;
+        var start = new Date(year, month, 1 - offsetFromMon);
+        for (var i = 0; i < 42; i++) {
+            var d = new Date(start);
+            d.setDate(start.getDate() + i);
+            var key = fmtDate(d);
+            var cell = document.createElement('div');
+            cell.className = 'md-la-year-cell';
+            cell.textContent = d.getDate();
+            if (d.getMonth() !== month) cell.classList.add('is-other-month');
+            var dow = d.getDay();
+            if (dow === 6) cell.classList.add('is-sat');
+            if (dow === 0) cell.classList.add('is-sun');
+            if (sameDay(d, today)) cell.classList.add('is-today');
+
+            // ヒートマップレベル
+            if (d.getMonth() === month) {
+                var count = (byDate[key] || []).length;
+                var level = 0;
+                if (count >= 1 && count <= 1) level = 1;
+                else if (count === 2) level = 2;
+                else if (count === 3) level = 3;
+                else if (count === 4) level = 4;
+                else if (count >= 5)  level = 5;
+                if (level > 0) {
+                    cell.classList.add('lv-' + level);
+                    cell.title = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() + ' — ' + count + '人休';
+                }
+            }
+            grid.appendChild(cell);
+        }
+        card.appendChild(grid);
+        return card;
+    }
+
+    function countLeavesInMonth(year, month, byDate) {
+        var days = 0, peopleSet = {};
+        Object.keys(byDate).forEach(function (key) {
+            var d = parseDate(key);
+            if (d.getFullYear() !== year || d.getMonth() !== month) return;
+            var lvs = byDate[key];
+            lvs.forEach(function (lv) {
+                if (lv.status === 'rejected') return;
+                days += lv.partition === 'full' ? 1 : 0.5;
+                peopleSet[lv.employeeId] = true;
+            });
+        });
+        return { days: days, people: Object.keys(peopleSet).length };
+    }
+
+    // ==========================================================
+    // 月次集計モーダル (E5)
+    // ==========================================================
+
+    var reportState = { year: 2026, month: 3 };
+
+    function openReportModal() {
+        reportState = { year: currentDate.getFullYear(), month: currentDate.getMonth() };
+        buildReportModal();
+    }
+
+    function buildReportModal() {
+        closeReportModal();
+        var overlay = document.createElement('div');
+        overlay.className = 'md-la-modal-backdrop';
+        overlay.id = 'laReportModal';
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) closeReportModal();
+        });
+
+        var modal = document.createElement('div');
+        modal.className = 'md-la-modal';
+
+        // ヘッダー
+        var header = document.createElement('div');
+        header.className = 'md-la-modal-header';
+        var title = document.createElement('span');
+        title.className = 'md-la-modal-title';
+        title.textContent = '月次集計 — ' + reportState.year + '年' + (reportState.month + 1) + '月';
+        header.appendChild(title);
+
+        var nav = document.createElement('div');
+        nav.className = 'md-la-modal-nav';
+        var prev = document.createElement('button');
+        prev.textContent = '◀ 前月';
+        prev.addEventListener('click', function () {
+            var d = new Date(reportState.year, reportState.month - 1, 1);
+            reportState.year = d.getFullYear();
+            reportState.month = d.getMonth();
+            buildReportModal();
+        });
+        var next = document.createElement('button');
+        next.textContent = '翌月 ▶';
+        next.addEventListener('click', function () {
+            var d = new Date(reportState.year, reportState.month + 1, 1);
+            reportState.year = d.getFullYear();
+            reportState.month = d.getMonth();
+            buildReportModal();
+        });
+        nav.appendChild(prev);
+        nav.appendChild(next);
+        header.appendChild(nav);
+
+        var close = document.createElement('button');
+        close.className = 'md-la-modal-close';
+        close.title = '閉じる';
+        close.innerHTML = '<svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-close"/></svg>';
+        close.addEventListener('click', closeReportModal);
+        header.appendChild(close);
+        modal.appendChild(header);
+
+        // ボディ
+        var body = document.createElement('div');
+        body.className = 'md-la-modal-body';
+
+        // 集計
+        var report = buildMonthlyReport(reportState.year, reportState.month);
+
+        // サマリカード
+        var sg = document.createElement('div');
+        sg.className = 'md-la-summary-grid';
+        sg.appendChild(summaryCard('延べ休暇日数', report.totalDays.toFixed(1), '日'));
+        sg.appendChild(summaryCard('休暇社員数', report.totalPeople, '名 / ' + laEmployees.length + '名'));
+        sg.appendChild(summaryCard('有給消化', report.kindDays.paid.toFixed(1), '日'));
+        sg.appendChild(summaryCard('欠勤', report.kindDays.absent.toFixed(1), '日'));
+        sg.appendChild(summaryCard('未承認', report.pendingCount, '件'));
+        sg.appendChild(summaryCard('却下', report.rejectedCount, '件'));
+        body.appendChild(sg);
+
+        // テーブル
+        var table = document.createElement('table');
+        table.className = 'md-la-report-table';
+        table.innerHTML =
+            '<thead><tr>' +
+              '<th>社員</th>' +
+              '<th>GC</th>' +
+              '<th class="num">有給</th>' +
+              '<th class="num">欠勤</th>' +
+              '<th class="num">その他</th>' +
+              '<th class="num">合計</th>' +
+              '<th class="num">有給残</th>' +
+              '<th>消化率</th>' +
+            '</tr></thead>';
+        var tbody = document.createElement('tbody');
+        report.byEmployee.forEach(function (r) {
+            var tr = document.createElement('tr');
+            var totalLeave = r.paid + r.absent + r.other;
+            var remaining = r.paidLeaveRemaining;
+            var rate = (remaining + r.paid) > 0 ? (r.paid / (remaining + r.paid) * 100) : 0;
+            var fillCls = rate >= 80 ? 'danger' : (rate >= 50 ? 'warn' : '');
+            var gcShort = (groupCompaniesData.find(function (g) { return g.code === r.company; }) || {}).shortName || r.company;
+            tr.innerHTML =
+                '<td>' + r.name + '</td>' +
+                '<td><span class="gc-pill gc-' + r.company + '">' + gcShort + '</span></td>' +
+                '<td class="num">' + r.paid.toFixed(1) + '</td>' +
+                '<td class="num">' + r.absent.toFixed(1) + '</td>' +
+                '<td class="num">' + r.other.toFixed(1) + '</td>' +
+                '<td class="num">' + totalLeave.toFixed(1) + '</td>' +
+                '<td class="num">' + remaining + '</td>' +
+                '<td>' +
+                  '<span class="md-la-progress">' +
+                    '<span class="md-la-progress-fill ' + fillCls + '" style="width:' + Math.min(100, rate) + '%;"></span>' +
+                  '</span>' + rate.toFixed(0) + '%' +
+                '</td>';
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        body.appendChild(table);
+
+        modal.appendChild(body);
+
+        // フッター
+        var footer = document.createElement('div');
+        footer.className = 'md-la-modal-footer';
+        var btnClose = document.createElement('button');
+        btnClose.className = 'md-la-btn';
+        btnClose.textContent = '閉じる';
+        btnClose.addEventListener('click', closeReportModal);
+        footer.appendChild(btnClose);
+        var btnCsv = document.createElement('button');
+        btnCsv.className = 'md-la-btn is-primary';
+        btnCsv.textContent = 'CSV 出力';
+        btnCsv.addEventListener('click', function () { exportReportCsv(report); });
+        footer.appendChild(btnCsv);
+        modal.appendChild(footer);
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        document.addEventListener('keydown', onReportKeydown);
+    }
+
+    function summaryCard(label, value, unit) {
+        var card = document.createElement('div');
+        card.className = 'md-la-summary-card';
+        card.innerHTML =
+            '<div class="md-la-summary-label">' + label + '</div>' +
+            '<div class="md-la-summary-value">' + value +
+              (unit ? '<small>' + unit + '</small>' : '') +
+            '</div>';
+        return card;
+    }
+
+    function buildMonthlyReport(year, month) {
+        var byEmp = {};
+        laEmployees.forEach(function (e) {
+            byEmp[e.id] = {
+                id: e.id,
+                name: e.name,
+                company: e.company,
+                paidLeaveRemaining: e.paidLeaveRemaining,
+                paid: 0, absent: 0, other: 0
+            };
+        });
+        var totalDays = 0, peopleSet = {};
+        var kindDays = { paid: 0, absent: 0, other: 0 };
+        var pendingCount = 0, rejectedCount = 0;
+        laLeaves.forEach(function (lv) {
+            var d = parseDate(lv.date);
+            if (d.getFullYear() !== year || d.getMonth() !== month) return;
+            if (lv.status === 'rejected') { rejectedCount++; return; }
+            if (lv.status === 'pending') pendingCount++;
+            var amt = lv.partition === 'full' ? 1 : 0.5;
+            totalDays += amt;
+            peopleSet[lv.employeeId] = true;
+            if (byEmp[lv.employeeId]) byEmp[lv.employeeId][lv.kind] += amt;
+            kindDays[lv.kind] += amt;
+        });
+        // 使った社員を先に、消化日数多い順
+        var list = Object.keys(byEmp).map(function (k) { return byEmp[k]; })
+            .filter(function (e) { return (e.paid + e.absent + e.other) > 0; })
+            .sort(function (a, b) {
+                return (b.paid + b.absent + b.other) - (a.paid + a.absent + a.other);
+            });
+        return {
+            year: year, month: month,
+            totalDays: totalDays, totalPeople: Object.keys(peopleSet).length,
+            kindDays: kindDays,
+            pendingCount: pendingCount, rejectedCount: rejectedCount,
+            byEmployee: list
+        };
+    }
+
+    function onReportKeydown(e) {
+        if (e.key === 'Escape') closeReportModal();
+    }
+
+    function closeReportModal() {
+        var el = document.getElementById('laReportModal');
+        if (el && el.parentNode) el.parentNode.removeChild(el);
+        document.removeEventListener('keydown', onReportKeydown);
+    }
+
+    // ==========================================================
+    // CSV 出力 (E5)
+    // ==========================================================
+
+    function exportReportCsv(report) {
+        var lines = [];
+        lines.push(['社員', 'GC', '有給', '欠勤', 'その他', '合計', '有給残'].join(','));
+        report.byEmployee.forEach(function (r) {
+            var total = r.paid + r.absent + r.other;
+            var gcShort = (groupCompaniesData.find(function (g) { return g.code === r.company; }) || {}).shortName || r.company;
+            lines.push([r.name, gcShort, r.paid, r.absent, r.other, total, r.paidLeaveRemaining].join(','));
+        });
+        // Excel 互換のため UTF-8 BOM 付き
+        var csv = '﻿' + lines.join('\r\n');
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var fname = '休暇集計_' + report.year + '年' + (report.month + 1) + '月.csv';
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = fname;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 200);
     }
 
     function buildBadge(lv) {
@@ -1140,6 +1500,8 @@
         if (currentView === 'week') {
             currentWeekAnchor = new Date(currentWeekAnchor);
             currentWeekAnchor.setDate(currentWeekAnchor.getDate() - 7);
+        } else if (currentView === 'year') {
+            currentDate = new Date(currentDate.getFullYear() - 1, 0, 1);
         } else {
             currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
         }
@@ -1149,6 +1511,8 @@
         if (currentView === 'week') {
             currentWeekAnchor = new Date(currentWeekAnchor);
             currentWeekAnchor.setDate(currentWeekAnchor.getDate() + 7);
+        } else if (currentView === 'year') {
+            currentDate = new Date(currentDate.getFullYear() + 1, 0, 1);
         } else {
             currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
         }
@@ -1215,30 +1579,25 @@
         document.getElementById('laNextBtn').addEventListener('click', navigateNext);
         document.getElementById('laTodayBtn').addEventListener('click', navigateToday);
 
-        // ビュータブ (月間・週間は実装、年間は E5 で実装予定)
+        // ビュータブ (月間・週間・年間すべて実装)
         document.querySelectorAll('.md-la-view-tab').forEach(function (el) {
             el.addEventListener('click', function () {
                 var v = el.dataset.view;
-                if (v === 'year') {
-                    alert('「年間ビュー」は Phase E5 で実装予定です。');
-                    return;
-                }
                 document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
                     t.classList.toggle('is-active', t === el);
                 });
-                // 月→週へ遷移する時は currentDate の月の中心日から週アンカーを作る
+                // ビュー切替時の date anchor 同期
                 if (currentView !== v) {
                     if (v === 'week') {
                         var anchor = new Date(currentDate);
                         anchor.setDate(15);
                         currentWeekAnchor = anchor;
                     } else if (v === 'month') {
-                        currentDate = new Date(
-                            currentWeekAnchor.getFullYear(),
-                            currentWeekAnchor.getMonth(),
-                            1
-                        );
+                        // 週/年 → 月: 現在アンカーの月を採用
+                        var src = currentView === 'week' ? currentWeekAnchor : currentDate;
+                        currentDate = new Date(src.getFullYear(), src.getMonth(), 1);
                     }
+                    // year の場合は currentDate の年をそのまま使う
                 }
                 currentView = v;
                 render();
@@ -1275,11 +1634,9 @@
             alert('新規申請ダイアログは Phase E2 で実装予定です。\n\n現在はサイドパネルの社員バッジをカレンダーにドラッグ&ドロップで申請できます。');
         });
 
-        // 集計 (placeholder)
+        // 集計モーダル
         var reportBtn = document.getElementById('laReportBtn');
-        if (reportBtn) reportBtn.addEventListener('click', function () {
-            alert('月次集計・CSV 出力は Phase E5 で実装予定です。');
-        });
+        if (reportBtn) reportBtn.addEventListener('click', openReportModal);
 
         // GC フィルタ同期 (モーダル閉じた後に再描画)
         // co-navbar の GC モーダル閉じるタイミングでカスタムイベント想定
