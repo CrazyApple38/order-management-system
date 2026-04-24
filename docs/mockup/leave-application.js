@@ -1294,55 +1294,35 @@
         var tip = document.createElement('div');
         tip.className = 'md-la-tooltip';
 
-        // ヘッダー
-        var header = document.createElement('div');
-        header.className = 'md-la-tooltip-header';
-        var gc = document.createElement('span');
-        gc.className = 'md-la-tooltip-gc gc-' + emp.company;
-        header.appendChild(gc);
-
-        var hmain = document.createElement('div');
-        hmain.className = 'md-la-tooltip-hmain';
         var gcLabel = (groupCompaniesData.find(function (g) { return g.code === emp.company; }) || {}).shortName || emp.company;
         var roleText = emp.role === 'dcp' ? 'DCP' : (emp.role === 'chief' ? '現場責任' : '一般');
-        var nameRow = document.createElement('div');
-        nameRow.className = 'md-la-tooltip-hname';
-        var nameSpan = document.createElement('span');
-        nameSpan.textContent = emp.name;
-        var roleSpan = document.createElement('span');
-        roleSpan.className = 'md-la-tooltip-hrole';
-        roleSpan.textContent = gcLabel + ' ・ ' + roleText;
-        nameRow.appendChild(nameSpan);
-        nameRow.appendChild(roleSpan);
-        hmain.appendChild(nameRow);
-        var dateRow = document.createElement('div');
-        dateRow.className = 'md-la-tooltip-hdate';
-        dateRow.textContent = formatJpDate(lv.date);
-        hmain.appendChild(dateRow);
-        header.appendChild(hmain);
 
+        // タイトル: 氏名 + ステータスピル
+        var title = document.createElement('div');
+        title.className = 'md-la-tooltip-title';
+        var name = document.createElement('span');
+        name.className = 'md-la-tooltip-name';
+        name.textContent = emp.name;
+        title.appendChild(name);
         var status = document.createElement('span');
-        status.className = 'md-la-tooltip-hstatus status-' + lv.status;
+        status.className = 'md-la-tooltip-status status-' + lv.status;
         status.textContent = STATUS[lv.status];
-        header.appendChild(status);
-        tip.appendChild(header);
+        title.appendChild(status);
+        tip.appendChild(title);
 
-        // テーブル
-        var table = document.createElement('table');
-        table.className = 'md-la-tooltip-table';
-        var tbody = document.createElement('tbody');
-        // 区分
-        tbody.appendChild(tooltipTr('区分',
-            '<span class="md-la-tooltip-chip part-' + lv.partition + '">' + PART[lv.partition] + '休</span>'));
-        // 種別
-        tbody.appendChild(tooltipTr('種別',
-            '<span class="md-la-tooltip-chip kind-' + lv.kind + '">' + KIND[lv.kind] + '</span>'));
-        // 理由
-        tbody.appendChild(tooltipTr('理由', lv.reason, '（未入力）'));
-        // メモ
-        tbody.appendChild(tooltipTr('メモ', lv.memo, '（なし）'));
-        table.appendChild(tbody);
-        tip.appendChild(table);
+        // サブタイトル: GC ▸ 役職 ▸ 日付
+        var sub = document.createElement('div');
+        sub.className = 'md-la-tooltip-sub';
+        sub.innerHTML = gcLabel
+            + '<span class="md-la-tooltip-sub-arrow">▸</span>' + roleText
+            + '<span class="md-la-tooltip-sub-arrow">▸</span>' + formatJpDate(lv.date);
+        tip.appendChild(sub);
+
+        // 行: 区分 / 種別 / 理由 / メモ
+        tip.appendChild(tooltipRow('区分', PART[lv.partition] + '休'));
+        tip.appendChild(tooltipRow('種別', KIND[lv.kind]));
+        tip.appendChild(tooltipRow('理由', lv.reason, '（未入力）'));
+        tip.appendChild(tooltipRow('メモ', lv.memo, '（なし）'));
 
         // 繰り返し
         if (lv.recurrence && lv.recurrence.rule === 'weekly') {
@@ -1362,8 +1342,8 @@
                   '<svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-caution"/></svg>' +
                 '</span>' +
                 '<span class="md-la-tooltip-warn-body">' +
-                  '<strong>WS配置済みで衝突しています</strong>' +
-                  conflict.siteName + '（' + conflict.shift + 'シフト）' +
+                  '<strong>WS配置済みで衝突</strong>' +
+                  '<span>' + conflict.siteName + '（' + conflict.shift + 'シフト）</span>' +
                 '</span>';
             tip.appendChild(warn);
         }
@@ -1377,29 +1357,30 @@
         } else if (lv.status === 'rejected' && lv.rejectedBy) {
             var au2 = document.createElement('div');
             au2.className = 'md-la-tooltip-audit';
-            au2.innerHTML = '<span class="md-la-tooltip-audit-icon" style="color:var(--semantic-error);">✗</span> 却下: ' + lv.rejectedBy + ' / ' + (lv.rejectedAt || '');
+            au2.innerHTML = '<span class="md-la-tooltip-audit-icon is-reject">✗</span> 却下: ' + lv.rejectedBy + ' / ' + (lv.rejectedAt || '');
             tip.appendChild(au2);
         }
 
         return tip;
     }
 
-    function tooltipTr(label, value, emptyPlaceholder) {
-        var tr = document.createElement('tr');
-        var th = document.createElement('th');
-        th.textContent = label;
-        var td = document.createElement('td');
+    function tooltipRow(label, value, emptyPlaceholder) {
+        var row = document.createElement('div');
+        row.className = 'md-la-tooltip-row';
+        var l = document.createElement('span');
+        l.className = 'md-la-tooltip-label';
+        l.textContent = label;
+        var v = document.createElement('span');
+        v.className = 'md-la-tooltip-value';
         if (!value || !String(value).trim()) {
-            td.className = 'is-empty';
-            td.textContent = emptyPlaceholder || '（なし）';
-        } else if (String(value).indexOf('<') === 0) {
-            td.innerHTML = value;
+            v.classList.add('is-empty');
+            v.textContent = emptyPlaceholder || '（なし）';
         } else {
-            td.textContent = value;
+            v.textContent = value;
         }
-        tr.appendChild(th);
-        tr.appendChild(td);
-        return tr;
+        row.appendChild(l);
+        row.appendChild(v);
+        return row;
     }
 
     function positionTooltip(tip, anchor) {
