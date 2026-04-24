@@ -545,6 +545,9 @@
                 var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
                 themeBtn.textContent = isDark ? '☀️ Light' : '🌙 Dark';
             }
+
+            // 保存済みソート設定の自動適用
+            if (typeof applySortSettingsOnLoad === 'function') applySortSettingsOnLoad();
         });
 
         // 現場詳細モーダルの開閉
@@ -2881,13 +2884,81 @@
             shift: ['昼', '夜']
         };
 
+        const SORT_STATE_STORAGE_KEY = 'sl.sortState.v1';
+
         const sortState = {
             category: [], shift: [], contractor: [], site: [],
             categoryContractorOrders: {},
             contractorSiteOrders: {},
+            shiftSites: {},
             selected: { category: null, shift: null, contractor: null, site: null },
-            filterCategory: null, filterContractor: null
+            filterCategory: null, filterContractor: null, filterShift: null,
+            adjusted: false
         };
+
+        function saveSortStateToStorage() {
+            try {
+                const payload = {
+                    category: sortState.category,
+                    shift: sortState.shift,
+                    contractor: sortState.contractor,
+                    site: sortState.site,
+                    categoryContractorOrders: sortState.categoryContractorOrders,
+                    contractorSiteOrders: sortState.contractorSiteOrders,
+                    shiftSites: sortState.shiftSites,
+                    adjusted: sortState.adjusted
+                };
+                localStorage.setItem(SORT_STATE_STORAGE_KEY, JSON.stringify(payload));
+            } catch (e) { /* quota or unavailable; silently skip */ }
+        }
+
+        function loadSortStateFromStorage() {
+            try {
+                const raw = localStorage.getItem(SORT_STATE_STORAGE_KEY);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) { return null; }
+        }
+
+        function clearSortStateFromStorage() {
+            try { localStorage.removeItem(SORT_STATE_STORAGE_KEY); } catch (e) {}
+        }
+
+        // 保存順とグリッド順をマージ: 保存項目で現存するものを先頭、残りのグリッド項目を末尾に追加
+        function mergeOrderWithGrid(savedOrder, gridOrder) {
+            if (!Array.isArray(savedOrder) || !savedOrder.length) return gridOrder.slice();
+            const merged = savedOrder.filter(item => gridOrder.includes(item));
+            gridOrder.forEach(item => { if (!merged.includes(item)) merged.push(item); });
+            return merged;
+        }
+
+        function mergeSavedIntoSortState() {
+            const saved = loadSortStateFromStorage();
+            if (!saved) return false;
+            sortState.category = mergeOrderWithGrid(saved.category, sortState.category);
+            sortState.shift = mergeOrderWithGrid(saved.shift, sortState.shift);
+            sortState.contractor = mergeOrderWithGrid(saved.contractor, sortState.contractor);
+            sortState.site = mergeOrderWithGrid(saved.site, sortState.site);
+            if (saved.categoryContractorOrders) {
+                Object.keys(sortState.categoryContractorOrders).forEach(cat => {
+                    const savedSub = saved.categoryContractorOrders[cat];
+                    if (savedSub) sortState.categoryContractorOrders[cat] = mergeOrderWithGrid(savedSub, sortState.categoryContractorOrders[cat]);
+                });
+            }
+            if (saved.contractorSiteOrders) {
+                Object.keys(sortState.contractorSiteOrders).forEach(con => {
+                    const savedSub = saved.contractorSiteOrders[con];
+                    if (savedSub) sortState.contractorSiteOrders[con] = mergeOrderWithGrid(savedSub, sortState.contractorSiteOrders[con]);
+                });
+            }
+            if (saved.shiftSites) {
+                Object.keys(sortState.shiftSites).forEach(sh => {
+                    const savedSub = saved.shiftSites[sh];
+                    if (savedSub) sortState.shiftSites[sh] = mergeOrderWithGrid(savedSub, sortState.shiftSites[sh]);
+                });
+            }
+            sortState.adjusted = !!saved.adjusted;
+            return true;
+        }
 
         function extractGridData() {
             return Array.from(document.querySelectorAll('.grid-table tbody tr'))
@@ -2937,10 +3008,19 @@
             sortState.contractor.forEach(con => {
                 sortState.contractorSiteOrders[con] = getFilteredUniqueValues(gridData, 'site', 'contractor', con);
             });
+            sortState.shiftSites = {};
+            sortState.shift.forEach(sh => {
+                sortState.shiftSites[sh] = getFilteredUniqueValues(gridData, 'site', 'shift', sh);
+            });
 
             sortState.selected = { category: null, shift: null, contractor: null, site: null };
             sortState.filterCategory = null;
             sortState.filterContractor = null;
+            sortState.filterShift = null;
+            sortState.adjusted = false;
+
+            // localStorage に保存済みの並び順をマージ
+            mergeSavedIntoSortState();
         }
 
         function renderAllSortLists() {
@@ -3096,6 +3176,7 @@
             const moved = items.splice(from, 1)[0];
             items.splice(to, 0, moved);
             sortState.selected[sortDragState.column] = to;
+            syncSortStateAfterReorder(sortDragState.column);
             renderSortList(sortDragState.column);
             if (sortDragState.column === 'category') { updateSortFilters(); }
             updateSortModifiedBadge();
@@ -3115,21 +3196,20 @@
 
         function updateSortModifiedBadge() {
             const badge = document.getElementById('sortModifiedBadge');
-            if (!badge) return;
-            const current = snapshotSortState();
-            badge.hidden = (current === sortState.initialSnapshot);
+            if (badge) {
+                const current = snapshotSortState();
+                badge.hidden = (current === sortState.initialSnapshot);
+            }
+            // 調整中バッジ（第3・第4キーの変更で優先になることを示す）
+            const adjBadgeContractor = document.getElementById('sortAdjustedBadgeContractor');
+            const adjBadgeSite = document.getElementById('sortAdjustedBadgeSite');
+            if (adjBadgeContractor) adjBadgeContractor.hidden = !sortState.adjusted;
+            if (adjBadgeSite) adjBadgeSite.hidden = !sortState.adjusted;
         }
 
         function renderSortList(column) {
             const container = document.getElementById('sortList' + column.charAt(0).toUpperCase() + column.slice(1));
-            let items;
-            if (column === 'contractor' && sortState.filterCategory) {
-                items = sortState.categoryContractorOrders[sortState.filterCategory] || [];
-            } else if (column === 'site' && sortState.filterContractor) {
-                items = sortState.contractorSiteOrders[sortState.filterContractor] || [];
-            } else {
-                items = sortState[column];
-            }
+            const items = getCurrentSortItems(column) || [];
 
             let html = '';
             items.forEach((item, index) => {
@@ -3160,6 +3240,11 @@
                 sortState.selected.site = null;
                 renderSortList('contractor'); renderSortList('site');
                 updateSortFilters();
+            } else if (column === 'shift') {
+                sortState.filterShift = deselect ? null : (sortState.shift[index] || null);
+                sortState.selected.site = null;
+                renderSortList('site');
+                updateSortFilters();
             } else if (column === 'contractor') {
                 if (deselect) {
                     sortState.filterContractor = null;
@@ -3180,7 +3265,15 @@
             const siteFilter = document.getElementById('sortSiteFilter');
             const arrowSvg = '<svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-arrow-right"/></svg> ';
             contractorFilter.innerHTML = sortState.filterCategory ? arrowSvg + escapeHtml(sortState.filterCategory) : '';
-            siteFilter.innerHTML = sortState.filterContractor ? arrowSvg + escapeHtml(sortState.filterContractor) : '';
+            const siteFilterParts = [];
+            if (sortState.filterShift) siteFilterParts.push(escapeHtml(sortState.filterShift));
+            if (sortState.filterContractor) siteFilterParts.push(escapeHtml(sortState.filterContractor));
+            siteFilter.innerHTML = siteFilterParts.length ? arrowSvg + siteFilterParts.join(' / ') : '';
+            // 調整中バッジの表示切替
+            const adjBadgeContractor = document.getElementById('sortAdjustedBadgeContractor');
+            const adjBadgeSite = document.getElementById('sortAdjustedBadgeSite');
+            if (adjBadgeContractor) adjBadgeContractor.hidden = !sortState.adjusted;
+            if (adjBadgeSite) adjBadgeSite.hidden = !sortState.adjusted;
         }
 
         function updateSortButtonState(column) {
@@ -3209,6 +3302,7 @@
             const items = getCurrentSortItems(column);
             const temp = items[idx - 1]; items[idx - 1] = items[idx]; items[idx] = temp;
             sortState.selected[column] = idx - 1;
+            syncSortStateAfterReorder(column);
             renderSortList(column);
             updateSortModifiedBadge();
         }
@@ -3219,14 +3313,68 @@
             if (idx === null || idx >= items.length - 1) return;
             const temp = items[idx + 1]; items[idx + 1] = items[idx]; items[idx] = temp;
             sortState.selected[column] = idx + 1;
+            syncSortStateAfterReorder(column);
             renderSortList(column);
             updateSortModifiedBadge();
         }
 
         function getCurrentSortItems(column) {
             if (column === 'contractor' && sortState.filterCategory) return sortState.categoryContractorOrders[sortState.filterCategory];
-            if (column === 'site' && sortState.filterContractor) return sortState.contractorSiteOrders[sortState.filterContractor];
+            if (column === 'site') {
+                // 契約先絞込 > 昼夜絞込 の優先順で表示
+                if (sortState.filterContractor) return sortState.contractorSiteOrders[sortState.filterContractor];
+                if (sortState.filterShift) return sortState.shiftSites[sortState.filterShift];
+            }
             return sortState[column];
+        }
+
+        // 絞込ビュー内の並び替えを、フラット配列 (sortState[flatKey]) にも反映する。
+        // subsetItems 内の要素をフラット配列内で subsetItems の順に配置し、
+        // 非 subset 要素の位置は保持する。
+        function syncFlatFromSubset(flatKey, subsetItems) {
+            const flat = sortState[flatKey];
+            const subsetSet = new Set(subsetItems);
+            let subsetIdx = 0;
+            for (let i = 0; i < flat.length; i++) {
+                if (subsetSet.has(flat[i])) flat[i] = subsetItems[subsetIdx++];
+            }
+        }
+
+        // フラット配列の並び順から階層状態を再構築する（絞込なし操作の反映用）。
+        function syncHierarchicalFromFlat(column) {
+            if (column === 'contractor') {
+                Object.keys(sortState.categoryContractorOrders).forEach(cat => {
+                    const subset = sortState.categoryContractorOrders[cat];
+                    if (subset) sortState.categoryContractorOrders[cat] = sortState.contractor.filter(c => subset.includes(c));
+                });
+            } else if (column === 'site') {
+                Object.keys(sortState.contractorSiteOrders).forEach(con => {
+                    const subset = sortState.contractorSiteOrders[con];
+                    if (subset) sortState.contractorSiteOrders[con] = sortState.site.filter(s => subset.includes(s));
+                });
+                Object.keys(sortState.shiftSites || {}).forEach(sh => {
+                    const subset = sortState.shiftSites[sh];
+                    if (subset) sortState.shiftSites[sh] = sortState.site.filter(s => subset.includes(s));
+                });
+            }
+        }
+
+        function syncSortStateAfterReorder(column) {
+            if (column === 'contractor') {
+                if (sortState.filterCategory) {
+                    syncFlatFromSubset('contractor', sortState.categoryContractorOrders[sortState.filterCategory]);
+                }
+                syncHierarchicalFromFlat('contractor');
+                sortState.adjusted = true;
+            } else if (column === 'site') {
+                if (sortState.filterContractor) {
+                    syncFlatFromSubset('site', sortState.contractorSiteOrders[sortState.filterContractor]);
+                } else if (sortState.filterShift) {
+                    syncFlatFromSubset('site', sortState.shiftSites[sortState.filterShift]);
+                }
+                syncHierarchicalFromFlat('site');
+                sortState.adjusted = true;
+            }
         }
 
         function applySortSettings() {
@@ -3239,17 +3387,23 @@
 
             sortableRows.sort((a, b) => {
                 const dataA = extractRowData(a), dataB = extractRowData(b);
-                let cmp = getSortPriority(sortState.category, dataA.category) - getSortPriority(sortState.category, dataB.category);
+                let cmp;
+                if (sortState.adjusted) {
+                    // 調整あり: 第3キー(契約先) → 第4キー(現場名) → 第1キー(区分) → 第2キー(昼夜)
+                    cmp = getSortPriority(sortState.contractor, dataA.contractor) - getSortPriority(sortState.contractor, dataB.contractor);
+                    if (cmp !== 0) return cmp;
+                    const siteOrderA = sortState.contractorSiteOrders[dataA.contractor] || sortState.site;
+                    const siteOrderB = sortState.contractorSiteOrders[dataB.contractor] || sortState.site;
+                    cmp = getSortPriority(siteOrderA, dataA.site) - getSortPriority(siteOrderB, dataB.site);
+                    if (cmp !== 0) return cmp;
+                    cmp = getSortPriority(sortState.category, dataA.category) - getSortPriority(sortState.category, dataB.category);
+                    if (cmp !== 0) return cmp;
+                    return getSortPriority(sortState.shift, dataA.shift) - getSortPriority(sortState.shift, dataB.shift);
+                }
+                // 初期: 第1キー(区分) → 第2キー(昼夜)
+                cmp = getSortPriority(sortState.category, dataA.category) - getSortPriority(sortState.category, dataB.category);
                 if (cmp !== 0) return cmp;
-                cmp = getSortPriority(sortState.shift, dataA.shift) - getSortPriority(sortState.shift, dataB.shift);
-                if (cmp !== 0) return cmp;
-                const contractorOrderA = sortState.categoryContractorOrders[dataA.category] || sortState.contractor;
-                const contractorOrderB = sortState.categoryContractorOrders[dataB.category] || sortState.contractor;
-                cmp = getSortPriority(contractorOrderA, dataA.contractor) - getSortPriority(contractorOrderB, dataB.contractor);
-                if (cmp !== 0) return cmp;
-                const siteOrderA = sortState.contractorSiteOrders[dataA.contractor] || sortState.site;
-                const siteOrderB = sortState.contractorSiteOrders[dataB.contractor] || sortState.site;
-                return getSortPriority(siteOrderA, dataA.site) - getSortPriority(siteOrderB, dataB.site);
+                return getSortPriority(sortState.shift, dataA.shift) - getSortPriority(sortState.shift, dataB.shift);
             });
 
             // 並びが実際に変わった時だけ undo に積む
@@ -3260,7 +3414,41 @@
                 fixedRows.forEach(row => tbody.appendChild(row));
                 renumberRows();
             }
+            // 設定を永続化
+            saveSortStateToStorage();
             closeSortModal();
+        }
+
+        // ページロード時の自動適用（ソート状態のみ更新、Undoは積まない）
+        function applySortSettingsOnLoad() {
+            if (!loadSortStateFromStorage()) return;
+            const tbody = document.querySelector('.grid-table tbody');
+            if (!tbody) return;
+            initSortStateFromGrid();
+            const allRows = Array.from(tbody.querySelectorAll('tr'));
+            const fixedRows = allRows.filter(r => r.dataset.fixed === 'true');
+            const sortableRows = allRows.filter(r => r.dataset.fixed !== 'true');
+            sortableRows.sort((a, b) => {
+                const dataA = extractRowData(a), dataB = extractRowData(b);
+                let cmp;
+                if (sortState.adjusted) {
+                    cmp = getSortPriority(sortState.contractor, dataA.contractor) - getSortPriority(sortState.contractor, dataB.contractor);
+                    if (cmp !== 0) return cmp;
+                    const siteOrderA = sortState.contractorSiteOrders[dataA.contractor] || sortState.site;
+                    const siteOrderB = sortState.contractorSiteOrders[dataB.contractor] || sortState.site;
+                    cmp = getSortPriority(siteOrderA, dataA.site) - getSortPriority(siteOrderB, dataB.site);
+                    if (cmp !== 0) return cmp;
+                    cmp = getSortPriority(sortState.category, dataA.category) - getSortPriority(sortState.category, dataB.category);
+                    if (cmp !== 0) return cmp;
+                    return getSortPriority(sortState.shift, dataA.shift) - getSortPriority(sortState.shift, dataB.shift);
+                }
+                cmp = getSortPriority(sortState.category, dataA.category) - getSortPriority(sortState.category, dataB.category);
+                if (cmp !== 0) return cmp;
+                return getSortPriority(sortState.shift, dataA.shift) - getSortPriority(sortState.shift, dataB.shift);
+            });
+            sortableRows.forEach(row => tbody.appendChild(row));
+            fixedRows.forEach(row => tbody.appendChild(row));
+            renumberRows();
         }
 
         function extractRowData(row) {
@@ -3283,6 +3471,8 @@
         }
 
         function resetSortSettings() {
+            // 保存済み設定をクリアしてからデフォルト状態で再初期化
+            clearSortStateFromStorage();
             initSortStateFromGrid();
             renderAllSortLists();
         }

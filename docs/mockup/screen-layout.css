@@ -2526,6 +2526,36 @@ h1 {
     display: block;
 }
 
+.sort-column-subtitle {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+}
+
+/* 初期ソート列は控えめに、微調整列は強調 */
+.sort-column-group .sort-column-header {
+    background: var(--bg-surface-2);
+}
+.sort-column-adjust .sort-column-header {
+    background: var(--accent-primary-light, var(--bg-surface-2));
+}
+
+.sort-adjusted-badge {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--accent-primary);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+.sort-adjusted-badge[hidden] { display: none; }
+
 .sort-modal-body {
     display: flex;
     gap: 0;
