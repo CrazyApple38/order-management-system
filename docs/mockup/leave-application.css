@@ -196,7 +196,8 @@ body {
     overflow: hidden;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-auto-rows: minmax(112px, 1fr);
+    /* 行高は最小 80px、内容に応じて auto 拡張 (省略せず全バッジ表示するため) */
+    grid-auto-rows: minmax(80px, auto);
     gap: 1px;
     background-color: var(--divider);
 }
@@ -217,8 +218,8 @@ body {
     padding: 4px 5px 4px 5px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    min-height: 112px;
+    gap: 3px;
+    min-height: 80px;
     position: relative;
     cursor: default;
     transition: background var(--duration-fast);
@@ -269,10 +270,12 @@ body {
 
 .md-la-cell-body {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 3px 4px;
     flex: 1;
     min-height: 0;
+    align-content: flex-start;
 }
 
 .md-la-cell.is-drop-target {
@@ -285,8 +288,8 @@ body {
     background: rgba(68, 166, 181, 0.10) !important;
 }
 
-/* --- セル内 休み バッジ (SL .assigned-employee 風 46×22 コンパクト) ---
-   月間: イニシャル + 上辺GC色 + 区分角バッジ (46×20)
+/* --- セル内 休み バッジ (SL の 3/4 サイズ 35×16 ミニコンパクト) ---
+   月間: イニシャル + 上辺GC色 + 区分角バッジ (35×16)
    週間: 氏名フル + 上辺GC色 + 区分角バッジ (可変幅) */
 .md-la-badge {
     position: relative;
@@ -294,12 +297,12 @@ body {
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    padding: 2px 6px;
-    min-height: 20px;
-    border-radius: var(--radius-sm);
-    font-size: 11px;
+    padding: 1px 4px;
+    min-height: 16px;
+    border-radius: 3px;
+    font-size: 10px;
     font-weight: var(--fw-bold);
-    line-height: 1.2;
+    line-height: 1.1;
     background: var(--la-kind-other-bg);
     color: var(--la-kind-other-text);
     border: 1px solid rgba(0,0,0,0.08);
@@ -359,7 +362,7 @@ body {
     left: -1px;
     right: -1px;
     height: 2px;
-    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    border-radius: 3px 3px 0 0;
     background: var(--gc-accent, transparent);
 }
 .md-la-badge.gc-touo     { --gc-accent: #9FA8B4; }
@@ -369,15 +372,15 @@ body {
 /* 区分インジケータ (左上角の小バッジ、全/前/後) */
 .md-la-badge-part {
     position: absolute;
-    top: -5px;
-    left: -4px;
+    top: -4px;
+    left: -3px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 13px;
-    height: 13px;
-    border-radius: 3px;
-    font-size: 9px;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    font-size: 8px;
     font-weight: var(--fw-bold);
     background: var(--bg-sidebar);
     color: #E9F1F6;
@@ -398,14 +401,14 @@ body {
 .md-la-badge.md-la-mode-initial .md-la-badge-initial { display: inline; }
 .md-la-badge.md-la-mode-full    .md-la-badge-name    { display: inline; }
 
-/* 月間: 46px 固定幅 (SL 統一) */
-.md-la-badge.md-la-mode-initial { width: 46px; }
+/* 月間: 35px 固定幅 (SL の 3/4) */
+.md-la-badge.md-la-mode-initial { width: 35px; }
 /* 週間: セル幅に応じて可変 */
 .md-la-badge.md-la-mode-full    { max-width: 100%; }
 
-/* 「圧縮」ON の月間でサイズをさらに縮める (将来用) / 週間ビューでも圧縮なら氏名→イニシャル */
+/* 「圧縮」ON の週間ビューでも氏名→イニシャル */
 .md-la-calendar.is-compact .md-la-badge.md-la-mode-full {
-    width: 46px;
+    width: 35px;
 }
 .md-la-calendar.is-compact .md-la-badge.md-la-mode-full .md-la-badge-name    { display: none; }
 .md-la-calendar.is-compact .md-la-badge.md-la-mode-full .md-la-badge-initial { display: inline; }

@@ -323,17 +323,8 @@
             var body = document.createElement('div');
             body.className = 'md-la-cell-body';
 
-            var MAX_VISIBLE = 3;
-            var visible = dayLeaves.slice(0, MAX_VISIBLE);
-            var overflow = dayLeaves.length - visible.length;
-            visible.forEach(function (lv) { body.appendChild(buildBadge(lv)); });
-            if (overflow > 0) {
-                var more = document.createElement('div');
-                more.className = 'md-la-badge-more';
-                more.textContent = '+' + overflow + ' 件';
-                more.title = '折り畳み中: ' + overflow + '件の申請';
-                body.appendChild(more);
-            }
+            // 全件表示 (省略なし)。セル高は grid-auto-rows: auto で自動拡張
+            dayLeaves.forEach(function (lv) { body.appendChild(buildBadge(lv)); });
             cell.appendChild(body);
 
             // D&D 受け入れ
