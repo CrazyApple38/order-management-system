@@ -288,15 +288,18 @@ body {
     background: rgba(68, 166, 181, 0.10) !important;
 }
 
-/* --- セル内 休み バッジ (SL .assigned-employee と完全同寸 46×~25px) ---
-   月間/週間ともに surname (略称) を表示。上辺 GC 色 + 左上角に区分角バッジ */
+/* --- セル内 休み バッジ (氏名 + 下段チップ3つの2段組) ---
+   上段: surname (略称)。下段: 区分/種別/ステータスの2文字チップ3つ横並び
+   上辺 GC 色 + 左辺アクセントは kind-* で背景、border で状態表現 */
 .md-la-badge {
     position: relative;
     display: inline-flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 2px;
     box-sizing: border-box;
-    padding: 4px 8px;
+    padding: 3px 6px 4px;
     border-radius: 4px;
     font-size: 11px;
     font-weight: 400;
@@ -367,48 +370,69 @@ body {
 .md-la-badge.gc-nikkei   { --gc-accent: #5FB895; }
 .md-la-badge.gc-zennihon { --gc-accent: #6B82B8; }
 
-/* 区分インジケータ (左上角の小バッジ、全/前/後) — SL 連続勤務▼等の小マーカー相当 */
-.md-la-badge-part {
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 13px;
-    height: 13px;
-    border-radius: 3px;
-    font-size: 9px;
-    font-weight: var(--fw-bold);
-    background: var(--bg-sidebar);
-    color: #E9F1F6;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.18);
-    pointer-events: none;
-    line-height: 1;
-}
-
-.md-la-badge-name,
-.md-la-badge-initial {
-    display: none;
+/* 上段: 氏名行 (surname 略称) */
+.md-la-badge-name-row {
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.2;
     white-space: nowrap;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* ハイブリッド: 月間ビュー=イニシャル / 週間ビュー=氏名フル */
-.md-la-badge.md-la-mode-initial .md-la-badge-initial { display: inline; }
-.md-la-badge.md-la-mode-full    .md-la-badge-name    { display: inline; }
-
-/* 月間: 46px 固定幅 (SL と同一)、週間: セル幅に応じて可変 */
-.md-la-badge.md-la-mode-initial { width: 46px; }
-.md-la-badge.md-la-mode-full    { max-width: 100%; }
-
-/* 「圧縮」ON の週間ビューでは SL と同じ 46px 固定に */
-.md-la-calendar.is-compact .md-la-badge.md-la-mode-full {
-    width: 46px;
+/* 下段: チップ3つを横並び */
+.md-la-badge-chips {
+    display: inline-flex;
+    gap: 2px;
+    align-items: center;
 }
-.md-la-calendar.is-compact .md-la-badge.md-la-mode-full .md-la-badge-name    { display: none; }
-.md-la-calendar.is-compact .md-la-badge.md-la-mode-full .md-la-badge-initial { display: inline; }
+
+/* 区分・種別・ステータスのチップ (2文字, 12-13px 高) */
+.md-la-badge-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    min-width: 20px;
+    height: 13px;
+    border-radius: 2px;
+    font-size: 9px;
+    font-weight: var(--fw-bold);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+    background: var(--bg-surface-3);
+    color: var(--text-primary);
+}
+
+/* 区分チップ: 休み / 午前 / 午後 */
+.md-la-badge-chip.part-full { background: #8BAEB9; color: #fff; }
+.md-la-badge-chip.part-am   { background: #5AB8C6; color: #fff; }
+.md-la-badge-chip.part-pm   { background: #C7A173; color: #fff; }
+
+/* 種別チップ: 有給 / 欠勤 / 他 */
+.md-la-badge-chip.kind-paid   { background: #1c4d54; color: #fff; }
+.md-la-badge-chip.kind-absent { background: #8e2c4a; color: #fff; }
+.md-la-badge-chip.kind-other  { background: #5A8896; color: #fff; }
+
+/* ステータスチップ: 申請 (破線) / 承認 (緑塗り) / 却下 (赤打消し) */
+.md-la-badge-chip.status-pending {
+    background: transparent;
+    border: 1px dashed var(--text-secondary);
+    color: var(--text-secondary);
+    height: 11px; /* border 分差し引き */
+}
+.md-la-badge-chip.status-approved { background: var(--semantic-success); color: #fff; }
+.md-la-badge-chip.status-rejected {
+    background: var(--semantic-error);
+    color: #fff;
+    text-decoration: line-through;
+}
+
+/* 月間/週間モードによる表示差はなし。どちらも同じ2段組 */
+.md-la-badge.md-la-mode-initial,
+.md-la-badge.md-la-mode-full { max-width: 100%; }
 
 /* 「+N 件」折畳 */
 .md-la-badge-more {

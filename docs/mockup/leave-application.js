@@ -11,8 +11,13 @@
     // ==========================================================
 
     var KIND = { paid: '有給', absent: '欠勤', other: 'その他' };
-    var PART = { full: '全', am: '前', pm: '後' };
+    // 区分: 「全休」→「休み」に改名 (ユーザー指示)
+    var PART = { full: '休み', am: '午前休', pm: '午後休' };
     var STATUS = { pending: '申請中', approved: '承認済', rejected: '却下' };
+    // バッジ内チップ表示用 (2文字目安)
+    var PART_CHIP = { full: '休み', am: '午前', pm: '午後' };
+    var KIND_CHIP = { paid: '有給', absent: '欠勤', other: '他' };
+    var STATUS_CHIP = { pending: '申請', approved: '承認', rejected: '却下' };
 
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
     function fmtDate(d) {
@@ -1006,28 +1011,33 @@
         if (!canEditLeave(lv)) b.classList.add('is-readonly');
         // ネイティブ tooltip はアクセシビリティ/スクリーンリーダー用の最小テキストに留める
         b.setAttribute('aria-label',
-            emp.name + ' — ' + KIND[lv.kind] + ' (' + PART[lv.partition] + '休) / ' + STATUS[lv.status]);
+            emp.name + ' — ' + KIND[lv.kind] + ' (' + PART[lv.partition] + ') / ' + STATUS[lv.status]);
         // リッチ tooltip をホバーで表示 (カスタム)
         b.addEventListener('mouseenter', function (e) { scheduleTooltip(lv, b, e); });
         b.addEventListener('mouseleave', cancelTooltip);
 
-        // 区分インジケータ (角) — 全/前/後
-        var part = document.createElement('span');
-        part.className = 'md-la-badge-part';
-        part.textContent = PART[lv.partition];
-        b.appendChild(part);
+        // 上段: 氏名 (surname 略称)
+        var nameRow = document.createElement('span');
+        nameRow.className = 'md-la-badge-name-row';
+        nameRow.textContent = emp.name;
+        b.appendChild(nameRow);
 
-        // 氏名・イニシャル (CSS でどちらかのみ表示)
-        var name = document.createElement('span');
-        name.className = 'md-la-badge-name';
-        name.textContent = emp.name;
-        b.appendChild(name);
-
-        // 略称 (SL と同じく surname 丸ごと表示)。月間=46px幅で溢れる場合は CSS で ellipsis
-        var initial = document.createElement('span');
-        initial.className = 'md-la-badge-initial';
-        initial.textContent = emp.name;
-        b.appendChild(initial);
+        // 下段: 区分 / 種別 / ステータスのチップを横並び
+        var chips = document.createElement('span');
+        chips.className = 'md-la-badge-chips';
+        var partChip = document.createElement('span');
+        partChip.className = 'md-la-badge-chip part-' + lv.partition;
+        partChip.textContent = PART_CHIP[lv.partition];
+        chips.appendChild(partChip);
+        var kindChip = document.createElement('span');
+        kindChip.className = 'md-la-badge-chip kind-' + lv.kind;
+        kindChip.textContent = KIND_CHIP[lv.kind];
+        chips.appendChild(kindChip);
+        var statusChip = document.createElement('span');
+        statusChip.className = 'md-la-badge-chip status-' + lv.status;
+        statusChip.textContent = STATUS_CHIP[lv.status];
+        chips.appendChild(statusChip);
+        b.appendChild(chips);
 
         // 端ドラッグハンドル (E3: 連続日延長)
         var eL = document.createElement('span');
@@ -1449,7 +1459,7 @@
         tip.appendChild(sub);
 
         // 行: 区分 / 種別 / 理由 / メモ
-        tip.appendChild(tooltipRow('区分', PART[lv.partition] + '休'));
+        tip.appendChild(tooltipRow('区分', PART[lv.partition]));
         tip.appendChild(tooltipRow('種別', KIND[lv.kind]));
         tip.appendChild(tooltipRow('理由', lv.reason, '（未入力）'));
         tip.appendChild(tooltipRow('メモ', lv.memo, '（なし）'));
@@ -1829,9 +1839,9 @@
         var body = document.createElement('div');
         body.className = 'md-la-popover-body';
 
-        // 区分
+        // 区分 (全休→休み にリネーム)
         body.appendChild(buildSegmentField('区分', 'partition',
-            [['full', '全休'], ['am', '午前休'], ['pm', '午後休']], false, false, !editable));
+            [['full', '休み'], ['am', '午前休'], ['pm', '午後休']], false, false, !editable));
         // 種別
         body.appendChild(buildSegmentField('種別', 'kind',
             [['paid', '有給'], ['absent', '欠勤'], ['other', 'その他']], true, false, !editable));
