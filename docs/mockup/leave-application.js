@@ -272,10 +272,10 @@
         eR.className = 'md-la-badge-edge right';
         b.appendChild(eR);
 
-        // バッジクリック → 当面は簡易情報ダイアログ (E2 でポップオーバー実装予定)
+        // バッジクリック → 詳細編集ポップオーバー (E2)
         b.addEventListener('click', function (e) {
             e.stopPropagation();
-            laShowBadgeInfo(lv);
+            laShowBadgeInfo(lv, b);
         });
 
         // バッジ D&D: 他日へ移動
@@ -502,26 +502,258 @@
     }
 
     // ==========================================================
-    // バッジ情報ダイアログ (簡易版、E2 でポップオーバー化)
+    // 詳細編集ポップオーバー (E2)
     // ==========================================================
 
-    function laShowBadgeInfo(lv) {
+    var popoverState = null; // { leaveId, anchorEl, draft: {...} }
+
+    function laShowBadgeInfo(lv, anchorEl) {
+        // 既存の popover があれば閉じる
+        laClosePopover();
         var emp = laEmployees.find(function (e) { return e.id === lv.employeeId; });
         if (!emp) return;
-        var lines = [
-            emp.name + '（' + (emp.role === 'dcp' ? 'DCP' : emp.role === 'chief' ? '現場責任' : '一般') + '）',
-            '日付: ' + lv.date,
-            '区分: ' + PART[lv.partition] + '休',
-            '種別: ' + KIND[lv.kind],
-            'ステータス: ' + STATUS[lv.status],
-            '',
-            '[E2 で詳細編集ポップオーバーを実装予定]',
-            '削除するには「削除」を押してください。'
-        ];
-        if (confirm(lines.join('\n') + '\n\n削除しますか？ (キャンセルで閉じる)')) {
-            laLeaves = laLeaves.filter(function (x) { return x.id !== lv.id; });
-            renderCalendar();
+
+        // ドラフト (キャンセル時にロールバックできるようコピー)
+        popoverState = {
+            leaveId: lv.id,
+            anchorEl: anchorEl,
+            draft: {
+                partition: lv.partition,
+                kind: lv.kind,
+                status: lv.status,
+                reason: lv.reason || '',
+                memo: lv.memo || ''
+            },
+            employee: emp,
+            date: lv.date
+        };
+        var popover = buildPopoverEl();
+        document.body.appendChild(popover);
+        positionPopover(popover, anchorEl);
+
+        // 外部クリック・ESC で閉じる (次のティックから有効化して自身のクリックで閉じないように)
+        setTimeout(function () {
+            document.addEventListener('mousedown', onOutsideMousedown);
+            document.addEventListener('keydown', onPopoverKeydown);
+        }, 0);
+    }
+
+    function buildPopoverEl() {
+        var s = popoverState;
+        var pop = document.createElement('div');
+        pop.className = 'md-la-popover';
+        pop.id = 'laPopover';
+
+        // ヘッダー
+        var header = document.createElement('div');
+        header.className = 'md-la-popover-header';
+        var gc = document.createElement('span');
+        gc.className = 'md-la-popover-gc gc-' + s.employee.company;
+        header.appendChild(gc);
+        var titleWrap = document.createElement('div');
+        titleWrap.style.cssText = 'display:flex;flex-direction:column;flex:1;min-width:0;';
+        var title = document.createElement('span');
+        title.className = 'md-la-popover-title';
+        title.textContent = s.employee.name;
+        var date = document.createElement('span');
+        date.className = 'md-la-popover-date';
+        date.textContent = formatJpDate(s.date);
+        titleWrap.appendChild(title);
+        titleWrap.appendChild(date);
+        header.appendChild(titleWrap);
+        var close = document.createElement('button');
+        close.className = 'md-la-popover-close';
+        close.title = '閉じる';
+        close.innerHTML = '<svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-close"/></svg>';
+        close.addEventListener('click', laClosePopover);
+        header.appendChild(close);
+        pop.appendChild(header);
+
+        // body
+        var body = document.createElement('div');
+        body.className = 'md-la-popover-body';
+
+        // 区分
+        body.appendChild(buildSegmentField('区分', 'partition',
+            [['full', '全休'], ['am', '午前休'], ['pm', '午後休']]));
+        // 種別
+        body.appendChild(buildSegmentField('種別', 'kind',
+            [['paid', '有給'], ['absent', '欠勤'], ['other', 'その他']], true));
+        // ステータス
+        body.appendChild(buildSegmentField('ステータス', 'status',
+            [['pending', '申請中'], ['approved', '承認済'], ['rejected', '却下']], false, true));
+        // 理由
+        var reasonField = document.createElement('div');
+        reasonField.className = 'md-la-field';
+        var reasonLabel = document.createElement('span');
+        reasonLabel.className = 'md-la-field-label';
+        reasonLabel.textContent = '理由';
+        var reasonInput = document.createElement('input');
+        reasonInput.type = 'text';
+        reasonInput.className = 'md-la-input';
+        reasonInput.placeholder = '私用・通院 など';
+        reasonInput.value = s.draft.reason;
+        reasonInput.addEventListener('input', function () { s.draft.reason = this.value; });
+        reasonField.appendChild(reasonLabel);
+        reasonField.appendChild(reasonInput);
+        body.appendChild(reasonField);
+        // メモ
+        var memoField = document.createElement('div');
+        memoField.className = 'md-la-field';
+        var memoLabel = document.createElement('span');
+        memoLabel.className = 'md-la-field-label';
+        memoLabel.textContent = 'メモ（時間帯制限等）';
+        var memoInput = document.createElement('textarea');
+        memoInput.className = 'md-la-textarea';
+        memoInput.placeholder = '例: 14時以降出社不可';
+        memoInput.value = s.draft.memo;
+        memoInput.addEventListener('input', function () { s.draft.memo = this.value; });
+        memoField.appendChild(memoLabel);
+        memoField.appendChild(memoInput);
+        body.appendChild(memoField);
+
+        pop.appendChild(body);
+
+        // フッター
+        var footer = document.createElement('div');
+        footer.className = 'md-la-popover-footer';
+        var delBtn = document.createElement('button');
+        delBtn.className = 'md-la-btn is-danger';
+        delBtn.textContent = '削除';
+        delBtn.addEventListener('click', onDeleteLeave);
+        footer.appendChild(delBtn);
+        var spacer = document.createElement('div');
+        spacer.className = 'md-la-footer-spacer';
+        footer.appendChild(spacer);
+        var cancelBtn = document.createElement('button');
+        cancelBtn.className = 'md-la-btn';
+        cancelBtn.textContent = 'キャンセル';
+        cancelBtn.addEventListener('click', laClosePopover);
+        footer.appendChild(cancelBtn);
+        var saveBtn = document.createElement('button');
+        saveBtn.className = 'md-la-btn is-primary';
+        saveBtn.textContent = '保存';
+        saveBtn.addEventListener('click', onSaveLeave);
+        footer.appendChild(saveBtn);
+        pop.appendChild(footer);
+
+        // 矢印
+        var arrow = document.createElement('div');
+        arrow.className = 'md-la-popover-arrow';
+        pop.appendChild(arrow);
+
+        return pop;
+    }
+
+    function buildSegmentField(labelText, key, options, useKindColor, useStatusColor) {
+        var field = document.createElement('div');
+        field.className = 'md-la-field';
+        var label = document.createElement('span');
+        label.className = 'md-la-field-label';
+        label.textContent = labelText;
+        field.appendChild(label);
+        var seg = document.createElement('div');
+        seg.className = 'md-la-seg';
+        options.forEach(function (opt) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'md-la-seg-btn';
+            btn.textContent = opt[1];
+            btn.dataset.value = opt[0];
+            if (useKindColor)   btn.classList.add('kind-' + opt[0]);
+            if (useStatusColor) btn.classList.add('status-' + opt[0]);
+            if (popoverState.draft[key] === opt[0]) btn.classList.add('is-active');
+            btn.addEventListener('click', function () {
+                popoverState.draft[key] = opt[0];
+                seg.querySelectorAll('.md-la-seg-btn').forEach(function (b) {
+                    b.classList.toggle('is-active', b.dataset.value === opt[0]);
+                });
+            });
+            seg.appendChild(btn);
+        });
+        field.appendChild(seg);
+        return field;
+    }
+
+    function positionPopover(pop, anchor) {
+        var ar = anchor.getBoundingClientRect();
+        var pw = 280;
+        var margin = 8;
+        var vw = window.innerWidth;
+        var vh = window.innerHeight;
+        // 既定: セル右側に配置
+        var left = ar.right + margin;
+        var anchorSide = 'right';
+        if (left + pw + margin > vw) {
+            // 右に入らなければ左
+            left = ar.left - pw - margin;
+            anchorSide = 'left';
         }
+        if (left < margin) {
+            // それでも入らなければセル直下に被せる
+            left = Math.max(margin, Math.min(vw - pw - margin, ar.left));
+        }
+        pop.classList.add('is-anchor-' + anchorSide);
+        // 仮表示して高さ取得 → 縦方向調整
+        pop.style.visibility = 'hidden';
+        pop.style.left = left + 'px';
+        pop.style.top = (ar.top) + 'px';
+        var ph = pop.offsetHeight;
+        var top = ar.top;
+        if (top + ph + margin > vh) top = Math.max(margin, vh - ph - margin);
+        pop.style.top = top + 'px';
+        pop.style.visibility = '';
+    }
+
+    function onOutsideMousedown(e) {
+        var pop = document.getElementById('laPopover');
+        if (!pop) return;
+        if (pop.contains(e.target)) return;
+        // バッジクリックは別経路で新規オープン (既存 close は badge click 側で処理)
+        if (e.target.closest && e.target.closest('.md-la-badge')) return;
+        laClosePopover();
+    }
+
+    function onPopoverKeydown(e) {
+        if (e.key === 'Escape') laClosePopover();
+    }
+
+    function laClosePopover() {
+        var pop = document.getElementById('laPopover');
+        if (pop && pop.parentNode) pop.parentNode.removeChild(pop);
+        document.removeEventListener('mousedown', onOutsideMousedown);
+        document.removeEventListener('keydown', onPopoverKeydown);
+        popoverState = null;
+    }
+
+    function onSaveLeave() {
+        if (!popoverState) return;
+        var lv = laLeaves.find(function (x) { return x.id === popoverState.leaveId; });
+        if (lv) {
+            lv.partition = popoverState.draft.partition;
+            lv.kind      = popoverState.draft.kind;
+            lv.status    = popoverState.draft.status;
+            lv.reason    = popoverState.draft.reason;
+            lv.memo      = popoverState.draft.memo;
+        }
+        laClosePopover();
+        renderCalendar();
+        renderSidebar(); // 未承認アラート数更新
+    }
+
+    function onDeleteLeave() {
+        if (!popoverState) return;
+        if (!confirm('この申請を削除します。よろしいですか？')) return;
+        laLeaves = laLeaves.filter(function (x) { return x.id !== popoverState.leaveId; });
+        laClosePopover();
+        renderCalendar();
+        renderSidebar();
+    }
+
+    function formatJpDate(key) {
+        var d = parseDate(key);
+        var dow = ['日', '月', '火', '水', '木', '金', '土'][d.getDay()];
+        return d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + '（' + dow + '）';
     }
 
     // ==========================================================

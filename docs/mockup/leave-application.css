@@ -299,6 +299,7 @@ body {
     color: var(--la-kind-other-text);
     border: 1px solid transparent;
     cursor: grab;
+    -webkit-user-select: none;
     user-select: none;
     position: relative;
 }
@@ -524,6 +525,7 @@ body {
     border-left: 3px solid transparent;
     border-radius: var(--radius-sm);
     cursor: grab;
+    -webkit-user-select: none;
     user-select: none;
     transition: all var(--duration-fast);
     position: relative;
@@ -661,6 +663,220 @@ body {
     box-shadow: var(--elevation-3);
     opacity: 0.92;
 }
+
+/* ============================================================
+   ポップオーバー (E2: 詳細編集)
+   ============================================================ */
+.md-la-popover {
+    position: fixed;
+    width: 280px;
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-md);
+    box-shadow: var(--elevation-4);
+    z-index: 800;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: mdLaPopIn var(--duration-fast) var(--ease-out);
+}
+@keyframes mdLaPopIn {
+    from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.md-la-popover-arrow {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--bg-surface);
+    border-left: 1px solid var(--divider);
+    border-top: 1px solid var(--divider);
+    transform: rotate(-45deg);
+    top: 20px;
+}
+.md-la-popover.is-anchor-right .md-la-popover-arrow { left: -6px; }
+.md-la-popover.is-anchor-left .md-la-popover-arrow {
+    right: -6px;
+    transform: rotate(135deg);
+}
+
+.md-la-popover-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+}
+.md-la-popover-gc {
+    width: 4px;
+    height: 20px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+.md-la-popover-gc.gc-touo     { background: #9FA8B4; }
+.md-la-popover-gc.gc-nikkei   { background: #5FB895; }
+.md-la-popover-gc.gc-zennihon { background: #6B82B8; }
+.md-la-popover-title {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.md-la-popover-date {
+    font-size: var(--fs-caption);
+    color: var(--text-tertiary);
+    font-weight: var(--fw-medium);
+}
+.md-la-popover-close {
+    background: transparent;
+    border: none;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+}
+.md-la-popover-close:hover { background: var(--bg-surface-3); color: var(--text-primary); }
+.md-la-popover-close .ui-icon { font-size: 10px; }
+
+.md-la-popover-body {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.md-la-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.md-la-field-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.04em;
+}
+.md-la-seg {
+    display: flex;
+    gap: 2px;
+    background: var(--bg-surface-2);
+    padding: 2px;
+    border-radius: var(--radius-sm);
+}
+.md-la-seg-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 5px 8px;
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-semibold);
+    color: var(--text-tertiary);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all var(--duration-fast);
+}
+.md-la-seg-btn:hover { color: var(--text-primary); }
+.md-la-seg-btn.is-active {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    box-shadow: var(--elevation-1);
+}
+/* 種別カラーを選択時に反映 */
+.md-la-seg-btn.is-active.kind-paid {
+    background: var(--la-kind-paid-bg);
+    color: var(--la-kind-paid-text);
+}
+.md-la-seg-btn.is-active.kind-absent {
+    background: var(--la-kind-absent-bg);
+    color: var(--la-kind-absent-text);
+}
+.md-la-seg-btn.is-active.kind-other {
+    background: var(--la-kind-other-bg);
+    color: var(--la-kind-other-text);
+}
+/* ステータス色 */
+.md-la-seg-btn.is-active.status-pending {
+    background: transparent;
+    border: 1px dashed var(--text-secondary);
+    color: var(--text-secondary);
+}
+.md-la-seg-btn.is-active.status-approved {
+    background: var(--semantic-success);
+    color: #fff;
+}
+.md-la-seg-btn.is-active.status-rejected {
+    background: transparent;
+    color: var(--semantic-error);
+    text-decoration: line-through;
+}
+
+.md-la-input,
+.md-la-textarea {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-caption);
+    font-family: inherit;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    resize: vertical;
+}
+.md-la-input:focus,
+.md-la-textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px var(--accent-primary-dim);
+}
+.md-la-textarea { min-height: 44px; }
+
+.md-la-popover-footer {
+    display: flex;
+    gap: 6px;
+    padding: 8px 10px;
+    border-top: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+}
+.md-la-btn {
+    padding: 5px 12px;
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-semibold);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--duration-fast);
+}
+.md-la-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+.md-la-btn.is-primary {
+    background: var(--accent-primary);
+    color: #fff;
+    border-color: var(--accent-primary);
+}
+.md-la-btn.is-primary:hover {
+    background: var(--accent-primary-light);
+    color: #fff;
+}
+.md-la-btn.is-danger {
+    color: var(--semantic-error);
+    border-color: transparent;
+    background: transparent;
+}
+.md-la-btn.is-danger:hover {
+    background: rgba(219, 87, 123, 0.1);
+    border-color: var(--semantic-error);
+}
+.md-la-footer-spacer { flex: 1; }
 
 /* ============================================================
    プレースホルダー (E1 範囲外機能の明示)
