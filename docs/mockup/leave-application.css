@@ -879,6 +879,45 @@ body {
 .md-la-footer-spacer { flex: 1; }
 
 /* ============================================================
+   連続日延長プレビュー (E3)
+   ============================================================ */
+.md-la-cell.is-range-preview {
+    background: rgba(68, 166, 181, 0.14) !important;
+    outline: 1px dashed var(--accent-primary);
+    outline-offset: -1px;
+    z-index: 2;
+}
+.md-la-cell.is-range-conflict {
+    background: rgba(219, 87, 123, 0.12) !important;
+    outline: 1px dashed var(--semantic-error);
+    outline-offset: -1px;
+}
+
+body.is-range-dragging {
+    cursor: ew-resize;
+}
+body.is-range-dragging * { cursor: ew-resize !important; }
+
+/* 延長中の floating ラベル */
+.md-la-range-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    padding: 4px 10px;
+    background: var(--bg-sidebar);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-bold);
+    box-shadow: var(--elevation-3);
+    opacity: 0.95;
+    white-space: nowrap;
+}
+.md-la-range-ghost.is-conflict {
+    background: var(--semantic-error);
+}
+
+/* ============================================================
    プレースホルダー (E1 範囲外機能の明示)
    ============================================================ */
 .md-la-placeholder-hint {

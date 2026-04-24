@@ -264,12 +264,14 @@
         initial.textContent = emp.name.charAt(0);
         b.appendChild(initial);
 
-        // 端ドラッグハンドル (E3 準備, 今はビジュアルのみ)
+        // 端ドラッグハンドル (E3: 連続日延長)
         var eL = document.createElement('span');
         eL.className = 'md-la-badge-edge left';
+        eL.addEventListener('mousedown', function (e) { startRangeDrag(e, lv, 'left'); });
         b.appendChild(eL);
         var eR = document.createElement('span');
         eR.className = 'md-la-badge-edge right';
+        eR.addEventListener('mousedown', function (e) { startRangeDrag(e, lv, 'right'); });
         b.appendChild(eR);
 
         // バッジクリック → 詳細編集ポップオーバー (E2)
@@ -280,6 +282,8 @@
 
         // バッジ D&D: 他日へ移動
         b.addEventListener('dragstart', function (e) {
+            // 端ドラッグ中は HTML5 DnD を抑止
+            if (rangeDragState) { e.preventDefault(); return; }
             dragState = { sourceType: 'badge', leaveId: lv.id };
             b.classList.add('is-dragging');
             e.dataTransfer.effectAllowed = 'move';
@@ -499,6 +503,171 @@
     function laHideGhost() {
         if (ghostEl && ghostEl.parentNode) ghostEl.parentNode.removeChild(ghostEl);
         ghostEl = null;
+    }
+
+    // ==========================================================
+    // 連続日延長 (E3: バッジ端ドラッグ)
+    // ==========================================================
+
+    var rangeDragState = null; // { leaveId, side, originDate, currentDate, ghostEl }
+
+    function startRangeDrag(e, lv, side) {
+        e.preventDefault();
+        e.stopPropagation();
+        // ポップオーバー抑止 & 通常ドラッグ抑止
+        rangeDragState = {
+            leaveId: lv.id,
+            side: side,
+            originDate: lv.date,
+            currentDate: lv.date,
+            employeeId: lv.employeeId,
+            kind: lv.kind,
+            partition: lv.partition,
+            status: lv.status
+        };
+
+        var ghost = document.createElement('div');
+        ghost.className = 'md-la-range-ghost';
+        ghost.textContent = '1日間';
+        document.body.appendChild(ghost);
+        rangeDragState.ghostEl = ghost;
+        moveRangeGhost(e);
+
+        document.body.classList.add('is-range-dragging');
+        document.addEventListener('mousemove', onRangeMouseMove);
+        document.addEventListener('mouseup', onRangeMouseUp, { once: true });
+    }
+
+    function moveRangeGhost(e) {
+        if (!rangeDragState || !rangeDragState.ghostEl) return;
+        rangeDragState.ghostEl.style.left = (e.clientX + 14) + 'px';
+        rangeDragState.ghostEl.style.top = (e.clientY + 14) + 'px';
+    }
+
+    function onRangeMouseMove(e) {
+        if (!rangeDragState) return;
+        moveRangeGhost(e);
+        // マウス直下のセルを探す
+        var el = document.elementFromPoint(e.clientX, e.clientY);
+        var cell = el && el.closest ? el.closest('.md-la-cell') : null;
+        if (!cell || !cell.dataset.date) return;
+        rangeDragState.currentDate = cell.dataset.date;
+        updateRangePreview();
+    }
+
+    function updateRangePreview() {
+        // 既存プレビュークリア
+        document.querySelectorAll('.md-la-cell.is-range-preview, .md-la-cell.is-range-conflict')
+            .forEach(function (c) {
+                c.classList.remove('is-range-preview');
+                c.classList.remove('is-range-conflict');
+            });
+
+        if (!rangeDragState) return;
+        var s = rangeDragState;
+        var origin = parseDate(s.originDate);
+        var current = parseDate(s.currentDate);
+        // side に応じて有効な延長方向のみ採用
+        var rangeStart, rangeEnd;
+        if (s.side === 'right') {
+            rangeStart = origin;
+            rangeEnd = current >= origin ? current : origin;
+        } else {
+            rangeStart = current <= origin ? current : origin;
+            rangeEnd = origin;
+        }
+
+        var days = 0, conflictCount = 0;
+        for (var d = new Date(rangeStart); d <= rangeEnd; d.setDate(d.getDate() + 1)) {
+            var key = fmtDate(d);
+            var cell = document.querySelector('.md-la-cell[data-date="' + key + '"]');
+            if (!cell) continue;
+            // 起点日 (すでに確定済みバッジがある日) は通常プレビュー
+            days++;
+            var hasConflict = laLeaves.some(function (lv) {
+                return lv.employeeId === s.employeeId
+                    && lv.date === key
+                    && lv.id !== s.leaveId
+                    && lv.status !== 'rejected';
+            });
+            if (hasConflict) {
+                cell.classList.add('is-range-conflict');
+                conflictCount++;
+            } else {
+                cell.classList.add('is-range-preview');
+            }
+        }
+        // ゴースト更新
+        if (s.ghostEl) {
+            if (conflictCount > 0) {
+                s.ghostEl.textContent = days + '日間（' + conflictCount + '日重複）';
+                s.ghostEl.classList.add('is-conflict');
+            } else {
+                s.ghostEl.textContent = days + '日間';
+                s.ghostEl.classList.remove('is-conflict');
+            }
+        }
+    }
+
+    function onRangeMouseUp() {
+        document.removeEventListener('mousemove', onRangeMouseMove);
+        document.body.classList.remove('is-range-dragging');
+
+        if (!rangeDragState) return cleanupRangeDrag();
+        var s = rangeDragState;
+
+        // 範囲決定
+        var origin = parseDate(s.originDate);
+        var current = parseDate(s.currentDate);
+        var rangeStart, rangeEnd;
+        if (s.side === 'right') {
+            rangeStart = origin;
+            rangeEnd = current >= origin ? current : origin;
+        } else {
+            rangeStart = current <= origin ? current : origin;
+            rangeEnd = origin;
+        }
+
+        // 起点と同じ日なら何もしない
+        if (sameDay(rangeStart, rangeEnd)) return cleanupRangeDrag();
+
+        // 範囲内の各日にレコードを作成 (既に同社員・同日のレコードがある日はスキップ)
+        for (var d = new Date(rangeStart); d <= rangeEnd; d.setDate(d.getDate() + 1)) {
+            var key = fmtDate(d);
+            if (key === s.originDate) continue;
+            var exists = laLeaves.some(function (lv) {
+                return lv.employeeId === s.employeeId
+                    && lv.date === key
+                    && lv.status !== 'rejected';
+            });
+            if (exists) continue;
+            laLeaves.push({
+                id: 'lv-' + (nextLeaveId++),
+                employeeId: s.employeeId,
+                date: key,
+                partition: s.partition,
+                kind: s.kind,
+                status: s.status,
+                reason: '',
+                memo: ''
+            });
+        }
+
+        cleanupRangeDrag();
+        renderCalendar();
+        renderSidebar();
+    }
+
+    function cleanupRangeDrag() {
+        if (rangeDragState && rangeDragState.ghostEl && rangeDragState.ghostEl.parentNode) {
+            rangeDragState.ghostEl.parentNode.removeChild(rangeDragState.ghostEl);
+        }
+        document.querySelectorAll('.md-la-cell.is-range-preview, .md-la-cell.is-range-conflict')
+            .forEach(function (c) {
+                c.classList.remove('is-range-preview');
+                c.classList.remove('is-range-conflict');
+            });
+        rangeDragState = null;
     }
 
     // ==========================================================
