@@ -1543,22 +1543,22 @@ body {
 .md-la-legend-chip.status-approved { border: 1px solid var(--text-secondary); background: transparent; }
 
 /* ============================================================
-   バッジ ホバー ツールチップ (order-book 流儀: ダークティール単色)
+   バッジ ホバー ツールチップ (order-book 流儀: ダークティール単色, 簡潔版)
    ============================================================ */
 .md-la-tooltip {
     position: fixed;
     pointer-events: none;
     z-index: 950;
-    min-width: 260px;
-    max-width: 340px;
+    min-width: auto;
+    max-width: 280px;
     background: var(--bg-sidebar);            /* #004554 — order-book と統一 */
     color: #E9F1F6;
     border: 1px solid rgba(178, 213, 226, 0.30);
     border-radius: var(--radius-md);
     box-shadow: 0 8px 24px rgba(0, 69, 84, 0.25);
     font-size: 12px;
-    line-height: 1.55;
-    padding: 12px 16px;
+    line-height: 1.5;
+    padding: 8px 12px;
     animation: mdLaTipIn var(--duration-fast) var(--ease-out);
 }
 @keyframes mdLaTipIn {
@@ -1566,14 +1566,12 @@ body {
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* タイトル行 (氏名 + 日付 + ステータス) */
+/* タイトル行 (氏名 + 日付 + ステータス) — 区切り線なしで簡潔に */
 .md-la-tooltip-title {
     font-weight: var(--fw-bold);
     font-size: 13px;
     color: var(--divider);
-    padding-bottom: 6px;
-    margin-bottom: 6px;
-    border-bottom: 1px solid rgba(178, 213, 226, 0.30);
+    margin-bottom: 4px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1610,107 +1608,21 @@ body {
     text-decoration: line-through;
 }
 
-/* サブタイトル: GC・役職・日付 */
-.md-la-tooltip-sub {
-    font-size: 11px;
-    color: rgba(178, 213, 226, 0.7);
-    margin-bottom: 8px;
-}
-.md-la-tooltip-sub-arrow {
-    color: rgba(178, 213, 226, 0.4);
-    margin: 0 4px;
-}
-
-/* 行レイアウト: ラベル + 値 */
-.md-la-tooltip-row {
-    display: flex;
-    gap: 8px;
-    padding: 2px 0;
-}
-.md-la-tooltip-label {
-    color: rgba(178, 213, 226, 0.7);
-    min-width: 52px;
-    flex-shrink: 0;
-    font-size: 11px;
-}
-.md-la-tooltip-value {
-    color: #E9F1F6;
-    flex: 1;
-    min-width: 0;
-    word-break: break-word;
-}
-.md-la-tooltip-value.is-empty {
-    color: rgba(178, 213, 226, 0.45);
-    font-style: italic;
-}
-
-/* セクションセパレータ (1色維持) */
-.md-la-tooltip-sep {
-    border-top: 1px solid rgba(178, 213, 226, 0.20);
-    margin: 8px 0 6px;
-}
-
-/* 警告バナー (WS衝突) — 同じ背景のまま左に赤アクセント */
-.md-la-tooltip-warn {
-    display: flex;
-    gap: 6px;
-    padding: 6px 0 2px;
-    border-top: 1px solid rgba(178, 213, 226, 0.20);
-    margin-top: 8px;
-    color: #F4C0CF;
-}
-.md-la-tooltip-warn-icon {
-    color: #E88AA5;
-    flex-shrink: 0;
-    font-size: 12px;
-    line-height: 1.4;
-    padding-top: 1px;
-}
-.md-la-tooltip-warn-body {
-    flex: 1;
-    font-size: 11px;
-    line-height: 1.45;
-}
-.md-la-tooltip-warn-body strong {
-    color: #F4C0CF;
-    display: block;
-    font-size: 11px;
-    margin-bottom: 1px;
-    font-weight: var(--fw-bold);
-}
-.md-la-tooltip-warn-body span {
-    color: rgba(244, 192, 207, 0.8);
-}
-
-/* 繰り返しインジケータ */
-.md-la-tooltip-rec {
-    padding: 6px 0 2px;
-    border-top: 1px solid rgba(178, 213, 226, 0.20);
-    margin-top: 8px;
+/* サマリ行: 区分・種別を中黒区切りで端的に表示 */
+.md-la-tooltip-summary {
     font-size: 11px;
     color: rgba(178, 213, 226, 0.85);
-    display: flex;
-    align-items: center;
-    gap: 4px;
+    line-height: 1.4;
 }
 
-/* 監査 */
-.md-la-tooltip-audit {
-    padding: 6px 0 0;
+/* WS衝突警告 (簡潔版): 1行のみ */
+.md-la-tooltip-warn-mini {
+    margin-top: 4px;
+    padding-top: 4px;
     border-top: 1px solid rgba(178, 213, 226, 0.20);
-    margin-top: 8px;
-    font-size: 10px;
-    color: rgba(178, 213, 226, 0.6);
-    display: flex;
-    gap: 4px;
-    align-items: center;
-}
-.md-la-tooltip-audit-icon {
-    color: #C7F1D5;
-    font-weight: var(--fw-bold);
-}
-.md-la-tooltip-audit-icon.is-reject {
+    font-size: 11px;
     color: #F4C0CF;
+    line-height: 1.4;
 }
 
 /* ============================================================
