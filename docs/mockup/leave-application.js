@@ -14,8 +14,9 @@
     // 区分: 「全休」→「休み」に改名 (ユーザー指示)
     var PART = { full: '休み', am: '午前休', pm: '午後休' };
     var STATUS = { pending: '申請中', approved: '承認済', rejected: '却下' };
-    // バッジ内チップ表示用 (午前/午後は「不可」を示す ✖ 付き)
-    var PART_CHIP = { full: '休み', am: '午前✖', pm: '午後✖' };
+    // バッジ内チップ表示用: 半休は「昼/夜 ✖」で時間帯不可を示す。
+    // 休み (全休) は枠全体で「休み」を表現するため別チップ表示なし。
+    var PART_CHIP = { full: null, am: '昼✖', pm: '夜✖' };
     var KIND_CHIP = { paid: '有給', absent: '欠勤', other: '他' };
     var STATUS_CHIP = { pending: '申請', approved: '承認', rejected: '却下' };
 
@@ -1016,19 +1017,25 @@
         b.addEventListener('mouseenter', function (e) { scheduleTooltip(lv, b, e); });
         b.addEventListener('mouseleave', cancelTooltip);
 
+        // 区分が半休 (午前/午後) のときのみオーバーレイチップを表示
+        // 休み (全休) は別チップ無し (バッジ自体が「休み」を表現)
+        if (PART_CHIP[lv.partition]) {
+            b.classList.add('has-part-overlay');
+            var partOverlay = document.createElement('span');
+            partOverlay.className = 'md-la-badge-part-overlay part-' + lv.partition;
+            partOverlay.textContent = PART_CHIP[lv.partition];
+            b.appendChild(partOverlay);
+        }
+
         // 上段: 氏名 (surname 略称)
         var nameRow = document.createElement('span');
         nameRow.className = 'md-la-badge-name-row';
         nameRow.textContent = emp.name;
         b.appendChild(nameRow);
 
-        // 下段: 区分 / 種別 / ステータスのチップを横並び
+        // 下段: 種別 / ステータスのチップを縦並び (区分は上記オーバーレイで表示)
         var chips = document.createElement('span');
         chips.className = 'md-la-badge-chips';
-        var partChip = document.createElement('span');
-        partChip.className = 'md-la-badge-chip part-' + lv.partition;
-        partChip.textContent = PART_CHIP[lv.partition];
-        chips.appendChild(partChip);
         var kindChip = document.createElement('span');
         kindChip.className = 'md-la-badge-chip kind-' + lv.kind;
         kindChip.textContent = KIND_CHIP[lv.kind];

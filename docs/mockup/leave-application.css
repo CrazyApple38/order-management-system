@@ -408,10 +408,38 @@ body {
     color: var(--text-primary);
 }
 
-/* 区分チップ: 休み / 午前 / 午後 */
-.md-la-badge-chip.part-full { background: #8BAEB9; color: #fff; }
+/* 区分チップ (オーバーレイ用、part-full は使わず非表示) */
 .md-la-badge-chip.part-am   { background: #5AB8C6; color: #fff; }
 .md-la-badge-chip.part-pm   { background: #C7A173; color: #fff; }
+
+/* 半休オーバーレイ: バッジ上端の枠線に重ねるピン留めタグ */
+.md-la-badge-part-overlay {
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    height: 14px;
+    border-radius: 7px;
+    font-size: 9px;
+    font-weight: var(--fw-bold);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    white-space: nowrap;
+    pointer-events: none;
+}
+.md-la-badge-part-overlay.part-am { background: #5AB8C6; color: #fff; }
+.md-la-badge-part-overlay.part-pm { background: #C7A173; color: #fff; }
+
+/* オーバーレイがある場合は上余白を増やしてチップ分のスペースを確保 */
+.md-la-badge.has-part-overlay {
+    padding-top: 9px;
+}
 
 /* 種別チップ: 有給 / 欠勤 / 他 */
 .md-la-badge-chip.kind-paid   { background: #1c4d54; color: #fff; }
