@@ -381,21 +381,23 @@ body {
     text-overflow: ellipsis;
 }
 
-/* 下段: チップ3つを横並び */
+/* 下段: チップ3つを縦並びスタック */
 .md-la-badge-chips {
     display: inline-flex;
+    flex-direction: column;
     gap: 2px;
-    align-items: center;
+    align-items: stretch;
+    width: 100%;
 }
 
-/* 区分・種別・ステータスのチップ (2文字, 12-13px 高) */
+/* 区分・種別・ステータスのチップ (縦並び、2-3文字、14px 高) */
 .md-la-badge-chip {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0 3px;
-    min-width: 20px;
-    height: 13px;
+    padding: 0 4px;
+    min-width: 32px;
+    height: 14px;
     border-radius: 2px;
     font-size: 9px;
     font-weight: var(--fw-bold);

@@ -14,8 +14,8 @@
     // 区分: 「全休」→「休み」に改名 (ユーザー指示)
     var PART = { full: '休み', am: '午前休', pm: '午後休' };
     var STATUS = { pending: '申請中', approved: '承認済', rejected: '却下' };
-    // バッジ内チップ表示用 (2文字目安)
-    var PART_CHIP = { full: '休み', am: '午前', pm: '午後' };
+    // バッジ内チップ表示用 (午前/午後は「不可」を示す ✖ 付き)
+    var PART_CHIP = { full: '休み', am: '午前✖', pm: '午後✖' };
     var KIND_CHIP = { paid: '有給', absent: '欠勤', other: '他' };
     var STATUS_CHIP = { pending: '申請', approved: '承認', rejected: '却下' };
 
