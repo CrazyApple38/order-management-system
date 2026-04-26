@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>変更通知UI 比較プレビュー</title>
+    <link rel="stylesheet" href="../mockup/co-tokens.css">
+    <link rel="stylesheet" href="../mockup/co-shared-badges.css">
+    <link rel="stylesheet" href="notify-compare.css">
+</head>
+<body>
+    <header class="cmp-header">
+        <h1>変更通知UI 比較プレビュー</h1>
+        <p class="cmp-subtitle">
+            LA通知パネル（左端）を参照源として、SL / OB / QA / 共通ナビ の現状CN UIを並列展示。
+            視覚的すり合わせ用。確定後に co-notify-panel.css へ統合する。
+        </p>
+        <div class="cmp-modes">
+            <button class="cmp-mode-btn is-active" data-mode="before">現状 (Before)</button>
+            <button class="cmp-mode-btn" data-mode="after">統合案 (After) — 順次実装</button>
+        </div>
+    </header>
+
+    <main class="cmp-grid" id="cmpBefore">
+        <!-- ========== LA: 参照源 ========== -->
+        <section class="cmp-card cmp-card--reference">
+            <div class="cmp-card-head">
+                <span class="cmp-tag cmp-tag--ref">参照源</span>
+                <h2>LA — 通知パネル (md-la-notify-panel)</h2>
+                <small>右上展開のドロップダウンパネル / 軽量・コンパクト</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-frame cmp-frame--la">
+                    <div class="cmp-mock-la-panel">
+                        <div class="cmp-mock-la-head">
+                            <span class="cmp-mock-la-title">通知</span>
+                            <button class="cmp-mock-la-mark-all">すべて既読にする</button>
+                        </div>
+                        <div class="cmp-mock-la-body">
+                            <div class="cmp-mock-la-item is-unread">
+                                <div class="cmp-mock-la-icon type-approved">✓</div>
+                                <div class="cmp-mock-la-text">
+                                    <div class="cmp-mock-la-text-main">林 の休暇を承認</div>
+                                    <div class="cmp-mock-la-text-sub">2026-04-04 / 有給 ・ 2026-04-26 09:14</div>
+                                </div>
+                            </div>
+                            <div class="cmp-mock-la-item is-unread">
+                                <div class="cmp-mock-la-icon type-new">＋</div>
+                                <div class="cmp-mock-la-text">
+                                    <div class="cmp-mock-la-text-main">清水 から新規申請</div>
+                                    <div class="cmp-mock-la-text-sub">2026-04-08 / 有給 (休み) ・ 2026-04-25 14:01</div>
+                                </div>
+                            </div>
+                            <div class="cmp-mock-la-item is-unread">
+                                <div class="cmp-mock-la-icon type-rejected">✗</div>
+                                <div class="cmp-mock-la-text">
+                                    <div class="cmp-mock-la-text-main">山田 の申請を却下</div>
+                                    <div class="cmp-mock-la-text-sub">2026-04-15 / 有給 (休み) ・ 2026-04-25 13:24</div>
+                                </div>
+                            </div>
+                            <div class="cmp-mock-la-item is-read">
+                                <div class="cmp-mock-la-icon type-new">＋</div>
+                                <div class="cmp-mock-la-text">
+                                    <div class="cmp-mock-la-text-main">小林 から新規申請</div>
+                                    <div class="cmp-mock-la-text-sub">2026-04-27 / 有給 (午前✖) ・ 2026-04-25 11:48</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ 縦リスト・コンパクト</li>
+                    <li>✓ 種別アイコン（緑✓ / 青+ / 赤✗）</li>
+                    <li>✓ 未読ドット（左側）</li>
+                    <li>✓ ヘッダー右に「すべて既読にする」</li>
+                    <li>✗ タブ無し（履歴/最新分けなし）</li>
+                    <li>✗ フィルタ無し</li>
+                    <li>✗ 差分表示無し</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ========== SL: 業務管理計画書 ========== -->
+        <section class="cmp-card">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">画面A</span>
+                <h2>SL — 業務管理計画書 (md-cn-modal)</h2>
+                <small>フルスクリーンモーダル / タイムライン + カード</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-frame cmp-frame--modal">
+                    <div class="cmp-mock-sl-modal">
+                        <div class="cmp-mock-sl-head">
+                            <span class="cmp-mock-sl-title">変更通知</span>
+                            <button class="cmp-mock-sl-close">×</button>
+                        </div>
+                        <div class="cmp-mock-sl-tabs">
+                            <button class="cmp-mock-sl-tab is-active">最新</button>
+                            <button class="cmp-mock-sl-tab">タイムライン</button>
+                            <button class="cmp-mock-sl-tab">未承認</button>
+                        </div>
+                        <div class="cmp-mock-sl-body">
+                            <div class="cmp-mock-sl-tl">
+                                <div class="cmp-mock-sl-tl-item type-modify">
+                                    <div class="cmp-mock-sl-tl-time">14:23</div>
+                                    <div class="cmp-mock-sl-tl-user">山田太郎</div>
+                                    <div class="cmp-mock-sl-tl-msg">配置を変更しました</div>
+                                </div>
+                                <div class="cmp-mock-sl-tl-item type-add">
+                                    <div class="cmp-mock-sl-tl-time">13:51</div>
+                                    <div class="cmp-mock-sl-tl-user">佐藤次郎</div>
+                                    <div class="cmp-mock-sl-tl-msg">新規現場を追加しました</div>
+                                </div>
+                                <div class="cmp-mock-sl-tl-item type-delete">
+                                    <div class="cmp-mock-sl-tl-time">11:07</div>
+                                    <div class="cmp-mock-sl-tl-user">鈴木花子</div>
+                                    <div class="cmp-mock-sl-tl-msg">配置を削除しました</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ タブ（最新 / タイムライン / 未承認）</li>
+                    <li>✓ 縦線タイムライン演出</li>
+                    <li>✓ 種別ドット（add / modify / delete）</li>
+                    <li>✗ フィルタ無し（全件表示）</li>
+                    <li>✗ ユーザー検索無し</li>
+                    <li>✗ 未読ドット無し</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ========== OB: 受注簿 ========== -->
+        <section class="cmp-card">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">画面B</span>
+                <h2>OB — 受注簿 (md-cn-modal)</h2>
+                <small>フルスクリーンモーダル / 差分表示 + フィルタ</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-frame cmp-frame--modal">
+                    <div class="cmp-mock-ob-modal">
+                        <div class="cmp-mock-ob-head">
+                            <span class="cmp-mock-ob-title">変更通知</span>
+                            <button class="cmp-mock-ob-close">×</button>
+                        </div>
+                        <div class="cmp-mock-ob-tabs">
+                            <button class="cmp-mock-ob-tab is-active">最新</button>
+                            <button class="cmp-mock-ob-tab">履歴</button>
+                        </div>
+                        <div class="cmp-mock-ob-filters">
+                            <select class="cmp-mock-ob-filter">
+                                <option>すべての業務</option>
+                                <option>受注予定</option>
+                                <option>実績</option>
+                            </select>
+                        </div>
+                        <div class="cmp-mock-ob-body">
+                            <div class="cmp-mock-ob-card type-modify">
+                                <div class="cmp-mock-ob-card-head">
+                                    <span class="cmp-mock-ob-card-user">山田太郎</span>
+                                    <span class="cmp-mock-ob-card-time">2026-04-26 14:23</span>
+                                </div>
+                                <div class="cmp-mock-ob-card-body">時刻を変更</div>
+                                <div class="cmp-mock-ob-diff">
+                                    <span class="diff-from">08:00</span>
+                                    <span class="diff-arrow">→</span>
+                                    <span class="diff-to">09:00</span>
+                                </div>
+                            </div>
+                            <div class="cmp-mock-ob-card type-add">
+                                <div class="cmp-mock-ob-card-head">
+                                    <span class="cmp-mock-ob-card-user">佐藤次郎</span>
+                                    <span class="cmp-mock-ob-card-time">2026-04-26 13:51</span>
+                                </div>
+                                <div class="cmp-mock-ob-card-body">受注を新規追加</div>
+                            </div>
+                            <div class="cmp-mock-ob-card type-delete">
+                                <div class="cmp-mock-ob-card-head">
+                                    <span class="cmp-mock-ob-card-user">鈴木花子</span>
+                                    <span class="cmp-mock-ob-card-time">2026-04-26 11:07</span>
+                                </div>
+                                <div class="cmp-mock-ob-card-body">受注を削除</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ タブ（最新 / 履歴）</li>
+                    <li>✓ 業務フィルタ（select）</li>
+                    <li>✓ 差分表示（before → after）</li>
+                    <li>✓ 種別カラー帯（add / modify / delete）</li>
+                    <li>✗ ユーザー検索無し</li>
+                    <li>✗ 未読ドット無し</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ========== QA: モバイル ========== -->
+        <section class="cmp-card">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">モバイル</span>
+                <h2>QA — Quick Access (qa-cn-modal)</h2>
+                <small>モバイル特化フルスクリーンモーダル / OBと同等構造</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-frame cmp-frame--mobile">
+                    <div class="cmp-mock-qa-modal">
+                        <div class="cmp-mock-qa-head">
+                            <span class="cmp-mock-qa-title">変更通知</span>
+                            <button class="cmp-mock-qa-close">×</button>
+                        </div>
+                        <div class="cmp-mock-qa-tabs">
+                            <button class="cmp-mock-qa-tab is-active">最新</button>
+                            <button class="cmp-mock-qa-tab">履歴</button>
+                        </div>
+                        <div class="cmp-mock-qa-body">
+                            <div class="cmp-mock-qa-card type-modify">
+                                <div class="cmp-mock-qa-card-head">山田太郎 ・ 14:23</div>
+                                <div class="cmp-mock-qa-card-body">時刻変更 08:00 → 09:00</div>
+                            </div>
+                            <div class="cmp-mock-qa-card type-add">
+                                <div class="cmp-mock-qa-card-head">佐藤次郎 ・ 13:51</div>
+                                <div class="cmp-mock-qa-card-body">受注を追加</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ タブ（最新 / 履歴）</li>
+                    <li>✓ 種別カラー帯</li>
+                    <li>✓ モバイル幅最適化</li>
+                    <li>✗ ユーザー検索無し</li>
+                    <li>✗ 未読ドット無し</li>
+                    <li>✗ 差分表示は1行に圧縮</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ========== 共通ナビ ========== -->
+        <section class="cmp-card">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">共通ナビ</span>
+                <h2>NAV — グローバル通知 (md-nav-cn-modal)</h2>
+                <small>全画面横断 / 小型モーダル / type別アイコン</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-frame cmp-frame--modal">
+                    <div class="cmp-mock-nav-modal">
+                        <div class="cmp-mock-nav-head">
+                            <span class="cmp-mock-nav-title">グローバル通知</span>
+                            <button class="cmp-mock-nav-close">×</button>
+                        </div>
+                        <div class="cmp-mock-nav-body">
+                            <div class="cmp-mock-nav-item type-master">
+                                <div class="cmp-mock-nav-icon">⚙</div>
+                                <div class="cmp-mock-nav-text">
+                                    <div class="cmp-mock-nav-text-main">マスタ更新: 社員追加</div>
+                                    <div class="cmp-mock-nav-text-sub">経理部・10:00</div>
+                                </div>
+                            </div>
+                            <div class="cmp-mock-nav-item type-leave">
+                                <div class="cmp-mock-nav-icon">🏖</div>
+                                <div class="cmp-mock-nav-text">
+                                    <div class="cmp-mock-nav-text-main">休暇申請が承認待ち</div>
+                                    <div class="cmp-mock-nav-text-sub">林・3件</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ 種別アイコン（master / leave）</li>
+                    <li>✓ 軽量シンプル構成</li>
+                    <li>✗ タブ無し</li>
+                    <li>✗ フィルタ無し</li>
+                    <li>✗ 未読ドット無し</li>
+                    <li>✗ 差分表示無し</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <main class="cmp-grid cmp-hidden" id="cmpAfter">
+        <section class="cmp-card cmp-card--placeholder">
+            <h2>統合案 (After) は次フェーズで構築</h2>
+            <p>
+                Before セクションでの視覚すり合わせ後、co-notify-panel.css を作成し、
+                各画面の現状CSSを置き換えた状態をここに展開します。
+            </p>
+            <ol>
+                <li>LA通知パネルベース + 「最新 / 履歴」タブ追加</li>
+                <li>履歴タブに type複数選択 OR フィルタ + 操作者/対象者切替検索</li>
+                <li>差分はアコーディオン展開（クリックで開閉）</li>
+                <li>各画面に独自タグフィルタ（業務種別など、画面固有）</li>
+                <li>未読ドット + 「すべて既読」全画面共通</li>
+                <li>行クリックで該当セルへスクロール + ハイライト全画面共通</li>
+            </ol>
+        </section>
+    </main>
+
+    <script src="notify-compare.js"></script>
+</body>
+</html>
