@@ -150,7 +150,7 @@
                             <button class="cmp-mock-ob-tab">履歴</button>
                         </div>
                         <div class="cmp-mock-ob-filters">
-                            <select class="cmp-mock-ob-filter">
+                            <select class="cmp-mock-ob-filter" title="業務フィルタ" aria-label="業務フィルタ">
                                 <option>すべての業務</option>
                                 <option>受注予定</option>
                                 <option>実績</option>
@@ -283,20 +283,276 @@
     </main>
 
     <main class="cmp-grid cmp-hidden" id="cmpAfter">
-        <section class="cmp-card cmp-card--placeholder">
-            <h2>統合案 (After) は次フェーズで構築</h2>
-            <p>
-                Before セクションでの視覚すり合わせ後、co-notify-panel.css を作成し、
-                各画面の現状CSSを置き換えた状態をここに展開します。
-            </p>
-            <ol>
-                <li>LA通知パネルベース + 「最新 / 履歴」タブ追加</li>
-                <li>履歴タブに type複数選択 OR フィルタ + 操作者/対象者切替検索</li>
-                <li>差分はアコーディオン展開（クリックで開閉）</li>
-                <li>各画面に独自タグフィルタ（業務種別など、画面固有）</li>
-                <li>未読ドット + 「すべて既読」全画面共通</li>
-                <li>行クリックで該当セルへスクロール + ハイライト全画面共通</li>
-            </ol>
+        <!-- ========== LA: 参照源 (After も同じ) ========== -->
+        <section class="cmp-card cmp-card--reference">
+            <div class="cmp-card-head">
+                <span class="cmp-tag cmp-tag--ref">参照源</span>
+                <h2>LA — 通知パネル (基準)</h2>
+                <small>変化なし。SL/OB/QA をこの形式に揃える</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-frame cmp-frame--la">
+                    <div class="cn-panel">
+                        <div class="cn-head">
+                            <span class="cn-title">通知</span>
+                            <button class="cn-mark-all">すべて既読にする</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button class="cn-tab is-active">最新</button>
+                            <button class="cn-tab">履歴</button>
+                        </div>
+                        <div class="cn-body">
+                            <div class="cn-item is-unread type-approved">
+                                <div class="cn-item-row">
+                                    <div class="cn-icon type-approved">✓</div>
+                                    <div class="cn-text">
+                                        <div class="cn-text-main">林 の休暇を承認</div>
+                                        <div class="cn-text-sub">山田太郎 ・ 04-26 09:14</div>
+                                    </div>
+                                    <span class="cn-chevron">▾</span>
+                                </div>
+                            </div>
+                            <div class="cn-item is-unread type-new">
+                                <div class="cn-item-row">
+                                    <div class="cn-icon type-new">＋</div>
+                                    <div class="cn-text">
+                                        <div class="cn-text-main">清水 から新規申請</div>
+                                        <div class="cn-text-sub">清水 ・ 04-25 14:01</div>
+                                    </div>
+                                    <span class="cn-chevron">▾</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ LA はベース・変化なし</li>
+                    <li>✓ 種別アイコン: 青＋ / 緑✓ / 赤✕</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ========== SL (After) ========== -->
+        <section class="cmp-card">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">画面A</span>
+                <h2>SL — 業務管理計画書 (統合後)</h2>
+                <small>「最新/履歴」2タブに統一 / アコーディオン + ジャンプボタン</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-frame cmp-frame--la">
+                    <div class="cn-panel">
+                        <div class="cn-head">
+                            <span class="cn-title">変更通知</span>
+                            <button class="cn-mark-all">すべて既読にする</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button class="cn-tab is-active">最新</button>
+                            <button class="cn-tab">履歴</button>
+                        </div>
+                        <div class="cn-body">
+                            <!-- 未読・新規追加 -->
+                            <div class="cn-item is-unread type-add">
+                                <div class="cn-item-row">
+                                    <div class="cn-icon type-add">＋</div>
+                                    <div class="cn-text">
+                                        <div class="cn-text-main">〇〇株式会社/〇〇ビル</div>
+                                        <div class="cn-text-sub">山田太郎 ・ 04-26 14:23</div>
+                                    </div>
+                                    <span class="cn-chevron">▾</span>
+                                </div>
+                            </div>
+                            <!-- 未読・変更・展開済み (デモ) -->
+                            <div class="cn-item is-unread type-modify is-expanded">
+                                <div class="cn-item-row">
+                                    <div class="cn-icon type-modify">✎</div>
+                                    <div class="cn-text">
+                                        <div class="cn-text-main">△△建設/△△マンション</div>
+                                        <div class="cn-text-sub">佐藤次郎 ・ 04-26 13:51</div>
+                                    </div>
+                                    <span class="cn-chevron">▴</span>
+                                </div>
+                                <div class="cn-expand">
+                                    <div class="cn-diff-label">配置を変更</div>
+                                    <div class="cn-diff-line">
+                                        <span class="cn-diff-from">山田太郎・佐藤次郎</span>
+                                        <span class="cn-diff-arrow">→</span>
+                                        <span class="cn-diff-to">山田太郎・鈴木花子</span>
+                                    </div>
+                                    <button class="cn-jump-btn">このセルへジャンプ</button>
+                                </div>
+                            </div>
+                            <!-- 既読・削除 -->
+                            <div class="cn-item is-read type-delete">
+                                <div class="cn-item-row">
+                                    <div class="cn-icon type-delete">✕</div>
+                                    <div class="cn-text">
+                                        <div class="cn-text-main">◇◇工業/国道1号線</div>
+                                        <div class="cn-text-sub">鈴木花子 ・ 04-26 11:07</div>
+                                    </div>
+                                    <span class="cn-chevron">▾</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ タイムライン廃止 → LA同形リスト</li>
+                    <li>✓ 1行目: 契約先/現場名</li>
+                    <li>✓ 2行目: 操作者 ・ 日時</li>
+                    <li>✓ 展開で差分表示 + ジャンプボタン</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ========== OB (After) ========== -->
+        <section class="cmp-card">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">画面B</span>
+                <h2>OB — 受注簿 (統合後)</h2>
+                <small>1行目末尾に対象日付チップ追加 / 業務フィルタは履歴タブへ</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-frame cmp-frame--la">
+                    <div class="cn-panel">
+                        <div class="cn-head">
+                            <span class="cn-title">変更通知</span>
+                            <button class="cn-mark-all">すべて既読にする</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button class="cn-tab is-active">最新</button>
+                            <button class="cn-tab">履歴</button>
+                        </div>
+                        <div class="cn-body">
+                            <!-- 未読・変更・展開済み (差分表示デモ) -->
+                            <div class="cn-item is-unread type-modify is-expanded">
+                                <div class="cn-item-row">
+                                    <div class="cn-icon type-modify">✎</div>
+                                    <div class="cn-text">
+                                        <div class="cn-text-main">
+                                            〇〇株式会社/〇〇ビル
+                                            <span class="cn-date-chip">4/26</span>
+                                        </div>
+                                        <div class="cn-text-sub">山田太郎 ・ 04-26 14:23</div>
+                                    </div>
+                                    <span class="cn-chevron">▴</span>
+                                </div>
+                                <div class="cn-expand">
+                                    <div class="cn-diff-label">集合時刻を変更</div>
+                                    <div class="cn-diff-line">
+                                        <span class="cn-diff-from">08:00</span>
+                                        <span class="cn-diff-arrow">→</span>
+                                        <span class="cn-diff-to">09:00</span>
+                                    </div>
+                                    <button class="cn-jump-btn">このセルへジャンプ</button>
+                                </div>
+                            </div>
+                            <!-- 未読・新規追加 -->
+                            <div class="cn-item is-unread type-add">
+                                <div class="cn-item-row">
+                                    <div class="cn-icon type-add">＋</div>
+                                    <div class="cn-text">
+                                        <div class="cn-text-main">
+                                            △△建設/△△マンション
+                                            <span class="cn-date-chip">4/27</span>
+                                        </div>
+                                        <div class="cn-text-sub">佐藤次郎 ・ 04-26 13:51</div>
+                                    </div>
+                                    <span class="cn-chevron">▾</span>
+                                </div>
+                            </div>
+                            <!-- 既読・削除 -->
+                            <div class="cn-item is-read type-delete">
+                                <div class="cn-item-row">
+                                    <div class="cn-icon type-delete">✕</div>
+                                    <div class="cn-text">
+                                        <div class="cn-text-main">
+                                            ◇◇工業/国道1号線
+                                            <span class="cn-date-chip">4/25</span>
+                                        </div>
+                                        <div class="cn-text-sub">鈴木花子 ・ 04-26 11:07</div>
+                                    </div>
+                                    <span class="cn-chevron">▾</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ LAベース + 1行目に対象日付チップ</li>
+                    <li>✓ 差分 (08:00 → 09:00) はアコーディオン内</li>
+                    <li>✓ 業務フィルタは履歴タブへ移動</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ========== QA (After) ========== -->
+        <section class="cmp-card">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">モバイル</span>
+                <h2>QA — Quick Access (統合後)</h2>
+                <small>OB と同構造 / モバイル幅最適化</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-frame cmp-frame--mobile">
+                    <div class="cn-panel cn-panel--mobile">
+                        <div class="cn-head">
+                            <span class="cn-title">変更通知</span>
+                            <button class="cn-mark-all">既読</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button class="cn-tab is-active">最新</button>
+                            <button class="cn-tab">履歴</button>
+                        </div>
+                        <div class="cn-body">
+                            <div class="cn-item is-unread type-modify">
+                                <div class="cn-item-row">
+                                    <div class="cn-icon type-modify">✎</div>
+                                    <div class="cn-text">
+                                        <div class="cn-text-main">
+                                            〇〇株式会社/〇〇ビル
+                                            <span class="cn-date-chip">4/26</span>
+                                        </div>
+                                        <div class="cn-text-sub">山田太郎 ・ 14:23</div>
+                                    </div>
+                                    <span class="cn-chevron">▾</span>
+                                </div>
+                            </div>
+                            <div class="cn-item is-unread type-add">
+                                <div class="cn-item-row">
+                                    <div class="cn-icon type-add">＋</div>
+                                    <div class="cn-text">
+                                        <div class="cn-text-main">
+                                            △△建設/△△マンション
+                                            <span class="cn-date-chip">4/27</span>
+                                        </div>
+                                        <div class="cn-text-sub">佐藤次郎 ・ 13:51</div>
+                                    </div>
+                                    <span class="cn-chevron">▾</span>
+                                </div>
+                            </div>
+                            <div class="cn-item is-read type-delete">
+                                <div class="cn-item-row">
+                                    <div class="cn-icon type-delete">✕</div>
+                                    <div class="cn-text">
+                                        <div class="cn-text-main">
+                                            ◇◇工業/国道1号線
+                                            <span class="cn-date-chip">4/25</span>
+                                        </div>
+                                        <div class="cn-text-sub">鈴木花子 ・ 11:07</div>
+                                    </div>
+                                    <span class="cn-chevron">▾</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ OBと同構造で一貫性</li>
+                    <li>✓ パネル幅280px、テキスト密度高め</li>
+                    <li>✓ 「すべて既読」→「既読」(短縮)</li>
+                </ul>
+            </div>
         </section>
     </main>
 

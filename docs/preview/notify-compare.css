@@ -522,3 +522,227 @@ body {
 }
 .cmp-mock-nav-text-main { font-size: 12px; color: var(--text-primary); font-weight: 500; }
 .cmp-mock-nav-text-sub { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
+
+/* ============================================================
+   統合後 (After) — 共通デザイン .cn-* (将来 co-notify-panel.css へ抽出)
+   LA通知パネルベース + タブ + アコーディオン + ジャンプボタン
+   ============================================================ */
+.cn-panel {
+    width: 320px;
+    max-width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-md);
+    box-shadow: var(--elevation-4);
+    overflow: hidden;
+    font-size: 12px;
+}
+.cn-panel--mobile { width: 280px; }
+
+/* ヘッダー */
+.cn-head {
+    padding: 8px 12px;
+    background: var(--bg-surface-2);
+    border-bottom: 1px solid var(--divider);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.cn-title {
+    font-weight: 700;
+    flex: 1;
+    color: var(--text-primary);
+}
+.cn-mark-all {
+    background: transparent;
+    border: none;
+    color: var(--accent-primary);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 4px;
+}
+.cn-mark-all:hover { text-decoration: underline; }
+
+/* タブ */
+.cn-tabs {
+    display: flex;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--divider);
+}
+.cn-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 150ms, border-color 150ms;
+}
+.cn-tab:hover { color: var(--text-primary); }
+.cn-tab.is-active {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+}
+
+/* ボディ */
+.cn-body {
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+/* アイテム（コンテナ） */
+.cn-item {
+    border-bottom: 1px solid var(--divider);
+    cursor: pointer;
+    transition: background 150ms;
+    position: relative;
+}
+.cn-item:hover { background: var(--bg-surface-2); }
+.cn-item.is-unread { background: rgba(68, 166, 181, 0.06); }
+.cn-item.is-unread:hover { background: rgba(68, 166, 181, 0.12); }
+
+/* 行レイアウト */
+.cn-item-row {
+    display: flex;
+    gap: 10px;
+    padding: 10px 12px;
+    align-items: flex-start;
+}
+.cn-item.is-unread::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 16px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+}
+
+/* アクション種別アイコン */
+.cn-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+    line-height: 1;
+}
+.cn-icon.type-add      { background: var(--accent-primary); }      /* 青 + 新規 */
+.cn-icon.type-modify   { background: var(--accent-secondary); }    /* 橙 ✎ 変更 */
+.cn-icon.type-delete   { background: var(--semantic-error); }      /* 赤 ✕ 削除 */
+.cn-icon.type-new      { background: var(--accent-primary); }      /* LA互換: 新規 */
+.cn-icon.type-approved { background: var(--semantic-success); }    /* LA互換: 承認 */
+.cn-icon.type-rejected { background: var(--semantic-error); }      /* LA互換: 却下 */
+
+/* テキスト部 */
+.cn-text {
+    flex: 1;
+    min-width: 0;
+}
+.cn-text-main {
+    color: var(--text-primary);
+    font-weight: 500;
+    line-height: 1.4;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.cn-text-sub {
+    color: var(--text-tertiary);
+    font-size: 10px;
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* 1行目末尾の対象日付チップ (OB用) */
+.cn-date-chip {
+    display: inline-block;
+    padding: 1px 6px;
+    background: var(--bg-surface-3);
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 8px;
+    letter-spacing: 0.02em;
+}
+
+/* 折り畳み矢印 */
+.cn-chevron {
+    color: var(--text-tertiary);
+    font-size: 11px;
+    margin-top: 6px;
+    flex-shrink: 0;
+    transition: transform 150ms;
+}
+.cn-item.is-expanded .cn-chevron {
+    color: var(--text-primary);
+}
+
+/* アコーディオン展開エリア */
+.cn-expand {
+    padding: 0 12px 12px 50px;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    border-top: 1px dashed var(--divider);
+    margin: 0 12px;
+    padding-top: 8px;
+}
+.cn-item.is-expanded .cn-expand { display: flex; }
+
+.cn-diff-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    letter-spacing: 0.04em;
+}
+.cn-diff-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    flex-wrap: wrap;
+}
+.cn-diff-from {
+    color: var(--text-tertiary);
+    text-decoration: line-through;
+}
+.cn-diff-arrow {
+    color: var(--text-tertiary);
+}
+.cn-diff-to {
+    color: var(--accent-primary);
+    font-weight: 600;
+}
+
+/* ジャンプボタン */
+.cn-jump-btn {
+    margin-top: 4px;
+    align-self: flex-start;
+    padding: 5px 12px;
+    background: var(--accent-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms;
+}
+.cn-jump-btn:hover { background: var(--accent-primary-light); }
+.cn-jump-btn::before {
+    content: '↗ ';
+    margin-right: 2px;
+}
