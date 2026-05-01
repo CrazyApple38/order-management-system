@@ -17,7 +17,8 @@
         </p>
         <div class="cmp-modes">
             <button class="cmp-mode-btn is-active" data-mode="before">現状 (Before)</button>
-            <button class="cmp-mode-btn" data-mode="after">統合案 (After) — 順次実装</button>
+            <button class="cmp-mode-btn" data-mode="after">統合案 (After)</button>
+            <button class="cmp-mode-btn" data-mode="history">履歴タブ案</button>
         </div>
     </header>
 
@@ -301,25 +302,51 @@
                             <button class="cn-tab is-active">最新</button>
                             <button class="cn-tab">履歴</button>
                         </div>
-                        <div class="cn-body">
-                            <div class="cn-item is-unread type-approved">
-                                <div class="cn-item-row">
-                                    <div class="cn-icon type-approved">✓</div>
-                                    <div class="cn-text">
-                                        <div class="cn-text-main">林 の休暇を承認</div>
-                                        <div class="cn-text-sub">山田太郎 ・ 04-26 09:14</div>
+                        <div class="cn-body cn-body--latest">
+                            <div class="cn-date-group">
+                                <div class="cn-date-group-head">今日 (4/26)</div>
+                                <div class="cn-item is-unread type-approved">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-approved">✓</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">林 の休暇を承認</div>
+                                            <div class="cn-text-sub">山田太郎 ・ 09:14</div>
+                                        </div>
+                                        <span class="cn-chevron">▾</span>
                                     </div>
-                                    <span class="cn-chevron">▾</span>
+                                </div>
+                                <div class="cn-item is-unread type-rejected">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-rejected">✕</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">山田 の申請を却下</div>
+                                            <div class="cn-text-sub">山田太郎 ・ 13:24</div>
+                                        </div>
+                                        <span class="cn-chevron">▾</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="cn-item is-unread type-new">
-                                <div class="cn-item-row">
-                                    <div class="cn-icon type-new">＋</div>
-                                    <div class="cn-text">
-                                        <div class="cn-text-main">清水 から新規申請</div>
-                                        <div class="cn-text-sub">清水 ・ 04-25 14:01</div>
+                            <div class="cn-date-group">
+                                <div class="cn-date-group-head">昨日 (4/25)</div>
+                                <div class="cn-item is-unread type-new">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-new">＋</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">清水 から新規申請</div>
+                                            <div class="cn-text-sub">清水 ・ 14:01</div>
+                                        </div>
+                                        <span class="cn-chevron">▾</span>
                                     </div>
-                                    <span class="cn-chevron">▾</span>
+                                </div>
+                                <div class="cn-item is-read type-new">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-new">＋</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">小林 から新規申請</div>
+                                            <div class="cn-text-sub">小林 ・ 11:48</div>
+                                        </div>
+                                        <span class="cn-chevron">▾</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -328,6 +355,7 @@
                 <ul class="cmp-feature-list">
                     <li>✓ LA はベース・変化なし</li>
                     <li>✓ 種別アイコン: 青＋ / 緑✓ / 赤✕</li>
+                    <li>✓ 最新タブ: 「今日/昨日」日付グルーピング</li>
                 </ul>
             </div>
         </section>
@@ -350,47 +378,61 @@
                             <button class="cn-tab is-active">最新</button>
                             <button class="cn-tab">履歴</button>
                         </div>
-                        <div class="cn-body">
-                            <!-- 未読・新規追加 -->
-                            <div class="cn-item is-unread type-add">
-                                <div class="cn-item-row">
-                                    <div class="cn-icon type-add">＋</div>
-                                    <div class="cn-text">
-                                        <div class="cn-text-main">〇〇株式会社/〇〇ビル</div>
-                                        <div class="cn-text-sub">山田太郎 ・ 04-26 14:23</div>
+                        <div class="cn-body cn-body--latest">
+                            <div class="cn-date-group">
+                                <div class="cn-date-group-head">今日 (4/26)</div>
+                                <!-- 未読・新規追加 (アコーディオン無・直接ジャンプ) -->
+                                <div class="cn-item is-unread type-add">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-add">＋</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">〇〇株式会社/〇〇ビル</div>
+                                            <div class="cn-text-sub">山田太郎 ・ 14:23</div>
+                                        </div>
                                     </div>
-                                    <span class="cn-chevron">▾</span>
+                                </div>
+                                <!-- 未読・変更・展開済み (デモ) -->
+                                <div class="cn-item is-unread type-modify is-expanded">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-modify">✎</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">△△建設/△△マンション</div>
+                                            <div class="cn-text-sub">佐藤次郎 ・ 13:51</div>
+                                        </div>
+                                        <span class="cn-chevron">▴</span>
+                                    </div>
+                                    <div class="cn-expand">
+                                        <div class="cn-diff-label">配置を変更</div>
+                                        <div class="cn-diff-line">
+                                            <span class="cn-diff-from">山田太郎・佐藤次郎</span>
+                                            <span class="cn-diff-arrow">→</span>
+                                            <span class="cn-diff-to">山田太郎・鈴木花子</span>
+                                        </div>
+                                        <button class="cn-jump-btn">このセルへジャンプ</button>
+                                    </div>
+                                </div>
+                                <!-- 既読・削除 -->
+                                <div class="cn-item is-read type-delete">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-delete">✕</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">◇◇工業/国道1号線</div>
+                                            <div class="cn-text-sub">鈴木花子 ・ 11:07</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <!-- 未読・変更・展開済み (デモ) -->
-                            <div class="cn-item is-unread type-modify is-expanded">
-                                <div class="cn-item-row">
-                                    <div class="cn-icon type-modify">✎</div>
-                                    <div class="cn-text">
-                                        <div class="cn-text-main">△△建設/△△マンション</div>
-                                        <div class="cn-text-sub">佐藤次郎 ・ 04-26 13:51</div>
+                            <div class="cn-date-group">
+                                <div class="cn-date-group-head">昨日 (4/25)</div>
+                                <div class="cn-item is-read type-modify">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-modify">✎</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">◯◯商事/旧サイト</div>
+                                            <div class="cn-text-sub">山田太郎 ・ 17:40</div>
+                                        </div>
+                                        <span class="cn-chevron">▾</span>
                                     </div>
-                                    <span class="cn-chevron">▴</span>
-                                </div>
-                                <div class="cn-expand">
-                                    <div class="cn-diff-label">配置を変更</div>
-                                    <div class="cn-diff-line">
-                                        <span class="cn-diff-from">山田太郎・佐藤次郎</span>
-                                        <span class="cn-diff-arrow">→</span>
-                                        <span class="cn-diff-to">山田太郎・鈴木花子</span>
-                                    </div>
-                                    <button class="cn-jump-btn">このセルへジャンプ</button>
-                                </div>
-                            </div>
-                            <!-- 既読・削除 -->
-                            <div class="cn-item is-read type-delete">
-                                <div class="cn-item-row">
-                                    <div class="cn-icon type-delete">✕</div>
-                                    <div class="cn-text">
-                                        <div class="cn-text-main">◇◇工業/国道1号線</div>
-                                        <div class="cn-text-sub">鈴木花子 ・ 04-26 11:07</div>
-                                    </div>
-                                    <span class="cn-chevron">▾</span>
                                 </div>
                             </div>
                         </div>
@@ -398,9 +440,10 @@
                 </div>
                 <ul class="cmp-feature-list">
                     <li>✓ タイムライン廃止 → LA同形リスト</li>
-                    <li>✓ 1行目: 契約先/現場名</li>
-                    <li>✓ 2行目: 操作者 ・ 日時</li>
-                    <li>✓ 展開で差分表示 + ジャンプボタン</li>
+                    <li>✓ 1行目: 契約先/現場名 / 2行目: 操作者 ・ 時刻</li>
+                    <li>✓ 「今日/昨日」日付グルーピング (件数増対応)</li>
+                    <li>✓ 変更: アコーディオンで差分 + ジャンプボタン</li>
+                    <li>✓ 追加/削除: 行クリックで直接ジャンプ</li>
                 </ul>
             </div>
         </section>
@@ -423,56 +466,73 @@
                             <button class="cn-tab is-active">最新</button>
                             <button class="cn-tab">履歴</button>
                         </div>
-                        <div class="cn-body">
-                            <!-- 未読・変更・展開済み (差分表示デモ) -->
-                            <div class="cn-item is-unread type-modify is-expanded">
-                                <div class="cn-item-row">
-                                    <div class="cn-icon type-modify">✎</div>
-                                    <div class="cn-text">
-                                        <div class="cn-text-main">
-                                            〇〇株式会社/〇〇ビル
-                                            <span class="cn-date-chip">4/26</span>
+                        <div class="cn-body cn-body--latest">
+                            <div class="cn-date-group">
+                                <div class="cn-date-group-head">今日 (4/26)</div>
+                                <!-- 未読・変更・展開済み (差分表示デモ) -->
+                                <div class="cn-item is-unread type-modify is-expanded">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-modify">✎</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">
+                                                〇〇株式会社/〇〇ビル
+                                                <span class="cn-date-chip">4/26</span>
+                                            </div>
+                                            <div class="cn-text-sub">山田太郎 ・ 14:23</div>
                                         </div>
-                                        <div class="cn-text-sub">山田太郎 ・ 04-26 14:23</div>
+                                        <span class="cn-chevron">▴</span>
                                     </div>
-                                    <span class="cn-chevron">▴</span>
+                                    <div class="cn-expand">
+                                        <div class="cn-diff-label">集合時刻を変更</div>
+                                        <div class="cn-diff-line">
+                                            <span class="cn-diff-from">08:00</span>
+                                            <span class="cn-diff-arrow">→</span>
+                                            <span class="cn-diff-to">09:00</span>
+                                        </div>
+                                        <button class="cn-jump-btn">このセルへジャンプ</button>
+                                    </div>
                                 </div>
-                                <div class="cn-expand">
-                                    <div class="cn-diff-label">集合時刻を変更</div>
-                                    <div class="cn-diff-line">
-                                        <span class="cn-diff-from">08:00</span>
-                                        <span class="cn-diff-arrow">→</span>
-                                        <span class="cn-diff-to">09:00</span>
+                                <!-- 未読・新規追加 -->
+                                <div class="cn-item is-unread type-add">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-add">＋</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">
+                                                △△建設/△△マンション
+                                                <span class="cn-date-chip">4/27</span>
+                                            </div>
+                                            <div class="cn-text-sub">佐藤次郎 ・ 13:51</div>
+                                        </div>
                                     </div>
-                                    <button class="cn-jump-btn">このセルへジャンプ</button>
+                                </div>
+                                <!-- 既読・削除 -->
+                                <div class="cn-item is-read type-delete">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-delete">✕</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">
+                                                ◇◇工業/国道1号線
+                                                <span class="cn-date-chip">4/25</span>
+                                            </div>
+                                            <div class="cn-text-sub">鈴木花子 ・ 11:07</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <!-- 未読・新規追加 -->
-                            <div class="cn-item is-unread type-add">
-                                <div class="cn-item-row">
-                                    <div class="cn-icon type-add">＋</div>
-                                    <div class="cn-text">
-                                        <div class="cn-text-main">
-                                            △△建設/△△マンション
-                                            <span class="cn-date-chip">4/27</span>
+                            <div class="cn-date-group">
+                                <div class="cn-date-group-head">昨日 (4/25)</div>
+                                <div class="cn-item is-read type-modify">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-modify">✎</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">
+                                                ◯◯商事/旧サイト
+                                                <span class="cn-date-chip">4/26</span>
+                                            </div>
+                                            <div class="cn-text-sub">山田太郎 ・ 16:55</div>
                                         </div>
-                                        <div class="cn-text-sub">佐藤次郎 ・ 04-26 13:51</div>
+                                        <span class="cn-chevron">▾</span>
                                     </div>
-                                    <span class="cn-chevron">▾</span>
-                                </div>
-                            </div>
-                            <!-- 既読・削除 -->
-                            <div class="cn-item is-read type-delete">
-                                <div class="cn-item-row">
-                                    <div class="cn-icon type-delete">✕</div>
-                                    <div class="cn-text">
-                                        <div class="cn-text-main">
-                                            ◇◇工業/国道1号線
-                                            <span class="cn-date-chip">4/25</span>
-                                        </div>
-                                        <div class="cn-text-sub">鈴木花子 ・ 04-26 11:07</div>
-                                    </div>
-                                    <span class="cn-chevron">▾</span>
                                 </div>
                             </div>
                         </div>
@@ -480,7 +540,9 @@
                 </div>
                 <ul class="cmp-feature-list">
                     <li>✓ LAベース + 1行目に対象日付チップ</li>
-                    <li>✓ 差分 (08:00 → 09:00) はアコーディオン内</li>
+                    <li>✓ 「今日/昨日」日付グルーピング</li>
+                    <li>✓ 変更: アコーディオンで差分 (08:00 → 09:00) + ジャンプボタン</li>
+                    <li>✓ 追加/削除: 行クリックで直接ジャンプ</li>
                     <li>✓ 業務フィルタは履歴タブへ移動</li>
                 </ul>
             </div>
@@ -504,44 +566,61 @@
                             <button class="cn-tab is-active">最新</button>
                             <button class="cn-tab">履歴</button>
                         </div>
-                        <div class="cn-body">
-                            <div class="cn-item is-unread type-modify">
-                                <div class="cn-item-row">
-                                    <div class="cn-icon type-modify">✎</div>
-                                    <div class="cn-text">
-                                        <div class="cn-text-main">
-                                            〇〇株式会社/〇〇ビル
-                                            <span class="cn-date-chip">4/26</span>
+                        <div class="cn-body cn-body--latest">
+                            <div class="cn-date-group">
+                                <div class="cn-date-group-head">今日 (4/26)</div>
+                                <div class="cn-item is-unread type-modify">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-modify">✎</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">
+                                                〇〇株式会社/〇〇ビル
+                                                <span class="cn-date-chip">4/26</span>
+                                            </div>
+                                            <div class="cn-text-sub">山田太郎 ・ 14:23</div>
                                         </div>
-                                        <div class="cn-text-sub">山田太郎 ・ 14:23</div>
+                                        <span class="cn-chevron">▾</span>
                                     </div>
-                                    <span class="cn-chevron">▾</span>
+                                </div>
+                                <div class="cn-item is-unread type-add">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-add">＋</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">
+                                                △△建設/△△マンション
+                                                <span class="cn-date-chip">4/27</span>
+                                            </div>
+                                            <div class="cn-text-sub">佐藤次郎 ・ 13:51</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cn-item is-read type-delete">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-delete">✕</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">
+                                                ◇◇工業/国道1号線
+                                                <span class="cn-date-chip">4/25</span>
+                                            </div>
+                                            <div class="cn-text-sub">鈴木花子 ・ 11:07</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="cn-item is-unread type-add">
-                                <div class="cn-item-row">
-                                    <div class="cn-icon type-add">＋</div>
-                                    <div class="cn-text">
-                                        <div class="cn-text-main">
-                                            △△建設/△△マンション
-                                            <span class="cn-date-chip">4/27</span>
+                            <div class="cn-date-group">
+                                <div class="cn-date-group-head">昨日 (4/25)</div>
+                                <div class="cn-item is-read type-modify">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-modify">✎</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">
+                                                ◯◯商事/旧サイト
+                                                <span class="cn-date-chip">4/26</span>
+                                            </div>
+                                            <div class="cn-text-sub">山田太郎 ・ 16:55</div>
                                         </div>
-                                        <div class="cn-text-sub">佐藤次郎 ・ 13:51</div>
+                                        <span class="cn-chevron">▾</span>
                                     </div>
-                                    <span class="cn-chevron">▾</span>
-                                </div>
-                            </div>
-                            <div class="cn-item is-read type-delete">
-                                <div class="cn-item-row">
-                                    <div class="cn-icon type-delete">✕</div>
-                                    <div class="cn-text">
-                                        <div class="cn-text-main">
-                                            ◇◇工業/国道1号線
-                                            <span class="cn-date-chip">4/25</span>
-                                        </div>
-                                        <div class="cn-text-sub">鈴木花子 ・ 11:07</div>
-                                    </div>
-                                    <span class="cn-chevron">▾</span>
                                 </div>
                             </div>
                         </div>
@@ -550,6 +629,809 @@
                 <ul class="cmp-feature-list">
                     <li>✓ OBと同構造で一貫性</li>
                     <li>✓ パネル幅280px、テキスト密度高め</li>
+                    <li>✓ 「すべて既読」→「既読」(短縮)</li>
+                    <li>✓ 「今日/昨日」日付グルーピング</li>
+                    <li>✓ 追加/削除: 行クリックで直接ジャンプ</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <main class="cmp-grid cmp-hidden" id="cmpHistory">
+        <!-- ========== LA: 履歴タブ ========== -->
+        <section class="cmp-card cmp-card--reference">
+            <div class="cmp-card-head">
+                <span class="cmp-tag cmp-tag--ref">参照源</span>
+                <h2>LA — 通知パネル (履歴タブ)</h2>
+                <small>共通: 検索 + 種別チップ / 固有軸: 申請者プルダウン</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-frame cmp-frame--la">
+                    <div class="cn-panel">
+                        <div class="cn-head">
+                            <span class="cn-title">通知</span>
+                            <button class="cn-mark-all">すべて既読にする</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button class="cn-tab">最新</button>
+                            <button class="cn-tab is-active">履歴</button>
+                        </div>
+                        <div class="cn-history-toolbar">
+                            <div class="cn-search">
+                                <input type="text" placeholder="キーワード検索..." aria-label="キーワード検索">
+                            </div>
+                            <div class="cn-filter-row">
+                                <div class="cn-filter-chips">
+                                    <button class="cn-filter-chip is-active">すべて</button>
+                                    <button class="cn-filter-chip">申請</button>
+                                    <button class="cn-filter-chip">承認</button>
+                                    <button class="cn-filter-chip">却下</button>
+                                </div>
+                                <select class="cn-filter-select" aria-label="申請者">
+                                    <option>申請者: すべて</option>
+                                    <option>林</option>
+                                    <option>清水</option>
+                                    <option>小林</option>
+                                    <option>山田</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="cn-body cn-body--history">
+                            <div class="cn-history-group">
+                                <div class="cn-history-group-head">今日 (4/26)</div>
+                                <div class="cn-item is-read type-approved">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-approved">✓</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">林 の休暇を承認</div>
+                                            <div class="cn-text-sub">山田太郎 ・ 09:14</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cn-item is-read type-rejected">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-rejected">✕</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">山田 の申請を却下</div>
+                                            <div class="cn-text-sub">山田太郎 ・ 13:24</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cn-history-group">
+                                <div class="cn-history-group-head">昨日 (4/25)</div>
+                                <div class="cn-item is-read type-new">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-new">＋</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">清水 から新規申請</div>
+                                            <div class="cn-text-sub">清水 ・ 14:01</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cn-item is-read type-new">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-new">＋</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">小林 から新規申請</div>
+                                            <div class="cn-text-sub">小林 ・ 11:48</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cn-history-group">
+                                <div class="cn-history-group-head">2026-04-24 (金)</div>
+                                <div class="cn-item is-read type-approved">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-approved">✓</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">佐藤 の休暇を承認</div>
+                                            <div class="cn-text-sub">山田太郎 ・ 16:32</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ ヘッダー: キーワード検索</li>
+                    <li>✓ 種別チップ (申請/承認/却下)</li>
+                    <li>✓ 固有軸: 申請者プルダウン</li>
+                    <li>✓ 日付グルーピング (今日/昨日/日付)</li>
+                    <li>✓ 履歴では未読色分けを弱める</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ========== SL: 履歴タブ (縦タブ版) ========== -->
+        <section class="cmp-card">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">画面A</span>
+                <h2>SL — 業務管理計画書 (履歴タブ)</h2>
+                <small>縦タブ「現場 / アカウント」で軸切替・各軸でグルーピング</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-frame cmp-frame--la">
+                    <div class="cn-panel">
+                        <div class="cn-head">
+                            <span class="cn-title">変更通知</span>
+                            <button class="cn-mark-all">すべて既読にする</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button class="cn-tab">最新</button>
+                            <button class="cn-tab is-active">履歴</button>
+                        </div>
+                        <div class="cn-history-layout">
+                            <div class="cn-side-tabs">
+                                <button class="cn-side-tab is-active" data-view="site">現場</button>
+                                <button class="cn-side-tab" data-view="account">アカウント</button>
+                            </div>
+                            <div class="cn-history-main">
+                                <!-- 現場ビュー -->
+                                <div class="cn-history-view is-active" data-view="site">
+                                    <div class="cn-history-toolbar">
+                                        <div class="cn-search-row">
+                                            <div class="cn-search">
+                                                <input type="text" placeholder="現場名で検索..." aria-label="現場名で検索">
+                                            </div>
+                                            <button class="cn-list-pick-btn" data-prefix="現場">
+                                                <span class="cn-list-pick-label">一覧</span>
+                                                <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
+                                            </button>
+                                        </div>
+                                        <div class="cn-filter-chips">
+                                            <button class="cn-filter-chip is-active">すべて</button>
+                                            <button class="cn-filter-chip">追加</button>
+                                            <button class="cn-filter-chip">変更</button>
+                                            <button class="cn-filter-chip">削除</button>
+                                        </div>
+                                    </div>
+                                    <div class="cn-body cn-body--history">
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">〇〇株式会社/〇〇ビル</div>
+                                            <div class="cn-item is-read type-add">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-add">＋</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">配置を新規追加</div>
+                                                        <div class="cn-text-sub">山田太郎 ・ 4/26 09:18</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="cn-item is-read type-modify">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-modify">✎</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">メモを更新</div>
+                                                        <div class="cn-text-sub">山田太郎 ・ 4/24 17:40</div>
+                                                    </div>
+                                                    <span class="cn-chevron">▾</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">△△建設/△△マンション</div>
+                                            <div class="cn-item is-read type-modify">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-modify">✎</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">配置を変更</div>
+                                                        <div class="cn-text-sub">佐藤次郎 ・ 4/26 13:51</div>
+                                                    </div>
+                                                    <span class="cn-chevron">▾</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">◇◇工業/国道1号線</div>
+                                            <div class="cn-item is-read type-delete">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-delete">✕</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">配置を削除</div>
+                                                        <div class="cn-text-sub">鈴木花子 ・ 4/25 11:07</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-pick-view" data-crumb-base="現場" data-step1-label="契約先を選択">
+                                        <div class="cn-pick-head">
+                                            <button class="cn-pick-back" aria-label="戻る">←</button>
+                                            <div class="cn-pick-crumbs">
+                                                <span>現場</span>
+                                                <span class="cn-pick-crumb-sep">&gt;</span>
+                                                <span class="cn-pick-crumb-current">契約先を選択</span>
+                                            </div>
+                                        </div>
+                                        <div class="cn-pick-step is-active" data-step="company">
+                                            <div class="cn-pick-badges">
+                                                <button class="cn-pick-badge" data-company="〇〇株式会社">〇〇株式会社</button>
+                                                <button class="cn-pick-badge" data-company="△△建設">△△建設</button>
+                                                <button class="cn-pick-badge" data-company="◇◇工業">◇◇工業</button>
+                                            </div>
+                                        </div>
+                                        <div class="cn-pick-step" data-step="site">
+                                            <div class="cn-pick-badges" data-company="〇〇株式会社" hidden>
+                                                <button class="cn-pick-badge">〇〇ビル</button>
+                                                <button class="cn-pick-badge">〇〇ビル北棟</button>
+                                            </div>
+                                            <div class="cn-pick-badges" data-company="△△建設" hidden>
+                                                <button class="cn-pick-badge">△△マンション</button>
+                                                <button class="cn-pick-badge">△△タワー</button>
+                                            </div>
+                                            <div class="cn-pick-badges" data-company="◇◇工業" hidden>
+                                                <button class="cn-pick-badge">国道1号線</button>
+                                                <button class="cn-pick-badge">県道5号線</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- アカウントビュー -->
+                                <div class="cn-history-view" data-view="account">
+                                    <div class="cn-history-toolbar">
+                                        <div class="cn-search-row">
+                                            <div class="cn-search">
+                                                <input type="text" placeholder="アカウント名で検索..." aria-label="アカウント名で検索">
+                                            </div>
+                                            <button class="cn-list-pick-btn" data-prefix="アカウント">
+                                                <span class="cn-list-pick-label">一覧</span>
+                                                <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
+                                            </button>
+                                        </div>
+                                        <div class="cn-filter-chips">
+                                            <button class="cn-filter-chip is-active">すべて</button>
+                                            <button class="cn-filter-chip">追加</button>
+                                            <button class="cn-filter-chip">変更</button>
+                                            <button class="cn-filter-chip">削除</button>
+                                        </div>
+                                    </div>
+                                    <div class="cn-body cn-body--history">
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">山田太郎</div>
+                                            <div class="cn-item is-read type-add">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-add">＋</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">〇〇株式会社/〇〇ビル に追加</div>
+                                                        <div class="cn-text-sub">4/26 09:18</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="cn-item is-read type-modify">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-modify">✎</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">〇〇株式会社/〇〇ビル を変更</div>
+                                                        <div class="cn-text-sub">4/24 17:40</div>
+                                                    </div>
+                                                    <span class="cn-chevron">▾</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">佐藤次郎</div>
+                                            <div class="cn-item is-read type-modify">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-modify">✎</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">△△建設/△△マンション を変更</div>
+                                                        <div class="cn-text-sub">4/26 13:51</div>
+                                                    </div>
+                                                    <span class="cn-chevron">▾</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">鈴木花子</div>
+                                            <div class="cn-item is-read type-delete">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-delete">✕</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">◇◇工業/国道1号線 を削除</div>
+                                                        <div class="cn-text-sub">4/25 11:07</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-pick-view" data-crumb-base="アカウント" data-step1-label="アカウントを選択">
+                                        <div class="cn-pick-head">
+                                            <button class="cn-pick-back" aria-label="戻る">←</button>
+                                            <div class="cn-pick-crumbs">
+                                                <span>アカウント</span>
+                                                <span class="cn-pick-crumb-sep">&gt;</span>
+                                                <span class="cn-pick-crumb-current">アカウントを選択</span>
+                                            </div>
+                                        </div>
+                                        <div class="cn-pick-step is-active" data-step="account">
+                                            <div class="cn-pick-badges">
+                                                <button class="cn-pick-badge">山田太郎</button>
+                                                <button class="cn-pick-badge">佐藤次郎</button>
+                                                <button class="cn-pick-badge">鈴木花子</button>
+                                                <button class="cn-pick-badge">林部長</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ 縦タブ「現場 / アカウント」で軸切替</li>
+                    <li>✓ 検索プレースホルダ + リストグルーピングを軸ごとに切替</li>
+                    <li>✓ 種別チップ (追加/変更/削除) は両ビュー共通</li>
+                    <li>✓ アイテム1行目: アクション + 反対軸の対象</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ========== OB: 履歴タブ (縦タブ版) ========== -->
+        <section class="cmp-card">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">画面B</span>
+                <h2>OB — 受注簿 (履歴タブ)</h2>
+                <small>縦タブ「業務 / アカウント」で軸切替・各軸でグルーピング</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-frame cmp-frame--la">
+                    <div class="cn-panel">
+                        <div class="cn-head">
+                            <span class="cn-title">変更通知</span>
+                            <button class="cn-mark-all">すべて既読にする</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button class="cn-tab">最新</button>
+                            <button class="cn-tab is-active">履歴</button>
+                        </div>
+                        <div class="cn-history-layout">
+                            <div class="cn-side-tabs">
+                                <button class="cn-side-tab is-active" data-view="business">業務</button>
+                                <button class="cn-side-tab" data-view="account">アカウント</button>
+                            </div>
+                            <div class="cn-history-main">
+                                <!-- 業務ビュー (取引先/現場でグルーピング) -->
+                                <div class="cn-history-view is-active" data-view="business">
+                                    <div class="cn-history-toolbar">
+                                        <div class="cn-search-row">
+                                            <div class="cn-search">
+                                                <input type="text" placeholder="取引先・現場で検索..." aria-label="業務で検索">
+                                            </div>
+                                            <button class="cn-list-pick-btn" data-prefix="業務">
+                                                <span class="cn-list-pick-label">一覧</span>
+                                                <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
+                                            </button>
+                                        </div>
+                                        <div class="cn-filter-chips">
+                                            <button class="cn-filter-chip is-active">すべて</button>
+                                            <button class="cn-filter-chip">追加</button>
+                                            <button class="cn-filter-chip">変更</button>
+                                            <button class="cn-filter-chip">削除</button>
+                                        </div>
+                                    </div>
+                                    <div class="cn-body cn-body--history">
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">〇〇株式会社/〇〇ビル</div>
+                                            <div class="cn-item is-read type-modify">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-modify">✎</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">
+                                                            集合時刻を変更
+                                                            <span class="cn-date-chip">4/26</span>
+                                                        </div>
+                                                        <div class="cn-text-sub">山田太郎 ・ 4/26 14:23</div>
+                                                    </div>
+                                                    <span class="cn-chevron">▾</span>
+                                                </div>
+                                            </div>
+                                            <div class="cn-item is-read type-modify">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-modify">✎</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">
+                                                            人数を変更
+                                                            <span class="cn-date-chip">4/24</span>
+                                                        </div>
+                                                        <div class="cn-text-sub">山田太郎 ・ 4/24 16:55</div>
+                                                    </div>
+                                                    <span class="cn-chevron">▾</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">△△建設/△△マンション</div>
+                                            <div class="cn-item is-read type-add">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-add">＋</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">
+                                                            受注を新規追加
+                                                            <span class="cn-date-chip">4/27</span>
+                                                        </div>
+                                                        <div class="cn-text-sub">佐藤次郎 ・ 4/26 13:51</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">◇◇工業/国道1号線</div>
+                                            <div class="cn-item is-read type-delete">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-delete">✕</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">
+                                                            受注を削除
+                                                            <span class="cn-date-chip">4/25</span>
+                                                        </div>
+                                                        <div class="cn-text-sub">鈴木花子 ・ 4/25 11:07</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-pick-view" data-crumb-base="業務" data-step1-label="契約先を選択">
+                                        <div class="cn-pick-head">
+                                            <button class="cn-pick-back" aria-label="戻る">←</button>
+                                            <div class="cn-pick-crumbs">
+                                                <span>業務</span>
+                                                <span class="cn-pick-crumb-sep">&gt;</span>
+                                                <span class="cn-pick-crumb-current">契約先を選択</span>
+                                            </div>
+                                        </div>
+                                        <div class="cn-pick-step is-active" data-step="company">
+                                            <div class="cn-pick-badges">
+                                                <button class="cn-pick-badge" data-company="〇〇株式会社">〇〇株式会社</button>
+                                                <button class="cn-pick-badge" data-company="△△建設">△△建設</button>
+                                                <button class="cn-pick-badge" data-company="◇◇工業">◇◇工業</button>
+                                            </div>
+                                        </div>
+                                        <div class="cn-pick-step" data-step="site">
+                                            <div class="cn-pick-badges" data-company="〇〇株式会社" hidden>
+                                                <button class="cn-pick-badge">〇〇ビル</button>
+                                                <button class="cn-pick-badge">〇〇ビル北棟</button>
+                                            </div>
+                                            <div class="cn-pick-badges" data-company="△△建設" hidden>
+                                                <button class="cn-pick-badge">△△マンション</button>
+                                                <button class="cn-pick-badge">△△タワー</button>
+                                            </div>
+                                            <div class="cn-pick-badges" data-company="◇◇工業" hidden>
+                                                <button class="cn-pick-badge">国道1号線</button>
+                                                <button class="cn-pick-badge">県道5号線</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- アカウントビュー -->
+                                <div class="cn-history-view" data-view="account">
+                                    <div class="cn-history-toolbar">
+                                        <div class="cn-search-row">
+                                            <div class="cn-search">
+                                                <input type="text" placeholder="アカウント名で検索..." aria-label="アカウント名で検索">
+                                            </div>
+                                            <button class="cn-list-pick-btn" data-prefix="アカウント">
+                                                <span class="cn-list-pick-label">一覧</span>
+                                                <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
+                                            </button>
+                                        </div>
+                                        <div class="cn-filter-chips">
+                                            <button class="cn-filter-chip is-active">すべて</button>
+                                            <button class="cn-filter-chip">追加</button>
+                                            <button class="cn-filter-chip">変更</button>
+                                            <button class="cn-filter-chip">削除</button>
+                                        </div>
+                                    </div>
+                                    <div class="cn-body cn-body--history">
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">山田太郎</div>
+                                            <div class="cn-item is-read type-modify">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-modify">✎</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">
+                                                            〇〇株式会社/〇〇ビル を変更
+                                                            <span class="cn-date-chip">4/26</span>
+                                                        </div>
+                                                        <div class="cn-text-sub">4/26 14:23</div>
+                                                    </div>
+                                                    <span class="cn-chevron">▾</span>
+                                                </div>
+                                            </div>
+                                            <div class="cn-item is-read type-modify">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-modify">✎</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">
+                                                            〇〇株式会社/〇〇ビル を変更
+                                                            <span class="cn-date-chip">4/24</span>
+                                                        </div>
+                                                        <div class="cn-text-sub">4/24 16:55</div>
+                                                    </div>
+                                                    <span class="cn-chevron">▾</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">佐藤次郎</div>
+                                            <div class="cn-item is-read type-add">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-add">＋</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">
+                                                            △△建設/△△マンション に追加
+                                                            <span class="cn-date-chip">4/27</span>
+                                                        </div>
+                                                        <div class="cn-text-sub">4/26 13:51</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">鈴木花子</div>
+                                            <div class="cn-item is-read type-delete">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-delete">✕</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">
+                                                            ◇◇工業/国道1号線 を削除
+                                                            <span class="cn-date-chip">4/25</span>
+                                                        </div>
+                                                        <div class="cn-text-sub">4/25 11:07</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-pick-view" data-crumb-base="アカウント" data-step1-label="アカウントを選択">
+                                        <div class="cn-pick-head">
+                                            <button class="cn-pick-back" aria-label="戻る">←</button>
+                                            <div class="cn-pick-crumbs">
+                                                <span>アカウント</span>
+                                                <span class="cn-pick-crumb-sep">&gt;</span>
+                                                <span class="cn-pick-crumb-current">アカウントを選択</span>
+                                            </div>
+                                        </div>
+                                        <div class="cn-pick-step is-active" data-step="account">
+                                            <div class="cn-pick-badges">
+                                                <button class="cn-pick-badge">山田太郎</button>
+                                                <button class="cn-pick-badge">佐藤次郎</button>
+                                                <button class="cn-pick-badge">鈴木花子</button>
+                                                <button class="cn-pick-badge">林部長</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ 縦タブ「業務 / アカウント」で軸切替</li>
+                    <li>✓ 業務軸: 取引先/現場でグルーピング</li>
+                    <li>✓ アカウント軸: 操作者でグルーピング</li>
+                    <li>✓ 1行目末尾に対象日付チップ維持</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ========== QA: 履歴タブ (モバイル・縦タブ版) ========== -->
+        <section class="cmp-card">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">モバイル</span>
+                <h2>QA — Quick Access (履歴タブ)</h2>
+                <small>OB と同構造 (縦タブ「業務 / アカウント」) / モバイル幅圧縮</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-frame cmp-frame--mobile">
+                    <div class="cn-panel cn-panel--mobile">
+                        <div class="cn-head">
+                            <span class="cn-title">変更通知</span>
+                            <button class="cn-mark-all">既読</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button class="cn-tab">最新</button>
+                            <button class="cn-tab is-active">履歴</button>
+                        </div>
+                        <div class="cn-history-layout">
+                            <div class="cn-side-tabs">
+                                <button class="cn-side-tab is-active" data-view="business">業務</button>
+                                <button class="cn-side-tab" data-view="account">アカウント</button>
+                            </div>
+                            <div class="cn-history-main">
+                                <!-- 業務ビュー -->
+                                <div class="cn-history-view is-active" data-view="business">
+                                    <div class="cn-history-toolbar">
+                                        <div class="cn-search-row">
+                                            <div class="cn-search">
+                                                <input type="text" placeholder="取引先・現場で検索..." aria-label="業務で検索">
+                                            </div>
+                                            <button class="cn-list-pick-btn" data-prefix="業務">
+                                                <span class="cn-list-pick-label">一覧</span>
+                                                <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
+                                            </button>
+                                        </div>
+                                        <div class="cn-filter-chips">
+                                            <button class="cn-filter-chip is-active">すべて</button>
+                                            <button class="cn-filter-chip">追加</button>
+                                            <button class="cn-filter-chip">変更</button>
+                                            <button class="cn-filter-chip">削除</button>
+                                        </div>
+                                    </div>
+                                    <div class="cn-body cn-body--history">
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">〇〇株式会社/〇〇ビル</div>
+                                            <div class="cn-item is-read type-modify">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-modify">✎</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">
+                                                            集合時刻を変更
+                                                            <span class="cn-date-chip">4/26</span>
+                                                        </div>
+                                                        <div class="cn-text-sub">山田太郎 ・ 4/26 14:23</div>
+                                                    </div>
+                                                    <span class="cn-chevron">▾</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">△△建設/△△マンション</div>
+                                            <div class="cn-item is-read type-add">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-add">＋</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">
+                                                            受注を追加
+                                                            <span class="cn-date-chip">4/27</span>
+                                                        </div>
+                                                        <div class="cn-text-sub">佐藤次郎 ・ 4/26 13:51</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">◇◇工業/国道1号線</div>
+                                            <div class="cn-item is-read type-delete">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-delete">✕</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">
+                                                            受注を削除
+                                                            <span class="cn-date-chip">4/25</span>
+                                                        </div>
+                                                        <div class="cn-text-sub">鈴木花子 ・ 4/25 11:07</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-pick-view" data-crumb-base="業務" data-step1-label="契約先を選択">
+                                        <div class="cn-pick-head">
+                                            <button class="cn-pick-back" aria-label="戻る">←</button>
+                                            <div class="cn-pick-crumbs">
+                                                <span>業務</span>
+                                                <span class="cn-pick-crumb-sep">&gt;</span>
+                                                <span class="cn-pick-crumb-current">契約先を選択</span>
+                                            </div>
+                                        </div>
+                                        <div class="cn-pick-step is-active" data-step="company">
+                                            <div class="cn-pick-badges">
+                                                <button class="cn-pick-badge" data-company="〇〇株式会社">〇〇株式会社</button>
+                                                <button class="cn-pick-badge" data-company="△△建設">△△建設</button>
+                                                <button class="cn-pick-badge" data-company="◇◇工業">◇◇工業</button>
+                                            </div>
+                                        </div>
+                                        <div class="cn-pick-step" data-step="site">
+                                            <div class="cn-pick-badges" data-company="〇〇株式会社" hidden>
+                                                <button class="cn-pick-badge">〇〇ビル</button>
+                                                <button class="cn-pick-badge">〇〇ビル北棟</button>
+                                            </div>
+                                            <div class="cn-pick-badges" data-company="△△建設" hidden>
+                                                <button class="cn-pick-badge">△△マンション</button>
+                                                <button class="cn-pick-badge">△△タワー</button>
+                                            </div>
+                                            <div class="cn-pick-badges" data-company="◇◇工業" hidden>
+                                                <button class="cn-pick-badge">国道1号線</button>
+                                                <button class="cn-pick-badge">県道5号線</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- アカウントビュー -->
+                                <div class="cn-history-view" data-view="account">
+                                    <div class="cn-history-toolbar">
+                                        <div class="cn-search-row">
+                                            <div class="cn-search">
+                                                <input type="text" placeholder="アカウント名で検索..." aria-label="アカウント名で検索">
+                                            </div>
+                                            <button class="cn-list-pick-btn" data-prefix="アカウント">
+                                                <span class="cn-list-pick-label">一覧</span>
+                                                <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
+                                            </button>
+                                        </div>
+                                        <div class="cn-filter-chips">
+                                            <button class="cn-filter-chip is-active">すべて</button>
+                                            <button class="cn-filter-chip">追加</button>
+                                            <button class="cn-filter-chip">変更</button>
+                                            <button class="cn-filter-chip">削除</button>
+                                        </div>
+                                    </div>
+                                    <div class="cn-body cn-body--history">
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">山田太郎</div>
+                                            <div class="cn-item is-read type-modify">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-modify">✎</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">
+                                                            〇〇ビル を変更
+                                                            <span class="cn-date-chip">4/26</span>
+                                                        </div>
+                                                        <div class="cn-text-sub">4/26 14:23</div>
+                                                    </div>
+                                                    <span class="cn-chevron">▾</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">佐藤次郎</div>
+                                            <div class="cn-item is-read type-add">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-add">＋</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">
+                                                            △△マンション に追加
+                                                            <span class="cn-date-chip">4/27</span>
+                                                        </div>
+                                                        <div class="cn-text-sub">4/26 13:51</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-axis-group">
+                                            <div class="cn-axis-group-head">鈴木花子</div>
+                                            <div class="cn-item is-read type-delete">
+                                                <div class="cn-item-row">
+                                                    <div class="cn-icon type-delete">✕</div>
+                                                    <div class="cn-text">
+                                                        <div class="cn-text-main">
+                                                            国道1号線 を削除
+                                                            <span class="cn-date-chip">4/25</span>
+                                                        </div>
+                                                        <div class="cn-text-sub">4/25 11:07</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-pick-view" data-crumb-base="アカウント" data-step1-label="アカウントを選択">
+                                        <div class="cn-pick-head">
+                                            <button class="cn-pick-back" aria-label="戻る">←</button>
+                                            <div class="cn-pick-crumbs">
+                                                <span>アカウント</span>
+                                                <span class="cn-pick-crumb-sep">&gt;</span>
+                                                <span class="cn-pick-crumb-current">アカウントを選択</span>
+                                            </div>
+                                        </div>
+                                        <div class="cn-pick-step is-active" data-step="account">
+                                            <div class="cn-pick-badges">
+                                                <button class="cn-pick-badge">山田太郎</button>
+                                                <button class="cn-pick-badge">佐藤次郎</button>
+                                                <button class="cn-pick-badge">鈴木花子</button>
+                                                <button class="cn-pick-badge">林部長</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ 縦タブ「業務 / アカウント」(モバイル幅圧縮)</li>
+                    <li>✓ 検索バー・チップ・対象日付チップ維持</li>
                     <li>✓ 「すべて既読」→「既読」(短縮)</li>
                 </ul>
             </div>
