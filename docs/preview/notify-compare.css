@@ -880,6 +880,30 @@ body {
 .cn-date-group:first-child .cn-date-group-head {
     border-top: none;
 }
+button.cn-date-group-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    border-left: none;
+    border-right: none;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+}
+button.cn-date-group-head:hover {
+    background: var(--bg-surface-2);
+}
+.cn-date-group-toggle {
+    flex-shrink: 0;
+    margin-left: 8px;
+    font-size: 11px;
+    line-height: 1;
+    color: var(--text-tertiary);
+}
+.cn-date-group.is-collapsed .cn-item {
+    display: none;
+}
 
 /* 履歴では未読色分けを弱める (背景フラット + 左ドット非表示) */
 .cn-body--history .cn-item.is-unread {
@@ -954,22 +978,43 @@ body {
 .cn-history-view { display: none; }
 .cn-history-view.is-active { display: block; }
 
-/* 軸別グルーピング (現場/業務/アカウント) */
+/* 軸別グルーピング (現場名/アカウント) */
 .cn-axis-group-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
     padding: 5px 12px;
     background: var(--bg-page);
     color: var(--text-secondary);
+    font: inherit;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.02em;
+    text-align: left;
+    border: none;
     border-bottom: 1px solid var(--divider);
     border-top: 1px solid var(--divider);
     position: sticky;
     top: 0;
     z-index: 1;
+    cursor: pointer;
+}
+.cn-axis-group-head:hover {
+    background: var(--bg-surface-2);
 }
 .cn-axis-group:first-child .cn-axis-group-head {
     border-top: none;
+}
+.cn-axis-group-toggle {
+    flex-shrink: 0;
+    margin-left: 8px;
+    font-size: 11px;
+    line-height: 1;
+    color: var(--text-tertiary);
+}
+.cn-axis-group.is-collapsed .cn-item {
+    display: none;
 }
 
 /* モバイル: 縦タブ圧縮 */

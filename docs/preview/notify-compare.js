@@ -32,6 +32,21 @@
         });
     });
 
+    /* グループヘッダーのアコーディオン
+       - 履歴タブ: 軸グループ (契約先/現場名 や 操作者 単位)
+       - 統合案 after: 日付グループ (今日/昨日 等) */
+    document.addEventListener('click', function (e) {
+        var head = e.target.closest('.cn-axis-group-head, .cn-date-group-head');
+        if (!head) return;
+        var group = head.closest('.cn-axis-group, .cn-date-group');
+        if (!group) return;
+        var willCollapse = !group.classList.contains('is-collapsed');
+        group.classList.toggle('is-collapsed', willCollapse);
+        head.setAttribute('aria-expanded', String(!willCollapse));
+        var toggle = head.querySelector('.cn-axis-group-toggle, .cn-date-group-toggle');
+        if (toggle) toggle.textContent = willCollapse ? '▾' : '▴';
+    });
+
     /* 履歴タブ 縦型タブ切替: 軸 (現場/業務 ↔ アカウント) */
     document.addEventListener('click', function (e) {
         var tab = e.target.closest('.cn-side-tab');
