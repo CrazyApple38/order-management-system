@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="mockup/co-modal.css">
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
-    <link rel="stylesheet" href="mockup/co-notify-panel.css?v=1">
-    <link rel="stylesheet" href="mockup/leave-application.css?v=15">
+    <link rel="stylesheet" href="mockup/co-notify-panel.css?v=2">
+    <link rel="stylesheet" href="mockup/leave-application.css?v=18">
 </head>
 <body>
     <!-- SVG icon sprite (CLAUDE.md アイコン運用ルール準拠) -->
@@ -55,20 +55,12 @@
         <div class="md-la-header">
             <span class="md-la-header-title">休暇申請管理</span>
 
-            <!-- ビュータブ -->
-            <div class="md-la-view-tabs">
-                <button class="md-la-view-tab is-active" data-view="month">月間</button>
-                <button class="md-la-view-tab" data-view="week">週間</button>
-                <button class="md-la-view-tab" data-view="year">年間</button>
-            </div>
+            <!-- 月見出し (Google型 大きめ・軽量フォント) -->
+            <span class="md-la-month-label-lg" id="laMonthLabel">2026年4月</span>
 
-            <!-- 月ナビ -->
-            <div class="md-la-header-nav">
-                <button class="md-la-nav-btn" id="laPrevBtn" title="前月">◀</button>
-                <span class="md-la-month-label" id="laMonthLabel">2026年4月</span>
-                <button class="md-la-nav-btn" id="laNextBtn" title="翌月">▶</button>
-                <button class="md-la-today-btn" id="laTodayBtn">今日</button>
-            </div>
+            <!-- 旧ナビ (ボタン本体は左サイドバー / ミニカレンダーへ移動。ID 互換のため hidden 保持) -->
+            <button class="md-la-nav-btn md-la-hidden" id="laPrevBtn" title="前月" aria-hidden="true">◀</button>
+            <button class="md-la-nav-btn md-la-hidden" id="laNextBtn" title="翌月" aria-hidden="true">▶</button>
 
             <div class="md-la-header-spacer"></div>
 
@@ -92,24 +84,141 @@
                             <span class="cn-title">通知</span>
                             <button type="button" class="cn-mark-all">すべて既読にする</button>
                         </div>
+                        <div class="cn-tabs">
+                            <button type="button" class="cn-tab is-active" data-tab="latest">最新</button>
+                            <button type="button" class="cn-tab" data-tab="history">履歴</button>
+                        </div>
+                        <!-- 最新タブ -->
                         <div class="cn-tab-view is-active" data-tab="latest">
                             <div class="cn-body cn-body--latest" id="laCnBody">
                                 <div class="cn-empty">通知はありません</div>
+                            </div>
+                        </div>
+                        <!-- 履歴タブ (縦サブタブ: 社員名 / アカウント) -->
+                        <div class="cn-tab-view" data-tab="history">
+                            <div class="cn-history-layout">
+                                <div class="cn-side-tabs">
+                                    <button type="button" class="cn-side-tab is-active" data-view="site">社員名</button>
+                                    <button type="button" class="cn-side-tab" data-view="account">アカウント</button>
+                                </div>
+                                <div class="cn-history-main">
+                                    <div class="cn-history-view is-active" data-view="site">
+                                        <div class="cn-history-toolbar">
+                                            <div class="cn-search-row">
+                                                <div class="cn-search">
+                                                    <input type="text" placeholder="社員名で検索..." aria-label="社員名で検索">
+                                                </div>
+                                                <button type="button" class="cn-list-pick-btn" data-prefix="社員">
+                                                    <span class="cn-list-pick-label">一覧</span>
+                                                    <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
+                                                </button>
+                                            </div>
+                                            <div class="cn-filter-chips" data-axis="site">
+                                                <button type="button" class="cn-filter-chip is-active" data-filter="all">すべて</button>
+                                                <button type="button" class="cn-filter-chip" data-filter="new">申請</button>
+                                                <button type="button" class="cn-filter-chip" data-filter="approved">承認</button>
+                                                <button type="button" class="cn-filter-chip" data-filter="rejected">却下</button>
+                                            </div>
+                                        </div>
+                                        <div class="cn-body cn-body--history" id="laCnHistorySiteBody">
+                                            <div class="cn-empty">履歴はありません</div>
+                                        </div>
+                                        <!-- 一覧選択 (会社 → 社員 2段階) -->
+                                        <div class="cn-pick-view" data-crumb-base="社員" data-step1-label="会社を選択">
+                                            <div class="cn-pick-head">
+                                                <button type="button" class="cn-pick-back" aria-label="戻る">←</button>
+                                                <div class="cn-pick-crumbs">
+                                                    <span>社員</span>
+                                                    <span class="cn-pick-crumb-sep">&gt;</span>
+                                                    <span class="cn-pick-crumb-current">会社を選択</span>
+                                                </div>
+                                            </div>
+                                            <div class="cn-pick-step is-active" data-step="company">
+                                                <div class="cn-pick-badges" id="laCnPickCompanyBadges"></div>
+                                            </div>
+                                            <div class="cn-pick-step" data-step="site">
+                                                <div id="laCnPickSiteBadgesGroups"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-history-view" data-view="account">
+                                        <div class="cn-history-toolbar">
+                                            <div class="cn-search-row">
+                                                <div class="cn-search">
+                                                    <input type="text" placeholder="アカウントで検索..." aria-label="アカウントで検索">
+                                                </div>
+                                                <button type="button" class="cn-list-pick-btn" data-prefix="アカウント">
+                                                    <span class="cn-list-pick-label">一覧</span>
+                                                    <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
+                                                </button>
+                                            </div>
+                                            <div class="cn-filter-chips" data-axis="account">
+                                                <button type="button" class="cn-filter-chip is-active" data-filter="all">すべて</button>
+                                                <button type="button" class="cn-filter-chip" data-filter="new">申請</button>
+                                                <button type="button" class="cn-filter-chip" data-filter="approved">承認</button>
+                                                <button type="button" class="cn-filter-chip" data-filter="rejected">却下</button>
+                                            </div>
+                                        </div>
+                                        <div class="cn-body cn-body--history" id="laCnHistoryAccountBody">
+                                            <div class="cn-empty">履歴はありません</div>
+                                        </div>
+                                        <div class="cn-pick-view" data-crumb-base="アカウント" data-step1-label="アカウントを選択">
+                                            <div class="cn-pick-head">
+                                                <button type="button" class="cn-pick-back" aria-label="戻る">←</button>
+                                                <div class="cn-pick-crumbs">
+                                                    <span>アカウント</span>
+                                                    <span class="cn-pick-crumb-sep">&gt;</span>
+                                                    <span class="cn-pick-crumb-current">アカウントを選択</span>
+                                                </div>
+                                            </div>
+                                            <div class="cn-pick-step is-active" data-step="account">
+                                                <div class="cn-pick-badges" id="laCnPickAccountBadges"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <button class="md-la-header-action" id="laCompactBtn" title="イニシャル圧縮表示">圧縮</button>
                 <button class="md-la-header-action" id="laReportBtn" title="月次集計・CSV出力">集計</button>
-                <button class="md-la-header-action" id="laNewBtn" title="新規申請">
-                    <svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg>
-                    新規申請
-                </button>
             </div>
         </div>
 
         <!-- メインエリア -->
         <div class="md-la-main">
+            <!-- 左サイドバー: 新規申請 / 今日 / ミニカレンダー / ビュー切替 -->
+            <aside class="md-la-mini-sidebar" id="laMiniSidebar">
+                <!-- 新規申請 (メインアクション / Google Cal の Create 相当) -->
+                <button type="button" class="md-la-create-btn" id="laNewBtn" title="新規申請">
+                    <svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg>
+                    <span>新規申請</span>
+                </button>
+                <!-- 今日 (ミニカレンダーの上) -->
+                <button type="button" class="md-la-today-btn-side" id="laTodayBtn">今日</button>
+                <!-- ミニカレンダー -->
+                <div class="md-la-mini-cal" id="laMiniCal">
+                    <div class="md-la-mini-cal-header">
+                        <button type="button" class="md-la-mini-cal-nav" id="laMiniPrev" aria-label="前月">
+                            <svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-left"/></svg>
+                        </button>
+                        <span class="md-la-mini-cal-label" id="laMiniMonthLabel"></span>
+                        <button type="button" class="md-la-mini-cal-nav" id="laMiniNext" aria-label="翌月">
+                            <svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-right"/></svg>
+                        </button>
+                    </div>
+                    <div class="md-la-mini-cal-grid" id="laMiniCalGrid">
+                        <!-- JS で描画 -->
+                    </div>
+                </div>
+                <!-- ビュー切替 (月間/週間/年間 トグルグループ) -->
+                <div class="md-la-view-tabs" role="tablist" aria-label="ビュー切替">
+                    <button type="button" role="tab" class="md-la-view-tab is-active" data-view="month" aria-selected="true">月間</button>
+                    <button type="button" role="tab" class="md-la-view-tab" data-view="week" aria-selected="false">週間</button>
+                    <button type="button" role="tab" class="md-la-view-tab" data-view="year" aria-selected="false">年間</button>
+                </div>
+            </aside>
             <!-- カレンダー (月間) / 週間グリッド -->
             <div class="md-la-calendar-wrapper">
                 <div class="md-la-calendar" id="laCalendar">
@@ -182,8 +291,8 @@
     </div>
 
     <script src="mockup/demo-data.js?v=2"></script>
-    <script src="mockup/co-notify-panel.js?v=1"></script>
+    <script src="mockup/co-notify-panel.js?v=3"></script>
     <script src="mockup/co-navbar.js?v=5"></script>
-    <script src="mockup/leave-application.js?v=1"></script>
+    <script src="mockup/leave-application.js?v=6"></script>
 </body>
 </html>

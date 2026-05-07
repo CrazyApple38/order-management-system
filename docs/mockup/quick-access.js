@@ -2166,23 +2166,22 @@ function qaCnBuildDiffHtml(n) {
 
 function qaCnRenderItem(n) {
     var iconChar = qaCnIconChars[n.type] || '?';
-    var hasDetail = (n.type === 'modify' && n.diffs && n.diffs.length > 0)
-        || (n.type === 'add' && n.details && n.details.length > 0);
     var stateClass = n.reverted ? ' is-reverted' : (n._approved ? ' is-approved' : '');
     var unreadClass = !n._read ? ' is-unread' : '';
     var dayChip = n.dayLabel ? '<span class="cn-date-chip">' + escHtml(n.dayLabel) + '</span>' : '';
 
-    var chevron = hasDetail ? '<span class="cn-chevron">▾</span>' : '';
-    var expandHtml = '';
-    if (hasDetail) {
-        var diffHtml = qaCnBuildDiffHtml(n);
-        var actionBtn = n.reverted
-            ? '<button type="button" class="cn-jump-btn" onclick="event.stopPropagation();qaCnReapprove(' + n.id + ')">↻ 適用する</button>'
-            : '<button type="button" class="cn-jump-btn" onclick="event.stopPropagation();qaCnRevert(' + n.id + ')">↩ キャンセル</button>';
-        expandHtml = '<div class="cn-expand">' + diffHtml + actionBtn + '</div>';
+    var diffHtml = qaCnBuildDiffHtml(n);
+    if (!diffHtml && n.type === 'delete') {
+        diffHtml = '<div class="cn-diff-line"><span class="cn-diff-from">この配置は削除されました</span></div>';
     }
+    var actionBtn = n.reverted
+        ? '<button type="button" class="cn-jump-btn" onclick="event.stopPropagation();qaCnReapprove(' + n.id + ')">↻ 適用する</button>'
+        : '<button type="button" class="cn-jump-btn" onclick="event.stopPropagation();qaCnRevert(' + n.id + ')">↩ キャンセル</button>';
+    var expandHtml = '<div class="cn-expand">' + diffHtml + actionBtn + '</div>';
+    var chevron = '<span class="cn-chevron">▾</span>';
 
-    return '<div class="cn-item type-' + n.type + unreadClass + stateClass + '" data-nid="' + n.id + '">' +
+    var siteKey = n.siteName || '';
+    return '<div class="cn-item type-' + n.type + unreadClass + stateClass + '" data-nid="' + n.id + '" data-type="' + n.type + '" data-site="' + escHtml(siteKey) + '" data-account="' + escHtml(n.user || '') + '">' +
         '<div class="cn-item-row">' +
             '<div class="cn-icon type-' + n.type + '">' + iconChar + '</div>' +
             '<div class="cn-text">' +
@@ -2233,8 +2232,12 @@ function qaCnRenderHistoryItem(h) {
     var name = h.clientName ? h.clientName + ' / ' + (h.siteName || '') : (h.siteName || '');
     var dayChip = h.dayLabel ? '<span class="cn-date-chip">' + escHtml(h.dayLabel) + '</span>' : '';
     var summary = h.summary ? ' (' + h.summary + ')' : '';
-    var click = h.notificationId != null ? ' data-nid="' + h.notificationId + '"' : '';
-    return '<div class="cn-item type-' + h.type + '"' + click + '>' +
+    var siteKey = h.siteName || '';
+    var attrs = (h.notificationId != null ? ' data-nid="' + h.notificationId + '"' : '') +
+        ' data-type="' + h.type + '"' +
+        ' data-site="' + escHtml(siteKey) + '"' +
+        ' data-account="' + escHtml(h.user || '') + '"';
+    return '<div class="cn-item type-' + h.type + '"' + attrs + '>' +
         '<div class="cn-item-row">' +
             '<div class="cn-icon type-' + h.type + '">' + iconChar + '</div>' +
             '<div class="cn-text">' +

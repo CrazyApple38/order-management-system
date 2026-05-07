@@ -71,16 +71,75 @@
         });
     });
 
-    // ========== 種別チップ (追加 / 変更 / 削除 / すべて) ==========
+    // ========== 種別チップ (すべて / 追加 / 変更 / 削除) ==========
+    // - 「すべて」を選択 → 他すべて解除
+    // - 追加/変更/削除を選択 → 「すべて」解除 + 該当チップを多重選択トグル
+    // - すべて解除になった場合は「すべて」を自動的にONに戻す
     document.addEventListener('click', function (e) {
         var chip = e.target.closest('.cn-filter-chip');
         if (!chip) return;
         var group = chip.parentElement;
         if (!group) return;
-        group.querySelectorAll('.cn-filter-chip').forEach(function (c) {
-            c.classList.toggle('is-active', c === chip);
-        });
+        var filter = chip.dataset.filter || 'all';
+        if (filter === 'all') {
+            group.querySelectorAll('.cn-filter-chip').forEach(function (c) {
+                c.classList.toggle('is-active', c === chip);
+            });
+        } else {
+            var allChip = group.querySelector('.cn-filter-chip[data-filter="all"]');
+            if (allChip) allChip.classList.remove('is-active');
+            chip.classList.toggle('is-active');
+            // すべて解除になった場合は「すべて」を再ON
+            var anyOn = Array.from(group.querySelectorAll('.cn-filter-chip')).some(function (c) {
+                return c.classList.contains('is-active');
+            });
+            if (!anyOn && allChip) allChip.classList.add('is-active');
+        }
+        var view = group.closest('.cn-history-view') || group.closest('.cn-tab-view');
+        if (view) applyCnFilters(view);
     });
+
+    // ========== フィルタ適用 (種別チップ + 一覧選択 を統合) ==========
+    function getActiveFilterTypes(view) {
+        var group = view.querySelector('.cn-filter-chips');
+        if (!group) return null; // フィルタ無し → 全件表示
+        var allChip = group.querySelector('.cn-filter-chip[data-filter="all"]');
+        if (allChip && allChip.classList.contains('is-active')) return null;
+        var types = [];
+        group.querySelectorAll('.cn-filter-chip.is-active').forEach(function (c) {
+            if (c.dataset.filter && c.dataset.filter !== 'all') types.push(c.dataset.filter);
+        });
+        return types.length > 0 ? types : null;
+    }
+
+    function applyCnFilters(view) {
+        if (!view) return;
+        var types = getActiveFilterTypes(view);
+        var pickAxis = view.dataset.pickAxis || '';
+        var pickValue = view.dataset.pickValue || '';
+
+        // 1) アイテム単位で絞り込み
+        view.querySelectorAll('.cn-item').forEach(function (item) {
+            var itemType = (item.dataset.type || '').toLowerCase();
+            // 種別フィルタ
+            var typeOk = !types || types.indexOf(itemType) !== -1;
+            // 一覧選択フィルタ
+            var pickOk = true;
+            if (pickAxis && pickValue) {
+                var attr = item.dataset[pickAxis] || '';
+                pickOk = (attr === pickValue);
+            }
+            item.classList.toggle('is-hidden', !(typeOk && pickOk));
+        });
+
+        // 2) グループ (axis-group / date-group) 単位で全アイテム非表示なら自身も非表示
+        view.querySelectorAll('.cn-axis-group, .cn-date-group').forEach(function (g) {
+            var visible = g.querySelector('.cn-item:not(.is-hidden)');
+            g.classList.toggle('is-hidden', !visible);
+        });
+    }
+    // 公開: 外部からも再適用できるよう
+    window._cnApplyFilters = applyCnFilters;
 
     // ========== グループヘッダーのアコーディオン ==========
     document.addEventListener('click', function (e) {
@@ -96,8 +155,8 @@
     });
 
     // ========== アイテムクリック ==========
-    // - type-add / type-delete → ジャンプ (差分なし、即遷移)
-    // - type-modify など       → アコーディオン展開 + 既読化
+    // - cn-expand を持つアイテム → アコーディオン展開 + 既読化
+    // - cn-expand 無し         → 即ジャンプ
     function fireJump(item) {
         var ev = new CustomEvent('cn:jump', { bubbles: true, detail: { item: item } });
         item.dispatchEvent(ev);
@@ -109,13 +168,14 @@
         var item = row.parentElement;
         if (!item) return;
 
-        // 追加/削除はアコーディオン無しで即ジャンプ
-        if (item.classList.contains('type-add') || item.classList.contains('type-delete')) {
+        var hasExpand = !!item.querySelector(':scope > .cn-expand');
+        if (!hasExpand) {
+            // アコーディオン無し → 即ジャンプ
             item.classList.remove('is-unread');
             fireJump(item);
             return;
         }
-        // 変更等はアコーディオン展開 + 既読化
+        // アコーディオン展開 + 既読化
         var willOpen = !item.classList.contains('is-expanded');
         item.classList.toggle('is-expanded', willOpen);
         if (willOpen) item.classList.remove('is-unread');
@@ -176,6 +236,13 @@
                 btn.classList.remove('is-selected');
                 var label = btn.querySelector('.cn-list-pick-label');
                 if (label) label.textContent = '一覧';
+                // フィルタを解除して再適用
+                var view = btn.closest('.cn-history-view');
+                if (view) {
+                    delete view.dataset.pickAxis;
+                    delete view.dataset.pickValue;
+                    applyCnFilters(view);
+                }
                 var pev = new CustomEvent('cn:filter-clear', { bubbles: true });
                 btn.dispatchEvent(pev);
             }
@@ -223,17 +290,24 @@
                 '<span class="cn-pick-crumb-current">現場を選択</span>';
         } else {
             var listBtn = view.querySelector('.cn-list-pick-btn');
+            var selValue = badge.textContent.trim();
             if (listBtn) {
                 var prefix = listBtn.dataset.prefix || '';
                 var label = listBtn.querySelector('.cn-list-pick-label');
-                if (label) label.textContent = prefix ? (prefix + ': ' + badge.textContent.trim()) : badge.textContent.trim();
+                if (label) label.textContent = prefix ? (prefix + ': ' + selValue) : selValue;
                 listBtn.classList.add('is-selected');
                 var fev = new CustomEvent('cn:filter-select', {
                     bubbles: true,
-                    detail: { value: badge.textContent.trim(), data: Object.assign({}, badge.dataset) }
+                    detail: { value: selValue, data: Object.assign({}, badge.dataset) }
                 });
                 listBtn.dispatchEvent(fev);
             }
+            // 軸別の絞り込みを view に保存して適用
+            // stepName: 'site' (現場名軸) / 'account' (アカウント軸)
+            view.dataset.pickAxis = (stepName === 'account') ? 'account' : 'site';
+            view.dataset.pickValue = selValue;
+            applyCnFilters(view);
+
             view.classList.remove('is-picking');
         }
     });

@@ -145,6 +145,11 @@
     font-size: 11px;
 }
 
+/* フィルタ非表示 (種別チップ / 一覧選択 共用) */
+.cn-item.is-hidden,
+.cn-axis-group.is-hidden,
+.cn-date-group.is-hidden { display: none; }
+
 /* 行フィルタラベル (ヘッダー右上) */
 .cn-row-filter-label {
     display: inline-block;

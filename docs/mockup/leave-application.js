@@ -68,7 +68,7 @@
     var currentRole = 'dcp'; // 'self' | 'dcp' | 'admin'
     var currentUserId = null; // self ロール時に対象となる自分の社員ID (デモ用、buildEmployees で1人選定)
     var currentUserGc = null;
-    var notifications = []; // { id, type, leaveId, text, sub, isRead, createdAt }
+    var notifications = []; // { id, type, leaveId, employeeName, operator, text, sub, isRead, createdAt }
     var nextNotifId = 1;
 
     // ==========================================================
@@ -230,6 +230,120 @@
         if (currentView === 'week')  renderWeek();
         if (currentView === 'year')  renderYear();
         renderSidebar();
+        renderMiniCal();
+    }
+
+    // ==========================================================
+    // ミニカレンダー (左サイドバー / Google カレンダー風)
+    // ==========================================================
+
+    var miniCalDate = null; // 表示中の月 (currentDate と独立に進められる)
+
+    function getMiniCalDate() {
+        if (!miniCalDate) miniCalDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        return miniCalDate;
+    }
+
+    function renderMiniCal() {
+        var grid = document.getElementById('laMiniCalGrid');
+        var label = document.getElementById('laMiniMonthLabel');
+        if (!grid || !label) return;
+        var d = getMiniCalDate();
+        label.textContent = d.getFullYear() + '年' + (d.getMonth() + 1) + '月';
+
+        // 曜日ヘッダー
+        var dows = ['月','火','水','木','金','土','日'];
+        var html = dows.map(function (n, i) {
+            var cls = 'md-la-mini-dow' + (i === 5 ? ' is-sat' : (i === 6 ? ' is-sun' : ''));
+            return '<div class="' + cls + '">' + n + '</div>';
+        }).join('');
+
+        // 月初〜月末を含む 6週間グリッド
+        var first = new Date(d.getFullYear(), d.getMonth(), 1);
+        var firstDow = (first.getDay() + 6) % 7; // 月=0, 日=6
+        var start = new Date(first);
+        start.setDate(start.getDate() - firstDow);
+        var todayKey = fmtDate(new Date());
+        var selectedKey = fmtDate(currentDate);
+        var leaveDays = {};
+        laLeaves.forEach(function (lv) { leaveDays[lv.date] = true; });
+
+        for (var i = 0; i < 42; i++) {
+            var dt = new Date(start);
+            dt.setDate(start.getDate() + i);
+            var key = fmtDate(dt);
+            var isOther = (dt.getMonth() !== d.getMonth());
+            var dow = (dt.getDay() + 6) % 7;
+            var isHoliday = (typeof getHoliday === 'function') ? !!getHoliday(key) : false;
+            var classes = ['md-la-mini-day'];
+            if (isOther) classes.push('is-other-month');
+            if (dow === 5) classes.push('is-sat');
+            if (dow === 6) classes.push('is-sun');
+            if (isHoliday) classes.push('is-holiday');
+            if (key === todayKey) classes.push('is-today');
+            if (key === selectedKey && !isOther) classes.push('is-selected');
+            if (leaveDays[key]) classes.push('has-leave');
+            html += '<div class="' + classes.join(' ') + '" data-date="' + key + '">' + dt.getDate() + '</div>';
+        }
+        grid.innerHTML = html;
+    }
+
+    function bindMiniCal() {
+        var grid = document.getElementById('laMiniCalGrid');
+        var prevBtn = document.getElementById('laMiniPrev');
+        var nextBtn = document.getElementById('laMiniNext');
+        if (grid) {
+            grid.addEventListener('click', function (e) {
+                var cell = e.target.closest('.md-la-mini-day');
+                if (!cell) return;
+                var dateStr = cell.dataset.date;
+                if (!dateStr) return;
+                // 該当月へジャンプ + 月間ビューへ (currentDate に日付を保持して選択ハイライト)
+                var d = parseDate(dateStr);
+                currentDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                miniCalDate = new Date(d.getFullYear(), d.getMonth(), 1);
+                currentView = 'month';
+                document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
+                    t.classList.toggle('is-active', t.dataset.view === 'month');
+                });
+                render();
+            });
+        }
+        if (prevBtn) prevBtn.addEventListener('click', function () {
+            var d = getMiniCalDate();
+            miniCalDate = new Date(d.getFullYear(), d.getMonth() - 1, 1);
+            renderMiniCal();
+        });
+        if (nextBtn) nextBtn.addEventListener('click', function () {
+            var d = getMiniCalDate();
+            miniCalDate = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+            renderMiniCal();
+        });
+    }
+
+    // ==========================================================
+    // マウスホイール: メインカレンダー上で月移動
+    // ==========================================================
+    function bindCalendarWheel() {
+        var wrapper = document.querySelector('.md-la-calendar-wrapper');
+        if (!wrapper) return;
+        var lastWheelTs = 0;
+        wrapper.addEventListener('wheel', function (e) {
+            // 月間ビュー時のみ
+            if (currentView !== 'month') return;
+            // モーダル/ポップオーバーが開いている時は通常スクロール
+            if (document.getElementById('laPopover') || document.querySelector('.md-la-modal-backdrop')) return;
+            // スクロール抑止 (ホイール入力を月移動に専念)
+            e.preventDefault();
+            var now = performance.now();
+            if (now - lastWheelTs < 220) return; // 連射抑制
+            lastWheelTs = now;
+            var dir = e.deltaY > 0 ? 1 : (e.deltaY < 0 ? -1 : 0);
+            if (dir === 0) return;
+            currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + dir, 1);
+            miniCalDate = new Date(currentDate);
+            render();
+        }, { passive: false });
     }
 
     function updateViewVisibility() {
@@ -814,6 +928,8 @@
             id: 'nt-' + (nextNotifId++),
             type: n.type,
             leaveId: n.leaveId,
+            employeeName: n.employeeName || '',
+            operator: n.operator || '',
             text: n.text,
             sub: n.sub || '',
             isRead: false,
@@ -823,7 +939,8 @@
     }
 
     function seedNotifications() {
-        // 初期状態: 申請中のレコードから疑似通知を3件程度作る (デモ用)
+        // 初期状態: 申請中・承認済・却下済から疑似通知を作る (デモ用)
+        // 操作者はロール別ダミー (本人 / DCP-{社員名} / 管理者)
         var pending = laLeaves.filter(function (x) { return x.status === 'pending'; }).slice(0, 3);
         pending.forEach(function (lv) {
             var emp = laEmployees.find(function (e) { return e.id === lv.employeeId; });
@@ -832,9 +949,45 @@
                 id: 'nt-' + (nextNotifId++),
                 type: 'new',
                 leaveId: lv.id,
+                employeeName: emp.name,
+                operator: emp.name + '(本人)',
                 text: emp.name + 'から新規申請',
                 sub: lv.date + ' / ' + KIND[lv.kind] + ' (' + PART[lv.partition] + ')',
                 isRead: false,
+                createdAt: nowTs()
+            });
+        });
+        // 承認・却下のサンプル
+        var approvers = ['DCP-柊本', 'DCP-斎藤', '管理者-佐々木'];
+        var approved = laLeaves.filter(function (x) { return x.status === 'approved'; }).slice(0, 3);
+        approved.forEach(function (lv, i) {
+            var emp = laEmployees.find(function (e) { return e.id === lv.employeeId; });
+            if (!emp) return;
+            notifications.push({
+                id: 'nt-' + (nextNotifId++),
+                type: 'approved',
+                leaveId: lv.id,
+                employeeName: emp.name,
+                operator: approvers[i % approvers.length],
+                text: emp.name + 'の休暇を承認',
+                sub: lv.date + ' / ' + KIND[lv.kind] + ' (' + PART[lv.partition] + ')',
+                isRead: true,
+                createdAt: nowTs()
+            });
+        });
+        var rejected = laLeaves.filter(function (x) { return x.status === 'rejected'; }).slice(0, 2);
+        rejected.forEach(function (lv, i) {
+            var emp = laEmployees.find(function (e) { return e.id === lv.employeeId; });
+            if (!emp) return;
+            notifications.push({
+                id: 'nt-' + (nextNotifId++),
+                type: 'rejected',
+                leaveId: lv.id,
+                employeeName: emp.name,
+                operator: approvers[i % approvers.length],
+                text: emp.name + 'の休暇を却下',
+                sub: lv.date + ' / ' + KIND[lv.kind] + ' (' + PART[lv.partition] + ')',
+                isRead: true,
                 createdAt: nowTs()
             });
         });
@@ -862,6 +1015,11 @@
     }
 
     function buildNotifyPanel() {
+        buildLatestView();
+        buildHistoryView();
+    }
+
+    function buildLatestView() {
         var body = document.getElementById('laCnBody');
         if (!body) return;
         if (notifications.length === 0) {
@@ -874,7 +1032,11 @@
     function buildNotifyItemHtml(n) {
         var iconChar = { new: '＋', approved: '✓', rejected: '✕' }[n.type] || '?';
         var unreadClass = n.isRead ? '' : ' is-unread';
-        return '<div class="cn-item type-' + n.type + unreadClass + '" data-leave-id="' + (n.leaveId || '') + '">'
+        var attrs = ' data-leave-id="' + (n.leaveId || '') + '"' +
+            ' data-type="' + n.type + '"' +
+            ' data-site="' + escapeHtml(n.employeeName || '') + '"' +
+            ' data-account="' + escapeHtml(n.operator || '') + '"';
+        return '<div class="cn-item type-' + n.type + unreadClass + '"' + attrs + '>'
             + '<div class="cn-item-row">'
             +   '<div class="cn-icon type-' + n.type + '">' + iconChar + '</div>'
             +   '<div class="cn-text">'
@@ -885,40 +1047,129 @@
             + '</div>';
     }
 
+    // ---------- 履歴タブ ----------
+    function laCnGroupBy(items, keyFn) {
+        var groups = {}, order = [];
+        items.forEach(function (it) {
+            var k = keyFn(it) || '(未分類)';
+            if (!groups[k]) { groups[k] = []; order.push(k); }
+            groups[k].push(it);
+        });
+        return order.map(function (k) { return { key: k, items: groups[k] }; });
+    }
+
+    function buildHistoryAxisGroups(grouped) {
+        if (grouped.length === 0) return '<div class="cn-empty">履歴はありません</div>';
+        return grouped.map(function (g) {
+            return '<div class="cn-axis-group">'
+                + '<button type="button" class="cn-axis-group-head" aria-expanded="true">' + escapeHtml(g.key)
+                +   '<span class="cn-axis-group-toggle" aria-hidden="true">▴</span>'
+                + '</button>'
+                + g.items.map(buildNotifyItemHtml).join('')
+                + '</div>';
+        }).join('');
+    }
+
+    function buildHistoryView() {
+        var siteBody = document.getElementById('laCnHistorySiteBody');
+        var accBody = document.getElementById('laCnHistoryAccountBody');
+
+        if (siteBody) {
+            var bySite = laCnGroupBy(notifications, function (n) { return n.employeeName; });
+            siteBody.innerHTML = buildHistoryAxisGroups(bySite);
+        }
+        if (accBody) {
+            var byAcc = laCnGroupBy(notifications, function (n) { return n.operator; });
+            accBody.innerHTML = buildHistoryAxisGroups(byAcc);
+        }
+
+        buildHistoryPickBadges();
+    }
+
+    function buildHistoryPickBadges() {
+        // 会社→社員 (2段階)
+        var compNode = document.getElementById('laCnPickCompanyBadges');
+        var siteGroupsNode = document.getElementById('laCnPickSiteBadgesGroups');
+        if (compNode && siteGroupsNode) {
+            // 通知に登場した社員のみを対象に会社別グループ化
+            var employeesWithNotif = {};
+            notifications.forEach(function (n) {
+                if (!n.employeeName) return;
+                var emp = laEmployees.find(function (e) { return e.name === n.employeeName; });
+                if (!emp) return;
+                if (!employeesWithNotif[emp.company]) employeesWithNotif[emp.company] = {};
+                employeesWithNotif[emp.company][emp.name] = true;
+            });
+            var companies = Object.keys(employeesWithNotif);
+            var companyLabels = { touo: '東央', nikkei: 'Nikkei', aje: 'AJE' };
+            compNode.innerHTML = companies.length
+                ? companies.map(function (c) {
+                    return '<button type="button" class="cn-pick-badge" data-company="' + escapeHtml(c) + '">' + escapeHtml(companyLabels[c] || c) + '</button>';
+                }).join('')
+                : '<button type="button" class="cn-pick-badge" disabled>該当データがありません</button>';
+            siteGroupsNode.innerHTML = companies.map(function (c) {
+                var names = Object.keys(employeesWithNotif[c]);
+                return '<div class="cn-pick-badges" data-company="' + escapeHtml(c) + '" hidden>'
+                    + names.map(function (name) {
+                        return '<button type="button" class="cn-pick-badge">' + escapeHtml(name) + '</button>';
+                    }).join('')
+                    + '</div>';
+            }).join('');
+        }
+        // アカウント (1段階)
+        var accNode = document.getElementById('laCnPickAccountBadges');
+        if (accNode) {
+            var ops = {};
+            notifications.forEach(function (n) { if (n.operator) ops[n.operator] = true; });
+            var opList = Object.keys(ops);
+            accNode.innerHTML = opList.length
+                ? opList.map(function (o) { return '<button type="button" class="cn-pick-badge">' + escapeHtml(o) + '</button>'; }).join('')
+                : '<button type="button" class="cn-pick-badge" disabled>アカウントがありません</button>';
+        }
+    }
+
     function escapeHtml(s) {
         return String(s == null ? '' : s)
             .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    // アイテムクリック → 該当休暇バッジへジャンプ
+    // アイテムクリック → 該当休暇バッジへジャンプ + フラッシュ + 詳細編集ポップオーバー
     document.addEventListener('cn:jump', function (e) {
         var item = e.detail && e.detail.item;
         if (!item) return;
         if (!item.closest('#laCnPanel')) return;
-        var leaveId = parseInt(item.dataset.leaveId, 10);
-        if (isNaN(leaveId)) return;
+        var leaveId = item.dataset.leaveId;
+        if (!leaveId) return;
         // 既読化
         var n = notifications.find(function (x) { return x.leaveId === leaveId; });
         if (n) { n.isRead = true; renderNotifyBadge(); }
         var lv = laLeaves.find(function (x) { return x.id === leaveId; });
-        if (lv) {
-            currentView = 'month';
-            currentDate = new Date(parseDate(lv.date).getFullYear(), parseDate(lv.date).getMonth(), 1);
-            document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
-                t.classList.toggle('is-active', t.dataset.view === 'month');
-            });
-            render();
-            setTimeout(function () {
-                var badge = document.querySelector('.md-la-badge[data-leave-id="' + lv.id + '"]');
-                if (badge) laShowBadgeInfo(lv, badge);
-            }, 50);
-        }
         // パネルを閉じる
         if (window.coNotifyPanel) {
             var anchor = document.getElementById('laCnAnchor');
             if (anchor) window.coNotifyPanel.close(anchor);
         }
+        if (!lv) return;
+        // 月間ビューに切替 + 該当月へ
+        currentView = 'month';
+        currentDate = new Date(parseDate(lv.date).getFullYear(), parseDate(lv.date).getMonth(), 1);
+        document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
+            t.classList.toggle('is-active', t.dataset.view === 'month');
+        });
+        render();
+        setTimeout(function () {
+            var badge = document.querySelector('.md-la-badge[data-leave-id="' + lv.id + '"]');
+            if (!badge) return;
+            // フラッシュアニメーション
+            badge.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            badge.classList.remove('md-la-badge-flash');
+            void badge.offsetWidth; // reflow でアニメ再生
+            badge.classList.add('md-la-badge-flash');
+            setTimeout(function () { badge.classList.remove('md-la-badge-flash'); }, 1800);
+            // 詳細編集ポップオーバーを開く
+            laShowBadgeInfo(lv, badge);
+        }, 100);
     });
 
     // 「すべて既読」 → 既読反映 + 再描画
@@ -2014,6 +2265,8 @@
                 pushNotification({
                     type: 'approved',
                     leaveId: lv.id,
+                    employeeName: popoverState.employee.name,
+                    operator: currentRoleLabel(),
                     text: popoverState.employee.name + 'の休暇を承認',
                     sub: lv.date + ' / ' + KIND[lv.kind]
                 });
@@ -2023,6 +2276,8 @@
                 pushNotification({
                     type: 'rejected',
                     leaveId: lv.id,
+                    employeeName: popoverState.employee.name,
+                    operator: currentRoleLabel(),
                     text: popoverState.employee.name + 'の休暇を却下',
                     sub: lv.date + ' / ' + KIND[lv.kind]
                 });
@@ -2111,6 +2366,7 @@
         } else {
             currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
         }
+        miniCalDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
         render();
     }
     function navigateNext() {
@@ -2122,6 +2378,7 @@
         } else {
             currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
         }
+        miniCalDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
         render();
     }
     function navigateToday() {
@@ -2131,6 +2388,7 @@
         } else {
             currentDate = new Date(t.getFullYear(), t.getMonth(), 1);
         }
+        miniCalDate = new Date(t.getFullYear(), t.getMonth(), 1);
         render();
     }
 
@@ -2190,6 +2448,10 @@
         document.getElementById('laPrevBtn').addEventListener('click', navigatePrev);
         document.getElementById('laNextBtn').addEventListener('click', navigateNext);
         document.getElementById('laTodayBtn').addEventListener('click', navigateToday);
+
+        // ミニカレンダー + マウスホイール
+        bindMiniCal();
+        bindCalendarWheel();
 
         // ビュータブ (月間・週間・年間すべて実装)
         document.querySelectorAll('.md-la-view-tab').forEach(function (el) {

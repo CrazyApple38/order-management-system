@@ -3871,23 +3871,22 @@
         function cnRenderItem(n, options) {
             options = options || {};
             var iconChar = cnIconChars[n.type] || '?';
-            var hasDetail = (n.type === 'modify' && n.diffs && n.diffs.length > 0)
-                || (n.type === 'add' && n.details && n.details.length > 0);
+            // 追加/変更/削除すべてアコーディオン展開でキャンセル/適用ボタンを出す
             var stateClass = n.reverted ? ' is-reverted' : (n._approved ? ' is-approved' : '');
             var unreadClass = (!options.suppressUnread && !n._read) ? ' is-unread' : '';
 
-            var chevron = hasDetail ? '<span class="cn-chevron">▾</span>' : '';
-            var expandHtml = '';
-            if (hasDetail) {
-                var diffHtml = cnBuildDiffHtml(n);
-                var actionBtn = n.reverted
-                    ? '<button class="cn-jump-btn" type="button" onclick="event.stopPropagation();cnReapproveNotification(' + n.id + ')">↻ 適用する</button>'
-                    : '<button class="cn-jump-btn" type="button" onclick="event.stopPropagation();cnRevertNotification(' + n.id + ')">↩ キャンセル</button>';
-                expandHtml = '<div class="cn-expand">' + diffHtml + actionBtn + '</div>';
+            var diffHtml = cnBuildDiffHtml(n);
+            if (!diffHtml && n.type === 'delete') {
+                diffHtml = '<div class="cn-diff-line"><span class="cn-diff-from">この行は削除されました</span></div>';
             }
+            var actionBtn = n.reverted
+                ? '<button class="cn-jump-btn" type="button" onclick="event.stopPropagation();cnReapproveNotification(' + n.id + ')">↻ 適用する</button>'
+                : '<button class="cn-jump-btn" type="button" onclick="event.stopPropagation();cnRevertNotification(' + n.id + ')">↩ キャンセル</button>';
+            var expandHtml = '<div class="cn-expand">' + diffHtml + actionBtn + '</div>';
+            var chevron = '<span class="cn-chevron">▾</span>';
 
             var dateChip = options.showDateChip && n.time ? '<span class="cn-date-chip">' + escapeHtml(n.time) + '</span>' : '';
-            return '<div class="cn-item type-' + n.type + unreadClass + stateClass + '" data-nid="' + n.id + '">' +
+            return '<div class="cn-item type-' + n.type + unreadClass + stateClass + '" data-nid="' + n.id + '" data-type="' + n.type + '" data-site="' + escapeHtml(n.siteName || '') + '" data-account="' + escapeHtml(n.user || '') + '">' +
                 '<div class="cn-item-row">' +
                     '<div class="cn-icon type-' + n.type + '">' + iconChar + '</div>' +
                     '<div class="cn-text">' +
@@ -3936,7 +3935,11 @@
 
         function cnRenderHistoryItem(h) {
             var iconChar = cnIconChars[h.type] || '?';
-            return '<div class="cn-item type-' + h.type + '"' + (h.notificationId != null ? ' data-nid="' + h.notificationId + '"' : '') + '>' +
+            var attrs = (h.notificationId != null ? ' data-nid="' + h.notificationId + '"' : '') +
+                ' data-type="' + h.type + '"' +
+                ' data-site="' + escapeHtml(h.siteName || '') + '"' +
+                ' data-account="' + escapeHtml(h.user || '') + '"';
+            return '<div class="cn-item type-' + h.type + '"' + attrs + '>' +
                 '<div class="cn-item-row">' +
                     '<div class="cn-icon type-' + h.type + '">' + iconChar + '</div>' +
                     '<div class="cn-text">' +
