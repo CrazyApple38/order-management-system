@@ -3715,11 +3715,13 @@
 
         function updateNotifyBadge() {
             const badge = document.getElementById('cnBadge');
+            if (!badge) return;
             if (cnState.unreadCount > 0) {
                 badge.textContent = cnState.unreadCount;
-                badge.style.display = 'flex';
+                badge.hidden = false;
             } else {
-                badge.style.display = 'none';
+                badge.textContent = '0';
+                badge.hidden = true;
             }
         }
 
@@ -3755,17 +3757,19 @@
             }, 5000);
         }
 
+        // ヘッダーベルクリック: 内容を更新するのみ。パネルの開閉は co-notify-panel.js が .cn-trigger クリックで処理
         function openChangeNotifyModal() {
+            var anchor = document.getElementById('cnAnchor');
+            // 既に開いている場合 → 閉じるためのクリック → 描画は不要
+            if (anchor && anchor.classList.contains('is-open')) return;
             cnState.filterRowId = '';
             // ヘッダーベルからは全既読
             cnState.notifications.forEach(function(n) { n._read = true; });
             cnState.unreadCount = 0;
             updateNotifyBadge();
             cnUpdateRowBells();
-            // フィルタラベルを非表示
             var label = document.getElementById('cnRowFilterLabel');
-            if (label) label.style.display = 'none';
-            document.getElementById('changeNotifyModal').classList.add('active');
+            if (label) label.hidden = true;
             renderLatestChanges();
             renderChangeHistory();
         }
@@ -3792,168 +3796,261 @@
             cnState.unreadCount = cnState.notifications.filter(function(n) { return !n._read; }).length;
             updateNotifyBadge();
             cnUpdateRowBells();
-            // フィルタラベルを表示
+            // フィルタラベルを表示 (現場名でフィルタしている旨)
             var label = document.getElementById('cnRowFilterLabel');
             if (label) {
                 label.textContent = siteName;
-                label.style.display = 'inline-block';
+                label.hidden = false;
             }
-            document.getElementById('changeNotifyModal').classList.add('active');
             renderLatestChanges();
             renderChangeHistory();
+            var anchor = document.getElementById('cnAnchor');
+            if (anchor && window.coNotifyPanel) window.coNotifyPanel.open(anchor);
         }
 
         function closeChangeNotifyModal() {
-            document.getElementById('changeNotifyModal').classList.remove('active');
+            var anchor = document.getElementById('cnAnchor');
+            if (anchor && window.coNotifyPanel) window.coNotifyPanel.close(anchor);
             cnState.filterRowId = '';
+            var label = document.getElementById('cnRowFilterLabel');
+            if (label) label.hidden = true;
         }
 
-        // モーダル外クリックで閉じる
-        document.getElementById('changeNotifyModal').addEventListener('click', function(e) {
-            if (e.target === this) closeChangeNotifyModal();
-        });
-
+        // 上タブ切替は co-notify-panel.js が処理 (互換ラッパー)
         function switchCnTab(tabName) {
             cnState.activeTab = tabName;
-            document.querySelectorAll('.md-cn-tab').forEach(function(tab) {
-                tab.classList.toggle('active', tab.dataset.tab === tabName);
+            var panel = document.getElementById('cnPanel');
+            if (!panel) return;
+            panel.querySelectorAll('.cn-tab').forEach(function (t) {
+                t.classList.toggle('is-active', t.dataset.tab === tabName);
             });
-            document.querySelectorAll('.md-cn-tab-content').forEach(function(content) {
-                content.classList.toggle('active', content.id === (tabName === 'latest' ? 'cnTabLatest' : 'cnTabHistory'));
+            panel.querySelectorAll('.cn-tab-view').forEach(function (v) {
+                v.classList.toggle('is-active', v.dataset.tab === tabName);
+            });
+        }
+
+        // ========== 変更通知パネル レンダリング (cn-* 規約) ==========
+        const cnIconChars = {
+            add: '＋', modify: '✎', delete: '✕',
+            new: '＋', approved: '✓', rejected: '✕'
+        };
+        const cnTypeLabels = { add: '新規追加', modify: '変更', delete: '削除' };
+
+        function cnDescribeAction(n) {
+            if (n.type === 'add') return n.siteName + ' を新規追加';
+            if (n.type === 'delete') return n.siteName + ' を削除';
+            if (n.type === 'modify') {
+                var fields = n.diffs ? n.diffs.map(function(d) { return d.field; }).join('・') : '';
+                return n.siteName + (fields ? ' の' + fields + 'を変更' : ' を変更');
+            }
+            return n.siteName || '';
+        }
+
+        function cnBuildDiffHtml(n) {
+            var html = '';
+            if (n.type === 'modify' && n.diffs) {
+                html = n.diffs.map(function(d) {
+                    return '<div class="cn-diff-line">' +
+                        '<span class="cn-diff-label">' + escapeHtml(d.field) + '</span>' +
+                        '<span class="cn-diff-from">' + escapeHtml(d.oldVal) + '</span>' +
+                        '<span class="cn-diff-arrow">→</span>' +
+                        '<span class="cn-diff-to">' + escapeHtml(d.newVal) + '</span>' +
+                    '</div>';
+                }).join('');
+            } else if (n.type === 'add' && n.details) {
+                html = n.details.map(function(d) {
+                    return '<div class="cn-diff-line">' +
+                        '<span class="cn-diff-label">' + escapeHtml(d.field) + '</span>' +
+                        '<span class="cn-diff-to">' + escapeHtml(d.value) + '</span>' +
+                    '</div>';
+                }).join('');
+            }
+            return html;
+        }
+
+        function cnRenderItem(n, options) {
+            options = options || {};
+            var iconChar = cnIconChars[n.type] || '?';
+            var hasDetail = (n.type === 'modify' && n.diffs && n.diffs.length > 0)
+                || (n.type === 'add' && n.details && n.details.length > 0);
+            var stateClass = n.reverted ? ' is-reverted' : (n._approved ? ' is-approved' : '');
+            var unreadClass = (!options.suppressUnread && !n._read) ? ' is-unread' : '';
+
+            var chevron = hasDetail ? '<span class="cn-chevron">▾</span>' : '';
+            var expandHtml = '';
+            if (hasDetail) {
+                var diffHtml = cnBuildDiffHtml(n);
+                var actionBtn = n.reverted
+                    ? '<button class="cn-jump-btn" type="button" onclick="event.stopPropagation();cnReapproveNotification(' + n.id + ')">↻ 適用する</button>'
+                    : '<button class="cn-jump-btn" type="button" onclick="event.stopPropagation();cnRevertNotification(' + n.id + ')">↩ キャンセル</button>';
+                expandHtml = '<div class="cn-expand">' + diffHtml + actionBtn + '</div>';
+            }
+
+            var dateChip = options.showDateChip && n.time ? '<span class="cn-date-chip">' + escapeHtml(n.time) + '</span>' : '';
+            return '<div class="cn-item type-' + n.type + unreadClass + stateClass + '" data-nid="' + n.id + '">' +
+                '<div class="cn-item-row">' +
+                    '<div class="cn-icon type-' + n.type + '">' + iconChar + '</div>' +
+                    '<div class="cn-text">' +
+                        '<div class="cn-text-main">' + escapeHtml(cnDescribeAction(n)) + dateChip + '</div>' +
+                        '<div class="cn-text-sub">' + escapeHtml(n.user) + ' ・ ' + escapeHtml(n.time || '') + '</div>' +
+                    '</div>' +
+                    chevron +
+                '</div>' +
+                expandHtml +
+            '</div>';
+        }
+
+        function cnFilterNotifications() {
+            return cnState.notifications.filter(function(n) {
+                if (n.gcCode && !window.mdNavGcIsCompanyVisible(n.gcCode)) return false;
+                if (cnState.filterRowId && n._rowId !== cnState.filterRowId) return false;
+                return true;
             });
         }
 
         function renderLatestChanges() {
-            const list = document.getElementById('cnCardList');
-            var filtered = cnState.notifications;
-            // GCフィルタ適用
-            filtered = filtered.filter(function(n) {
-                return !n.gcCode || window.mdNavGcIsCompanyVisible(n.gcCode);
-            });
-            if (cnState.filterRowId) {
-                filtered = filtered.filter(function(n) { return n._rowId === cnState.filterRowId; });
-            }
+            var body = document.getElementById('cnLatestBody');
+            if (!body) return;
+            var filtered = cnFilterNotifications();
             if (filtered.length === 0) {
-                list.innerHTML = '<div class="md-cn-empty">変更通知はありません</div>';
+                body.innerHTML = '<div class="cn-empty">変更通知はありません</div>';
                 return;
             }
+            // 日付グルーピング: SLは当日分のみ流入のため「今日」一括
+            var groupLabel = '今日';
+            body.innerHTML = '<div class="cn-date-group">' +
+                '<button class="cn-date-group-head" type="button" aria-expanded="true">' + escapeHtml(groupLabel) +
+                    '<span class="cn-date-group-toggle" aria-hidden="true">▴</span>' +
+                '</button>' +
+                filtered.map(function(n) { return cnRenderItem(n, {}); }).join('') +
+            '</div>';
+        }
 
-            const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
-            const smCategoryClassMapLocal = {
-                '施設': 'category-facility', 'イベント': 'category-event',
-                '交通': 'category-traffic', '高速': 'category-highway'
-            };
-            const smShiftClassMapLocal = { '昼': 'shift-day', '夜': 'shift-night' };
+        function cnFilterHistory() {
+            return cnState.history.filter(function(h) {
+                if (h.gcCode && !window.mdNavGcIsCompanyVisible(h.gcCode)) return false;
+                if (cnState.filterRowId && h.siteName !== cnState.filterRowId) return false;
+                return true;
+            });
+        }
 
-            list.innerHTML = filtered.map(function(n) {
-                var cardClass = 'md-cn-card md-cn-card-' + n.type;
-                var badgeClass = 'md-cn-type-badge md-cn-type-badge-' + n.type;
-                var catClass = smCategoryClassMapLocal[n.category] || 'category-facility';
-                var shiftClass = smShiftClassMapLocal[n.shift] || 'shift-day';
-
-                var diffHtml = '';
-                if (n.type === 'modify' && n.diffs) {
-                    diffHtml = '<div class="md-cn-diff-list">' +
-                        n.diffs.map(function(d) {
-                            return '<div class="md-cn-diff-row">' +
-                                '<span class="md-cn-diff-label">' + d.field + '</span>' +
-                                '<span class="md-cn-diff-old">' + escapeHtml(d.oldVal) + '</span>' +
-                                '<span class="md-cn-diff-arrow">→</span>' +
-                                '<span class="md-cn-diff-new">' + escapeHtml(d.newVal) + '</span>' +
-                            '</div>';
-                        }).join('') +
-                    '</div>';
-                } else if (n.type === 'add' && n.details) {
-                    diffHtml = '<div class="md-cn-diff-list">' +
-                        n.details.map(function(d) {
-                            return '<div class="md-cn-diff-row">' +
-                                '<span class="md-cn-diff-label">' + d.field + '</span>' +
-                                '<span class="md-cn-diff-new">' + escapeHtml(d.value) + '</span>' +
-                            '</div>';
-                        }).join('') +
-                    '</div>';
-                } else if (n.type === 'delete') {
-                    diffHtml = '<div class="md-cn-diff-list"><div class="md-cn-diff-row"><span class="md-cn-diff-old">この行は削除されました</span></div></div>';
-                }
-
-                var stateClass = n.reverted ? ' md-cn-card-reverted' : (n._approved ? ' md-cn-card-approved' : '');
-                var statusBadge = '';
-                var actionsHtml = '';
-                if (n.reverted) {
-                    statusBadge = '<span class="md-cn-reverted-badge">キャンセル</span>';
-                    actionsHtml = '<div class="md-cn-card-actions">' +
-                        '<button class="md-cn-btn-reapprove" onclick="cnReapproveNotification(' + n.id + ')">適用する</button>' +
-                    '</div>';
-                } else {
-                    if (n._approved) statusBadge = '<span class="md-cn-approved-badge">適用</span>';
-                    actionsHtml = '<div class="md-cn-card-actions">' +
-                        '<button class="md-cn-btn-revert" onclick="cnRevertNotification(' + n.id + ')">キャンセル</button>' +
-                    '</div>';
-                }
-
-                return '<div class="' + cardClass + stateClass + '" data-nid="' + n.id + '">' +
-                    '<div class="md-cn-card-header">' +
-                        '<span class="' + badgeClass + '">' + typeLabels[n.type] + '</span>' +
-                        statusBadge +
-                        '<span class="md-cn-card-user">' + escapeHtml(n.user) + '</span>' +
-                        '<span class="md-cn-card-time">' + n.time + '</span>' +
+        function cnRenderHistoryItem(h) {
+            var iconChar = cnIconChars[h.type] || '?';
+            return '<div class="cn-item type-' + h.type + '"' + (h.notificationId != null ? ' data-nid="' + h.notificationId + '"' : '') + '>' +
+                '<div class="cn-item-row">' +
+                    '<div class="cn-icon type-' + h.type + '">' + iconChar + '</div>' +
+                    '<div class="cn-text">' +
+                        '<div class="cn-text-main">' + escapeHtml(h.summary || h.siteName || '') + '</div>' +
+                        '<div class="cn-text-sub">' + escapeHtml(h.user) + ' ・ ' + escapeHtml(h.time || '') + '</div>' +
                     '</div>' +
-                    '<div class="md-cn-card-body">' +
-                        '<div class="md-cn-card-site">' +
-                            '<span class="shift-badge ' + shiftClass + '">' + n.shift + '</span>' +
-                            '<span class="category-badge ' + catClass + '">' + n.category + '</span>' +
-                            escapeHtml(n.siteName) +
-                        '</div>' +
-                        diffHtml +
-                    '</div>' +
-                    actionsHtml +
+                '</div>' +
+            '</div>';
+        }
+
+        function cnGroupBy(items, keyFn) {
+            var groups = {};
+            var order = [];
+            items.forEach(function(it) {
+                var k = keyFn(it) || '(未分類)';
+                if (!groups[k]) { groups[k] = []; order.push(k); }
+                groups[k].push(it);
+            });
+            return order.map(function(k) { return { key: k, items: groups[k] }; });
+        }
+
+        function cnRenderAxisGroups(grouped) {
+            if (grouped.length === 0) return '<div class="cn-empty">変更履歴はありません</div>';
+            return grouped.map(function(g) {
+                return '<div class="cn-axis-group">' +
+                    '<button class="cn-axis-group-head" type="button" aria-expanded="true">' + escapeHtml(g.key) +
+                        '<span class="cn-axis-group-toggle" aria-hidden="true">▴</span>' +
+                    '</button>' +
+                    g.items.map(cnRenderHistoryItem).join('') +
                 '</div>';
             }).join('');
         }
 
         function renderChangeHistory() {
-            const timeline = document.getElementById('cnTimeline');
-            var filtered = cnState.history;
-            // GCフィルタ適用
-            filtered = filtered.filter(function(h) {
-                return !h.gcCode || window.mdNavGcIsCompanyVisible(h.gcCode);
-            });
-            if (cnState.filterRowId) {
-                filtered = filtered.filter(function(h) { return h.siteName === cnState.filterRowId; });
+            var siteBody = document.getElementById('cnHistorySiteBody');
+            var accBody = document.getElementById('cnHistoryAccountBody');
+            var filtered = cnFilterHistory();
+
+            if (siteBody) {
+                var bySite = cnGroupBy(filtered, function(h) { return h.siteName; });
+                siteBody.innerHTML = cnRenderAxisGroups(bySite);
             }
-            if (filtered.length === 0) {
-                timeline.innerHTML = '<div class="md-cn-empty">変更履歴はありません</div>';
-                return;
+            if (accBody) {
+                var byAcc = cnGroupBy(filtered, function(h) { return h.user; });
+                accBody.innerHTML = cnRenderAxisGroups(byAcc);
             }
 
-            const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
+            // 一覧選択バッジ (契約先 → 現場 / アカウント) をデモ用に組み立て
+            cnRenderPickBadges(filtered);
+        }
 
-            timeline.innerHTML = filtered.map(function(h) {
-                var clickable = h.notificationId != null;
-                var clickAttrs = clickable
-                    ? ' md-cn-tl-clickable" onclick="cnJumpToCard(' + h.notificationId + ')'
-                    : '';
-                return '<div class="md-cn-timeline-item md-cn-tl-' + h.type + clickAttrs + '">' +
-                    '<div class="md-cn-tl-header">' +
-                        '<span class="md-cn-tl-time">' + h.time + '</span>' +
-                        '<span class="md-cn-tl-user">' + escapeHtml(h.user) + '</span>' +
-                        '<span class="md-cn-tl-type md-cn-tl-type-' + h.type + '">' + typeLabels[h.type] + '</span>' +
-                    '</div>' +
-                    '<div class="md-cn-tl-content">' + escapeHtml(h.summary) + '</div>' +
-                '</div>';
-            }).join('');
+        function cnRenderPickBadges(historyItems) {
+            // 現場名: グループ会社別 (gcCode → 現場一覧)
+            var companyBadges = document.getElementById('cnPickCompanyBadges');
+            var siteGroups = document.getElementById('cnPickSiteBadgesGroups');
+            if (companyBadges && siteGroups) {
+                var byGc = cnGroupBy(
+                    historyItems.filter(function(h) { return !!h.siteName; }),
+                    function(h) { return h.gcCode || '一般'; }
+                );
+                companyBadges.innerHTML = byGc.map(function(g) {
+                    var label = (function() {
+                        for (var i = 0; i < (window.groupCompaniesData || []).length; i++) {
+                            if (window.groupCompaniesData[i].code === g.key) return window.groupCompaniesData[i].name;
+                        }
+                        return g.key;
+                    })();
+                    return '<button class="cn-pick-badge" type="button" data-company="' + escapeHtml(g.key) + '">' + escapeHtml(label) + '</button>';
+                }).join('') || '<button class="cn-pick-badge" type="button" disabled>契約先がありません</button>';
+
+                siteGroups.innerHTML = byGc.map(function(g) {
+                    var sites = {};
+                    g.items.forEach(function(h) { sites[h.siteName] = true; });
+                    var siteList = Object.keys(sites);
+                    return '<div class="cn-pick-badges" data-company="' + escapeHtml(g.key) + '" hidden>' +
+                        siteList.map(function(s) {
+                            return '<button class="cn-pick-badge" type="button">' + escapeHtml(s) + '</button>';
+                        }).join('') +
+                    '</div>';
+                }).join('');
+            }
+            // アカウント
+            var accBadges = document.getElementById('cnPickAccountBadges');
+            if (accBadges) {
+                var users = {};
+                historyItems.forEach(function(h) { if (h.user) users[h.user] = true; });
+                var userList = Object.keys(users);
+                accBadges.innerHTML = userList.length
+                    ? userList.map(function(u) { return '<button class="cn-pick-badge" type="button">' + escapeHtml(u) + '</button>'; }).join('')
+                    : '<button class="cn-pick-badge" type="button" disabled>アカウントがありません</button>';
+            }
         }
 
         function cnJumpToCard(notificationId) {
             switchCnTab('latest');
             setTimeout(function() {
-                var card = document.querySelector('.md-cn-card[data-nid="' + notificationId + '"]');
-                if (!card) return;
-                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                card.classList.add('md-cn-card-highlight');
-                setTimeout(function() { card.classList.remove('md-cn-card-highlight'); }, 1500);
+                var item = document.querySelector('.cn-item[data-nid="' + notificationId + '"]');
+                if (!item) return;
+                item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                item.classList.add('cn-item-highlight');
+                setTimeout(function() { item.classList.remove('cn-item-highlight'); }, 1500);
             }, 50);
         }
+
+        // 履歴タブのアイテム → 最新タブの該当カードへジャンプ
+        document.addEventListener('cn:jump', function(e) {
+            var item = e.detail && e.detail.item;
+            if (!item) return;
+            var nid = item.dataset && item.dataset.nid;
+            if (!nid) return;
+            // 履歴タブで発火した場合は最新タブへジャンプ
+            var inHistory = item.closest('.cn-tab-view[data-tab="history"]');
+            if (inHistory) cnJumpToCard(parseInt(nid, 10));
+        });
 
         function checkConflict(notification) {
             const siteModal = document.getElementById('siteModal');
@@ -4309,9 +4406,11 @@
             cnState.unreadCount = cnState.notifications.filter(function(n) { return !n._read; }).length;
             updateNotifyBadge();
             cnUpdateRowBells();
-            // モーダルが開いていれば再描画
-            if (document.getElementById('changeNotifyModal').classList.contains('active')) {
+            // パネルが開いていれば再描画
+            var anchor = document.getElementById('cnAnchor');
+            if (anchor && anchor.classList.contains('is-open')) {
                 renderLatestChanges();
+                renderChangeHistory();
             }
             if (typeof renderMinimap === 'function') renderMinimap();
         }
@@ -5636,9 +5735,9 @@
 
         document.addEventListener('gcFilterChanged', function() {
             applyGcFilter();
-            // 変更通知モーダルが開いていれば再描画
-            var cnModal = document.getElementById('changeNotifyModal');
-            if (cnModal && cnModal.classList.contains('active')) {
+            // 変更通知パネルが開いていれば再描画
+            var cnAnchorEl = document.getElementById('cnAnchor');
+            if (cnAnchorEl && cnAnchorEl.classList.contains('is-open')) {
                 renderLatestChanges();
                 renderChangeHistory();
             }

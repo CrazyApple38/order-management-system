@@ -1,0 +1,684 @@
+/* ============================================================
+   co-notify-panel.css — 変更通知パネル 共通スタイル
+   notify-compare.html (統合案 + 履歴タブ縦タブ) を本番採用
+   ベルアイコンに対するドロップダウンとして動作
+   ============================================================ */
+
+/* ----- アンカー (ベルボタン + パネルの位置基準) ----- */
+.cn-anchor {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* ----- トリガーボタン (ベルアイコン + 未読バッジ) ----- */
+.cn-trigger {
+    position: relative;
+    background: transparent;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    color: inherit;
+    transition: background 150ms;
+}
+.cn-trigger:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+.cn-trigger img,
+.cn-trigger .cn-trigger-icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+.cn-trigger-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    background: var(--semantic-error);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    pointer-events: none;
+}
+.cn-trigger-badge[hidden] { display: none; }
+
+/* ============================================================
+   パネル本体
+   ============================================================ */
+.cn-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 1000;
+    width: 320px;
+    max-width: calc(100vw - 16px);
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-md);
+    box-shadow: var(--elevation-4);
+    overflow: hidden;
+    font-size: 12px;
+    color: var(--text-primary);
+    display: none;
+}
+.cn-anchor.is-open > .cn-panel,
+.cn-panel.is-open { display: block; }
+
+.cn-panel--mobile { width: 280px; }
+
+/* ----- ヘッダー ----- */
+.cn-head {
+    padding: 8px 12px;
+    background: var(--bg-surface-2);
+    border-bottom: 1px solid var(--divider);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.cn-title {
+    font-weight: 700;
+    flex: 1;
+    color: var(--text-primary);
+}
+.cn-mark-all {
+    background: transparent;
+    border: none;
+    color: var(--accent-primary);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 4px;
+}
+.cn-mark-all:hover { text-decoration: underline; }
+
+/* ----- 上タブ (最新 / 履歴) ----- */
+.cn-tabs {
+    display: flex;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--divider);
+}
+.cn-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 150ms, border-color 150ms;
+    font-family: inherit;
+}
+.cn-tab:hover { color: var(--text-primary); }
+.cn-tab.is-active {
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+}
+
+/* ----- タブビュー (上タブ連動) ----- */
+.cn-tab-view { display: none; }
+.cn-tab-view.is-active { display: block; }
+
+/* ----- ボディ ----- */
+.cn-body {
+    max-height: 360px;
+    overflow-y: auto;
+}
+.cn-body--latest { max-height: 420px; }
+.cn-body--history { max-height: 380px; }
+
+.cn-empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 11px;
+}
+
+/* 行フィルタラベル (ヘッダー右上) */
+.cn-row-filter-label {
+    display: inline-block;
+    padding: 1px 6px;
+    background: var(--accent-primary);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 8px;
+    line-height: 1.5;
+}
+.cn-row-filter-label[hidden] { display: none; }
+
+/* ジャンプ時のハイライト (cnJumpToCard 等が付与) */
+.cn-item-highlight {
+    animation: cn-flash 1.5s ease-out;
+}
+@keyframes cn-flash {
+    0%   { background: rgba(68, 166, 181, 0.35); }
+    100% { background: transparent; }
+}
+
+/* ============================================================
+   通知アイテム
+   ============================================================ */
+.cn-item {
+    border-bottom: 1px solid var(--divider);
+    cursor: pointer;
+    transition: background 150ms;
+    position: relative;
+}
+.cn-item:hover { background: var(--bg-surface-2); }
+.cn-item.is-unread { background: rgba(68, 166, 181, 0.06); }
+.cn-item.is-unread:hover { background: rgba(68, 166, 181, 0.12); }
+
+.cn-item-row {
+    display: flex;
+    gap: 10px;
+    padding: 10px 12px;
+    align-items: flex-start;
+}
+.cn-item.is-unread::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 16px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+}
+
+/* アクション種別アイコン */
+.cn-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+    line-height: 1;
+}
+.cn-icon.type-add      { background: var(--accent-primary); }
+.cn-icon.type-modify   { background: var(--accent-secondary); }
+.cn-icon.type-delete   { background: var(--semantic-error); }
+.cn-icon.type-new      { background: var(--accent-primary); }
+.cn-icon.type-approved { background: var(--semantic-success); }
+.cn-icon.type-rejected { background: var(--semantic-error); }
+.cn-icon.type-master   { background: var(--accent-secondary); }   /* マスタ更新 */
+.cn-icon.type-leave    { background: var(--accent-primary); }     /* 休暇申請 */
+
+.cn-text {
+    flex: 1;
+    min-width: 0;
+}
+.cn-text-main {
+    color: var(--text-primary);
+    font-weight: 500;
+    line-height: 1.4;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.cn-text-sub {
+    color: var(--text-tertiary);
+    font-size: 10px;
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* 1行目末尾の対象日付チップ */
+.cn-date-chip {
+    display: inline-block;
+    padding: 1px 6px;
+    background: var(--bg-surface-3);
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 8px;
+    letter-spacing: 0.02em;
+}
+
+/* 折り畳み矢印 */
+.cn-chevron {
+    color: var(--text-tertiary);
+    font-size: 14px;
+    line-height: 1;
+    margin-top: 6px;
+    flex-shrink: 0;
+    transition: transform 150ms;
+}
+.cn-item.is-expanded .cn-chevron { color: var(--text-primary); }
+
+/* アコーディオン展開エリア */
+.cn-expand {
+    padding: 8px 12px 12px 50px;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    border-top: 1px dashed var(--divider);
+    margin: 0 12px;
+}
+.cn-item.is-expanded .cn-expand { display: flex; }
+
+.cn-diff-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    letter-spacing: 0.04em;
+}
+.cn-diff-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    flex-wrap: wrap;
+}
+.cn-diff-from {
+    color: var(--text-tertiary);
+    text-decoration: line-through;
+}
+.cn-diff-arrow { color: var(--text-tertiary); }
+.cn-diff-to {
+    color: var(--accent-primary);
+    font-weight: 600;
+}
+
+/* ジャンプボタン */
+.cn-jump-btn {
+    margin-top: 4px;
+    align-self: flex-start;
+    padding: 5px 12px;
+    background: var(--accent-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms;
+    font-family: inherit;
+}
+.cn-jump-btn:hover { background: var(--accent-primary-light); }
+.cn-jump-btn::before {
+    content: '↗ ';
+    margin-right: 2px;
+}
+
+/* ============================================================
+   履歴タブ — 共通ツールバー
+   ============================================================ */
+.cn-history-toolbar {
+    padding: 8px 12px;
+    background: var(--bg-surface-2);
+    border-bottom: 1px solid var(--divider);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cn-search { display: block; }
+.cn-search input {
+    width: 100%;
+    padding: 5px 10px;
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 150ms;
+    font-family: inherit;
+}
+.cn-search input:focus { border-color: var(--accent-primary); }
+.cn-search input::placeholder { color: var(--text-tertiary); }
+
+.cn-filter-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.cn-filter-chips {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.cn-filter-chip {
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: 12px;
+    padding: 2px 9px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 150ms, color 150ms, border-color 150ms;
+    line-height: 1.5;
+    font-family: inherit;
+}
+.cn-filter-chip:hover {
+    color: var(--text-primary);
+    border-color: var(--text-tertiary);
+}
+.cn-filter-chip.is-active {
+    background: var(--accent-primary);
+    color: #fff;
+    border-color: var(--accent-primary);
+}
+.cn-filter-select {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 6px;
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* 検索ボックスと一覧ボタンを横並び */
+.cn-search-row {
+    display: flex;
+    gap: 4px;
+    align-items: stretch;
+}
+.cn-search-row .cn-search { flex: 1; min-width: 0; }
+
+/* ============================================================
+   日付グルーピング (最新タブ / LA履歴で共有) — アコーディオン化
+   ============================================================ */
+.cn-date-group-head {
+    padding: 5px 12px;
+    background: var(--bg-page);
+    color: var(--text-tertiary);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--divider);
+    border-top: 1px solid var(--divider);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+.cn-date-group:first-child .cn-date-group-head { border-top: none; }
+
+button.cn-date-group-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    border-left: none;
+    border-right: none;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+}
+button.cn-date-group-head:hover { background: var(--bg-surface-2); }
+
+.cn-date-group-toggle {
+    flex-shrink: 0;
+    margin-left: 8px;
+    font-size: 11px;
+    line-height: 1;
+    color: var(--text-tertiary);
+}
+.cn-date-group.is-collapsed .cn-item { display: none; }
+
+/* 履歴タブでは未読色分けを弱める */
+.cn-body--history .cn-item.is-unread { background: var(--bg-surface); }
+.cn-body--history .cn-item.is-unread:hover { background: var(--bg-surface-2); }
+.cn-body--history .cn-item.is-unread::before { display: none; }
+
+/* ============================================================
+   履歴タブ 縦型サブタブ (現場名 / アカウント)
+   ============================================================ */
+.cn-history-layout {
+    display: flex;
+    background: var(--bg-surface-2);
+}
+.cn-side-tabs {
+    width: 36px;
+    flex-shrink: 0;
+    background: var(--bg-surface-2);
+    display: flex;
+    flex-direction: column;
+    padding: 6px 0 6px 2px;
+    gap: 3px;
+    border-right: 1px solid var(--divider);
+}
+.cn-side-tab {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    background: var(--bg-surface-3);
+    border: 1px solid var(--divider);
+    border-right: none;
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    padding: 10px 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 150ms, background 150ms, border-color 150ms, box-shadow 150ms;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+    margin-right: -1px;
+    flex: none;
+    position: relative;
+    font-family: inherit;
+}
+.cn-side-tab:hover {
+    color: var(--text-primary);
+    background: var(--bg-surface-2);
+}
+.cn-side-tab.is-active {
+    background: var(--bg-surface);
+    color: var(--accent-primary);
+    border-color: var(--divider);
+    box-shadow: 1px 0 0 0 var(--bg-surface);
+    z-index: 2;
+}
+
+.cn-history-main {
+    flex: 1;
+    min-width: 0;
+    background: var(--bg-surface);
+}
+
+.cn-history-view { display: none; }
+.cn-history-view.is-active { display: block; }
+
+/* ============================================================
+   軸別グルーピング (現場名 / アカウント) — アコーディオン化
+   ============================================================ */
+.cn-axis-group-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 5px 12px;
+    background: var(--bg-page);
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-align: left;
+    border: none;
+    border-bottom: 1px solid var(--divider);
+    border-top: 1px solid var(--divider);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    cursor: pointer;
+}
+.cn-axis-group-head:hover { background: var(--bg-surface-2); }
+.cn-axis-group:first-child .cn-axis-group-head { border-top: none; }
+
+.cn-axis-group-toggle {
+    flex-shrink: 0;
+    margin-left: 8px;
+    font-size: 11px;
+    line-height: 1;
+    color: var(--text-tertiary);
+}
+.cn-axis-group.is-collapsed .cn-item { display: none; }
+
+/* ============================================================
+   履歴タブ 一覧選択画面 (バッジで2段階選択)
+   ============================================================ */
+.cn-list-pick-btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    flex: none;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 150ms, color 150ms, border-color 150ms;
+    max-width: 160px;
+    font-family: inherit;
+}
+.cn-list-pick-btn:hover {
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    border-color: var(--text-tertiary);
+}
+.cn-list-pick-btn.is-selected {
+    background: var(--accent-primary);
+    color: #fff;
+    border-color: var(--accent-primary);
+    padding-right: 4px;
+}
+.cn-list-pick-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+.cn-list-pick-clear {
+    display: none;
+    width: 16px;
+    height: 16px;
+    line-height: 14px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 11px;
+    color: #fff;
+    cursor: pointer;
+    flex: none;
+}
+.cn-list-pick-btn.is-selected .cn-list-pick-clear {
+    display: inline-block;
+}
+.cn-list-pick-clear:hover { background: rgba(255, 255, 255, 0.25); }
+
+.cn-pick-view {
+    display: none;
+    background: var(--bg-surface);
+}
+.cn-history-view.is-picking .cn-history-toolbar,
+.cn-history-view.is-picking .cn-body--history { display: none; }
+.cn-history-view.is-picking .cn-pick-view { display: block; }
+
+.cn-pick-head {
+    padding: 6px 10px;
+    background: var(--bg-surface-2);
+    border-bottom: 1px solid var(--divider);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.cn-pick-back {
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    color: var(--accent-primary);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    line-height: 1;
+    flex: none;
+    font-family: inherit;
+}
+.cn-pick-back:hover { background: var(--bg-surface-3); }
+
+.cn-pick-crumbs {
+    flex: 1;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.cn-pick-crumb-sep {
+    color: var(--text-tertiary);
+    margin: 0 4px;
+}
+.cn-pick-crumb-current { color: var(--text-primary); }
+
+.cn-pick-step { display: none; padding: 12px 10px; }
+.cn-pick-step.is-active { display: block; }
+
+.cn-pick-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.cn-pick-badge {
+    background: var(--bg-surface-2);
+    border: 1px solid var(--divider);
+    border-radius: 14px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 150ms, color 150ms, border-color 150ms;
+    font-family: inherit;
+}
+.cn-pick-badge:hover {
+    background: var(--accent-primary);
+    color: #fff;
+    border-color: var(--accent-primary);
+}
+
+/* ============================================================
+   モバイル
+   ============================================================ */
+.cn-panel--mobile .cn-history-toolbar { padding: 6px 10px; gap: 5px; }
+.cn-panel--mobile .cn-search input { font-size: 10px; padding: 4px 8px; }
+.cn-panel--mobile .cn-filter-chips { gap: 3px; }
+.cn-panel--mobile .cn-filter-chip { padding: 2px 7px; font-size: 9px; }
+.cn-panel--mobile .cn-filter-select { width: 100%; flex: none; font-size: 10px; }
+.cn-panel--mobile .cn-side-tabs { width: 30px; padding: 4px 0 4px 2px; }
+.cn-panel--mobile .cn-side-tab { padding: 8px 3px; font-size: 10px; letter-spacing: 0.02em; }
+.cn-panel--mobile .cn-pick-head { padding: 5px 8px; }
+.cn-panel--mobile .cn-pick-back { font-size: 13px; padding: 1px 4px; }
+.cn-panel--mobile .cn-pick-crumbs { font-size: 10px; }
+.cn-panel--mobile .cn-pick-step { padding: 10px 8px; }
+.cn-panel--mobile .cn-pick-badge { padding: 4px 9px; font-size: 10px; }
+.cn-panel--mobile .cn-list-pick-btn { padding: 3px 8px; font-size: 10px; max-width: 130px; }

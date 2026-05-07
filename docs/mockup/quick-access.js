@@ -1935,9 +1935,10 @@ function qaCnUpdateBadge() {
         if (!badge) return;
         if (qaCnState.unreadCount > 0) {
             badge.textContent = qaCnState.unreadCount;
-            badge.style.display = 'flex';
+            badge.hidden = false;
         } else {
-            badge.style.display = 'none';
+            badge.textContent = '0';
+            badge.hidden = true;
         }
     });
 }
@@ -2014,57 +2015,44 @@ function qaCnAddSwipeToDismiss(toast) {
     });
 }
 
-// モーダル開閉
+// パネル開閉: ヘッダーベルクリックは描画のみ。開閉は co-notify-panel.js が処理
 function qaCnOpenModal() {
-    var modal = document.getElementById('qaCnModalOverlay');
-    modal.style.display = 'flex';
-    // 全既読
+    // 既に開いているアンカーがあれば描画スキップ (閉じる動作)
+    var anyOpen = document.querySelector('.qa-cn-anchor.is-open');
+    if (anyOpen) return;
     qaCnState.notifications.forEach(function(n) { n._read = true; });
     qaCnState.unreadCount = 0;
     qaCnUpdateBadge();
-    qaCnUpdateFilterSelect();
     qaCnRenderLatest();
     qaCnRenderHistory();
 }
 
 function qaCnCloseModal() {
-    document.getElementById('qaCnModalOverlay').style.display = 'none';
+    document.querySelectorAll('.qa-cn-anchor').forEach(function(a) {
+        if (window.coNotifyPanel) window.coNotifyPanel.close(a);
+    });
 }
 
-// タブ切替
+// 互換ラッパー (co-notify-panel.js が処理する上タブ切替)
 function qaCnSwitchTab(tabName) {
     qaCnState.activeTab = tabName;
-    document.querySelectorAll('#qaCnModalOverlay .md-cn-tab').forEach(function(tab) {
-        tab.classList.toggle('active', tab.dataset.tab === tabName);
+    document.querySelectorAll('.qa-cn-panel').forEach(function(panel) {
+        panel.querySelectorAll('.cn-tab').forEach(function(t) {
+            t.classList.toggle('is-active', t.dataset.tab === tabName);
+        });
+        panel.querySelectorAll('.cn-tab-view').forEach(function(v) {
+            v.classList.toggle('is-active', v.dataset.tab === tabName);
+        });
     });
-    document.getElementById('qaCnTabLatest').classList.toggle('active', tabName === 'latest');
-    document.getElementById('qaCnTabHistory').classList.toggle('active', tabName === 'history');
 }
 
-// フィルタ
+// 現場フィルタ (履歴タブ内チップ/一覧で代替するため互換スタブ)
 function qaCnSetFilter(site) {
     qaCnState.filterSite = site;
     qaCnRenderLatest();
     qaCnRenderHistory();
 }
-
-function qaCnUpdateFilterSelect() {
-    var sel = document.getElementById('qaCnFilterSelect');
-    var current = qaCnState.filterSite;
-    var sites = [];
-    qaCnState.notifications.forEach(function(n) {
-        if (n.siteName && sites.indexOf(n.siteName) === -1) sites.push(n.siteName);
-    });
-    sites.sort();
-    sel.innerHTML = '<option value="">すべての現場</option>';
-    sites.forEach(function(s) {
-        var opt = document.createElement('option');
-        opt.value = s;
-        opt.textContent = s;
-        if (s === current) opt.selected = true;
-        sel.appendChild(opt);
-    });
-}
+function qaCnUpdateFilterSelect() { /* 互換スタブ: 旧selectは廃止 */ }
 
 // セル明滅ハイライト
 function qaCnHighlightCell(dayKey, type) {
@@ -2123,135 +2111,226 @@ function qaCnCardClick(notificationId) {
     setTimeout(function() { qaCnHighlightCell(n.dayKey, n.type); }, 200);
 }
 
-// 履歴→カードジャンプ
+// 履歴→最新タブの該当アイテムへジャンプ
 function qaCnJumpToCard(notificationId) {
     qaCnSwitchTab('latest');
     setTimeout(function() {
-        var card = document.querySelector('#qaCnCardList .md-cn-card[data-nid="' + notificationId + '"]');
-        if (!card) return;
-        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        card.classList.add('md-cn-card-highlight');
-        setTimeout(function() { card.classList.remove('md-cn-card-highlight'); }, 1500);
+        var item = document.querySelector('.qa-cn-panel.qa-cn-anchor-open .cn-item[data-nid="' + notificationId + '"]')
+            || document.querySelector('.qa-cn-panel .cn-item[data-nid="' + notificationId + '"]');
+        if (!item) return;
+        item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        item.classList.add('cn-item-highlight');
+        setTimeout(function() { item.classList.remove('cn-item-highlight'); }, 1500);
     }, 50);
 }
 
-// 最新変更カード描画
+// ========== 通知パネル レンダリング (cn-* 規約) ==========
+const qaCnIconChars = { add: '＋', modify: '✎', delete: '✕' };
+
+function qaCnSiteLabel(n) {
+    if (n.clientName && n.siteName) return n.clientName + ' / ' + n.siteName;
+    return n.siteName || n.clientName || '';
+}
+
+function qaCnDescribeAction(n) {
+    var name = qaCnSiteLabel(n);
+    if (n.type === 'add') return name + ' を新規追加';
+    if (n.type === 'delete') return name + ' を削除';
+    if (n.type === 'modify') {
+        var fields = n.diffs ? n.diffs.map(function(d) { return d.field; }).join('・') : '';
+        return name + (fields ? ' の' + fields + 'を変更' : ' を変更');
+    }
+    return name;
+}
+
+function qaCnBuildDiffHtml(n) {
+    if (n.type === 'modify' && n.diffs) {
+        return n.diffs.map(function(d) {
+            return '<div class="cn-diff-line">' +
+                '<span class="cn-diff-label">' + escHtml(d.field) + '</span>' +
+                '<span class="cn-diff-from">' + escHtml(d.oldVal) + '</span>' +
+                '<span class="cn-diff-arrow">→</span>' +
+                '<span class="cn-diff-to">' + escHtml(d.newVal) + '</span>' +
+            '</div>';
+        }).join('');
+    } else if (n.type === 'add' && n.details) {
+        return n.details.map(function(d) {
+            return '<div class="cn-diff-line">' +
+                '<span class="cn-diff-label">' + escHtml(d.field) + '</span>' +
+                '<span class="cn-diff-to">' + escHtml(d.value) + '</span>' +
+            '</div>';
+        }).join('');
+    }
+    return '';
+}
+
+function qaCnRenderItem(n) {
+    var iconChar = qaCnIconChars[n.type] || '?';
+    var hasDetail = (n.type === 'modify' && n.diffs && n.diffs.length > 0)
+        || (n.type === 'add' && n.details && n.details.length > 0);
+    var stateClass = n.reverted ? ' is-reverted' : (n._approved ? ' is-approved' : '');
+    var unreadClass = !n._read ? ' is-unread' : '';
+    var dayChip = n.dayLabel ? '<span class="cn-date-chip">' + escHtml(n.dayLabel) + '</span>' : '';
+
+    var chevron = hasDetail ? '<span class="cn-chevron">▾</span>' : '';
+    var expandHtml = '';
+    if (hasDetail) {
+        var diffHtml = qaCnBuildDiffHtml(n);
+        var actionBtn = n.reverted
+            ? '<button type="button" class="cn-jump-btn" onclick="event.stopPropagation();qaCnReapprove(' + n.id + ')">↻ 適用する</button>'
+            : '<button type="button" class="cn-jump-btn" onclick="event.stopPropagation();qaCnRevert(' + n.id + ')">↩ キャンセル</button>';
+        expandHtml = '<div class="cn-expand">' + diffHtml + actionBtn + '</div>';
+    }
+
+    return '<div class="cn-item type-' + n.type + unreadClass + stateClass + '" data-nid="' + n.id + '">' +
+        '<div class="cn-item-row">' +
+            '<div class="cn-icon type-' + n.type + '">' + iconChar + '</div>' +
+            '<div class="cn-text">' +
+                '<div class="cn-text-main">' + escHtml(qaCnDescribeAction(n)) + dayChip + '</div>' +
+                '<div class="cn-text-sub">' + escHtml(n.user) + ' ・ ' + escHtml(n.time || '') + '</div>' +
+            '</div>' +
+            chevron +
+        '</div>' +
+        expandHtml +
+    '</div>';
+}
+
+function qaCnFilterNotifications() {
+    return qaCnState.notifications.filter(function(n) {
+        if (n.branch && typeof qaIsGcVisible === 'function' && !qaIsGcVisible(n.branch)) return false;
+        if (qaCnState.filterSite !== '' && n.siteName !== qaCnState.filterSite) return false;
+        return true;
+    });
+}
+
 function qaCnRenderLatest() {
-    var list = document.getElementById('qaCnCardList');
-    var filtered = qaCnState.notifications;
-    // GCフィルタ適用
-    filtered = filtered.filter(function(n) {
-        return !n.branch || qaIsGcVisible(n.branch);
-    });
-    if (qaCnState.filterSite !== '') {
-        filtered = filtered.filter(function(n) { return n.siteName === qaCnState.filterSite; });
-    }
+    var bodies = document.querySelectorAll('.qa-cn-latest-body');
+    var filtered = qaCnFilterNotifications();
+    var html;
     if (filtered.length === 0) {
-        list.innerHTML = '<div class="md-cn-empty">変更通知はありません</div>';
-        return;
-    }
-    var typeLabels = { add: '追加', modify: '変更', delete: '削除' };
-
-    list.innerHTML = filtered.map(function(n) {
-        var cardClass = 'md-cn-card md-cn-card-' + n.type;
-        var badgeClass = 'md-cn-type-badge md-cn-type-badge-' + n.type;
-        var catClass = qaCnCatClassMap[n.category] || 'md-cn-cat-facility';
-        var shiftClass = qaCnShiftClassMap[n.shift] || 'md-cn-shift-day';
-
-        var diffHtml = '';
-        if (n.type === 'modify' && n.diffs) {
-            diffHtml = '<div class="md-cn-diff-list">' +
-                n.diffs.map(function(d) {
-                    return '<div class="md-cn-diff-row">' +
-                        '<span class="md-cn-diff-label">' + escHtml(d.field) + '</span>' +
-                        '<span class="md-cn-diff-old">' + escHtml(d.oldVal) + '</span>' +
-                        '<span class="md-cn-diff-arrow">→</span>' +
-                        '<span class="md-cn-diff-new">' + escHtml(d.newVal) + '</span>' +
-                    '</div>';
-                }).join('') +
-            '</div>';
-        } else if (n.type === 'add' && n.details) {
-            diffHtml = '<div class="md-cn-diff-list">' +
-                n.details.map(function(d) {
-                    return '<div class="md-cn-diff-row">' +
-                        '<span class="md-cn-diff-label">' + escHtml(d.field) + '</span>' +
-                        '<span class="md-cn-diff-new">' + escHtml(d.value) + '</span>' +
-                    '</div>';
-                }).join('') +
-            '</div>';
-        } else if (n.type === 'delete') {
-            diffHtml = '<div class="md-cn-diff-list"><div class="md-cn-diff-row"><span class="md-cn-diff-old">この配置は削除されました</span></div></div>';
-        }
-
-        var stateClass = n.reverted ? ' md-cn-card-reverted' : (n._approved ? ' md-cn-card-approved' : '');
-        var actionsHtml = '';
-        if (n.reverted) {
-            actionsHtml = '<div class="md-cn-card-actions">' +
-                '<button type="button" class="md-cn-btn-reapprove" onclick="event.stopPropagation(); qaCnReapprove(' + n.id + ')">適用する</button>' +
-            '</div>';
-        } else {
-            actionsHtml = '<div class="md-cn-card-actions">' +
-                '<button type="button" class="md-cn-btn-revert" onclick="event.stopPropagation(); qaCnRevert(' + n.id + ')">キャンセル</button>' +
-            '</div>';
-        }
-
-        var siteHtml = '<div class="md-cn-card-site">' +
-            '<span class="md-cn-info-item">' + escHtml(n.clientName || '') + '</span>' +
-            '<span class="md-cn-category-badge ' + catClass + '">' + escHtml(n.category || '') + '</span>' +
-            '<span class="md-cn-info-item">' + escHtml(n.siteName || '') + '</span>' +
-            '<span class="md-cn-shift-badge ' + shiftClass + '">' + escHtml(n.shift || '') + '</span>' +
-            (n.dayLabel ? '<span class="md-cn-day-badge">' + n.dayLabel + '</span>' : '') +
+        html = '<div class="cn-empty">変更通知はありません</div>';
+    } else {
+        html = '<div class="cn-date-group">' +
+            '<button type="button" class="cn-date-group-head" aria-expanded="true">今日' +
+                '<span class="cn-date-group-toggle" aria-hidden="true">▴</span>' +
+            '</button>' +
+            filtered.map(qaCnRenderItem).join('') +
         '</div>';
+    }
+    bodies.forEach(function(b) { b.innerHTML = html; });
+}
 
-        return '<div class="' + cardClass + stateClass + '" data-nid="' + n.id + '" onclick="qaCnCardClick(' + n.id + ')">' +
-            '<div class="md-cn-card-header">' +
-                '<span class="' + badgeClass + '">' + typeLabels[n.type] + '</span>' +
-                '<span class="md-cn-card-user">' + escHtml(n.user) + '</span>' +
-                '<span class="md-cn-card-time">' + n.time + '</span>' +
+function qaCnFilterHistory() {
+    return qaCnState.history.filter(function(h) {
+        if (h.branch && typeof qaIsGcVisible === 'function' && !qaIsGcVisible(h.branch)) return false;
+        if (qaCnState.filterSite !== '' && h.siteName !== qaCnState.filterSite) return false;
+        return true;
+    });
+}
+
+function qaCnRenderHistoryItem(h) {
+    var iconChar = qaCnIconChars[h.type] || '?';
+    var name = h.clientName ? h.clientName + ' / ' + (h.siteName || '') : (h.siteName || '');
+    var dayChip = h.dayLabel ? '<span class="cn-date-chip">' + escHtml(h.dayLabel) + '</span>' : '';
+    var summary = h.summary ? ' (' + h.summary + ')' : '';
+    var click = h.notificationId != null ? ' data-nid="' + h.notificationId + '"' : '';
+    return '<div class="cn-item type-' + h.type + '"' + click + '>' +
+        '<div class="cn-item-row">' +
+            '<div class="cn-icon type-' + h.type + '">' + iconChar + '</div>' +
+            '<div class="cn-text">' +
+                '<div class="cn-text-main">' + escHtml(name) + escHtml(summary) + dayChip + '</div>' +
+                '<div class="cn-text-sub">' + escHtml(h.user) + ' ・ ' + escHtml(h.time || '') + '</div>' +
             '</div>' +
-            '<div class="md-cn-card-body">' +
-                siteHtml +
-                diffHtml +
-            '</div>' +
-            actionsHtml +
+        '</div>' +
+    '</div>';
+}
+
+function qaCnGroupBy(items, keyFn) {
+    var groups = {};
+    var order = [];
+    items.forEach(function(it) {
+        var k = keyFn(it) || '(未分類)';
+        if (!groups[k]) { groups[k] = []; order.push(k); }
+        groups[k].push(it);
+    });
+    return order.map(function(k) { return { key: k, items: groups[k] }; });
+}
+
+function qaCnRenderAxisGroups(grouped) {
+    if (grouped.length === 0) return '<div class="cn-empty">変更履歴はありません</div>';
+    return grouped.map(function(g) {
+        return '<div class="cn-axis-group">' +
+            '<button type="button" class="cn-axis-group-head" aria-expanded="true">' + escHtml(g.key) +
+                '<span class="cn-axis-group-toggle" aria-hidden="true">▴</span>' +
+            '</button>' +
+            g.items.map(qaCnRenderHistoryItem).join('') +
         '</div>';
     }).join('');
 }
 
-// 変更履歴タイムライン描画
 function qaCnRenderHistory() {
-    var timeline = document.getElementById('qaCnTimeline');
-    var filtered = qaCnState.history;
-    // GCフィルタ適用
-    filtered = filtered.filter(function(h) {
-        return !h.branch || qaIsGcVisible(h.branch);
+    var siteBodies = document.querySelectorAll('.qa-cn-history-site-body');
+    var accBodies = document.querySelectorAll('.qa-cn-history-account-body');
+    var filtered = qaCnFilterHistory();
+
+    var bySite = qaCnGroupBy(filtered, function(h) {
+        return h.clientName ? h.clientName + ' / ' + (h.siteName || '') : (h.siteName || '');
     });
-    if (qaCnState.filterSite !== '') {
-        filtered = filtered.filter(function(h) { return h.siteName === qaCnState.filterSite; });
-    }
-    if (filtered.length === 0) {
-        timeline.innerHTML = '<div class="md-cn-empty">変更履歴はありません</div>';
-        return;
-    }
-    var typeLabels = { add: '追加', modify: '変更', delete: '削除' };
-    timeline.innerHTML = filtered.map(function(h) {
-        var displayName = escHtml(h.clientName ? h.clientName + ' / ' + (h.siteName || '') : (h.siteName || ''));
-        var dayBadge = h.dayLabel ? '<span class="md-cn-day-badge">' + h.dayLabel + '</span>' : '';
-        var summaryText = h.summary ? '<span class="md-cn-tl-summary">(' + escHtml(h.summary) + ')</span>' : '';
-        return '<div class="md-cn-timeline-item md-cn-tl-' + h.type + ' md-cn-tl-clickable" onclick="qaCnJumpToCard(' + h.notificationId + ')">' +
-            '<div class="md-cn-tl-header">' +
-                '<span class="md-cn-tl-time">' + h.time + '</span>' +
-                '<span class="md-cn-tl-user">' + escHtml(h.user) + '</span>' +
-                '<span class="md-cn-tl-type md-cn-tl-type-' + h.type + '">' + typeLabels[h.type] + '</span>' +
-            '</div>' +
-            '<div class="md-cn-tl-content">' +
-                '<span class="md-cn-tl-name">' + displayName + '</span> ' +
-                summaryText + ' ' +
-                dayBadge +
-            '</div>' +
+    var siteHtml = qaCnRenderAxisGroups(bySite);
+    siteBodies.forEach(function(b) { b.innerHTML = siteHtml; });
+
+    var byAcc = qaCnGroupBy(filtered, function(h) { return h.user; });
+    var accHtml = qaCnRenderAxisGroups(byAcc);
+    accBodies.forEach(function(b) { b.innerHTML = accHtml; });
+
+    qaCnRenderPickBadges(filtered);
+}
+
+function qaCnRenderPickBadges(historyItems) {
+    var companyBadgeNodes = document.querySelectorAll('.qa-cn-pick-company');
+    var siteGroupsNodes = document.querySelectorAll('.qa-cn-pick-site-groups');
+    var accBadgeNodes = document.querySelectorAll('.qa-cn-pick-account');
+
+    var byCompany = qaCnGroupBy(
+        historyItems.filter(function(h) { return !!h.clientName; }),
+        function(h) { return h.clientName; }
+    );
+    var companyHtml = byCompany.length
+        ? byCompany.map(function(g) {
+            return '<button type="button" class="cn-pick-badge" data-company="' + escHtml(g.key) + '">' + escHtml(g.key) + '</button>';
+        }).join('')
+        : '<button type="button" class="cn-pick-badge" disabled>契約先がありません</button>';
+    companyBadgeNodes.forEach(function(n) { n.innerHTML = companyHtml; });
+
+    var siteGroupHtml = byCompany.map(function(g) {
+        var sites = {};
+        g.items.forEach(function(h) { if (h.siteName) sites[h.siteName] = true; });
+        return '<div class="cn-pick-badges" data-company="' + escHtml(g.key) + '" hidden>' +
+            Object.keys(sites).map(function(s) {
+                return '<button type="button" class="cn-pick-badge">' + escHtml(s) + '</button>';
+            }).join('') +
         '</div>';
     }).join('');
+    siteGroupsNodes.forEach(function(n) { n.innerHTML = siteGroupHtml; });
+
+    var users = {};
+    historyItems.forEach(function(h) { if (h.user) users[h.user] = true; });
+    var userList = Object.keys(users);
+    var accHtml = userList.length
+        ? userList.map(function(u) { return '<button type="button" class="cn-pick-badge">' + escHtml(u) + '</button>'; }).join('')
+        : '<button type="button" class="cn-pick-badge" disabled>アカウントがありません</button>';
+    accBadgeNodes.forEach(function(n) { n.innerHTML = accHtml; });
 }
+
+// 履歴/最新アイテム → セルへジャンプ
+document.addEventListener('cn:jump', function(e) {
+    var item = e.detail && e.detail.item;
+    if (!item) return;
+    if (!item.closest('.qa-cn-panel')) return;
+    var nid = item.dataset && item.dataset.nid;
+    if (!nid) return;
+    qaCnCardClick(parseInt(nid, 10));
+});
 
 // QA登録現場かどうか判定
 function qaCnIsRegisteredSite(siteName) {

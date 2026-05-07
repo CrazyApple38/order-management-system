@@ -845,128 +845,89 @@
         var badge = document.getElementById('laNotifyCount');
         if (!badge) return;
         if (unread === 0) {
-            badge.classList.add('md-la-hidden');
+            badge.textContent = '0';
+            badge.hidden = true;
         } else {
-            badge.classList.remove('md-la-hidden');
             badge.textContent = unread > 99 ? '99+' : unread;
+            badge.hidden = false;
         }
     }
 
+    // co-notify-panel.js が .cn-trigger クリックで開閉する。本関数は内容描画のみ。
     function toggleNotifyPanel() {
-        var existing = document.getElementById('laNotifyPanel');
-        if (existing) { existing.parentNode.removeChild(existing); return; }
+        var anchor = document.getElementById('laCnAnchor');
+        // 既に開いている → 閉じる動作 → 描画スキップ
+        if (anchor && anchor.classList.contains('is-open')) return;
         buildNotifyPanel();
     }
 
     function buildNotifyPanel() {
-        var panel = document.createElement('div');
-        panel.className = 'md-la-notify-panel';
-        panel.id = 'laNotifyPanel';
-
-        // ヘッダー
-        var header = document.createElement('div');
-        header.className = 'md-la-notify-header';
-        var title = document.createElement('span');
-        title.className = 'md-la-notify-title';
-        title.textContent = '通知';
-        header.appendChild(title);
-        var markAll = document.createElement('button');
-        markAll.className = 'md-la-notify-mark-all';
-        markAll.textContent = 'すべて既読にする';
-        markAll.addEventListener('click', function () {
-            notifications.forEach(function (n) { n.isRead = true; });
-            renderNotifyBadge();
-            buildNotifyPanel();
-        });
-        header.appendChild(markAll);
-        panel.appendChild(header);
-
-        // ボディ
-        var body = document.createElement('div');
-        body.className = 'md-la-notify-body';
+        var body = document.getElementById('laCnBody');
+        if (!body) return;
         if (notifications.length === 0) {
-            var empty = document.createElement('div');
-            empty.className = 'md-la-notify-empty';
-            empty.textContent = '通知はありません';
-            body.appendChild(empty);
-        } else {
-            notifications.forEach(function (n) {
-                body.appendChild(buildNotifyItem(n));
-            });
+            body.innerHTML = '<div class="cn-empty">通知はありません</div>';
+            return;
         }
-        panel.appendChild(body);
-
-        // 再構築 (既存を置き換え)
-        var prev = document.getElementById('laNotifyPanel');
-        if (prev && prev.parentNode) prev.parentNode.removeChild(prev);
-        document.body.appendChild(panel);
-
-        // 外部クリックで閉じる
-        setTimeout(function () {
-            document.addEventListener('mousedown', onNotifyOutsideMousedown);
-        }, 0);
+        body.innerHTML = notifications.map(buildNotifyItemHtml).join('');
     }
 
-    function buildNotifyItem(n) {
-        var item = document.createElement('div');
-        item.className = 'md-la-notify-item ' + (n.isRead ? 'is-read' : 'is-unread');
+    function buildNotifyItemHtml(n) {
+        var iconChar = { new: '＋', approved: '✓', rejected: '✕' }[n.type] || '?';
+        var unreadClass = n.isRead ? '' : ' is-unread';
+        return '<div class="cn-item type-' + n.type + unreadClass + '" data-leave-id="' + (n.leaveId || '') + '">'
+            + '<div class="cn-item-row">'
+            +   '<div class="cn-icon type-' + n.type + '">' + iconChar + '</div>'
+            +   '<div class="cn-text">'
+            +     '<div class="cn-text-main">' + escapeHtml(n.text) + '</div>'
+            +     '<div class="cn-text-sub">' + escapeHtml(n.sub) + ' ・ ' + escapeHtml(n.createdAt) + '</div>'
+            +   '</div>'
+            + '</div>'
+            + '</div>';
+    }
 
-        var icon = document.createElement('div');
-        icon.className = 'md-la-notify-icon type-' + n.type;
-        var iconChar = { new: '＋', approved: '✓', rejected: '✗' }[n.type] || '!';
-        icon.textContent = iconChar;
-        item.appendChild(icon);
+    function escapeHtml(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
 
-        var textWrap = document.createElement('div');
-        textWrap.className = 'md-la-notify-text';
-        var main = document.createElement('div');
-        main.className = 'md-la-notify-text-main';
-        main.textContent = n.text;
-        var sub = document.createElement('div');
-        sub.className = 'md-la-notify-text-sub';
-        sub.textContent = n.sub + ' · ' + n.createdAt;
-        textWrap.appendChild(main);
-        textWrap.appendChild(sub);
-        item.appendChild(textWrap);
-
-        item.addEventListener('click', function () {
-            n.isRead = true;
-            renderNotifyBadge();
-            // 対応する休暇レコードに飛んでポップオーバーを開く
-            var lv = laLeaves.find(function (x) { return x.id === n.leaveId; });
-            if (lv) {
-                // 月間ビューに遷移して該当日へ移動
-                currentView = 'month';
-                currentDate = new Date(parseDate(lv.date).getFullYear(), parseDate(lv.date).getMonth(), 1);
-                document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
-                    t.classList.toggle('is-active', t.dataset.view === 'month');
-                });
-                render();
-                setTimeout(function () {
-                    var badge = document.querySelector('.md-la-badge[data-leave-id="' + lv.id + '"]');
-                    if (badge) laShowBadgeInfo(lv, badge);
-                }, 50);
-            }
-            var panel = document.getElementById('laNotifyPanel');
-            if (panel && panel.parentNode) panel.parentNode.removeChild(panel);
-            document.removeEventListener('mousedown', onNotifyOutsideMousedown);
-            buildNotifyPanel(); // 既読反映のため再構築
+    // アイテムクリック → 該当休暇バッジへジャンプ
+    document.addEventListener('cn:jump', function (e) {
+        var item = e.detail && e.detail.item;
+        if (!item) return;
+        if (!item.closest('#laCnPanel')) return;
+        var leaveId = parseInt(item.dataset.leaveId, 10);
+        if (isNaN(leaveId)) return;
+        // 既読化
+        var n = notifications.find(function (x) { return x.leaveId === leaveId; });
+        if (n) { n.isRead = true; renderNotifyBadge(); }
+        var lv = laLeaves.find(function (x) { return x.id === leaveId; });
+        if (lv) {
+            currentView = 'month';
+            currentDate = new Date(parseDate(lv.date).getFullYear(), parseDate(lv.date).getMonth(), 1);
+            document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
+                t.classList.toggle('is-active', t.dataset.view === 'month');
+            });
+            render();
             setTimeout(function () {
-                var p = document.getElementById('laNotifyPanel');
-                if (p && p.parentNode) p.parentNode.removeChild(p);
-            }, 0);
-        });
-        return item;
-    }
+                var badge = document.querySelector('.md-la-badge[data-leave-id="' + lv.id + '"]');
+                if (badge) laShowBadgeInfo(lv, badge);
+            }, 50);
+        }
+        // パネルを閉じる
+        if (window.coNotifyPanel) {
+            var anchor = document.getElementById('laCnAnchor');
+            if (anchor) window.coNotifyPanel.close(anchor);
+        }
+    });
 
-    function onNotifyOutsideMousedown(e) {
-        var panel = document.getElementById('laNotifyPanel');
-        if (!panel) return;
-        if (panel.contains(e.target)) return;
-        if (e.target.closest && e.target.closest('#laNotifyBtn')) return;
-        panel.parentNode.removeChild(panel);
-        document.removeEventListener('mousedown', onNotifyOutsideMousedown);
-    }
+    // 「すべて既読」 → 既読反映 + 再描画
+    document.addEventListener('cn:mark-all', function (e) {
+        if (!e.target.closest || !e.target.closest('#laCnPanel')) return;
+        notifications.forEach(function (n) { n.isRead = true; });
+        renderNotifyBadge();
+        buildNotifyPanel();
+    });
 
     // ==========================================================
     // CSV 出力 (E5)

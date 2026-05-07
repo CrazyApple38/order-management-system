@@ -98,10 +98,21 @@
         +   '</a>'
         // --- 右端アクション ---
         +   '<div class="md-nav-actions">'
-        +     '<button class="md-nav-action-btn" id="mdNavNotifyBtn" title="変更通知">'
-        +       '<img src="mockup/icons/bell.svg" alt="通知">'
-        +       '<span class="md-cn-badge" id="mdNavCnBadge" style="display:none;">0</span>'
-        +     '</button>'
+        +     '<div class="cn-anchor md-nav-cn-anchor" id="mdNavCnAnchor">'
+        +       '<button type="button" class="cn-trigger md-nav-action-btn" id="mdNavNotifyBtn" title="変更通知">'
+        +         '<img src="mockup/icons/bell.svg" alt="通知">'
+        +         '<span class="cn-trigger-badge" id="mdNavCnBadge" hidden>0</span>'
+        +       '</button>'
+        +       '<div class="cn-panel" id="mdNavCnPanel">'
+        +         '<div class="cn-head">'
+        +           '<span class="cn-title">変更通知（全画面共通）</span>'
+        +           '<button type="button" class="cn-mark-all">既読</button>'
+        +         '</div>'
+        +         '<div class="cn-tab-view is-active" data-tab="latest">'
+        +           '<div class="cn-body cn-body--latest" id="mdNavCnBody"></div>'
+        +         '</div>'
+        +       '</div>'
+        +     '</div>'
         +     '<button class="md-nav-action-btn" id="mdNavThemeBtn" title="テーマ切替">'
         +       '<img src="mockup/icons/moon.svg" class="md-nav-theme-icon-light" alt="Dark">'
         +       '<img src="mockup/icons/brush.svg" class="md-nav-theme-icon-dark" alt="Light">'
@@ -133,34 +144,24 @@
         { type: 'leave',   icon: 'clock.svg',    title: '休暇申請が承認待ちです',             desc: '鈴木 一郎 / 2026-04-24 (金) 有給休暇',         time: '32分前' },
         { type: 'master',  icon: 'chart.svg',    title: '現場マスタに新規現場が追加されました', desc: '〇〇ビル新築工事 (東央警備)',                  time: '2時間前' }
     ];
+    var mdNavCnIconChars = { master: '✎', leave: '＋' };
     function mdNavCnBuildBody() {
         if (mdNavCnItems.length === 0) {
-            return '<div class="md-nav-cn-empty">'
-                + '<div class="md-nav-cn-empty-icon">&#128276;</div>'
-                + '<div>新しい通知はありません</div>'
-                + '</div>';
+            return '<div class="cn-empty">新しい通知はありません</div>';
         }
-        return '<ul class="md-nav-cn-list">' + mdNavCnItems.map(function (it) {
-            return '<li class="md-nav-cn-item md-nav-cn-item--' + it.type + '">'
-                + '<img src="mockup/icons/' + it.icon + '" class="md-nav-cn-item-icon" alt="">'
-                + '<div class="md-nav-cn-item-body">'
-                +   '<div class="md-nav-cn-item-title">' + it.title + '</div>'
-                +   '<div class="md-nav-cn-item-desc">' + it.desc + '</div>'
+        return mdNavCnItems.map(function (it) {
+            var icon = mdNavCnIconChars[it.type] || '?';
+            return '<div class="cn-item type-' + it.type + (it._read ? '' : ' is-unread') + '">'
+                + '<div class="cn-item-row">'
+                +   '<div class="cn-icon type-' + it.type + '">' + icon + '</div>'
+                +   '<div class="cn-text">'
+                +     '<div class="cn-text-main">' + it.title + '</div>'
+                +     '<div class="cn-text-sub">' + it.desc + ' ・ ' + it.time + '</div>'
+                +   '</div>'
                 + '</div>'
-                + '<div class="md-nav-cn-item-time">' + it.time + '</div>'
-                + '</li>';
-        }).join('') + '</ul>';
+                + '</div>';
+        }).join('');
     }
-    html += ''
-        + '<div class="md-nav-modal-overlay" id="mdNavCnModal">'
-        +   '<div class="md-nav-modal md-nav-cn-modal">'
-        +     '<div class="md-nav-modal-header">'
-        +       '<span class="md-nav-modal-title">変更通知（全画面共通）</span>'
-        +       '<button type="button" class="md-nav-modal-close" onclick="mdNavCnCloseModal()" aria-label="閉じる">&times;</button>'
-        +     '</div>'
-        +     '<div class="md-nav-modal-body" id="mdNavCnBody"></div>'
-        +   '</div>'
-        + '</div>';
 
     // --- GCフィルタモーダル ---
     html += ''
@@ -269,19 +270,22 @@
         }
     });
 
-    // --- ナビバー通知ボタン → 画面横断通知モーダルを開く ---
-    // 各画面固有の通知は画面側のベルで扱うため、ここでは画面モーダルを呼ばない
+    // --- ナビバー通知ボタン → cn-panel ドロップダウンを開く (co-notify-panel.js が処理) ---
+    // 各画面固有の通知は画面側のベルで扱う。共通ナビは画面横断通知のみ。
     window.mdNavCnOpenModal = function () {
+        var anchor = document.getElementById('mdNavCnAnchor');
+        if (anchor && anchor.classList.contains('is-open')) return;
         document.getElementById('mdNavCnBody').innerHTML = mdNavCnBuildBody();
-        document.getElementById('mdNavCnModal').classList.add('md-nav-modal-open');
+        // 既読化
+        mdNavCnItems.forEach(function(it) { it._read = true; });
+        var badge = document.getElementById('mdNavCnBadge');
+        if (badge) { badge.textContent = '0'; badge.hidden = true; }
     };
     window.mdNavCnCloseModal = function () {
-        document.getElementById('mdNavCnModal').classList.remove('md-nav-modal-open');
+        var anchor = document.getElementById('mdNavCnAnchor');
+        if (anchor && window.coNotifyPanel) window.coNotifyPanel.close(anchor);
     };
     document.getElementById('mdNavNotifyBtn').addEventListener('click', mdNavCnOpenModal);
-    document.getElementById('mdNavCnModal').addEventListener('click', function (e) {
-        if (e.target === this) mdNavCnCloseModal();
-    });
 
     // --- ナビバーバッジ: 画面横断通知の件数を独立カウント ---
     (function initNavCnBadge() {
