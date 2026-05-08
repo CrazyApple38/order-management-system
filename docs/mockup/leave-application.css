@@ -426,6 +426,20 @@ body {
     align-items: center;
 }
 
+/* 祝日名バッジ (Google カレンダー風) — セル上部、日付の右隣に小さな赤文字 */
+.md-la-cell-holiday {
+    flex: 1;
+    min-width: 0;
+    font-size: 10px;
+    color: var(--semantic-error);
+    font-weight: var(--fw-semibold);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.md-la-cell.is-other-month .md-la-cell-holiday { color: var(--text-disabled); }
+
 .md-la-cell-body {
     display: flex;
     flex-direction: row;
@@ -870,6 +884,39 @@ body {
     color: var(--text-primary);
 }
 
+/* 左サイドバー配置時 (明るい背景) */
+.md-la-mini-sidebar .md-la-role-switcher {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--bg-surface-2);
+    padding: 4px 6px;
+    border-radius: var(--radius-md);
+    margin-top: 24px;
+    margin-right: 0;
+}
+.md-la-mini-sidebar .md-la-role-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-right: 4px;
+}
+.md-la-mini-sidebar .md-la-role-btn {
+    flex: 1;
+    color: var(--text-secondary);
+    padding: 4px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+}
+.md-la-mini-sidebar .md-la-role-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-surface);
+}
+.md-la-mini-sidebar .md-la-role-btn.is-active {
+    background: var(--bg-surface);
+    color: var(--accent-primary);
+    box-shadow: var(--elevation-1);
+}
+
 /* ============================================================
    通知センター (E6)
    ============================================================ */
@@ -1141,12 +1188,23 @@ body {
 .md-la-year-cell {
     aspect-ratio: 1;
     font-size: 9px;
+    line-height: 1;
     text-align: center;
     padding: 2px 0;
     border-radius: 2px;
     color: var(--text-primary);
     position: relative;
     background: var(--bg-surface-2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+}
+.md-la-year-cell-date { font-size: 9px; }
+.md-la-year-cell-count {
+    font-size: 12px;
+    font-weight: var(--fw-bold);
 }
 .md-la-year-cell.is-other-month {
     background: transparent;
@@ -1154,6 +1212,7 @@ body {
 }
 .md-la-year-cell.is-sat { color: var(--accent-primary); }
 .md-la-year-cell.is-sun { color: var(--semantic-error); }
+.md-la-year-cell.is-holiday { color: var(--semantic-error); }
 .md-la-year-cell.is-today {
     outline: 2px solid var(--accent-primary);
     outline-offset: -2px;

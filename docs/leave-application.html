@@ -66,13 +66,6 @@
 
             <!-- アクション -->
             <div class="md-la-header-actions">
-                <!-- ロール切替 (モック) -->
-                <div class="md-la-role-switcher" id="laRoleSwitcher">
-                    <span class="md-la-role-label">ロール:</span>
-                    <button class="md-la-role-btn" data-role="self" title="本人 (自分の申請のみ編集可)">本人</button>
-                    <button class="md-la-role-btn is-active" data-role="dcp" title="所属GCのDCP (承認可能)">DCP</button>
-                    <button class="md-la-role-btn" data-role="admin" title="管理者 (全権限)">管理</button>
-                </div>
                 <!-- 通知鈴 -->
                 <div class="cn-anchor md-la-cn-anchor" id="laCnAnchor">
                     <button type="button" class="cn-trigger md-la-header-action md-la-notify-btn" id="laNotifyBtn" title="通知">
@@ -215,8 +208,15 @@
                 <!-- ビュー切替 (月間/週間/年間 トグルグループ) -->
                 <div class="md-la-view-tabs" role="tablist" aria-label="ビュー切替">
                     <button type="button" role="tab" class="md-la-view-tab is-active" data-view="month" aria-selected="true">月間</button>
-                    <button type="button" role="tab" class="md-la-view-tab" data-view="week" aria-selected="false">週間</button>
+                    <button type="button" role="tab" class="md-la-view-tab" data-view="week" aria-selected="false" hidden>週間</button>
                     <button type="button" role="tab" class="md-la-view-tab" data-view="year" aria-selected="false">年間</button>
+                </div>
+                <!-- ロール切替 (モック) -->
+                <div class="md-la-role-switcher" id="laRoleSwitcher">
+                    <span class="md-la-role-label">ロール:</span>
+                    <button class="md-la-role-btn" data-role="self" title="本人 (自分の申請のみ編集可)">本人</button>
+                    <button class="md-la-role-btn is-active" data-role="dcp" title="所属GCのDCP (承認可能)">DCP</button>
+                    <button class="md-la-role-btn" data-role="admin" title="管理者 (全権限)">管理</button>
                 </div>
             </aside>
             <!-- カレンダー (月間) / 週間グリッド -->

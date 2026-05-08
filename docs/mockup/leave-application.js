@@ -35,6 +35,81 @@
     }
 
     // ==========================================================
+    // 祝日 (holidays-jp API + localStorage キャッシュ + フォールバック)
+    // データソース: https://holidays-jp.github.io/api/v1/date.json
+    //   - 毎年1月に翌年分が追加更新される
+    //   - GitHub Pages ホストで CORS 対応済み
+    //   - 24h キャッシュ。失敗時は同梱フォールバック表 (2025〜2027) を使用
+    // ==========================================================
+    var HOLIDAY_API_URL = 'https://holidays-jp.github.io/api/v1/date.json';
+    var HOLIDAY_CACHE_KEY = 'la_holidays_cache_v1';
+    var HOLIDAY_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+    var FALLBACK_HOLIDAYS = {
+        '2025-01-01': '元日', '2025-01-13': '成人の日', '2025-02-11': '建国記念の日',
+        '2025-02-23': '天皇誕生日', '2025-02-24': '休日', '2025-03-20': '春分の日',
+        '2025-04-29': '昭和の日', '2025-05-03': '憲法記念日', '2025-05-04': 'みどりの日',
+        '2025-05-05': 'こどもの日', '2025-05-06': '休日', '2025-07-21': '海の日',
+        '2025-08-11': '山の日', '2025-09-15': '敬老の日', '2025-09-23': '秋分の日',
+        '2025-10-13': 'スポーツの日', '2025-11-03': '文化の日', '2025-11-23': '勤労感謝の日',
+        '2025-11-24': '休日',
+        '2026-01-01': '元日', '2026-01-12': '成人の日', '2026-02-11': '建国記念の日',
+        '2026-02-23': '天皇誕生日', '2026-03-20': '春分の日', '2026-04-29': '昭和の日',
+        '2026-05-03': '憲法記念日', '2026-05-04': 'みどりの日', '2026-05-05': 'こどもの日',
+        '2026-05-06': '休日', '2026-07-20': '海の日', '2026-08-11': '山の日',
+        '2026-09-21': '敬老の日', '2026-09-22': '国民の休日', '2026-09-23': '秋分の日',
+        '2026-10-12': 'スポーツの日', '2026-11-03': '文化の日', '2026-11-23': '勤労感謝の日',
+        '2027-01-01': '元日', '2027-01-11': '成人の日', '2027-02-11': '建国記念の日',
+        '2027-02-23': '天皇誕生日', '2027-03-21': '春分の日', '2027-03-22': '休日',
+        '2027-04-29': '昭和の日', '2027-05-03': '憲法記念日', '2027-05-04': 'みどりの日',
+        '2027-05-05': 'こどもの日', '2027-07-19': '海の日', '2027-08-11': '山の日',
+        '2027-09-20': '敬老の日', '2027-09-23': '秋分の日', '2027-10-11': 'スポーツの日',
+        '2027-11-03': '文化の日', '2027-11-23': '勤労感謝の日'
+    };
+
+    var holidayMap = FALLBACK_HOLIDAYS;
+
+    function getHoliday(dateKey) {
+        return (holidayMap && holidayMap[dateKey]) || null;
+    }
+
+    function loadHolidaysFromCache() {
+        try {
+            var raw = localStorage.getItem(HOLIDAY_CACHE_KEY);
+            if (!raw) return null;
+            var cached = JSON.parse(raw);
+            if (!cached || !cached.ts || !cached.data) return null;
+            if (Date.now() - cached.ts > HOLIDAY_CACHE_TTL_MS) return null;
+            return cached.data;
+        } catch (e) { return null; }
+    }
+
+    function saveHolidaysToCache(data) {
+        try {
+            localStorage.setItem(HOLIDAY_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: data }));
+        } catch (e) { /* quota / private mode 無視 */ }
+    }
+
+    function ensureHolidays(onUpdated) {
+        var cached = loadHolidaysFromCache();
+        if (cached) {
+            holidayMap = cached;
+            return; // キャッシュ有効。再描画不要
+        }
+        if (typeof fetch !== 'function') return;
+        fetch(HOLIDAY_API_URL, { cache: 'no-cache' })
+            .then(function (res) { return res.ok ? res.json() : null; })
+            .then(function (data) {
+                if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+                    holidayMap = data;
+                    saveHolidaysToCache(data);
+                    if (typeof onUpdated === 'function') onUpdated();
+                }
+            })
+            .catch(function () { /* フォールバック維持 */ });
+    }
+
+    // ==========================================================
     // 状態
     // ==========================================================
 
@@ -430,12 +505,15 @@
             var isPast = d < today && !sameDay(d, today);
             var dow = d.getDay();
 
+            var holidayName = getHoliday(key);
+
             var cell = document.createElement('div');
             cell.className = 'md-la-cell';
             cell.dataset.date = key;
             if (isOtherMonth) cell.classList.add('is-other-month');
             if (dow === 6) cell.classList.add('is-sat');
             if (dow === 0) cell.classList.add('is-sun');
+            if (holidayName) cell.classList.add('is-holiday');
             if (sameDay(d, today)) cell.classList.add('is-today');
             if (isPast) cell.classList.add('is-past');
 
@@ -445,6 +523,14 @@
             day.className = 'md-la-cell-day';
             day.textContent = d.getDate();
             head.appendChild(day);
+
+            if (holidayName) {
+                var hol = document.createElement('span');
+                hol.className = 'md-la-cell-holiday';
+                hol.textContent = holidayName;
+                hol.title = holidayName;
+                head.appendChild(hol);
+            }
 
             // N 人集中警告 (4 人以上)
             var dayLeaves = (byDate[key] || []).filter(function (lv) { return lv.status !== 'rejected'; });
@@ -693,27 +779,41 @@
             var key = fmtDate(d);
             var cell = document.createElement('div');
             cell.className = 'md-la-year-cell';
-            cell.textContent = d.getDate();
-            if (d.getMonth() !== month) cell.classList.add('is-other-month');
+            var isCurrentMonth = (d.getMonth() === month);
+            if (!isCurrentMonth) cell.classList.add('is-other-month');
             var dow = d.getDay();
+            var holidayName = getHoliday(key);
             if (dow === 6) cell.classList.add('is-sat');
             if (dow === 0) cell.classList.add('is-sun');
+            if (holidayName) cell.classList.add('is-holiday');
             if (sameDay(d, today)) cell.classList.add('is-today');
 
+            var count = isCurrentMonth ? (byDate[key] || []).length : 0;
+
             // ヒートマップレベル
-            if (d.getMonth() === month) {
-                var count = (byDate[key] || []).length;
+            if (isCurrentMonth) {
                 var level = 0;
-                if (count >= 1 && count <= 1) level = 1;
+                if (count === 1) level = 1;
                 else if (count === 2) level = 2;
                 else if (count === 3) level = 3;
                 else if (count === 4) level = 4;
                 else if (count >= 5)  level = 5;
+                var tip = '';
                 if (level > 0) {
                     cell.classList.add('lv-' + level);
-                    cell.title = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() + ' — ' + count + '人休';
+                    tip = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() + ' — ' + count + '人休';
                 }
+                if (holidayName) {
+                    tip = (tip ? tip + ' / ' : d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() + ' — ') + holidayName;
+                }
+                if (tip) cell.title = tip;
             }
+
+            var inner = '<span class="md-la-year-cell-date">' + d.getDate() + '</span>';
+            if (isCurrentMonth && count > 0) {
+                inner += '<span class="md-la-year-cell-count">' + count + '</span>';
+            }
+            cell.innerHTML = inner;
             grid.appendChild(cell);
         }
         card.appendChild(grid);
@@ -2519,6 +2619,8 @@
         seedWsAssignments();
         seedDemoLeaves();
         seedNotifications();
+        // 祝日データ: キャッシュ即時適用 / API 取得後は再描画
+        ensureHolidays(function () { render(); });
 
         // ヘッダー操作
         document.getElementById('laPrevBtn').addEventListener('click', navigatePrev);
