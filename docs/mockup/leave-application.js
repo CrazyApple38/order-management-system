@@ -17,7 +17,7 @@
     // バッジ内チップ表示用: 半休は「昼/夜 ✖」で時間帯不可を示す。
     // 休み (全休) は枠全体で「休み」を表現するため別チップ表示なし。
     var PART_CHIP = { full: null, am: '昼✖', pm: '夜✖' };
-    var KIND_CHIP = { paid: '有給', absent: '欠勤', other: '他' };
+    var KIND_CHIP = { paid: '有', absent: '欠', other: '他' };
     var STATUS_CHIP = { pending: '申請', approved: '承認', rejected: '却下' };
 
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
@@ -309,37 +309,56 @@
                 render();
             });
         }
+        // ミニカレンダーの月移動はメインカレンダーと連動
         if (prevBtn) prevBtn.addEventListener('click', function () {
             var d = getMiniCalDate();
-            miniCalDate = new Date(d.getFullYear(), d.getMonth() - 1, 1);
-            renderMiniCal();
+            var nd = new Date(d.getFullYear(), d.getMonth() - 1, 1);
+            miniCalDate = nd;
+            currentDate = new Date(nd);
+            render();
         });
         if (nextBtn) nextBtn.addEventListener('click', function () {
             var d = getMiniCalDate();
-            miniCalDate = new Date(d.getFullYear(), d.getMonth() + 1, 1);
-            renderMiniCal();
+            var nd = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+            miniCalDate = nd;
+            currentDate = new Date(nd);
+            render();
         });
     }
 
     // ==========================================================
     // マウスホイール: メインカレンダー上で月移動
+    // 感度抑制 — 累積 deltaY が閾値超え + クールダウン経過時のみ 1 ヶ月移動
     // ==========================================================
     function bindCalendarWheel() {
         var wrapper = document.querySelector('.md-la-calendar-wrapper');
         if (!wrapper) return;
-        var lastWheelTs = 0;
+        var WHEEL_THRESHOLD = 80;   // 1 ヶ月分の deltaY (典型的な 1 クリック = 100)
+        var WHEEL_COOLDOWN  = 450;  // 連続移動の最小間隔 (ms)
+        var wheelAccum = 0;
+        var lastNavTs = 0;
+        var resetTimer = null;
         wrapper.addEventListener('wheel', function (e) {
-            // 月間ビュー時のみ
             if (currentView !== 'month') return;
-            // モーダル/ポップオーバーが開いている時は通常スクロール
             if (document.getElementById('laPopover') || document.querySelector('.md-la-modal-backdrop')) return;
-            // スクロール抑止 (ホイール入力を月移動に専念)
             e.preventDefault();
+
+            // 方向が変わったら累積をリセット
+            if ((wheelAccum > 0 && e.deltaY < 0) || (wheelAccum < 0 && e.deltaY > 0)) wheelAccum = 0;
+            wheelAccum += e.deltaY;
+
+            // 一定時間ホイール停止で累積をリセット
+            if (resetTimer) clearTimeout(resetTimer);
+            resetTimer = setTimeout(function () { wheelAccum = 0; }, 300);
+
+            if (Math.abs(wheelAccum) < WHEEL_THRESHOLD) return;
+
             var now = performance.now();
-            if (now - lastWheelTs < 220) return; // 連射抑制
-            lastWheelTs = now;
-            var dir = e.deltaY > 0 ? 1 : (e.deltaY < 0 ? -1 : 0);
-            if (dir === 0) return;
+            if (now - lastNavTs < WHEEL_COOLDOWN) return;
+
+            var dir = wheelAccum > 0 ? 1 : -1;
+            wheelAccum = 0;
+            lastNavTs = now;
             currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + dir, 1);
             miniCalDate = new Date(currentDate);
             render();
@@ -1026,26 +1045,78 @@
             body.innerHTML = '<div class="cn-empty">通知はありません</div>';
             return;
         }
-        body.innerHTML = notifications.map(buildNotifyItemHtml).join('');
+        // 最新タブ: アコーディオン付き (キャンセル/適用ボタン)
+        body.innerHTML = notifications.map(function (n) {
+            return buildNotifyItemHtml(n, { withExpand: true });
+        }).join('');
     }
 
-    function buildNotifyItemHtml(n) {
+    function buildNotifyItemHtml(n, opts) {
+        opts = opts || {};
         var iconChar = { new: '＋', approved: '✓', rejected: '✕' }[n.type] || '?';
         var unreadClass = n.isRead ? '' : ' is-unread';
+        var revertedClass = n.reverted ? ' is-reverted' : '';
         var attrs = ' data-leave-id="' + (n.leaveId || '') + '"' +
             ' data-type="' + n.type + '"' +
             ' data-site="' + escapeHtml(n.employeeName || '') + '"' +
             ' data-account="' + escapeHtml(n.operator || '') + '"';
-        return '<div class="cn-item type-' + n.type + unreadClass + '"' + attrs + '>'
+
+        var chevron = '';
+        var expandHtml = '';
+        if (opts.withExpand) {
+            chevron = '<span class="cn-chevron">▾</span>';
+            var actionBtn = n.reverted
+                ? '<button type="button" class="cn-jump-btn" onclick="event.stopPropagation();laReapplyNotification(\'' + n.id + '\')">↻ 適用する</button>'
+                : '<button type="button" class="cn-jump-btn" onclick="event.stopPropagation();laRevertNotification(\'' + n.id + '\')">↩ キャンセル</button>';
+            expandHtml = '<div class="cn-expand">' + actionBtn + '</div>';
+        }
+
+        return '<div class="cn-item type-' + n.type + unreadClass + revertedClass + '"' + attrs + '>'
             + '<div class="cn-item-row">'
             +   '<div class="cn-icon type-' + n.type + '">' + iconChar + '</div>'
             +   '<div class="cn-text">'
             +     '<div class="cn-text-main">' + escapeHtml(n.text) + '</div>'
             +     '<div class="cn-text-sub">' + escapeHtml(n.sub) + ' ・ ' + escapeHtml(n.createdAt) + '</div>'
             +   '</div>'
+            +   chevron
             + '</div>'
+            + expandHtml
             + '</div>';
     }
+
+    // 通知のキャンセル/復旧 — 該当休暇のステータスを切替
+    // - new (申請): pending → rejected (=カレンダーから消える)
+    // - approved (承認): approved → pending
+    // - rejected (却下): rejected → pending (=カレンダーに復旧)
+    function laRevertNotification(notificationId) {
+        var n = notifications.find(function (x) { return x.id === notificationId; });
+        if (!n || n.reverted) return;
+        var lv = laLeaves.find(function (x) { return x.id === n.leaveId; });
+        if (!lv) return;
+        if (!n._origStatus) n._origStatus = lv.status;
+        if (n.type === 'new') {
+            lv.status = 'rejected';
+        } else {
+            lv.status = 'pending';
+        }
+        n.reverted = true;
+        render();
+        buildNotifyPanel();
+    }
+
+    function laReapplyNotification(notificationId) {
+        var n = notifications.find(function (x) { return x.id === notificationId; });
+        if (!n || !n.reverted) return;
+        var lv = laLeaves.find(function (x) { return x.id === n.leaveId; });
+        if (!lv) return;
+        lv.status = n._origStatus || (n.type === 'rejected' ? 'rejected' : (n.type === 'approved' ? 'approved' : 'pending'));
+        n.reverted = false;
+        render();
+        buildNotifyPanel();
+    }
+    // グローバル公開 (HTML onclick から呼ぶ)
+    window.laRevertNotification = laRevertNotification;
+    window.laReapplyNotification = laReapplyNotification;
 
     // ---------- 履歴タブ ----------
     function laCnGroupBy(items, keyFn) {
@@ -1229,15 +1300,24 @@
         b.addEventListener('mouseenter', function (e) { scheduleTooltip(lv, b, e); });
         b.addEventListener('mouseleave', cancelTooltip);
 
-        // 区分が半休 (午前/午後) のときのみオーバーレイチップを表示
-        // 休み (全休) は別チップ無し (バッジ自体が「休み」を表現)
+        // 上部オーバーレイ行: 種別 (有/欠/他) チップ + 半休時の昼✖/夜✖ チップ
+        // - 種別チップは常に表示
+        // - 区分が半休 (am/pm) のときのみ昼✖/夜✖を右側に並べる
+        var overlayRow = document.createElement('span');
+        overlayRow.className = 'md-la-badge-overlay-row';
+        b.classList.add('has-overlay-row');
+        var kindOverlay = document.createElement('span');
+        kindOverlay.className = 'md-la-badge-kind-overlay kind-' + lv.kind;
+        kindOverlay.textContent = KIND_CHIP[lv.kind];
+        overlayRow.appendChild(kindOverlay);
         if (PART_CHIP[lv.partition]) {
             b.classList.add('has-part-overlay');
             var partOverlay = document.createElement('span');
             partOverlay.className = 'md-la-badge-part-overlay part-' + lv.partition;
             partOverlay.textContent = PART_CHIP[lv.partition];
-            b.appendChild(partOverlay);
+            overlayRow.appendChild(partOverlay);
         }
+        b.appendChild(overlayRow);
 
         // 上段: 氏名 (surname 略称)
         var nameRow = document.createElement('span');
@@ -1245,13 +1325,9 @@
         nameRow.textContent = emp.name;
         b.appendChild(nameRow);
 
-        // 下段: 種別 / ステータスのチップを縦並び (区分は上記オーバーレイで表示)
+        // 下段: ステータスチップ (種別はオーバーレイ行へ移動済)
         var chips = document.createElement('span');
         chips.className = 'md-la-badge-chips';
-        var kindChip = document.createElement('span');
-        kindChip.className = 'md-la-badge-chip kind-' + lv.kind;
-        kindChip.textContent = KIND_CHIP[lv.kind];
-        chips.appendChild(kindChip);
         var statusChip = document.createElement('span');
         statusChip.className = 'md-la-badge-chip status-' + lv.status;
         statusChip.textContent = STATUS_CHIP[lv.status];

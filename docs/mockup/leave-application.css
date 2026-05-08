@@ -320,19 +320,25 @@ body {
     overflow: auto;
     background: var(--bg-surface);
     padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .md-la-calendar {
     background: var(--bg-surface);
     border-radius: var(--radius-md);
     box-shadow: var(--elevation-1);
-    overflow: hidden;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    /* 行高は最小 80px、内容に応じて auto 拡張 (省略せず全バッジ表示するため) */
-    grid-auto-rows: minmax(80px, auto);
+    /* 1 行目: 曜日ヘッダー (内容高さ)
+       データ行: 最低 15vh (6行が画面に収まる) + 内容が大きい行は伸びる */
+    grid-template-rows: auto;
+    grid-auto-rows: minmax(15vh, auto);
     gap: 1px;
     background-color: var(--divider);
+    /* overflow: hidden を外すとトラックが内容に応じて伸びるが、角丸保持のため
+       はみ出しは中身側 (cell) のみで隠す */
 }
 
 /* 曜日ヘッダー: Google カレンダー風シンプル (白背景 + 下線) */
@@ -373,6 +379,20 @@ body {
 }
 .md-la-cell.is-sun .md-la-cell-day,
 .md-la-cell.is-holiday .md-la-cell-day { color: var(--semantic-error); }
+
+/* 他月セル: Google カレンダー風に統一された薄グレー (土/日/祝日も上書き) */
+.md-la-cell.is-other-month,
+.md-la-cell.is-other-month.is-sat,
+.md-la-cell.is-other-month.is-sun,
+.md-la-cell.is-other-month.is-holiday {
+    background: var(--bg-surface-neutral);
+}
+.md-la-cell.is-other-month .md-la-cell-day,
+.md-la-cell.is-other-month.is-sat .md-la-cell-day,
+.md-la-cell.is-other-month.is-sun .md-la-cell-day,
+.md-la-cell.is-other-month.is-holiday .md-la-cell-day {
+    color: var(--text-disabled);
+}
 .md-la-cell.is-today {
     outline: 2px solid var(--accent-primary);
     outline-offset: -2px;
@@ -456,21 +476,28 @@ body {
     box-shadow: var(--elevation-2);
     z-index: 3;
 }
+/* ステータスによる背景色制御
+   - 申請中: 黄系ペールトーン (デザインシステム --semantic-warning-bg)
+   - 承認済: 緑系ペールトーン (success系)
+   - 却下:   赤系ペールトーン + 社員名のみ赤の取り消し線
+   注: kind-* の background より後に定義することで上書き */
 .md-la-badge.is-pending {
-    border: 1px dashed rgba(0,0,0,0.35);
+    border: 1px dashed var(--semantic-warning);
+    background-color: var(--semantic-warning-bg);
     background-image: linear-gradient(
         45deg,
         transparent 42%,
-        rgba(255,255,255,0.35) 50%,
+        rgba(255,255,255,0.45) 50%,
         transparent 58%
     );
 }
 .md-la-badge.is-approved {
-    border: 1px solid rgba(0,0,0,0.12);
+    border: 1px solid rgba(56, 161, 105, 0.40);
+    background-color: rgba(56, 161, 105, 0.12);
 }
 .md-la-badge.is-rejected {
+    /* 却下した予定はカレンダーに表示されないため、視覚スタイルは不要 */
     opacity: var(--la-status-rejected-opacity);
-    text-decoration: line-through;
 }
 .md-la-badge.is-dragging {
     opacity: 0.4;
@@ -488,31 +515,31 @@ body {
     100% { box-shadow: 0 0 0 0 transparent; transform: scale(1); }
 }
 
-.md-la-badge.kind-paid {
-    background: var(--la-kind-paid-bg);
-    color: var(--la-kind-paid-text);
-    border-color: rgba(28, 77, 84, 0.25);
+/* kind-* (種別) はバッジ本体のテキスト色のみ担当。背景はステータスで決定する。
+   - 種別の視覚情報は左上の有/欠/他チップ (md-la-badge-kind-overlay) で表現 */
+.md-la-badge.kind-paid   { color: var(--la-kind-paid-text); }
+.md-la-badge.kind-absent { color: var(--la-kind-absent-text); }
+.md-la-badge.kind-other  { color: var(--la-kind-other-text); }
+
+/* ステータス背景色を kind-* の後に再宣言してソース順優先で上書き
+   (却下はカレンダーに表示されないため対象外) */
+.md-la-badge.is-pending {
+    background-color: var(--semantic-warning-bg);
 }
-.md-la-badge.kind-absent {
-    background: var(--la-kind-absent-bg);
-    color: var(--la-kind-absent-text);
-    border-color: rgba(142, 44, 74, 0.30);
-}
-.md-la-badge.kind-other {
-    background: var(--la-kind-other-bg);
-    color: var(--la-kind-other-text);
-    border-color: rgba(63, 59, 49, 0.20);
+.md-la-badge.is-approved {
+    background-color: rgba(56, 161, 105, 0.12);
 }
 
-/* GC 上辺アクセント (::before, 幅を食わず色を示す) */
+
+/* GC 上辺アクセント (::before, バッジの4隅丸みに合わせて配置) */
 .md-la-badge::before {
     content: '';
     position: absolute;
-    top: -1px;
-    left: -1px;
-    right: -1px;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 2px;
-    border-radius: 3px 3px 0 0;
+    border-radius: 4px 4px 0 0;
     background: var(--gc-accent, transparent);
 }
 .md-la-badge.gc-touo     { --gc-accent: #9FA8B4; }
@@ -561,13 +588,40 @@ body {
 .md-la-badge-chip.part-am   { background: #5AB8C6; color: #fff; }
 .md-la-badge-chip.part-pm   { background: #C7A173; color: #fff; }
 
-/* 半休オーバーレイ: バッジ上端の枠線に重ねるピン留めタグ */
-.md-la-badge-part-overlay {
+/* 上部オーバーレイ行: 種別チップ + 半休チップを横並び (バッジ左上の角ピン留め) */
+.md-la-badge-overlay-row {
     position: absolute;
     top: -7px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: -2px;
     z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    pointer-events: none;
+}
+
+/* 種別チップ (有/欠/他 一文字) — 左上の角に表示。デザインシステム準拠カラー */
+.md-la-badge-kind-overlay {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    min-width: 14px;
+    height: 14px;
+    border-radius: 7px;
+    font-size: 9px;
+    font-weight: var(--fw-bold);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    white-space: nowrap;
+}
+.md-la-badge-kind-overlay.kind-paid   { background: var(--semantic-error); color: #fff; }
+.md-la-badge-kind-overlay.kind-absent { background: var(--text-tertiary); color: #fff; }
+.md-la-badge-kind-overlay.kind-other  { background: var(--text-tertiary); color: #fff; }
+
+/* 半休オーバーレイ: 種別チップの右側に並ぶピル (overlay-row 配下) */
+.md-la-badge-part-overlay {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -580,13 +634,12 @@ body {
     letter-spacing: -0.02em;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
     white-space: nowrap;
-    pointer-events: none;
 }
 .md-la-badge-part-overlay.part-am { background: #5AB8C6; color: #fff; }
 .md-la-badge-part-overlay.part-pm { background: #C7A173; color: #fff; }
 
-/* オーバーレイがある場合は上余白を増やしてチップ分のスペースを確保 */
-.md-la-badge.has-part-overlay {
+/* オーバーレイ行があるバッジは上余白を確保 */
+.md-la-badge.has-overlay-row {
     padding-top: 9px;
 }
 
