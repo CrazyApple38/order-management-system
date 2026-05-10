@@ -729,6 +729,32 @@
         return str.length > max ? str.substring(0, max) + '\u2026' : str;
     }
 
+    // \u6cd5\u4eba\u7a2e\u5225\u306e\u7565\u8a18\uff08\u30d0\u30c3\u30b8\u8868\u793a\u7528\uff09\u3002\u63a5\u982d\u30fb\u63a5\u5c3e\u3069\u3061\u3089\u3067\u3082\u4e00\u7b87\u6240\u306e\u307f\u7f6e\u63db\u3002
+    // Why: \u9650\u3089\u308c\u305f\u30c1\u30c3\u30d7\u5e45\u3067\u4f1a\u793e\u540d\u3092\u8b58\u5225\u3057\u3084\u3059\u304f\u3059\u308b\u305f\u3081\u3002
+    var COMPANY_ABBREV_RULES = [
+        ['\u7279\u5b9a\u975e\u55b6\u5229\u6d3b\u52d5\u6cd5\u4eba', '(\u7279\u975e)'],
+        ['\u4e00\u822c\u793e\u56e3\u6cd5\u4eba',                 '(\u4e00\u793e)'],
+        ['\u4e00\u822c\u8ca1\u56e3\u6cd5\u4eba',                 '(\u4e00\u8ca1)'],
+        ['\u516c\u76ca\u793e\u56e3\u6cd5\u4eba',                 '(\u516c\u793e)'],
+        ['\u516c\u76ca\u8ca1\u56e3\u6cd5\u4eba',                 '(\u516c\u8ca1)'],
+        ['\u682a\u5f0f\u4f1a\u793e',                              '(\u682a)'],
+        ['\u6709\u9650\u4f1a\u793e',                              '(\u6709)'],
+        ['\u5408\u540c\u4f1a\u793e',                              '(\u5408)'],
+        ['\u5408\u8cc7\u4f1a\u793e',                              '(\u8cc7)'],
+        ['\u5408\u540d\u4f1a\u793e',                              '(\u540d)']
+    ];
+
+    function abbreviateCompany(name) {
+        if (!name) return name;
+        for (var i = 0; i < COMPANY_ABBREV_RULES.length; i++) {
+            var full = COMPANY_ABBREV_RULES[i][0];
+            if (name.indexOf(full) >= 0) {
+                return name.replace(full, COMPANY_ABBREV_RULES[i][1]);
+            }
+        }
+        return name;
+    }
+
     function findSite(id) {
         for (var i = 0; i < wsSitesData.length; i++) {
             if (wsSitesData[i].id === id) return wsSitesData[i];
@@ -1585,7 +1611,10 @@
                                     if (csInfo.hasPrev) {
                                         chip.appendChild(el('span', 'md-ws-chip-arrow md-ws-chip-arrow-prev', '\u25bc'));
                                     }
-                                    chip.appendChild(document.createTextNode(truncate(site.name, 8)));
+                                    var chipText = el('span', 'md-ws-site-chip-text');
+                                    chipText.appendChild(el('span', 'md-ws-site-chip-company', truncate(abbreviateCompany(site.company), 6)));
+                                    chipText.appendChild(el('span', 'md-ws-site-chip-name', truncate(site.name, 5)));
+                                    chip.appendChild(chipText);
                                     if (csInfo.hasNext) {
                                         chip.appendChild(el('span', 'md-ws-chip-arrow md-ws-chip-arrow-next', '\u25b2'));
                                     }
@@ -1722,7 +1751,10 @@
                             if (isPast) chipCls += ' md-ws-readonly';
                             var chip = el('div', chipCls);
                             chip.dataset.siteId = siteId;
-                            chip.appendChild(document.createTextNode(truncate(site.name, 8)));
+                            var chipText = el('span', 'md-ws-site-chip-text');
+                            chipText.appendChild(el('span', 'md-ws-site-chip-company', truncate(abbreviateCompany(site.company), 6)));
+                            chipText.appendChild(el('span', 'md-ws-site-chip-name', truncate(site.name, 5)));
+                            chip.appendChild(chipText);
                             chip.title = site.company + ' / ' + site.name;
                             if (!isPast) {
                                 var removeBtn = el('span', 'md-ws-chip-remove', '\u00d7');
@@ -4825,25 +4857,27 @@
         var first = dates[0];
         var last = dates[dates.length - 1];
 
-        // 年ラベル
-        var yearLabel = document.getElementById('wsYearLabel');
-        if (yearLabel) {
-            var y1 = first.getFullYear();
-            var y2 = last.getFullYear();
-            yearLabel.textContent = y1 === y2
-                ? y1 + '\u5e74'
-                : y1 + '\u5e74\u301c' + y2 + '\u5e74';
-        }
-
-        // 日付範囲ラベル
         var label = document.getElementById('wsMonthLabel');
-        if (label) {
-            var m1 = first.getMonth() + 1;
-            var d1 = first.getDate();
-            var m2 = last.getMonth() + 1;
-            var d2 = last.getDate();
-            label.textContent = m1 + '\u6708' + d1 + '\u65e5\uff5e' + m2 + '\u6708' + d2 + '\u65e5';
+        if (!label) return;
+
+        var y1 = first.getFullYear();
+        var y2 = last.getFullYear();
+        var m1 = first.getMonth() + 1;
+        var d1 = first.getDate();
+        var m2 = last.getMonth() + 1;
+        var d2 = last.getDate();
+
+        // 年同一なら先頭に1回、月同一なら ～d2日、月を跨ぐと ～m2月d2日
+        var text;
+        if (y1 === y2) {
+            text = (m1 === m2)
+                ? y1 + '\u5e74 ' + m1 + '\u6708' + d1 + '\u65e5\uff5e' + d2 + '\u65e5'
+                : y1 + '\u5e74 ' + m1 + '\u6708' + d1 + '\u65e5\uff5e' + m2 + '\u6708' + d2 + '\u65e5';
+        } else {
+            text = y1 + '\u5e74' + m1 + '\u6708' + d1 + '\u65e5\uff5e'
+                 + y2 + '\u5e74' + m2 + '\u6708' + d2 + '\u65e5';
         }
+        label.textContent = text;
     }
 
     function toggleGroup(groupId) {

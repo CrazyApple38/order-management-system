@@ -14,30 +14,55 @@
     <link rel="stylesheet" href="mockup/weekly-schedule.css">
 </head>
 <body>
+    <!-- SVG icon sprite -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="md-ws-svg-sprite" aria-hidden="true">
+        <defs>
+            <symbol id="ui-icon-chevron-left" viewBox="0 0 512 512">
+                <path d="M275.99,499.426L72.428,298.063C64.372,290.095,59.854,279.284,59.854,267.971 c0-11.312,4.518-22.14,12.573-30.091C88.85,221.459,115.665,221.608,132.102,238.226l128.955,130.351V42.328 C261.057,18.966,280.022,0,303.384,0c23.382,0,42.328,18.965,42.328,42.328V368.34l128.955-130.351 c16.438-16.618,43.252-16.767,59.864,0.33c16.612,16.438,16.758,43.252,0.328,59.875L333.496,499.555 C325.528,507.612,314.717,512.13,303.404,512.13C292.093,512.13,281.265,507.61,275.99,499.426z" transform="rotate(90 256 256)"/>
+            </symbol>
+            <symbol id="ui-icon-chevron-right" viewBox="0 0 512 512">
+                <path d="M275.99,499.426L72.428,298.063C64.372,290.095,59.854,279.284,59.854,267.971 c0-11.312,4.518-22.14,12.573-30.091C88.85,221.459,115.665,221.608,132.102,238.226l128.955,130.351V42.328 C261.057,18.966,280.022,0,303.384,0c23.382,0,42.328,18.965,42.328,42.328V368.34l128.955-130.351 c16.438-16.618,43.252-16.767,59.864,0.33c16.612,16.438,16.758,43.252,0.328,59.875L333.496,499.555 C325.528,507.612,314.717,512.13,303.404,512.13C292.093,512.13,281.265,507.61,275.99,499.426z" transform="rotate(-90 256 256)"/>
+            </symbol>
+            <symbol id="ui-icon-chevrons-left" viewBox="0 0 512 512">
+                <g transform="translate(42, 128) scale(0.5)">
+                    <path d="M275.99,499.426L72.428,298.063C64.372,290.095,59.854,279.284,59.854,267.971 c0-11.312,4.518-22.14,12.573-30.091C88.85,221.459,115.665,221.608,132.102,238.226l128.955,130.351V42.328 C261.057,18.966,280.022,0,303.384,0c23.382,0,42.328,18.965,42.328,42.328V368.34l128.955-130.351 c16.438-16.618,43.252-16.767,59.864,0.33c16.612,16.438,16.758,43.252,0.328,59.875L333.496,499.555 C325.528,507.612,314.717,512.13,303.404,512.13C292.093,512.13,281.265,507.61,275.99,499.426z" transform="rotate(90 256 256)"/>
+                </g>
+                <g transform="translate(212, 128) scale(0.5)">
+                    <path d="M275.99,499.426L72.428,298.063C64.372,290.095,59.854,279.284,59.854,267.971 c0-11.312,4.518-22.14,12.573-30.091C88.85,221.459,115.665,221.608,132.102,238.226l128.955,130.351V42.328 C261.057,18.966,280.022,0,303.384,0c23.382,0,42.328,18.965,42.328,42.328V368.34l128.955-130.351 c16.438-16.618,43.252-16.767,59.864,0.33c16.612,16.438,16.758,43.252,0.328,59.875L333.496,499.555 C325.528,507.612,314.717,512.13,303.404,512.13C292.093,512.13,281.265,507.61,275.99,499.426z" transform="rotate(90 256 256)"/>
+                </g>
+            </symbol>
+            <symbol id="ui-icon-chevrons-right" viewBox="0 0 512 512">
+                <g transform="translate(42, 128) scale(0.5)">
+                    <path d="M275.99,499.426L72.428,298.063C64.372,290.095,59.854,279.284,59.854,267.971 c0-11.312,4.518-22.14,12.573-30.091C88.85,221.459,115.665,221.608,132.102,238.226l128.955,130.351V42.328 C261.057,18.966,280.022,0,303.384,0c23.382,0,42.328,18.965,42.328,42.328V368.34l128.955-130.351 c16.438-16.618,43.252-16.767,59.864,0.33c16.612,16.438,16.758,43.252,0.328,59.875L333.496,499.555 C325.528,507.612,314.717,512.13,303.404,512.13C292.093,512.13,281.265,507.61,275.99,499.426z" transform="rotate(-90 256 256)"/>
+                </g>
+                <g transform="translate(212, 128) scale(0.5)">
+                    <path d="M275.99,499.426L72.428,298.063C64.372,290.095,59.854,279.284,59.854,267.971 c0-11.312,4.518-22.14,12.573-30.091C88.85,221.459,115.665,221.608,132.102,238.226l128.955,130.351V42.328 C261.057,18.966,280.022,0,303.384,0c23.382,0,42.328,18.965,42.328,42.328V368.34l128.955-130.351 c16.438-16.618,43.252-16.767,59.864,0.33c16.612,16.438,16.758,43.252,0.328,59.875L333.496,499.555 C325.528,507.612,314.717,512.13,303.404,512.13C292.093,512.13,281.265,507.61,275.99,499.426z" transform="rotate(-90 256 256)"/>
+                </g>
+            </symbol>
+        </defs>
+    </svg>
+
     <!-- co-navbar.js が自動挿入 -->
 
     <div class="md-ws-container">
         <!-- ヘッダー -->
         <div class="md-ws-header">
             <span class="md-ws-header-title">週間予定表</span>
-
-            <span class="md-ws-year-label" id="wsYearLabel">2026年</span>
-
-            <div class="md-ws-header-nav">
-                <button class="md-ws-nav-btn" id="wsPrevWeek" title="前の週">◀前週</button>
-                <button class="md-ws-nav-btn" id="wsPrevDay" title="前の日">◀前日</button>
-                <span class="md-ws-month-label" id="wsMonthLabel">4月6日～4月12日</span>
-                <button class="md-ws-nav-btn" id="wsNextDay" title="次の日">翌日▶</button>
-                <button class="md-ws-nav-btn" id="wsNextWeek" title="次の週">翌週▶</button>
-            </div>
-
-            <button class="md-ws-today-btn" id="wsTodayBtn">今日</button>
-
             <div class="md-ws-header-spacer"></div>
         </div>
 
-        <!-- ツールバー（GCフィルタは共通ナビバーに移動） -->
-        <div class="md-ws-toolbar"></div>
+        <!-- ツールバー -->
+        <div class="md-ws-toolbar">
+            <!-- 現場軸/社員軸 トグルは JS が左端に挿入 -->
+            <div class="md-ws-nav-group">
+                <button type="button" class="md-ws-nav-btn" id="wsPrevWeek" aria-label="前週" title="前週"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevrons-left"/></svg></button>
+                <button type="button" class="md-ws-nav-btn" id="wsPrevDay" aria-label="前日" title="前日"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-left"/></svg></button>
+                <span class="md-ws-month-label" id="wsMonthLabel">2026年 4月6日～12日</span>
+                <button type="button" class="md-ws-nav-btn" id="wsNextDay" aria-label="翌日" title="翌日"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-right"/></svg></button>
+                <button type="button" class="md-ws-nav-btn" id="wsNextWeek" aria-label="翌週" title="翌週"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevrons-right"/></svg></button>
+            </div>
+            <button type="button" class="md-ws-today-btn" id="wsTodayBtn">今日</button>
+        </div>
 
         <!-- メインエリア -->
         <div class="md-ws-main">

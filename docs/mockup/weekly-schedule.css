@@ -182,72 +182,83 @@ body {
     flex-shrink: 0;
 }
 
+.md-ws-svg-sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
 .md-ws-header-title {
     font-size: 15px;
     font-weight: 700;
     white-space: nowrap;
 }
 
-.md-ws-year-label {
-    font-size: 14px;
-    font-weight: 600;
-    white-space: nowrap;
-    opacity: 0.85;
+.md-ws-header-spacer {
+    flex: 1;
 }
 
-.md-ws-header-nav {
+/* --- ツールバー: ナビゲーション群（LA ミニカレンダー準拠） --- */
+.md-ws-nav-group {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
     flex-shrink: 0;
 }
 
 .md-ws-nav-btn {
-    background: var(--header-btn-bg);
+    background: transparent;
     border: none;
-    color: #fff;
+    width: 28px;
     height: 28px;
-    padding: 0 8px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 500;
+    border-radius: 50%;
     display: inline-flex;
     align-items: center;
-    white-space: nowrap;
-    transition: background 0.15s;
+    justify-content: center;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0;
+    transition: background var(--duration-fast, 150ms),
+                color var(--duration-fast, 150ms);
 }
 
 .md-ws-nav-btn:hover {
-    background: var(--header-btn-hover);
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+}
+
+.md-ws-nav-btn .ui-icon {
+    width: 14px;
+    height: 14px;
 }
 
 .md-ws-month-label {
     font-size: 13px;
-    font-weight: 600;
+    font-weight: var(--fw-semibold, 600);
+    color: var(--text-primary);
     white-space: nowrap;
     text-align: center;
-    padding: 0 4px;
+    padding: 0 8px;
+    font-variant-numeric: tabular-nums;
 }
 
 .md-ws-today-btn {
-    background: var(--header-btn-bg);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    color: #fff;
-    padding: 3px 10px;
-    border-radius: 6px;
+    background: transparent;
+    border: 1px solid var(--divider);
+    color: var(--text-primary);
+    padding: 4px 14px;
+    border-radius: 14px;
     cursor: pointer;
-    font-size: 11px;
-    font-weight: 600;
-    transition: background 0.15s;
+    font-size: 12px;
+    font-weight: var(--fw-semibold, 600);
+    transition: background var(--duration-fast, 150ms),
+                border-color var(--duration-fast, 150ms);
 }
 
 .md-ws-today-btn:hover {
-    background: var(--header-btn-hover);
-}
-
-.md-ws-header-spacer {
-    flex: 1;
+    background: var(--bg-surface-2);
+    border-color: var(--text-tertiary);
 }
 
 /* --- ツールバー --- */
@@ -675,17 +686,47 @@ body {
 .md-ws-site-chip {
     font-size: 11px;
     font-weight: 600;
-    padding: 3px 6px;
+    padding: 2px 6px;
     border-radius: 4px;
     background: var(--accent-primary-dim);
     color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     cursor: grab;
     transition: all 0.15s;
     border: 1px solid transparent;
     max-width: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+}
+
+.md-ws-site-chip-text {
+    display: inline-flex;
+    flex-direction: column;
+    line-height: 1.15;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.md-ws-site-chip-company {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+}
+
+.md-ws-site-chip-name {
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.md-ws-site-chip.md-ws-night-chip .md-ws-site-chip-company {
+    color: var(--night-text);
+    opacity: 0.85;
 }
 
 .md-ws-site-chip:hover {
@@ -3860,8 +3901,6 @@ body {
 
     /* サイドバー / ナビゲーション / モーダル / ツールチップを非表示 */
     .md-ws-sidebar,
-    .md-ws-header-nav,
-    .md-ws-today-btn,
     .md-ws-toolbar,
     .md-ws-modal-overlay,
     .md-ws-tooltip,
@@ -3896,9 +3935,7 @@ body {
         border-bottom: 1px solid #000;
     }
 
-    .md-ws-header-title,
-    .md-ws-year-label,
-    .md-ws-month-label {
+    .md-ws-header-title {
         color: #000 !important;
     }
 
