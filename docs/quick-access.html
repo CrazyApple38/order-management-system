@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="mockup/co-buttons.css">
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=2">
+    <link rel="stylesheet" href="mockup/co-company-input.css">
     <link rel="stylesheet" href="mockup/quick-access.css?v=phase-ab">
 </head>
 <body>
@@ -210,7 +211,7 @@
             <div class="qa-add-client-form" id="qaAddClientForm">
                 <h3>新規契約先を登録</h3>
                 <div class="qa-add-client-input-row">
-                    <input type="text" class="qa-add-client-input" id="qaNewClientName" placeholder="契約先名を入力…" autocomplete="off" oninput="qaClientSuggest(this.value)">
+                    <input type="text" class="qa-add-client-input" id="qaNewClientName" placeholder="契約先名を入力…" autocomplete="off" oninput="qaClientSuggest(this.value)" data-co-company-input>
                     <button class="qa-add-client-submit" onclick="qaSubmitNewClient()">登録</button>
                     <button class="qa-add-client-cancel" onclick="qaHideAddClient()">取消</button>
                 </div>
@@ -516,7 +517,7 @@
             <div class="qa-modal-body">
                 <div class="qa-modal-field">
                     <label>契約先名</label>
-                    <input type="text" id="qaClientEditName" placeholder="契約先名を入力…" autocomplete="off">
+                    <input type="text" id="qaClientEditName" placeholder="契約先名を入力…" autocomplete="off" data-co-company-input>
                 </div>
             </div>
             <div class="qa-modal-footer">
@@ -606,6 +607,7 @@
 
     <script src="mockup/demo-data.js?v=2"></script>
     <script src="mockup/co-notify-panel.js?v=3"></script>
+    <script src="mockup/co-company-input.js"></script>
     <script src="mockup/quick-access.js?v=phase-ab"></script>
 </body>
 </html>

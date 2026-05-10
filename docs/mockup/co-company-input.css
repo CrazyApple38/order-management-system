@@ -1,0 +1,63 @@
+/* ============================================================
+   会社名入力フォーム: 略称→正式名称 自動変換時の通知ポップアップ
+   共通スタイル（co-company-input.js と連携）
+   ============================================================ */
+
+.co-company-popup {
+    position: fixed;
+    background: var(--bg-surface, #fff);
+    border: 1px solid var(--accent-primary, #44A6B5);
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    font-size: 12px;
+    line-height: 1.45;
+    z-index: 10000;
+    max-width: 320px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.co-company-popup.co-company-popup-show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 下向き三角（フォームを指す） */
+.co-company-popup::after {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    right: 16px;
+    width: 12px;
+    height: 12px;
+    background: var(--bg-surface, #fff);
+    border-right: 1px solid var(--accent-primary, #44A6B5);
+    border-bottom: 1px solid var(--accent-primary, #44A6B5);
+    transform: rotate(45deg);
+}
+
+.co-company-popup-title {
+    font-weight: 600;
+    color: var(--accent-primary, #44A6B5);
+    margin-bottom: 4px;
+    white-space: nowrap;
+}
+
+.co-company-popup-item {
+    color: var(--text-primary, #2a3038);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.co-company-popup-arrow {
+    color: var(--text-tertiary, #8a8480);
+    margin: 0 4px;
+}
+
+.co-company-popup-formal {
+    color: var(--accent-primary, #44A6B5);
+    font-weight: 600;
+}
