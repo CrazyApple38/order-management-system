@@ -8,7 +8,7 @@
     /* LA 固有: 休み種別カラー */
     --la-kind-paid-bg:    rgba(68, 166, 181, 0.14);   /* 有給: teal */
     --la-kind-paid-text:  #1c4d54;
-    --la-kind-absent-bg:  rgba(219, 87, 123, 0.14);   /* 欠勤: rose */
+    --la-kind-absent-bg:  rgba(219, 87, 123, 0.14);   /* 休暇: rose */
     --la-kind-absent-text: #8e2c4a;
     --la-kind-other-bg:   rgba(211, 208, 200, 0.35);  /* その他: neutral */
     --la-kind-other-text: #3f3b31;
@@ -657,7 +657,7 @@ body {
     padding-top: 9px;
 }
 
-/* 種別チップ: 有給 / 欠勤 / 他 */
+/* 種別チップ: 有給 / 休暇 / 他 */
 .md-la-badge-chip.kind-paid   { background: #1c4d54; color: #fff; }
 .md-la-badge-chip.kind-absent { background: #8e2c4a; color: #fff; }
 .md-la-badge-chip.kind-other  { background: #5A8896; color: #fff; }

@@ -10,14 +10,14 @@
     // 定数・ユーティリティ
     // ==========================================================
 
-    var KIND = { paid: '有給', absent: '欠勤', other: 'その他' };
+    var KIND = { paid: '有給', absent: '休暇', other: 'その他' };
     // 区分: 「全休」→「休み」に改名 (ユーザー指示)
     var PART = { full: '休み', am: '午前休', pm: '午後休' };
     var STATUS = { pending: '申請中', approved: '承認済', rejected: '却下' };
     // バッジ内チップ表示用: 半休は「昼/夜 ✖」で時間帯不可を示す。
     // 休み (全休) は枠全体で「休み」を表現するため別チップ表示なし。
     var PART_CHIP = { full: null, am: '昼✖', pm: '夜✖' };
-    var KIND_CHIP = { paid: '有', absent: '欠', other: '他' };
+    var KIND_CHIP = { paid: '有', absent: '休', other: '他' };
     var STATUS_CHIP = { pending: '申請', approved: '承認', rejected: '却下' };
 
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
@@ -909,7 +909,7 @@
         sg.appendChild(summaryCard('延べ休暇日数', report.totalDays.toFixed(1), '日'));
         sg.appendChild(summaryCard('休暇社員数', report.totalPeople, '名 / ' + laEmployees.length + '名'));
         sg.appendChild(summaryCard('有給消化', report.kindDays.paid.toFixed(1), '日'));
-        sg.appendChild(summaryCard('欠勤', report.kindDays.absent.toFixed(1), '日'));
+        sg.appendChild(summaryCard('休暇', report.kindDays.absent.toFixed(1), '日'));
         sg.appendChild(summaryCard('未承認', report.pendingCount, '件'));
         sg.appendChild(summaryCard('却下', report.rejectedCount, '件'));
         body.appendChild(sg);
@@ -922,7 +922,7 @@
               '<th>社員</th>' +
               '<th>GC</th>' +
               '<th class="num">有給</th>' +
-              '<th class="num">欠勤</th>' +
+              '<th class="num">休暇</th>' +
               '<th class="num">その他</th>' +
               '<th class="num">合計</th>' +
               '<th class="num">有給残</th>' +
@@ -1218,6 +1218,67 @@
     window.laRevertNotification = laRevertNotification;
     window.laReapplyNotification = laReapplyNotification;
 
+    // ---------- 通知クリック → 該当休暇の popover を開く ----------
+    // - 該当 leave が現在表示外の月にある場合は月間ビューへジャンプしてから popover
+    // - 既に表示中の月でも同じく popover を開く
+    function openLeavePopoverForId(leaveId) {
+        var lv = laLeaves.find(function (x) { return String(x.id) === String(leaveId); });
+        if (!lv) return;
+        var d = parseDate(lv.date);
+        var needsRender = (
+            d.getFullYear() !== currentDate.getFullYear() ||
+            d.getMonth() !== currentDate.getMonth() ||
+            currentView !== 'month'
+        );
+        if (needsRender) {
+            currentDate = new Date(d.getFullYear(), d.getMonth(), 1);
+            currentView = 'month';
+            document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
+                t.classList.toggle('is-active', t.dataset.view === 'month');
+            });
+            render();
+        }
+        // 描画完了後に anchor を取得 (バッジ優先 / 無い場合はセル)
+        setTimeout(function () {
+            var anchor = document.querySelector('.md-la-badge[data-leave-id="' + lv.id + '"]')
+                      || document.querySelector('.md-la-cell[data-date="' + lv.date + '"]');
+            if (anchor) laShowBadgeInfo(lv, anchor);
+        }, 0);
+    }
+
+    // 通知パネル内のアイテムクリック処理 (Google Cal/Gmail 風アコーディオン挙動)
+    // - 同じ通知 → トグル (閉じる: popover も閉じる)
+    // - 別の通知 → 開いてた他のアコーディオンを閉じてから開く + popover
+    // co-notify-panel.js が is-expanded を先にトグルする (script 読み込み順) のでその後の状態を読む
+    document.addEventListener('click', function (e) {
+        var row = e.target.closest('.cn-item-row');
+        if (!row) return;
+        if (e.target.closest('.cn-jump-btn')) return;
+        var item = row.parentElement;
+        if (!item || !item.classList.contains('cn-item')) return;
+        var panel = item.closest('#laCnPanel');
+        if (!panel) return; // 他画面の通知パネルは触らない
+        // co-notify-panel が cn-expand 無しのアイテムをスキップしている可能性 (履歴タブ修正前)
+        if (!item.querySelector(':scope > .cn-expand')) return;
+
+        var isNowExpanded = item.classList.contains('is-expanded');
+        if (isNowExpanded) {
+            // 他のアコーディオンを閉じる (相互排他)
+            panel.querySelectorAll('.cn-item.is-expanded').forEach(function (other) {
+                if (other === item) return;
+                other.classList.remove('is-expanded');
+                var ch = other.querySelector('.cn-chevron');
+                if (ch) ch.textContent = '▾';
+            });
+            // 該当 leave の popover を開く
+            var leaveId = item.dataset.leaveId;
+            if (leaveId) openLeavePopoverForId(leaveId);
+        } else {
+            // 閉じた → popover も閉じる
+            laClosePopover();
+        }
+    });
+
     // ---------- 履歴タブ ----------
     function laCnGroupBy(items, keyFn) {
         var groups = {}, order = [];
@@ -1236,7 +1297,7 @@
                 + '<button type="button" class="cn-axis-group-head" aria-expanded="true">' + escapeHtml(g.key)
                 +   '<span class="cn-axis-group-toggle" aria-hidden="true">▴</span>'
                 + '</button>'
-                + g.items.map(buildNotifyItemHtml).join('')
+                + g.items.map(function (it) { return buildNotifyItemHtml(it, { withExpand: true }); }).join('')
                 + '</div>';
         }).join('');
     }
@@ -1357,7 +1418,7 @@
 
     function exportReportCsv(report) {
         var lines = [];
-        lines.push(['社員', 'GC', '有給', '欠勤', 'その他', '合計', '有給残'].join(','));
+        lines.push(['社員', 'GC', '有給', '休暇', 'その他', '合計', '有給残'].join(','));
         report.byEmployee.forEach(function (r) {
             var total = r.paid + r.absent + r.other;
             var gcShort = (groupCompaniesData.find(function (g) { return g.code === r.company; }) || {}).shortName || r.company;
@@ -2186,7 +2247,7 @@
             [['full', '休み'], ['am', '午前休'], ['pm', '午後休']], false, false, !editable));
         // 種別
         body.appendChild(buildSegmentField('種別', 'kind',
-            [['paid', '有給'], ['absent', '欠勤'], ['other', 'その他']], true, false, !editable));
+            [['paid', '有給'], ['absent', '休暇'], ['other', 'その他']], true, false, !editable));
         // ステータス (承認権限が無い場合はdisable)
         body.appendChild(buildSegmentField('ステータス', 'status',
             [['pending', '申請中'], ['approved', '承認済'], ['rejected', '却下']],
