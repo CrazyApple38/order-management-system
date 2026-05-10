@@ -8,125 +8,133 @@
    ここでは WS 固有トークンのみを定義する。
 */
 :root {
-    /* WS 固有: セル背景（昼/夜）— Phase D15-2: warm beige → neutral gray (DS 経由) */
-    --cell-base-day:     var(--bg-surface-neutral);       /* Phase D15-2: warm beige → neutral gray */
-    --cell-base-night:   var(--bg-surface-neutral-alt);   /* Phase D15-2: warm beige → neutral gray (alt) */
+    /* WS 固有: セル背景（昼/夜）— 白基調（昼/夜の区別はシフトヘッダの文字色のみ） */
+    --cell-base-day: var(--bg-surface);
+    --cell-base-night: var(--bg-surface);
+
+    /* WS 固有: シフトヘッダ文字色（昼/夜） — 白基調レイアウトの識別軸 */
+    --shift-header-text-day: #B8651F;
+    /* warm amber */
+    --shift-header-text-night: #1F5E70;
+    /* deep navy-teal */
 
     /* WS 固有: GC 背景（co-tokens.css の alias 非対象） */
-    --md-gc-bg-touo:      #FFFFFF;
-    --md-gc-bg-nikkei:    #F3F9F6;
-    --md-gc-bg-zennihon:  #F2F4F8;
+    --md-gc-bg-touo: #FFFFFF;
+    --md-gc-bg-nikkei: #F3F9F6;
+    --md-gc-bg-zennihon: #F2F4F8;
 
     /* WS 固有: 区分カラー（SL 統一: 全カテゴリ同一 teal） */
-    --cat-bg-facility:    rgba(68, 166, 181, 0.12);
-    --cat-bg-event:       rgba(68, 166, 181, 0.12);
-    --cat-bg-traffic:     rgba(68, 166, 181, 0.12);
-    --cat-bg-highway:     rgba(68, 166, 181, 0.12);
-    --cat-text-facility:  #1c4d54;
-    --cat-text-event:     #1c4d54;
-    --cat-text-traffic:   #1c4d54;
-    --cat-text-highway:   #1c4d54;
+    --cat-bg-facility: rgba(68, 166, 181, 0.12);
+    --cat-bg-event: rgba(68, 166, 181, 0.12);
+    --cat-bg-traffic: rgba(68, 166, 181, 0.12);
+    --cat-bg-highway: rgba(68, 166, 181, 0.12);
+    --cat-text-facility: #1c4d54;
+    --cat-text-event: #1c4d54;
+    --cat-text-traffic: #1c4d54;
+    --cat-text-highway: #1c4d54;
 
     /* WS 固有: シフト（昼/夜） */
-    --shift-bg-day:       rgba(211, 208, 200, 0.12);
-    --shift-text-day:     #3f3b31;
-    --shift-bg-night:     rgba(0, 69, 84, 0.12);
-    --shift-text-night:   #005c70;
+    --shift-bg-day: rgba(211, 208, 200, 0.12);
+    --shift-text-day: #3f3b31;
+    --shift-bg-night: rgba(0, 69, 84, 0.12);
+    --shift-text-night: #005c70;
 
     /* WS 固有: インタラクション */
-    --accent-hover:       #3a8a96;
-    --warning-dim:        rgba(214, 158, 46, 0.1);
+    --accent-hover: #3a8a96;
+    --warning-dim: rgba(214, 158, 46, 0.1);
 
     /* WS 固有: 過去日オーバーレイ */
-    --past-overlay:       rgba(0, 0, 0, 0.12);
+    --past-overlay: rgba(0, 0, 0, 0.12);
     --past-overlay-light: rgba(0, 0, 0, 0.06);
 
     /* WS 固有: shadow 単色（box-shadow の color 引数として使用） */
-    --shadow-color:   rgba(0, 69, 84, 0.08);
-    --shadow-medium:  rgba(0, 69, 84, 0.12);
-    --shadow-strong:  rgba(0, 69, 84, 0.15);
+    --shadow-color: rgba(0, 69, 84, 0.08);
+    --shadow-medium: rgba(0, 69, 84, 0.12);
+    --shadow-strong: rgba(0, 69, 84, 0.15);
 
     /* WS 固有: α値・階調独自（co-tokens の semantic と値不一致） */
-    --error-light:    #E88AA5;
-    --error-bg:       rgba(219, 87, 123, 0.12);
-    --success-bg:     rgba(56, 161, 105, 0.1);
-    --semantic-warning-text:   #975A16;  /* co-tokens は #92400e */
-    --night-text:     #DB577B;
+    --error-light: #E88AA5;
+    --error-bg: rgba(219, 87, 123, 0.12);
+    --success-bg: rgba(56, 161, 105, 0.1);
+    --semantic-warning-text: #975A16;
+    /* co-tokens は #92400e */
+    --night-text: #DB577B;
 
     /* WS 固有: tooltip / ヘッダー内ボタン */
-    --tooltip-bg:     rgba(0, 69, 84, 0.95);
-    --tooltip-color:  white;
-    --header-btn-bg:  rgba(255, 255, 255, 0.15);
+    --tooltip-bg: rgba(0, 69, 84, 0.95);
+    --tooltip-color: white;
+    --header-btn-bg: rgba(255, 255, 255, 0.15);
     --header-btn-hover: rgba(255, 255, 255, 0.25);
 }
 
 /* --- ダークテーマ --- */
 [data-theme="dark"] {
     /* Tier 1 — Base */
-    --bg-page:         #1a1e22;
-    --bg-surface:      #2a3038;
-    --bg-surface-2:    #3D444B;
-    --bg-surface-3:    #505A63;
-    --cell-base-day:     #2a3038;
-    --cell-base-night:   #3D444B;
+    --bg-page: #1a1e22;
+    --bg-surface: #2a3038;
+    --bg-surface-2: #3D444B;
+    --bg-surface-3: #505A63;
+    --cell-base-day: #2a3038;
+    --cell-base-night: #3D444B;
     /* Tier 2 — Sub */
-    --bg-sidebar:      #14181c;
+    --bg-sidebar: #14181c;
     /* Tier 3 — Accent (Phase W-A: WCAG AA 確保のため明度を上げる) */
-    --accent-primary:        #55B5C4;   /* 4.8:1 on #2a3038 */
-    --accent-primary-light:  #6AC5D4;
-    --accent-primary-dim:    rgba(85, 181, 196, 0.22);
+    --accent-primary: #55B5C4;
+    /* 4.8:1 on #2a3038 */
+    --accent-primary-light: #6AC5D4;
+    --accent-primary-dim: rgba(85, 181, 196, 0.22);
     /* テキスト */
-    --text-primary:   #D9D4D1;
+    --text-primary: #D9D4D1;
     --text-secondary: #BAB1AD;
-    --text-tertiary:  #8a8480;
-    --text-disabled:  #5a5550;
-    --divider:        #AEC0C2;
+    --text-tertiary: #8a8480;
+    --text-disabled: #5a5550;
+    --divider: #AEC0C2;
 
-    --md-gc-bg-touo:      #2a3038;
-    --md-gc-bg-nikkei:    #2d3540;
-    --md-gc-bg-zennihon:  #303848;
+    --md-gc-bg-touo: #2a3038;
+    --md-gc-bg-nikkei: #2d3540;
+    --md-gc-bg-zennihon: #303848;
 
     /* 区分カラー */
-    --cat-bg-facility:    rgba(68, 166, 181, 0.2);
-    --cat-bg-event:       rgba(68, 166, 181, 0.2);
-    --cat-bg-traffic:     rgba(68, 166, 181, 0.2);
-    --cat-bg-highway:     rgba(68, 166, 181, 0.2);
-    --cat-text-facility:  #76d6e4;
-    --cat-text-event:     #76d6e4;
-    --cat-text-traffic:   #76d6e4;
-    --cat-text-highway:   #76d6e4;
+    --cat-bg-facility: rgba(68, 166, 181, 0.2);
+    --cat-bg-event: rgba(68, 166, 181, 0.2);
+    --cat-bg-traffic: rgba(68, 166, 181, 0.2);
+    --cat-bg-highway: rgba(68, 166, 181, 0.2);
+    --cat-text-facility: #76d6e4;
+    --cat-text-event: #76d6e4;
+    --cat-text-traffic: #76d6e4;
+    --cat-text-highway: #76d6e4;
 
-    --shift-bg-day:       rgba(211, 208, 200, 0.2);
-    --shift-text-day:     #d3d0c8;
-    --shift-bg-night:     rgba(0, 69, 84, 0.2);
-    --shift-text-night:   #5ab8c6;
+    --shift-bg-day: rgba(211, 208, 200, 0.2);
+    --shift-text-day: #d3d0c8;
+    --shift-bg-night: rgba(0, 69, 84, 0.2);
+    --shift-text-night: #5ab8c6;
 
     /* インタラクション */
-    --accent-hover:       #6AC5D4;
-    --warning-dim:        rgba(236, 201, 75, 0.15);
+    --accent-hover: #6AC5D4;
+    --warning-dim: rgba(236, 201, 75, 0.15);
 
     /* 過去日オーバーレイ */
-    --past-overlay:       rgba(0, 0, 0, 0.15);
+    --past-overlay: rgba(0, 0, 0, 0.15);
     --past-overlay-light: rgba(0, 0, 0, 0.08);
 
-    --shadow-color:   rgba(0, 0, 0, 0.3);
-    --shadow-medium:  rgba(0, 0, 0, 0.2);
-    --shadow-strong:  rgba(0, 0, 0, 0.4);
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --shadow-medium: rgba(0, 0, 0, 0.2);
+    --shadow-strong: rgba(0, 0, 0, 0.4);
 
-    --semantic-error:          #E88AA5;
-    --error-light:    #F0B0C2;
-    --error-bg:       rgba(232, 138, 165, 0.2);
-    --semantic-success:        #68d391;
-    --semantic-success-text:   #68d391;
-    --success-bg:     rgba(72, 187, 120, 0.2);
-    --semantic-warning:        #ecc94b;
-    --semantic-warning-text:   #ecc94b;
-    --semantic-warning-bg:     rgba(236, 201, 75, 0.2);
-    --night-text:     #E88AA5;
+    --semantic-error: #E88AA5;
+    --error-light: #F0B0C2;
+    --error-bg: rgba(232, 138, 165, 0.2);
+    --semantic-success: #68d391;
+    --semantic-success-text: #68d391;
+    --success-bg: rgba(72, 187, 120, 0.2);
+    --semantic-warning: #ecc94b;
+    --semantic-warning-text: #ecc94b;
+    --semantic-warning-bg: rgba(236, 201, 75, 0.2);
+    --night-text: #E88AA5;
 
-    --tooltip-bg:     rgba(20, 24, 28, 0.95);
-    --tooltip-color:  #D9D4D1;
-    --header-btn-bg:  rgba(255, 255, 255, 0.08);
+    --tooltip-bg: rgba(20, 24, 28, 0.95);
+    --tooltip-color: #D9D4D1;
+    --header-btn-bg: rgba(255, 255, 255, 0.08);
     --header-btn-hover: rgba(255, 255, 255, 0.15);
 
     /* 後方互換 */
@@ -134,7 +142,14 @@
 }
 
 /* --- リセット・ベース --- */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: var(--font-family-body);
     font-feature-settings: "palt" 1;
@@ -149,7 +164,8 @@ body {
    レイアウト
    ============================================================ */
 .md-ws-container {
-    height: calc(100vh - 36px);   /* navbar 36px */
+    height: calc(100vh - 36px);
+    /* navbar 36px */
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -165,23 +181,27 @@ body {
     gap: 8px;
     flex-shrink: 0;
 }
+
 .md-ws-header-title {
     font-size: 15px;
     font-weight: 700;
     white-space: nowrap;
 }
+
 .md-ws-year-label {
     font-size: 14px;
     font-weight: 600;
     white-space: nowrap;
     opacity: 0.85;
 }
+
 .md-ws-header-nav {
     display: flex;
     align-items: center;
     gap: 4px;
     flex-shrink: 0;
 }
+
 .md-ws-nav-btn {
     background: var(--header-btn-bg);
     border: none;
@@ -197,7 +217,11 @@ body {
     white-space: nowrap;
     transition: background 0.15s;
 }
-.md-ws-nav-btn:hover { background: var(--header-btn-hover); }
+
+.md-ws-nav-btn:hover {
+    background: var(--header-btn-hover);
+}
+
 .md-ws-month-label {
     font-size: 13px;
     font-weight: 600;
@@ -205,9 +229,10 @@ body {
     text-align: center;
     padding: 0 4px;
 }
+
 .md-ws-today-btn {
     background: var(--header-btn-bg);
-    border: 1px solid rgba(255,255,255,0.25);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     color: #fff;
     padding: 3px 10px;
     border-radius: 6px;
@@ -216,8 +241,14 @@ body {
     font-weight: 600;
     transition: background 0.15s;
 }
-.md-ws-today-btn:hover { background: var(--header-btn-hover); }
-.md-ws-header-spacer { flex: 1; }
+
+.md-ws-today-btn:hover {
+    background: var(--header-btn-hover);
+}
+
+.md-ws-header-spacer {
+    flex: 1;
+}
 
 /* --- ツールバー --- */
 .md-ws-toolbar {
@@ -229,6 +260,7 @@ body {
     gap: 8px;
     flex-shrink: 0;
 }
+
 .md-ws-toolbar .md-tb-btn {
     background: var(--bg-surface);
     border: 1px solid var(--divider);
@@ -243,16 +275,19 @@ body {
     align-items: center;
     gap: 4px;
 }
+
 .md-ws-toolbar .md-tb-btn:hover {
     border-color: var(--accent-primary);
     color: var(--accent-primary);
     background: var(--accent-primary-dim);
 }
+
 .md-ws-toolbar .md-tb-btn img {
     width: 14px;
     height: 14px;
     opacity: 0.6;
 }
+
 .md-ws-tb-sep {
     width: 1px;
     height: 20px;
@@ -294,7 +329,7 @@ body {
     position: sticky;
     left: 0;
     z-index: 20;
-    background: var(--bg-surface-3);
+    background: var(--bg-surface-2);
     color: var(--text-primary);
     font-size: 11px;
     font-weight: 700;
@@ -302,8 +337,9 @@ body {
     display: flex;
     align-items: center;
     border-right: 2px solid var(--divider);
-    border-bottom: 1px solid rgba(0,69,84,0.1);
+    border-bottom: 1px solid rgba(0, 69, 84, 0.1);
 }
+
 /* 日付行・昼夜行を上部に固定 */
 .md-ws-corner.md-ws-corner-row1 {
     position: sticky;
@@ -311,39 +347,43 @@ body {
     top: 0;
     z-index: 30;
 }
+
 .md-ws-corner.md-ws-corner-row2 {
     position: sticky;
     left: 0;
     z-index: 30;
     /* top は JS で設定 */
 }
+
 .md-ws-date-header {
-    background: var(--bg-surface-3);
+    background: var(--bg-surface-2);
     color: var(--text-primary);
     font-size: 11px;
     font-weight: 700;
     padding: 4px 2px;
     text-align: center;
-    border-bottom: 1px solid rgba(0,69,84,0.1);
-    border-left: 1px solid rgba(0,69,84,0.06);
+    border-bottom: 1px solid var(--divider);
+    border-left: 1px solid rgba(0, 69, 84, 0.06);
     position: sticky;
     top: 0;
     z-index: 12;
 }
+
 .md-ws-date-header.md-ws-sat {
-    color: var(--text-secondary);
-    background: linear-gradient(rgba(90, 184, 198, 0.08), rgba(90, 184, 198, 0.08)), var(--bg-surface-3);
+    color: #1F5E70;
 }
+
 .md-ws-date-header.md-ws-sun,
 .md-ws-date-header.md-ws-holiday {
     color: var(--semantic-error);
-    background: linear-gradient(rgba(219, 87, 123, 0.08), rgba(219, 87, 123, 0.08)), var(--bg-surface-3);
 }
+
 .md-ws-date-header.md-ws-today {
     background: var(--accent-primary);
     color: #fff;
     border-bottom: 2px solid var(--bg-sidebar);
 }
+
 .md-ws-date-header.md-ws-date-selected {
     background: var(--accent-primary) !important;
     color: #fff !important;
@@ -351,39 +391,36 @@ body {
 
 /* --- サブヘッダー（昼/夜） --- */
 .md-ws-shift-header {
-    background: var(--bg-surface-2);
-    color: var(--text-secondary);
+    background: var(--bg-surface);
+    color: var(--shift-header-text-day);
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
     text-align: center;
     padding: 2px 0;
     border-bottom: 2px solid var(--divider);
-    border-left: 1px solid rgba(0,69,84,0.06);
+    border-left: 1px solid rgba(0, 69, 84, 0.06);
     position: sticky;
     z-index: 11;
     /* top は JS で設定 */
 }
+
 .md-ws-shift-header.md-ws-shift-night {
-    color: var(--night-text);
+    color: var(--shift-header-text-night);
 }
-.md-ws-shift-header.md-ws-shift-sat {
-    background: var(--day-sat);   /* Phase D15-2: linear-gradient → solid tint */
-}
-.md-ws-shift-header.md-ws-shift-sun,
-.md-ws-shift-header.md-ws-shift-holiday {
-    background: var(--day-sun);   /* Phase D15-2: linear-gradient → solid tint */
-}
+
+/* 白基調: シフトヘッダの土日着色は撤廃。曜日識別は日付ヘッダの文字色で行う。 */
 
 /* --- グループヘッダー行 --- */
 /* --- グループヘッダー（名前列） --- */
 .md-ws-group-name {
     grid-column: 1;
     background: var(--bg-surface-2);
-    border: 3px solid var(--divider);
+    border: 2px solid var(--divider);
     border-bottom: none;
     border-left: none;
-    border-top: 2px solid var(--divider);
-    border-radius: 0 12px 0 0;
+    border-top: 1px solid var(--divider);
+    /* 右上角を斜めカット（チャンファー）。カット辺の枠線は ::after で描画 */
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
     padding: 4px 10px;
     font-size: 12px;
     font-weight: 700;
@@ -397,17 +434,37 @@ body {
     left: 0;
     z-index: 10;
 }
+
 .md-ws-group-name:hover {
     background: var(--accent-primary-dim);
 }
+
+/* チャンファーカット辺の枠線 — 1px の細い帯を回転させて斜辺に沿わせる。
+   起点: (W-12, 0)（カット開始頂点）。長さ: 12√2 ≒ 16.97px（斜辺長）。
+   rotate(45deg) で右下方向へ展開し (W, 12)（カット終了頂点）まで届く。
+   clip-path の対角線とピクセル単位で一致するため、ずれが出にくい。 */
+.md-ws-group-name::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: calc(100% - 7px);
+    width: 15px;
+    height: 3px;
+    background: var(--divider);
+    transform-origin: top left;
+    transform: rotate(45deg);
+    pointer-events: none;
+}
+
 /* --- グループヘッダー（日付列） --- */
 .md-ws-group-dates {
     grid-column: 2 / -1;
     background: var(--bg-page);
     border-bottom: 1px solid var(--divider);
-    border-top: 2px solid var(--divider);
+    border-top: 1px solid var(--divider);
     cursor: pointer;
 }
+
 .md-ws-group-chevron {
     font-size: 10px;
     transition: transform 0.2s;
@@ -415,9 +472,11 @@ body {
     width: 14px;
     text-align: center;
 }
+
 .md-ws-group-name.md-ws-collapsed .md-ws-group-chevron {
     transform: rotate(-90deg);
 }
+
 .md-ws-group-gc-badge {
     font-size: 9px;
     font-weight: 700;
@@ -444,6 +503,7 @@ body {
     align-items: center;
     min-height: 36px;
 }
+
 .md-ws-name-client {
     font-size: 10px;
     font-weight: 400;
@@ -453,12 +513,14 @@ body {
     white-space: nowrap;
     line-height: 1.3;
 }
+
 .md-ws-name-site {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     line-height: 1.3;
 }
+
 /* グループ会社名前セル — 日付ヘッダーと同色に統一 */
 
 /* 車両行名前セル */
@@ -469,6 +531,7 @@ body {
     font-style: italic;
     border-top: 1px dashed var(--divider);
 }
+
 .md-ws-vehicle-icon {
     width: 14px;
     height: 14px;
@@ -481,7 +544,8 @@ body {
     border-bottom: 1px solid var(--divider);
     border-left: 1px solid rgba(178, 213, 226, 0.4);
     padding: 3px 4px;
-    min-height: 36px;   /* Phase W-A: comfortable 既定に統一 (40px → 36px) */
+    min-height: 36px;
+    /* Phase W-A: comfortable 既定に統一 (40px → 36px) */
     display: flex;
     flex-wrap: wrap;
     gap: 2px;
@@ -491,43 +555,19 @@ body {
     position: relative;
     background: var(--cell-base-day);
 }
+
 /* 昼セルの左ボーダー（日付区切り） */
 .md-ws-cell.md-ws-day-col {
     border-left: 1px solid var(--divider);
 }
+
 /* 夜セル */
 .md-ws-cell.md-ws-night-col {
     background: var(--cell-base-night);
 }
 
-/* 土日 */
-.md-ws-cell.md-ws-sat-col {
-    background: linear-gradient(rgba(90, 184, 198, 0.08), rgba(90, 184, 198, 0.08)), var(--cell-base-day);
-}
-.md-ws-cell.md-ws-sun-col,
-.md-ws-cell.md-ws-holiday-col {
-    background: linear-gradient(rgba(219, 87, 123, 0.08), rgba(219, 87, 123, 0.08)), var(--cell-base-day);
-}
-.md-ws-cell.md-ws-night-col.md-ws-sat-col {
-    background: linear-gradient(rgba(90, 184, 198, 0.12), rgba(90, 184, 198, 0.12)), var(--cell-base-night);
-}
-.md-ws-cell.md-ws-night-col.md-ws-sun-col,
-.md-ws-cell.md-ws-night-col.md-ws-holiday-col {
-    background: linear-gradient(rgba(219, 87, 123, 0.12), rgba(219, 87, 123, 0.12)), var(--cell-base-night);
-}
-
-/* 今日 */
-.md-ws-cell.md-ws-today-col {
-    background: linear-gradient(rgba(90, 184, 198, 0.10), rgba(90, 184, 198, 0.10)), var(--cell-base-day);
-}
-.md-ws-cell.md-ws-today-col.md-ws-night-col {
-    background: linear-gradient(rgba(90, 184, 198, 0.10), rgba(90, 184, 198, 0.10)), var(--cell-base-night);
-}
-/* 今日カラム左境界線（過去と現在の境目） */
-/* 今日カラム：昼夜ヘッダーにもオーバーレイ適用 */
-.md-ws-shift-header.md-ws-today-shift {
-    background: linear-gradient(rgba(90, 184, 198, 0.10), rgba(90, 184, 198, 0.10)), var(--bg-surface-2);
-}
+/* 白基調: 土日・今日のセル着色は撤廃。識別は日付ヘッダ文字色＋今日列の左ボーダーで行う。 */
+/* 今日カラム：昼夜ヘッダーは白のまま（左ボーダーアクセントで識別） */
 .md-ws-cell.md-ws-today-col.md-ws-day-col,
 .md-ws-date-header.md-ws-today,
 .md-ws-shift-header.md-ws-today-shift-border {
@@ -537,73 +577,67 @@ body {
 /* ============================================================
    過去日スタイリング（ベース色 + 黒オーバーレイ）
    ============================================================ */
-/* 日付ヘッダー */
+/* 白基調: 過去日は黒オーバーレイ廃止。セルは白のまま、子要素の opacity と
+   ヘッダ文字色を tertiary 化することで「過去」を表現する。 */
 .md-ws-date-header.md-ws-past {
-    background:
-        linear-gradient(var(--past-overlay), var(--past-overlay)),
-        var(--bg-surface-3) !important;
+    background: var(--bg-surface-2) !important;
+    color: var(--text-tertiary) !important;
 }
-/* シフトヘッダー */
+
 .md-ws-shift-header.md-ws-past {
-    background:
-        linear-gradient(var(--past-overlay), var(--past-overlay)),
-        var(--bg-surface-2);
+    background: var(--bg-surface);
+    color: var(--text-tertiary);
+    opacity: 0.6;
 }
-/* データセル（昼） — ベース色 + 黒オーバーレイ */
+
 .md-ws-cell.md-ws-past-col {
-    background:
-        linear-gradient(var(--past-overlay), var(--past-overlay)),
-        var(--cell-base-day) !important;
+    background: var(--cell-base-day) !important;
     cursor: not-allowed !important;
 }
-/* データセル（夜） */
+
 .md-ws-cell.md-ws-past-col.md-ws-night-col {
-    background:
-        linear-gradient(var(--past-overlay), var(--past-overlay)),
-        var(--cell-base-night) !important;
+    background: var(--cell-base-night) !important;
 }
-/* 過去セル内チップ — 操作無効のみ */
+
 .md-ws-cell.md-ws-past-col .md-ws-emp-chip,
 .md-ws-cell.md-ws-past-col .md-ws-site-chip,
 .md-ws-cell.md-ws-past-col .md-ws-vehicle-chip,
 .md-ws-cell.md-ws-past-col .md-ws-vehicle-zone,
 .md-ws-cell.md-ws-past-col .md-ws-staff-indicator {
     pointer-events: none;
-}
-/* 過去セルのホバー無効化 */
-.md-ws-cell.md-ws-past-col.md-ws-clickable:hover {
-    background:
-        linear-gradient(var(--past-overlay), var(--past-overlay)),
-        var(--cell-base-day) !important;
-}
-/* 休み行の過去セル */
-.md-ws-cell.md-ws-holiday-row-cell.md-ws-past-col {
-    background:
-        linear-gradient(var(--past-overlay), var(--past-overlay)),
-        var(--cell-base-day) !important;
-}
-.md-ws-cell.md-ws-holiday-row-cell.md-ws-past-col .md-ws-holiday-emp-chip {
-    filter: none;
-    opacity: 0.7;
-    pointer-events: none;
-}
-.md-ws-cell.md-ws-holiday-row-cell.md-ws-past-col .md-ws-holiday-emp-chip.md-ws-holiday-assigned {
     opacity: 0.5;
 }
 
-/* 社員軸の過去日オーバーレイ（現場軸より薄い） */
+.md-ws-cell.md-ws-past-col.md-ws-clickable:hover {
+    background: var(--cell-base-day) !important;
+}
+
+.md-ws-cell.md-ws-holiday-row-cell.md-ws-past-col {
+    background: var(--cell-base-day) !important;
+}
+
+.md-ws-cell.md-ws-holiday-row-cell.md-ws-past-col .md-ws-holiday-emp-chip {
+    filter: none;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.md-ws-cell.md-ws-holiday-row-cell.md-ws-past-col .md-ws-holiday-emp-chip.md-ws-holiday-assigned {
+    opacity: 0.4;
+}
+
+/* 社員軸の過去日: チップを少しだけ淡く */
 .md-ws-cell.md-ws-emp-past {
-    background:
-        linear-gradient(var(--past-overlay-light), var(--past-overlay-light)),
-        var(--cell-base-day) !important;
+    background: var(--cell-base-day) !important;
 }
+
 .md-ws-cell.md-ws-emp-past.md-ws-night-col {
-    background:
-        linear-gradient(var(--past-overlay-light), var(--past-overlay-light)),
-        var(--cell-base-night) !important;
+    background: var(--cell-base-night) !important;
 }
+
 .md-ws-cell.md-ws-emp-past .md-ws-site-chip {
     pointer-events: none;
+    opacity: 0.65;
 }
 
 /* グループ会社背景（データセル） — ベース色に統一 */
@@ -626,6 +660,7 @@ body {
     justify-content: center;
     align-items: center;
 }
+
 .md-ws-holiday-mark {
     font-size: 10px;
     font-weight: 700;
@@ -652,26 +687,32 @@ body {
     border: 1px solid transparent;
     max-width: 100%;
 }
+
 .md-ws-site-chip:hover {
     border-color: var(--accent-primary);
     background: rgba(68, 166, 181, 0.2);
 }
+
 .md-ws-site-chip.md-ws-night-chip {
     color: var(--night-text);
     background: var(--error-bg);
 }
+
 .md-ws-site-chip.md-ws-night-chip:hover {
     border-color: var(--semantic-error);
 }
+
 .md-ws-site-chip.md-ws-dragging {
     opacity: 0.35;
     transform: scale(0.92);
 }
+
 /* 過去データ（読み取り専用） */
 .md-ws-site-chip.md-ws-readonly {
     cursor: default;
     opacity: 0.7;
 }
+
 .md-ws-site-chip.md-ws-readonly:hover {
     border-color: transparent;
 }
@@ -690,22 +731,25 @@ body {
     text-overflow: ellipsis;
     cursor: grab;
 }
+
 .md-ws-vehicle-chip:hover {
     border-color: var(--accent-primary);
 }
+
 /* 昼夜連続：結合表示 */
 .md-ws-vehicle-span {
     position: absolute;
     top: 2px;
     left: 2px;
-    right: -100%;   /* JS で幅を制御 */
+    right: -100%;
+    /* JS で幅を制御 */
     bottom: 2px;
     z-index: 5;
     font-size: 9px;
     font-weight: 600;
     padding: 2px 6px;
     border-radius: 4px;
-    background: linear-gradient(90deg, var(--bg-surface-2) 0%, rgba(240,237,233,0.85) 100%);
+    background: linear-gradient(90deg, var(--bg-surface-2) 0%, rgba(240, 237, 233, 0.85) 100%);
     color: var(--text-secondary);
     border: 1px solid var(--accent-primary);
     display: flex;
@@ -740,10 +784,12 @@ body {
     gap: 8px;
     flex-shrink: 0;
 }
+
 .md-ws-sidebar-date {
     font-size: 14px;
     font-weight: 700;
 }
+
 .md-ws-sidebar-dow {
     font-size: 11px;
     opacity: 0.7;
@@ -764,6 +810,7 @@ body {
     overflow: hidden;
     transition: box-shadow 0.15s;
 }
+
 .md-ws-site-card:hover {
     box-shadow: 0 2px 8px var(--shadow-color);
 }
@@ -776,6 +823,7 @@ body {
     cursor: pointer;
     user-select: none;
 }
+
 .md-ws-site-card-header:hover {
     background: var(--accent-primary-dim);
 }
@@ -803,14 +851,17 @@ body {
     background: transparent;
     border-bottom: 1px solid transparent;
 }
+
 .md-ws-staff-ok {
     color: var(--semantic-success-text);
     border-bottom-color: var(--semantic-success);
 }
+
 .md-ws-staff-short {
     color: var(--semantic-error);
     border-bottom-color: var(--semantic-error);
 }
+
 .md-ws-staff-over {
     color: var(--semantic-warning-text);
     border-bottom-color: var(--semantic-warning);
@@ -823,10 +874,12 @@ body {
     padding: 1px 5px;
     border-radius: 3px;
 }
+
 .md-ws-shift-badge.md-ws-shift-day-badge {
     background: var(--shift-bg-day);
     color: var(--shift-text-day);
 }
+
 .md-ws-shift-badge.md-ws-shift-night-badge {
     background: var(--shift-bg-night);
     color: var(--shift-text-night);
@@ -838,14 +891,17 @@ body {
     padding: 0 10px 8px;
     border-top: 1px solid var(--divider);
 }
+
 .md-ws-site-card.md-ws-expanded .md-ws-site-card-body {
     display: block;
 }
+
 .md-ws-site-card-chevron {
     font-size: 10px;
     transition: transform 0.2s;
     color: var(--text-tertiary);
 }
+
 .md-ws-site-card.md-ws-expanded .md-ws-site-card-chevron {
     transform: rotate(90deg);
 }
@@ -854,12 +910,14 @@ body {
 .md-ws-assigned-list {
     margin-top: 6px;
 }
+
 .md-ws-assigned-label {
     font-size: 10px;
     font-weight: 600;
     color: var(--text-tertiary);
     margin-bottom: 4px;
 }
+
 .md-ws-assigned-employee {
     font-size: 11px;
     color: var(--text-secondary);
@@ -868,6 +926,7 @@ body {
     align-items: center;
     gap: 4px;
 }
+
 .md-ws-assigned-dot {
     width: 6px;
     height: 6px;
@@ -884,6 +943,7 @@ body {
     margin-top: 8px;
     margin-bottom: 4px;
 }
+
 .md-ws-vehicle-list-item {
     font-size: 11px;
     color: var(--text-secondary);
@@ -901,7 +961,10 @@ body {
     user-select: none;
     flex-shrink: 0;
 }
-.md-ws-drag-handle:active { cursor: grabbing; }
+
+.md-ws-drag-handle:active {
+    cursor: grabbing;
+}
 
 /* 空の現場表示 */
 .md-ws-sidebar-empty {
@@ -939,16 +1002,32 @@ body {
 /* ============================================================
    スクロールバー
    ============================================================ */
-.md-ws-grid-wrapper::-webkit-scrollbar { width: 8px; height: 8px; }
-.md-ws-grid-wrapper::-webkit-scrollbar-track { background: var(--bg-surface-2); }
+.md-ws-grid-wrapper::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.md-ws-grid-wrapper::-webkit-scrollbar-track {
+    background: var(--bg-surface-2);
+}
+
 .md-ws-grid-wrapper::-webkit-scrollbar-thumb {
     background: var(--bg-surface-3);
     border-radius: 4px;
 }
-.md-ws-grid-wrapper::-webkit-scrollbar-thumb:hover { background: var(--text-disabled); }
 
-.md-ws-sidebar-body::-webkit-scrollbar { width: 6px; }
-.md-ws-sidebar-body::-webkit-scrollbar-track { background: transparent; }
+.md-ws-grid-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--text-disabled);
+}
+
+.md-ws-sidebar-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.md-ws-sidebar-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 .md-ws-sidebar-body::-webkit-scrollbar-thumb {
     background: var(--bg-surface-3);
     border-radius: 3px;
@@ -967,7 +1046,7 @@ body {
     font-size: 11px;
     max-width: 240px;
     pointer-events: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     line-height: 1.5;
 }
 
@@ -984,6 +1063,7 @@ body {
     border: 1px solid var(--divider);
     overflow: hidden;
 }
+
 .md-ws-view-btn {
     background: transparent;
     border: none;
@@ -998,18 +1078,22 @@ body {
     align-items: center;
     gap: 4px;
 }
+
 .md-ws-view-btn:hover {
     color: var(--text-secondary);
     background: rgba(68, 166, 181, 0.08);
 }
+
 .md-ws-view-btn.md-ws-view-active {
     background: var(--accent-primary);
     color: #fff;
 }
+
 .md-ws-view-btn img {
     width: 13px;
     height: 13px;
 }
+
 .md-ws-view-shortcut {
     font-size: 9px;
     opacity: 0.6;
@@ -1032,6 +1116,7 @@ body {
 .md-ws-grid.md-ws-selection-active .md-ws-cell.md-ws-col-highlighted {
     background: linear-gradient(rgba(68, 166, 181, 0.06), rgba(68, 166, 181, 0.06)), var(--cell-base-day) !important;
 }
+
 .md-ws-grid.md-ws-selection-active .md-ws-date-header.md-ws-col-highlighted {
     background: var(--accent-primary);
     color: #fff;
@@ -1042,12 +1127,15 @@ body {
     opacity: 0.35;
     pointer-events: none;
 }
+
 .md-ws-grid.md-ws-selection-active .md-ws-date-header:not(.md-ws-col-highlighted) {
     opacity: 0.4;
 }
+
 .md-ws-grid.md-ws-selection-active .md-ws-shift-header:not(.md-ws-col-highlighted) {
     opacity: 0.4;
 }
+
 /* 選択行のヘッダーセル（名前セル）ハイライト */
 .md-ws-grid.md-ws-selection-active .md-ws-name-cell.md-ws-name-selected,
 .md-ws-grid.md-ws-selection-active .md-ws-vehicle-name-cell.md-ws-name-selected {
@@ -1070,15 +1158,19 @@ body {
     opacity: 0.35;
     transition: opacity 0.15s;
 }
+
 .md-ws-grid.md-ws-drag-active .md-ws-cell.md-ws-col-highlighted {
     opacity: 1;
 }
+
 .md-ws-grid.md-ws-drag-active .md-ws-date-header:not(.md-ws-col-highlighted) {
     opacity: 0.4;
 }
+
 .md-ws-grid.md-ws-drag-active .md-ws-shift-header:not(.md-ws-col-highlighted) {
     opacity: 0.4;
 }
+
 /* D&D中も名前セル・グループ行は常に見える */
 .md-ws-grid.md-ws-drag-active .md-ws-name-cell,
 .md-ws-grid.md-ws-drag-active .md-ws-group-name,
@@ -1101,9 +1193,10 @@ body {
     gap: 6px;
     flex-shrink: 0;
 }
+
 .md-ws-sidebar-assign-header .md-ws-assign-close {
     margin-left: auto;
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     border: none;
     color: #fff;
     width: 22px;
@@ -1116,9 +1209,11 @@ body {
     justify-content: center;
     transition: background 0.15s;
 }
+
 .md-ws-sidebar-assign-header .md-ws-assign-close:hover {
-    background: rgba(255,255,255,0.35);
+    background: rgba(255, 255, 255, 0.35);
 }
+
 .md-ws-sidebar-assign-info {
     padding: 8px 12px;
     background: var(--accent-primary-dim);
@@ -1127,15 +1222,18 @@ body {
     color: var(--text-secondary);
     flex-shrink: 0;
 }
+
 .md-ws-sidebar-assign-info strong {
     color: var(--text-primary);
 }
+
 .md-ws-assign-nav {
     display: flex;
     align-items: center;
     gap: 4px;
     margin-top: 4px;
 }
+
 .md-ws-assign-nav-btn {
     background: var(--accent-primary);
     border: none;
@@ -1152,24 +1250,29 @@ body {
     align-items: center;
     justify-content: center;
 }
+
 .md-ws-assign-nav-btn:hover {
     background: var(--accent-hover);
 }
+
 .md-ws-assign-nav-center {
     flex: 1;
     text-align: left;
     min-width: 0;
     margin-left: 20px;
 }
-.md-ws-assign-nav .md-ws-assign-nav-btn + .md-ws-assign-nav-btn {
+
+.md-ws-assign-nav .md-ws-assign-nav-btn+.md-ws-assign-nav-btn {
     margin-left: 20px;
 }
+
 .md-ws-assign-nav-site {
     font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .md-ws-assign-nav-date {
     font-size: 11px;
     color: var(--text-secondary);
@@ -1187,37 +1290,44 @@ body {
     font-weight: 700;
     flex-shrink: 0;
 }
+
 .md-ws-assign-navbar .md-ws-assign-nav-btn {
     width: 24px;
     height: 24px;
     font-size: 11px;
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     color: #fff;
 }
-.md-ws-assign-navbar .md-ws-assign-nav-btn + .md-ws-assign-nav-btn {
+
+.md-ws-assign-navbar .md-ws-assign-nav-btn+.md-ws-assign-nav-btn {
     margin-left: 24px;
 }
+
 .md-ws-assign-navbar .md-ws-assign-nav-btn:hover {
-    background: rgba(255,255,255,0.35);
+    background: rgba(255, 255, 255, 0.35);
 }
+
 .md-ws-assign-navbar .md-ws-assign-nav-btn:disabled {
     opacity: 0.3;
     cursor: default;
     pointer-events: none;
 }
+
 .md-ws-assign-navbar-emp {
     margin-left: 4px;
     white-space: nowrap;
 }
+
 .md-ws-assign-navbar-date {
     font-weight: 400;
     font-size: 11px;
     opacity: 0.85;
     white-space: nowrap;
 }
+
 .md-ws-assign-navbar .md-ws-assign-close {
     margin-left: auto;
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     border: none;
     color: #fff;
     width: 22px;
@@ -1230,8 +1340,9 @@ body {
     justify-content: center;
     transition: background 0.15s;
 }
+
 .md-ws-assign-navbar .md-ws-assign-close:hover {
-    background: rgba(255,255,255,0.35);
+    background: rgba(255, 255, 255, 0.35);
 }
 
 /* 候補リスト（旧リスト形式 — 配置モーダル用に残す） */
@@ -1240,6 +1351,7 @@ body {
     overflow-y: auto;
     padding: 4px 8px;
 }
+
 .md-ws-candidate-item {
     display: flex;
     align-items: center;
@@ -1252,49 +1364,70 @@ body {
     color: var(--text-primary);
     border: 1px solid transparent;
 }
+
 .md-ws-candidate-item:hover {
     filter: brightness(0.95);
     border-color: currentColor;
 }
+
 .md-ws-candidate-item.md-ws-candidate-disabled {
     opacity: 0.4;
     cursor: default;
     pointer-events: none;
 }
+
 /* ステータス別チップスタイル */
 .md-ws-candidate-item.md-ws-candidate-shortage {
     background: var(--error-bg);
     border-color: rgba(219, 87, 123, 0.25);
     color: var(--semantic-error);
 }
+
 .md-ws-candidate-item.md-ws-candidate-fulfilled {
     background: var(--success-bg);
     border-color: rgba(56, 161, 105, 0.25);
     color: var(--semantic-success-text);
 }
+
 .md-ws-candidate-item.md-ws-candidate-excess {
     background: var(--semantic-warning-bg);
     border-color: rgba(214, 158, 46, 0.25);
     color: var(--semantic-warning-text);
 }
+
 .md-ws-candidate-item.md-ws-candidate-assigned {
     background: var(--accent-primary-dim);
     border-color: rgba(68, 166, 181, 0.3);
     color: var(--accent-primary);
 }
+
 .md-ws-candidate-item.md-ws-candidate-assigned:hover {
     filter: brightness(0.92);
 }
+
 .md-ws-candidate-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
 }
-.md-ws-candidate-dot.md-ws-dot-available { background: var(--semantic-success); }
-.md-ws-candidate-dot.md-ws-dot-busy { background: var(--semantic-warning); }
-.md-ws-candidate-dot.md-ws-dot-holiday { background: var(--text-disabled); }
-.md-ws-candidate-dot.md-ws-dot-assigned { background: var(--accent-primary); }
+
+.md-ws-candidate-dot.md-ws-dot-available {
+    background: var(--semantic-success);
+}
+
+.md-ws-candidate-dot.md-ws-dot-busy {
+    background: var(--semantic-warning);
+}
+
+.md-ws-candidate-dot.md-ws-dot-holiday {
+    background: var(--text-disabled);
+}
+
+.md-ws-candidate-dot.md-ws-dot-assigned {
+    background: var(--accent-primary);
+}
+
 .md-ws-candidate-name {
     flex: 1;
     font-weight: 600;
@@ -1302,12 +1435,14 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .md-ws-candidate-name:has(.md-ws-candidate-company) {
     display: flex;
     flex-direction: column;
     white-space: normal;
     line-height: 1.3;
 }
+
 .md-ws-candidate-company {
     font-size: 10px;
     font-weight: 400;
@@ -1316,6 +1451,7 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 /* ステータスチップ内の会社名は親の色を継承 */
 .md-ws-candidate-item.md-ws-candidate-shortage .md-ws-candidate-company,
 .md-ws-candidate-item.md-ws-candidate-fulfilled .md-ws-candidate-company,
@@ -1324,11 +1460,13 @@ body {
     color: inherit;
     opacity: 0.7;
 }
+
 .md-ws-candidate-status {
     font-size: 10px;
     color: var(--text-tertiary);
     white-space: nowrap;
 }
+
 /* ステータスチップ内の人数カウント */
 .md-ws-candidate-count {
     font-size: 14px;
@@ -1336,6 +1474,7 @@ body {
     white-space: nowrap;
     flex-shrink: 0;
 }
+
 .md-ws-candidate-gc-badge {
     font-size: 8px;
     font-weight: 700;
@@ -1344,6 +1483,7 @@ body {
     background: var(--bg-surface-2);
     color: var(--text-tertiary);
 }
+
 .md-ws-candidate-section {
     padding: 6px 8px 2px;
     font-size: 10px;
@@ -1352,6 +1492,7 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+
 /* === 現場候補アコーディオン（GC > カテゴリ） === */
 .md-ws-site-accordion-header {
     display: flex;
@@ -1366,9 +1507,11 @@ body {
     border-radius: 6px;
     transition: background 0.12s;
 }
+
 .md-ws-site-accordion-header:hover {
     background: var(--accent-primary-dim);
 }
+
 /* GCレベル */
 .md-ws-site-accordion-gc {
     background: var(--bg-surface-2);
@@ -1377,9 +1520,11 @@ body {
     padding: 6px 8px;
     margin-top: 2px;
 }
+
 .md-ws-site-accordion-gc:first-child {
     margin-top: 0;
 }
+
 /* カテゴリレベル */
 .md-ws-site-accordion-cat {
     padding: 4px 8px 4px 20px;
@@ -1387,6 +1532,7 @@ body {
     font-weight: 600;
     color: var(--text-secondary);
 }
+
 /* シェブロン */
 .md-ws-site-accordion-chevron {
     font-size: 9px;
@@ -1395,15 +1541,18 @@ body {
     width: 12px;
     text-align: center;
 }
+
 .md-ws-site-accordion-header.md-ws-collapsed .md-ws-site-accordion-chevron {
     transform: rotate(-90deg);
 }
+
 /* 件数 */
 .md-ws-site-accordion-count {
     font-size: 10px;
     font-weight: 400;
     color: var(--text-tertiary);
 }
+
 /* アコーディオン内の候補アイテムはインデント */
 .md-ws-candidate-item.md-ws-candidate-indented {
     padding-left: 28px;
@@ -1430,6 +1579,7 @@ body {
     scrollbar-width: thin;
     border-radius: 0;
 }
+
 .md-ws-vtab {
     writing-mode: vertical-rl;
     text-orientation: mixed;
@@ -1446,10 +1596,12 @@ body {
     user-select: none;
     letter-spacing: 0.08em;
 }
+
 .md-ws-vtab:hover {
     color: var(--text-secondary);
     background: var(--accent-primary-dim);
 }
+
 .md-ws-vtab.active {
     color: var(--accent-primary);
     border-left-color: var(--accent-primary);
@@ -1468,6 +1620,7 @@ body {
     position: relative;
     text-align: center;
 }
+
 .md-ws-gc-header::after {
     content: '';
     display: block;
@@ -1479,6 +1632,7 @@ body {
     margin: 6px auto 0;
     transition: transform 0.2s;
 }
+
 .md-ws-gc-header.expanded::after {
     transform: rotate(-135deg);
 }
@@ -1491,6 +1645,7 @@ body {
     max-height: 0;
     transition: max-height 0.3s ease;
 }
+
 .md-ws-dept-group.expanded {
     max-height: 500px;
 }
@@ -1502,8 +1657,13 @@ body {
 }
 
 /* 組織ツリーの深さに応じたインデント */
-.md-ws-vtab[data-org-depth="2"] { font-size: 0.85em; }
-.md-ws-vtab[data-org-depth="3"] { font-size: 0.8em; }
+.md-ws-vtab[data-org-depth="2"] {
+    font-size: 0.85em;
+}
+
+.md-ws-vtab[data-org-depth="3"] {
+    font-size: 0.8em;
+}
 
 /* バッジコンテンツエリア */
 .md-ws-badge-content {
@@ -1516,9 +1676,11 @@ body {
     gap: 4px;
     align-content: start;
 }
+
 .md-ws-badge-content .md-ws-gc-section-label {
     width: 100%;
 }
+
 /* 配置モード時：flex-wrapで幅いっぱいに詰める */
 .md-ws-badge-content.md-ws-badge-assign {
     display: flex;
@@ -1526,6 +1688,7 @@ body {
     align-content: start;
     align-items: flex-start;
 }
+
 .md-ws-badge-content.md-ws-badge-assign .md-ws-gc-section-label {
     width: 100%;
 }
@@ -1539,6 +1702,7 @@ body {
     margin-top: 6px;
     border-bottom: 1px solid var(--divider);
 }
+
 .md-ws-gc-section-label:first-child {
     margin-top: 0;
 }
@@ -1562,34 +1726,42 @@ body {
     user-select: none;
     color: var(--text-primary);
 }
+
 .md-ws-emp-name {
     flex-shrink: 0;
     line-height: 16px;
 }
+
 .md-ws-emp-tag:hover {
     background: var(--accent-primary);
     color: white;
     border-color: var(--accent-primary);
 }
+
 .md-ws-emp-tag:hover .md-ws-dow-badge {
     background: rgba(255, 255, 255, 0.25);
     color: #fff;
 }
+
 .md-ws-emp-tag:hover .md-ws-dow-badge.md-ws-dow-holiday {
     background: rgba(255, 255, 255, 0.15);
     color: rgba(255, 255, 255, 0.6);
 }
+
 .md-ws-emp-tag:active {
     cursor: grabbing;
 }
+
 .md-ws-emp-tag.md-ws-tag-holiday {
     opacity: 0.4;
     cursor: default;
     pointer-events: none;
 }
+
 .md-ws-emp-tag.md-ws-tag-holiday .md-ws-emp-name {
     text-decoration: line-through;
 }
+
 /* 配置モード — 配置済バッジ */
 .md-ws-emp-tag.md-ws-tag-assigned {
     background: var(--accent-primary);
@@ -1597,15 +1769,18 @@ body {
     border-color: var(--accent-primary);
     cursor: pointer;
 }
+
 .md-ws-emp-tag.md-ws-tag-assigned:hover {
     background: var(--accent-hover);
 }
+
 /* 配置モード — 他現場配置済バッジ */
 .md-ws-emp-tag.md-ws-tag-busy {
     background: var(--warning-dim);
     border-color: var(--semantic-warning);
     color: var(--text-primary);
 }
+
 .md-ws-emp-tag.md-ws-tag-busy:hover {
     background: var(--semantic-warning);
     color: #fff;
@@ -1622,16 +1797,19 @@ body {
     border-color: var(--accent-primary);
     position: relative;
 }
+
 /* ホバー: 枠線変更 + 透過オーバーレイ（グリッドチップと同様） */
 .md-ws-emp-tag.md-ws-support-tag:hover {
     background: rgba(68, 166, 181, 0.15);
     border-color: var(--accent-hover);
     color: var(--text-primary);
 }
+
 .md-ws-emp-tag.md-ws-support-tag:hover .md-ws-dow-badge {
     background: var(--success-bg);
     color: var(--semantic-success-text);
 }
+
 .md-ws-emp-tag.md-ws-support-tag:hover .md-ws-support-remove {
     display: inline-flex;
 }
@@ -1642,6 +1820,7 @@ body {
     border-color: var(--accent-primary);
     color: var(--text-primary);
 }
+
 .md-ws-emp-tag.md-ws-support-preset.md-ws-tag-assigned:hover {
     background: rgba(68, 166, 181, 0.3);
 }
@@ -1659,6 +1838,7 @@ body {
     opacity: 0.7;
     flex-shrink: 0;
 }
+
 .md-ws-support-remove:hover {
     opacity: 1;
 }
@@ -1705,10 +1885,11 @@ body {
     cursor: pointer;
     transition: all 0.15s;
 }
+
 .md-ws-support-add-btn:hover {
     border-color: var(--accent-primary);
     color: var(--accent-primary);
-    background: var(--accent-bg, rgba(0,120,212,0.06));
+    background: var(--accent-bg, rgba(0, 120, 212, 0.06));
 }
 
 /* インライン入力欄 */
@@ -1719,6 +1900,7 @@ body {
     width: 100%;
     padding: 4px 0;
 }
+
 .md-ws-support-input {
     flex: 1;
     min-width: 0;
@@ -1731,9 +1913,11 @@ body {
     background: var(--bg-surface);
     color: var(--text-primary);
 }
+
 .md-ws-support-input:focus {
-    box-shadow: 0 0 0 2px rgba(0,120,212,0.2);
+    box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
 }
+
 .md-ws-support-input-ok {
     height: 26px;
     padding: 0 8px;
@@ -1745,9 +1929,11 @@ body {
     cursor: pointer;
     white-space: nowrap;
 }
+
 .md-ws-support-input-ok:hover {
     background: var(--accent-hover);
 }
+
 .md-ws-support-input-cancel {
     height: 26px;
     width: 26px;
@@ -1761,6 +1947,7 @@ body {
     align-items: center;
     justify-content: center;
 }
+
 .md-ws-support-input-cancel:hover {
     background: var(--error-bg);
     color: var(--semantic-error);
@@ -1772,6 +1959,7 @@ body {
     border-color: var(--text-secondary);
     color: var(--text-secondary);
 }
+
 .md-ws-emp-tag.md-ws-support-preset:hover {
     border-color: var(--accent-primary);
     background: rgba(68, 166, 181, 0.12);
@@ -1784,9 +1972,11 @@ body {
     margin-left: 4px;
     white-space: nowrap;
 }
+
 .md-ws-support-ct-day {
     color: var(--success-text, #2e7d32);
 }
+
 .md-ws-support-ct-night {
     color: var(--error, #c0392b);
 }
@@ -1794,7 +1984,7 @@ body {
 /* グリッド内の応援チップ */
 .md-ws-emp-chip.md-ws-support-chip {
     border: 1px dashed var(--accent-primary);
-    background: var(--accent-bg, rgba(0,120,212,0.06));
+    background: var(--accent-bg, rgba(0, 120, 212, 0.06));
 }
 
 /* グリッド内のプリセット応援チップ */
@@ -1810,16 +2000,18 @@ body {
     background: var(--bg-surface);
     border: 1px solid var(--divider);
     border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
     padding: 10px 12px;
     min-width: 180px;
 }
+
 .md-ws-link-title {
     font-size: 11px;
     font-weight: 600;
     color: var(--text-secondary);
     margin-bottom: 6px;
 }
+
 .md-ws-link-input {
     width: 100%;
     height: 28px;
@@ -1833,13 +2025,16 @@ body {
     box-sizing: border-box;
     margin-bottom: 8px;
 }
+
 .md-ws-link-input:focus {
-    box-shadow: 0 0 0 2px rgba(0,120,212,0.2);
+    box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
 }
+
 .md-ws-link-btn-row {
     display: flex;
     gap: 6px;
 }
+
 .md-ws-link-confirm {
     flex: 1;
     height: 28px;
@@ -1851,9 +2046,11 @@ body {
     font-weight: 600;
     cursor: pointer;
 }
+
 .md-ws-link-confirm:hover {
     background: var(--accent-hover);
 }
+
 .md-ws-link-cancel {
     height: 28px;
     padding: 0 10px;
@@ -1864,10 +2061,12 @@ body {
     font-size: 12px;
     cursor: pointer;
 }
+
 .md-ws-link-cancel:hover {
     background: var(--error-bg);
     color: var(--semantic-error);
 }
+
 /* ポップオーバー内: セクションタイトル・既存業者リスト */
 .md-ws-link-section-title {
     font-size: 10px;
@@ -1877,6 +2076,7 @@ body {
     margin: 6px 0 4px;
     text-transform: none;
 }
+
 .md-ws-link-partner-list {
     display: flex;
     flex-direction: column;
@@ -1885,6 +2085,7 @@ body {
     overflow-y: auto;
     margin-bottom: 6px;
 }
+
 .md-ws-link-partner-btn {
     display: flex;
     align-items: center;
@@ -1900,10 +2101,12 @@ body {
     cursor: pointer;
     text-align: left;
 }
+
 .md-ws-link-partner-btn:hover:not(:disabled) {
     background: var(--accent-primary-dim);
     border-color: var(--accent-primary);
 }
+
 .md-ws-link-partner-btn.md-ws-link-partner-disabled,
 .md-ws-link-partner-btn:disabled {
     opacity: 0.45;
@@ -1912,12 +2115,14 @@ body {
     cursor: not-allowed;
     filter: grayscale(0.5);
 }
+
 .md-ws-link-partner-name {
     flex: 1 1 auto;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .md-ws-link-empty {
     font-size: 11px;
     color: var(--text-tertiary);
@@ -1929,11 +2134,13 @@ body {
 .md-ws-chip-action-popover {
     min-width: 180px;
 }
+
 .md-ws-chip-action-buttons {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
+
 .md-ws-chip-action-btn {
     height: 30px;
     padding: 0 10px;
@@ -1946,36 +2153,44 @@ body {
     color: var(--text-primary);
     text-align: left;
 }
+
 .md-ws-chip-action-btn:hover {
     background: var(--accent-primary-dim);
     border-color: var(--accent-primary);
 }
+
 .md-ws-chip-action-revert {
     background: var(--success-bg);
     border-color: rgba(56, 161, 105, 0.5);
     color: var(--semantic-success-text);
 }
+
 .md-ws-chip-action-revert:hover {
     background: rgba(56, 161, 105, 0.2);
     border-color: var(--semantic-success);
 }
+
 .md-ws-chip-action-delete {
     background: var(--error-bg);
     border-color: rgba(219, 87, 123, 0.5);
     color: var(--semantic-error);
 }
+
 .md-ws-chip-action-delete:hover {
     background: rgba(219, 87, 123, 0.22);
     border-color: var(--semantic-error);
 }
+
 .md-ws-chip-action-cancel {
     color: var(--text-tertiary);
 }
+
 .md-ws-link-partner-warn {
     display: inline-flex;
     align-items: center;
     color: #DECCBE;
 }
+
 .md-ws-link-partner-warn svg {
     width: 12px;
     height: 12px;
@@ -1987,6 +2202,7 @@ body {
     grid-template-columns: repeat(4, min-content);
     gap: 2px;
 }
+
 .md-ws-dow-badge {
     font-size: 9px;
     font-weight: 700;
@@ -1996,6 +2212,7 @@ body {
     background: var(--success-bg);
     color: var(--semantic-success-text);
 }
+
 .md-ws-dow-badge.md-ws-dow-holiday {
     background: var(--error-bg);
     color: var(--semantic-error);
@@ -2016,10 +2233,26 @@ body {
     padding: 1px 5px;
     border-radius: 3px;
 }
-.md-ws-category-badge.md-ws-cat-facility { background: var(--cat-bg-facility); color: var(--cat-text-facility); }
-.md-ws-category-badge.md-ws-cat-traffic  { background: var(--cat-bg-traffic);  color: var(--cat-text-traffic); }
-.md-ws-category-badge.md-ws-cat-highway  { background: var(--cat-bg-highway);  color: var(--cat-text-highway); }
-.md-ws-category-badge.md-ws-cat-event    { background: var(--cat-bg-event);    color: var(--cat-text-event); }
+
+.md-ws-category-badge.md-ws-cat-facility {
+    background: var(--cat-bg-facility);
+    color: var(--cat-text-facility);
+}
+
+.md-ws-category-badge.md-ws-cat-traffic {
+    background: var(--cat-bg-traffic);
+    color: var(--cat-text-traffic);
+}
+
+.md-ws-category-badge.md-ws-cat-highway {
+    background: var(--cat-bg-highway);
+    color: var(--cat-text-highway);
+}
+
+.md-ws-category-badge.md-ws-cat-event {
+    background: var(--cat-bg-event);
+    color: var(--cat-text-event);
+}
 
 /* 現場軸ビュー：人数インジケータ（セル内） */
 .md-ws-emp-chip {
@@ -2037,17 +2270,21 @@ body {
     border: 1px solid transparent;
     max-width: 100%;
 }
+
 .md-ws-emp-chip:hover {
     border-color: var(--accent-primary);
     background: rgba(68, 166, 181, 0.2);
 }
+
 .md-ws-emp-chip.md-ws-night-chip {
     color: var(--night-text);
     background: var(--error-bg);
 }
+
 .md-ws-emp-chip.md-ws-night-chip:hover {
     border-color: var(--semantic-error);
 }
+
 /* 連続シフト矢印（▼▲） */
 .md-ws-chip-arrow {
     font-size: 8px;
@@ -2055,22 +2292,27 @@ body {
     vertical-align: middle;
     opacity: 0.85;
 }
+
 .md-ws-chip-arrow-prev {
     margin-right: 2px;
     color: var(--accent-primary);
 }
+
 .md-ws-chip-arrow-next {
     margin-left: 2px;
     color: var(--accent-primary);
 }
+
 .md-ws-night-chip .md-ws-chip-arrow-prev,
 .md-ws-night-chip .md-ws-chip-arrow-next {
     color: var(--semantic-error);
 }
+
 /* 配置済み解除ボタン（ホバーで可視化。常に同じスペースを確保してレイアウトシフトを防止） */
 .md-ws-emp-chip {
     position: relative;
 }
+
 .md-ws-emp-chip .md-ws-chip-remove {
     display: inline;
     visibility: hidden;
@@ -2083,20 +2325,25 @@ body {
     opacity: 0;
     transition: opacity 0.1s;
 }
+
 .md-ws-emp-chip .md-ws-chip-remove:hover {
     opacity: 1;
 }
+
 .md-ws-emp-chip:hover .md-ws-chip-remove {
     visibility: visible;
     opacity: 0.7;
 }
+
 .md-ws-emp-chip:hover .md-ws-chip-remove:hover {
     opacity: 1;
 }
+
 /* 社員軸: 現場チップの×ボタン（ホバーで可視化、スペース常時確保） */
 .md-ws-site-chip {
     position: relative;
 }
+
 .md-ws-site-chip .md-ws-chip-remove {
     display: inline;
     visibility: hidden;
@@ -2109,13 +2356,16 @@ body {
     opacity: 0;
     transition: opacity 0.1s;
 }
+
 .md-ws-site-chip .md-ws-chip-remove:hover {
     opacity: 1;
 }
+
 .md-ws-site-chip:hover .md-ws-chip-remove {
     visibility: visible;
     opacity: 0.7;
 }
+
 .md-ws-site-chip:hover .md-ws-chip-remove:hover {
     opacity: 1;
 }
@@ -2124,6 +2374,7 @@ body {
 .md-ws-cell.md-ws-clickable {
     cursor: pointer;
 }
+
 .md-ws-cell.md-ws-clickable:hover {
     background: linear-gradient(rgba(68, 166, 181, 0.06), rgba(68, 166, 181, 0.06)), var(--cell-base-day);
 }
@@ -2137,6 +2388,7 @@ body {
     border-bottom: 2px solid var(--divider);
     flex-shrink: 0;
 }
+
 .md-ws-main-tab {
     flex: 1;
     padding: 7px 0;
@@ -2154,20 +2406,24 @@ body {
     justify-content: center;
     gap: 4px;
 }
+
 .md-ws-main-tab:hover {
     color: var(--text-secondary);
     background: var(--accent-primary-dim);
 }
+
 .md-ws-main-tab.active {
     color: var(--accent-primary);
     border-bottom-color: var(--accent-primary);
     background: var(--bg-surface);
 }
+
 .md-ws-main-tab img {
     width: 12px;
     height: 12px;
     opacity: 0.6;
 }
+
 .md-ws-main-tab.active img {
     opacity: 1;
 }
@@ -2186,11 +2442,13 @@ body {
     gap: 2px;
     align-items: center;
 }
+
 .md-ws-vehicle-zone.md-ws-vz-empty {
     justify-content: center;
     opacity: 0.3;
     font-size: 9px;
 }
+
 .md-ws-cell.md-ws-drag-over .md-ws-vehicle-zone {
     background: rgba(56, 161, 105, 0.08);
     border-top-color: var(--semantic-success);
@@ -2215,6 +2473,7 @@ body {
     user-select: none;
     color: var(--text-primary);
 }
+
 .md-ws-vehicle-info {
     display: flex;
     align-items: center;
@@ -2222,25 +2481,31 @@ body {
     flex-shrink: 0;
     line-height: 16px;
 }
+
 .md-ws-vehicle-tag:hover {
     background: var(--accent-primary);
     color: white;
     border-color: var(--accent-primary);
 }
+
 .md-ws-vehicle-tag:hover .md-ws-dow-badge {
     background: rgba(255, 255, 255, 0.25);
     color: #fff;
 }
+
 .md-ws-vehicle-tag:active {
     cursor: grabbing;
 }
+
 .md-ws-vehicle-tag .md-ws-vt-model {
     font-size: 10px;
     color: var(--text-tertiary);
 }
+
 .md-ws-vehicle-tag:hover .md-ws-vt-model {
     color: rgba(255, 255, 255, 0.8);
 }
+
 /* 配置モード — 配置済車両バッジ */
 .md-ws-vehicle-tag.md-ws-tag-assigned {
     background: var(--accent-primary);
@@ -2248,22 +2513,27 @@ body {
     border-color: var(--accent-primary);
     cursor: pointer;
 }
+
 .md-ws-vehicle-tag.md-ws-tag-assigned:hover {
     background: var(--accent-hover);
 }
+
 .md-ws-vehicle-tag.md-ws-tag-assigned .md-ws-vt-model {
     color: rgba(255, 255, 255, 0.8);
 }
+
 /* 配置モード — 他現場使用中車両バッジ */
 .md-ws-vehicle-tag.md-ws-tag-busy {
     background: var(--warning-dim);
     border-color: var(--semantic-warning);
 }
+
 .md-ws-vehicle-tag.md-ws-tag-busy:hover {
     background: var(--semantic-warning);
     color: #fff;
     border-color: var(--semantic-warning);
 }
+
 .md-ws-vehicle-tag.md-ws-tag-busy:hover .md-ws-vt-model {
     color: rgba(255, 255, 255, 0.8);
 }
@@ -2284,22 +2554,35 @@ body {
     pointer-events: none;
     white-space: nowrap;
 }
+
 /* 笑い男変身時：ブラウザカーソルを非表示 */
 .md-ws-lm-active,
 .md-ws-lm-active * {
     cursor: none !important;
 }
+
 .md-ws-drag-float-lm {
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.25));
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.25));
     animation: md-ws-lm-pop 0.3s ease-out;
 }
+
 @keyframes md-ws-lm-pop {
-    0% { transform: scale(0.3); opacity: 0; }
-    70% { transform: scale(1.15); }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    70% {
+        transform: scale(1.15);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 /* --- ドラッグ中「休み」フロート（ネイティブD&D用） --- */
@@ -2321,12 +2604,13 @@ body {
 /* ============================================================
    休み行（グリッド最上部）
    ============================================================ */
-/* 休みグループヘッダー */
+/* 休みグループヘッダー — パステルピンク（明るく軽やかな印象） */
 .md-ws-group-name.md-ws-holiday-group-header {
     border-color: var(--divider);
     border-bottom: none;
-    background: linear-gradient(rgba(219, 87, 123, 0.15), rgba(219, 87, 123, 0.15)), var(--bg-surface-2);
+    background: #FCE7EC;
 }
+
 .md-ws-holiday-badge {
     font-size: 9px;
     font-weight: 700;
@@ -2336,21 +2620,22 @@ body {
     color: #fff;
 }
 
-/* 休み行名前セル */
+/* 休み行名前セル — パステルピンク */
 .md-ws-name-cell.md-ws-holiday-name {
-    background: linear-gradient(rgba(219, 87, 123, 0.15), rgba(219, 87, 123, 0.15)), var(--bg-surface-2);
+    background: #FCE7EC;
     color: var(--semantic-error);
     font-weight: 700;
     font-size: 12px;
 }
 
-/* 休み行のセル */
+/* 休み行のセル — 白基調: 行種別はチップ色（赤系）と下線で識別 */
 .md-ws-cell.md-ws-holiday-row-cell {
-    background: linear-gradient(rgba(219, 87, 123, 0.08), rgba(219, 87, 123, 0.08)), var(--cell-base-day);
+    background: var(--cell-base-day);
     border-bottom: 2px solid var(--error-light);
 }
+
 .md-ws-cell.md-ws-holiday-row-cell.md-ws-night-col {
-    background: linear-gradient(rgba(219, 87, 123, 0.08), rgba(219, 87, 123, 0.08)), var(--cell-base-night);
+    background: var(--cell-base-night);
 }
 
 /* 休み行内の社員チップ */
@@ -2372,11 +2657,15 @@ body {
     gap: 1px;
     transition: all 0.15s;
 }
+
 .md-ws-holiday-emp-chip:hover {
     background: rgba(219, 87, 123, 0.22);
     border-color: var(--semantic-error);
 }
-.md-ws-holiday-emp-chip:active { cursor: grabbing; }
+
+.md-ws-holiday-emp-chip:active {
+    cursor: grabbing;
+}
 
 /* 配置済みの休み社員（グレーアウト） */
 .md-ws-holiday-emp-chip.md-ws-holiday-assigned {
@@ -2385,6 +2674,7 @@ body {
     border-color: var(--divider);
     color: var(--text-tertiary);
 }
+
 .md-ws-holiday-assign-info {
     font-size: 8px;
     color: var(--text-secondary);
@@ -2405,9 +2695,11 @@ body {
     line-height: 1.3;
     flex-shrink: 0;
 }
+
 .md-ws-emp-chip.md-ws-emp-holiday {
     border-color: rgba(219, 87, 123, 0.4);
 }
+
 .md-ws-emp-chip.md-ws-emp-holiday:hover {
     border-color: var(--semantic-error);
 }
@@ -2418,8 +2710,9 @@ body {
 .md-ws-group-name.md-ws-maint-group-header {
     border-color: var(--divider);
     border-bottom: none;
-    background: linear-gradient(rgba(211, 208, 200, 0.30), rgba(211, 208, 200, 0.30)), var(--bg-surface-2);
+    background: #F2F4F5;
 }
+
 .md-ws-maint-badge {
     font-size: 9px;
     font-weight: 700;
@@ -2428,20 +2721,22 @@ body {
     background: var(--bg-surface-3);
     color: var(--text-secondary);
 }
+
 .md-ws-name-cell.md-ws-maint-name {
-    background: linear-gradient(rgba(211, 208, 200, 0.30), rgba(211, 208, 200, 0.30)), var(--bg-surface-2);
+    background: #F2F4F5;
     color: var(--text-secondary);
     font-weight: 700;
     font-size: 12px;
 }
+
 .md-ws-cell.md-ws-maint-row-cell {
     border-bottom: 2px solid var(--bg-surface-3);
 }
+
 .md-ws-cell.md-ws-maint-row-cell.md-ws-past-col {
-    background:
-        linear-gradient(var(--past-overlay), var(--past-overlay)),
-        var(--cell-base-day) !important;
+    background: var(--cell-base-day) !important;
 }
+
 .md-ws-cell.md-ws-maint-row-cell.md-ws-past-col .md-ws-maint-vehicle-chip {
     filter: none;
     opacity: 1;
@@ -2450,6 +2745,7 @@ body {
     color: var(--text-primary);
     border-color: var(--divider);
 }
+
 .md-ws-maint-vehicle-chip {
     font-size: 10px;
     font-weight: 600;
@@ -2464,12 +2760,14 @@ body {
     gap: 4px;
     white-space: nowrap;
 }
+
 .md-ws-maint-vehicle-chip.md-ws-maint-assigned {
     opacity: 0.5;
     background: var(--bg-surface-2);
     border-color: var(--divider);
     color: var(--text-tertiary);
 }
+
 .md-ws-maint-assign-info {
     font-size: 8px;
     color: var(--text-disabled);
@@ -2482,8 +2780,9 @@ body {
 .md-ws-group-name.md-ws-reservation-group-header {
     border-color: var(--divider);
     border-bottom: none;
-    background: linear-gradient(rgba(56, 161, 105, 0.15), rgba(56, 161, 105, 0.15)), var(--bg-surface-2);
+    background: #E6F4ED;
 }
+
 .md-ws-reservation-badge {
     font-size: 9px;
     font-weight: 700;
@@ -2492,8 +2791,9 @@ body {
     background: var(--semantic-success);
     color: #fff;
 }
+
 .md-ws-name-cell.md-ws-reservation-name {
-    background: linear-gradient(rgba(56, 161, 105, 0.10), rgba(56, 161, 105, 0.10)), var(--bg-surface-2);
+    background: #E6F4ED;
     color: var(--semantic-success-text);
     font-weight: 700;
     font-size: 12px;
@@ -2502,12 +2802,14 @@ body {
     justify-content: space-between;
     gap: 6px;
 }
+
 .md-ws-reservation-name-label {
     flex: 1 1 auto;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .md-ws-reservation-add-btn {
     flex: 0 0 auto;
     width: 20px;
@@ -2522,12 +2824,14 @@ body {
     cursor: pointer;
     padding: 0;
 }
+
 .md-ws-reservation-add-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
 .md-ws-cell.md-ws-reservation-row-cell {
-    background: linear-gradient(rgba(56, 161, 105, 0.06), rgba(56, 161, 105, 0.06)), var(--cell-base-day);
+    background: var(--cell-base-day);
     border-bottom: 2px solid rgba(56, 161, 105, 0.35);
     padding: 2px;
     gap: 2px;
@@ -2535,12 +2839,10 @@ body {
     flex-wrap: wrap;
     align-content: flex-start;
 }
-/* 応援予約行は昼/夜を結合した1セル×2列幅で表示 */
+
+/* 応援予約行は昼/夜を結合した1セル×2列幅で表示。過去日も白基調を維持。 */
 .md-ws-cell.md-ws-reservation-row-cell.md-ws-reservation-merged.md-ws-past-col {
-    background:
-        linear-gradient(var(--past-overlay), var(--past-overlay)),
-        linear-gradient(rgba(56, 161, 105, 0.06), rgba(56, 161, 105, 0.06)),
-        var(--cell-base-day) !important;
+    background: var(--cell-base-day) !important;
 }
 
 /* 予約バッジ（フレックス統一、--success 系） */
@@ -2560,13 +2862,16 @@ body {
     -webkit-user-select: none;
     user-select: none;
 }
+
 .md-ws-reserve-badge:hover {
     background: rgba(56, 161, 105, 0.18);
     border-color: var(--semantic-success);
 }
+
 .md-ws-reserve-badge:active {
     cursor: grabbing;
 }
+
 .md-ws-reserve-badge.md-ws-reserve-empty {
     opacity: 0.45;
     background: var(--bg-surface-2);
@@ -2575,16 +2880,20 @@ body {
     cursor: not-allowed;
     filter: grayscale(0.5);
 }
+
 .md-ws-reserve-badge.md-ws-reserve-empty:hover {
     background: var(--bg-surface-2);
     border-color: var(--divider);
 }
+
 .md-ws-reserve-badge.md-ws-dragging {
     opacity: 0.5;
 }
+
 .md-ws-reserve-label {
     font-size: 10px;
 }
+
 .md-ws-reserve-warn {
     display: inline-flex;
     align-items: center;
@@ -2592,6 +2901,7 @@ body {
     color: #DECCBE;
     line-height: 1;
 }
+
 .md-ws-reserve-warn svg {
     width: 11px;
     height: 11px;
@@ -2610,10 +2920,12 @@ body {
     opacity: 0;
     transition: opacity 0.1s;
 }
+
 .md-ws-reserve-badge:hover .md-ws-chip-remove {
     visibility: visible;
     opacity: 0.7;
 }
+
 .md-ws-reserve-badge:hover .md-ws-chip-remove:hover {
     opacity: 1;
 }
@@ -2623,6 +2935,7 @@ body {
     border: 2px dashed var(--bg-surface-3);
     background: rgba(240, 237, 233, 0.25);
 }
+
 .md-ws-vehicle-tag.md-ws-tag-maintenance::after {
     content: '\26a0';
     font-size: 10px;
@@ -2636,24 +2949,29 @@ body {
 .md-ws-vehicle-group-header .md-ws-group-gc-badge {
     background: var(--accent-primary);
 }
+
 .md-ws-vehicle-name-cell {
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 1px;
 }
+
 .md-ws-vehicle-plate {
     font-weight: 600;
     font-size: 12px;
 }
+
 .md-ws-vehicle-model-sub {
     font-size: 9px;
     color: var(--text-tertiary);
     font-weight: 400;
 }
+
 .md-ws-vehicle-row-cell {
     pointer-events: none;
 }
+
 .md-ws-vehicle-maint-mark {
     font-size: 9px;
     font-weight: 700;
@@ -2668,12 +2986,21 @@ body {
    行フラッシュアニメーション（3秒間ゆっくり点滅）
    ============================================================ */
 @keyframes md-ws-flash {
-    0%, 100% { background-color: transparent; }
-    50% { background-color: rgba(68, 166, 181, 0.25); }
+
+    0%,
+    100% {
+        background-color: transparent;
+    }
+
+    50% {
+        background-color: rgba(68, 166, 181, 0.25);
+    }
 }
+
 .md-ws-row-flash {
     animation: md-ws-flash 1s ease-in-out 3;
 }
+
 .md-ws-name-cell.md-ws-row-flash {
     animation: md-ws-flash 1s ease-in-out 3;
 }
@@ -2685,6 +3012,7 @@ body {
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.1s;
 }
+
 .md-ws-clickable-badge:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
@@ -2707,6 +3035,7 @@ body {
     user-select: none;
     white-space: nowrap;
 }
+
 .md-ws-site-emp-badge:hover {
     background: var(--accent-primary);
     color: #fff;
@@ -2728,12 +3057,14 @@ body {
     color: var(--text-primary);
     cursor: default;
 }
+
 .md-ws-site-tab-item-name {
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 4px;
 }
+
 .md-ws-site-tab-item-company {
     font-size: 9px;
     color: var(--text-tertiary);
@@ -2752,6 +3083,7 @@ body {
     overflow-x: hidden;
     scrollbar-width: thin;
 }
+
 .md-ws-site-vtab {
     writing-mode: vertical-rl;
     text-orientation: mixed;
@@ -2768,10 +3100,12 @@ body {
     user-select: none;
     letter-spacing: 0.08em;
 }
+
 .md-ws-site-vtab:hover {
     color: var(--text-secondary);
     background: var(--accent-primary-dim);
 }
+
 .md-ws-site-vtab.active {
     color: var(--accent-primary);
     border-left-color: var(--accent-primary);
@@ -2809,6 +3143,7 @@ body {
     align-self: flex-start;
     margin-left: auto;
 }
+
 .md-ws-reserve-cell-add:hover {
     background: rgba(56, 161, 105, 0.15);
     border-style: solid;
@@ -2828,6 +3163,7 @@ body {
     justify-content: center;
     padding: 24px;
 }
+
 .md-ws-modal-content {
     background: var(--bg-surface);
     border: 1px solid var(--divider);
@@ -2840,6 +3176,7 @@ body {
     min-width: 380px;
     overflow: hidden;
 }
+
 .md-ws-modal-header {
     display: flex;
     align-items: center;
@@ -2847,14 +3184,16 @@ body {
     padding: 14px 20px;
     background: var(--accent-primary-light);
     color: #FFFFFF;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 12px 12px 0 0;
 }
+
 .md-ws-modal-title {
     font-weight: 600;
     font-size: 13px;
     color: #FFFFFF;
 }
+
 .md-ws-modal-close {
     border: none;
     background: transparent;
@@ -2866,18 +3205,21 @@ body {
     line-height: 1;
     transition: background var(--duration-fast, 120ms), color var(--duration-fast, 120ms);
 }
+
 .md-ws-modal-close:hover,
 .md-ws-modal-close:focus-visible {
     background: rgba(255, 255, 255, 0.2);
     color: #FFFFFF;
     outline: none;
 }
+
 .md-ws-modal-body {
     padding: 20px;
     overflow: auto;
     min-width: 0;
     flex: 1;
 }
+
 .md-ws-modal-footer {
     display: flex;
     justify-content: flex-end;
@@ -2886,6 +3228,7 @@ body {
     border-top: 1px solid var(--divider);
     background: var(--bg-surface-2);
 }
+
 /* .md-ws-modal-btn は co-buttons.css `.btn` と互換 */
 .md-ws-modal-btn {
     display: inline-flex;
@@ -2904,29 +3247,35 @@ body {
     transition: background var(--duration-fast, 120ms), border-color var(--duration-fast, 120ms), color var(--duration-fast, 120ms), box-shadow var(--duration-fast, 120ms);
     white-space: nowrap;
 }
+
 .md-ws-modal-btn:hover {
     background: var(--bg-surface-3);
     border-color: var(--bg-surface-3);
 }
+
 .md-ws-modal-btn:focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px var(--accent-primary-dim);
 }
+
 .md-ws-modal-btn-primary {
     background: var(--accent-primary);
     border-color: var(--accent-primary);
     color: #FFFFFF;
 }
+
 .md-ws-modal-btn-primary:hover {
     background: var(--accent-primary-light);
     border-color: var(--accent-primary-light);
     box-shadow: 0 2px 8px rgba(68, 166, 181, 0.3);
 }
+
 .md-ws-modal-btn-secondary {
     background: var(--bg-surface-2);
     border-color: var(--bg-surface-2);
     color: var(--text-secondary);
 }
+
 .md-ws-modal-btn-secondary:hover {
     background: var(--bg-surface-3);
     border-color: var(--bg-surface-3);
@@ -2941,6 +3290,7 @@ body {
     overflow: hidden;
     background: var(--bg-surface);
 }
+
 .md-ws-stepper-btn {
     width: 28px;
     height: 30px;
@@ -2953,13 +3303,16 @@ body {
     padding: 0;
     transition: all 0.15s;
 }
+
 .md-ws-stepper-btn:hover {
     background: var(--accent-primary-dim);
     color: var(--accent-primary);
 }
+
 .md-ws-stepper {
     border-radius: 6px;
 }
+
 .md-ws-stepper-input {
     width: 44px;
     height: 30px;
@@ -2975,12 +3328,17 @@ body {
     appearance: textfield;
     padding: 0;
 }
+
 .md-ws-stepper-input:focus {
     outline: none;
     background: var(--accent-primary-dim);
 }
+
 .md-ws-stepper-input::-webkit-outer-spin-button,
-.md-ws-stepper-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.md-ws-stepper-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
 /* オートコンプリート
    Phase W-B: co-forms.css `.md-fi-input` と同一のトークン
@@ -2989,6 +3347,7 @@ body {
     position: relative;
     display: block;
 }
+
 .md-ws-pac-input {
     width: 100%;
     height: 32px;
@@ -3001,17 +3360,21 @@ body {
     box-sizing: border-box;
     transition: border-color var(--duration-fast, 120ms) var(--ease-out), box-shadow var(--duration-fast, 120ms) var(--ease-out);
 }
+
 .md-ws-pac-input:hover {
     border-color: var(--accent-primary);
 }
+
 .md-ws-pac-input:focus {
     outline: none;
     border-color: var(--accent-primary);
     box-shadow: 0 0 0 3px var(--accent-primary-dim);
 }
+
 .md-ws-pac-input::placeholder {
     color: var(--text-disabled);
 }
+
 .md-ws-pac-list {
     position: absolute;
     top: 100%;
@@ -3026,6 +3389,7 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     z-index: 10;
 }
+
 .md-ws-pac-item {
     padding: 8px 12px;
     font-size: 12px;
@@ -3033,8 +3397,15 @@ body {
     color: var(--text-primary);
     border-bottom: 1px solid var(--bg-surface-2);
 }
-.md-ws-pac-item:last-child { border-bottom: none; }
-.md-ws-pac-item:hover { background: var(--accent-primary-dim); }
+
+.md-ws-pac-item:last-child {
+    border-bottom: none;
+}
+
+.md-ws-pac-item:hover {
+    background: var(--accent-primary-dim);
+}
+
 .md-ws-pac-item-new {
     color: var(--accent-primary);
     font-weight: 600;
@@ -3042,15 +3413,37 @@ body {
 }
 
 /* 単日モーダル */
-.md-ws-res-quick-body { display: flex; flex-direction: column; gap: 12px; min-width: 360px; max-width: 480px; }
-.md-ws-res-quick-date { font-size: 16px; font-weight: 700; color: var(--text-primary); }
-.md-ws-res-quick-gc { font-size: 12px; color: var(--text-secondary); }
-.md-ws-res-quick-field { display: flex; flex-direction: column; gap: 4px; }
+.md-ws-res-quick-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 360px;
+    max-width: 480px;
+}
+
+.md-ws-res-quick-date {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.md-ws-res-quick-gc {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.md-ws-res-quick-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
 .md-ws-res-quick-label {
     font-size: 11px;
     font-weight: 600;
     color: var(--text-secondary);
 }
+
 .md-ws-res-quick-input {
     width: 100%;
     height: 32px;
@@ -3063,22 +3456,27 @@ body {
     box-sizing: border-box;
     transition: border-color var(--duration-fast, 120ms) var(--ease-out), box-shadow var(--duration-fast, 120ms) var(--ease-out);
 }
+
 .md-ws-res-quick-input:hover {
     border-color: var(--accent-primary);
 }
+
 .md-ws-res-quick-input:focus {
     outline: none;
     border-color: var(--accent-primary);
     box-shadow: 0 0 0 3px var(--accent-primary-dim);
 }
+
 .md-ws-res-quick-input::placeholder {
     color: var(--text-disabled);
 }
+
 .md-ws-res-quick-hint {
     font-size: 11px;
     color: var(--text-secondary);
     min-height: 14px;
 }
+
 /* 候補業者セクション見出し（md-modal-section-bar 準拠：accent色＋下線） */
 .md-ws-res-quick-badges-label {
     display: flex;
@@ -3090,12 +3488,14 @@ body {
     letter-spacing: 0.5px;
     margin-top: 4px;
 }
+
 .md-ws-res-quick-badges-label::after {
     content: '';
     flex: 1;
     height: 1px;
     background: var(--divider);
 }
+
 /* 候補業者バッジ一覧（枠線なし、フラット） */
 .md-ws-res-quick-badges {
     display: flex;
@@ -3105,6 +3505,7 @@ body {
     max-height: 160px;
     overflow-y: auto;
 }
+
 /* 候補業者小バッジ（md-ob-supervisor-chip 準拠） */
 .md-ws-res-quick-badge {
     display: inline-flex;
@@ -3121,21 +3522,25 @@ body {
     white-space: nowrap;
     transition: all 0.15s;
 }
+
 .md-ws-res-quick-badge:hover {
     border-color: var(--accent-primary);
     color: var(--accent-primary);
     background: rgba(68, 166, 181, 0.06);
 }
+
 .md-ws-res-quick-badge.md-ws-res-quick-badge-selected {
     background: var(--accent-primary);
     border-color: var(--accent-primary);
     color: #FFFFFF;
 }
+
 .md-ws-res-quick-badge.md-ws-res-quick-badge-selected:hover {
     background: var(--accent-primary-light);
     border-color: var(--accent-primary-light);
     color: #FFFFFF;
 }
+
 .md-ws-res-quick-badge-count {
     font-size: 9px;
     font-weight: 500;
@@ -3144,14 +3549,17 @@ body {
     border-radius: 8px;
     background: var(--accent-primary-dim);
 }
+
 .md-ws-res-quick-badge:hover .md-ws-res-quick-badge-count {
     background: rgba(68, 166, 181, 0.15);
     color: var(--accent-primary);
 }
+
 .md-ws-res-quick-badge.md-ws-res-quick-badge-selected .md-ws-res-quick-badge-count {
     background: rgba(255, 255, 255, 0.25);
     color: #FFFFFF;
 }
+
 .md-ws-res-quick-badges-empty {
     font-size: 11px;
     color: var(--text-tertiary);
@@ -3159,15 +3567,32 @@ body {
 }
 
 /* 週全体モーダル */
-.md-ws-res-week-body { display: flex; flex-direction: column; gap: 10px; min-width: 640px; }
-.md-ws-res-week-intro { font-size: 12px; color: var(--text-secondary); }
-.md-ws-res-week-tablewrap { max-height: 50vh; overflow: auto; border: 1px solid var(--divider); border-radius: 4px; }
+.md-ws-res-week-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 640px;
+}
+
+.md-ws-res-week-intro {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.md-ws-res-week-tablewrap {
+    max-height: 50vh;
+    overflow: auto;
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+}
+
 .md-ws-res-week-table {
     border-collapse: separate;
     border-spacing: 0;
     width: 100%;
     font-size: 12px;
 }
+
 .md-ws-res-week-table th,
 .md-ws-res-week-table td {
     padding: 6px 8px;
@@ -3176,6 +3601,7 @@ body {
     background: var(--bg-surface);
     white-space: pre-line;
 }
+
 .md-ws-res-week-table thead th {
     position: sticky;
     top: 0;
@@ -3183,12 +3609,17 @@ body {
     font-weight: 700;
     z-index: 1;
 }
+
 .md-ws-res-week-th-partner,
 .md-ws-res-week-td-partner {
     text-align: left;
     min-width: 140px;
 }
-.md-ws-res-week-td-count { position: relative; }
+
+.md-ws-res-week-td-count {
+    position: relative;
+}
+
 .md-ws-res-week-assigned-hint {
     display: inline-block;
     font-size: 10px;
@@ -3199,7 +3630,11 @@ body {
     margin-right: 4px;
     vertical-align: middle;
 }
-.md-ws-res-week-partner-name { font-weight: 600; }
+
+.md-ws-res-week-partner-name {
+    font-weight: 600;
+}
+
 .md-ws-res-week-partner-warn {
     display: inline-flex;
     width: 14px;
@@ -3208,7 +3643,13 @@ body {
     color: #DECCBE;
     vertical-align: middle;
 }
-.md-ws-res-week-partner-warn svg { width: 14px; height: 14px; fill: currentColor; }
+
+.md-ws-res-week-partner-warn svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+}
+
 .md-ws-res-week-menu-btn {
     width: 22px;
     height: 22px;
@@ -3221,14 +3662,23 @@ body {
     color: var(--text-secondary);
     padding: 0;
 }
+
 .md-ws-res-week-menu-btn:hover {
     border-color: var(--divider);
     background: var(--bg-surface-2);
 }
-.md-ws-res-week-td-menu { width: 34px; }
+
+.md-ws-res-week-td-menu {
+    width: 34px;
+}
 
 /* 週モーダル ＋業者追加 */
-.md-ws-res-week-add-row { display: flex; flex-direction: column; gap: 8px; }
+.md-ws-res-week-add-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .md-ws-res-week-add-btn {
     align-self: flex-start;
     padding: 5px 12px;
@@ -3240,7 +3690,11 @@ body {
     color: var(--text-secondary);
     cursor: pointer;
 }
-.md-ws-res-week-add-btn:hover { background: var(--bg-surface-2); }
+
+.md-ws-res-week-add-btn:hover {
+    background: var(--bg-surface-2);
+}
+
 .md-ws-res-week-add-panel {
     display: flex;
     gap: 8px;
@@ -3249,7 +3703,11 @@ body {
     background: var(--bg-surface-2);
     border-radius: 4px;
 }
-.md-ws-res-week-add-panel .md-ws-pac { flex: 1; min-width: 200px; }
+
+.md-ws-res-week-add-panel .md-ws-pac {
+    flex: 1;
+    min-width: 200px;
+}
 
 /* ==========================================================
    D&D 違反セル＆トースト（A6）
@@ -3257,12 +3715,11 @@ body {
 .md-ws-cell.md-ws-drag-invalid {
     opacity: 0.35;
     cursor: not-allowed;
-    background-image: repeating-linear-gradient(
-        135deg,
-        rgba(176, 58, 46, 0.08) 0 6px,
-        transparent 6px 12px
-    );
+    background-image: repeating-linear-gradient(135deg,
+            rgba(176, 58, 46, 0.08) 0 6px,
+            transparent 6px 12px);
 }
+
 .md-ws-cell.md-ws-drag-invalid.md-ws-drag-over {
     outline: 1px dashed rgba(176, 58, 46, 0.55);
     outline-offset: -1px;
@@ -3279,6 +3736,7 @@ body {
     gap: 8px;
     pointer-events: none;
 }
+
 .md-ws-toast {
     padding: 8px 16px;
     background: rgba(44, 48, 52, 0.92);
@@ -3291,6 +3749,7 @@ body {
     transform: translateY(8px);
     transition: opacity 0.24s ease, transform 0.24s ease;
 }
+
 .md-ws-toast.md-ws-toast-show {
     opacity: 1;
     transform: translateY(0);
@@ -3307,6 +3766,7 @@ body {
     min-width: 160px;
     padding: 4px 0;
 }
+
 .md-ws-res-week-row-menu-item {
     display: block;
     width: 100%;
@@ -3318,8 +3778,14 @@ body {
     cursor: pointer;
     color: var(--text-primary);
 }
-.md-ws-res-week-row-menu-item:hover { background: var(--bg-surface-2); }
-.md-ws-res-week-row-menu-danger { color: var(--error-text, #B03A2E); }
+
+.md-ws-res-week-row-menu-item:hover {
+    background: var(--bg-surface-2);
+}
+
+.md-ws-res-week-row-menu-danger {
+    color: var(--error-text, #B03A2E);
+}
 
 /* ============================================================
    Phase W-F: a11y — フォーカスリング統一
@@ -3347,6 +3813,7 @@ body {
    Phase W-F: prefers-reduced-motion
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -3360,6 +3827,7 @@ body {
    Phase W-F: 印刷
    ============================================================ */
 @media print {
+
     /* 全要素で背景色・文字色を強制保持（ブラウザの「背景のグラフィック OFF」を上書き） */
     *,
     *::before,
@@ -3379,10 +3847,12 @@ body {
         height: auto !important;
         overflow: visible !important;
     }
+
     .md-ws-grid-wrapper,
     .tbl-grid-wrapper {
         overflow: visible !important;
     }
+
     .md-ws-main {
         display: block !important;
         overflow: visible !important;
@@ -3425,6 +3895,7 @@ body {
         color: #000 !important;
         border-bottom: 1px solid #000;
     }
+
     .md-ws-header-title,
     .md-ws-year-label,
     .md-ws-month-label {
@@ -3436,9 +3907,9 @@ body {
     .md-ws-group-dates {
         page-break-after: avoid;
     }
+
     .md-ws-cell,
     .md-ws-name-cell {
         page-break-inside: avoid;
     }
 }
-
