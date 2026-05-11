@@ -2084,21 +2084,18 @@ function qaCnHighlightCell(dayKey, type) {
 function qaCnCardClick(notificationId) {
     var n = qaCnState.notifications.find(function(x) { return x.id === notificationId; });
     if (!n || !n.dayKey) return;
-    qaCnCloseModal();
+    // パネルは開いたまま、該当の現場・年月へ遷移してセルをハイライト
 
-    // カレンダー画面が開いていない or 別の現場を表示中なら遷移
     var calScreen = document.getElementById('qaCalendarScreen');
     var isCalOpen = calScreen && calScreen.classList.contains('active');
     var isSameSite = qaCurrentClientName === n.clientName && qaCurrentSiteName === n.siteName;
 
     if (!isCalOpen || !isSameSite) {
-        // 該当の現場のカレンダーを開く
         if (n.clientId && n.siteId) {
             qaOpenCalendar(n.clientId, n.siteId);
         }
     }
 
-    // dayKeyの年月に合わせてカレンダーを移動
     var parts = n.dayKey.split('-');
     var targetYear = parseInt(parts[0]);
     var targetMonth = parseInt(parts[1]) - 1;

@@ -155,11 +155,17 @@
     });
 
     // ========== アイテムクリック ==========
-    // - cn-expand を持つアイテム → アコーディオン展開 + 既読化
-    // - cn-expand 無し         → 即ジャンプ
+    // - cn-expand 有り: 排他アコーディオン展開（同パネル内の他は閉じる）+ 開く時のみ cn:jump 発火（フラッシュ用）
+    // - cn-expand 無し: 即ジャンプ
     function fireJump(item) {
         var ev = new CustomEvent('cn:jump', { bubbles: true, detail: { item: item } });
         item.dispatchEvent(ev);
+    }
+    function setItemExpanded(item, expanded) {
+        item.classList.toggle('is-expanded', expanded);
+        var rowEl = item.querySelector(':scope > .cn-item-row');
+        var chev = rowEl && rowEl.querySelector('.cn-chevron');
+        if (chev) chev.textContent = expanded ? '▴' : '▾';
     }
     document.addEventListener('click', function (e) {
         var row = e.target.closest('.cn-item-row');
@@ -175,12 +181,22 @@
             fireJump(item);
             return;
         }
-        // アコーディオン展開 + 既読化
         var willOpen = !item.classList.contains('is-expanded');
-        item.classList.toggle('is-expanded', willOpen);
-        if (willOpen) item.classList.remove('is-unread');
-        var chev = row.querySelector('.cn-chevron');
-        if (chev) chev.textContent = willOpen ? '▴' : '▾';
+        if (willOpen) {
+            // 排他: 同じ panel 内の他の展開済みアイテムを閉じる
+            var panel = item.closest('.cn-panel');
+            if (panel) {
+                panel.querySelectorAll('.cn-item.is-expanded').forEach(function (other) {
+                    if (other !== item) setItemExpanded(other, false);
+                });
+            }
+            setItemExpanded(item, true);
+            item.classList.remove('is-unread');
+            // 開いた時のみフラッシュ発火（各画面のリスナーがパネルを閉じない実装になっている前提）
+            fireJump(item);
+        } else {
+            setItemExpanded(item, false);
+        }
     });
 
     // ジャンプボタン (アコーディオン内)

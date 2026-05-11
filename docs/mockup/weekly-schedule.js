@@ -4958,6 +4958,317 @@
         document.head.appendChild(style);
     }
 
+    // ==========================================================
+    // 変更通知パネル（業務管理計画書 固有）
+    // ==========================================================
+
+    var wsCnState = {
+        notifications: [],   // 最新タブ用（未読ドット表示）
+        history: [],         // 履歴タブ用（全件）
+        nextId: 1
+    };
+    var wsCnIconChars = { add: '＋', modify: '✎', delete: '✕' };
+
+    function wsCnEscape(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function wsCnGetSite(siteId) {
+        for (var i = 0; i < wsSitesData.length; i++) {
+            if (wsSitesData[i].id === siteId) return wsSitesData[i];
+        }
+        return null;
+    }
+
+    function wsCnSiteLabel(n) {
+        var site = wsCnGetSite(n.siteId);
+        if (!site) return n.siteName || '(不明な現場)';
+        return site.company + ' / ' + site.name;
+    }
+
+    function wsCnShiftMark(shift) {
+        if (shift === 'day')   return ' 昼';
+        if (shift === 'night') return ' 夜';
+        return '';
+    }
+
+    function wsCnDescribeAction(n) {
+        var name = wsCnSiteLabel(n);
+        if (n.type === 'add')    return name + ' を新規配置';
+        if (n.type === 'delete') return name + ' を削除';
+        if (n.type === 'modify') {
+            var fields = (n.diffs || []).map(function (d) { return d.field; }).join('・');
+            return name + (fields ? ' の' + fields + 'を変更' : ' を変更');
+        }
+        return name;
+    }
+
+    function wsCnBuildDiffHtml(n) {
+        if (n.type === 'modify' && n.diffs) {
+            return n.diffs.map(function (d) {
+                return '<div class="cn-diff-line">' +
+                    '<span class="cn-diff-label">' + wsCnEscape(d.field) + '</span>' +
+                    '<span class="cn-diff-from">' + wsCnEscape(d.oldVal) + '</span>' +
+                    '<span class="cn-diff-arrow">→</span>' +
+                    '<span class="cn-diff-to">' + wsCnEscape(d.newVal) + '</span>' +
+                '</div>';
+            }).join('');
+        }
+        if (n.type === 'add' && n.details) {
+            return n.details.map(function (d) {
+                return '<div class="cn-diff-line">' +
+                    '<span class="cn-diff-label">' + wsCnEscape(d.field) + '</span>' +
+                    '<span class="cn-diff-to">' + wsCnEscape(d.value) + '</span>' +
+                '</div>';
+            }).join('');
+        }
+        if (n.type === 'delete') {
+            return '<div class="cn-diff-line"><span class="cn-diff-from">この配置は削除されました</span></div>';
+        }
+        return '';
+    }
+
+    function wsCnRenderItem(n) {
+        var iconChar = wsCnIconChars[n.type] || '?';
+        var unreadClass = !n._read ? ' is-unread' : '';
+        var site = wsCnGetSite(n.siteId);
+        var siteKey = site ? site.name : (n.siteName || '');
+        var d = parseDate(n.date);
+        var dayChip = '<span class="cn-date-chip">' + (d.getMonth() + 1) + '/' + d.getDate() + wsCnShiftMark(n.shift) + '</span>';
+        var diffHtml = wsCnBuildDiffHtml(n);
+        var expandHtml = '<div class="cn-expand">' + diffHtml + '</div>';
+        var chevron = '<span class="cn-chevron">▾</span>';
+
+        return '<div class="cn-item type-' + n.type + unreadClass +
+                '" data-nid="' + n.id +
+                '" data-type="' + n.type +
+                '" data-site="' + wsCnEscape(siteKey) +
+                '" data-account="' + wsCnEscape(n.user || '') + '">' +
+            '<div class="cn-item-row">' +
+                '<div class="cn-icon type-' + n.type + '">' + iconChar + '</div>' +
+                '<div class="cn-text">' +
+                    '<div class="cn-text-main">' + wsCnEscape(wsCnDescribeAction(n)) + dayChip + '</div>' +
+                    '<div class="cn-text-sub">' + wsCnEscape(n.user || '') + ' ・ ' + wsCnEscape(n.time || '') + '</div>' +
+                '</div>' +
+                chevron +
+            '</div>' +
+            expandHtml +
+        '</div>';
+    }
+
+    function wsCnRenderLatest() {
+        var body = document.getElementById('wsCnLatestBody');
+        if (!body) return;
+        if (wsCnState.notifications.length === 0) {
+            body.innerHTML = '<div class="cn-empty">変更通知はありません</div>';
+            return;
+        }
+        body.innerHTML = '<div class="cn-date-group">' +
+            '<button class="cn-date-group-head" type="button" aria-expanded="true">最近' +
+                '<span class="cn-date-group-toggle" aria-hidden="true">▴</span>' +
+            '</button>' +
+            wsCnState.notifications.map(wsCnRenderItem).join('') +
+        '</div>';
+    }
+
+    function wsCnGroupBy(items, keyFn) {
+        var groups = {}, order = [];
+        items.forEach(function (it) {
+            var k = keyFn(it) || '(未分類)';
+            if (!groups[k]) { groups[k] = []; order.push(k); }
+            groups[k].push(it);
+        });
+        return order.map(function (k) { return { key: k, items: groups[k] }; });
+    }
+
+    function wsCnRenderAxisGroups(grouped) {
+        if (grouped.length === 0) return '<div class="cn-empty">変更履歴はありません</div>';
+        return grouped.map(function (g) {
+            return '<div class="cn-axis-group">' +
+                '<button class="cn-axis-group-head" type="button" aria-expanded="true">' + wsCnEscape(g.key) +
+                    '<span class="cn-axis-group-toggle" aria-hidden="true">▴</span>' +
+                '</button>' +
+                g.items.map(wsCnRenderItem).join('') +
+            '</div>';
+        }).join('');
+    }
+
+    function wsCnRenderHistory() {
+        var siteBody = document.getElementById('wsCnHistorySiteBody');
+        var accBody = document.getElementById('wsCnHistoryAccountBody');
+        if (siteBody) {
+            var bySite = wsCnGroupBy(wsCnState.history, function (h) { return wsCnSiteLabel(h); });
+            siteBody.innerHTML = wsCnRenderAxisGroups(bySite);
+        }
+        if (accBody) {
+            var byAcc = wsCnGroupBy(wsCnState.history, function (h) { return h.user; });
+            accBody.innerHTML = wsCnRenderAxisGroups(byAcc);
+        }
+        wsCnRenderPickBadges(wsCnState.history);
+    }
+
+    function wsCnRenderPickBadges(historyItems) {
+        var companyBadges = document.getElementById('wsCnPickCompanyBadges');
+        var siteGroups = document.getElementById('wsCnPickSiteBadgesGroups');
+        if (companyBadges && siteGroups) {
+            var byCompany = wsCnGroupBy(historyItems, function (h) {
+                var s = wsCnGetSite(h.siteId);
+                return s ? s.company : '(未分類)';
+            });
+            companyBadges.innerHTML = byCompany.length
+                ? byCompany.map(function (g) {
+                    return '<button type="button" class="cn-pick-badge" data-company="' + wsCnEscape(g.key) + '">' + wsCnEscape(g.key) + '</button>';
+                }).join('')
+                : '<button type="button" class="cn-pick-badge" disabled>契約先がありません</button>';
+            siteGroups.innerHTML = byCompany.map(function (g) {
+                var siteNames = {};
+                g.items.forEach(function (h) {
+                    var s = wsCnGetSite(h.siteId);
+                    if (s) siteNames[s.name] = true;
+                });
+                return '<div class="cn-pick-badges" data-company="' + wsCnEscape(g.key) + '" hidden>' +
+                    Object.keys(siteNames).map(function (sn) {
+                        return '<button type="button" class="cn-pick-badge">' + wsCnEscape(sn) + '</button>';
+                    }).join('') +
+                '</div>';
+            }).join('');
+        }
+        var accBadges = document.getElementById('wsCnPickAccountBadges');
+        if (accBadges) {
+            var users = {};
+            historyItems.forEach(function (h) { if (h.user) users[h.user] = true; });
+            var userList = Object.keys(users);
+            accBadges.innerHTML = userList.length
+                ? userList.map(function (u) {
+                    return '<button type="button" class="cn-pick-badge">' + wsCnEscape(u) + '</button>';
+                }).join('')
+                : '<button type="button" class="cn-pick-badge" disabled>アカウントがありません</button>';
+        }
+    }
+
+    function wsCnUpdateBadge() {
+        var badge = document.getElementById('wsCnBadge');
+        if (!badge) return;
+        var unread = wsCnState.notifications.filter(function (n) { return !n._read; }).length;
+        badge.textContent = String(unread);
+        badge.hidden = unread <= 0;
+    }
+
+    function wsCnHighlightCell(siteId, dateKey, shift, type) {
+        // 既存ハイライト除去
+        document.querySelectorAll('.md-ws-cell[class*="md-cn-cell-glow-"]').forEach(function (c) {
+            c.classList.remove('md-cn-cell-glow-add', 'md-cn-cell-glow-modify', 'md-cn-cell-glow-delete');
+        });
+        var sel = '.md-ws-cell[data-site-id="' + siteId + '"][data-date="' + dateKey + '"]';
+        if (shift) sel += '[data-shift="' + shift + '"]';
+        var targets = document.querySelectorAll(sel);
+        if (targets.length === 0) return;
+        var cls = 'md-cn-cell-glow-' + (type || 'modify');
+        targets.forEach(function (c) { c.classList.add(cls); });
+        // 最初のセルを画面内へ
+        targets[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function () {
+            targets.forEach(function (c) { c.classList.remove(cls); });
+        }, 5000);
+    }
+
+    // cn:jump → 該当セルへフラッシュ（パネルは開いたまま）
+    document.addEventListener('cn:jump', function (e) {
+        var item = e.detail && e.detail.item;
+        if (!item) return;
+        if (!item.closest('#wsCnPanel')) return;
+        var nid = parseInt(item.dataset.nid, 10);
+        var n = null;
+        for (var i = 0; i < wsCnState.notifications.length; i++) {
+            if (wsCnState.notifications[i].id === nid) { n = wsCnState.notifications[i]; break; }
+        }
+        if (!n) {
+            for (var j = 0; j < wsCnState.history.length; j++) {
+                if (wsCnState.history[j].id === nid) { n = wsCnState.history[j]; break; }
+            }
+        }
+        if (!n) return;
+        // 既読化
+        n._read = true;
+        wsCnUpdateBadge();
+        // 社員軸の場合は現場軸へ切替（セルは data-site-id で識別するため）
+        var needsRender = false;
+        if (viewMode !== 'site') {
+            switchView('site');
+            needsRender = true;
+        }
+        // ジャンプ先がビュー範囲外なら週を移動
+        var d = parseDate(n.date);
+        if (d < viewStartDate || d >= new Date(viewStartDate.getTime() + visibleWeeks * 7 * 86400000)) {
+            viewStartDate = getWeekStart(d);
+            renderGrid();
+            renderSidebar();
+            needsRender = true;
+        }
+        setTimeout(function () { wsCnHighlightCell(n.siteId, n.date, n.shift, n.type); }, needsRender ? 100 : 0);
+    });
+
+    // すべて既読
+    document.addEventListener('cn:mark-all', function (e) {
+        if (!e.target.closest || !e.target.closest('#wsCnPanel')) return;
+        wsCnState.notifications.forEach(function (n) { n._read = true; });
+        wsCnUpdateBadge();
+    });
+
+    // ベル: 共通 co-notify-panel.js が is-open 制御。クリック時に未読再計算のみ
+    function wsCnBindBell() {
+        var btn = document.getElementById('wsCnNotifyBtn');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            // 共通レイヤがトグルした後の状態に依らず、最新数値を反映
+            setTimeout(wsCnUpdateBadge, 0);
+        });
+    }
+
+    function wsCnBuildSampleData() {
+        // ビュー基準週内の日付を使う（generateDemoAssignments と同じ流れ）
+        var dates = getVisibleDates(); // 7日分
+        function dk(i) { return formatDateKey(dates[i]); }
+
+        // 最新タブ用（未読ベース、最近の通知）
+        var latest = [
+            { siteId: 's1', date: dk(2), shift: 'day',  type: 'modify', user: '田中 太郎', time: '5分前',
+              diffs: [{ field: '人数', oldVal: '3名', newVal: '4名' }] },
+            { siteId: 's5', date: dk(1), shift: 'day',  type: 'modify', user: '鈴木 一郎', time: '18分前',
+              diffs: [{ field: '開始時間', oldVal: '08:00', newVal: '07:30' }] },
+            { siteId: 's2', date: dk(3), shift: 'night',type: 'add', user: '佐藤 花子', time: '32分前',
+              details: [{ field: '配置人数', value: '2名' }, { field: 'シフト', value: '夜' }] },
+            { siteId: 's4', date: dk(4), shift: 'day',  type: 'delete', user: '加藤 健', time: '1時間前' }
+        ];
+        latest.forEach(function (n) { n.id = wsCnState.nextId++; n._read = false; });
+
+        // 履歴タブ用（latest を含む + 過去ぶん）
+        var older = [
+            { siteId: 's3', date: dk(0), shift: 'day',  type: 'add', user: '田中 太郎', time: '昨日 16:40',
+              details: [{ field: '配置人数', value: '4名' }] },
+            { siteId: 's6', date: dk(5), shift: 'day',  type: 'modify', user: '加藤 健', time: '昨日 14:12',
+              diffs: [{ field: '集合場所', oldVal: '正面ゲート', newVal: '東側入口' }] },
+            { siteId: 's1', date: dk(0), shift: 'night',type: 'modify', user: '鈴木 一郎', time: '2日前',
+              diffs: [{ field: '人数', oldVal: '1名', newVal: '2名' }] },
+            { siteId: 's2', date: dk(1), shift: 'day',  type: 'modify', user: '佐藤 花子', time: '3日前',
+              diffs: [{ field: '責任者', oldVal: '山田', newVal: '佐藤' }] }
+        ];
+        older.forEach(function (n) { n.id = wsCnState.nextId++; n._read = true; });
+
+        wsCnState.notifications = latest;
+        wsCnState.history = latest.concat(older);
+    }
+
+    function wsCnInit() {
+        wsCnBuildSampleData();
+        wsCnRenderLatest();
+        wsCnRenderHistory();
+        wsCnUpdateBadge();
+        wsCnBindBell();
+    }
+
     function init() {
         restoreTheme();
         generateDemoAssignments();
@@ -5021,6 +5332,9 @@
         renderGrid();
         renderSidebar();
         onDateHeaderClick(selectedDate);
+
+        // 変更通知パネル初期化
+        wsCnInit();
     }
 
     function injectViewToggle() {

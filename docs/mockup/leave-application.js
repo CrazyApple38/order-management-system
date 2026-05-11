@@ -1246,35 +1246,18 @@
         }, 0);
     }
 
-    // 通知パネル内のアイテムクリック処理 (Google Cal/Gmail 風アコーディオン挙動)
-    // - 同じ通知 → トグル (閉じる: popover も閉じる)
-    // - 別の通知 → 開いてた他のアコーディオンを閉じてから開く + popover
-    // co-notify-panel.js が is-expanded を先にトグルする (script 読み込み順) のでその後の状態を読む
+    // 通知パネル内のアイテムクリック → 閉じた時のみ popover も閉じる
+    // 開いた時の処理（排他展開・月遷移・フラッシュ・popover 表示）は共通層 + cn:jump ハンドラで実施
     document.addEventListener('click', function (e) {
         var row = e.target.closest('.cn-item-row');
         if (!row) return;
         if (e.target.closest('.cn-jump-btn')) return;
         var item = row.parentElement;
         if (!item || !item.classList.contains('cn-item')) return;
-        var panel = item.closest('#laCnPanel');
-        if (!panel) return; // 他画面の通知パネルは触らない
-        // co-notify-panel が cn-expand 無しのアイテムをスキップしている可能性 (履歴タブ修正前)
+        if (!item.closest('#laCnPanel')) return;
         if (!item.querySelector(':scope > .cn-expand')) return;
-
-        var isNowExpanded = item.classList.contains('is-expanded');
-        if (isNowExpanded) {
-            // 他のアコーディオンを閉じる (相互排他)
-            panel.querySelectorAll('.cn-item.is-expanded').forEach(function (other) {
-                if (other === item) return;
-                other.classList.remove('is-expanded');
-                var ch = other.querySelector('.cn-chevron');
-                if (ch) ch.textContent = '▾';
-            });
-            // 該当 leave の popover を開く
-            var leaveId = item.dataset.leaveId;
-            if (leaveId) openLeavePopoverForId(leaveId);
-        } else {
-            // 閉じた → popover も閉じる
+        // 共通層が is-expanded をトグル後の状態を読む（閉じた時のみ popover も閉じる）
+        if (!item.classList.contains('is-expanded')) {
             laClosePopover();
         }
     });
@@ -1377,19 +1360,21 @@
         var n = notifications.find(function (x) { return x.leaveId === leaveId; });
         if (n) { n.isRead = true; renderNotifyBadge(); }
         var lv = laLeaves.find(function (x) { return x.id === leaveId; });
-        // パネルを閉じる
-        if (window.coNotifyPanel) {
-            var anchor = document.getElementById('laCnAnchor');
-            if (anchor) window.coNotifyPanel.close(anchor);
-        }
         if (!lv) return;
-        // 月間ビューに切替 + 該当月へ
-        currentView = 'month';
-        currentDate = new Date(parseDate(lv.date).getFullYear(), parseDate(lv.date).getMonth(), 1);
-        document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
-            t.classList.toggle('is-active', t.dataset.view === 'month');
-        });
-        render();
+        // 月間ビューに切替 + 該当月へ（パネルは開いたまま）
+        var needsRender = (
+            currentView !== 'month' ||
+            parseDate(lv.date).getFullYear() !== currentDate.getFullYear() ||
+            parseDate(lv.date).getMonth() !== currentDate.getMonth()
+        );
+        if (needsRender) {
+            currentView = 'month';
+            currentDate = new Date(parseDate(lv.date).getFullYear(), parseDate(lv.date).getMonth(), 1);
+            document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
+                t.classList.toggle('is-active', t.dataset.view === 'month');
+            });
+            render();
+        }
         setTimeout(function () {
             var badge = document.querySelector('.md-la-badge[data-leave-id="' + lv.id + '"]');
             if (!badge) return;
@@ -1401,7 +1386,7 @@
             setTimeout(function () { badge.classList.remove('md-la-badge-flash'); }, 1800);
             // 詳細編集ポップオーバーを開く
             laShowBadgeInfo(lv, badge);
-        }, 100);
+        }, needsRender ? 100 : 0);
     });
 
     // 「すべて既読」 → 既読反映 + 再描画

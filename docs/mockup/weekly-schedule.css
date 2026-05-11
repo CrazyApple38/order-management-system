@@ -3950,3 +3950,33 @@ body {
         page-break-inside: avoid;
     }
 }
+
+/* ============================================================================
+   変更通知パネル（WS固有） — ベル配置 + セルグロウ
+   ============================================================================ */
+
+/* ベルアイコンをツールバー右端に配置 */
+.md-ws-toolbar .md-ws-cn-anchor {
+    margin-left: auto;
+}
+
+/* セル明滅ハイライト（cn:jump 着地用） — OB と同方式の box-shadow inset */
+.md-ws-cell.md-cn-cell-glow-modify { animation: md-ws-cn-glow-yellow 1.2s ease-in-out 4; }
+.md-ws-cell.md-cn-cell-glow-add    { animation: md-ws-cn-glow-green  1.2s ease-in-out 4; }
+.md-ws-cell.md-cn-cell-glow-delete { animation: md-ws-cn-glow-red    1.2s ease-in-out 4; }
+@keyframes md-ws-cn-glow-yellow {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: inset 0 0 0 100px rgba(236, 201, 75, 0.35); }
+}
+@keyframes md-ws-cn-glow-green {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: inset 0 0 0 100px rgba(72, 187, 120, 0.35); }
+}
+@keyframes md-ws-cn-glow-red {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: inset 0 0 0 100px rgba(245, 101, 101, 0.35); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .md-ws-cell[class*="md-cn-cell-glow-"] { animation: none; }
+}

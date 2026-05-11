@@ -3720,8 +3720,8 @@ function obCnHighlightCells(ri, day, type, si) {
 function obCnCardClick(notificationId) {
     var n = obCnState.notifications.find(function(x) { return x.id === notificationId; });
     if (!n || n.rowIndex === undefined) return;
-    obCnCloseModal();
-    setTimeout(function() { obCnHighlightCells(n.rowIndex, n.day, n.type, n.subIndex); }, 100);
+    // パネルは開いたまま、該当セルをハイライト
+    obCnHighlightCells(n.rowIndex, n.day, n.type, n.subIndex);
 }
 
 // 履歴→最新タブの該当アイテムへジャンプ
