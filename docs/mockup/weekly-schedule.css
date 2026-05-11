@@ -233,6 +233,12 @@ body {
     height: 14px;
 }
 
+#wsPrevWeek .ui-icon,
+#wsNextWeek .ui-icon {
+    width: 20px;
+    height: 20px;
+}
+
 .md-ws-month-label {
     font-size: 13px;
     font-weight: var(--fw-semibold, 600);
