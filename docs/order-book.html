@@ -16,6 +16,21 @@
 </head>
 <body>
 
+    <!-- SVG icon sprite (CLAUDE.md アイコン運用ルール準拠) -->
+    <svg class="ui-icon-sprite" aria-hidden="true" focusable="false">
+        <defs>
+            <!-- plus: sign-mark/im-00105-purasu.svg -->
+            <symbol id="ui-icon-plus" viewBox="0 0 512 512">
+                <path d="M359.244,224.004h-59.988c-6.217,0-11.258-5.043-11.258-11.258v-59.992c0-6.215-5.039-11.254-11.256-11.254h-41.486c-6.217,0-11.258,5.039-11.258,11.254v59.992c0,6.215-5.039,11.258-11.256,11.258h-59.988c-6.219,0-11.258,5.039-11.258,11.258v41.484c0,6.215,5.039,11.258,11.258,11.258h59.988c6.217,0,11.256,5.039,11.256,11.258v59.984c0,6.219,5.041,11.258,11.258,11.258h41.486c6.217,0,11.256-5.039,11.256-11.258v-59.984c0-6.219,5.041-11.258,11.258-11.258h59.988c6.217,0,11.258-5.043,11.258-11.258v-41.484C370.502,229.043,365.461,224.004,359.244,224.004z"/>
+                <path d="M256,0C114.613,0,0,114.617,0,256c0,141.387,114.613,256,256,256c141.383,0,256-114.613,256-256C512,114.617,397.383,0,256,0z M256,448c-105.871,0-192-86.129-192-192c0-105.867,86.129-192,192-192c105.867,0,192,86.133,192,192C448,361.871,361.867,448,256,448z"/>
+            </symbol>
+            <!-- undo: sign-mark/im-12604-u-taan-yajirushi-1.svg (redo は CSS .ui-icon-flip-x で水平反転) -->
+            <symbol id="ui-icon-undo" viewBox="0 0 512 512">
+                <path d="M452.422,155.809c-36.6-36.713-87.875-59.612-143.837-59.578h-73.337V84.847V8.939L46.711,162.247L235.248,315.57v-78.228v-8.269h73.337c19.694,0.033,36.924,7.799,49.906,20.658c12.868,12.99,20.634,30.212,20.667,49.914c-0.033,19.702-7.8,36.924-20.667,49.897c-12.982,12.876-30.212,20.642-49.906,20.676H0v132.842h308.585c55.962,0.033,107.237-22.866,143.837-59.578c36.698-36.6,59.612-87.875,59.578-143.837C512.033,243.684,489.12,192.408,452.422,155.809z"/>
+            </symbol>
+        </defs>
+    </svg>
+
     <!-- スキップリンク（a11y: Tab キー初回でフォーカス時に可視表示） -->
     <a class="skip-link" href="#obGrid">メインコンテンツへスキップ</a>
 
@@ -146,16 +161,16 @@
     <!-- ツールバー -->
     <div class="md-ob-toolbar no-print" role="toolbar" aria-label="受注簿操作バー">
         <div class="md-ob-toolbar-left">
-            <button class="md-ob-tb-btn md-ob-tb-btn-add" onclick="addNewRow()">＋ 新規追加</button>
-            <button class="md-ob-tb-btn" id="undoBtn" onclick="undo()" disabled>↩ 戻る</button>
-            <button class="md-ob-tb-btn" id="redoBtn" onclick="redo()" disabled>↪ 次へ</button>
+            <button class="md-ob-tb-btn md-ob-tb-btn-add" onclick="addNewRow()"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg> 新規追加</button>
+            <button class="md-ob-tb-btn" id="undoBtn" onclick="undo()" disabled><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-undo"/></svg> 戻る</button>
+            <button class="md-ob-tb-btn" id="redoBtn" onclick="redo()" disabled><svg class="ui-icon ui-icon-flip-x" aria-hidden="true"><use href="#ui-icon-undo"/></svg> 次へ</button>
             <span class="md-ob-toolbar-sep"></span>
-            <button class="md-ob-tb-btn" onclick="openSortModal()">⇅ ソート</button>
+            <button class="md-ob-tb-btn" onclick="openSortModal()">ソート</button>
             <button class="md-ob-tb-btn" onclick="toggleFilterRow()"><img src="mockup/icons/search.svg" class="md-ob-icon"> フィルタ</button>
             <button class="md-ob-tb-btn" onclick="toggleHiddenRows()"><img src="mockup/icons/eye.svg" class="md-ob-icon"> 表示/非表示</button>
             <button class="md-ob-tb-btn" id="btnToggleBadges" onclick="toggleBadgeDisplay()"><img src="mockup/icons/tag.svg" class="md-ob-icon"> バッジ</button>
             <span class="md-ob-toolbar-sep"></span>
-            <button class="md-ob-tb-btn" id="obCnDemoBtn" onclick="obCnToggleDemo()">▶ デモ開始</button>
+            <button class="md-ob-tb-btn" id="obCnDemoBtn" onclick="obCnToggleDemo()">デモ開始</button>
         </div>
         <div class="md-ob-toolbar-right">
             <span class="md-ob-summary" id="summaryText">全 12 件</span>

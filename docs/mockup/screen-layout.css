@@ -764,9 +764,10 @@ h1 {
     background: var(--bg-surface);
     border-radius: 6px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 11px;
+    font-weight: 500;
     transition: all 0.15s;
-    color: var(--text-primary);
+    color: var(--text-secondary);
     white-space: nowrap;
 }
 
@@ -777,13 +778,15 @@ h1 {
 }
 
 .toolbar button.primary {
-    background: var(--accent-primary);
-    color: white;
+    background: var(--accent-primary-dim);
+    color: var(--accent-primary);
     border-color: var(--accent-primary);
+    font-weight: 600;
 }
 
 .toolbar button.primary:hover {
-    background: var(--accent-primary-light);
+    background: var(--accent-primary);
+    color: white;
 }
 
 .toolbar button.danger {
@@ -4185,6 +4188,11 @@ h1 {
     vertical-align: -0.125em;
     display: inline-block;
     flex-shrink: 0;
+}
+
+/* 水平反転（redo を undo の反転で再利用するなど） */
+.ui-icon-flip-x {
+    transform: scaleX(-1);
 }
 
 .header-section .md-ob-icon {
