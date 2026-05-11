@@ -2164,7 +2164,7 @@
             return;
         }
 
-        e.dataTransfer.dropEffect = dragSourceDate ? 'move' : 'copy';
+        e.dataTransfer.dropEffect = (dragSourceType && dragSourceType.indexOf('move-') === 0) ? 'move' : 'copy';
         e.currentTarget.classList.add('md-ws-drag-over');
 
         // ドラッグ先の日付カラムをハイライト更新（サイドバー起点のみ）
