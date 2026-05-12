@@ -698,7 +698,9 @@
     function buildSiteGroups() {
         var groups = [];
         CATEGORY_ORDER.forEach(function (cat) {
-            var sites = wsSitesData.filter(function (s) { return s.category === cat; });
+            var sites = wsSitesData.filter(function (s) {
+                return s.category === cat && wsGcIsVisible(s.gc);
+            });
             if (sites.length > 0) {
                 groups.push({
                     id: 'cat-' + cat,
@@ -759,6 +761,60 @@
         return null;
     }
 
+    function findGroupCompany(code) {
+        if (typeof groupCompaniesData === 'undefined') return null;
+        for (var i = 0; i < groupCompaniesData.length; i++) {
+            if (groupCompaniesData[i].code === code) return groupCompaniesData[i];
+        }
+        return null;
+    }
+
+    // GC名の吹き出しツールチップ（hover中のみ表示、document.body 直下に fixed 配置）
+    function attachGcTooltip(elem, gcCode) {
+        if (!gcCode) return;
+        var gc = findGroupCompany(gcCode);
+        if (!gc) return;
+
+        var tip = null;
+        function show() {
+            hide();
+            tip = document.createElement('div');
+            tip.className = 'md-ws-tooltip md-ws-gc-tooltip';
+            tip.textContent = gc.name;
+            document.body.appendChild(tip);
+            position();
+        }
+        function position() {
+            if (!tip) return;
+            var r = elem.getBoundingClientRect();
+            var t = tip.getBoundingClientRect();
+            var preferAbove = r.top - t.height - 8 >= 4;
+            var top, isBelow = false;
+            if (preferAbove) {
+                top = r.top - t.height - 8;
+            } else {
+                top = r.bottom + 8;
+                isBelow = true;
+            }
+            var left = r.left + (r.width - t.width) / 2;
+            left = Math.max(4, Math.min(window.innerWidth - t.width - 4, left));
+            tip.style.top = top + 'px';
+            tip.style.left = left + 'px';
+            tip.classList.toggle('md-ws-tooltip-below', isBelow);
+        }
+        function hide() {
+            if (tip) { tip.remove(); tip = null; }
+        }
+        elem.addEventListener('mouseenter', show);
+        elem.addEventListener('mouseleave', hide);
+    }
+
+    // グリッド再描画時に取り残されたツールチップを掃除
+    function clearGcTooltips() {
+        var leftovers = document.querySelectorAll('.md-ws-gc-tooltip');
+        for (var i = 0; i < leftovers.length; i++) leftovers[i].remove();
+    }
+
     function findVehicle(id) {
         for (var i = 0; i < wsVehiclesData.length; i++) {
             if (wsVehiclesData[i].id === id) return wsVehiclesData[i];
@@ -771,6 +827,7 @@
     // ==========================================================
 
     function renderGrid() {
+        clearGcTooltips();
         if (viewMode === 'site') {
             renderSiteGrid();
         } else {
@@ -1204,10 +1261,10 @@
                 if (isCollapsed) nameCell.classList.add('md-ws-row-hidden');
                 nameCell.style.gridRow = currentRow;
                 nameCell.style.gridColumn = '1';
-                nameCell.title = site.company + ' / ' + site.name;
                 nameCell.innerHTML = '<span style="flex:1;min-width:0;display:flex;flex-direction:column;"><span class="md-ws-name-client">' +
                     truncate(site.company, 14) + '</span><span class="md-ws-name-site">' +
                     truncate(site.name, 12) + '</span></span>';
+                attachGcTooltip(nameCell, site.gc);
                 grid.appendChild(nameCell);
 
                 // 各日付×シフトセル
@@ -1604,6 +1661,7 @@
                                 empAssign[dk][shift].forEach(function (siteId) {
                                     var site = findSite(siteId);
                                     if (!site) return;
+                                    if (!wsGcIsVisible(site.gc)) return; // GCフィルタ連動
                                     var chipCls = 'md-ws-site-chip';
                                     if (shift === 'night') chipCls += ' md-ws-night-chip';
                                     if (isPast) chipCls += ' md-ws-readonly';
@@ -1622,7 +1680,7 @@
                                     if (csInfo.hasNext) {
                                         chip.appendChild(el('span', 'md-ws-chip-arrow md-ws-chip-arrow-next', '\u25b2'));
                                     }
-                                    chip.title = site.company + ' / ' + site.name;
+                                    attachGcTooltip(chip, site.gc);
                                     if (!isPast) {
                                         // ×ボタン（ホバーで表示）
                                         var removeBtn = el('span', 'md-ws-chip-remove', '\u00d7');
@@ -3802,21 +3860,35 @@
         var nameSpan = el('span', 'md-ws-emp-name', getPartnerPlacedLabel(partner));
         tag.appendChild(nameSpan);
 
-        // 全表示日の配置数を集計
+        // 全表示日の配置数を曜日別に集計（昼夜合算・可視GCの現場のみ）
         var dates = getVisibleDates();
-        var totalCount = 0;
+        var dowLabels = getDaysOfWeek();
+        var perDowParts = [];
         dates.forEach(function (d) {
             var dk = formatDateKey(d);
             var sa = supportAssignments[partner.id];
+            var c = 0;
             if (sa && sa[dk]) {
                 ['day', 'night'].forEach(function (sh) {
-                    if (sa[dk][sh]) totalCount += sa[dk][sh].length;
+                    if (!sa[dk][sh]) return;
+                    sa[dk][sh].forEach(function (a) {
+                        var site = findSite(a.siteId);
+                        if (site && wsGcIsVisible(site.gc)) c++;
+                    });
                 });
             }
+            if (c > 0) {
+                perDowParts.push({ dow: dowLabels[d.getDay()], count: c });
+            }
         });
-        if (totalCount > 0) {
+        if (perDowParts.length > 0) {
             var countWrap = el('span', 'md-ws-support-count-text');
-            countWrap.appendChild(el('span', 'md-ws-support-ct-day', '\u914d' + totalCount));
+            perDowParts.forEach(function (p) {
+                var mini = el('span', 'md-ws-dow-badge md-ws-dow-badge--pair');
+                mini.appendChild(el('span', 'md-ws-dow-badge-label', p.dow));
+                mini.appendChild(el('span', 'md-ws-dow-badge-count', String(p.count)));
+                countWrap.appendChild(mini);
+            });
             tag.appendChild(countWrap);
         }
 

@@ -1097,6 +1097,27 @@ body {
     line-height: 1.5;
 }
 
+/* GC名 吹き出しツールチップ（既定: アンカー上方に表示し下向き矢印） */
+.md-ws-gc-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--tooltip-bg);
+    border-bottom: 0;
+}
+
+/* 反転（アンカー下方に表示する場合は上向き矢印） */
+.md-ws-gc-tooltip.md-ws-tooltip-below::after {
+    bottom: auto;
+    top: -6px;
+    border: 6px solid transparent;
+    border-bottom-color: var(--tooltip-bg);
+    border-top: 0;
+}
+
 /* ============================================================
    ビュー切替トグル
    ============================================================ */
@@ -2013,19 +2034,20 @@ body {
     color: var(--text-primary);
 }
 
-/* 応援バッジ 昼/夜配置数テキスト */
+/* 応援バッジ 曜日別配置数ミニバッジ群 */
 .md-ws-support-count-text {
-    font-size: 11px;
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
     margin-left: 4px;
-    white-space: nowrap;
 }
 
-.md-ws-support-ct-day {
-    color: var(--success-text, #2e7d32);
-}
-
-.md-ws-support-ct-night {
-    color: var(--error, #c0392b);
+/* 曜日＋数値の対表示用（曜日ラベルと数値の間に小スペース） */
+.md-ws-dow-badge.md-ws-dow-badge--pair {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
 }
 
 /* グリッド内の応援チップ */
