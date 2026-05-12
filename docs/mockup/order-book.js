@@ -2977,85 +2977,539 @@ function saveRowEdit() {
     renderGrid();
 }
 
-// --- ソートモーダル ---
-function openSortModal() {
-    document.getElementById('sortModalOverlay').style.display = 'flex';
-    initSortDrag();
+// ===== ソート設定モーダル（screen-layout と統一仕様） =====
+const DEFAULT_SORT_ORDER = {
+    company: ['東央警備', 'Nikkeiホールディングス', '全日本エンタープライズ'],
+    category: ['施設', 'イベント', '交通', '高速'],
+    shift: ['昼', '夜']
+};
+const SORT_STATE_STORAGE_KEY = 'ob.sortState.v1';
+
+const sortState = {
+    company: [], category: [], shift: [], contractor: [], site: [],
+    companyCategoryOrders: {},
+    categoryContractorOrders: {},
+    contractorSiteOrders: {},
+    shiftSites: {},
+    selected: { company: null, category: null, shift: null, contractor: null, site: null },
+    filterCompany: null, filterCategory: null, filterContractor: null, filterShift: null,
+    adjusted: false
+};
+
+// sampleRows のキー名 → ソートUI内部キー名のマッピング
+function extractRowDataOB(row) {
+    return {
+        company: row.branch || '',
+        category: row.category || '',
+        shift: row.shift || '',
+        contractor: row.company || '',
+        site: row.task || ''
+    };
 }
 
-function closeSortModal(e) {
-    if (e && e.target !== e.currentTarget) return;
-    document.getElementById('sortModalOverlay').style.display = 'none';
+function extractGridDataOB() {
+    return sampleRows.map(r => extractRowDataOB(r));
 }
 
-function toggleSortDir(btn) {
-    btn.textContent = btn.textContent === '▲' ? '▼' : '▲';
-}
-
-function initSortDrag() {
-    const list = document.getElementById('sortList');
-    let dragItem = null;
-
-    // li要素にdata-sort-idxを付与（タッチドラッグ用）
-    [...list.children].forEach((li, i) => li.setAttribute('data-sort-idx', i));
-
-    list.querySelectorAll('li').forEach(li => {
-        li.addEventListener('dragstart', () => { dragItem = li; li.style.opacity = '0.4'; });
-        li.addEventListener('dragend', () => { dragItem = null; li.style.opacity = '1'; list.querySelectorAll('li').forEach(l => l.classList.remove('drag-over')); });
-        li.addEventListener('dragover', (e) => { e.preventDefault(); li.classList.add('drag-over'); });
-        li.addEventListener('dragleave', () => { li.classList.remove('drag-over'); });
-        li.addEventListener('drop', (e) => {
-            e.preventDefault();
-            li.classList.remove('drag-over');
-            if (dragItem !== li) {
-                const items = [...list.children];
-                const fromIdx = items.indexOf(dragItem);
-                const toIdx = items.indexOf(li);
-                if (fromIdx < toIdx) li.after(dragItem);
-                else li.before(dragItem);
-            }
-        });
+function getUniqueValues(dataArray, key) {
+    const seen = new Set();
+    const result = [];
+    dataArray.forEach(d => {
+        const val = d[key];
+        if (val && !seen.has(val)) { seen.add(val); result.push(val); }
     });
-
-    // タッチドラッグ対応
-    enableTouchDrag(list, 'li', {
-        idxAttr: 'data-sort-idx',
-        draggingClass: 'md-ob-touch-dragging',
-        overClass: 'drag-over',
-        gripSelector: '.md-ob-sort-grip',
-        onReorder(srcIdx, destIdx) {
-            const items = [...list.children];
-            const srcItem = items[srcIdx];
-            const destItem = items[destIdx];
-            if (!srcItem || !destItem) return;
-            if (srcIdx < destIdx) destItem.after(srcItem);
-            else destItem.before(srcItem);
-            // インデックスを再付与
-            [...list.children].forEach((li, i) => li.setAttribute('data-sort-idx', i));
-        },
-    });
+    return result;
 }
-
-function applySort() {
-    const list = document.getElementById('sortList');
-    const sortKeys = [...list.children].map(li => ({
-        key: li.dataset.key,
-        asc: li.querySelector('.md-ob-sort-dir').textContent === '▲',
-    }));
-
-    sampleRows.sort((a, b) => {
-        for (const sk of sortKeys) {
-            const va = a[sk.key] || '';
-            const vb = b[sk.key] || '';
-            const cmp = va.localeCompare(vb, 'ja');
-            if (cmp !== 0) return sk.asc ? cmp : -cmp;
+function getFilteredUniqueValues(dataArray, key, filterKey, filterValue) {
+    const seen = new Set();
+    const result = [];
+    dataArray.forEach(d => {
+        if (d[filterKey] === filterValue && d[key] && !seen.has(d[key])) {
+            seen.add(d[key]); result.push(d[key]);
         }
-        return 0;
+    });
+    return result;
+}
+
+function saveSortStateToStorage() {
+    try {
+        const payload = {
+            company: sortState.company, category: sortState.category, shift: sortState.shift,
+            contractor: sortState.contractor, site: sortState.site,
+            companyCategoryOrders: sortState.companyCategoryOrders,
+            categoryContractorOrders: sortState.categoryContractorOrders,
+            contractorSiteOrders: sortState.contractorSiteOrders,
+            shiftSites: sortState.shiftSites,
+            adjusted: sortState.adjusted
+        };
+        localStorage.setItem(SORT_STATE_STORAGE_KEY, JSON.stringify(payload));
+    } catch (e) {}
+}
+function loadSortStateFromStorage() {
+    try {
+        const raw = localStorage.getItem(SORT_STATE_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+}
+function clearSortStateFromStorage() {
+    try { localStorage.removeItem(SORT_STATE_STORAGE_KEY); } catch (e) {}
+}
+
+function mergeOrderWithGrid(savedOrder, gridOrder) {
+    if (!Array.isArray(savedOrder) || !savedOrder.length) return gridOrder.slice();
+    const merged = savedOrder.filter(item => gridOrder.includes(item));
+    gridOrder.forEach(item => { if (!merged.includes(item)) merged.push(item); });
+    return merged;
+}
+
+function mergeSavedIntoSortState() {
+    const saved = loadSortStateFromStorage();
+    if (!saved) return false;
+    sortState.company = mergeOrderWithGrid(saved.company, sortState.company);
+    sortState.category = mergeOrderWithGrid(saved.category, sortState.category);
+    sortState.shift = mergeOrderWithGrid(saved.shift, sortState.shift);
+    sortState.contractor = mergeOrderWithGrid(saved.contractor, sortState.contractor);
+    sortState.site = mergeOrderWithGrid(saved.site, sortState.site);
+    if (saved.companyCategoryOrders) {
+        Object.keys(sortState.companyCategoryOrders).forEach(co => {
+            const s = saved.companyCategoryOrders[co];
+            if (s) sortState.companyCategoryOrders[co] = mergeOrderWithGrid(s, sortState.companyCategoryOrders[co]);
+        });
+    }
+    if (saved.categoryContractorOrders) {
+        Object.keys(sortState.categoryContractorOrders).forEach(cat => {
+            const s = saved.categoryContractorOrders[cat];
+            if (s) sortState.categoryContractorOrders[cat] = mergeOrderWithGrid(s, sortState.categoryContractorOrders[cat]);
+        });
+    }
+    if (saved.contractorSiteOrders) {
+        Object.keys(sortState.contractorSiteOrders).forEach(con => {
+            const s = saved.contractorSiteOrders[con];
+            if (s) sortState.contractorSiteOrders[con] = mergeOrderWithGrid(s, sortState.contractorSiteOrders[con]);
+        });
+    }
+    if (saved.shiftSites) {
+        Object.keys(sortState.shiftSites).forEach(sh => {
+            const s = saved.shiftSites[sh];
+            if (s) sortState.shiftSites[sh] = mergeOrderWithGrid(s, sortState.shiftSites[sh]);
+        });
+    }
+    sortState.adjusted = !!saved.adjusted;
+    return true;
+}
+
+function initSortStateFromGrid() {
+    const gridData = extractGridDataOB();
+    const gridCompanies = getUniqueValues(gridData, 'company');
+    sortState.company = DEFAULT_SORT_ORDER.company.filter(c => gridCompanies.includes(c));
+    gridCompanies.forEach(c => { if (!sortState.company.includes(c)) sortState.company.push(c); });
+
+    const gridCategories = getUniqueValues(gridData, 'category');
+    sortState.category = DEFAULT_SORT_ORDER.category.filter(c => gridCategories.includes(c));
+    gridCategories.forEach(c => { if (!sortState.category.includes(c)) sortState.category.push(c); });
+
+    const gridShifts = getUniqueValues(gridData, 'shift');
+    sortState.shift = DEFAULT_SORT_ORDER.shift.filter(s => gridShifts.includes(s));
+    gridShifts.forEach(s => { if (!sortState.shift.includes(s)) sortState.shift.push(s); });
+
+    sortState.contractor = getUniqueValues(gridData, 'contractor');
+    sortState.site = getUniqueValues(gridData, 'site');
+
+    sortState.companyCategoryOrders = {};
+    sortState.company.forEach(co => {
+        const cats = getFilteredUniqueValues(gridData, 'category', 'company', co);
+        const ordered = DEFAULT_SORT_ORDER.category.filter(c => cats.includes(c));
+        cats.forEach(c => { if (!ordered.includes(c)) ordered.push(c); });
+        sortState.companyCategoryOrders[co] = ordered;
+    });
+    sortState.categoryContractorOrders = {};
+    sortState.category.forEach(cat => {
+        sortState.categoryContractorOrders[cat] = getFilteredUniqueValues(gridData, 'contractor', 'category', cat);
+    });
+    sortState.contractorSiteOrders = {};
+    sortState.contractor.forEach(con => {
+        sortState.contractorSiteOrders[con] = getFilteredUniqueValues(gridData, 'site', 'contractor', con);
+    });
+    sortState.shiftSites = {};
+    sortState.shift.forEach(sh => {
+        sortState.shiftSites[sh] = getFilteredUniqueValues(gridData, 'site', 'shift', sh);
     });
 
+    sortState.selected = { company: null, category: null, shift: null, contractor: null, site: null };
+    sortState.filterCompany = null;
+    sortState.filterCategory = null;
+    sortState.filterContractor = null;
+    sortState.filterShift = null;
+    sortState.adjusted = false;
+
+    mergeSavedIntoSortState();
+}
+
+function snapshotSortState() {
+    return JSON.stringify({
+        company: sortState.company, category: sortState.category, shift: sortState.shift,
+        contractor: sortState.contractor, site: sortState.site,
+        companyCategoryOrders: sortState.companyCategoryOrders,
+        categoryContractorOrders: sortState.categoryContractorOrders,
+        contractorSiteOrders: sortState.contractorSiteOrders
+    });
+}
+
+function renderAllSortLists() {
+    renderSortList('company'); renderSortList('category'); renderSortList('shift');
+    renderSortList('contractor'); renderSortList('site');
+    updateSortFilters();
+    updateSortModifiedBadge();
+}
+
+function openSortModal() {
+    initSortStateFromGrid();
+    sortState.initialSnapshot = snapshotSortState();
+    renderAllSortLists();
+    const modal = document.getElementById('sortModal');
+    modal.classList.add('active');
+    const closeBtn = modal.querySelector('.sort-modal-close');
+    if (closeBtn) closeBtn.focus();
+}
+
+function closeSortModal() { document.getElementById('sortModal').classList.remove('active'); }
+
+document.getElementById('sortModal').addEventListener('click', function(e) {
+    if (e.target === this) closeSortModal();
+});
+
+document.getElementById('sortModal').addEventListener('click', function(e) {
+    const upBtn = e.target.closest('.sort-btn-move-up');
+    if (upBtn) { sortMoveUp(upBtn.dataset.column); return; }
+    const downBtn = e.target.closest('.sort-btn-move-down');
+    if (downBtn) { sortMoveDown(downBtn.dataset.column); return; }
+    const listItem = e.target.closest('.sort-list-item');
+    if (listItem && !listItem.dataset.empty) {
+        const list = listItem.closest('.sort-column-list');
+        const col = list && list.dataset.column;
+        const idx = parseInt(listItem.dataset.index, 10);
+        if (col && !isNaN(idx)) selectSortItem(col, idx);
+    }
+});
+
+let sortDragState = null;
+document.getElementById('sortModal').addEventListener('dragstart', function(e) {
+    const item = e.target.closest && e.target.closest('.sort-list-item');
+    if (!item) return;
+    const list = item.closest('.sort-column-list');
+    const col = list && list.dataset.column;
+    const idx = parseInt(item.dataset.index, 10);
+    if (!col || isNaN(idx)) return;
+    sortDragState = { column: col, fromIndex: idx };
+    item.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', String(idx)); } catch (_) {}
+});
+
+document.getElementById('sortModal').addEventListener('dragend', function(e) {
+    const item = e.target.closest && e.target.closest('.sort-list-item');
+    if (item) item.classList.remove('dragging');
+    document.querySelectorAll('.sort-list-item.drop-before, .sort-list-item.drop-after')
+        .forEach(el => el.classList.remove('drop-before', 'drop-after'));
+    sortDragState = null;
+});
+
+document.getElementById('sortModal').addEventListener('dragover', function(e) {
+    if (!sortDragState) return;
+    const list = e.target.closest && e.target.closest('.sort-column-list');
+    if (!list || list.dataset.column !== sortDragState.column) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const over = e.target.closest('.sort-list-item');
+    list.querySelectorAll('.sort-list-item.drop-before, .sort-list-item.drop-after')
+        .forEach(el => el.classList.remove('drop-before', 'drop-after'));
+    if (!over || over.classList.contains('dragging')) return;
+    const rect = over.getBoundingClientRect();
+    const mid = rect.top + rect.height / 2;
+    over.classList.add(e.clientY < mid ? 'drop-before' : 'drop-after');
+});
+
+document.getElementById('sortModal').addEventListener('keydown', function(e) {
+    if (!this.classList.contains('active')) return;
+    if (e.key === 'Escape') { e.preventDefault(); closeSortModal(); return; }
+    if (e.key === 'Tab') {
+        const focusables = this.querySelectorAll('button:not([disabled]), [tabindex="0"], input, select, textarea');
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        return;
+    }
+    const listbox = e.target.closest('.sort-column-list[role="listbox"]');
+    if (!listbox) return;
+    const col = listbox.dataset.column;
+    if (!col) return;
+    const items = getCurrentSortItems(col) || [];
+    if (items.length === 0) return;
+    const cur = sortState.selected[col];
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (e.ctrlKey || e.metaKey) {
+            if (e.key === 'ArrowUp') sortMoveUp(col); else sortMoveDown(col);
+        } else {
+            const next = (cur === null || cur === undefined) ? 0
+                : Math.max(0, Math.min(items.length - 1, cur + (e.key === 'ArrowDown' ? 1 : -1)));
+            if (next !== cur) selectSortItem(col, next);
+        }
+        const newSel = listbox.querySelector('.sort-list-item.selected');
+        if (newSel) newSel.focus();
+    }
+});
+
+document.getElementById('sortModal').addEventListener('drop', function(e) {
+    if (!sortDragState) return;
+    const list = e.target.closest && e.target.closest('.sort-column-list');
+    if (!list || list.dataset.column !== sortDragState.column) return;
+    e.preventDefault();
+    const over = e.target.closest('.sort-list-item');
+    const items = getCurrentSortItems(sortDragState.column);
+    if (!items) return;
+    const from = sortDragState.fromIndex;
+    let to;
+    if (!over) { to = items.length - 1; }
+    else {
+        const overIdx = parseInt(over.dataset.index, 10);
+        const rect = over.getBoundingClientRect();
+        const before = e.clientY < rect.top + rect.height / 2;
+        to = before ? overIdx : overIdx + 1;
+        if (from < to) to -= 1;
+    }
+    if (from === to) return;
+    const moved = items.splice(from, 1)[0];
+    items.splice(to, 0, moved);
+    sortState.selected[sortDragState.column] = to;
+    syncSortStateAfterReorder(sortDragState.column);
+    renderSortList(sortDragState.column);
+    if (sortDragState.column === 'category') { updateSortFilters(); }
+    updateSortModifiedBadge();
+});
+
+function updateSortModifiedBadge() {
+    const badge = document.getElementById('sortModifiedBadge');
+    if (badge) {
+        const current = snapshotSortState();
+        badge.hidden = (current === sortState.initialSnapshot);
+    }
+    const adjBadgeContractor = document.getElementById('sortAdjustedBadgeContractor');
+    const adjBadgeSite = document.getElementById('sortAdjustedBadgeSite');
+    if (adjBadgeContractor) adjBadgeContractor.hidden = !sortState.adjusted;
+    if (adjBadgeSite) adjBadgeSite.hidden = !sortState.adjusted;
+}
+
+function renderSortList(column) {
+    const container = document.getElementById('sortList' + column.charAt(0).toUpperCase() + column.slice(1));
+    const items = getCurrentSortItems(column) || [];
+    let html = '';
+    items.forEach((item, index) => {
+        const isSelected = sortState.selected[column] === index;
+        html += '<div class="sort-list-item' + (isSelected ? ' selected' : '') + '" data-index="' + index + '" draggable="true"'
+            + ' role="option" aria-selected="' + (isSelected ? 'true' : 'false') + '" tabindex="' + (isSelected ? '0' : '-1') + '">'
+            + '<span class="sort-item-number">' + (index + 1) + '.</span>'
+            + '<span class="sort-item-name">' + escapeHtml(item) + '</span>'
+            + '</div>';
+    });
+    if (items.length === 0) html = '<div class="sort-list-empty">項目なし</div>';
+    container.innerHTML = html;
+    updateSortButtonState(column);
+}
+
+function selectSortItem(column, index) {
+    var deselect = sortState.selected[column] === index;
+    sortState.selected[column] = deselect ? null : index;
+    renderSortList(column);
+    if (column === 'company') {
+        sortState.filterCompany = deselect ? null : (sortState.company[index] || null);
+        sortState.filterCategory = null;
+        sortState.filterContractor = null;
+        sortState.selected.category = null;
+        sortState.selected.contractor = null;
+        sortState.selected.site = null;
+        renderSortList('category'); renderSortList('contractor'); renderSortList('site');
+        updateSortFilters();
+    } else if (column === 'category') {
+        let items = sortState.filterCompany
+            ? (sortState.companyCategoryOrders[sortState.filterCompany] || [])
+            : sortState.category;
+        sortState.filterCategory = deselect ? null : (items[index] || null);
+        sortState.filterContractor = null;
+        sortState.selected.contractor = null;
+        sortState.selected.site = null;
+        renderSortList('contractor'); renderSortList('site');
+        updateSortFilters();
+    } else if (column === 'shift') {
+        sortState.filterShift = deselect ? null : (sortState.shift[index] || null);
+        sortState.selected.site = null;
+        renderSortList('site');
+        updateSortFilters();
+    } else if (column === 'contractor') {
+        if (deselect) { sortState.filterContractor = null; }
+        else {
+            let items = sortState.filterCategory
+                ? (sortState.categoryContractorOrders[sortState.filterCategory] || [])
+                : sortState.contractor;
+            sortState.filterContractor = items[index] || null;
+        }
+        sortState.selected.site = null;
+        renderSortList('site');
+        updateSortFilters();
+    }
+}
+
+function updateSortFilters() {
+    const categoryFilter = document.getElementById('sortCategoryFilter');
+    const contractorFilter = document.getElementById('sortContractorFilter');
+    const siteFilter = document.getElementById('sortSiteFilter');
+    const arrowSvg = '<svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-arrow-right"/></svg> ';
+    if (categoryFilter) categoryFilter.innerHTML = sortState.filterCompany ? arrowSvg + escapeHtml(sortState.filterCompany) : '';
+    contractorFilter.innerHTML = sortState.filterCategory ? arrowSvg + escapeHtml(sortState.filterCategory) : '';
+    const parts = [];
+    if (sortState.filterShift) parts.push(escapeHtml(sortState.filterShift));
+    if (sortState.filterContractor) parts.push(escapeHtml(sortState.filterContractor));
+    siteFilter.innerHTML = parts.length ? arrowSvg + parts.join(' / ') : '';
+    const adjC = document.getElementById('sortAdjustedBadgeContractor');
+    const adjS = document.getElementById('sortAdjustedBadgeSite');
+    if (adjC) adjC.hidden = !sortState.adjusted;
+    if (adjS) adjS.hidden = !sortState.adjusted;
+}
+
+function updateSortButtonState(column) {
+    let selIdx = sortState.selected[column];
+    const items = getCurrentSortItems(column) || [];
+    if (selIdx !== null && selIdx !== undefined && (selIdx < 0 || selIdx >= items.length)) {
+        sortState.selected[column] = null;
+        selIdx = null;
+    }
+    const upBtn = document.querySelector('.sort-btn-move-up[data-column="' + column + '"]');
+    const downBtn = document.querySelector('.sort-btn-move-down[data-column="' + column + '"]');
+    if (!upBtn || !downBtn) return;
+    const noSel = (selIdx === null || selIdx === undefined);
+    upBtn.disabled = noSel || selIdx <= 0;
+    downBtn.disabled = noSel || selIdx >= items.length - 1;
+}
+
+function sortMoveUp(column) {
+    const idx = sortState.selected[column];
+    if (idx === null || idx <= 0) return;
+    const items = getCurrentSortItems(column);
+    const tmp = items[idx - 1]; items[idx - 1] = items[idx]; items[idx] = tmp;
+    sortState.selected[column] = idx - 1;
+    syncSortStateAfterReorder(column);
+    renderSortList(column);
+    updateSortModifiedBadge();
+}
+function sortMoveDown(column) {
+    const idx = sortState.selected[column];
+    const items = getCurrentSortItems(column);
+    if (idx === null || idx >= items.length - 1) return;
+    const tmp = items[idx + 1]; items[idx + 1] = items[idx]; items[idx] = tmp;
+    sortState.selected[column] = idx + 1;
+    syncSortStateAfterReorder(column);
+    renderSortList(column);
+    updateSortModifiedBadge();
+}
+
+function getCurrentSortItems(column) {
+    if (column === 'category' && sortState.filterCompany) return sortState.companyCategoryOrders[sortState.filterCompany];
+    if (column === 'contractor' && sortState.filterCategory) return sortState.categoryContractorOrders[sortState.filterCategory];
+    if (column === 'site') {
+        if (sortState.filterContractor) return sortState.contractorSiteOrders[sortState.filterContractor];
+        if (sortState.filterShift) return sortState.shiftSites[sortState.filterShift];
+    }
+    return sortState[column];
+}
+
+function syncFlatFromSubset(flatKey, subsetItems) {
+    const flat = sortState[flatKey];
+    const subsetSet = new Set(subsetItems);
+    let subsetIdx = 0;
+    for (let i = 0; i < flat.length; i++) {
+        if (subsetSet.has(flat[i])) flat[i] = subsetItems[subsetIdx++];
+    }
+}
+
+function syncHierarchicalFromFlat(column) {
+    if (column === 'category') {
+        Object.keys(sortState.companyCategoryOrders).forEach(co => {
+            const subset = sortState.companyCategoryOrders[co];
+            if (subset) sortState.companyCategoryOrders[co] = sortState.category.filter(c => subset.includes(c));
+        });
+    } else if (column === 'contractor') {
+        Object.keys(sortState.categoryContractorOrders).forEach(cat => {
+            const subset = sortState.categoryContractorOrders[cat];
+            if (subset) sortState.categoryContractorOrders[cat] = sortState.contractor.filter(c => subset.includes(c));
+        });
+    } else if (column === 'site') {
+        Object.keys(sortState.contractorSiteOrders).forEach(con => {
+            const subset = sortState.contractorSiteOrders[con];
+            if (subset) sortState.contractorSiteOrders[con] = sortState.site.filter(s => subset.includes(s));
+        });
+        Object.keys(sortState.shiftSites || {}).forEach(sh => {
+            const subset = sortState.shiftSites[sh];
+            if (subset) sortState.shiftSites[sh] = sortState.site.filter(s => subset.includes(s));
+        });
+    }
+}
+
+function syncSortStateAfterReorder(column) {
+    if (column === 'category') {
+        if (sortState.filterCompany) syncFlatFromSubset('category', sortState.companyCategoryOrders[sortState.filterCompany]);
+        syncHierarchicalFromFlat('category');
+    } else if (column === 'contractor') {
+        if (sortState.filterCategory) syncFlatFromSubset('contractor', sortState.categoryContractorOrders[sortState.filterCategory]);
+        syncHierarchicalFromFlat('contractor');
+        sortState.adjusted = true;
+    } else if (column === 'site') {
+        if (sortState.filterContractor) syncFlatFromSubset('site', sortState.contractorSiteOrders[sortState.filterContractor]);
+        else if (sortState.filterShift) syncFlatFromSubset('site', sortState.shiftSites[sortState.filterShift]);
+        syncHierarchicalFromFlat('site');
+        sortState.adjusted = true;
+    }
+}
+
+const SORT_UNKNOWN_PRIORITY = Number.MAX_SAFE_INTEGER;
+function getSortPriority(orderArray, value) {
+    const idx = orderArray.indexOf(value);
+    return idx >= 0 ? idx : SORT_UNKNOWN_PRIORITY;
+}
+
+function compareRowsForSort(a, b) {
+    const dataA = extractRowDataOB(a), dataB = extractRowDataOB(b);
+    let cmp;
+    cmp = getSortPriority(sortState.company, dataA.company) - getSortPriority(sortState.company, dataB.company);
+    if (cmp !== 0) return cmp;
+    if (sortState.adjusted) {
+        cmp = getSortPriority(sortState.contractor, dataA.contractor) - getSortPriority(sortState.contractor, dataB.contractor);
+        if (cmp !== 0) return cmp;
+        const siteOrderA = sortState.contractorSiteOrders[dataA.contractor] || sortState.site;
+        const siteOrderB = sortState.contractorSiteOrders[dataB.contractor] || sortState.site;
+        cmp = getSortPriority(siteOrderA, dataA.site) - getSortPriority(siteOrderB, dataB.site);
+        if (cmp !== 0) return cmp;
+    }
+    const catOrderA = sortState.companyCategoryOrders[dataA.company] || sortState.category;
+    const catOrderB = sortState.companyCategoryOrders[dataB.company] || sortState.category;
+    cmp = getSortPriority(catOrderA, dataA.category) - getSortPriority(catOrderB, dataB.category);
+    if (cmp !== 0) return cmp;
+    return getSortPriority(sortState.shift, dataA.shift) - getSortPriority(sortState.shift, dataB.shift);
+}
+
+function applySortSettings() {
+    sampleRows.sort(compareRowsForSort);
     cellData = generateCellData(); // 【モックアップ専用】本番ではソート後にAPIから再取得
+    saveSortStateToStorage();
     closeSortModal();
     renderGrid();
+}
+
+function resetSortSettings() {
+    clearSortStateFromStorage();
+    initSortStateFromGrid();
+    renderAllSortLists();
 }
 
 // --- カレンダー入力モーダル ---

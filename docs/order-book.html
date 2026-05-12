@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=2">
     <link rel="stylesheet" href="mockup/co-company-input.css">
-    <link rel="stylesheet" href="mockup/order-book.css">
+    <link rel="stylesheet" href="mockup/order-book.css?v=2">
 </head>
 <body>
 
@@ -27,6 +27,22 @@
             <!-- undo: sign-mark/im-12604-u-taan-yajirushi-1.svg (redo は CSS .ui-icon-flip-x で水平反転) -->
             <symbol id="ui-icon-undo" viewBox="0 0 512 512">
                 <path d="M452.422,155.809c-36.6-36.713-87.875-59.612-143.837-59.578h-73.337V84.847V8.939L46.711,162.247L235.248,315.57v-78.228v-8.269h73.337c19.694,0.033,36.924,7.799,49.906,20.658c12.868,12.99,20.634,30.212,20.667,49.914c-0.033,19.702-7.8,36.924-20.667,49.897c-12.982,12.876-30.212,20.642-49.906,20.676H0v132.842h308.585c55.962,0.033,107.237-22.866,143.837-59.578c36.698-36.6,59.612-87.875,59.578-143.837C512.033,243.684,489.12,192.408,452.422,155.809z"/>
+            </symbol>
+            <!-- close: sign-mark/im-11911-hosoi-batsu.svg -->
+            <symbol id="ui-icon-close" viewBox="0 0 512 512">
+                <polygon points="512,52.535 459.467,0.002 256.002,203.462 52.538,0.002 0,52.535 203.47,256.005 0,459.465 52.533,511.998 256.002,308.527 459.467,511.998 512,459.475 308.536,256.005"/>
+            </symbol>
+            <!-- chevron-up: sign-mark/im-12242-yajirushi-aikon-ue-2.svg -->
+            <symbol id="ui-icon-chevron-up" viewBox="0 0 512 512">
+                <path d="M487.463,216.139L286.099,12.576C278.137,4.52,267.308,0,255.997,0c-11.312,0-22.13,4.52-30.092,12.576 L24.541,216.139c-16.438,16.622-16.304,43.437,0.329,59.875c16.613,16.438,43.416,16.294,59.854-0.329l128.955-130.352v324.341 c0,23.362,18.945,42.327,42.318,42.327c23.382,0,42.327-18.965,42.327-42.327V145.332L427.27,275.684 c16.438,16.623,43.252,16.767,59.864,0.329C503.758,259.576,503.901,232.761,487.463,216.139z"/>
+            </symbol>
+            <!-- chevron-down: sign-mark/im-12243-yajirushi-aikon-shimo-2.svg -->
+            <symbol id="ui-icon-chevron-down" viewBox="0 0 512 512">
+                <path d="M487.129,235.987c-16.613-16.438-43.417-16.294-59.85,0.328L298.323,366.669V42.328 C298.323,18.966,279.374,0,256.007,0c-23.388,0-42.328,18.966-42.328,42.328v324.34L84.729,236.316 c-16.438-16.622-43.242-16.766-59.864-0.328c-16.618,16.438-16.767,43.252-0.33,59.875l201.37,203.563 C233.867,507.48,244.695,512,256.007,512c11.312,0,22.124-4.52,30.091-12.575l201.364-203.563 C503.895,279.239,503.766,252.425,487.129,235.987z"/>
+            </symbol>
+            <!-- arrow-right: chevron-up を 90deg 回転した矢印 -->
+            <symbol id="ui-icon-arrow-right" viewBox="0 0 512 512">
+                <path d="M499.425,225.907L295.862,24.543C287.895,16.488,277.083,11.97,265.771,11.97 c-11.312,0-22.14,4.518-30.091,12.573c-16.437,16.623-16.288,43.437,0.33,59.875l130.351,128.955H42.328 C18.966,213.373,0,232.338,0,255.711c0,23.382,18.966,42.327,42.328,42.327h324.034L236.01,426.39 c-16.618,16.438-16.767,43.252-0.33,59.864c16.438,16.612,43.252,16.758,59.875,0.328l203.864-201.364 c8.056-7.951,12.576-18.779,12.576-30.091C512.001,244.7,507.481,233.872,499.425,225.907z"/>
             </symbol>
         </defs>
     </svg>
@@ -165,7 +181,7 @@
             <button class="md-ob-tb-btn" id="undoBtn" onclick="undo()" disabled><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-undo"/></svg> 戻る</button>
             <button class="md-ob-tb-btn" id="redoBtn" onclick="redo()" disabled><svg class="ui-icon ui-icon-flip-x" aria-hidden="true"><use href="#ui-icon-undo"/></svg> 次へ</button>
             <span class="md-ob-toolbar-sep"></span>
-            <button class="md-ob-tb-btn" onclick="openSortModal()">ソート</button>
+            <button class="md-ob-tb-btn" onclick="openSortModal()"><img src="mockup/icons/chart.svg" class="md-ob-icon" alt="ソート設定"> ソート設定</button>
             <button class="md-ob-tb-btn" onclick="toggleFilterRow()"><img src="mockup/icons/search.svg" class="md-ob-icon"> フィルタ</button>
             <button class="md-ob-tb-btn" onclick="toggleHiddenRows()"><img src="mockup/icons/eye.svg" class="md-ob-icon"> 表示/非表示</button>
             <button class="md-ob-tb-btn" id="btnToggleBadges" onclick="toggleBadgeDisplay()"><img src="mockup/icons/tag.svg" class="md-ob-icon"> バッジ</button>
@@ -495,28 +511,79 @@
     </div>
 
     <!-- ソート設定モーダル -->
-    <div class="modal-overlay no-print" id="sortModalOverlay" style="display:none;" onclick="closeSortModal(event)">
-        <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="sortModalTitle" onclick="event.stopPropagation()">
-            <div class="modal-header">
+    <div class="md-modal-overlay" id="sortModal">
+        <div class="sort-modal" role="dialog" aria-modal="true" aria-labelledby="sortModalTitle">
+            <div class="sort-modal-header">
                 <h3 id="sortModalTitle">ソート設定</h3>
-                <button class="modal-close" onclick="closeSortModal()" aria-label="モーダルを閉じる">✕</button>
+                <button class="sort-modal-close" onclick="closeSortModal()" aria-label="閉じる"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-close"/></svg></button>
             </div>
-            <div class="modal-body">
-                <div class="md-modal-body-field"><div class="md-modal-body-field-value">Sort Order</div></div>
-                <div class="md-modal-body-card">
-                    <p class="md-ob-sort-desc">ドラッグで優先順位を変更できます</p>
-                    <ul class="md-ob-sort-list" id="sortList">
-                        <li draggable="true" data-key="branch"><span class="md-ob-sort-grip">☰</span> 会社 <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
-                        <li draggable="true" data-key="category"><span class="md-ob-sort-grip">☰</span> 区分カテゴリ <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
-                        <li draggable="true" data-key="company"><span class="md-ob-sort-grip">☰</span> 契約先名 <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
-                        <li draggable="true" data-key="task"><span class="md-ob-sort-grip">☰</span> 業務名 <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
-                        <li draggable="true" data-key="shift"><span class="md-ob-sort-grip">☰</span> 昼/夜 <button class="md-ob-sort-dir" onclick="toggleSortDir(this)">▲</button></li>
-                    </ul>
+            <div class="sort-hierarchy-bar">
+                <span class="sort-hierarchy-label">初期ソート ／ 微調整（変更で優先）</span>
+                <span class="sort-modified-badge" id="sortModifiedBadge" hidden>変更あり</span>
+            </div>
+            <div class="sort-modal-body">
+                <div class="sort-column sort-column-group" data-column="company">
+                    <div class="sort-column-header">
+                        <span class="sort-column-title">会社</span>
+                    </div>
+                    <div class="sort-column-list" id="sortListCompany" data-column="company" role="listbox" aria-label="会社 並び順"></div>
+                    <div class="sort-column-buttons">
+                        <button type="button" class="sort-btn-move-up" data-column="company" aria-label="上へ"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-up"/></svg></button>
+                        <button type="button" class="sort-btn-move-down" data-column="company" aria-label="下へ"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-down"/></svg></button>
+                    </div>
+                </div>
+                <div class="sort-column sort-column-group" data-column="category">
+                    <div class="sort-column-header">
+                        <span class="sort-column-title">区分</span>
+                        <span class="sort-column-filter" id="sortCategoryFilter"></span>
+                    </div>
+                    <div class="sort-column-list" id="sortListCategory" data-column="category" role="listbox" aria-label="区分 並び順"></div>
+                    <div class="sort-column-buttons">
+                        <button type="button" class="sort-btn-move-up" data-column="category" aria-label="上へ"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-up"/></svg></button>
+                        <button type="button" class="sort-btn-move-down" data-column="category" aria-label="下へ"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-down"/></svg></button>
+                    </div>
+                </div>
+                <div class="sort-column sort-column-group" data-column="shift">
+                    <div class="sort-column-header">
+                        <span class="sort-column-title">昼夜</span>
+                    </div>
+                    <div class="sort-column-list" id="sortListShift" data-column="shift" role="listbox" aria-label="昼夜 並び順"></div>
+                    <div class="sort-column-buttons">
+                        <button type="button" class="sort-btn-move-up" data-column="shift" aria-label="上へ"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-up"/></svg></button>
+                        <button type="button" class="sort-btn-move-down" data-column="shift" aria-label="下へ"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-down"/></svg></button>
+                    </div>
+                </div>
+                <div class="sort-column sort-column-adjust" data-column="contractor">
+                    <div class="sort-column-header">
+                        <span class="sort-column-title">契約先</span>
+                        <span class="sort-column-filter" id="sortContractorFilter"></span>
+                        <span class="sort-adjusted-badge" id="sortAdjustedBadgeContractor" hidden>優先適用中</span>
+                    </div>
+                    <div class="sort-column-list" id="sortListContractor" data-column="contractor" role="listbox" aria-label="契約先 並び順"></div>
+                    <div class="sort-column-buttons">
+                        <button type="button" class="sort-btn-move-up" data-column="contractor" aria-label="上へ"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-up"/></svg></button>
+                        <button type="button" class="sort-btn-move-down" data-column="contractor" aria-label="下へ"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-down"/></svg></button>
+                    </div>
+                </div>
+                <div class="sort-column sort-column-adjust" data-column="site">
+                    <div class="sort-column-header">
+                        <span class="sort-column-title">業務名</span>
+                        <span class="sort-column-filter" id="sortSiteFilter"></span>
+                        <span class="sort-adjusted-badge" id="sortAdjustedBadgeSite" hidden>優先適用中</span>
+                    </div>
+                    <div class="sort-column-list" id="sortListSite" data-column="site" role="listbox" aria-label="業務名 並び順"></div>
+                    <div class="sort-column-buttons">
+                        <button type="button" class="sort-btn-move-up" data-column="site" aria-label="上へ"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-up"/></svg></button>
+                        <button type="button" class="sort-btn-move-down" data-column="site" aria-label="下へ"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-down"/></svg></button>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeSortModal()">キャンセル</button>
-                <button class="btn btn-primary" onclick="applySort()">適用</button>
+            <div class="sort-modal-footer">
+                <button class="btn btn-secondary" onclick="resetSortSettings()">リセット</button>
+                <div class="sort-footer-right">
+                    <button class="btn btn-secondary" onclick="closeSortModal()">キャンセル</button>
+                    <button class="btn btn-primary" onclick="applySortSettings()">ソート実行</button>
+                </div>
             </div>
         </div>
     </div>
@@ -580,6 +647,6 @@
     <script src="mockup/co-navbar.js?v=5"></script>
     <script src="mockup/co-notify-panel.js?v=4"></script>
     <script src="mockup/co-company-input.js"></script>
-    <script src="mockup/order-book.js?v=2"></script>
+    <script src="mockup/order-book.js?v=3"></script>
 </body>
 </html>
