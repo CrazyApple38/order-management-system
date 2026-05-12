@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=2">
-    <link rel="stylesheet" href="mockup/leave-application.css?v=29">
+    <link rel="stylesheet" href="mockup/leave-application.css?v=30">
 </head>
 <body>
     <!-- SVG icon sprite (CLAUDE.md アイコン運用ルール準拠) -->
@@ -50,10 +50,14 @@
 
     <!-- co-navbar.js が自動挿入 -->
 
-    <div class="md-la-container">
+    <div class="md-la-container is-mode-leave" id="laContainer">
         <!-- ヘッダー -->
         <div class="md-la-header">
-            <span class="md-la-header-title">休暇申請管理</span>
+            <!-- モード切替セグメント (休暇申請 / 車両スケジュール) -->
+            <div class="md-la-mode-seg" role="tablist" aria-label="画面モード切替">
+                <button type="button" class="md-la-mode-seg-btn is-active" data-mode="leave" role="tab" aria-selected="true">休暇申請管理</button>
+                <button type="button" class="md-la-mode-seg-btn" data-mode="vehicle" role="tab" aria-selected="false">車両スケジュール管理</button>
+            </div>
 
             <!-- 月見出し (Google型 大きめ・軽量フォント) -->
             <span class="md-la-month-label-lg" id="laMonthLabel">2026年4月</span>
@@ -211,8 +215,8 @@
                     <button type="button" role="tab" class="md-la-view-tab" data-view="week" aria-selected="false" hidden>週間</button>
                     <button type="button" role="tab" class="md-la-view-tab" data-view="year" aria-selected="false">年間</button>
                 </div>
-                <!-- ロール切替 (モック) -->
-                <div class="md-la-role-switcher" id="laRoleSwitcher">
+                <!-- ロール切替 (モック / 休暇モード時のみ表示) -->
+                <div class="md-la-role-switcher is-mode-leave-only" id="laRoleSwitcher">
                     <span class="md-la-role-label">ロール:</span>
                     <button class="md-la-role-btn" data-role="self" title="本人 (自分の申請のみ編集可)">本人</button>
                     <button class="md-la-role-btn is-active" data-role="dcp" title="所属GCのDCP (承認可能)">DCP</button>
@@ -236,15 +240,21 @@
 
             <!-- 右サイドパネル -->
             <div class="md-la-sidebar" id="laSidebar">
-                <!-- 縦タブ -->
+                <!-- 縦タブ (休暇モード: 要対応 / 車両モード: 期限近い に切替) -->
                 <div class="md-la-sidebar-vtabs">
-                    <button class="md-la-sidebar-vtab is-active" data-tab="all" title="全社員">全員</button>
+                    <button class="md-la-sidebar-vtab is-active" data-tab="all" title="全員/全車">全員</button>
                     <button class="md-la-sidebar-vtab" data-tab="touo" title="東央警備">東央</button>
                     <button class="md-la-sidebar-vtab" data-tab="nikkei" title="Nikkei">Nikkei</button>
                     <button class="md-la-sidebar-vtab" data-tab="zennihon" title="全日本">全日本</button>
-                    <button class="md-la-sidebar-vtab is-alerts" data-tab="alerts" title="要対応アラート">
+                    <!-- 休暇モード時: 要対応 -->
+                    <button class="md-la-sidebar-vtab is-alerts is-mode-leave-only" data-tab="alerts" title="要対応アラート">
                         要対応
                         <span class="md-la-sidebar-vtab-badge md-la-hidden" id="laAlertTabBadge">0</span>
+                    </button>
+                    <!-- 車両モード時: 期限近い (車検/点検期限30日以内) -->
+                    <button class="md-la-sidebar-vtab is-alerts is-mode-vehicle-only" data-tab="dueSoon" title="車検/点検期限30日以内">
+                        期限近い
+                        <span class="md-la-sidebar-vtab-badge md-la-hidden" id="laDueSoonBadge">0</span>
                     </button>
                     <div style="flex:1;"></div>
                     <button class="md-la-sidebar-vtab" id="laSidebarToggle" title="折り畳み／展開">⇔</button>
@@ -254,6 +264,11 @@
                     <div class="md-la-sidebar-header">
                         <span class="md-la-sidebar-title" id="laSidebarTitle">社員</span>
                         <span class="md-la-sidebar-count" id="laSidebarCount"></span>
+                        <!-- 車両モード時のみ: 車両追加ボタン -->
+                        <button type="button" class="md-vs-add-vehicle-btn is-mode-vehicle-only" id="vsAddVehicleBtn" title="車両を追加">
+                            <svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg>
+                            車両追加
+                        </button>
                     </div>
                     <div class="md-la-sidebar-search">
                         <input type="text" id="laSidebarSearch" placeholder="氏名で検索...">
@@ -265,8 +280,8 @@
             </div>
         </div>
 
-        <!-- 凡例 -->
-        <div class="md-la-legend">
+        <!-- 凡例 (休暇モード) -->
+        <div class="md-la-legend is-mode-leave-only">
             <span class="md-la-legend-item">
                 <span class="md-la-legend-chip kind-paid"></span>有給
             </span>
@@ -288,11 +303,37 @@
                 Phase E1: 月間ビュー + D&amp;D 基盤のみ実装。詳細編集・承認・週年ビューは後続フェーズで拡張。
             </span>
         </div>
+
+        <!-- 凡例 (車両モード) -->
+        <div class="md-la-legend is-mode-vehicle-only">
+            <span class="md-la-legend-item">
+                <span class="md-la-legend-chip vs-kind-inspection"></span>点検
+            </span>
+            <span class="md-la-legend-item">
+                <span class="md-la-legend-chip vs-kind-repair"></span>修理
+            </span>
+            <span class="md-la-legend-item">
+                <span class="md-la-legend-chip vs-kind-oil"></span>オイル交換
+            </span>
+            <span class="md-la-legend-item">
+                <span class="md-la-legend-chip vs-kind-shaken"></span>車検
+            </span>
+            <span class="md-la-legend-item">
+                <span class="md-la-legend-chip vs-kind-tire"></span>タイヤ交換
+            </span>
+            <span class="md-la-legend-item">
+                <span class="md-la-legend-chip vs-kind-other"></span>その他
+            </span>
+            <span style="width:1px;height:12px;background:var(--divider);"></span>
+            <span class="md-la-legend-item" style="color:var(--text-tertiary);font-style:italic;">
+                車両ナンバー(下4桁)バッジに種別子バッジを追加。バッジは右パネルからD&amp;D。
+            </span>
+        </div>
     </div>
 
-    <script src="mockup/demo-data.js?v=2"></script>
+    <script src="mockup/demo-data.js?v=3"></script>
     <script src="mockup/co-notify-panel.js?v=4"></script>
     <script src="mockup/co-navbar.js?v=5"></script>
-    <script src="mockup/leave-application.js?v=13"></script>
+    <script src="mockup/leave-application.js?v=16"></script>
 </body>
 </html>

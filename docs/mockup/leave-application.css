@@ -2166,3 +2166,366 @@ body.is-range-dragging * { cursor: ew-resize !important; }
     font-size: var(--fs-caption);
     font-style: italic;
 }
+
+/* ============================================================
+   車両スケジュール管理モード (md-vs-*)
+   - 1ファイル内モード切替: .md-la-container.is-mode-leave / .is-mode-vehicle
+   ============================================================ */
+
+/* --- 種別カラー (VS_KINDS と対応) --- */
+:root {
+    --vs-kind-inspection: #1976d2;
+    --vs-kind-repair:     #d32f2f;
+    --vs-kind-oil:        #f57c00;
+    --vs-kind-shaken:     #7b1fa2;
+    --vs-kind-tire:       #388e3c;
+    --vs-kind-other:      #616161;
+}
+
+/* --- モード切替セグメント (ヘッダータイトル位置) --- */
+.md-la-mode-seg {
+    display: inline-flex;
+    background: rgba(255, 255, 255, 0.10);
+    border-radius: 6px;
+    padding: 2px;
+    gap: 2px;
+}
+.md-la-mode-seg-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background var(--duration-fast), color var(--duration-fast);
+}
+.md-la-mode-seg-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+.md-la-mode-seg-btn.is-active {
+    background: #fff;
+    color: var(--bg-sidebar);
+}
+
+/* --- モード別表示 切替 ---
+   親に is-mode-leave / is-mode-vehicle を付与し、
+   子要素は is-mode-leave-only / is-mode-vehicle-only で出し分け。 */
+.md-la-container.is-mode-leave .is-mode-vehicle-only,
+.md-la-container.is-mode-vehicle .is-mode-leave-only {
+    display: none !important;
+}
+
+/* --- 凡例 (車両モード) チップ色 --- */
+.md-la-legend-chip.vs-kind-inspection { background: var(--vs-kind-inspection); }
+.md-la-legend-chip.vs-kind-repair     { background: var(--vs-kind-repair); }
+.md-la-legend-chip.vs-kind-oil        { background: var(--vs-kind-oil); }
+.md-la-legend-chip.vs-kind-shaken     { background: var(--vs-kind-shaken); }
+.md-la-legend-chip.vs-kind-tire       { background: var(--vs-kind-tire); }
+.md-la-legend-chip.vs-kind-other      { background: var(--vs-kind-other); }
+
+/* --- サイドバー: 車両追加ボタン --- */
+.md-vs-add-vehicle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--accent-primary);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: var(--fw-semibold);
+    cursor: pointer;
+    margin-left: auto;
+    transition: background var(--duration-fast);
+}
+.md-vs-add-vehicle-btn:hover {
+    background: var(--accent-primary-dark, var(--accent-primary));
+    filter: brightness(0.92);
+}
+.md-vs-add-vehicle-btn .ui-icon { width: 11px; height: 11px; }
+
+/* --- サイドバー: 車両カード (D&D ソース) --- */
+.md-vs-vehicle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    background: var(--bg-surface-2);
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: var(--fw-semibold);
+    color: var(--text-primary);
+    cursor: grab;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+    line-height: 1.3;
+    max-width: 100%;
+}
+.md-vs-vehicle:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--elevation-2);
+    border-color: var(--accent-primary-light);
+}
+.md-vs-vehicle.gc-touo     { background: var(--emp-badge-bg-touo,     rgba(91,139,184,0.12));  color: var(--emp-badge-text-touo,     #1E3F66); border-color: var(--emp-badge-border-touo,     rgba(91,139,184,0.45)); }
+.md-vs-vehicle.gc-nikkei   { background: var(--emp-badge-bg-nikkei,   rgba(122,165,90,0.12));  color: var(--emp-badge-text-nikkei,   #3E5F1F); border-color: var(--emp-badge-border-nikkei,   rgba(122,165,90,0.45)); }
+.md-vs-vehicle.gc-zennihon { background: var(--emp-badge-bg-zennihon, rgba(107,122,153,0.12)); color: var(--emp-badge-text-zennihon, #2E3A5A); border-color: var(--emp-badge-border-zennihon, rgba(107,122,153,0.45)); }
+.md-vs-vehicle.is-dragging { opacity: 0.35; transform: scale(0.92); }
+.md-vs-vehicle-num {
+    font-size: 12px;
+    font-weight: var(--fw-bold);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+}
+.md-vs-vehicle-model {
+    font-size: 10px;
+    font-weight: var(--fw-medium);
+    color: var(--text-tertiary);
+    white-space: nowrap;
+    border-left: 1px solid currentColor;
+    padding-left: 4px;
+    margin-left: 1px;
+    opacity: 0.8;
+}
+.md-vs-vehicle-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: none;
+    background: transparent;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity var(--duration-fast), background var(--duration-fast);
+}
+.md-vs-vehicle:hover .md-vs-vehicle-edit { opacity: 1; }
+.md-vs-vehicle-edit:hover { background: rgba(0,0,0,0.06); color: var(--text-primary); }
+.md-vs-vehicle-due-dot {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--semantic-warning);
+    box-shadow: 0 0 0 2px var(--bg-surface);
+}
+
+/* --- カレンダーセル上: 車両バッジ (親) --- */
+.md-vs-cell-badge {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    padding: 3px 5px 4px;
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: 3px;
+    font-size: 11px;
+    cursor: grab;
+    max-width: 100%;
+    line-height: 1.2;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+.md-vs-cell-badge.gc-touo     { background: var(--emp-badge-bg-touo,     rgba(91,139,184,0.18));  color: var(--emp-badge-text-touo,     #1E3F66); border-color: var(--emp-badge-border-touo,     rgba(91,139,184,0.55)); }
+.md-vs-cell-badge.gc-nikkei   { background: var(--emp-badge-bg-nikkei,   rgba(122,165,90,0.18));  color: var(--emp-badge-text-nikkei,   #3E5F1F); border-color: var(--emp-badge-border-nikkei,   rgba(122,165,90,0.55)); }
+.md-vs-cell-badge.gc-zennihon { background: var(--emp-badge-bg-zennihon, rgba(107,122,153,0.18)); color: var(--emp-badge-text-zennihon, #2E3A5A); border-color: var(--emp-badge-border-zennihon, rgba(107,122,153,0.55)); }
+.md-vs-cell-badge.is-dragging { opacity: 0.4; }
+
+.md-vs-cell-badge-num {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    font-weight: var(--fw-bold);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+}
+.md-vs-cell-badge-num-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.md-vs-cell-badge-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 12px;
+    height: 12px;
+    background: transparent;
+    border: none;
+    color: currentColor;
+    cursor: pointer;
+    border-radius: 2px;
+    opacity: 0.5;
+    padding: 0;
+    line-height: 1;
+}
+.md-vs-cell-badge-remove:hover { opacity: 1; background: rgba(0,0,0,0.08); }
+.md-vs-cell-badge-remove .ui-icon { width: 8px; height: 8px; }
+
+/* 子バッジ群 (種別) */
+.md-vs-cell-badge-kinds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+.md-vs-kind-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 1px 5px;
+    border-radius: 8px;
+    font-size: 9px;
+    font-weight: var(--fw-semibold);
+    color: #fff;
+    cursor: pointer;
+    line-height: 1.4;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.md-vs-kind-chip:hover { filter: brightness(1.08); }
+.md-vs-kind-chip.kind-inspection { background: var(--vs-kind-inspection); }
+.md-vs-kind-chip.kind-repair     { background: var(--vs-kind-repair); }
+.md-vs-kind-chip.kind-oil        { background: var(--vs-kind-oil); }
+.md-vs-kind-chip.kind-shaken     { background: var(--vs-kind-shaken); }
+.md-vs-kind-chip.kind-tire       { background: var(--vs-kind-tire); }
+.md-vs-kind-chip.kind-other      { background: var(--vs-kind-other); }
+.md-vs-kind-chip-add {
+    background: transparent;
+    color: var(--text-tertiary);
+    border: 1px dashed currentColor;
+    padding: 0 5px;
+    border-radius: 8px;
+    font-size: 9px;
+    cursor: pointer;
+    line-height: 1.4;
+}
+.md-vs-kind-chip-add:hover { color: var(--accent-primary); border-color: var(--accent-primary); }
+
+/* --- 種別選択ポップオーバー --- */
+.md-vs-kind-popover {
+    position: fixed;
+    z-index: 1000;
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    box-shadow: var(--elevation-4);
+    padding: 8px;
+    min-width: 220px;
+}
+.md-vs-kind-popover-title {
+    font-size: 11px;
+    font-weight: var(--fw-bold);
+    color: var(--text-tertiary);
+    margin-bottom: 6px;
+}
+.md-vs-kind-popover-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+}
+.md-vs-kind-popover-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 8px;
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    background: var(--bg-surface);
+    font-size: 11px;
+    font-weight: var(--fw-semibold);
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: background var(--duration-fast), border-color var(--duration-fast);
+}
+.md-vs-kind-popover-btn:hover { background: var(--bg-surface-2); border-color: var(--accent-primary); }
+.md-vs-kind-popover-btn .md-vs-kind-popover-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+    display: inline-block;
+}
+.md-vs-kind-popover-other-input {
+    display: none;
+    margin-top: 6px;
+    flex-direction: column;
+    gap: 4px;
+}
+.md-vs-kind-popover-other-input.is-visible { display: flex; }
+.md-vs-kind-popover-other-input input {
+    padding: 5px 8px;
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    font-size: 12px;
+}
+.md-vs-kind-popover-other-input button {
+    align-self: flex-end;
+    padding: 4px 12px;
+    background: var(--accent-primary);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: var(--fw-semibold);
+    cursor: pointer;
+}
+.md-vs-kind-popover-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--divider);
+}
+.md-vs-kind-popover-actions button {
+    padding: 4px 10px;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface);
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+}
+.md-vs-kind-popover-actions button.is-danger {
+    color: var(--semantic-error);
+    border-color: var(--semantic-error);
+}
+
+/* --- 車両マスタ編集モーダル (md-la-modal-* を再利用、追加スタイルのみ) --- */
+.md-vs-master-form {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 10px 12px;
+    align-items: center;
+}
+.md-vs-master-form label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: var(--fw-semibold);
+}
+.md-vs-master-form input,
+.md-vs-master-form select {
+    padding: 6px 8px;
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    font-size: 13px;
+    width: 100%;
+}
+
+/* --- 期限近いタブ用: 警告色のサイドバータブ --- */
+.md-la-sidebar-vtab.is-alerts.is-mode-vehicle-only {
+    color: var(--semantic-warning);
+}
+.md-la-sidebar-vtab.is-alerts.is-mode-vehicle-only.is-active {
+    background: var(--la-warn-bg);
+    color: var(--semantic-warning);
+}
