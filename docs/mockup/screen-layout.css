@@ -4637,3 +4637,26 @@ h1 {
         outline: none !important;
     }
 }
+
+/* ============================================================
+   画面全体: 細スクロールバー（ホバー時のみ可視）
+   ============================================================ */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+*:hover {
+    scrollbar-color: rgba(0, 0, 0, 0.28) transparent;
+}
+*::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 2px;
+    transition: background 0.15s ease;
+}
+*:hover::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.28); }
+*::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.45); }
