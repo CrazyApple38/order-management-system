@@ -2880,29 +2880,33 @@
 
         // ===== ソート設定モーダル =====
         const DEFAULT_SORT_ORDER = {
+            company: ['東央警備', 'Nikkeiホールディングス', '全日本エンタープライズ'],
             category: ['施設', 'イベント', '交通', '高速'],
             shift: ['昼', '夜']
         };
 
-        const SORT_STATE_STORAGE_KEY = 'sl.sortState.v1';
+        const SORT_STATE_STORAGE_KEY = 'sl.sortState.v2';
 
         const sortState = {
-            category: [], shift: [], contractor: [], site: [],
+            company: [], category: [], shift: [], contractor: [], site: [],
+            companyCategoryOrders: {},
             categoryContractorOrders: {},
             contractorSiteOrders: {},
             shiftSites: {},
-            selected: { category: null, shift: null, contractor: null, site: null },
-            filterCategory: null, filterContractor: null, filterShift: null,
+            selected: { company: null, category: null, shift: null, contractor: null, site: null },
+            filterCompany: null, filterCategory: null, filterContractor: null, filterShift: null,
             adjusted: false
         };
 
         function saveSortStateToStorage() {
             try {
                 const payload = {
+                    company: sortState.company,
                     category: sortState.category,
                     shift: sortState.shift,
                     contractor: sortState.contractor,
                     site: sortState.site,
+                    companyCategoryOrders: sortState.companyCategoryOrders,
                     categoryContractorOrders: sortState.categoryContractorOrders,
                     contractorSiteOrders: sortState.contractorSiteOrders,
                     shiftSites: sortState.shiftSites,
@@ -2934,10 +2938,17 @@
         function mergeSavedIntoSortState() {
             const saved = loadSortStateFromStorage();
             if (!saved) return false;
+            sortState.company = mergeOrderWithGrid(saved.company, sortState.company);
             sortState.category = mergeOrderWithGrid(saved.category, sortState.category);
             sortState.shift = mergeOrderWithGrid(saved.shift, sortState.shift);
             sortState.contractor = mergeOrderWithGrid(saved.contractor, sortState.contractor);
             sortState.site = mergeOrderWithGrid(saved.site, sortState.site);
+            if (saved.companyCategoryOrders) {
+                Object.keys(sortState.companyCategoryOrders).forEach(co => {
+                    const savedSub = saved.companyCategoryOrders[co];
+                    if (savedSub) sortState.companyCategoryOrders[co] = mergeOrderWithGrid(savedSub, sortState.companyCategoryOrders[co]);
+                });
+            }
             if (saved.categoryContractorOrders) {
                 Object.keys(sortState.categoryContractorOrders).forEach(cat => {
                     const savedSub = saved.categoryContractorOrders[cat];
@@ -2989,6 +3000,10 @@
         function initSortStateFromGrid() {
             const gridData = extractGridData();
             // デフォルト順序を適用（グリッドに存在する値のみ）
+            const gridCompanies = getUniqueValues(gridData, 'company');
+            sortState.company = DEFAULT_SORT_ORDER.company.filter(c => gridCompanies.includes(c));
+            gridCompanies.forEach(c => { if (!sortState.company.includes(c)) sortState.company.push(c); });
+
             const gridCategories = getUniqueValues(gridData, 'category');
             sortState.category = DEFAULT_SORT_ORDER.category.filter(c => gridCategories.includes(c));
             gridCategories.forEach(c => { if (!sortState.category.includes(c)) sortState.category.push(c); });
@@ -3000,6 +3015,14 @@
             sortState.contractor = getUniqueValues(gridData, 'contractor');
             sortState.site = getUniqueValues(gridData, 'site');
 
+            sortState.companyCategoryOrders = {};
+            sortState.company.forEach(co => {
+                const cats = getFilteredUniqueValues(gridData, 'category', 'company', co);
+                // 区分のデフォルト順を会社内サブセットにも適用
+                const ordered = DEFAULT_SORT_ORDER.category.filter(c => cats.includes(c));
+                cats.forEach(c => { if (!ordered.includes(c)) ordered.push(c); });
+                sortState.companyCategoryOrders[co] = ordered;
+            });
             sortState.categoryContractorOrders = {};
             sortState.category.forEach(cat => {
                 sortState.categoryContractorOrders[cat] = getFilteredUniqueValues(gridData, 'contractor', 'category', cat);
@@ -3013,7 +3036,8 @@
                 sortState.shiftSites[sh] = getFilteredUniqueValues(gridData, 'site', 'shift', sh);
             });
 
-            sortState.selected = { category: null, shift: null, contractor: null, site: null };
+            sortState.selected = { company: null, category: null, shift: null, contractor: null, site: null };
+            sortState.filterCompany = null;
             sortState.filterCategory = null;
             sortState.filterContractor = null;
             sortState.filterShift = null;
@@ -3024,7 +3048,7 @@
         }
 
         function renderAllSortLists() {
-            renderSortList('category'); renderSortList('shift');
+            renderSortList('company'); renderSortList('category'); renderSortList('shift');
             renderSortList('contractor'); renderSortList('site');
             updateSortFilters();
             updateSortModifiedBadge();
@@ -3185,10 +3209,12 @@
         function snapshotSortState() {
             // モーダル開時の初期状態スナップショット。以降の変更検知用。
             return JSON.stringify({
+                company: sortState.company,
                 category: sortState.category,
                 shift: sortState.shift,
                 contractor: sortState.contractor,
                 site: sortState.site,
+                companyCategoryOrders: sortState.companyCategoryOrders,
                 categoryContractorOrders: sortState.categoryContractorOrders,
                 contractorSiteOrders: sortState.contractorSiteOrders
             });
@@ -3233,8 +3259,20 @@
             sortState.selected[column] = deselect ? null : index;
             renderSortList(column);
 
-            if (column === 'category') {
-                sortState.filterCategory = deselect ? null : (sortState.category[index] || null);
+            if (column === 'company') {
+                sortState.filterCompany = deselect ? null : (sortState.company[index] || null);
+                sortState.filterCategory = null;
+                sortState.filterContractor = null;
+                sortState.selected.category = null;
+                sortState.selected.contractor = null;
+                sortState.selected.site = null;
+                renderSortList('category'); renderSortList('contractor'); renderSortList('site');
+                updateSortFilters();
+            } else if (column === 'category') {
+                let items = sortState.filterCompany
+                    ? (sortState.companyCategoryOrders[sortState.filterCompany] || [])
+                    : sortState.category;
+                sortState.filterCategory = deselect ? null : (items[index] || null);
                 sortState.filterContractor = null;
                 sortState.selected.contractor = null;
                 sortState.selected.site = null;
@@ -3261,9 +3299,11 @@
         }
 
         function updateSortFilters() {
+            const categoryFilter = document.getElementById('sortCategoryFilter');
             const contractorFilter = document.getElementById('sortContractorFilter');
             const siteFilter = document.getElementById('sortSiteFilter');
             const arrowSvg = '<svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-arrow-right"/></svg> ';
+            if (categoryFilter) categoryFilter.innerHTML = sortState.filterCompany ? arrowSvg + escapeHtml(sortState.filterCompany) : '';
             contractorFilter.innerHTML = sortState.filterCategory ? arrowSvg + escapeHtml(sortState.filterCategory) : '';
             const siteFilterParts = [];
             if (sortState.filterShift) siteFilterParts.push(escapeHtml(sortState.filterShift));
@@ -3293,7 +3333,7 @@
         }
 
         function updateAllSortButtonStates() {
-            ['category', 'shift', 'contractor', 'site'].forEach(updateSortButtonState);
+            ['company', 'category', 'shift', 'contractor', 'site'].forEach(updateSortButtonState);
         }
 
         function sortMoveUp(column) {
@@ -3319,6 +3359,7 @@
         }
 
         function getCurrentSortItems(column) {
+            if (column === 'category' && sortState.filterCompany) return sortState.companyCategoryOrders[sortState.filterCompany];
             if (column === 'contractor' && sortState.filterCategory) return sortState.categoryContractorOrders[sortState.filterCategory];
             if (column === 'site') {
                 // 契約先絞込 > 昼夜絞込 の優先順で表示
@@ -3342,7 +3383,12 @@
 
         // フラット配列の並び順から階層状態を再構築する（絞込なし操作の反映用）。
         function syncHierarchicalFromFlat(column) {
-            if (column === 'contractor') {
+            if (column === 'category') {
+                Object.keys(sortState.companyCategoryOrders).forEach(co => {
+                    const subset = sortState.companyCategoryOrders[co];
+                    if (subset) sortState.companyCategoryOrders[co] = sortState.category.filter(c => subset.includes(c));
+                });
+            } else if (column === 'contractor') {
                 Object.keys(sortState.categoryContractorOrders).forEach(cat => {
                     const subset = sortState.categoryContractorOrders[cat];
                     if (subset) sortState.categoryContractorOrders[cat] = sortState.contractor.filter(c => subset.includes(c));
@@ -3360,7 +3406,12 @@
         }
 
         function syncSortStateAfterReorder(column) {
-            if (column === 'contractor') {
+            if (column === 'category') {
+                if (sortState.filterCompany) {
+                    syncFlatFromSubset('category', sortState.companyCategoryOrders[sortState.filterCompany]);
+                }
+                syncHierarchicalFromFlat('category');
+            } else if (column === 'contractor') {
                 if (sortState.filterCategory) {
                     syncFlatFromSubset('contractor', sortState.categoryContractorOrders[sortState.filterCategory]);
                 }
@@ -3385,26 +3436,7 @@
             const sortableRows = allRows.filter(r => r.dataset.fixed !== 'true');
             const beforeOrder = sortableRows.slice();
 
-            sortableRows.sort((a, b) => {
-                const dataA = extractRowData(a), dataB = extractRowData(b);
-                let cmp;
-                if (sortState.adjusted) {
-                    // 調整あり: 第3キー(契約先) → 第4キー(現場名) → 第1キー(区分) → 第2キー(昼夜)
-                    cmp = getSortPriority(sortState.contractor, dataA.contractor) - getSortPriority(sortState.contractor, dataB.contractor);
-                    if (cmp !== 0) return cmp;
-                    const siteOrderA = sortState.contractorSiteOrders[dataA.contractor] || sortState.site;
-                    const siteOrderB = sortState.contractorSiteOrders[dataB.contractor] || sortState.site;
-                    cmp = getSortPriority(siteOrderA, dataA.site) - getSortPriority(siteOrderB, dataB.site);
-                    if (cmp !== 0) return cmp;
-                    cmp = getSortPriority(sortState.category, dataA.category) - getSortPriority(sortState.category, dataB.category);
-                    if (cmp !== 0) return cmp;
-                    return getSortPriority(sortState.shift, dataA.shift) - getSortPriority(sortState.shift, dataB.shift);
-                }
-                // 初期: 第1キー(区分) → 第2キー(昼夜)
-                cmp = getSortPriority(sortState.category, dataA.category) - getSortPriority(sortState.category, dataB.category);
-                if (cmp !== 0) return cmp;
-                return getSortPriority(sortState.shift, dataA.shift) - getSortPriority(sortState.shift, dataB.shift);
-            });
+            sortableRows.sort(compareRowsForSort);
 
             // 並びが実際に変わった時だけ undo に積む
             const changed = sortableRows.some((r, i) => r !== beforeOrder[i]);
@@ -3419,6 +3451,30 @@
             closeSortModal();
         }
 
+        // 共通比較関数: 会社 → (調整時は契約先→現場名) → 区分 → 昼夜
+        function compareRowsForSort(a, b) {
+            const dataA = extractRowData(a), dataB = extractRowData(b);
+            let cmp;
+            // 第1キー: 会社（初期ソートの最上位）
+            cmp = getSortPriority(sortState.company, dataA.company) - getSortPriority(sortState.company, dataB.company);
+            if (cmp !== 0) return cmp;
+            if (sortState.adjusted) {
+                // 調整あり: 契約先 → 現場名 → 区分 → 昼夜
+                cmp = getSortPriority(sortState.contractor, dataA.contractor) - getSortPriority(sortState.contractor, dataB.contractor);
+                if (cmp !== 0) return cmp;
+                const siteOrderA = sortState.contractorSiteOrders[dataA.contractor] || sortState.site;
+                const siteOrderB = sortState.contractorSiteOrders[dataB.contractor] || sortState.site;
+                cmp = getSortPriority(siteOrderA, dataA.site) - getSortPriority(siteOrderB, dataB.site);
+                if (cmp !== 0) return cmp;
+            }
+            // 区分（会社内サブ順を優先）
+            const catOrderA = sortState.companyCategoryOrders[dataA.company] || sortState.category;
+            const catOrderB = sortState.companyCategoryOrders[dataB.company] || sortState.category;
+            cmp = getSortPriority(catOrderA, dataA.category) - getSortPriority(catOrderB, dataB.category);
+            if (cmp !== 0) return cmp;
+            return getSortPriority(sortState.shift, dataA.shift) - getSortPriority(sortState.shift, dataB.shift);
+        }
+
         // ページロード時の自動適用（ソート状態のみ更新、Undoは積まない）
         function applySortSettingsOnLoad() {
             if (!loadSortStateFromStorage()) return;
@@ -3428,24 +3484,7 @@
             const allRows = Array.from(tbody.querySelectorAll('tr'));
             const fixedRows = allRows.filter(r => r.dataset.fixed === 'true');
             const sortableRows = allRows.filter(r => r.dataset.fixed !== 'true');
-            sortableRows.sort((a, b) => {
-                const dataA = extractRowData(a), dataB = extractRowData(b);
-                let cmp;
-                if (sortState.adjusted) {
-                    cmp = getSortPriority(sortState.contractor, dataA.contractor) - getSortPriority(sortState.contractor, dataB.contractor);
-                    if (cmp !== 0) return cmp;
-                    const siteOrderA = sortState.contractorSiteOrders[dataA.contractor] || sortState.site;
-                    const siteOrderB = sortState.contractorSiteOrders[dataB.contractor] || sortState.site;
-                    cmp = getSortPriority(siteOrderA, dataA.site) - getSortPriority(siteOrderB, dataB.site);
-                    if (cmp !== 0) return cmp;
-                    cmp = getSortPriority(sortState.category, dataA.category) - getSortPriority(sortState.category, dataB.category);
-                    if (cmp !== 0) return cmp;
-                    return getSortPriority(sortState.shift, dataA.shift) - getSortPriority(sortState.shift, dataB.shift);
-                }
-                cmp = getSortPriority(sortState.category, dataA.category) - getSortPriority(sortState.category, dataB.category);
-                if (cmp !== 0) return cmp;
-                return getSortPriority(sortState.shift, dataA.shift) - getSortPriority(sortState.shift, dataB.shift);
-            });
+            sortableRows.sort(compareRowsForSort);
             sortableRows.forEach(row => tbody.appendChild(row));
             fixedRows.forEach(row => tbody.appendChild(row));
             renumberRows();
@@ -3456,7 +3495,9 @@
             const shiftBadge = row.querySelector('.shift-badge');
             const company = row.querySelector('.site-info .company');
             const siteName = row.querySelector('.site-info .site-name');
+            const siteCell = row.querySelector('[data-gc-name]');
             return {
+                company: siteCell ? (siteCell.getAttribute('data-gc-name') || '') : '',
                 category: categoryBadge ? categoryBadge.textContent.trim() : '',
                 shift: shiftBadge ? shiftBadge.textContent.trim() : '',
                 contractor: company ? company.textContent.trim() : '',

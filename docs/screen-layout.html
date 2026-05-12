@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=2">
     <link rel="stylesheet" href="mockup/co-company-input.css">
-    <link rel="stylesheet" href="mockup/screen-layout.css?v=11">
+    <link rel="stylesheet" href="mockup/screen-layout.css?v=14">
     <link rel="stylesheet" href="mockup/print-touo-nikkei.css?v=8">
 </head>
 <body>
@@ -1285,15 +1285,24 @@
                     <button class="sort-modal-close" onclick="closeSortModal()" aria-label="閉じる"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-close"/></svg></button>
                 </div>
                 <div class="sort-hierarchy-bar">
-                    <span class="sort-hierarchy-label">初期ソート（第1・2キー）／微調整（第3・4キーが優先）</span>
+                    <span class="sort-hierarchy-label">初期ソート ／ 微調整（変更で優先）</span>
                     <span class="sort-modified-badge" id="sortModifiedBadge" hidden>変更あり</span>
                 </div>
                 <div class="sort-modal-body">
+                    <div class="sort-column sort-column-group" data-column="company">
+                        <div class="sort-column-header">
+                            <span class="sort-column-title">会社</span>
+                        </div>
+                        <div class="sort-column-list" id="sortListCompany" data-column="company" role="listbox" aria-label="会社 並び順"></div>
+                        <div class="sort-column-buttons">
+                            <button type="button" class="sort-btn-move-up" data-column="company" aria-label="上へ"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-up"/></svg></button>
+                            <button type="button" class="sort-btn-move-down" data-column="company" aria-label="下へ"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-down"/></svg></button>
+                        </div>
+                    </div>
                     <div class="sort-column sort-column-group" data-column="category">
                         <div class="sort-column-header">
-                            <span class="sort-column-key">第1キー</span>
                             <span class="sort-column-title">区分</span>
-                            <span class="sort-column-subtitle">初期ソート／契約先を絞込</span>
+                            <span class="sort-column-filter" id="sortCategoryFilter"></span>
                         </div>
                         <div class="sort-column-list" id="sortListCategory" data-column="category" role="listbox" aria-label="区分 並び順"></div>
                         <div class="sort-column-buttons">
@@ -1303,9 +1312,7 @@
                     </div>
                     <div class="sort-column sort-column-group" data-column="shift">
                         <div class="sort-column-header">
-                            <span class="sort-column-key">第2キー</span>
                             <span class="sort-column-title">昼夜</span>
-                            <span class="sort-column-subtitle">初期ソート／現場名を絞込</span>
                         </div>
                         <div class="sort-column-list" id="sortListShift" data-column="shift" role="listbox" aria-label="昼夜 並び順"></div>
                         <div class="sort-column-buttons">
@@ -1315,9 +1322,7 @@
                     </div>
                     <div class="sort-column sort-column-adjust" data-column="contractor">
                         <div class="sort-column-header">
-                            <span class="sort-column-key">第3キー</span>
                             <span class="sort-column-title">契約先</span>
-                            <span class="sort-column-subtitle">微調整（変更で優先）</span>
                             <span class="sort-column-filter" id="sortContractorFilter"></span>
                             <span class="sort-adjusted-badge" id="sortAdjustedBadgeContractor" hidden>優先適用中</span>
                         </div>
@@ -1329,9 +1334,7 @@
                     </div>
                     <div class="sort-column sort-column-adjust" data-column="site">
                         <div class="sort-column-header">
-                            <span class="sort-column-key">第4キー</span>
                             <span class="sort-column-title">現場名</span>
-                            <span class="sort-column-subtitle">微調整（変更で優先）</span>
                             <span class="sort-column-filter" id="sortSiteFilter"></span>
                             <span class="sort-adjusted-badge" id="sortAdjustedBadgeSite" hidden>優先適用中</span>
                         </div>
@@ -1727,7 +1730,7 @@
     <script src="mockup/co-navbar.js?v=5"></script>
     <script src="mockup/co-notify-panel.js?v=3"></script>
     <script src="mockup/co-company-input.js"></script>
-    <script src="mockup/screen-layout.js?v=17"></script>
+    <script src="mockup/screen-layout.js?v=18"></script>
     <script src="mockup/print-touo-nikkei.js?v=1"></script>
 </body>
 </html>
