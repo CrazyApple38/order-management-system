@@ -1,7 +1,7 @@
 # 週間予定表 — 協力業者／応援予約 実装引き継ぎ
 
-**最終更新**: 2026-04-18
-**ステータス**: Phase A1〜A6 完了／A7 スキップ／A8 UI修正を追加反映済／A9 継続中（ユーザー総合確認のフィードバックを都度反映）／要件定義・DB設計反映済
+**最終更新**: 2026-05-12
+**ステータス**: Phase A1〜A6 完了／A7 スキップ／A8 UI修正反映済／A9 継続中／A10〜A15 完了（応援バッジ統合・行間D&D・全GC紐付け）／要件定義・DB設計反映済
 **対象モックアップ**: `docs/weekly-schedule.html` + `docs/mockup/weekly-schedule.{js,css}`
 
 このドキュメントは会話をまたいで作業継続できるようにまとめたもの。新会話ではまず本ファイルを読んでから作業に入ること。
@@ -203,6 +203,24 @@ supportAssignments = {
 - ユーザー自身のブラウザ確認フィードバックをA8として都度実装に反映
 - 追加フィードバックが出たら引き続きA8として対応、出尽くしたらクローズ
 
+### A10〜A15: 応援バッジ統合化・予約行間D&D ✅（仕様変更）
+
+**背景**: サイドバーで GC ごとに分けていた応援プリセット3バッジを「応援」1バッジに統合。配置→クリックで紐付けする際、全GC の応援予約から横断的に選択可能に。さらに別GC の応援予約行間で協力業者バッジを D&D 移動可能に。
+
+| Phase | 変更点 |
+|-------|--------|
+| A10 | `supportPartners` のプリセットを `preset-unified`（`gcCode: null`）1件に集約。`getPartnerPlacedLabel` を簡素化（GC短称プレフィックスを廃止）。 |
+| A11 | サイドバー応援セクションを `appendUnifiedSupportSection(container, badgeCreator)` で1回だけ描画。GC ループ外に配置。 |
+| A12 | `showLinkPopover` を全GC セクション分け表示に書き換え。「予約あり業者のみ」を表示し、`(予約なし)` 項目を除外。 |
+| A13 | 応援予約行セルに `dragover`/`drop` ハンドラ追加。同日かつ別GC のときに `partner.gcCode` を書き換える `onReservationCellDragOver` / `onReservationCellDrop` を実装。 |
+| A14 | 統合プリセット応援チップ用CSS追加（`.md-ws-emp-chip.md-ws-support-chip-preset` を中立色 `--text-tertiary` / `--bg-surface-2` に変更）。 |
+| A15 | revert ボタン（配置済みチップ→「応援バッジに戻す」）が `preset-unified` を再配置するよう変更。`showLinkPopover` / `showPartnerChipActionPopover` から `gcCode` 引数を撤去。 |
+
+**重要な仕様判断**:
+- 業者所属GC変更時、既存配置の表示色は自動追随（業者の単一GC属性に従う）。確認ダイアログなし。
+- インター行D&D は同日のみ。別日のGCはD&Dではなく予約モーダルから操作。
+- 残0 の業者バッジも行間D&D 可能（GC変更は予約消費を伴わないため）。ただし現場セル drop は残0 で拒否（トースト表示）。
+
 ## 6. 要件定義・DB設計の状態
 
 **反映済みセクション（`docs/01_要件定義.md` / `docs/03_データベース設計.md`）:**
@@ -217,10 +235,10 @@ supportAssignments = {
 
 ## 7. 既知の注意点（gotcha）
 
-1. **プリセット応援バッジは `supportPartners` に `isPreset: true` で混在**
-   - `getActivePartners(gcCode)` はデフォルトで preset を除外する
-   - サイドバーでは `{includePreset: true}` で取得
-   - 予約行・紐付けポップオーバーでは preset を除外（実在パートナーのみ）
+1. **統合プリセット応援バッジ（A10〜以降）**: `supportPartners` 内の `preset-unified` 1件のみ。`gcCode: null`、`isPreset: true`。
+   - `getActivePartners(gcCode)` は `gcCode === ...` フィルタなので preset は自動除外される
+   - サイドバーでは `appendUnifiedSupportSection` で `findPartner('preset-unified')` から直接取得（GC を跨がず 1 個のみ表示）
+   - 予約行・紐付けポップオーバーは非プリセットのみを対象
 
 2. **配置セルの `shift`（day/night）は保持しているが、予約の `shift_type` はフレックスのみ**
    - `supportAssignments` のキーは配置先セルのシフト
@@ -235,8 +253,13 @@ supportAssignments = {
    - `.md-ws-link-popover` クラスで既存ポップオーバーを先に閉じる（単一表示保証）
 
 5. **予約超過防止**
-   - 紐付けポップオーバーの既存業者選択ボタンは `disabled` + `filter: grayscale` で残0業者を選択不可化
-   - 予約未登録業者（`reserved === 0`）も選択不可（「予約なし」表示）
+   - 紐付けポップオーバーは「予約あり業者のみ」を表示し、残0は `disabled` + `filter: grayscale` で選択不可
+   - 現場セル drop も残0を拒否（A13 のサイドエフェクト）。トーストで通知
+
+6. **応援予約行間D&D の状態管理**
+   - `dragSourcePartnerGc` 変数で予約バッジドラッグ中の元GCを保持
+   - `deactivateDragMode()` でクリア
+   - 同日・別GC のときのみドロップ受け付け（同GC ドロップは no-op）
 
 ## 8. ファイル一覧（変更箇所）
 

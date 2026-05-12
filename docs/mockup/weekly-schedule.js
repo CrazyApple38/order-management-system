@@ -65,20 +65,18 @@
     //   partnerId -> dateKey -> shift('day'|'night') -> [{ siteId, sourceShift('day'|'night'|'flex') }]
     var supportAssignments = {};
 
-    // プリセット「応援」バッジをGCごとに1つ登録（サイドバー D&D 用、ラベル固定'応援'）
+    // プリセット「応援」バッジ（統合・GC無所属）— サイドバー1個・クリックで全GC予約から紐付け
     (function initPresetSupportBadges() {
-        groupCompaniesData.forEach(function (gc) {
-            supportPartners.push({
-                id: 'preset-' + gc.code,
-                gcCode: gc.code,
-                shortName: '\u5fdc\u63f4',
-                formalName: null, postalCode: null, address: null,
-                representativeTitle: null, representativeName: null,
-                phone: null, email: null,
-                isPreset: true,
-                isMasterComplete: false,
-                isActive: true
-            });
+        supportPartners.push({
+            id: 'preset-unified',
+            gcCode: null,
+            shortName: '\u5fdc\u63f4',
+            formalName: null, postalCode: null, address: null,
+            representativeTitle: null, representativeName: null,
+            phone: null, email: null,
+            isPreset: true,
+            isMasterComplete: false,
+            isActive: true
         });
     })();
 
@@ -171,6 +169,7 @@
     var dragSourceDate = null;   // セル起点D&D時の元日付
     var dragSourceShift = null;  // セル起点D&D時の元シフト（'day' | 'night' | null）
     var dragSourceType = null;   // ドラッグ種別 'move-emp'|'move-partner'|'move-chip'|'move-vehicle'|'move-vehicle-chip'|'reservation-partner'|'sidebar-*'
+    var dragSourcePartnerGc = null; // 応援予約バッジD&D時の元GC（行間D&D判定用）
     var dragEmpIndex = null;     // ドラッグ中の社員インデックス（休みチェック用）
 
     // サイドバー社員タブ状態
@@ -483,13 +482,10 @@
         return slots;
     }
 
-    // 配置済みバッジの表示ラベル: 略称のみ（Q49-a）。プリセットは GC略号｜応援
+    // 配置済みバッジの表示ラベル: 略称のみ（Q49-a）。統合プリセット応援は GC無所属のため '応援'。
     function getPartnerPlacedLabel(partner) {
-        if (partner.isPreset) {
-            var gc = groupCompaniesData.find(function (g) { return g.code === partner.gcCode; });
-            var short = gc ? gc.shortName : '';
-            return short ? short + '\uff5c' + partner.shortName : partner.shortName;
-        }
+        // \u7d71\u5408\u30d7\u30ea\u30bb\u30c3\u30c8\u5fdc\u63f4: GC\u7121\u6240\u5c5e\u306e\u305f\u3081\u30e9\u30d9\u30eb\u306f '\u5fdc\u63f4' \u306e\u307f\u3002
+        // \u975e\u30d7\u30ea\u30bb\u30c3\u30c8\u306f\u7565\u79f0\uff08A\u793e\u2460\u7b49\uff09\u306e\u307f\u3002
         return partner.shortName;
     }
 
@@ -519,10 +515,10 @@
             badge.appendChild(warn);
         }
 
-        // D&D: 予約行→現場セル
-        if (!isPast && slot.remaining > 0) {
+        // D&D: 予約行→現場セル（残>0時）または 予約行→別GC予約行（残数を問わない）
+        if (!isPast) {
             badge.draggable = true;
-            (function (pid) {
+            (function (pid, pGc) {
                 badge.addEventListener('dragstart', function (e) {
                     e.dataTransfer.setData('text/plain', JSON.stringify({
                         type: 'reservation-partner',
@@ -531,9 +527,10 @@
                     e.dataTransfer.effectAllowed = 'copy';
                     badge.classList.add('md-ws-dragging');
                     dragSourceDate = dateKey;
+                    dragSourcePartnerGc = pGc;
                     activateDragMode(dateKey, { type: 'reservation-partner', shift: null });
                 });
-            })(partner.id);
+            })(partner.id, partner.gcCode);
             badge.addEventListener('dragend', function () {
                 badge.classList.remove('md-ws-dragging');
                 deactivateDragMode();
@@ -1152,6 +1149,13 @@
                         cell.appendChild(badge);
                     });
 
+                    // 応援予約行間D&D の受け口（同日・別GC のときに業者の gcCode を書き換え）
+                    if (!isPast) {
+                        cell.addEventListener('dragover', onReservationCellDragOver);
+                        cell.addEventListener('dragleave', onCellDragLeave);
+                        cell.addEventListener('drop', onReservationCellDrop);
+                    }
+
                     // 日付セル内の新規予約追加ボタン（非過去日のみ）
                     if (!isPast) {
                         var cellAddBtn = el('button', 'md-ws-reserve-cell-add', '\uff0b');
@@ -1339,21 +1343,21 @@
                             if (!isPast) {
                                 chip.style.cursor = 'pointer';
                                 if (partner.isPreset) {
-                                    // プリセット: クリック→紐付けポップオーバー
-                                    (function (pidCap, sidCap, dkCap, shCap, gcCodeCap, chipRef) {
+                                    // 統合プリセット応援: クリック→紐付けポップオーバー（全GC予約から選択）
+                                    (function (pidCap, sidCap, dkCap, shCap, chipRef) {
                                         chipRef.addEventListener('click', function (e) {
                                             e.stopPropagation();
-                                            showLinkPopover(chipRef, pidCap, sidCap, dkCap, shCap, gcCodeCap);
+                                            showLinkPopover(chipRef, pidCap, sidCap, dkCap, shCap);
                                         });
-                                    })(partner.id, site.id, dk, shift, partner.gcCode, chip);
+                                    })(partner.id, site.id, dk, shift, chip);
                                 } else {
                                     // 実在パートナー: クリック→アクション選択ポップオーバー
-                                    (function (pidCap, sidCap, dkCap, shCap, gcCodeCap, chipRef) {
+                                    (function (pidCap, sidCap, dkCap, shCap, chipRef) {
                                         chipRef.addEventListener('click', function (e) {
                                             e.stopPropagation();
-                                            showPartnerChipActionPopover(chipRef, pidCap, sidCap, dkCap, shCap, gcCodeCap);
+                                            showPartnerChipActionPopover(chipRef, pidCap, sidCap, dkCap, shCap);
                                         });
-                                    })(partner.id, site.id, dk, shift, partner.gcCode, chip);
+                                    })(partner.id, site.id, dk, shift, chip);
                                 }
 
                                 // ×ボタン
@@ -1965,6 +1969,7 @@
         dragSourceDate = null;
         dragSourceShift = null;
         dragSourceType = null;
+        dragSourcePartnerGc = null;
         dragEmpIndex = null;
         hideHolidayFloat();
         var grid = document.getElementById('wsGrid');
@@ -2223,8 +2228,12 @@
             removeAssignment(data.empIndex, data.fromDate, data.fromShift, data.fromSiteId);
             addAssignment(data.empIndex, date, shift, siteId);
         } else if (data.type === 'reservation-partner') {
-            // 予約行 → 現場セル（配置）
-            addSupportAssignment(data.partnerId, date, shift, siteId);
+            // 予約行 → 現場セル（配置）。残0時は超過配置を防ぐためトーストで拒否
+            if (getRemainingCount(data.partnerId, date) <= 0) {
+                showToast('予約残が0のため配置できません');
+            } else {
+                addSupportAssignment(data.partnerId, date, shift, siteId);
+            }
         } else if (data.type === 'sidebar-support') {
             // サイドバー（プリセット応援 or 実在パートナー） → 現場セル
             addSupportAssignment(data.partnerId, date, shift, siteId);
@@ -2306,6 +2315,46 @@
         deactivateDragMode();
         renderGrid();
         renderSidebar();
+    }
+
+    // ----- 応援予約行間D&D -----
+    // 予約行→予約行（同日・別GC）: 業者の gcCode を書き換える
+    function onReservationCellDragOver(e) {
+        if (dragSourceType !== 'reservation-partner') return;
+        var cell = e.currentTarget;
+        var cellDate = cell.dataset.date;
+        // 同日のみ受け入れ
+        if (dragSourceDate && cellDate !== dragSourceDate) return;
+        // 同GCドロップは無効
+        var targetGc = cell.dataset.partnerGc;
+        if (targetGc === dragSourcePartnerGc) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        cell.classList.add('md-ws-drag-over');
+    }
+
+    function onReservationCellDrop(e) {
+        e.preventDefault();
+        var cell = e.currentTarget;
+        cell.classList.remove('md-ws-drag-over', 'md-ws-drag-invalid');
+
+        var raw = e.dataTransfer.getData('text/plain');
+        if (!raw) { deactivateDragMode(); return; }
+        var data;
+        try { data = JSON.parse(raw); } catch (_) { deactivateDragMode(); return; }
+        if (data.type !== 'reservation-partner') { deactivateDragMode(); return; }
+
+        var cellDate = cell.dataset.date;
+        var newGcCode = cell.dataset.partnerGc;
+        if (dragSourceDate && cellDate !== dragSourceDate) { deactivateDragMode(); return; }
+
+        var partner = findPartner(data.partnerId);
+        if (partner && !partner.isPreset && partner.gcCode !== newGcCode) {
+            partner.gcCode = newGcCode;
+            renderGrid();
+            renderSidebar();
+        }
+        deactivateDragMode();
     }
 
     // トースト表示（簡易・自動消失）
@@ -2586,34 +2635,24 @@
         if (wsEmpTab.activeTab === 'all') {
             visibleCompanies.forEach(function (gc) {
                 var companyEmps = filtered.filter(function (emp) { return emp.company === gc.code; });
-                var supportCount = getActivePartners(gc.code, { includePreset: true }).length;
+                var supportCount = getActivePartners(gc.code).length;
                 if (companyEmps.length === 0 && supportCount === 0) return;
                 var sectionLabel = el('div', 'md-ws-gc-section-label', gc.shortName);
                 content.appendChild(sectionLabel);
                 companyEmps.forEach(function (emp) {
                     content.appendChild(createAssignEmpBadge(emp, sc, currentAssigned));
                 });
-                appendSupportSection(content, gc.code, function (p) {
-                    return createAssignSupportBadge(p, sc, currentAssignedCell);
-                });
             });
         } else {
             filtered.forEach(function (emp) {
                 content.appendChild(createAssignEmpBadge(emp, sc, currentAssigned));
             });
-            // 選択タブに属するGCの応援バッジを表示
-            var activeGc = null;
-            visibleCompanies.forEach(function (gc) {
-                var units = orgUnitsData[gc.code] || [];
-                var ids = wsGetDescendantIds(units, wsEmpTab.activeTab);
-                if (ids.length > 0) activeGc = gc.code;
-            });
-            if (activeGc) {
-                appendSupportSection(content, activeGc, function (p) {
-                    return createAssignSupportBadge(p, sc, currentAssignedCell);
-                });
-            }
         }
+
+        // 統合「応援」セクション（GC問わず1個・全モード共通で末尾に表示）
+        appendUnifiedSupportSection(content, function (p) {
+            return createAssignSupportBadge(p, sc, currentAssignedCell);
+        });
 
         panel.appendChild(content);
         sidebar.appendChild(panel);
@@ -3292,16 +3331,16 @@
                 var companyEmps = employeesData.map(function (emp, idx) {
                     return { index: idx, name: emp.name, company: emp.company, dept: emp.dept };
                 }).filter(function (emp) { return emp.company === gc.code; });
-                var supportCount = getActivePartners(gc.code, { includePreset: true }).length;
+                var supportCount = getActivePartners(gc.code).length;
                 if (companyEmps.length === 0 && supportCount === 0) return;
                 filteredCount += companyEmps.length;
                 content.appendChild(el('div', 'md-ws-gc-section-label', gc.shortName));
                 companyEmps.forEach(function (emp) {
                     content.appendChild(createEmpBadge(emp));
                 });
-                appendSupportSection(content, gc.code, function (p) {
-                    return createSupportBadge(p);
-                });
+            });
+            appendUnifiedSupportSection(content, function (p) {
+                return createSupportBadge(p);
             });
             sidebar.appendChild(content);
 
@@ -3391,33 +3430,24 @@
         if (wsEmpTab.activeTab === 'all') {
             visibleCompanies.forEach(function (gc) {
                 var companyEmps = filtered.filter(function (emp) { return emp.company === gc.code; });
-                var supportCount = getActivePartners(gc.code, { includePreset: true }).length;
+                var supportCount = getActivePartners(gc.code).length;
                 if (companyEmps.length === 0 && supportCount === 0) return;
                 var sectionLabel = el('div', 'md-ws-gc-section-label', gc.shortName);
                 content.appendChild(sectionLabel);
                 companyEmps.forEach(function (emp) {
                     content.appendChild(createEmpBadge(emp));
                 });
-                appendSupportSection(content, gc.code, function (p) {
-                    return createSupportBadge(p);
-                });
             });
         } else {
             filtered.forEach(function (emp) {
                 content.appendChild(createEmpBadge(emp));
             });
-            var activeGc = null;
-            visibleCompanies.forEach(function (gc) {
-                var units = orgUnitsData[gc.code] || [];
-                var ids = wsGetDescendantIds(units, wsEmpTab.activeTab);
-                if (ids.length > 0) activeGc = gc.code;
-            });
-            if (activeGc) {
-                appendSupportSection(content, activeGc, function (p) {
-                    return createSupportBadge(p);
-                });
-            }
         }
+
+        // 統合「応援」セクション（GC問わず1個・全タブ共通で末尾に表示）
+        appendUnifiedSupportSection(content, function (p) {
+            return createSupportBadge(p);
+        });
 
         panel.appendChild(content);
         sidebar.appendChild(panel);
@@ -3937,21 +3967,17 @@
         setTimeout(function () { input.focus(); }, 0);
     }
 
-    /** GCごとに応援セクション（プリセット応援バッジのみ） */
-    function appendSupportSection(container, gcCode, badgeCreator) {
-        var presetPartners = supportPartners.filter(function (p) {
-            return p.gcCode === gcCode && p.isActive && p.isPreset;
-        });
-        if (presetPartners.length === 0) return;
+    /** 統合「応援」セクション（プリセット応援バッジ1個・GCを問わない） */
+    function appendUnifiedSupportSection(container, badgeCreator) {
+        var preset = findPartner('preset-unified');
+        if (!preset || !preset.isActive) return;
 
-        var secOuter = el('div', 'md-ws-support-outer');
+        var secOuter = el('div', 'md-ws-support-outer md-ws-support-outer-unified');
         var secLabel = el('div', 'md-ws-support-label', '\u5fdc\u63f4');
         secOuter.appendChild(secLabel);
 
         var secWrap = el('div', 'md-ws-support-section');
-        presetPartners.forEach(function (p) {
-            secWrap.appendChild(badgeCreator(p));
-        });
+        secWrap.appendChild(badgeCreator(preset));
         secOuter.appendChild(secWrap);
         container.appendChild(secOuter);
     }
@@ -3961,7 +3987,7 @@
     // 既存の協力業者リスト＋新規入力を併設
     // ==========================================================
 
-    function showLinkPopover(chipEl, presetPartnerId, siteId, dateKey, shift, gcCode) {
+    function showLinkPopover(chipEl, presetPartnerId, siteId, dateKey, shift) {
         var existing = document.querySelector('.md-ws-link-popover');
         if (existing) existing.remove();
 
@@ -3969,38 +3995,42 @@
         var title = el('div', 'md-ws-link-title', '\u696d\u8005\u3092\u7d10\u4ed8\u3051');
         popover.appendChild(title);
 
-        // 既存協力業者リスト（当該GC）。残数を表示し、残0は選択不可
-        var existingPartners = getActivePartners(gcCode);
-        if (existingPartners.length > 0) {
+        // 全GCの「当日予約あり」業者をGCごとセクションに分けて列挙。
+        // 残0は disabled。「予約なし」業者は非表示。
+        var anyShown = false;
+        groupCompaniesData.forEach(function (gc) {
+            if (!wsGcIsVisible(gc.code)) return;
+            var partners = getActivePartners(gc.code).filter(function (p) {
+                return getReservedCount(p.id, dateKey) > 0;
+            });
+            if (partners.length === 0) return;
+            anyShown = true;
+
+            var secTitle = el('div', 'md-ws-link-section-title', gc.shortName);
+            popover.appendChild(secTitle);
+
             var list = el('div', 'md-ws-link-partner-list');
-            existingPartners.forEach(function (p) {
+            partners.forEach(function (p) {
                 var reserved = getReservedCount(p.id, dateKey);
                 var remaining = getRemainingCount(p.id, dateKey);
-                var canSelect = reserved > 0 && remaining > 0;
+                var canSelect = remaining > 0;
 
                 var btn = el('button', 'md-ws-link-partner-btn');
-                var labelText = p.shortName;
-                if (reserved > 0) {
-                    labelText += ' \u6b8b' + remaining + '/' + reserved;
-                } else {
-                    labelText += '\u00a0\uff08\u4e88\u7d04\u306a\u3057\uff09';
-                }
+                var labelText = p.shortName + ' 残' + remaining + '/' + reserved;
                 var nameSpan = el('span', 'md-ws-link-partner-name', labelText);
                 btn.appendChild(nameSpan);
 
                 if (!p.isMasterComplete) {
                     var warn = el('span', 'md-ws-link-partner-warn');
                     warn.innerHTML = WARN_ICON_SVG;
-                    warn.title = '\u30de\u30b9\u30bf\u672a\u5b8c\u5099';
+                    warn.title = 'マスタ未完備';
                     btn.appendChild(warn);
                 }
 
                 if (!canSelect) {
                     btn.classList.add('md-ws-link-partner-disabled');
                     btn.disabled = true;
-                    btn.title = reserved === 0
-                        ? '\u4e88\u7d04\u304c\u7121\u3044\u305f\u3081\u9078\u629e\u4e0d\u53ef'
-                        : '\u4e88\u7d04\u6b8b\u304c0\u306e\u305f\u3081\u9078\u629e\u4e0d\u53ef';
+                    btn.title = '予約残が0のため選択不可';
                 } else {
                     btn.addEventListener('click', function () {
                         applyLinkSelection(presetPartnerId, p.id, siteId, dateKey, shift, popover);
@@ -4009,8 +4039,10 @@
                 list.appendChild(btn);
             });
             popover.appendChild(list);
-        } else {
-            var emptyMsg = el('div', 'md-ws-link-empty', '\u5354\u529b\u696d\u8005\u304c\u767b\u9332\u3055\u308c\u3066\u3044\u307e\u305b\u3093');
+        });
+
+        if (!anyShown) {
+            var emptyMsg = el('div', 'md-ws-link-empty', 'この日に予約が入っている業者はありません');
             popover.appendChild(emptyMsg);
         }
 
@@ -4043,7 +4075,7 @@
     }
 
     // 配置済み協力業者チップクリック時のアクション選択ポップオーバー
-    function showPartnerChipActionPopover(chipEl, partnerId, siteId, dateKey, shift, gcCode) {
+    function showPartnerChipActionPopover(chipEl, partnerId, siteId, dateKey, shift) {
         var existing = document.querySelector('.md-ws-link-popover');
         if (existing) existing.remove();
 
@@ -4060,7 +4092,7 @@
         revertBtn.title = '\u5f53\u8a72\u914d\u7f6e\u3092\u524a\u9664\u3057\u3001\u30d7\u30ea\u30bb\u30c3\u30c8\u300c\u5fdc\u63f4\u300d\u3092\u518d\u914d\u7f6e';
         revertBtn.addEventListener('click', function () {
             removeSupportAssignment(partnerId, dateKey, shift, siteId);
-            addSupportAssignment('preset-' + gcCode, dateKey, shift, siteId);
+            addSupportAssignment('preset-unified', dateKey, shift, siteId);
             popover.remove();
             renderGrid();
             renderSidebar();

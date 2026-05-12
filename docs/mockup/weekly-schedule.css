@@ -2034,10 +2034,18 @@ body {
     background: var(--accent-bg, rgba(0, 120, 212, 0.06));
 }
 
-/* グリッド内のプリセット応援チップ */
+/* グリッド内の統合プリセット応援チップ（未紐付け：中立色） */
 .md-ws-emp-chip.md-ws-support-chip-preset {
     border-style: dotted;
+    border-color: var(--text-tertiary);
+    background: var(--bg-surface-2);
+    color: var(--text-secondary);
     cursor: pointer;
+}
+
+.md-ws-emp-chip.md-ws-support-chip-preset:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
 }
 
 /* 業者紐付けポップオーバー */
