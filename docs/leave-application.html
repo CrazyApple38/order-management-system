@@ -53,12 +53,6 @@
     <div class="md-la-container is-mode-leave" id="laContainer">
         <!-- ヘッダー -->
         <div class="md-la-header">
-            <!-- モード切替セグメント (休暇申請 / 車両スケジュール) -->
-            <div class="md-la-mode-seg" role="tablist" aria-label="画面モード切替">
-                <button type="button" class="md-la-mode-seg-btn is-active" data-mode="leave" role="tab" aria-selected="true">休暇申請管理</button>
-                <button type="button" class="md-la-mode-seg-btn" data-mode="vehicle" role="tab" aria-selected="false">車両スケジュール管理</button>
-            </div>
-
             <!-- 月見出し (Google型 大きめ・軽量フォント) -->
             <span class="md-la-month-label-lg" id="laMonthLabel">2026年4月</span>
 
@@ -185,8 +179,13 @@
 
         <!-- メインエリア -->
         <div class="md-la-main">
-            <!-- 左サイドバー: 新規申請 / 今日 / ミニカレンダー / ビュー切替 -->
+            <!-- 左サイドバー: モード切替 / 新規申請 / 今日 / ミニカレンダー / ビュー切替 -->
             <aside class="md-la-mini-sidebar" id="laMiniSidebar">
+                <!-- モード切替セグメント (休暇申請 / 車両スケジュール) -->
+                <div class="md-la-mode-seg" role="tablist" aria-label="画面モード切替">
+                    <button type="button" class="md-la-mode-seg-btn is-active" data-mode="leave" role="tab" aria-selected="true">休暇申請</button>
+                    <button type="button" class="md-la-mode-seg-btn" data-mode="vehicle" role="tab" aria-selected="false">車両スケジュール</button>
+                </div>
                 <!-- 新規申請 (メインアクション / Google Cal の Create 相当) -->
                 <button type="button" class="md-la-create-btn" id="laNewBtn" title="新規申請">
                     <svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg>
@@ -236,6 +235,8 @@
                 <div class="md-la-year md-la-hidden" id="laYear">
                     <!-- JS で描画 (年間ビュー) -->
                 </div>
+                <!-- 年間ビュー用 吹き出しツールチップ (単一要素を使い回し) -->
+                <div class="md-la-year-tooltip" id="laYearTooltip" role="tooltip" hidden></div>
             </div>
 
             <!-- 右サイドパネル -->

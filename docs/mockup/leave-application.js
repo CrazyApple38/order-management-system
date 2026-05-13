@@ -314,7 +314,10 @@
         updateViewVisibility();
         if (currentView === 'month') renderCalendar();
         if (currentView === 'week')  renderWeek();
-        if (currentView === 'year')  renderYear();
+        if (currentView === 'year')  {
+            if (currentMode === 'vehicle') vsRenderYear();
+            else renderYear();
+        }
         renderSidebar();
         renderMiniCal();
     }
@@ -720,6 +723,7 @@
         var root = document.getElementById('laYear');
         if (!root) return;
         root.innerHTML = '';
+        root.classList.remove('is-mode-vehicle');
 
         // 凡例
         var legend = document.createElement('div');
@@ -815,15 +819,22 @@
                 else if (count === 3) level = 3;
                 else if (count === 4) level = 4;
                 else if (count >= 5)  level = 5;
-                var tip = '';
-                if (level > 0) {
-                    cell.classList.add('lv-' + level);
-                    tip = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() + ' — ' + count + '人休';
+                if (level > 0) cell.classList.add('lv-' + level);
+
+                // 吹き出しデータ (日付ヘッダ + 行配列)
+                if (level > 0 || holidayName) {
+                    var lines = [];
+                    if (holidayName) lines.push({ label: '祝日', value: holidayName });
+                    if (level > 0) {
+                        var names = (byDate[key] || []).map(function (lv) {
+                            var emp = laEmployees.find(function (e) { return e.id === lv.employeeId; });
+                            return emp ? emp.name : lv.employeeId;
+                        });
+                        lines.push({ label: '休暇', value: count + '人 (' + names.join(', ') + ')' });
+                    }
+                    cell.dataset.tipHead = laYearFmtHead(d);
+                    cell.dataset.tipLines = JSON.stringify(lines);
                 }
-                if (holidayName) {
-                    tip = (tip ? tip + ' / ' : d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() + ' — ') + holidayName;
-                }
-                if (tip) cell.title = tip;
             }
 
             var inner = '<span class="md-la-year-cell-date">' + d.getDate() + '</span>';
@@ -850,6 +861,222 @@
             });
         });
         return { days: days, people: Object.keys(peopleSet).length };
+    }
+
+    // ==========================================================
+    // 年間ビュー (車両モード) — 車検/点検期限カレンダー
+    // ==========================================================
+
+    function vsBuildDueDateMap() {
+        // 期限日 (YYYY-MM-DD) → { shaken: [vehicle], inspection: [vehicle] }
+        var map = {};
+        vsVehicles.forEach(function (v) {
+            if (!gcFilter[v.owner]) return;
+            if (v.nextShakenDate) {
+                if (!map[v.nextShakenDate]) map[v.nextShakenDate] = { shaken: [], inspection: [] };
+                map[v.nextShakenDate].shaken.push(v);
+            }
+            if (v.nextInspectionDate) {
+                if (!map[v.nextInspectionDate]) map[v.nextInspectionDate] = { shaken: [], inspection: [] };
+                map[v.nextInspectionDate].inspection.push(v);
+            }
+        });
+        return map;
+    }
+
+    function vsRenderYear() {
+        var root = document.getElementById('laYear');
+        if (!root) return;
+        root.innerHTML = '';
+        root.classList.add('is-mode-vehicle');
+
+        // 凡例 (車検 / 点検)
+        var legend = document.createElement('div');
+        legend.className = 'md-la-year-legend';
+        legend.innerHTML =
+            '<span class="md-la-year-legend-item"><span class="md-la-year-legend-dot vs-kind-shaken"></span>車検期限</span>' +
+            '<span class="md-la-year-legend-item"><span class="md-la-year-legend-dot vs-kind-inspection"></span>点検期限</span>';
+        legend.style.gridColumn = '1 / -1';
+        root.appendChild(legend);
+
+        var year = currentDate.getFullYear();
+        var today = new Date(); today.setHours(0, 0, 0, 0);
+        var byDate = vsBuildDueDateMap();
+
+        for (var m = 0; m < 12; m++) {
+            root.appendChild(vsBuildYearMonthCard(year, m, byDate, today));
+        }
+    }
+
+    function vsBuildYearMonthCard(year, month, byDate, today) {
+        var card = document.createElement('div');
+        card.className = 'md-la-year-month';
+        card.addEventListener('click', function () {
+            currentDate = new Date(year, month, 1);
+            currentView = 'month';
+            document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
+                t.classList.toggle('is-active', t.dataset.view === 'month');
+            });
+            render();
+        });
+
+        // ヘッダー (月名 + 件数サマリ: 車検X / 点検Y)
+        var header = document.createElement('div');
+        header.className = 'md-la-year-month-header';
+        var title = document.createElement('span');
+        title.className = 'md-la-year-month-title';
+        title.textContent = (month + 1) + '月';
+        header.appendChild(title);
+        var summary = document.createElement('span');
+        summary.className = 'md-la-year-month-summary';
+        var counts = vsCountDuesInMonth(year, month, byDate);
+        summary.textContent = '車検 ' + counts.shaken + ' / 点検 ' + counts.inspection;
+        header.appendChild(summary);
+        card.appendChild(header);
+
+        // ミニカレンダー
+        var grid = document.createElement('div');
+        grid.className = 'md-la-year-month-grid';
+
+        // 曜日ヘッダー
+        ['月', '火', '水', '木', '金', '土', '日'].forEach(function (n, i) {
+            var d = document.createElement('div');
+            d.className = 'md-la-year-dow';
+            if (i === 5) d.classList.add('is-sat');
+            if (i === 6) d.classList.add('is-sun');
+            d.textContent = n;
+            grid.appendChild(d);
+        });
+
+        // 日付セル
+        var first = new Date(year, month, 1);
+        var offsetFromMon = (first.getDay() + 6) % 7;
+        var start = new Date(year, month, 1 - offsetFromMon);
+        for (var i = 0; i < 42; i++) {
+            var d = new Date(start);
+            d.setDate(start.getDate() + i);
+            var key = fmtDate(d);
+            var cell = document.createElement('div');
+            cell.className = 'md-la-year-cell';
+            var isCurrentMonth = (d.getMonth() === month);
+            if (!isCurrentMonth) cell.classList.add('is-other-month');
+            var dow = d.getDay();
+            var holidayName = getHoliday(key);
+            if (dow === 6) cell.classList.add('is-sat');
+            if (dow === 0) cell.classList.add('is-sun');
+            if (holidayName) cell.classList.add('is-holiday');
+            if (sameDay(d, today)) cell.classList.add('is-today');
+
+            var inner = '<span class="md-la-year-cell-date">' + d.getDate() + '</span>';
+            if (isCurrentMonth && byDate[key]) {
+                var entry = byDate[key];
+                var dots = '';
+                var lines = [];
+                if (entry.shaken.length > 0) {
+                    dots += '<span class="md-la-year-cell-dot vs-kind-shaken"></span>';
+                    lines.push({ label: '車検', value: entry.shaken.map(function (v) { return v.plate; }).join(', ') });
+                }
+                if (entry.inspection.length > 0) {
+                    dots += '<span class="md-la-year-cell-dot vs-kind-inspection"></span>';
+                    lines.push({ label: '点検', value: entry.inspection.map(function (v) { return v.plate; }).join(', ') });
+                }
+                if (dots) {
+                    inner += '<span class="md-la-year-cell-dots">' + dots + '</span>';
+                    cell.classList.add('has-due');
+                    cell.dataset.tipHead = laYearFmtHead(d);
+                    cell.dataset.tipLines = JSON.stringify(lines);
+                }
+            }
+            cell.innerHTML = inner;
+            grid.appendChild(cell);
+        }
+        card.appendChild(grid);
+        return card;
+    }
+
+    function vsCountDuesInMonth(year, month, byDate) {
+        var shaken = 0, inspection = 0;
+        Object.keys(byDate).forEach(function (key) {
+            var d = parseDate(key);
+            if (d.getFullYear() !== year || d.getMonth() !== month) return;
+            shaken     += byDate[key].shaken.length;
+            inspection += byDate[key].inspection.length;
+        });
+        return { shaken: shaken, inspection: inspection };
+    }
+
+    // --- 年間ビュー 吹き出しツールチップ (休暇/車両共通) ---
+    var LA_YEAR_DOWS = ['日', '月', '火', '水', '木', '金', '土'];
+    function laYearFmtHead(d) {
+        return d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() + ' (' + LA_YEAR_DOWS[d.getDay()] + ')';
+    }
+
+    function laYearTooltipInit() {
+        var root = document.getElementById('laYear');
+        var tip  = document.getElementById('laYearTooltip');
+        if (!root || !tip || root.dataset.tipBound === '1') return;
+        root.dataset.tipBound = '1';
+
+        function showTip(cell) {
+            var head = cell.dataset.tipHead;
+            var rawLines = cell.dataset.tipLines;
+            if (!head || !rawLines) return;
+            var lines;
+            try { lines = JSON.parse(rawLines); } catch (e) { return; }
+
+            var isVehicle = root.classList.contains('is-mode-vehicle');
+            var html = '<div class="md-la-year-tooltip-head">' + head + '</div>';
+            lines.forEach(function (ln) {
+                var kindCls = '';
+                if (ln.label === '車検') kindCls = ' vs-kind-shaken';
+                else if (ln.label === '点検') kindCls = ' vs-kind-inspection';
+                html += '<div class="md-la-year-tooltip-row">' +
+                    (kindCls ? '<span class="md-la-year-tooltip-dot' + kindCls + '"></span>' : '') +
+                    '<span class="md-la-year-tooltip-label">' + ln.label + '</span>' +
+                    '<span class="md-la-year-tooltip-value">' + ln.value + '</span>' +
+                    '</div>';
+            });
+            tip.innerHTML = html;
+            tip.classList.toggle('is-vehicle', isVehicle);
+
+            // 行数や文字数に応じてサイズ調整
+            var totalLen = lines.reduce(function (s, l) { return s + l.value.length; }, 0);
+            tip.classList.toggle('is-dense', totalLen > 40);
+
+            tip.hidden = false;
+            // 位置計算: セル上中央 (viewport基準 / position:fixed)
+            var rect = cell.getBoundingClientRect();
+            var tipRect = tip.getBoundingClientRect();
+            var top  = rect.top - tipRect.height - 10;
+            var left = rect.left + rect.width / 2 - tipRect.width / 2;
+            var isBelow = false;
+            // 上に出すスペースが無ければ下に
+            if (top < 8) {
+                top = rect.bottom + 10;
+                isBelow = true;
+            }
+            // 画面端ガード (左右)
+            var minLeft = 8, maxLeft = window.innerWidth - tipRect.width - 8;
+            if (left < minLeft) left = minLeft;
+            if (left > maxLeft) left = maxLeft;
+            // pointer 位置の調整 (吹き出し左端からセル中央までのオフセット)
+            var pointerLeft = (rect.left + rect.width / 2) - left;
+            tip.style.setProperty('--la-tip-pointer-left', pointerLeft + 'px');
+            tip.style.top  = top + 'px';
+            tip.style.left = left + 'px';
+            tip.classList.toggle('is-below', isBelow);
+        }
+        function hideTip() {
+            tip.hidden = true;
+            tip.classList.remove('is-below', 'is-dense', 'is-vehicle');
+        }
+        root.addEventListener('mouseover', function (ev) {
+            var cell = ev.target.closest('.md-la-year-cell');
+            if (!cell || !cell.dataset.tipHead) { hideTip(); return; }
+            showTip(cell);
+        });
+        root.addEventListener('mouseleave', hideTip);
+        window.addEventListener('scroll', hideTip, true);
     }
 
     // ==========================================================
@@ -2716,6 +2943,14 @@
             container.classList.toggle('is-mode-leave',   mode === 'leave');
             container.classList.toggle('is-mode-vehicle', mode === 'vehicle');
         }
+        // 年間ビュー表示中にモード切替したら月間に戻す
+        if (currentView === 'year') {
+            currentView = 'month';
+            document.querySelectorAll('.md-la-view-tab').forEach(function (t) {
+                t.classList.toggle('is-active', t.dataset.view === 'month');
+                t.setAttribute('aria-selected', t.dataset.view === 'month' ? 'true' : 'false');
+            });
+        }
         // モード切替時に縦タブをリセット (要対応/期限近いは別タブIDのため)
         if (sidebarActiveTab === 'alerts' || sidebarActiveTab === 'dueSoon') {
             sidebarActiveTab = 'all';
@@ -3375,6 +3610,9 @@
         if (initialContainer && !initialContainer.classList.contains('is-mode-leave') && !initialContainer.classList.contains('is-mode-vehicle')) {
             initialContainer.classList.add('is-mode-leave');
         }
+
+        // 年間ビュー 吹き出しツールチップ (休暇/車両共通)
+        laYearTooltipInit();
 
         render();
     });
