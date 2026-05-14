@@ -1,0 +1,55 @@
+{
+  "_meta": {
+    "purpose": "Phase N-1 (UIモック先行) 確定アイコン定義。Phase N-2 着手時に co-navbar/co-notify-panel のベル定義テーブルに反映する",
+    "selectedAt": "2026-05-14",
+    "plan": "docs/plan/notification-refactor-plan.md",
+    "iconBasePath": "docs/assets/icons/"
+  },
+  "bells": {
+    "bell-ob": "business/si-49744-contract-documents.png",
+    "bell-sl": "person/im-11555-sankaku-kankei.svg",
+    "bell-ws": "stationery/im-12550-karendaa.svg",
+    "bell-la": "sign-mark/si-39968-heart-pen.png",
+    "bell-pending": "pc-tech/si-37064-data-recovery-backup.png",
+    "bell-vehicle": "transport/im-10867-jidou-sha.svg",
+    "bell-master": "sign-mark/im-00001-muryou-no-settei-haguruma.svg"
+  },
+  "commonTypes": {
+    "type-employee": "person/im-14440-jimbutsu-no-muryou-sozai.svg",
+    "type-vehicle": "transport/im-10867-jidou-sha.svg",
+    "type-support": "person/im-14439-chiimu.svg",
+    "type-reservation": "person/im-14446-jimmyaku-no-furii.svg"
+  },
+  "panelTypes": {
+    "ob": {
+      "type-ob-add": "business/im-12032-shimpuru-na-shomei-keiyaku.svg",
+      "type-ob-modify": "business/si-45842-document-teishutsu.png",
+      "type-ob-delete": "sign-mark/im-11911-hosoi-batsu.svg"
+    },
+    "sl": {
+      "type-sl-auto": "sign-mark/im-15804-riroudo.svg"
+    },
+    "ws": {
+      "type-ws-schedule-change": "business/si-28916-time-schedule.png",
+      "type-ws-leave-reflect": "sign-mark/si-39968-heart-pen.png"
+    },
+    "la": {
+      "type-la-new": "business/si-28306-icon-questionnaire.png",
+      "type-la-approve": "sign-mark/im-11453-chekku-bokkusu.svg",
+      "type-la-reject": "sign-mark/im-11911-hosoi-batsu.svg"
+    },
+    "pending": {
+      "type-pending-wait": "business/si-28916-time-schedule.png"
+    },
+    "vehicle": {
+      "type-vehicle-add": "business/im-12032-shimpuru-na-shomei-keiyaku.svg",
+      "type-vehicle-modify": "business/si-45842-document-teishutsu.png",
+      "type-vehicle-delete": "sign-mark/im-11911-hosoi-batsu.svg"
+    },
+    "master": {
+      "type-master-add": "business/im-12032-shimpuru-na-shomei-keiyaku.svg",
+      "type-master-modify": "business/si-45842-document-teishutsu.png",
+      "type-master-delete": "sign-mark/im-11911-hosoi-batsu.svg"
+    }
+  }
+}

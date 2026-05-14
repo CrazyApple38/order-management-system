@@ -6,6 +6,7 @@
     <title>変更通知UI 比較プレビュー</title>
     <link rel="stylesheet" href="../mockup/co-tokens.css">
     <link rel="stylesheet" href="../mockup/co-shared-badges.css">
+    <link rel="stylesheet" href="../mockup/co-icon-picker.css">
     <link rel="stylesheet" href="notify-compare.css">
 </head>
 <body>
@@ -19,6 +20,7 @@
             <button class="cmp-mode-btn is-active" data-mode="before">現状 (Before)</button>
             <button class="cmp-mode-btn" data-mode="after">統合案 (After)</button>
             <button class="cmp-mode-btn" data-mode="history">履歴タブ案</button>
+            <button class="cmp-mode-btn" data-mode="icons">アイコン選定</button>
         </div>
     </header>
 
@@ -1438,6 +1440,12 @@
         </section>
     </main>
 
+    <!-- ========== アイコン選定モード ========== -->
+    <main class="cmp-hidden" id="cmpIcons"></main>
+
     <script src="notify-compare.js"></script>
+    <script src="../mockup/co-icon-picker.js"></script>
+    <script src="notify-icons-data.js"></script>
+    <script src="notify-icons.js"></script>
 </body>
 </html>

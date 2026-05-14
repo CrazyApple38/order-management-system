@@ -2,11 +2,12 @@
 (function () {
     'use strict';
 
-    /* Before / After / 履歴 モード切替 */
+    /* Before / After / 履歴 / アイコン選定 モード切替 */
     var modeTargets = {
         before: 'cmpBefore',
         after: 'cmpAfter',
-        history: 'cmpHistory'
+        history: 'cmpHistory',
+        icons: 'cmpIcons'
     };
     document.querySelectorAll('.cmp-mode-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {

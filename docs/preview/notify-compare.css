@@ -1175,3 +1175,281 @@ button.cn-date-group-head:hover {
 .cn-panel--mobile .cn-pick-step { padding: 10px 8px; }
 .cn-panel--mobile .cn-pick-badge { padding: 4px 9px; font-size: 10px; }
 .cn-panel--mobile .cn-list-pick-btn { padding: 3px 8px; font-size: 10px; max-width: 130px; }
+
+/* ============================================================
+   アイコン選定モード（[アイコン選定]）
+   ============================================================ */
+#cmpIcons {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+/* ツールバー */
+.ni-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg-surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--elevation-1);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.ni-tool-btn {
+    background: var(--bg-surface-2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 150ms;
+}
+.ni-tool-btn:hover { background: var(--bg-hover, var(--bg-surface-3, #e9ecef)); }
+.ni-tool-hint {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-left: auto;
+}
+
+/* カード */
+.ni-card {
+    background: var(--bg-surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--elevation-2);
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    column-gap: 16px;
+    row-gap: 8px;
+    align-items: start;
+}
+.ni-card-head {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+.ni-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.ni-card-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+/* スロット（左カラム） */
+.ni-card > .ni-slot {
+    grid-column: 1;
+}
+.ni-slot {
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface-2, #f5f7fa);
+}
+.ni-slot[data-kind="bell"] {
+    background: var(--accent-secondary-bg, #eaf3f8);
+}
+.ni-slot-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+.ni-slot-label-text {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.ni-slot-current {
+    font-size: 10px;
+    font-family: monospace;
+    color: var(--text-tertiary);
+    max-width: 60%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ni-slot-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* 候補ボタン */
+.ni-cand {
+    width: 44px;
+    height: 44px;
+    background: var(--bg-surface);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 150ms, transform 100ms;
+}
+.ni-cand:hover { border-color: var(--accent-primary); }
+.ni-cand.is-selected {
+    border-color: var(--accent-primary);
+    background: var(--accent-primary-bg, #e7f1f8);
+    box-shadow: 0 0 0 2px var(--accent-primary) inset;
+}
+.ni-cand-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    color: var(--text-primary);
+}
+
+.ni-search-btn {
+    height: 44px;
+    padding: 0 12px;
+    background: var(--bg-surface);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--text-secondary);
+    transition: border-color 150ms;
+}
+.ni-search-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+
+/* プレビュー（右カラム） */
+.ni-preview {
+    grid-column: 2;
+    grid-row: 2 / span 99;
+    padding: 10px;
+    background: var(--bg-surface-2, #f5f7fa);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    align-self: start;
+    position: sticky;
+    top: 60px;
+}
+.ni-preview-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+}
+
+/* ベル横並び */
+.ni-preview-bells {
+    display: flex;
+    gap: 4px;
+    padding: 6px 8px;
+    background: var(--bg-surface);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+.ni-preview-bell {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg-surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    font-size: 11px;
+    border: 1px solid transparent;
+}
+.ni-preview-bell.is-current {
+    border-color: var(--accent-primary);
+    background: var(--accent-primary-bg, #e7f1f8);
+    transform: scale(1.1);
+}
+.ni-preview-bell-img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+/* 通知アイテム */
+.ni-preview-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--bg-surface);
+    border-radius: var(--radius-sm);
+    padding: 6px;
+}
+.ni-preview-item {
+    display: flex;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+    align-items: center;
+    position: relative;
+}
+.ni-preview-item.is-unread::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 18px;
+    border-radius: 2px;
+    background: var(--accent-primary);
+}
+.ni-preview-item-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 12px;
+    flex-shrink: 0;
+}
+.ni-preview-item-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.ni-preview-item-text { flex: 1; min-width: 0; }
+.ni-preview-item-main {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ni-preview-item-sub {
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+
+/* 検索モーダルは co-icon-picker.css に分離（IconPicker 経由で利用） */
+
+/* レスポンシブ: 狭幅でカードを縦並びに */
+@media (max-width: 900px) {
+    .ni-card {
+        grid-template-columns: 1fr;
+    }
+    .ni-card-head { grid-column: 1; }
+    .ni-card > .ni-slot { grid-column: 1; }
+    .ni-preview {
+        grid-column: 1;
+        grid-row: auto;
+        position: static;
+    }
+}
