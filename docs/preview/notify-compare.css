@@ -1453,3 +1453,299 @@ button.cn-date-group-head:hover {
         position: static;
     }
 }
+
+/* ============================================================
+   ベル並びモード (Phase N-1)
+   ============================================================ */
+.cmp-grid--bell {
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+}
+
+/* ナビバー風コンテナ */
+.cmp-bell-bar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 36px;
+    padding: 0 12px;
+    background: #004554;
+    color: #fff;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 0 0 #002a33;
+    margin: 8px 0 16px;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.cmp-bell-bar-logo {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    padding-right: 12px;
+    border-right: 1px solid rgba(255,255,255,0.15);
+    white-space: nowrap;
+}
+.cmp-bell-bar-spacer {
+    flex: 1;
+}
+
+/* ベル本体 */
+.cmp-bell-item {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: background 150ms;
+}
+.cmp-bell-item:hover {
+    background: rgba(255,255,255,0.1);
+}
+.cmp-bell-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.85;
+    filter: brightness(0) invert(1);
+    pointer-events: none;
+}
+.cmp-bell-item:hover .cmp-bell-icon {
+    opacity: 1;
+}
+
+/* 件数バッジ */
+.cmp-bell-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 3px;
+    border-radius: 7px;
+    background: #E74C3C;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 14px;
+    text-align: center;
+    border: 1px solid #004554;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
+    pointer-events: none;
+}
+
+/* 縦仕切り */
+.cmp-bell-divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(255,255,255,0.25);
+    margin: 0 6px;
+    flex-shrink: 0;
+}
+
+/* ホバーツールチップ */
+.cmp-bell-item[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a1a;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 120ms;
+    z-index: 10;
+}
+.cmp-bell-item[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
+/* ============================================================
+   パネルレイアウトモード (Phase N-1)
+   ベル並び + パネル展開状態の運用イメージ
+   ============================================================ */
+.cmp-grid--panel {
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    align-items: start;
+}
+
+.cmp-panel-note {
+    grid-column: 1 / -1;
+    background: var(--bg-surface);
+    border-left: 4px solid var(--accent-primary);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    box-shadow: var(--elevation-1);
+}
+.cmp-panel-note p { margin: 0; }
+.cmp-panel-note strong { color: var(--text-primary); }
+
+/* パネル付きカード */
+.cmp-card--panel .cmp-card-body { gap: 0; }
+
+/* ベル列の下端でパネルと接続するための調整 */
+.cmp-bell-bar--has-panel {
+    margin-bottom: 0;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    box-shadow: none;
+    border-bottom: 1px solid #003540;
+}
+
+/* 選択中ベルのハイライト */
+.cmp-bell-item.is-active {
+    background: rgba(255, 255, 255, 0.18);
+}
+.cmp-bell-item.is-active::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    bottom: -1px;
+    height: 2px;
+    background: var(--accent-primary);
+    border-radius: 1px;
+}
+.cmp-bell-item.is-active .cmp-bell-icon { opacity: 1; }
+
+/* パネル展開ステージ（パネルが降りてきた感を出す背景） */
+.cmp-panel-stage {
+    background: var(--bg-surface-2);
+    padding: 16px 12px 20px;
+    display: flex;
+    justify-content: flex-end;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    min-height: 240px;
+    margin-bottom: 12px;
+}
+.cmp-panel-stage--wide {
+    min-height: 320px;
+}
+
+/* ステージ内パネル本体 */
+.cmp-panel-anchor {
+    box-shadow: var(--elevation-3);
+}
+
+/* P3のタブ補足テキスト */
+.cmp-tab-hint {
+    padding: 8px 12px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    background: var(--bg-surface-2);
+    border-top: 1px dashed var(--divider);
+    line-height: 1.4;
+}
+
+/* ============================================================
+   自動生成行オーバーレイ色値モード (Phase N-1)
+   グループ間応援で自動生成された受注行のロックUIを比較
+   ============================================================ */
+.cmp-grid--overlay {
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    align-items: start;
+}
+
+/* OB風テーブル */
+.cmp-ob-table {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin: 8px 0 12px;
+    font-size: 12px;
+}
+
+.cmp-ob-row {
+    display: grid;
+    grid-template-columns: 28px 60px 1fr 1.4fr 1.4fr;
+    align-items: center;
+    border-bottom: 1px solid var(--divider);
+    background: var(--bg-surface);
+    position: relative;
+    min-height: 30px;
+}
+.cmp-ob-row:last-child { border-bottom: none; }
+
+.cmp-ob-row.cmp-ob-head {
+    background: var(--bg-surface-2);
+    font-weight: 700;
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+
+.cmp-ob-cell {
+    padding: 6px 8px;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.cmp-ob-cell--lock {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ロックアイコン */
+.cmp-ob-lock-icon {
+    width: 14px;
+    height: 14px;
+    opacity: 0.85;
+    /* SVGなので color 継承で着色されるが、img タグなので filter で代用 */
+    filter: brightness(0) saturate(100%) invert(38%) sepia(7%) saturate(0%) hue-rotate(0deg);
+}
+
+/* 自動生成行 共通 */
+.cmp-ob-row.is-auto {
+    cursor: not-allowed;
+}
+.cmp-ob-row.is-auto::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    /* オーバーレイは行全体を覆うが、ロック列（最初の28px）は除外 */
+    left: 28px;
+}
+
+/* OL-A: 黒30% */
+.cmp-ob-row.is-auto[data-overlay="ola"]::after {
+    background: rgba(0, 0, 0, 0.30);
+}
+
+/* OL-B: 黒45% */
+.cmp-ob-row.is-auto[data-overlay="olb"]::after {
+    background: rgba(0, 0, 0, 0.45);
+}
+
+/* OL-C: グレー50% */
+.cmp-ob-row.is-auto[data-overlay="olc"]::after {
+    background: rgba(120, 120, 120, 0.50);
+}
+
+/* OL-D: 斜線パターン */
+.cmp-ob-row.is-auto[data-overlay="old"]::after {
+    background:
+        repeating-linear-gradient(
+            135deg,
+            rgba(0, 0, 0, 0.08) 0,
+            rgba(0, 0, 0, 0.08) 6px,
+            transparent 6px,
+            transparent 12px
+        ),
+        rgba(255, 255, 255, 0.30);
+}

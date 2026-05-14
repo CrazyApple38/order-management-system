@@ -21,6 +21,9 @@
             <button class="cmp-mode-btn" data-mode="after">統合案 (After)</button>
             <button class="cmp-mode-btn" data-mode="history">履歴タブ案</button>
             <button class="cmp-mode-btn" data-mode="icons">アイコン選定</button>
+            <button class="cmp-mode-btn" data-mode="bell-order">ベル並び</button>
+            <button class="cmp-mode-btn" data-mode="panel-layout">パネルレイアウト</button>
+            <button class="cmp-mode-btn" data-mode="auto-overlay">自動生成行</button>
         </div>
     </header>
 
@@ -1442,6 +1445,725 @@
 
     <!-- ========== アイコン選定モード ========== -->
     <main class="cmp-hidden" id="cmpIcons"></main>
+
+    <!-- ========== ベル並びモード ========== -->
+    <main class="cmp-grid cmp-grid--bell cmp-hidden" id="cmpBellOrder">
+        <!-- 案A: 業務頻度順 -->
+        <section class="cmp-card">
+            <div class="cmp-card-head">
+                <span class="cmp-tag cmp-tag--ref">案A</span>
+                <h2>業務頻度順</h2>
+                <small>受注が起点 / 計画書§3.2 暗黙準拠</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-bell-bar">
+                    <span class="cmp-bell-bar-logo">業務管理</span>
+                    <span class="cmp-bell-bar-spacer"></span>
+                    <button type="button" class="cmp-bell-item" data-tooltip="OB — 受注簿" aria-label="OB — 受注簿">
+                        <img class="cmp-bell-icon" src="../assets/icons/business/si-49744-contract-documents.png" alt="">
+                        <span class="cmp-bell-badge">3</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="SL — 業務管理計画書" aria-label="SL — 業務管理計画書">
+                        <img class="cmp-bell-icon" src="../assets/icons/person/im-11555-sankaku-kankei.svg" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="WS — 週間予定表" aria-label="WS — 週間予定表">
+                        <img class="cmp-bell-icon" src="../assets/icons/stationery/im-12550-karendaa.svg" alt="">
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="LA — 休暇申請管理" aria-label="LA — 休暇申請管理">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/si-39968-heart-pen.png" alt="">
+                        <span class="cmp-bell-badge">2</span>
+                    </button>
+                    <span class="cmp-bell-divider"></span>
+                    <button type="button" class="cmp-bell-item" data-tooltip="休暇申請 承認待ち" aria-label="休暇申請 承認待ち">
+                        <img class="cmp-bell-icon" src="../assets/icons/pc-tech/si-37064-data-recovery-backup.png" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="車両スケジュール" aria-label="車両スケジュール">
+                        <img class="cmp-bell-icon" src="../assets/icons/transport/im-10867-jidou-sha.svg" alt="">
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="マスタ更新" aria-label="マスタ更新">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/im-00001-muryou-no-settei-haguruma.svg" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>順: OB → SL → WS → LA │ 休暇 → 車両 → マスタ</li>
+                    <li>✓ 「受注 → 計画 → 配置 → 申請」の業務フローと一致</li>
+                    <li>✓ OB を起点とする情報設計と整合</li>
+                    <li>✗ ナビバーの画面切替順（SL→OB）と並びが逆になる</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 案B: ナビバー画面順 -->
+        <section class="cmp-card">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">案B</span>
+                <h2>ナビバー画面順</h2>
+                <small>既存ナビバーのタブ並びと一致 / 学習コスト低</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-bell-bar">
+                    <span class="cmp-bell-bar-logo">業務管理</span>
+                    <span class="cmp-bell-bar-spacer"></span>
+                    <button type="button" class="cmp-bell-item" data-tooltip="SL — 業務管理計画書" aria-label="SL — 業務管理計画書">
+                        <img class="cmp-bell-icon" src="../assets/icons/person/im-11555-sankaku-kankei.svg" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="OB — 受注簿" aria-label="OB — 受注簿">
+                        <img class="cmp-bell-icon" src="../assets/icons/business/si-49744-contract-documents.png" alt="">
+                        <span class="cmp-bell-badge">3</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="WS — 週間予定表" aria-label="WS — 週間予定表">
+                        <img class="cmp-bell-icon" src="../assets/icons/stationery/im-12550-karendaa.svg" alt="">
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="LA — 休暇申請管理" aria-label="LA — 休暇申請管理">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/si-39968-heart-pen.png" alt="">
+                        <span class="cmp-bell-badge">2</span>
+                    </button>
+                    <span class="cmp-bell-divider"></span>
+                    <button type="button" class="cmp-bell-item" data-tooltip="休暇申請 承認待ち" aria-label="休暇申請 承認待ち">
+                        <img class="cmp-bell-icon" src="../assets/icons/pc-tech/si-37064-data-recovery-backup.png" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="車両スケジュール" aria-label="車両スケジュール">
+                        <img class="cmp-bell-icon" src="../assets/icons/transport/im-10867-jidou-sha.svg" alt="">
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="マスタ更新" aria-label="マスタ更新">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/im-00001-muryou-no-settei-haguruma.svg" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>順: SL → OB → WS → LA │ 休暇 → 車両 → マスタ</li>
+                    <li>✓ ナビバーのタブ並び（SL→OB→WS/LA）と一致</li>
+                    <li>✓ 画面切替とベルの位置感が揃い、ナビ全体の一貫性が高い</li>
+                    <li>✗ 業務頻度（OB起点）の感覚とはやや乖離</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 案C: 即応性順 -->
+        <section class="cmp-card">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">案C</span>
+                <h2>即応性順</h2>
+                <small>即対応が必要な順 / 集計系（WS）は後ろ</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-bell-bar">
+                    <span class="cmp-bell-bar-logo">業務管理</span>
+                    <span class="cmp-bell-bar-spacer"></span>
+                    <button type="button" class="cmp-bell-item" data-tooltip="OB — 受注簿" aria-label="OB — 受注簿">
+                        <img class="cmp-bell-icon" src="../assets/icons/business/si-49744-contract-documents.png" alt="">
+                        <span class="cmp-bell-badge">3</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="SL — 業務管理計画書" aria-label="SL — 業務管理計画書">
+                        <img class="cmp-bell-icon" src="../assets/icons/person/im-11555-sankaku-kankei.svg" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="LA — 休暇申請管理" aria-label="LA — 休暇申請管理">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/si-39968-heart-pen.png" alt="">
+                        <span class="cmp-bell-badge">2</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="WS — 週間予定表" aria-label="WS — 週間予定表">
+                        <img class="cmp-bell-icon" src="../assets/icons/stationery/im-12550-karendaa.svg" alt="">
+                    </button>
+                    <span class="cmp-bell-divider"></span>
+                    <button type="button" class="cmp-bell-item" data-tooltip="休暇申請 承認待ち" aria-label="休暇申請 承認待ち">
+                        <img class="cmp-bell-icon" src="../assets/icons/pc-tech/si-37064-data-recovery-backup.png" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="車両スケジュール" aria-label="車両スケジュール">
+                        <img class="cmp-bell-icon" src="../assets/icons/transport/im-10867-jidou-sha.svg" alt="">
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="マスタ更新" aria-label="マスタ更新">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/im-00001-muryou-no-settei-haguruma.svg" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>順: OB → SL → LA → WS │ 休暇 → 車両 → マスタ</li>
+                    <li>✓ 即応必要な4ベル（OB/SL/LA）が左寄せで視線移動が短い</li>
+                    <li>✓ WS（集計確認系）が後ろにあるため、緊急度の濃淡が出る</li>
+                    <li>✗ ナビバー順とも業務頻度順とも整合しない（独自軸）</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 案D: 横断系優先 -->
+        <section class="cmp-card">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">案D</span>
+                <h2>横断系優先</h2>
+                <small>承認待ち等の緊急対応系を左に / 管理者向け</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-bell-bar">
+                    <span class="cmp-bell-bar-logo">業務管理</span>
+                    <span class="cmp-bell-bar-spacer"></span>
+                    <button type="button" class="cmp-bell-item" data-tooltip="休暇申請 承認待ち" aria-label="休暇申請 承認待ち">
+                        <img class="cmp-bell-icon" src="../assets/icons/pc-tech/si-37064-data-recovery-backup.png" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="車両スケジュール" aria-label="車両スケジュール">
+                        <img class="cmp-bell-icon" src="../assets/icons/transport/im-10867-jidou-sha.svg" alt="">
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="マスタ更新" aria-label="マスタ更新">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/im-00001-muryou-no-settei-haguruma.svg" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <span class="cmp-bell-divider"></span>
+                    <button type="button" class="cmp-bell-item" data-tooltip="OB — 受注簿" aria-label="OB — 受注簿">
+                        <img class="cmp-bell-icon" src="../assets/icons/business/si-49744-contract-documents.png" alt="">
+                        <span class="cmp-bell-badge">3</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="SL — 業務管理計画書" aria-label="SL — 業務管理計画書">
+                        <img class="cmp-bell-icon" src="../assets/icons/person/im-11555-sankaku-kankei.svg" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="WS — 週間予定表" aria-label="WS — 週間予定表">
+                        <img class="cmp-bell-icon" src="../assets/icons/stationery/im-12550-karendaa.svg" alt="">
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="LA — 休暇申請管理" aria-label="LA — 休暇申請管理">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/si-39968-heart-pen.png" alt="">
+                        <span class="cmp-bell-badge">2</span>
+                    </button>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>順: 休暇 → 車両 → マスタ │ OB → SL → WS → LA</li>
+                    <li>✓ 承認待ち件数が左端で最も目立つ（管理者の優先タスク）</li>
+                    <li>✓ ナビバー左端のロゴ近く＝重要度高、と直感的</li>
+                    <li>✗ 一般オペレータの主作業（OB/SL）が右に追いやられる</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========== パネルレイアウトモード ========== -->
+    <main class="cmp-grid cmp-grid--panel cmp-hidden" id="cmpPanelLayout">
+        <div class="cmp-panel-note">
+            <p>ベル並び（案A）に対し <strong>OBベルをクリックした想定</strong>のパネル展開状態を3パターン横並びで比較。ベル列の上端から実際にパネルが降りてくる位置関係も含めて確認できます。</p>
+        </div>
+
+        <!-- パターンP1: After方向（シンプル） -->
+        <section class="cmp-card cmp-card--panel">
+            <div class="cmp-card-head">
+                <span class="cmp-tag cmp-tag--ref">P1</span>
+                <h2>After方向（シンプル）</h2>
+                <small>最新のみ / 日付グループ / アコーディオン展開</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-bell-bar cmp-bell-bar--has-panel">
+                    <span class="cmp-bell-bar-logo">業務管理</span>
+                    <span class="cmp-bell-bar-spacer"></span>
+                    <button type="button" class="cmp-bell-item is-active" data-tooltip="OB — 受注簿" aria-label="OB — 受注簿">
+                        <img class="cmp-bell-icon" src="../assets/icons/business/si-49744-contract-documents.png" alt="">
+                        <span class="cmp-bell-badge">3</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="SL — 業務管理計画書" aria-label="SL — 業務管理計画書">
+                        <img class="cmp-bell-icon" src="../assets/icons/person/im-11555-sankaku-kankei.svg" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="WS — 週間予定表" aria-label="WS — 週間予定表">
+                        <img class="cmp-bell-icon" src="../assets/icons/stationery/im-12550-karendaa.svg" alt="">
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="LA — 休暇申請管理" aria-label="LA — 休暇申請管理">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/si-39968-heart-pen.png" alt="">
+                        <span class="cmp-bell-badge">2</span>
+                    </button>
+                    <span class="cmp-bell-divider"></span>
+                    <button type="button" class="cmp-bell-item" data-tooltip="休暇申請 承認待ち" aria-label="休暇申請 承認待ち">
+                        <img class="cmp-bell-icon" src="../assets/icons/pc-tech/si-37064-data-recovery-backup.png" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="車両スケジュール" aria-label="車両スケジュール">
+                        <img class="cmp-bell-icon" src="../assets/icons/transport/im-10867-jidou-sha.svg" alt="">
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="マスタ更新" aria-label="マスタ更新">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/im-00001-muryou-no-settei-haguruma.svg" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                </div>
+                <div class="cmp-panel-stage">
+                    <div class="cn-panel cmp-panel-anchor">
+                        <div class="cn-head">
+                            <span class="cn-title">OBの変更通知</span>
+                            <button type="button" class="cn-mark-all">すべて既読にする</button>
+                        </div>
+                        <div class="cn-body cn-body--latest">
+                            <div class="cn-date-group">
+                                <button type="button" class="cn-date-group-head" aria-expanded="true">今日 (5/15)<span class="cn-date-group-toggle" aria-hidden="true">▴</span></button>
+                                <div class="cn-item is-unread type-add">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-add">＋</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">東央警備 / 渋谷駅前ビル の受注を追加</div>
+                                            <div class="cn-text-sub">山田太郎 ・ 09:14</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cn-item is-unread type-modify">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-modify">✎</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">新宿三井ビル の受注日を変更</div>
+                                            <div class="cn-text-sub">山田太郎 ・ 10:42</div>
+                                        </div>
+                                        <span class="cn-chevron">▾</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cn-date-group">
+                                <button type="button" class="cn-date-group-head" aria-expanded="true">昨日 (5/14)<span class="cn-date-group-toggle" aria-hidden="true">▴</span></button>
+                                <div class="cn-item is-unread type-delete">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-delete">✕</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">池袋現場 の受注を取消</div>
+                                            <div class="cn-text-sub">佐藤次郎 ・ 16:08</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ シンプル・パネル幅 320px 程度で省スペース</li>
+                    <li>✓ ベル7個 × パネル展開でも画面圧迫が少ない</li>
+                    <li>✗ 履歴・フィルタ機能なし（過去変更を遡れない）</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- パターンP2: History方向（タブ+フィルタ） -->
+        <section class="cmp-card cmp-card--panel">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">P2</span>
+                <h2>History方向（タブ+フィルタ）</h2>
+                <small>最新/履歴 2タブ + 種別フィルタチップ</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-bell-bar cmp-bell-bar--has-panel">
+                    <span class="cmp-bell-bar-logo">業務管理</span>
+                    <span class="cmp-bell-bar-spacer"></span>
+                    <button type="button" class="cmp-bell-item is-active" data-tooltip="OB — 受注簿" aria-label="OB — 受注簿">
+                        <img class="cmp-bell-icon" src="../assets/icons/business/si-49744-contract-documents.png" alt="">
+                        <span class="cmp-bell-badge">3</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="SL — 業務管理計画書" aria-label="SL — 業務管理計画書">
+                        <img class="cmp-bell-icon" src="../assets/icons/person/im-11555-sankaku-kankei.svg" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="WS — 週間予定表" aria-label="WS — 週間予定表">
+                        <img class="cmp-bell-icon" src="../assets/icons/stationery/im-12550-karendaa.svg" alt="">
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="LA — 休暇申請管理" aria-label="LA — 休暇申請管理">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/si-39968-heart-pen.png" alt="">
+                        <span class="cmp-bell-badge">2</span>
+                    </button>
+                    <span class="cmp-bell-divider"></span>
+                    <button type="button" class="cmp-bell-item" data-tooltip="休暇申請 承認待ち" aria-label="休暇申請 承認待ち">
+                        <img class="cmp-bell-icon" src="../assets/icons/pc-tech/si-37064-data-recovery-backup.png" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="車両スケジュール" aria-label="車両スケジュール">
+                        <img class="cmp-bell-icon" src="../assets/icons/transport/im-10867-jidou-sha.svg" alt="">
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="マスタ更新" aria-label="マスタ更新">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/im-00001-muryou-no-settei-haguruma.svg" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                </div>
+                <div class="cmp-panel-stage cmp-panel-stage--wide">
+                    <div class="cn-panel cmp-panel-anchor">
+                        <div class="cn-head">
+                            <span class="cn-title">OBの変更通知</span>
+                            <button type="button" class="cn-mark-all">すべて既読</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button type="button" class="cn-tab is-active">最新</button>
+                            <button type="button" class="cn-tab">履歴</button>
+                        </div>
+                        <div class="cn-filter-chips">
+                            <button type="button" class="cn-filter-chip is-active">すべて</button>
+                            <button type="button" class="cn-filter-chip">追加</button>
+                            <button type="button" class="cn-filter-chip">変更</button>
+                            <button type="button" class="cn-filter-chip">削除</button>
+                        </div>
+                        <div class="cn-body cn-body--latest">
+                            <div class="cn-item is-unread type-add">
+                                <div class="cn-item-row">
+                                    <div class="cn-icon type-add">＋</div>
+                                    <div class="cn-text">
+                                        <div class="cn-text-main">東央警備 / 渋谷駅前ビル の受注を追加</div>
+                                        <div class="cn-text-sub">山田太郎 ・ 09:14</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cn-item is-unread type-modify">
+                                <div class="cn-item-row">
+                                    <div class="cn-icon type-modify">✎</div>
+                                    <div class="cn-text">
+                                        <div class="cn-text-main">新宿三井ビル の受注日を変更</div>
+                                        <div class="cn-text-sub">山田太郎 ・ 10:42</div>
+                                    </div>
+                                    <span class="cn-chevron">▾</span>
+                                </div>
+                            </div>
+                            <div class="cn-item is-unread type-delete">
+                                <div class="cn-item-row">
+                                    <div class="cn-icon type-delete">✕</div>
+                                    <div class="cn-text">
+                                        <div class="cn-text-main">池袋現場 の受注を取消</div>
+                                        <div class="cn-text-sub">佐藤次郎 ・ 昨日 16:08</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ 履歴・種別フィルタで過去変更を遡及・絞込可能</li>
+                    <li>✓ 大量の変更が発生する画面（OB等）で威力</li>
+                    <li>✗ パネル幅広め（約 420px）／要素多めで認知負荷大</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- パターンP3: ハイブリッド -->
+        <section class="cmp-card cmp-card--panel">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">P3</span>
+                <h2>ハイブリッド（最新=シンプル / 履歴=フィルタ付）</h2>
+                <small>タブで切替。最新はAfter相当、履歴のみフィルタ付与</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-bell-bar cmp-bell-bar--has-panel">
+                    <span class="cmp-bell-bar-logo">業務管理</span>
+                    <span class="cmp-bell-bar-spacer"></span>
+                    <button type="button" class="cmp-bell-item is-active" data-tooltip="OB — 受注簿" aria-label="OB — 受注簿">
+                        <img class="cmp-bell-icon" src="../assets/icons/business/si-49744-contract-documents.png" alt="">
+                        <span class="cmp-bell-badge">3</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="SL — 業務管理計画書" aria-label="SL — 業務管理計画書">
+                        <img class="cmp-bell-icon" src="../assets/icons/person/im-11555-sankaku-kankei.svg" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="WS — 週間予定表" aria-label="WS — 週間予定表">
+                        <img class="cmp-bell-icon" src="../assets/icons/stationery/im-12550-karendaa.svg" alt="">
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="LA — 休暇申請管理" aria-label="LA — 休暇申請管理">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/si-39968-heart-pen.png" alt="">
+                        <span class="cmp-bell-badge">2</span>
+                    </button>
+                    <span class="cmp-bell-divider"></span>
+                    <button type="button" class="cmp-bell-item" data-tooltip="休暇申請 承認待ち" aria-label="休暇申請 承認待ち">
+                        <img class="cmp-bell-icon" src="../assets/icons/pc-tech/si-37064-data-recovery-backup.png" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="車両スケジュール" aria-label="車両スケジュール">
+                        <img class="cmp-bell-icon" src="../assets/icons/transport/im-10867-jidou-sha.svg" alt="">
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="マスタ更新" aria-label="マスタ更新">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/im-00001-muryou-no-settei-haguruma.svg" alt="">
+                        <span class="cmp-bell-badge">1</span>
+                    </button>
+                </div>
+                <div class="cmp-panel-stage">
+                    <div class="cn-panel cmp-panel-anchor">
+                        <div class="cn-head">
+                            <span class="cn-title">OBの変更通知</span>
+                            <button type="button" class="cn-mark-all">すべて既読</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button type="button" class="cn-tab is-active">最新</button>
+                            <button type="button" class="cn-tab">履歴</button>
+                        </div>
+                        <div class="cn-body cn-body--latest">
+                            <div class="cn-date-group">
+                                <button type="button" class="cn-date-group-head" aria-expanded="true">今日 (5/15)<span class="cn-date-group-toggle" aria-hidden="true">▴</span></button>
+                                <div class="cn-item is-unread type-add">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-add">＋</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">東央警備 / 渋谷駅前ビル の受注を追加</div>
+                                            <div class="cn-text-sub">山田太郎 ・ 09:14</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cn-item is-unread type-modify">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-modify">✎</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">新宿三井ビル の受注日を変更</div>
+                                            <div class="cn-text-sub">山田太郎 ・ 10:42</div>
+                                        </div>
+                                        <span class="cn-chevron">▾</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cn-date-group">
+                                <button type="button" class="cn-date-group-head" aria-expanded="true">昨日 (5/14)<span class="cn-date-group-toggle" aria-hidden="true">▴</span></button>
+                                <div class="cn-item is-unread type-delete">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-delete">✕</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">池袋現場 の受注を取消</div>
+                                            <div class="cn-text-sub">佐藤次郎 ・ 16:08</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cmp-tab-hint">※ 「履歴」タブにはフィルタチップ＋軸別ピッカーが付与される（既存 History モード参照）</div>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ 最新は省スペース、履歴のみ高機能</li>
+                    <li>✓ 通常運用＝最新タブ、遡及調査＝履歴タブで使い分け明確</li>
+                    <li>✗ 実装の複雑度が中：タブによる中身差分が必要</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========== 自動生成行オーバーレイ色値モード ========== -->
+    <main class="cmp-grid cmp-grid--overlay cmp-hidden" id="cmpAutoOverlay">
+        <div class="cmp-panel-note">
+            <p><strong>グループ間応援で自動生成された受注行</strong>のロックUI（完全ロック）を、4つのオーバーレイ案で比較。受注簿（OB）の表を模した形で、通常行と自動生成行（鍵アイコン付き）を並べています。<br><small>※ロックアイコンは仮（`im-11244-kagi-no-toji-ta-jou.svg`）。正式選定はPhase N-4で実施。</small></p>
+        </div>
+
+        <!-- 案OL-A: 黒30% -->
+        <section class="cmp-card cmp-card--overlay">
+            <div class="cmp-card-head">
+                <span class="cmp-tag cmp-tag--ref">案OL-A</span>
+                <h2>黒 30%</h2>
+                <small><code>rgba(0,0,0,0.30)</code> / §8.3 暗黙準拠</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-ob-table">
+                    <div class="cmp-ob-row cmp-ob-head">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock"></span>
+                        <span class="cmp-ob-cell">日付</span>
+                        <span class="cmp-ob-cell">契約先</span>
+                        <span class="cmp-ob-cell">現場</span>
+                        <span class="cmp-ob-cell">配置社員</span>
+                    </div>
+                    <div class="cmp-ob-row">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock"></span>
+                        <span class="cmp-ob-cell">5/15</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">渋谷駅前ビル</span>
+                        <span class="cmp-ob-cell">山田太郎</span>
+                    </div>
+                    <div class="cmp-ob-row is-auto" data-overlay="ola">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock">
+                            <img class="cmp-ob-lock-icon" src="../assets/icons/stationery/im-11244-kagi-no-toji-ta-jou.svg" alt="自動生成・編集不可">
+                        </span>
+                        <span class="cmp-ob-cell">5/15</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">新宿支店</span>
+                        <span class="cmp-ob-cell">林次郎(Nikkei応援)</span>
+                    </div>
+                    <div class="cmp-ob-row">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock"></span>
+                        <span class="cmp-ob-cell">5/16</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">池袋プロムナード</span>
+                        <span class="cmp-ob-cell">佐藤次郎</span>
+                    </div>
+                    <div class="cmp-ob-row is-auto" data-overlay="ola">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock">
+                            <img class="cmp-ob-lock-icon" src="../assets/icons/stationery/im-11244-kagi-no-toji-ta-jou.svg" alt="自動生成・編集不可">
+                        </span>
+                        <span class="cmp-ob-cell">5/16</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">川崎センター</span>
+                        <span class="cmp-ob-cell">鈴木花子(Nikkei応援)</span>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ 計画書§8.3で例示された値そのまま</li>
+                    <li>✓ テキスト読みやすさを最優先する案</li>
+                    <li>✗ ロック感がやや弱い／通常行との視覚的差が小さい</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 案OL-B: 黒45% -->
+        <section class="cmp-card cmp-card--overlay">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">案OL-B</span>
+                <h2>黒 45%</h2>
+                <small><code>rgba(0,0,0,0.45)</code> / 強めロック感</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-ob-table">
+                    <div class="cmp-ob-row cmp-ob-head">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock"></span>
+                        <span class="cmp-ob-cell">日付</span>
+                        <span class="cmp-ob-cell">契約先</span>
+                        <span class="cmp-ob-cell">現場</span>
+                        <span class="cmp-ob-cell">配置社員</span>
+                    </div>
+                    <div class="cmp-ob-row">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock"></span>
+                        <span class="cmp-ob-cell">5/15</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">渋谷駅前ビル</span>
+                        <span class="cmp-ob-cell">山田太郎</span>
+                    </div>
+                    <div class="cmp-ob-row is-auto" data-overlay="olb">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock">
+                            <img class="cmp-ob-lock-icon" src="../assets/icons/stationery/im-11244-kagi-no-toji-ta-jou.svg" alt="自動生成・編集不可">
+                        </span>
+                        <span class="cmp-ob-cell">5/15</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">新宿支店</span>
+                        <span class="cmp-ob-cell">林次郎(Nikkei応援)</span>
+                    </div>
+                    <div class="cmp-ob-row">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock"></span>
+                        <span class="cmp-ob-cell">5/16</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">池袋プロムナード</span>
+                        <span class="cmp-ob-cell">佐藤次郎</span>
+                    </div>
+                    <div class="cmp-ob-row is-auto" data-overlay="olb">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock">
+                            <img class="cmp-ob-lock-icon" src="../assets/icons/stationery/im-11244-kagi-no-toji-ta-jou.svg" alt="自動生成・編集不可">
+                        </span>
+                        <span class="cmp-ob-cell">5/16</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">川崎センター</span>
+                        <span class="cmp-ob-cell">鈴木花子(Nikkei応援)</span>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ ロック感が明確、編集不可と一目で分かる</li>
+                    <li>✗ 黒の透過が強いため、文字が読みにくい</li>
+                    <li>✗ 経理画面D（請求確認）で集計対象として参照する際に難読リスク</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 案OL-C: グレー50% -->
+        <section class="cmp-card cmp-card--overlay">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">案OL-C</span>
+                <h2>グレー 50%</h2>
+                <small><code>rgba(120,120,120,0.50)</code> / マイルド</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-ob-table">
+                    <div class="cmp-ob-row cmp-ob-head">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock"></span>
+                        <span class="cmp-ob-cell">日付</span>
+                        <span class="cmp-ob-cell">契約先</span>
+                        <span class="cmp-ob-cell">現場</span>
+                        <span class="cmp-ob-cell">配置社員</span>
+                    </div>
+                    <div class="cmp-ob-row">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock"></span>
+                        <span class="cmp-ob-cell">5/15</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">渋谷駅前ビル</span>
+                        <span class="cmp-ob-cell">山田太郎</span>
+                    </div>
+                    <div class="cmp-ob-row is-auto" data-overlay="olc">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock">
+                            <img class="cmp-ob-lock-icon" src="../assets/icons/stationery/im-11244-kagi-no-toji-ta-jou.svg" alt="自動生成・編集不可">
+                        </span>
+                        <span class="cmp-ob-cell">5/15</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">新宿支店</span>
+                        <span class="cmp-ob-cell">林次郎(Nikkei応援)</span>
+                    </div>
+                    <div class="cmp-ob-row">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock"></span>
+                        <span class="cmp-ob-cell">5/16</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">池袋プロムナード</span>
+                        <span class="cmp-ob-cell">佐藤次郎</span>
+                    </div>
+                    <div class="cmp-ob-row is-auto" data-overlay="olc">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock">
+                            <img class="cmp-ob-lock-icon" src="../assets/icons/stationery/im-11244-kagi-no-toji-ta-jou.svg" alt="自動生成・編集不可">
+                        </span>
+                        <span class="cmp-ob-cell">5/16</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">川崎センター</span>
+                        <span class="cmp-ob-cell">鈴木花子(Nikkei応援)</span>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ 黒よりマイルドで、テキストの読みやすさを維持</li>
+                    <li>✓ 「不活性」感を演出（disabled状態のような印象）</li>
+                    <li>✗ 「ロック」より「未確定」「ドラフト」と誤解される可能性</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 案OL-D: 斜線パターン -->
+        <section class="cmp-card cmp-card--overlay">
+            <div class="cmp-card-head">
+                <span class="cmp-tag">案OL-D</span>
+                <h2>斜線パターン</h2>
+                <small>diagonal stripe / 透過10%×半透明背景</small>
+            </div>
+            <div class="cmp-card-body">
+                <div class="cmp-ob-table">
+                    <div class="cmp-ob-row cmp-ob-head">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock"></span>
+                        <span class="cmp-ob-cell">日付</span>
+                        <span class="cmp-ob-cell">契約先</span>
+                        <span class="cmp-ob-cell">現場</span>
+                        <span class="cmp-ob-cell">配置社員</span>
+                    </div>
+                    <div class="cmp-ob-row">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock"></span>
+                        <span class="cmp-ob-cell">5/15</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">渋谷駅前ビル</span>
+                        <span class="cmp-ob-cell">山田太郎</span>
+                    </div>
+                    <div class="cmp-ob-row is-auto" data-overlay="old">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock">
+                            <img class="cmp-ob-lock-icon" src="../assets/icons/stationery/im-11244-kagi-no-toji-ta-jou.svg" alt="自動生成・編集不可">
+                        </span>
+                        <span class="cmp-ob-cell">5/15</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">新宿支店</span>
+                        <span class="cmp-ob-cell">林次郎(Nikkei応援)</span>
+                    </div>
+                    <div class="cmp-ob-row">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock"></span>
+                        <span class="cmp-ob-cell">5/16</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">池袋プロムナード</span>
+                        <span class="cmp-ob-cell">佐藤次郎</span>
+                    </div>
+                    <div class="cmp-ob-row is-auto" data-overlay="old">
+                        <span class="cmp-ob-cell cmp-ob-cell--lock">
+                            <img class="cmp-ob-lock-icon" src="../assets/icons/stationery/im-11244-kagi-no-toji-ta-jou.svg" alt="自動生成・編集不可">
+                        </span>
+                        <span class="cmp-ob-cell">5/16</span>
+                        <span class="cmp-ob-cell">東央警備</span>
+                        <span class="cmp-ob-cell">川崎センター</span>
+                        <span class="cmp-ob-cell">鈴木花子(Nikkei応援)</span>
+                    </div>
+                </div>
+                <ul class="cmp-feature-list">
+                    <li>✓ 斜線で「無効・編集不可」のメタファが直感的</li>
+                    <li>✓ 文字は最も読みやすい（薄い斜線のみ）</li>
+                    <li>✗ 印刷物では再現性が低い／PDFエクスポート時に注意</li>
+                </ul>
+            </div>
+        </section>
+    </main>
 
     <script src="notify-compare.js"></script>
     <script src="../mockup/co-icon-picker.js"></script>

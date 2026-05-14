@@ -2,12 +2,15 @@
 (function () {
     'use strict';
 
-    /* Before / After / 履歴 / アイコン選定 モード切替 */
+    /* Before / After / 履歴 / アイコン選定 / ベル並び / パネルレイアウト / 自動生成行オーバーレイ モード切替 */
     var modeTargets = {
         before: 'cmpBefore',
         after: 'cmpAfter',
         history: 'cmpHistory',
-        icons: 'cmpIcons'
+        icons: 'cmpIcons',
+        'bell-order': 'cmpBellOrder',
+        'panel-layout': 'cmpPanelLayout',
+        'auto-overlay': 'cmpAutoOverlay'
     };
     document.querySelectorAll('.cmp-mode-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
