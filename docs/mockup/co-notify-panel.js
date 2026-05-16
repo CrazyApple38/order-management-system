@@ -155,10 +155,33 @@
     });
 
     // ========== アイテムクリック ==========
-    // - cn-expand 有り: 排他アコーディオン展開（同パネル内の他は閉じる）+ 開く時のみ cn:jump 発火（フラッシュ用）
-    // - cn-expand 無し: 即ジャンプ
+    // - cn-expand 有り: 排他アコーディオン展開（同パネル内の他は閉じる / フラッシュ発火なし）
+    // - cn-expand 無し: 即ジャンプ + cn:jump 発火
+    // - cn:jump detail は §6.5 仕様に準拠（item, source, affects, inContext, type, slot, target）
     function fireJump(item) {
-        var ev = new CustomEvent('cn:jump', { bubbles: true, detail: { item: item } });
+        var affects = (item.dataset.affects || '').split(',')
+            .map(function (s) { return s.trim(); }).filter(Boolean);
+        var current = getCurrentPage();
+        var inContext = !!(current && affects.indexOf(current) !== -1);
+        var anchor = item.closest('.cn-anchor[data-bell]');
+        var source = anchor ? anchor.dataset.bell : '';
+        var target = null;
+        if (item.dataset.target) {
+            try { target = JSON.parse(item.dataset.target); }
+            catch (err) { target = null; }
+        }
+        var ev = new CustomEvent('cn:jump', {
+            bubbles: true,
+            detail: {
+                item: item,
+                source: source,
+                affects: affects,
+                inContext: inContext,
+                type: item.dataset.type || '',
+                slot: item.dataset.slot || '',
+                target: target
+            }
+        });
         item.dispatchEvent(ev);
     }
     function setItemExpanded(item, expanded) {
@@ -167,17 +190,27 @@
         var chev = rowEl && rowEl.querySelector('.cn-chevron');
         if (chev) chev.textContent = expanded ? '▴' : '▾';
     }
+    // アイテム既読化時にベル単位のバッジを再計算する共通処理
+    function markItemReadAndRefresh(item) {
+        if (!item || !item.classList.contains('is-unread')) return;
+        item.classList.remove('is-unread');
+        var anchor = item.closest('.cn-anchor[data-bell]');
+        if (anchor && typeof updateBadge === 'function') {
+            updateBadge(anchor.dataset.bell);
+        }
+    }
     document.addEventListener('click', function (e) {
         var row = e.target.closest('.cn-item-row');
         if (!row) return;
         if (e.target.closest('.cn-jump-btn')) return;
+        if (e.target.closest('.cn-cross-jump-btn')) return;
         var item = row.parentElement;
         if (!item) return;
 
         var hasExpand = !!item.querySelector(':scope > .cn-expand');
         if (!hasExpand) {
-            // アコーディオン無し → 即ジャンプ
-            item.classList.remove('is-unread');
+            // アコーディオン無し → 即ジャンプ + 既読化 + バッジ更新
+            markItemReadAndRefresh(item);
             fireJump(item);
             return;
         }
@@ -191,9 +224,8 @@
                 });
             }
             setItemExpanded(item, true);
-            item.classList.remove('is-unread');
-            // 開いた時のみフラッシュ発火（各画面のリスナーがパネルを閉じない実装になっている前提）
-            fireJump(item);
+            // 展開時に既読化 + バッジ更新（フラッシュ発火はしない / N-5 で「現在画面で開く」ボタン経由）
+            markItemReadAndRefresh(item);
         } else {
             setItemExpanded(item, false);
         }
@@ -346,6 +378,432 @@
         }
     });
 
+    // ========== ベル/アイテム アイコン解決（Phase N-2.2） ==========
+    // 27スロット既定アイコン（notify-icons-selected.json 2026-05-16 確定）。
+    // 各画面の HTML から見た相対パスは `assets/icons/...`（docs/ 配下に置かれる前提）。
+    var CN_ICON_BASE = 'assets/icons/';
+    var CN_SLOT_DEFAULT = {
+        // ベル7個
+        'bell-ob':       'business/si-46623-personal-information.png',
+        'bell-sl':       'person/si-13707-13707.png',
+        'bell-ws':       'stationery/im-12555-karendaa.svg',
+        'bell-la':       'sign-mark/si-8681-8681.png',
+        'bell-pending':  'life/si-9922-9922.png',
+        'bell-vehicle':  'transport/im-10867-jidou-sha.svg',
+        'bell-master':   'sign-mark/im-00001-muryou-no-settei-haguruma.svg',
+        // 共通タイプ4個
+        'type-employee':    'person/im-15537-jimbutsu.svg',
+        'type-vehicle':     'transport/im-10852-jouyousha.svg',
+        'type-support':     'person/im-12114-sns-jimbutsu.svg',
+        'type-reservation': 'person/si-13722-13722.png',
+        // OB
+        'type-ob-add':    'business/im-12034-keiyaku-sho.svg',
+        'type-ob-modify': 'education/si-14519-14519.png',
+        'type-ob-delete': 'sign-mark/im-11911-hosoi-batsu.svg',
+        // SL
+        'type-sl-auto':   'sign-mark/im-15851-kyouyuu.svg',
+        // WS
+        'type-ws-schedule-change': 'stationery/si-48956-calendar.png',
+        'type-ws-leave-reflect':   'sign-mark/si-25968-mark-repeat.png',
+        // LA
+        'type-la-new':     'business/si-45841-document-teishutsu.png',
+        'type-la-approve': 'sign-mark/im-11453-chekku-bokkusu.svg',
+        'type-la-reject':  'sign-mark/im-11911-hosoi-batsu.svg',
+        // 承認待ち
+        'type-pending-wait': 'life/si-9922-9922.png',
+        // 車両
+        'type-vehicle-add':    'person/si-13878-13878.png',
+        'type-vehicle-modify': 'stationery/im-10177-supana.svg',
+        'type-vehicle-delete': 'sign-mark/im-11911-hosoi-batsu.svg',
+        // マスタ
+        'type-master-add':    'business/im-12034-keiyaku-sho.svg',
+        'type-master-modify': 'education/si-14519-14519.png',
+        'type-master-delete': 'sign-mark/im-11911-hosoi-batsu.svg'
+    };
+    // localStorage に保存されたユーザー選択を優先（プレビューのアイコン編集モードと共有）
+    function readStoredSelections() {
+        try { return JSON.parse(localStorage.getItem('notifyIconSelections.v1') || '{}'); }
+        catch (e) { return {}; }
+    }
+    function resolveSlot(slotKey) {
+        if (!slotKey) return null;
+        var sel = readStoredSelections();
+        return sel[slotKey] || CN_SLOT_DEFAULT[slotKey] || null;
+    }
+    // item から slotKey を決定（item.slot 明示優先 → type-{bellId}-{type} → 種別フォールバック）
+    function resolveItemSlotKey(bellId, item) {
+        if (item.slot && CN_SLOT_DEFAULT[item.slot]) return item.slot;
+        // 種別エイリアス（LAの new/approve/reject、Pendingの wait など）
+        var typeAlias = { new: 'new', approve: 'approve', reject: 'reject', pending: 'wait', wait: 'wait', auto: 'auto' };
+        var t = typeAlias[item.type] || item.type;
+        var key = 'type-' + bellId + '-' + t;
+        if (CN_SLOT_DEFAULT[key]) return key;
+        // 共通タイプへのフォールバック（add/modify/delete に寄せる）
+        var generic = { add: 'add', new: 'add', modify: 'modify', auto: 'modify', delete: 'delete', reject: 'delete', approve: 'modify', pending: 'modify', wait: 'modify' };
+        var g = generic[item.type] || 'modify';
+        var genericKey = 'type-ob-' + g;
+        return CN_SLOT_DEFAULT[genericKey] ? genericKey : null;
+    }
+    // アイテム種別 → cn-icon の CSS クラスサフィックス（既存カラーマップに沿わせる）
+    function resolveTypeClass(type) {
+        var m = { add: 'add', modify: 'modify', delete: 'delete',
+                  new: 'new', approve: 'approved', reject: 'rejected',
+                  pending: 'pending', wait: 'pending', auto: 'modify',
+                  master: 'master', leave: 'leave' };
+        return m[type] || 'modify';
+    }
+    function escapeHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+
+    // ========== ベル/アイテム 描画 API（Phase N-2.2） ==========
+    function getAnchor(bellId) {
+        return document.querySelector('.cn-anchor[data-bell="' + bellId + '"]');
+    }
+    function applyBellIcon(bellId) {
+        var path = resolveSlot('bell-' + bellId);
+        if (!path) return;
+        var img = document.querySelector('[data-bell-icon="' + bellId + '"]');
+        if (img) img.src = CN_ICON_BASE + path;
+    }
+    function buildItemHtml(bellId, item) {
+        var typeClass = resolveTypeClass(item.type);
+        var unread = item._read ? '' : ' is-unread';
+        var slotKey = resolveItemSlotKey(bellId, item) || '';
+        var iconPath = resolveSlot(slotKey);
+        var iconInner = iconPath
+            ? '<img class="cn-icon-img" src="' + CN_ICON_BASE + iconPath + '" alt="">'
+            : '';
+        // expand または affects のいずれかがあればアコーディオン展開可（種別問わず）
+        var hasExpand = !!(item.expand || (item.affects && item.affects.length));
+        var affectsAttr = (item.affects && item.affects.length)
+            ? ' data-affects="' + escapeHtml(item.affects.join(',')) + '"' : '';
+        var idAttr = item.id ? ' data-id="' + escapeHtml(item.id) + '"' : '';
+        var targetAttr = item.target
+            ? ' data-target="' + escapeHtml(JSON.stringify(item.target)) + '"' : '';
+        var chevronHtml = hasExpand ? '<span class="cn-chevron">▾</span>' : '';
+        var expandHtml = '';
+        if (hasExpand) {
+            var summary = item.expand ? '<div class="cn-expand-summary">' + escapeHtml(item.expand) + '</div>' : '';
+            var hint = (item.affects && item.affects.length)
+                ? '<div class="cn-cross-hint" data-affects="' + escapeHtml(item.affects.join(',')) + '"></div>'
+                : '';
+            expandHtml = '<div class="cn-expand">' + summary + hint + '</div>';
+        }
+        return ''
+            + '<div class="cn-item type-' + typeClass + unread + '"'
+            +   idAttr
+            +   ' data-type="' + escapeHtml(item.type || '') + '"'
+            +   (slotKey ? ' data-slot="' + escapeHtml(slotKey) + '"' : '')
+            +   affectsAttr
+            +   targetAttr + '>'
+            +   '<div class="cn-item-row">'
+            +     '<div class="cn-icon type-' + typeClass + '">' + iconInner + '</div>'
+            +     '<div class="cn-text">'
+            +       '<div class="cn-text-main">' + escapeHtml(item.main || '') + '</div>'
+            +       (item.sub ? '<div class="cn-text-sub">' + escapeHtml(item.sub) + '</div>' : '')
+            +     '</div>'
+            +     chevronHtml
+            +   '</div>'
+            +   expandHtml
+            + '</div>';
+    }
+    // ベル別アイテムストア（addItem/removeItem の差分更新に使用）
+    var bellItemsStore = {};
+    var idSeq = 0;
+    function ensureItemId(bellId, item) {
+        if (item.id) return item;
+        idSeq += 1;
+        item.id = 'cn-' + bellId + '-' + Date.now().toString(36) + '-' + idSeq;
+        return item;
+    }
+    function renderBellLatest(bellId) {
+        var body = document.querySelector('[data-bell-body="' + bellId + '"]');
+        if (!body) return;
+        var items = bellItemsStore[bellId] || [];
+        if (items.length === 0) {
+            body.innerHTML = '<div class="cn-empty">新しい通知はありません</div>';
+            updateBadge(bellId, 0);
+            return;
+        }
+        // item.date 文字列で日付グループ化（順序保持）
+        var groups = {};
+        var order = [];
+        items.forEach(function (item) {
+            var d = item.date || '';
+            if (!(d in groups)) { groups[d] = []; order.push(d); }
+            groups[d].push(item);
+        });
+        var html = '';
+        order.forEach(function (d) {
+            html += '<div class="cn-date-group">';
+            if (d) {
+                html += '<button type="button" class="cn-date-group-head" aria-expanded="true">'
+                      + escapeHtml(d)
+                      + '<span class="cn-date-group-toggle" aria-hidden="true">▴</span>'
+                      + '</button>';
+            }
+            groups[d].forEach(function (item) {
+                html += buildItemHtml(bellId, item);
+            });
+            html += '</div>';
+        });
+        body.innerHTML = html;
+        updateBadge(bellId);
+    }
+    function setItems(bellId, items) {
+        items = (items || []).map(function (it) {
+            return ensureItemId(bellId, Object.assign({}, it));
+        });
+        bellItemsStore[bellId] = items;
+        renderBellLatest(bellId);
+    }
+    // 各画面JSが発信時に呼ぶ。先頭に追加（最新順）。id を返す。
+    function addItem(bellId, item) {
+        if (!bellItemsStore[bellId]) bellItemsStore[bellId] = [];
+        var clone = ensureItemId(bellId, Object.assign({}, item));
+        bellItemsStore[bellId].unshift(clone);
+        renderBellLatest(bellId);
+        return clone.id;
+    }
+    // 各画面JSが「変更が取り消された」「対応済み」を通知するため
+    function removeItem(bellId, itemId) {
+        var arr = bellItemsStore[bellId];
+        if (!arr || !itemId) return false;
+        var before = arr.length;
+        bellItemsStore[bellId] = arr.filter(function (it) { return it.id !== itemId; });
+        if (bellItemsStore[bellId].length === before) return false;
+        renderBellLatest(bellId);
+        return true;
+    }
+    function clearItems(bellId) {
+        bellItemsStore[bellId] = [];
+        renderBellLatest(bellId);
+    }
+    function getItems(bellId) {
+        return (bellItemsStore[bellId] || []).slice();
+    }
+    function updateBadge(bellId, count) {
+        var anchor = getAnchor(bellId);
+        if (!anchor) return;
+        if (count == null) {
+            count = anchor.querySelectorAll('.cn-item.is-unread').length;
+        }
+        var badge = anchor.querySelector('.cn-trigger-badge');
+        if (!badge) return;
+        if (count > 0) {
+            badge.textContent = String(count);
+            badge.hidden = false;
+        } else {
+            badge.textContent = '0';
+            badge.hidden = true;
+        }
+    }
+
+    // 「すべて既読」押下時もベル単位でバッジ再計算
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('.cn-mark-all');
+        if (!btn) return;
+        var anchor = btn.closest('.cn-anchor[data-bell]');
+        if (!anchor) return;
+        updateBadge(anchor.dataset.bell, 0);
+    });
+
+    // ========== クロス画面ヒント（Phase N-2.2 / 簡易版） ==========
+    // 本格的な画面遷移ロジックは Phase N-5 で実装。本フェーズではヒント表示と alert モック動作。
+    var CN_PAGE_LABELS = {
+        'order-book':        'OB（受注簿）',
+        'screen-layout':     'SL（業務管理計画書）',
+        'weekly-schedule':   'WS（週間予定表）',
+        'leave-application': 'LA（休暇申請）',
+        'quick-access':      'QA（モバイル）',
+        'master':            'マスタ管理'
+    };
+    function getCurrentPage() {
+        var p = (typeof location !== 'undefined' ? location.pathname : '') || '';
+        if (p.indexOf('screen-layout') !== -1)     return 'screen-layout';
+        if (p.indexOf('order-book') !== -1)        return 'order-book';
+        if (p.indexOf('weekly-schedule') !== -1)   return 'weekly-schedule';
+        if (p.indexOf('leave-application') !== -1) return 'leave-application';
+        if (p.indexOf('quick-access') !== -1)      return 'quick-access';
+        return '';
+    }
+    function renderCrossHintsIn(item) {
+        if (!item) return;
+        var hintEl = item.querySelector(':scope > .cn-expand > .cn-cross-hint');
+        if (!hintEl) return;
+        var affects = (hintEl.dataset.affects || '').split(',')
+            .map(function (s) { return s.trim(); }).filter(Boolean);
+        if (affects.length === 0) { hintEl.innerHTML = ''; return; }
+        var current = getCurrentPage();
+        var html = '';
+        if (affects.indexOf(current) >= 0) {
+            html += '<span class="cn-cross-hint-in-context">現在画面（'
+                  + (CN_PAGE_LABELS[current] || current)
+                  + '）で対象セルがフラッシュされます</span>';
+        } else {
+            html += '<span class="cn-cross-hint-out">現在画面（'
+                  + (CN_PAGE_LABELS[current] || current || '—')
+                  + '）には波及しません</span>';
+        }
+        var others = affects.filter(function (a) { return a !== current; });
+        if (others.length > 0) {
+            html += '<span class="cn-cross-jumps">';
+            others.forEach(function (a) {
+                html += '<button type="button" class="cn-cross-jump-btn" data-target="'
+                      + escapeHtml(a) + '">'
+                      + escapeHtml(CN_PAGE_LABELS[a] || a) + ' で開く ↗</button>';
+            });
+            html += '</span>';
+        }
+        hintEl.innerHTML = html;
+    }
+    // アイテム展開時にヒントを描画（既存のアイテムクリックハンドラとは別経路で動作）
+    document.addEventListener('click', function (e) {
+        var row = e.target.closest('.cn-item-row');
+        if (!row) return;
+        if (e.target.closest('.cn-jump-btn')) return;
+        if (e.target.closest('.cn-cross-jump-btn')) return;
+        var item = row.parentElement;
+        if (!item) return;
+        // 既存ハンドラで is-expanded が付いた直後にヒント描画
+        if (item.classList.contains('is-expanded')) {
+            renderCrossHintsIn(item);
+        }
+    });
+    // 「○○で開く ↗」ボタン: 本フェーズではモック動作（N-5 で本実装）
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('.cn-cross-jump-btn');
+        if (!btn) return;
+        e.stopPropagation();
+        var target = btn.dataset.target || '';
+        var label = CN_PAGE_LABELS[target] || target;
+        // 簡易モック: alert で確認だけ。実装は N-5 (クロス画面フラッシュ Phase)
+        alert('クロス画面ジャンプ:\n' + label + ' を新タブで開き、対象セルへフラッシュします。\n（本実装は Phase N-5）');
+    });
+
+    // ========== 履歴タブ描画 API（Phase N-2.2 / P3 ハイブリッド） ==========
+    // setHistory(bellId, config) で履歴タブを構築。
+    // config = {
+    //   businessAxis: { tab, search, prefix, groups: [{title, items}], companies, sites },
+    //   accountAxis:  { tab, search, prefix, groups: [{title, items}], accounts }
+    // }
+    function buildAxisGroupsHtml(bellId, axisCfg) {
+        return axisCfg.groups.map(function (g) {
+            var itemsHtml = g.items.map(function (it) {
+                // 履歴アイテムは既読扱い。expand/affects は保持し、modify系はアコーディオン展開可
+                var clone = {};
+                Object.keys(it).forEach(function (k) { clone[k] = it[k]; });
+                clone._read = true;
+                return buildItemHtml(bellId, clone);
+            }).join('');
+            return ''
+                + '<div class="cn-axis-group">'
+                +   '<button type="button" class="cn-axis-group-head" aria-expanded="true">'
+                +     escapeHtml(g.title)
+                +     '<span class="cn-axis-group-toggle" aria-hidden="true">▴</span>'
+                +   '</button>'
+                +   itemsHtml
+                + '</div>';
+        }).join('');
+    }
+    function buildPickViewHtml(axisCfg, kind) {
+        if (kind === 'account') {
+            var accountBadges = (axisCfg.accounts || []).map(function (a) {
+                return '<button type="button" class="cn-pick-badge">' + escapeHtml(a) + '</button>';
+            }).join('');
+            return ''
+                + '<div class="cn-pick-view" data-crumb-base="' + escapeHtml(axisCfg.prefix || '') + '"'
+                +     ' data-step1-label="' + escapeHtml((axisCfg.prefix || '') + 'を選択') + '">'
+                +   '<div class="cn-pick-head">'
+                +     '<button type="button" class="cn-pick-back" aria-label="戻る">←</button>'
+                +     '<div class="cn-pick-crumbs"></div>'
+                +   '</div>'
+                +   '<div class="cn-pick-step is-active" data-step="account">'
+                +     '<div class="cn-pick-badges">' + accountBadges + '</div>'
+                +   '</div>'
+                + '</div>';
+        }
+        var companyBadges = (axisCfg.companies || []).map(function (c) {
+            return '<button type="button" class="cn-pick-badge" data-company="'
+                 + escapeHtml(c) + '">' + escapeHtml(c) + '</button>';
+        }).join('');
+        var siteGroups = Object.keys(axisCfg.sites || {}).map(function (c) {
+            var siteBadges = (axisCfg.sites[c] || []).map(function (s) {
+                return '<button type="button" class="cn-pick-badge">' + escapeHtml(s) + '</button>';
+            }).join('');
+            return '<div class="cn-pick-badges" data-company="' + escapeHtml(c) + '" hidden>'
+                 + siteBadges + '</div>';
+        }).join('');
+        return ''
+            + '<div class="cn-pick-view" data-crumb-base="' + escapeHtml(axisCfg.prefix || '') + '"'
+            +     ' data-step1-label="契約先を選択">'
+            +   '<div class="cn-pick-head">'
+            +     '<button type="button" class="cn-pick-back" aria-label="戻る">←</button>'
+            +     '<div class="cn-pick-crumbs"></div>'
+            +   '</div>'
+            +   '<div class="cn-pick-step is-active" data-step="company">'
+            +     '<div class="cn-pick-badges">' + companyBadges + '</div>'
+            +   '</div>'
+            +   '<div class="cn-pick-step" data-step="site">' + siteGroups + '</div>'
+            + '</div>';
+    }
+    function buildHistoryViewHtml(bellId, axisCfg, viewKey, kind) {
+        return ''
+            + '<div class="cn-history-view' + (viewKey === 'business' ? ' is-active' : '')
+            +     '" data-view="' + viewKey + '">'
+            +   '<div class="cn-history-toolbar">'
+            +     '<div class="cn-search-row">'
+            +       '<div class="cn-search">'
+            +         '<input type="text" placeholder="' + escapeHtml(axisCfg.search || '検索...')
+            +           + '" aria-label="' + escapeHtml(axisCfg.search || '検索') + '">'
+            +       '</div>'
+            +       '<button type="button" class="cn-list-pick-btn" data-prefix="'
+            +         escapeHtml(axisCfg.prefix || '') + '">'
+            +         '<span class="cn-list-pick-label">一覧</span>'
+            +         '<span class="cn-list-pick-clear" aria-label="選択解除">×</span>'
+            +       '</button>'
+            +     '</div>'
+            +     '<div class="cn-filter-chips">'
+            +       '<button type="button" class="cn-filter-chip is-active" data-filter="all">すべて</button>'
+            +       '<button type="button" class="cn-filter-chip" data-filter="add">追加</button>'
+            +       '<button type="button" class="cn-filter-chip" data-filter="modify">変更</button>'
+            +       '<button type="button" class="cn-filter-chip" data-filter="delete">削除</button>'
+            +     '</div>'
+            +   '</div>'
+            +   '<div class="cn-body cn-body--history">' + buildAxisGroupsHtml(bellId, axisCfg) + '</div>'
+            +   buildPickViewHtml(axisCfg, kind)
+            + '</div>';
+    }
+    function buildHistoryLayoutHtml(bellId, cfg) {
+        return ''
+            + '<div class="cn-history-layout">'
+            +   '<div class="cn-side-tabs">'
+            +     '<button type="button" class="cn-side-tab is-active" data-view="business">'
+            +       escapeHtml(cfg.businessAxis.tab) + '</button>'
+            +     '<button type="button" class="cn-side-tab" data-view="account">'
+            +       escapeHtml(cfg.accountAxis.tab) + '</button>'
+            +   '</div>'
+            +   '<div class="cn-history-main">'
+            +     buildHistoryViewHtml(bellId, cfg.businessAxis, 'business', 'business')
+            +     buildHistoryViewHtml(bellId, cfg.accountAxis,  'account',  'account')
+            +   '</div>'
+            + '</div>';
+    }
+    function setHistory(bellId, cfg) {
+        var anchor = getAnchor(bellId);
+        if (!anchor) return;
+        var view = anchor.querySelector('.cn-tab-view[data-tab="history"]');
+        if (!view) return;
+        if (!cfg || !cfg.businessAxis || !cfg.accountAxis) {
+            view.innerHTML = '<div class="cn-empty">履歴はありません</div>';
+            return;
+        }
+        view.innerHTML = buildHistoryLayoutHtml(bellId, cfg);
+    }
+
     // ========== 公開 API ==========
     window.coNotifyPanel = {
         open: function (anchor) {
@@ -369,6 +827,20 @@
             if (!badge) return;
             badge.textContent = String(count);
             badge.hidden = (count <= 0);
-        }
+        },
+        // Phase N-2.2 追加 API
+        applyBellIcon: applyBellIcon,
+        setItems: setItems,
+        addItem: addItem,
+        removeItem: removeItem,
+        clearItems: clearItems,
+        getItems: getItems,
+        setHistory: setHistory,
+        updateBadge: updateBadge,
+        renderCrossHintsIn: renderCrossHintsIn,
+        getCurrentPage: getCurrentPage,
+        iconBase: CN_ICON_BASE,
+        slotDefault: CN_SLOT_DEFAULT,
+        pageLabels: CN_PAGE_LABELS
     };
 })();

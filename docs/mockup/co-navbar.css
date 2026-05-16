@@ -221,6 +221,63 @@
     right: 2px;
 }
 
+/* === 変更通知ベル群（Phase N-2.2 / 7ベル横並び） === */
+.md-nav-cn-bells {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+.md-nav-cn-bell {
+    /* .cn-anchor (position: relative; display: inline-flex;) を継承 */
+    display: inline-flex;
+    align-items: center;
+}
+.md-nav-cn-bell .cn-trigger {
+    /* 既存 .md-nav-action-btn と同じ寸法・カラー */
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.7);
+}
+.md-nav-cn-bell .cn-trigger:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+.md-nav-cn-bell.is-open .cn-trigger {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+}
+.md-nav-cn-bell-icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+    object-fit: contain;
+    /* 紺背景上で白シルエットに統一（A方針 / 2026-05-16） */
+    filter: brightness(0) invert(1);
+    opacity: 0.85;
+    transition: opacity 150ms;
+}
+.md-nav-cn-bell .cn-trigger:hover .md-nav-cn-bell-icon,
+.md-nav-cn-bell.is-open .md-nav-cn-bell-icon {
+    opacity: 1;
+}
+/* バッジ位置は .cn-trigger-badge デフォルト（top:2px / right:2px）でOK */
+
+/* 縦仕切り（画面別ベルと横断系ベルの境界） */
+.md-nav-cn-bells-divider {
+    display: inline-block;
+    width: 1px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    margin: 0 4px;
+    flex-shrink: 0;
+}
+
+/* パネルは右寄せ。最後のベル（master）パネルが右端からはみ出さないように */
+.md-nav-cn-bell .cn-panel {
+    right: 0;
+}
+
 /* テーマアイコン切替 */
 .md-nav-theme-icon-light,
 .md-nav-theme-icon-dark { display: none; }

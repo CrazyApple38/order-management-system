@@ -15,6 +15,20 @@
     else if (path.indexOf('leave-application') !== -1) currentPage = 'leave-application';
     else if (path.indexOf('quick-access') !== -1) currentPage = 'quick-access';
 
+    // --- 変更通知ベル定義（Phase N-1 確定 / 2026-05-15）
+    //     業務頻度順（OB→SL→WS→LA │ 承認待ち→車両→マスタ）
+    //     アイコンは notify-icons-selected.json (2026-05-16) 由来 ---
+    var coNotifyBells = [
+        { id: 'ob',      title: 'OBの変更通知',   tooltip: 'OB — 受注簿',         group: 'screen' },
+        { id: 'sl',      title: 'SLの変更通知',   tooltip: 'SL — 業務管理計画書', group: 'screen' },
+        { id: 'ws',      title: 'WSの変更通知',   tooltip: 'WS — 週間予定表',     group: 'screen' },
+        { id: 'la',      title: 'LAの変更通知',   tooltip: 'LA — 休暇申請管理',   group: 'screen' },
+        { id: 'pending', title: '休暇申請承認待ち', tooltip: '休暇申請 承認待ち',   group: 'cross'  },
+        { id: 'vehicle', title: '車両スケジュール', tooltip: '車両スケジュール',   group: 'cross'  },
+        { id: 'master',  title: 'マスタ更新',     tooltip: 'マスタ更新',           group: 'cross'  }
+    ];
+    window.coNotifyBells = coNotifyBells;
+
     // --- マスタ管理メニュー項目 ---
     var masterItems = [
         { id: 'employee',       label: '社員',               icon: 'person.svg' },
@@ -53,6 +67,47 @@
                 + item.label
                 + '</button>';
         }).join('');
+    }
+
+    // 変更通知ベル群（7ベル + 縦仕切り）
+    function buildBellsHtml() {
+        var s = '<div class="md-nav-cn-bells" id="mdNavCnBells">';
+        var lastGroup = null;
+        coNotifyBells.forEach(function (bell) {
+            if (lastGroup !== null && bell.group !== lastGroup) {
+                s += '<span class="md-nav-cn-bells-divider" aria-hidden="true"></span>';
+            }
+            lastGroup = bell.group;
+            s += ''
+                + '<div class="cn-anchor md-nav-cn-bell" data-bell="' + bell.id + '" id="mdNavCnBell-' + bell.id + '">'
+                +   '<button type="button" class="cn-trigger md-nav-action-btn" title="' + bell.tooltip + '" aria-label="' + bell.tooltip + '">'
+                +     '<img class="cn-bell-icon md-nav-cn-bell-icon" data-bell-icon="' + bell.id + '" src="" alt="">'
+                +     '<span class="cn-trigger-badge" hidden>0</span>'
+                +   '</button>'
+                +   '<div class="cn-panel">'
+                +     '<div class="cn-head">'
+                +       '<span class="cn-title">' + bell.title + '</span>'
+                +       '<button type="button" class="cn-mark-all">すべて既読</button>'
+                +     '</div>'
+                +     '<div class="cn-tabs">'
+                +       '<button type="button" class="cn-tab is-active" data-tab="latest">最新</button>'
+                +       '<button type="button" class="cn-tab" data-tab="history">履歴</button>'
+                +     '</div>'
+                +     '<div class="cn-tab-view is-active" data-tab="latest">'
+                +       '<div class="cn-body cn-body--latest" data-bell-body="' + bell.id + '">'
+                +         '<div class="cn-empty">新しい通知はありません</div>'
+                +       '</div>'
+                +     '</div>'
+                +     '<div class="cn-tab-view" data-tab="history">'
+                +       '<div class="cn-body cn-body--history">'
+                +         '<div class="cn-empty">履歴はありません</div>'
+                +       '</div>'
+                +     '</div>'
+                +   '</div>'
+                + '</div>';
+        });
+        s += '</div>';
+        return s;
     }
 
     var html = ''
@@ -98,21 +153,7 @@
         +   '</a>'
         // --- 右端アクション ---
         +   '<div class="md-nav-actions">'
-        +     '<div class="cn-anchor md-nav-cn-anchor" id="mdNavCnAnchor">'
-        +       '<button type="button" class="cn-trigger md-nav-action-btn" id="mdNavNotifyBtn" title="変更通知">'
-        +         '<img src="mockup/icons/bell.svg" alt="通知">'
-        +         '<span class="cn-trigger-badge" id="mdNavCnBadge" hidden>0</span>'
-        +       '</button>'
-        +       '<div class="cn-panel" id="mdNavCnPanel">'
-        +         '<div class="cn-head">'
-        +           '<span class="cn-title">変更通知（全画面共通）</span>'
-        +           '<button type="button" class="cn-mark-all">既読</button>'
-        +         '</div>'
-        +         '<div class="cn-tab-view is-active" data-tab="latest">'
-        +           '<div class="cn-body cn-body--latest" id="mdNavCnBody"></div>'
-        +         '</div>'
-        +       '</div>'
-        +     '</div>'
+        +     buildBellsHtml()
         +     '<button class="md-nav-action-btn" id="mdNavThemeBtn" title="テーマ切替">'
         +       '<img src="mockup/icons/moon.svg" class="md-nav-theme-icon-light" alt="Dark">'
         +       '<img src="mockup/icons/brush.svg" class="md-nav-theme-icon-dark" alt="Light">'
@@ -137,31 +178,251 @@
         +   '</div>'
         + '</div>';
 
-    // --- 画面横断通知モーダル（マスタ管理・休暇申請など全画面共通の変更通知） ---
-    // 各画面固有の行単位通知は、画面側のベル（obCnNotifyBtn / cnNotifyBtn 等）で扱う
-    var mdNavCnItems = [
-        { type: 'master',  icon: 'person.svg',   title: '社員マスタが更新されました',         desc: '佐藤 太郎 さんの所属が変更 (部署A → 部署B)', time: '10分前' },
-        { type: 'leave',   icon: 'clock.svg',    title: '休暇申請が承認待ちです',             desc: '鈴木 一郎 / 2026-04-24 (金) 有給休暇',         time: '32分前' },
-        { type: 'master',  icon: 'chart.svg',    title: '現場マスタに新規現場が追加されました', desc: '〇〇ビル新築工事 (東央警備)',                  time: '2時間前' }
-    ];
-    var mdNavCnIconChars = { master: '✎', leave: '＋' };
-    function mdNavCnBuildBody() {
-        if (mdNavCnItems.length === 0) {
-            return '<div class="cn-empty">新しい通知はありません</div>';
+    // --- ベル単位デモ通知データ（Phase N-2.2 移行版）---
+    //     ・旧 mdNavCnItems の3件を bell-master / bell-pending へ振り分け
+    //     ・将来は各画面JS（OB/SL/WS/LA）が自領域発信ロジックで coNotifyPanel.setItems() を呼ぶ
+    //     ・本フェーズではモック視認用にハードコード初期投入
+    //     ・modify/auto/pending は expand + affects 付与でアコーディオン展開可
+    var mdNavCnBellItems = {
+        ob: [
+            { type: 'add',    main: '東央警備 / 渋谷駅前ビル の受注を追加', sub: '山田太郎 ・ 09:14', date: '今日 (5/15)',
+              expand: '2026-05-18（月） / 警備員8名 / 単価¥18,000', affects: ['order-book', 'screen-layout', 'weekly-schedule'] },
+            { type: 'modify', main: '新宿三井ビル の受注日を変更',       sub: '山田太郎 ・ 10:42', date: '今日 (5/15)',
+              expand: '受注日: 5/20 → 5/22', affects: ['order-book', 'screen-layout'] },
+            { type: 'delete', main: '池袋現場 の受注を取消',             sub: '佐藤次郎 ・ 16:08', date: '昨日 (5/14)',
+              expand: '取消理由: 契約先キャンセル', affects: ['order-book', 'screen-layout'] }
+        ],
+        sl: [
+            { type: 'modify', slot: 'type-sl-auto', main: '渋谷駅前ビル に他GC社員を配置（自動受注生成）',
+              sub: '田中一郎(Nikkei) ・ 11:30', date: '今日 (5/15)',
+              expand: 'グループ間応援を検出 → OB側に自動受注行を生成（編集ロック行）',
+              affects: ['screen-layout', 'order-book'] },
+            { type: 'add', slot: 'type-employee', main: '高田馬場ビル に社員 を新規配置',
+              sub: '配置: 佐藤太郎 ・ 10:05', date: '今日 (5/15)', affects: ['screen-layout'] },
+            { type: 'modify', slot: 'type-vehicle', main: '渋谷駅前ビル の車両配置を更新',
+              sub: '車両 #002 ・ 13:22', date: '今日 (5/15)',
+              expand: '配置車両を #001 → #002 へ変更', affects: ['screen-layout'] }
+        ],
+        ws: [
+            { type: 'modify', slot: 'type-ws-schedule-change', main: '5/16 (土) の予定を変更',
+              sub: '田中一郎 ・ 09:42', date: '今日 (5/15)',
+              expand: '時間帯: 9:00-17:00 → 10:00-18:00', affects: ['weekly-schedule'] }
+        ],
+        la: [
+            { type: 'new',     main: '清水 から新規申請', sub: '5/22 / 有給休暇 ・ 14:01', date: '今日 (5/15)',
+              affects: ['leave-application', 'screen-layout'] },
+            { type: 'approve', main: '林 の休暇を承認',   sub: '5/18 / 有給 ・ 09:14',     date: '今日 (5/15)',
+              expand: 'ステータス: 承認待ち → 承認済', affects: ['leave-application'] }
+        ],
+        pending: [
+            { type: 'pending', main: 'DCP承認待ち: 1件', sub: '鈴木 一郎 / 2026-04-24 (金) 有給休暇 ・ 32分前',
+              date: '今日 (5/15)', expand: '承認画面で処理してください', affects: ['leave-application'] }
+        ],
+        vehicle: [],
+        master: [
+            { type: 'modify', main: '社員マスタが更新されました',
+              sub: '佐藤 太郎 さんの所属が変更 (部署A → 部署B) ・ 10分前', date: '今日 (5/15)',
+              expand: '所属: 部署A → 部署B', affects: ['order-book', 'screen-layout'] },
+            { type: 'add',    main: '現場マスタに新規現場が追加されました',
+              sub: '〇〇ビル新築工事 (東央警備) ・ 2時間前', date: '今日 (5/15)',
+              affects: ['order-book', 'screen-layout', 'weekly-schedule'] }
+        ]
+    };
+
+    // 履歴タブ用デモ設定（軸別ピッカー込み）
+    var mdNavCnBellHistory = {
+        ob: {
+            businessAxis: { tab: '契約先/現場', search: '現場名で検索...', prefix: '現場',
+                groups: [
+                    { title: '東央警備 / 渋谷駅前ビル', items: [
+                        { type: 'add',    main: '受注を追加', sub: '山田太郎 ・ 5/15 09:14',
+                          affects: ['order-book', 'screen-layout', 'weekly-schedule'] },
+                        { type: 'modify', main: '受注日を変更', sub: '山田太郎 ・ 5/12 10:42',
+                          expand: '受注日: 5/10 → 5/12', affects: ['order-book', 'screen-layout'] }
+                    ]},
+                    { title: '三菱地所 / 丸の内本社', items: [
+                        { type: 'add', main: '受注を追加', sub: '山田太郎 ・ 5/12 14:00',
+                          affects: ['order-book', 'screen-layout'] }
+                    ]},
+                    { title: '東央警備 / 池袋現場', items: [
+                        { type: 'delete', main: '受注を取消', sub: '佐藤次郎 ・ 5/14 16:08',
+                          affects: ['order-book', 'screen-layout'] }
+                    ]}
+                ],
+                companies: ['東央警備', '三菱地所', 'Nikkei'],
+                sites: { '東央警備': ['渋谷駅前ビル', '池袋現場', '新宿三井ビル'],
+                         '三菱地所': ['丸の内本社', '大手町タワー'],
+                         'Nikkei':   ['日本橋オフィス'] }
+            },
+            accountAxis: { tab: 'アカウント', search: 'アカウント名で検索...', prefix: 'アカウント',
+                groups: [
+                    { title: '山田太郎', items: [
+                        { type: 'add',    main: '東央警備 / 渋谷駅前ビル の受注を追加', sub: '5/15 09:14',
+                          affects: ['order-book', 'screen-layout', 'weekly-schedule'] },
+                        { type: 'modify', main: '東央警備 / 渋谷駅前ビル の受注日を変更', sub: '5/12 10:42',
+                          expand: '受注日: 5/10 → 5/12', affects: ['order-book', 'screen-layout'] }
+                    ]},
+                    { title: '佐藤次郎', items: [
+                        { type: 'delete', main: '東央警備 / 池袋現場 の受注を取消', sub: '5/14 16:08',
+                          affects: ['order-book', 'screen-layout'] }
+                    ]}
+                ],
+                accounts: ['山田太郎', '佐藤次郎', '鈴木花子']
+            }
+        },
+        sl: {
+            businessAxis: { tab: '現場', search: '現場名で検索...', prefix: '現場',
+                groups: [
+                    { title: '東央警備 / 渋谷駅前ビル', items: [
+                        { type: 'modify', slot: 'type-sl-auto', main: '他GC社員を配置（自動受注生成）',
+                          sub: '田中一郎(Nikkei) ・ 5/15 11:30',
+                          expand: 'グループ間応援を検出 → OB側に自動受注行を生成',
+                          affects: ['screen-layout', 'order-book'] }
+                    ]},
+                    { title: '東央警備 / 高田馬場ビル', items: [
+                        { type: 'add', slot: 'type-employee', main: '佐藤太郎 を配置', sub: '5/13',
+                          affects: ['screen-layout'] }
+                    ]}
+                ],
+                companies: ['東央警備'], sites: { '東央警備': ['渋谷駅前ビル', '高田馬場ビル'] }
+            },
+            accountAxis: { tab: 'アカウント', search: 'アカウント名で検索...', prefix: 'アカウント',
+                groups: [
+                    { title: '山田太郎', items: [
+                        { type: 'modify', slot: 'type-sl-auto', main: '渋谷駅前ビル に田中一郎を配置',
+                          sub: '5/15 11:30',
+                          expand: 'グループ間応援を検出 → OB側に自動受注行を生成',
+                          affects: ['screen-layout', 'order-book'] }
+                    ]}
+                ],
+                accounts: ['山田太郎', '佐藤次郎']
+            }
+        },
+        ws: {
+            businessAxis: { tab: '現場', search: '現場名で検索...', prefix: '現場',
+                groups: [
+                    { title: '東央警備 / 渋谷駅前ビル', items: [
+                        { type: 'add', main: '5/16(土) に応援予約 Aチーム4名', sub: '田中一郎 ・ 5/13' }
+                    ]}
+                ],
+                companies: ['東央警備'], sites: { '東央警備': ['渋谷駅前ビル'] }
+            },
+            accountAxis: { tab: 'アカウント', search: 'アカウント名で検索...', prefix: 'アカウント',
+                groups: [
+                    { title: '田中一郎', items: [
+                        { type: 'add', main: '渋谷駅前ビル 5/16 応援予約', sub: '5/13' }
+                    ]}
+                ],
+                accounts: ['田中一郎']
+            }
+        },
+        la: {
+            businessAxis: { tab: '申請者', search: '申請者名で検索...', prefix: '申請者',
+                groups: [
+                    { title: '清水', items: [
+                        { type: 'new', main: '5/22 有給休暇 を申請', sub: '5/15 14:01',
+                          affects: ['leave-application', 'screen-layout'] }
+                    ]},
+                    { title: '林', items: [
+                        { type: 'approve', main: '5/18 有給休暇 を承認', sub: '5/15 09:14',
+                          expand: 'ステータス: 承認待ち → 承認済',
+                          affects: ['leave-application', 'weekly-schedule'] }
+                    ]},
+                    { title: '山田', items: [
+                        { type: 'reject', main: '5/14 有給休暇 を却下', sub: '5/14 13:24',
+                          affects: ['leave-application'] }
+                    ]}
+                ],
+                companies: ['営業部', '工事部'],
+                sites: { '営業部': ['清水', '山田'], '工事部': ['林'] }
+            },
+            accountAxis: { tab: '承認者', search: '承認者名で検索...', prefix: '承認者',
+                groups: [
+                    { title: '林部長', items: [
+                        { type: 'approve', main: '林 の5/18申請を承認', sub: '5/15 09:14',
+                          expand: 'ステータス: 承認待ち → 承認済',
+                          affects: ['leave-application', 'weekly-schedule'] },
+                        { type: 'reject',  main: '山田 の5/14申請を却下', sub: '5/14 13:24',
+                          affects: ['leave-application'] }
+                    ]}
+                ],
+                accounts: ['林部長']
+            }
+        },
+        pending: {
+            businessAxis: { tab: '申請者', search: '申請者名で検索...', prefix: '申請者',
+                groups: [
+                    { title: '清水', items: [
+                        { type: 'pending', main: '5/22 有給休暇 承認待ち', sub: '5/15 14:01',
+                          expand: '承認画面で処理してください',
+                          affects: ['leave-application'] }
+                    ]}
+                ],
+                companies: ['営業部'], sites: { '営業部': ['清水'] }
+            },
+            accountAxis: { tab: '承認者', search: '承認者名で検索...', prefix: '承認者',
+                groups: [
+                    { title: '林部長', items: [
+                        { type: 'pending', main: '清水 の5/22申請が承認待ち', sub: '5/15 14:01',
+                          expand: '承認画面で処理してください',
+                          affects: ['leave-application'] }
+                    ]}
+                ],
+                accounts: ['林部長']
+            }
+        },
+        vehicle: {
+            businessAxis: { tab: '車両', search: '車両名で検索...', prefix: '車両',
+                groups: [
+                    { title: '車両 #001 トヨタハイエース', items: [
+                        { type: 'modify', main: '5/16 の運行予定を変更', sub: '5/14 山田太郎',
+                          expand: '出発時刻: 9:00 → 10:30',
+                          affects: ['screen-layout', 'weekly-schedule'] }
+                    ]}
+                ],
+                companies: ['東央警備'], sites: { '東央警備': ['車両 #001', '車両 #002'] }
+            },
+            accountAxis: { tab: 'アカウント', search: 'アカウント名で検索...', prefix: 'アカウント',
+                groups: [
+                    { title: '山田太郎', items: [
+                        { type: 'modify', main: '車両 #001 の運行予定を変更', sub: '5/14',
+                          expand: '出発時刻: 9:00 → 10:30',
+                          affects: ['screen-layout', 'weekly-schedule'] }
+                    ]}
+                ],
+                accounts: ['山田太郎']
+            }
+        },
+        master: {
+            businessAxis: { tab: 'マスタ種別', search: 'マスタ種別で検索...', prefix: '種別',
+                groups: [
+                    { title: '現場マスタ', items: [
+                        { type: 'add', main: '〇〇ビル新築工事 (東央警備) を追加', sub: '管理者 ・ 5/15',
+                          affects: ['order-book', 'screen-layout', 'weekly-schedule'] }
+                    ]},
+                    { title: '社員マスタ', items: [
+                        { type: 'modify', main: '佐藤 太郎 さんの所属を変更（部署A → 部署B）',
+                          sub: '管理者 ・ 5/14',
+                          expand: '所属: 部署A → 部署B',
+                          affects: ['order-book', 'screen-layout'] }
+                    ]}
+                ],
+                companies: ['マスタ'], sites: { 'マスタ': ['現場', '社員', '車両', '契約先'] }
+            },
+            accountAxis: { tab: '管理者', search: '管理者名で検索...', prefix: '管理者',
+                groups: [
+                    { title: '管理者', items: [
+                        { type: 'add',    main: '現場マスタに〇〇ビルを追加', sub: '5/15',
+                          affects: ['order-book', 'screen-layout', 'weekly-schedule'] },
+                        { type: 'modify', main: '社員マスタで佐藤太郎の所属を変更', sub: '5/14',
+                          expand: '所属: 部署A → 部署B',
+                          affects: ['order-book', 'screen-layout'] }
+                    ]}
+                ],
+                accounts: ['管理者']
+            }
         }
-        return mdNavCnItems.map(function (it) {
-            var icon = mdNavCnIconChars[it.type] || '?';
-            return '<div class="cn-item type-' + it.type + (it._read ? '' : ' is-unread') + '">'
-                + '<div class="cn-item-row">'
-                +   '<div class="cn-icon type-' + it.type + '">' + icon + '</div>'
-                +   '<div class="cn-text">'
-                +     '<div class="cn-text-main">' + it.title + '</div>'
-                +     '<div class="cn-text-sub">' + it.desc + ' ・ ' + it.time + '</div>'
-                +   '</div>'
-                + '</div>'
-                + '</div>';
-        }).join('');
-    }
+    };
 
     // --- GCフィルタモーダル ---
     html += ''
@@ -270,35 +531,23 @@
         }
     });
 
-    // --- ナビバー通知ボタン → cn-panel ドロップダウンを開く (co-notify-panel.js が処理) ---
-    // 各画面固有の通知は画面側のベルで扱う。共通ナビは画面横断通知のみ。
-    window.mdNavCnOpenModal = function () {
-        var anchor = document.getElementById('mdNavCnAnchor');
-        if (anchor && anchor.classList.contains('is-open')) return;
-        document.getElementById('mdNavCnBody').innerHTML = mdNavCnBuildBody();
-        // 既読化
-        mdNavCnItems.forEach(function(it) { it._read = true; });
-        var badge = document.getElementById('mdNavCnBadge');
-        if (badge) { badge.textContent = '0'; badge.hidden = true; }
-    };
-    window.mdNavCnCloseModal = function () {
-        var anchor = document.getElementById('mdNavCnAnchor');
-        if (anchor && window.coNotifyPanel) window.coNotifyPanel.close(anchor);
-    };
-    document.getElementById('mdNavNotifyBtn').addEventListener('click', mdNavCnOpenModal);
-
-    // --- ナビバーバッジ: 画面横断通知の件数を独立カウント ---
-    (function initNavCnBadge() {
-        var navBadge = document.getElementById('mdNavCnBadge');
-        if (!navBadge) return;
-        var count = mdNavCnItems.length;
-        if (count > 0) {
-            navBadge.textContent = String(count);
-            navBadge.style.display = '';
-        } else {
-            navBadge.style.display = 'none';
-        }
+    // --- ベル群の初期化 (アイコン適用 / デモ通知投入 / 履歴タブ構築 / バッジ更新) ---
+    //     開閉・タブ切替等のパネル挙動は co-notify-panel.js が処理する。
+    (function initNotifyBells() {
+        if (!window.coNotifyPanel || typeof window.coNotifyPanel.setItems !== 'function') return;
+        coNotifyBells.forEach(function (bell) {
+            window.coNotifyPanel.applyBellIcon(bell.id);
+            window.coNotifyPanel.setItems(bell.id, mdNavCnBellItems[bell.id] || []);
+            if (typeof window.coNotifyPanel.setHistory === 'function') {
+                window.coNotifyPanel.setHistory(bell.id, mdNavCnBellHistory[bell.id] || null);
+            }
+        });
     })();
+
+    // window.mdNavCnCloseModal: ESC ハンドラから呼ばれる後方互換シム
+    window.mdNavCnCloseModal = function () {
+        if (window.coNotifyPanel) window.coNotifyPanel.close();
+    };
 
     // --- GCフィルタ共通ロジック ---
     // groupCompaniesData / orgUnitsData は demo-data.js で定義（co-navbar.jsより先に読み込まれる前提）

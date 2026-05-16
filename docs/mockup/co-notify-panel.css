@@ -224,6 +224,77 @@
 .cn-icon.type-rejected { background: var(--semantic-error); }
 .cn-icon.type-master   { background: var(--accent-secondary); }   /* マスタ更新 */
 .cn-icon.type-leave    { background: var(--accent-primary); }     /* 休暇申請 */
+.cn-icon.type-pending  { background: var(--accent-secondary); }   /* 承認待ち */
+
+/* アイテム種別アイコン内の <img>（Phase N-2.2 / notify-icons-selected.json 適用） */
+.cn-icon-img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    display: block;
+    /* 円形カラー背景の上に白シルエットで載せる */
+    filter: brightness(0) invert(1);
+    pointer-events: none;
+}
+
+/* ============================================================
+   アコーディオン内サマリ + クロス画面ヒント（Phase N-2.2）
+   N-5 で実装される画面遷移ロジックの UI 受け皿。
+   ============================================================ */
+.cn-expand-summary {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+.cn-cross-hint {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+    padding: 6px 8px;
+    background: var(--bg-surface-2);
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+}
+.cn-cross-hint:empty {
+    display: none;
+}
+.cn-cross-hint-in-context {
+    color: #1b7f3b;
+    font-weight: 600;
+}
+.cn-cross-hint-in-context::before {
+    content: '● ';
+    color: #2ea44f;
+}
+.cn-cross-hint-out {
+    color: var(--text-secondary);
+}
+.cn-cross-jumps {
+    display: flex;
+    flex-wrap: wrap;
+}
+.cn-cross-jump-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    margin: 2px 4px 2px 0;
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 120ms, color 120ms, border-color 120ms;
+    font-family: inherit;
+}
+.cn-cross-jump-btn:hover {
+    background: var(--accent-primary-dim);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
 
 .cn-text {
     flex: 1;
