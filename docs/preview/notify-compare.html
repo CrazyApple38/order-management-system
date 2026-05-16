@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../mockup/co-tokens.css">
     <link rel="stylesheet" href="../mockup/co-shared-badges.css">
     <link rel="stylesheet" href="../mockup/co-icon-picker.css">
-    <link rel="stylesheet" href="notify-compare.css">
+    <link rel="stylesheet" href="notify-compare.css?v=n2-final">
 </head>
 <body>
     <header class="cmp-header">
@@ -24,6 +24,7 @@
             <button class="cmp-mode-btn" data-mode="bell-order">ベル並び</button>
             <button class="cmp-mode-btn" data-mode="panel-layout">パネルレイアウト</button>
             <button class="cmp-mode-btn" data-mode="auto-overlay">自動生成行</button>
+            <button class="cmp-mode-btn" data-mode="n2-integration">N-2 統合</button>
         </div>
     </header>
 
@@ -2165,7 +2166,481 @@
         </section>
     </main>
 
-    <script src="notify-compare.js"></script>
+    <!-- ========== N-2 統合プレビュー ========== -->
+    <main class="cmp-grid cmp-grid--n2 cmp-hidden" id="cmpN2Integration">
+        <div class="cmp-panel-note">
+            <p><strong>Phase N-2 共通基盤実装の動作プレビュー</strong>。7ベル + 専用P3パネル + バッジ・既読操作 + クロス画面フラッシュのヒントUIを統合検証用に動かす。<br><small>※ 本実装に入る前のレイアウト・挙動確認用。OK後に co-navbar.js / co-notify-panel.js へ反映する。</small></p>
+        </div>
+
+        <section class="cmp-card cmp-card--panel cmp-card--n2">
+            <div class="cmp-card-head">
+                <span class="cmp-tag cmp-tag--ref">N-2</span>
+                <h2>ベル → 専用パネル 動作デモ</h2>
+                <small>ベルクリック → 該当パネル表示 / バッジ更新 / 既読 / タブ切替 / クロス画面ヒント</small>
+            </div>
+            <div class="cmp-card-body">
+                <!-- ベルバー（本番ナビバーの相当部分） -->
+                <div class="cmp-bell-bar cmp-bell-bar--has-panel cmp-bell-bar--n2" id="cmpN2BellBar">
+                    <span class="cmp-bell-bar-logo">業務管理</span>
+                    <span class="cmp-bell-bar-spacer"></span>
+                    <button type="button" class="cmp-bell-item is-active" data-tooltip="OB — 受注簿" data-bell="ob" aria-label="OB — 受注簿">
+                        <img class="cmp-bell-icon" src="../assets/icons/business/si-46623-personal-information.png" alt="">
+                        <span class="cmp-bell-badge" data-bell-badge="ob">3</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="SL — 業務管理計画書" data-bell="sl" aria-label="SL — 業務管理計画書">
+                        <img class="cmp-bell-icon" src="../assets/icons/person/si-13707-13707.png" alt="">
+                        <span class="cmp-bell-badge" data-bell-badge="sl">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="WS — 週間予定表" data-bell="ws" aria-label="WS — 週間予定表">
+                        <img class="cmp-bell-icon" src="../assets/icons/stationery/im-12555-karendaa.svg" alt="">
+                        <span class="cmp-bell-badge" data-bell-badge="ws" hidden>0</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="LA — 休暇申請管理" data-bell="la" aria-label="LA — 休暇申請管理">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/si-8681-8681.png" alt="">
+                        <span class="cmp-bell-badge" data-bell-badge="la">2</span>
+                    </button>
+                    <span class="cmp-bell-divider"></span>
+                    <button type="button" class="cmp-bell-item" data-tooltip="休暇申請 承認待ち" data-bell="pending" aria-label="休暇申請 承認待ち">
+                        <img class="cmp-bell-icon" src="../assets/icons/life/si-9922-9922.png" alt="">
+                        <span class="cmp-bell-badge" data-bell-badge="pending">1</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="車両スケジュール" data-bell="vehicle" aria-label="車両スケジュール">
+                        <img class="cmp-bell-icon" src="../assets/icons/transport/im-10867-jidou-sha.svg" alt="">
+                        <span class="cmp-bell-badge" data-bell-badge="vehicle" hidden>0</span>
+                    </button>
+                    <button type="button" class="cmp-bell-item" data-tooltip="マスタ更新" data-bell="master" aria-label="マスタ更新">
+                        <img class="cmp-bell-icon" src="../assets/icons/sign-mark/im-00001-muryou-no-settei-haguruma.svg" alt="">
+                        <span class="cmp-bell-badge" data-bell-badge="master">1</span>
+                    </button>
+                </div>
+
+                <!-- パネルステージ（ベル直下にパネルが降りる） -->
+                <div class="cmp-panel-stage cmp-panel-stage--n2">
+                    <!-- 現在画面切替（クロス画面フラッシュ検証用） -->
+                    <div class="cmp-n2-context">
+                        <label class="cmp-n2-context-label">現在開いている画面（クロス画面ヒントの判定用）:</label>
+                        <select class="cmp-n2-context-select" id="cmpN2CurrentPage" title="現在開いている画面">
+                            <option value="order-book">OB（受注簿）</option>
+                            <option value="screen-layout">SL（業務管理計画書）</option>
+                            <option value="weekly-schedule">WS（週間予定表）</option>
+                            <option value="leave-application">LA（休暇申請）</option>
+                            <option value="master">マスタ管理</option>
+                        </select>
+                        <span class="cmp-n2-context-hint">通知アイテムが現在画面に波及する場合は<strong>緑のヒント</strong>、しない場合は<strong>「他画面で開く ↗」ボタン</strong>を表示</span>
+                        <button type="button" class="cmp-n2-edit-toggle" id="cmpN2EditToggle" aria-pressed="false">
+                            <span class="cmp-n2-edit-toggle-icon" aria-hidden="true">✎</span>
+                            <span class="cmp-n2-edit-toggle-label">アイコン編集 OFF</span>
+                        </button>
+                    </div>
+
+                    <!-- OB パネル -->
+                    <div class="cn-panel cmp-panel-anchor cmp-n2-panel is-active" data-panel="ob">
+                        <div class="cn-head">
+                            <span class="cn-title">OBの変更通知</span>
+                            <button type="button" class="cn-mark-all">すべて既読</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button type="button" class="cn-tab is-active" data-tab="latest">最新</button>
+                            <button type="button" class="cn-tab" data-tab="history">履歴</button>
+                        </div>
+                        <div class="cn-tab-view is-active" data-tab="latest">
+                            <div class="cn-body cn-body--latest">
+                                <div class="cn-date-group">
+                                    <button type="button" class="cn-date-group-head" aria-expanded="true">今日 (5/15)<span class="cn-date-group-toggle" aria-hidden="true">▴</span></button>
+                                    <div class="cn-item is-unread type-add" data-type="add" data-affects="order-book,screen-layout,weekly-schedule">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-add">＋</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">東央警備 / 渋谷駅前ビル の受注を追加</div>
+                                                <div class="cn-text-sub">山田太郎 ・ 09:14</div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-expand">
+                                            <div class="cn-expand-summary">2026-05-18（月） / 警備員8名 / 単価¥18,000</div>
+                                            <div class="cn-cross-hint" data-affects="order-book,screen-layout,weekly-schedule"></div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-item is-unread type-modify" data-type="modify" data-affects="order-book,screen-layout">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-modify">✎</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">新宿三井ビル の受注日を変更</div>
+                                                <div class="cn-text-sub">山田太郎 ・ 10:42</div>
+                                            </div>
+                                            <span class="cn-chevron">▾</span>
+                                        </div>
+                                        <div class="cn-expand">
+                                            <div class="cn-expand-summary">受注日: 5/20 → 5/22</div>
+                                            <div class="cn-cross-hint" data-affects="order-book,screen-layout"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cn-date-group">
+                                    <button type="button" class="cn-date-group-head" aria-expanded="true">昨日 (5/14)<span class="cn-date-group-toggle" aria-hidden="true">▴</span></button>
+                                    <div class="cn-item is-unread type-delete" data-type="delete" data-affects="order-book,screen-layout">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-delete">✕</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">池袋現場 の受注を取消</div>
+                                                <div class="cn-text-sub">佐藤次郎 ・ 16:08</div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-expand">
+                                            <div class="cn-expand-summary">取消理由: 契約先キャンセル</div>
+                                            <div class="cn-cross-hint" data-affects="order-book,screen-layout"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cn-tab-view" data-tab="history">
+                            <div class="cn-filter-chips">
+                                <button type="button" class="cn-filter-chip is-active" data-filter="all">すべて</button>
+                                <button type="button" class="cn-filter-chip" data-filter="add">追加</button>
+                                <button type="button" class="cn-filter-chip" data-filter="modify">変更</button>
+                                <button type="button" class="cn-filter-chip" data-filter="delete">削除</button>
+                            </div>
+                            <div class="cmp-tab-hint">※ 履歴タブにはさらに軸別ピッカー（契約先/現場/操作者）が付与される（既存 History モード参照）</div>
+                            <div class="cn-body cn-body--history">
+                                <div class="cn-item type-add" data-type="add"><div class="cn-item-row"><div class="cn-icon type-add">＋</div><div class="cn-text"><div class="cn-text-main">三菱地所 / 丸の内本社 の受注を追加</div><div class="cn-text-sub">5/12 山田太郎</div></div></div></div>
+                                <div class="cn-item type-modify" data-type="modify"><div class="cn-item-row"><div class="cn-icon type-modify">✎</div><div class="cn-text"><div class="cn-text-main">高田馬場ビル の単価を変更</div><div class="cn-text-sub">5/10 鈴木花子</div></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SL パネル -->
+                    <div class="cn-panel cmp-panel-anchor cmp-n2-panel" data-panel="sl">
+                        <div class="cn-head">
+                            <span class="cn-title">SLの変更通知</span>
+                            <button type="button" class="cn-mark-all">すべて既読</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button type="button" class="cn-tab is-active" data-tab="latest">最新</button>
+                            <button type="button" class="cn-tab" data-tab="history">履歴</button>
+                        </div>
+                        <div class="cn-tab-view is-active" data-tab="latest">
+                            <div class="cn-body cn-body--latest">
+                                <div class="cn-date-group">
+                                    <button type="button" class="cn-date-group-head" aria-expanded="true">今日 (5/15)<span class="cn-date-group-toggle" aria-hidden="true">▴</span></button>
+                                    <div class="cn-item is-unread type-modify" data-itype="auto" data-affects="screen-layout,order-book">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-modify">✎</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">渋谷駅前ビル に他GC社員を配置（自動受注生成）</div>
+                                                <div class="cn-text-sub">配置: 田中一郎(Nikkei) ・ 11:30</div>
+                                            </div>
+                                            <span class="cn-chevron">▾</span>
+                                        </div>
+                                        <div class="cn-expand">
+                                            <div class="cn-expand-summary">グループ間応援を検出 → OB側に自動受注行を生成（編集ロック行）</div>
+                                            <div class="cn-cross-hint" data-affects="screen-layout,order-book"></div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-item is-unread type-add" data-slot="type-employee" data-affects="screen-layout">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-add">＋</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">高田馬場ビル に社員 を新規配置</div>
+                                                <div class="cn-text-sub">配置: 佐藤太郎 ・ 10:05</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-item is-unread type-modify" data-slot="type-vehicle" data-affects="screen-layout">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-modify">✎</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">渋谷駅前ビル の車両配置を更新</div>
+                                                <div class="cn-text-sub">車両 #002 ・ 13:22</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-item is-unread type-add" data-slot="type-support" data-affects="screen-layout,weekly-schedule">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-add">＋</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">池袋現場 に応援チームを配置</div>
+                                                <div class="cn-text-sub">Aチーム4名 ・ 14:48</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cn-tab-view" data-tab="history">
+                            <div class="cn-filter-chips">
+                                <button type="button" class="cn-filter-chip is-active" data-filter="all">すべて</button>
+                                <button type="button" class="cn-filter-chip" data-filter="add">配置追加</button>
+                                <button type="button" class="cn-filter-chip" data-filter="modify">変更</button>
+                                <button type="button" class="cn-filter-chip" data-filter="delete">配置削除</button>
+                            </div>
+                            <div class="cn-body cn-body--history">
+                                <div class="cn-item type-add" data-type="add"><div class="cn-item-row"><div class="cn-icon type-add">＋</div><div class="cn-text"><div class="cn-text-main">高田馬場ビル に佐藤太郎 を配置</div><div class="cn-text-sub">5/13</div></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WS パネル -->
+                    <div class="cn-panel cmp-panel-anchor cmp-n2-panel" data-panel="ws">
+                        <div class="cn-head">
+                            <span class="cn-title">WSの変更通知</span>
+                            <button type="button" class="cn-mark-all">すべて既読</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button type="button" class="cn-tab is-active" data-tab="latest">最新</button>
+                            <button type="button" class="cn-tab" data-tab="history">履歴</button>
+                        </div>
+                        <div class="cn-tab-view is-active" data-tab="latest">
+                            <div class="cn-body cn-body--latest">
+                                <div class="cn-date-group">
+                                    <button type="button" class="cn-date-group-head" aria-expanded="true">今日 (5/15)<span class="cn-date-group-toggle" aria-hidden="true">▴</span></button>
+                                    <div class="cn-item is-unread type-modify" data-itype="schedule-change" data-affects="weekly-schedule">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-modify">✎</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">5/16 (土) の予定を変更</div>
+                                                <div class="cn-text-sub">田中一郎 ・ 09:42</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-item is-unread type-modify" data-itype="leave-reflect" data-affects="weekly-schedule,leave-application">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-modify">✎</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">林 の休暇承認を週間予定に反映</div>
+                                                <div class="cn-text-sub">5/18 / 有給 ・ 11:05</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-item is-unread type-add" data-slot="type-reservation" data-affects="weekly-schedule">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-add">＋</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">5/16 (土) 応援予約 Aチーム4名 を追加</div>
+                                                <div class="cn-text-sub">田中一郎 ・ 13:13</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cn-tab-view" data-tab="history">
+                            <div class="cn-filter-chips">
+                                <button type="button" class="cn-filter-chip is-active" data-filter="all">すべて</button>
+                                <button type="button" class="cn-filter-chip" data-filter="add">予約追加</button>
+                                <button type="button" class="cn-filter-chip" data-filter="modify">変更</button>
+                                <button type="button" class="cn-filter-chip" data-filter="delete">予約削除</button>
+                            </div>
+                            <div class="cn-body cn-body--history">
+                                <div class="cn-item type-add" data-type="add"><div class="cn-item-row"><div class="cn-icon type-add">＋</div><div class="cn-text"><div class="cn-text-main">5/16 (土) に応援予約 ・ Aチーム4名</div><div class="cn-text-sub">5/13 田中一郎</div></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LA パネル -->
+                    <div class="cn-panel cmp-panel-anchor cmp-n2-panel" data-panel="la">
+                        <div class="cn-head">
+                            <span class="cn-title">LAの変更通知</span>
+                            <button type="button" class="cn-mark-all">すべて既読</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button type="button" class="cn-tab is-active" data-tab="latest">最新</button>
+                            <button type="button" class="cn-tab" data-tab="history">履歴</button>
+                        </div>
+                        <div class="cn-tab-view is-active" data-tab="latest">
+                            <div class="cn-body cn-body--latest">
+                                <div class="cn-date-group">
+                                    <button type="button" class="cn-date-group-head" aria-expanded="true">今日 (5/15)<span class="cn-date-group-toggle" aria-hidden="true">▴</span></button>
+                                    <div class="cn-item is-unread type-new" data-itype="new" data-affects="leave-application,screen-layout">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-new">＋</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">清水 から新規申請</div>
+                                                <div class="cn-text-sub">5/22 / 有給休暇 ・ 14:01</div>
+                                            </div>
+                                        </div>
+                                        <div class="cn-expand">
+                                            <div class="cn-expand-summary">ステータス: 承認待ち</div>
+                                            <div class="cn-cross-hint" data-affects="leave-application,screen-layout"></div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-item is-unread type-approved" data-itype="approve" data-affects="leave-application">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-approved">✓</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">林 の休暇を承認</div>
+                                                <div class="cn-text-sub">5/18 / 有給 ・ 09:14</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-item is-unread type-rejected" data-itype="reject" data-affects="leave-application">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-rejected">✕</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">山田 の申請を却下</div>
+                                                <div class="cn-text-sub">5/14 / 有給 ・ 13:24</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cn-tab-view" data-tab="history">
+                            <div class="cn-filter-chips">
+                                <button type="button" class="cn-filter-chip is-active" data-filter="all">すべて</button>
+                                <button type="button" class="cn-filter-chip" data-filter="add">新規申請</button>
+                                <button type="button" class="cn-filter-chip" data-filter="modify">承認</button>
+                                <button type="button" class="cn-filter-chip" data-filter="delete">却下</button>
+                            </div>
+                            <div class="cn-body cn-body--history">
+                                <div class="cn-item type-add" data-type="add"><div class="cn-item-row"><div class="cn-icon type-add">＋</div><div class="cn-text"><div class="cn-text-main">山田 の申請を却下</div><div class="cn-text-sub">5/14</div></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 横断: 承認待ち -->
+                    <div class="cn-panel cmp-panel-anchor cmp-n2-panel" data-panel="pending">
+                        <div class="cn-head">
+                            <span class="cn-title">休暇申請承認待ち</span>
+                            <button type="button" class="cn-mark-all">すべて既読</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button type="button" class="cn-tab is-active" data-tab="latest">最新</button>
+                            <button type="button" class="cn-tab" data-tab="history">履歴</button>
+                        </div>
+                        <div class="cn-tab-view is-active" data-tab="latest">
+                            <div class="cn-body cn-body--latest">
+                                <div class="cn-item is-unread type-pending" data-itype="wait" data-affects="leave-application">
+                                    <div class="cn-item-row">
+                                        <div class="cn-icon type-pending">⌛</div>
+                                        <div class="cn-text">
+                                            <div class="cn-text-main">DCP承認待ち: 1件</div>
+                                            <div class="cn-text-sub">清水 / 5/22</div>
+                                        </div>
+                                        <span class="cn-chevron">▾</span>
+                                    </div>
+                                    <div class="cn-expand">
+                                        <div class="cn-expand-summary">承認画面で処理してください</div>
+                                        <div class="cn-cross-hint" data-affects="leave-application"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cn-tab-view" data-tab="history"></div>
+                    </div>
+
+                    <!-- 横断: 車両スケジュール -->
+                    <div class="cn-panel cmp-panel-anchor cmp-n2-panel" data-panel="vehicle">
+                        <div class="cn-head">
+                            <span class="cn-title">車両スケジュール</span>
+                            <button type="button" class="cn-mark-all">すべて既読</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button type="button" class="cn-tab is-active" data-tab="latest">最新</button>
+                            <button type="button" class="cn-tab" data-tab="history">履歴</button>
+                        </div>
+                        <div class="cn-tab-view is-active" data-tab="latest">
+                            <div class="cn-body cn-body--latest">
+                                <div class="cn-date-group">
+                                    <button type="button" class="cn-date-group-head" aria-expanded="true">今日 (5/15)<span class="cn-date-group-toggle" aria-hidden="true">▴</span></button>
+                                    <div class="cn-item is-unread type-add" data-type="add">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-add">＋</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">車両 #001 の運行を新規追加</div>
+                                                <div class="cn-text-sub">5/16 09:00 出発 ・ 11:48</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-item is-unread type-modify" data-type="modify">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-modify">✎</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">車両 #002 の運行予定を変更</div>
+                                                <div class="cn-text-sub">出発時刻 9:00 → 10:30 ・ 14:22</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-item is-unread type-delete" data-type="delete">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-delete">✕</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">車両 #003 の運行を取消</div>
+                                                <div class="cn-text-sub">5/17 予定分 ・ 16:05</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cn-tab-view" data-tab="history"></div>
+                    </div>
+
+                    <!-- 横断: マスタ更新 -->
+                    <div class="cn-panel cmp-panel-anchor cmp-n2-panel" data-panel="master">
+                        <div class="cn-head">
+                            <span class="cn-title">マスタ更新</span>
+                            <button type="button" class="cn-mark-all">すべて既読</button>
+                        </div>
+                        <div class="cn-tabs">
+                            <button type="button" class="cn-tab is-active" data-tab="latest">最新</button>
+                            <button type="button" class="cn-tab" data-tab="history">履歴</button>
+                        </div>
+                        <div class="cn-tab-view is-active" data-tab="latest">
+                            <div class="cn-body cn-body--latest">
+                                <div class="cn-date-group">
+                                    <button type="button" class="cn-date-group-head" aria-expanded="true">今日 (5/15)<span class="cn-date-group-toggle" aria-hidden="true">▴</span></button>
+                                    <div class="cn-item is-unread type-add" data-type="add" data-affects="order-book,screen-layout,weekly-schedule">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-add">＋</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">現場マスタに新規現場が追加</div>
+                                                <div class="cn-text-sub">〇〇ビル新築工事 (東央警備) ・ 10:12</div>
+                                            </div>
+                                            <span class="cn-chevron">▾</span>
+                                        </div>
+                                        <div class="cn-expand">
+                                            <div class="cn-expand-summary">関連画面の現場リストに自動反映</div>
+                                            <div class="cn-cross-hint" data-affects="order-book,screen-layout,weekly-schedule"></div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-item is-unread type-modify" data-type="modify" data-affects="order-book,screen-layout">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-modify">✎</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">社員マスタで佐藤太郎の所属を変更</div>
+                                                <div class="cn-text-sub">部署A → 部署B ・ 13:48</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cn-item is-unread type-delete" data-type="delete" data-affects="order-book,screen-layout">
+                                        <div class="cn-item-row">
+                                            <div class="cn-icon type-delete">✕</div>
+                                            <div class="cn-text">
+                                                <div class="cn-text-main">契約先マスタから旧契約先を削除</div>
+                                                <div class="cn-text-sub">旧△△建設 ・ 15:30</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cn-tab-view" data-tab="history"></div>
+                    </div>
+                </div>
+
+                <ul class="cmp-feature-list cmp-feature-list--n2">
+                    <li>✓ 7ベル横並び（縦仕切りで画面別/横断を区切る）</li>
+                    <li>✓ ベルクリック → 該当パネル切替表示（同時に1パネルのみ）</li>
+                    <li>✓ バッジ件数表示 / 「すべて既読」でバッジ 0 化</li>
+                    <li>✓ 最新タブ（日付グループ + アコーディオン）/ 履歴タブ（フィルタチップ）</li>
+                    <li>✓ アコーディオン展開時に「現在画面で開く ↗ / 他画面で開く ↗」ヒントを表示</li>
+                    <li>※ 実際の画面ジャンプロジックは Phase N-5 で実装</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <script src="notify-compare.js?v=n2-final"></script>
     <script src="../mockup/co-icon-picker.js"></script>
     <script src="notify-icons-data.js"></script>
     <script src="notify-icons.js"></script>

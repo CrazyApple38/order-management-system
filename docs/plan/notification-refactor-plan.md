@@ -1,7 +1,7 @@
 # 変更通知システム リファクタリング — 統合計画書
 
-**最終更新**: 2026-05-14
-**ステータス**: 構想フェーズ完了 / 実装未着手
+**最終更新**: 2026-05-16
+**ステータス**: Phase N-2.1（統合プレビュー）完了 / Phase N-2.2（本実装）未着手
 **対象**: 全モックアップ（OB / SL / WS / LA / QA）+ 共通ナビバー
 **起点**: 社内モックアップレビュー（2026-05-14）
 
@@ -465,11 +465,68 @@ WSが先行実装した応援データ構造を **単一情報源（SSOT）** �
 |-------|------|--------|--------|------|
 | N-0 構想 | 完了 | 2026-05-14 | 2026-05-14 | 本計画書策定 |
 | N-1 UIモック | 完了 | 2026-05-14 | 2026-05-15 | アイコン定義確定（`docs/preview/notify-icons-selected.json`）／ベル並び順確定（案A 業務頻度順）／パネル統一仕様確定（案P3 ハイブリッド）／自動生成行オーバーレイ確定（案OL-D 斜線パターン）。残課題: ロックアイコン正式選定は N-4 で実施 |
-| N-2 通知基盤 | 未着手 | — | — | — |
+| N-2.1 統合プレビュー | 完了 | 2026-05-15 | 2026-05-16 | `docs/preview/notify-compare.html` に「N-2 統合」モード追加。7ベル+専用P3パネル+クロス画面ヒント+履歴タブ（縦タブ/軸別ピッカー）+ アイコン編集トグル+IconPicker連動。実画面を見ながら27スロット（ベル7+共通4+パネル別16）を全件再選定し `notify-icons-selected.json` を確定。詳細は §13 参照 |
+| N-2.2 通知基盤本実装 | 未着手 | — | — | プレビュー仕様を `co-navbar.js` / `co-notify-panel.js` に反映 |
 | N-3 SL応援統合 | 未着手 | — | — | ws-support-partner と統合 |
 | N-4 自動受注生成 | 未着手 | — | — | — |
 | N-5 クロスフラッシュ | 未着手 | — | — | — |
 | N-6 結合テスト | 未着手 | — | — | — |
+
+---
+
+## 13. Phase N-2.1 統合プレビュー 完了サマリ（2026-05-16）
+
+### 13.1 成果物
+- **N-2 統合モード** を `docs/preview/notify-compare.html` に追加（モードボタン「N-2 統合」）
+  - 7ベル横並び（縦仕切りで画面別/横断を分離）
+  - ベルクリック → 専用 P3 ハイブリッドパネル切替（同時1パネルのみ表示）
+  - 最新タブ（日付グループ + アコーディオン）/ 履歴タブ（縦タブ + 軸別ピッカー + フィルタチップ）
+  - パネル別バッジ件数表示 / 「すべて既読」でバッジ0化
+  - クロス画面ヒント: アコーディオン展開時に「現在画面で開く」または「他画面で開く ↗」表示。現在画面セレクタで判定切替
+  - アイコン編集トグル: ON時に各ベル/アイテムに ✎ オーバーレイ。クリックで IconPicker 起動
+
+### 13.2 アイコン選定値（2026-05-16 確定）
+`docs/preview/notify-icons-selected.json` に確定値。27スロット全件:
+
+- ベル7個: bell-ob / bell-sl / bell-ws / bell-la / bell-pending / bell-vehicle / bell-master
+- 共通タイプ4個（SL/WSで参照）: type-employee / type-vehicle / type-support / type-reservation
+- パネル別タイプ16個:
+  - OB: type-ob-add / modify / delete
+  - SL: type-sl-auto
+  - WS: type-ws-schedule-change / leave-reflect
+  - LA: type-la-new / approve / reject
+  - 承認待ち: type-pending-wait
+  - 車両: type-vehicle-add / modify / delete
+  - マスタ: type-master-add / modify / delete
+
+### 13.3 ストレージ仕様
+- localStorage キー: `notifyIconSelections.v1`（既存アイコン選定モードと共有）
+- フラット構造: `{ [slotKey]: "category/file.svg", ... }`
+- N-2 編集モードでもアイコン選定モードでも双方向に反映
+- 「📋 JSON出力」ボタンでクリップボードコピー可能（既存）
+
+### 13.4 N-2.2（本実装）への引き継ぎ要点
+1. **対象ファイル**
+   - `docs/mockup/co-navbar.js` の `mdNavCnAnchor` を「ベルコンテナ」に拡張
+   - `docs/mockup/co-navbar.css` のベル横並びレイアウト
+   - `docs/mockup/co-notify-panel.js` を複数アンカー対応 + P3 ハイブリッドパネル化
+   - `docs/mockup/co-notify-panel.css` のアイテム種別アイコンサポート
+2. **ベル定義テーブル**: `coNotifyBells = [{ id, label, icon, scope }]` を導入。N-2 プレビューの並び（OB/SL/WS/LA│承認/車両/マスタ）と一致させる
+3. **アイコン解決ロジック**: `notify-icons-selected.json` を読み込んで slot key → ファイルパスの解決を実装（プレビュー JS の `SLOT_DEFAULT` 相当）
+4. **既存ベル**: 現状の `mdNavCnAnchor`（単一ベル + マスタ更新/休暇申請承認待ち混在）を完全リプレース（N-2.1 設計レビュー時に確認済み）
+5. **各画面JSの発信ロジック改修**: OB/SL/WS/LA 各画面のJSを「自領域のみ発信」に絞る作業は N-2.2 のサブタスクとして実施
+6. **既読バッジ独立管理**: ベル単位の未読カウントと「すべて既読」ボタン
+
+### 13.5 N-2.1 で確認した未解決の論点
+- 編集トグル後の永続化: 現状は localStorage のみ。本実装時にサーバー側で個人設定として保存するか要検討（アカウント管理画面の予定と関連）
+- 「カスタムテキスト」スロットがない既存アイコンライブラリ依存。新規アイコンが必要になったら `scripts/download-icons.js` で追加DL
+
+### 13.6 関連ファイル一覧
+- 計画書: `docs/plan/notification-refactor-plan.md`（本ファイル）
+- プレビュー: `docs/preview/notify-compare.{html,css,js}`
+- アイコン確定値: `docs/preview/notify-icons-selected.json`
+- アイコンライブラリ: `docs/assets/icons/`（27カテゴリ）
+- 既存アイコンピッカー: `docs/mockup/co-icon-picker.{js,css}`
 
 ---
 

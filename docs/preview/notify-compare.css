@@ -1749,3 +1749,217 @@ button.cn-date-group-head:hover {
         ),
         rgba(255, 255, 255, 0.30);
 }
+
+/* ============================================================
+   N-2 統合プレビュー (Phase N-2)
+   - 7ベル + 専用パネル切替 + クロス画面フラッシュヒント
+   ============================================================ */
+.cmp-grid--n2 {
+    grid-template-columns: 1fr;
+    align-items: start;
+}
+.cmp-card--n2 .cmp-card-body {
+    gap: 0;
+}
+
+/* ベルバー: N-2では幅広め */
+.cmp-bell-bar--n2 {
+    height: 40px;
+    padding: 0 16px;
+}
+.cmp-bell-bar--n2 .cmp-bell-item {
+    width: 32px;
+    height: 32px;
+}
+.cmp-bell-bar--n2 .cmp-bell-icon {
+    width: 18px;
+    height: 18px;
+}
+
+/* ステージ: 複数パネル切替対応 */
+.cmp-panel-stage--n2 {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    min-height: 480px;
+    padding: 16px 16px 20px;
+    gap: 12px;
+}
+
+/* 現在画面切替セレクタ */
+.cmp-n2-context {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    background: var(--bg-surface);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+.cmp-n2-context-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    flex-shrink: 0;
+}
+.cmp-n2-context-select {
+    padding: 4px 8px;
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 11px;
+    cursor: pointer;
+}
+.cmp-n2-context-hint {
+    flex: 1;
+    min-width: 200px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+.cmp-n2-context-hint strong {
+    color: var(--text-secondary);
+}
+
+/* N-2 パネル本体: 切替表示（同時に1パネルのみ表示） */
+.cmp-n2-panel {
+    display: none;
+    margin-left: auto;
+    box-shadow: var(--elevation-3);
+}
+.cmp-n2-panel.is-active {
+    display: block;
+}
+
+/* タブビュー（最新 / 履歴）の表示切替 — co-notify-panel.css 相当 */
+.cmp-n2-panel .cn-tab-view { display: none; }
+.cmp-n2-panel .cn-tab-view.is-active { display: block; }
+
+/* クロス画面ヒント（アコーディオン内に動的描画） */
+.cn-cross-hint {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+    padding: 6px 8px;
+    background: var(--bg-surface-2);
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+}
+.cn-cross-hint-in-context {
+    color: #1b7f3b;
+    font-weight: 600;
+}
+.cn-cross-hint-in-context::before {
+    content: '● ';
+    color: #2ea44f;
+}
+.cn-cross-hint-out {
+    color: var(--text-secondary);
+}
+.cn-cross-jump-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    margin: 2px 4px 2px 0;
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 120ms;
+}
+.cn-cross-jump-btn:hover {
+    background: var(--accent-primary-dim);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.cmp-feature-list--n2 {
+    margin-top: 12px;
+}
+
+/* N-2 種別アイコン: notify-icons-selected.json の SVG/PNG を白色化して .cn-icon 内に表示
+   背景は他モード（Before/After 等）と同じビビッドな色（type-add=青 / type-modify=橙 / type-delete=赤 ほか） */
+.cmp-n2-panel .cn-icon-img {
+    width: 16px;
+    height: 16px;
+    filter: brightness(0) invert(1);
+    pointer-events: none;
+}
+
+/* ============================================================
+   N-2 アイコン編集モード（トグル + ✎ オーバーレイ）
+   ============================================================ */
+.cmp-n2-edit-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 11px;
+    cursor: pointer;
+    transition: background 120ms, border-color 120ms, color 120ms;
+}
+.cmp-n2-edit-toggle:hover {
+    background: var(--accent-primary-dim);
+    border-color: var(--accent-primary);
+}
+.cmp-n2-edit-toggle[aria-pressed="true"] {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #fff;
+}
+.cmp-n2-edit-toggle-icon {
+    font-size: 12px;
+    line-height: 1;
+}
+
+/* 編集モード中: ベル本体・アイテムアイコンを「クリック可能」表示にする */
+.cmp-card--n2.is-icon-editing .cmp-bell-item,
+.cmp-card--n2.is-icon-editing .cmp-n2-panel .cn-icon {
+    cursor: pointer;
+    outline: 2px dashed var(--accent-primary);
+    outline-offset: 2px;
+}
+.cmp-card--n2.is-icon-editing .cmp-bell-item:hover,
+.cmp-card--n2.is-icon-editing .cmp-n2-panel .cn-icon:hover {
+    outline-style: solid;
+}
+
+/* ✎ オーバーレイバッジ */
+.cmp-card--n2.is-icon-editing .cmp-bell-item::before,
+.cmp-card--n2.is-icon-editing .cmp-n2-panel .cn-icon::before {
+    content: '✎';
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 14px;
+    text-align: center;
+    box-shadow: 0 0 0 1.5px var(--bg-surface);
+    pointer-events: none;
+    z-index: 2;
+}
+.cmp-card--n2.is-icon-editing .cmp-n2-panel .cn-icon {
+    position: relative;
+    overflow: visible;
+}
+/* 編集モード中は ベル既存の is-active 下線インジケータが ✎ と重ならないよう少し下げる */
+.cmp-card--n2.is-icon-editing .cmp-bell-item.is-active::before {
+    content: none;
+}
