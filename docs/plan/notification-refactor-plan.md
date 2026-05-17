@@ -530,4 +530,152 @@ WSが先行実装した応援データ構造を **単一情報源（SSOT）** �
 
 ---
 
+## 14. Phase N-2.2 通知基盤本実装 完了サマリ（2026-05-18）
+
+### 14.1 成果物（全画面共通ナビバーに反映）
+- **7ベル横並び**: `coNotifyBells` 定義テーブルで OB→SL→WS→LA│Pending→Vehicle→Master を生成。縦仕切りで画面別/横断を分離
+- **P3 ハイブリッドパネル**: 最新タブ（日付グループ + アコーディオン）/ 履歴タブ（縦サブタブ + フィルタチップ + 軸別ピッカー）
+- **アコーディオン展開**: `expand` または `affects` を持つアイテムで右シェブロン表示 → クリックで `cn-expand` 展開。サマリ + クロス画面ヒント表示
+- **クロス画面ヒント** (`cn-cross-hint`): 現在画面（`location.pathname` 判定）が `affects` に含まれる場合は緑「現在画面で開く」、含まれない場合は「○○ で開く ↗」ボタン（alert モック / 実遷移は N-5）
+- **履歴タブ**: 縦サブタブで「業務軸 ↔ アカウント軸」切替、軸グループ単位アコーディオン、フィルタチップ（すべて/追加/変更/削除）、軸別ピッカー（契約先→現場 / アカウント の2段階バッジ選択）
+- **既読化バッジ連動**: 個別クリックで `is-unread` 除去 + バッジ-1、「すべて既読」でバッジ0化
+- **アイコン解決**: 27スロット既定アイコン (`CN_SLOT_DEFAULT`) を `co-notify-panel.js` に埋め込み。localStorage `notifyIconSelections.v1` のユーザー選択を優先
+- **既存デモ通知移行**: 旧 `mdNavCnItems` 3件を `bell-master` / `bell-pending` へ振り分け
+
+### 14.2 新規 API（`window.coNotifyPanel`）
+
+| API | 用途 |
+|------|------|
+| `applyBellIcon(bellId)` | ベルアイコンを `<img src>` に適用 |
+| `setItems(bellId, items[])` | 最新タブを全置換、ID 自動付与 |
+| `addItem(bellId, item)` → id | 先頭追加、id を返す（各画面JS の発信先） |
+| `removeItem(bellId, id)` → boolean | 個別削除 |
+| `clearItems(bellId)` | クリア |
+| `getItems(bellId)` → items[] | 現在の通知リスト |
+| `setHistory(bellId, config)` | 履歴タブの構造を投入 |
+| `updateBadge(bellId, count?)` | バッジ件数（省略時は未読カウント） |
+| `renderCrossHintsIn(item)` | アコーディオン展開時にヒント描画 |
+| `getCurrentPage()` | `location.pathname` から現在画面ID |
+
+### 14.3 `cn:jump` イベント（§6.5 仕様準拠）
+```js
+item.dispatchEvent(new CustomEvent('cn:jump', {
+    bubbles: true,
+    detail: {
+        item,                    // DOM要素
+        source: 'ob',            // 発信ベルID
+        affects: ['order-book', 'screen-layout'],
+        inContext: true,         // 現在画面が affects に含まれるか
+        type: 'modify',          // アイテム種別
+        slot: 'type-ob-modify',  // アイコンスロット
+        target: { axis: 'orderId', value: 'O-...' }  // N-5 で各画面JS が付与
+    }
+}));
+```
+各画面のリスナーは `detail.inContext === true` の場合のみフラッシュ起動（N-5 で本実装）。
+
+### 14.4 アイテムデータ形式
+```js
+{
+    id: 'cn-ob-xxx',           // 省略時は自動採番
+    type: 'add' | 'modify' | 'delete' | 'new' | 'approve' | 'reject' | 'pending' | 'auto',
+    slot: 'type-employee',     // 任意。指定なければ type-{bellId}-{type} で解決
+    main: '東央警備 / 渋谷駅前ビル の受注を追加',
+    sub: '山田太郎 ・ 09:14',
+    date: '今日 (5/15)',       // 日付グループ用
+    expand: '差分サマリ',       // 任意。アコーディオン展開時のテキスト
+    affects: ['order-book', 'screen-layout'],  // 任意。クロス画面ヒント用
+    target: { axis: 'orderId', value: 'O-2026-0123' }  // 任意。N-5 用
+}
+```
+
+### 14.5 履歴 config 形式
+```js
+{
+    businessAxis: {
+        tab: '契約先/現場',
+        search: '現場名で検索...',
+        prefix: '現場',
+        groups: [{ title: '...', items: [...] }],
+        companies: ['東央警備', ...],
+        sites: { '東央警備': ['渋谷駅前ビル', ...] }
+    },
+    accountAxis: {
+        tab: 'アカウント',
+        search: '...',
+        prefix: 'アカウント',
+        groups: [...],
+        accounts: ['山田太郎', ...]
+    }
+}
+```
+
+### 14.6 変更ファイル一覧
+- `docs/mockup/co-navbar.js` — 単一ベル → 7ベルコンテナへリプレース、デモ通知・履歴データ投入
+- `docs/mockup/co-navbar.css` — `.md-nav-cn-bells` + 白フィルタ + 縦仕切り
+- `docs/mockup/co-notify-panel.js` — API群追加（490行 → 約940行へ拡張）
+- `docs/mockup/co-notify-panel.css` — `.cn-icon-img` / `.cn-expand-summary` / `.cn-cross-hint` 関連
+- 5 HTML (`order-book` / `screen-layout` / `weekly-schedule` / `leave-application` / `quick-access`):
+  - script 読み込み順を `panel→navbar` に統一（panel.js が先に API を公開する必要）
+  - キャッシュバージョン `panel.js?v=9` / `navbar.js?v=8`
+
+### 14.7 残課題（N-3 着手前に判断必要） ★重要
+**#7 画面側既存ベルの撤去** — 以下のHTML/JSが旧仕様のまま残存:
+
+| ファイル | 残存要素 | 撤去要否 |
+|---------|---------|---------|
+| `docs/order-book.html` | `cn-anchor#obCnAnchor` + `obCnNotifyBtn` + `obCnOpenModal()` | 撤去対象 |
+| `docs/screen-layout.html` | `cn-anchor#cnAnchor` + `cnNotifyBtn` + `openChangeNotifyModal()` | 撤去対象 |
+| `docs/weekly-schedule.html` | 同上の画面固有ベル | 要調査 |
+| `docs/leave-application.html` | 同上 | 要調査 |
+| `docs/quick-access.html` | モバイル独自ヘッダー（ナビバー非使用） | スコープ判断 |
+
+§13.4 で「現状の `mdNavCnAnchor` を完全リプレース」と明記済だが、画面側ベルの撤去まで踏み込んでいない。N-2.2 のナビバー側7ベルと **並存中**。
+
+**撤去時の対応:**
+1. 各画面 HTML から `cn-anchor` 要素を削除
+2. 各画面 JS から ベル開閉ロジック・通知データ生成・モーダル定義を削除
+3. 各画面が独自に保持していた通知データを `window.coNotifyPanel.addItem(bellId, item)` 経由で新ベルへ発信するよう改修
+4. これが計画書 §13.4-5「各画面JSの発信ロジック改修はサブタスク」の本体
+
+撤去判断は **N-3 着手前または同時実施を推奨**。
+
+### 14.8 N-2.2 で確認した未解決の論点
+- 各画面JS の **自領域発信化（リアルタイム通知）** は別タスク → #7 撤去と同時実施推奨
+- 「○○画面で開く ↗」の実画面遷移ロジックは Phase **N-5** で本実装
+- アイコン編集トグルの本番組込みは個人設定保存と関連、本実装スコープ外
+- DB通知テーブル設計（§3.5）は別途実施。モック段階ではメモリ保持
+- アイテム検索ボックスのリアルタイム入力フィルタは未実装（プレビュー含めて）
+
+### 14.9 進行中のセッションで判明した実装抜けと修正履歴
+N-2.2 セッション内で以下の実装抜けがユーザー指摘で判明し、すべて修正済:
+1. **個別クリック時のバッジ-1 連動** が抜けていた → `markItemReadAndRefresh` 追加
+2. **履歴タブのアイテムにアコーディオン展開機能なし** だった → `buildAxisGroupsHtml` で `expand`/`affects` を保持
+3. **add/new/delete/reject 系で `affects` があってもアコーディオン展開不可** だった → `jumpOnly` 強制ロジック廃止
+4. **`cn:jump` の detail が `{item}` のみ** だった → §6.5 仕様準拠に拡張
+5. **アイテムID管理が無く `addItem`/`removeItem` API が無かった** → `bellItemsStore` 内部状態 + 自動採番
+
+→ 反省点: 計画書 §5.4 / §6.5 / §13.4 の精読不足だった。次フェーズではプレビュー実装と本実装の対照確認を厳密に行う。
+
+### 14.10 引き継ぎ要点（N-3 SL応援統合 着手時）
+1. **まず本計画 §7 を全読**: WS の `supportPartners` / `supportReservations` データ構造を SL に移植、単一情報源は WS（§7.2）
+2. **既存計画 `ws-support-partner-plan.md` Phase A5 以降と統合**: 本計画優先
+3. **#7 画面側既存ベル撤去** を同時実施推奨: 各画面JS が `coNotifyPanel.addItem()` で発信するよう改修。撤去とともに「自領域発信化」が完了
+4. **API 利用例**:
+   ```js
+   // 各画面JSが自領域変更時に呼ぶ
+   window.coNotifyPanel.addItem('sl', {
+       type: 'modify',
+       slot: 'type-sl-auto',
+       main: '渋谷駅前ビル に他GC社員を配置（自動受注生成）',
+       sub: '配置: 田中一郎(Nikkei) ・ 11:30',
+       date: '今日 (5/15)',
+       expand: 'グループ間応援を検出 → OB側に自動受注行を生成',
+       affects: ['screen-layout', 'order-book'],
+       target: { axis: 'siteCode', value: 'S-042' }
+   });
+   ```
+
+---
+
 **本計画書はモックアップ段階の構想として作成。実装着手前に各 Phase でユーザーレビュー必須（Phase Gate Rules 準拠）。**
