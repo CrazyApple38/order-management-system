@@ -599,7 +599,7 @@ function renderGrid() {
             html += `<div class="tbl-grid__cell tbl-grid__sticky--6 ${rowCls}${evenCls}" data-ri="${ri}"${shiftAttr}><button class="tbl-grid__row-add-btn" onclick="event.stopPropagation(); addShiftRow(${ri})" title="${oppositeShift}を追加">＋</button></div>`;
         }
         html += `<div class="tbl-grid__cell tbl-grid__sticky--7 ${rowCls}${evenCls}" data-ri="${ri}"${shiftAttr}><button class="tbl-grid__cal-open-btn" onclick="event.stopPropagation(); openCalendarModal(${ri})" title="カレンダー入力"><img src="mockup/icons/calendar.svg" alt="カレンダー"></button></div>`;
-        html += `<div class="tbl-grid__cell tbl-grid__sticky--8 ${rowCls}${evenCls}" data-ri="${ri}"${shiftAttr}>${obCnGetRowBellHtml(ri)}</div>`;
+        html += `<div class="tbl-grid__cell tbl-grid__sticky--8 ${rowCls}${evenCls}" data-ri="${ri}"${shiftAttr}></div>`;
 
         // Date cells
         let rowTotalMin = 0; // 確定のみ
@@ -805,12 +805,6 @@ function isFiltered(row) {
 // 共通GCフィルタ変更イベントで再描画
 document.addEventListener('gcFilterChanged', function() {
     if (typeof renderGrid === 'function') renderGrid();
-    // 変更通知モーダルが開いていれば再描画
-    var cnModal = document.getElementById('obCnModal');
-    if (cnModal && cnModal.classList.contains('active')) {
-        obCnRenderLatest();
-        obCnRenderHistory();
-    }
 });
 
 function toggleFilterRow() {
@@ -3984,152 +3978,15 @@ function _restoreAfterCalendarEdit() {
     renderCalendarGrid();
 }
 
-// ==================== 変更通知システム ====================
-
-const obCnState = {
-    notifications: [],
-    history: [],
-    unreadCount: 0,
-    activeTab: 'latest',
-    nextId: 1,
-    filterTask: '', // 業務名フィルタ（受注簿固有）
-    filterRowId: -1 // 行ベルから開いた場合の_rowId（-1=行フィルタなし）
-};
+// ==================== 変更通知システム（N-2.3 リファクタ 2026-05-18） ====================
+// 旧 obCnState / 旧UI関数群 / 旧トースト / 旧行ベル / コンフリクトバナー / デモシーケンス は撤去
+// 自領域発信は co-notify-panel.js の addItem('ob', ...) 経由
+// 保留: obCnHighlightCells (N-5 で cn:jump リスナーから利用予定)
 
 function obCnTimeNow() {
     const d = new Date();
     return (d.getMonth() + 1) + '月' + d.getDate() + '日 ' +
         d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
-}
-
-function obCnUpdateBadge() {
-    const badge = document.getElementById('obCnBadge');
-    if (!badge) return;
-    if (obCnState.unreadCount > 0) {
-        badge.textContent = obCnState.unreadCount;
-        badge.hidden = false;
-    } else {
-        badge.textContent = '0';
-        badge.hidden = true;
-    }
-}
-
-// 行ミニベル: 各業務名の未読通知数を返す
-function obCnGetUnreadForRow(ri) {
-    const row = sampleRows[ri];
-    if (!row) return 0;
-    return obCnState.notifications.filter(function(n) {
-        return !n._read && n.rowId === row._rowId;
-    }).length;
-}
-
-// 行ミニベルHTML生成
-function obCnGetRowBellHtml(ri) {
-    const count = obCnGetUnreadForRow(ri);
-    const cls = count > 0 ? 'md-ob-row-bell has-unread' : 'md-ob-row-bell';
-    return '<span class="' + cls + '" onclick="event.stopPropagation(); obCnOpenModalForRow(' + ri + ')" title="この業務の変更通知">' +
-        '<img src="mockup/icons/bell.svg" class="md-ob-row-bell-img">' +
-        (count > 0 ? '<span class="md-ob-row-bell-dot"></span>' : '') +
-    '</span>';
-}
-
-// トースト表示
-function obCnShowToast(n) {
-    const container = document.getElementById('obCnToastContainer');
-    const toast = document.createElement('div');
-    const dotColors = { add: '#44A6B5', modify: '#DECCBE', delete: '#DB577B' };
-    const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
-    toast.className = 'md-cn-toast md-cn-toast-' + n.type;
-    toast.innerHTML =
-        '<span class="md-cn-toast-icon" style="width:14px;height:14px;border-radius:50%;background:' + dotColors[n.type] + ';flex-shrink:0;"></span>' +
-        '<div class="md-cn-toast-body">' +
-            '<div class="md-cn-toast-title">' + typeLabels[n.type] + ' — ' + escapeHtml(n.user) + '</div>' +
-            '<div class="md-cn-toast-desc">' + escapeHtml(n.taskName || n.siteName || '') + '</div>' +
-        '</div>' +
-        '<span class="md-cn-toast-time">' + n.time + '</span>';
-    toast.onclick = function() {
-        toast.classList.add('md-cn-toast-exit');
-        setTimeout(function() { toast.remove(); }, 300);
-        obCnOpenModal();
-    };
-    container.appendChild(toast);
-    setTimeout(function() {
-        if (toast.parentNode) {
-            toast.classList.add('md-cn-toast-exit');
-            setTimeout(function() { toast.remove(); }, 300);
-        }
-    }, 5000);
-}
-
-// パネル開閉: ヘッダーベルクリックは描画のみ。開閉は co-notify-panel.js が処理
-function obCnOpenModal() {
-    var anchor = document.getElementById('obCnAnchor');
-    // 既に開いている → 閉じるためのクリック → 描画スキップ
-    if (anchor && anchor.classList.contains('is-open')) return;
-    if (obCnState.filterRowId < 0) {
-        var lbl = document.getElementById('obCnRowFilterLabel');
-        if (lbl) lbl.hidden = true;
-    }
-    // 既読処理: 行ベルからはその行のみ、ヘッダーベルからは全既読
-    if (obCnState.filterRowId >= 0) {
-        obCnState.notifications.forEach(function(n) {
-            if (!n._read && n.rowId === obCnState.filterRowId) { n._read = true; }
-        });
-        obCnState.unreadCount = obCnState.notifications.filter(function(n) { return !n._read; }).length;
-    } else {
-        obCnState.notifications.forEach(function(n) { n._read = true; });
-        obCnState.unreadCount = 0;
-    }
-    obCnUpdateBadge();
-    obCnRenderLatest();
-    obCnRenderHistory();
-    renderGrid(); // ミニベルのドット更新
-}
-
-function obCnOpenModalForRow(ri) {
-    const row = sampleRows[ri];
-    obCnState.filterRowId = row ? row._rowId : -1;
-    obCnState.filterTask = '';
-    var lbl = document.getElementById('obCnRowFilterLabel');
-    if (row && lbl) {
-        lbl.textContent = (row.company ? row.company + ' / ' : '') + (row.task || '(個別業務)');
-        lbl.hidden = false;
-    }
-    // 行ベル経由で開く: 描画して開く
-    if (obCnState.filterRowId >= 0) {
-        obCnState.notifications.forEach(function(n) {
-            if (!n._read && n.rowId === obCnState.filterRowId) { n._read = true; }
-        });
-        obCnState.unreadCount = obCnState.notifications.filter(function(n) { return !n._read; }).length;
-    }
-    obCnUpdateBadge();
-    obCnRenderLatest();
-    obCnRenderHistory();
-    renderGrid();
-    var anchor = document.getElementById('obCnAnchor');
-    if (anchor && window.coNotifyPanel) window.coNotifyPanel.open(anchor);
-}
-
-function obCnCloseModal() {
-    var anchor = document.getElementById('obCnAnchor');
-    if (anchor && window.coNotifyPanel) window.coNotifyPanel.close(anchor);
-    obCnState.filterRowId = -1;
-    obCnState.filterTask = '';
-    var lbl = document.getElementById('obCnRowFilterLabel');
-    if (lbl) lbl.hidden = true;
-}
-
-// 互換ラッパー (co-notify-panel.js が処理する上タブ切替)
-function obCnSwitchTab(tabName) {
-    obCnState.activeTab = tabName;
-    var panel = document.getElementById('obCnPanel');
-    if (!panel) return;
-    panel.querySelectorAll('.cn-tab').forEach(function (t) {
-        t.classList.toggle('is-active', t.dataset.tab === tabName);
-    });
-    panel.querySelectorAll('.cn-tab-view').forEach(function (v) {
-        v.classList.toggle('is-active', v.dataset.tab === tabName);
-    });
 }
 
 // セル明滅ハイライト（5秒で自動消去）
@@ -4169,265 +4026,6 @@ function obCnHighlightCells(ri, day, type, si) {
         }
     }, 5000);
 }
-
-// カードクリック→パネルを閉じてセルハイライト
-function obCnCardClick(notificationId) {
-    var n = obCnState.notifications.find(function(x) { return x.id === notificationId; });
-    if (!n || n.rowIndex === undefined) return;
-    // パネルは開いたまま、該当セルをハイライト
-    obCnHighlightCells(n.rowIndex, n.day, n.type, n.subIndex);
-}
-
-// 履歴→最新タブの該当アイテムへジャンプ
-function obCnJumpToCard(notificationId) {
-    obCnSwitchTab('latest');
-    setTimeout(function() {
-        var item = document.querySelector('#obCnPanel .cn-item[data-nid="' + notificationId + '"]');
-        if (!item) return;
-        item.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        item.classList.add('cn-item-highlight');
-        setTimeout(function() { item.classList.remove('cn-item-highlight'); }, 1500);
-    }, 50);
-}
-
-// 業務名フィルタ (履歴タブ内チップで代替するため互換スタブ)
-function obCnSetFilter(task) {
-    obCnState.filterTask = task;
-    obCnRenderLatest();
-    obCnRenderHistory();
-}
-function obCnUpdateFilterSelect() { /* 互換スタブ: 旧selectは廃止 */ }
-
-// カテゴリ→CSSクラス
-const obCnCatClassMap = {
-    '施設': 'md-cn-cat-facility', 'イベント': 'md-cn-cat-event',
-    '高速': 'md-cn-cat-highway', '交通': 'md-cn-cat-traffic',
-    '応援交通': 'md-cn-cat-support'
-};
-const obCnShiftClassMap = { '昼': 'md-cn-shift-day', '夜': 'md-cn-shift-night' };
-
-// ========== 通知パネル レンダリング (cn-* 規約) ==========
-const obCnIconChars = { add: '＋', modify: '✎', delete: '✕' };
-
-function obCnSiteLabel(n) {
-    // 「契約先 / 業務名」 (両方なければ siteName)
-    if (n.company && (n.taskName || n.siteName)) return n.company + ' / ' + (n.taskName || n.siteName);
-    return n.taskName || n.siteName || (n.company || '(個別業務)');
-}
-
-function obCnDescribeAction(n) {
-    var name = obCnSiteLabel(n);
-    if (n.type === 'add') return name + ' を新規追加';
-    if (n.type === 'delete') return name + ' を削除';
-    if (n.type === 'modify') {
-        var fields = n.diffs ? n.diffs.map(function(d) { return d.field; }).join('・') : '';
-        return name + (fields ? ' の' + fields + 'を変更' : ' を変更');
-    }
-    return name;
-}
-
-function obCnBuildDiffHtml(n) {
-    if (n.type === 'modify' && n.diffs) {
-        return n.diffs.map(function(d) {
-            return '<div class="cn-diff-line">' +
-                '<span class="cn-diff-label">' + escapeHtml(d.field) + '</span>' +
-                '<span class="cn-diff-from">' + escapeHtml(d.oldVal) + '</span>' +
-                '<span class="cn-diff-arrow">→</span>' +
-                '<span class="cn-diff-to">' + escapeHtml(d.newVal) + '</span>' +
-            '</div>';
-        }).join('');
-    } else if (n.type === 'add' && n.details) {
-        return n.details.map(function(d) {
-            return '<div class="cn-diff-line">' +
-                '<span class="cn-diff-label">' + escapeHtml(d.field) + '</span>' +
-                '<span class="cn-diff-to">' + escapeHtml(d.value) + '</span>' +
-            '</div>';
-        }).join('');
-    }
-    return '';
-}
-
-function obCnRenderItem(n) {
-    var iconChar = obCnIconChars[n.type] || '?';
-    var stateClass = n.reverted ? ' is-reverted' : (n._approved ? ' is-approved' : '');
-    var unreadClass = !n._read ? ' is-unread' : '';
-    var dayChip = (n.day != null) ? '<span class="cn-date-chip">' + currentMonth + '/' + n.day + '</span>' : '';
-
-    var diffHtml = obCnBuildDiffHtml(n);
-    if (!diffHtml && n.type === 'delete') {
-        diffHtml = '<div class="cn-diff-line"><span class="cn-diff-from">この行は削除されました</span></div>';
-    }
-    var actionBtn = n.reverted
-        ? '<button class="cn-jump-btn" type="button" onclick="event.stopPropagation();obCnReapprove(' + n.id + ')">↻ 適用する</button>'
-        : '<button class="cn-jump-btn" type="button" onclick="event.stopPropagation();obCnRevert(' + n.id + ')">↩ キャンセル</button>';
-    var expandHtml = '<div class="cn-expand">' + diffHtml + actionBtn + '</div>';
-    var chevron = '<span class="cn-chevron">▾</span>';
-
-    var siteKey = n.taskName || n.siteName || '';
-    return '<div class="cn-item type-' + n.type + unreadClass + stateClass + '" data-nid="' + n.id + '" data-type="' + n.type + '" data-site="' + escapeHtml(siteKey) + '" data-account="' + escapeHtml(n.user || '') + '">' +
-        '<div class="cn-item-row">' +
-            '<div class="cn-icon type-' + n.type + '">' + iconChar + '</div>' +
-            '<div class="cn-text">' +
-                '<div class="cn-text-main">' + escapeHtml(obCnDescribeAction(n)) + dayChip + '</div>' +
-                '<div class="cn-text-sub">' + escapeHtml(n.user) + ' ・ ' + escapeHtml(n.time || '') + '</div>' +
-            '</div>' +
-            chevron +
-        '</div>' +
-        expandHtml +
-    '</div>';
-}
-
-function obCnFilterNotifications() {
-    return obCnState.notifications.filter(function(n) {
-        if (window.mdNavGcIsCompanyVisible) {
-            var code = obBranchToGcCode[n.branch];
-            if (code && !window.mdNavGcIsCompanyVisible(code)) return false;
-        }
-        if (obCnState.filterRowId >= 0 && n.rowId !== obCnState.filterRowId) return false;
-        if (obCnState.filterTask !== '' && (n.taskName || '') !== obCnState.filterTask) return false;
-        return true;
-    });
-}
-
-function obCnRenderLatest() {
-    var body = document.getElementById('obCnLatestBody');
-    if (!body) return;
-    var filtered = obCnFilterNotifications();
-    if (filtered.length === 0) {
-        body.innerHTML = '<div class="cn-empty">変更通知はありません</div>';
-        return;
-    }
-    body.innerHTML = '<div class="cn-date-group">' +
-        '<button class="cn-date-group-head" type="button" aria-expanded="true">今日' +
-            '<span class="cn-date-group-toggle" aria-hidden="true">▴</span>' +
-        '</button>' +
-        filtered.map(obCnRenderItem).join('') +
-    '</div>';
-}
-
-function obCnFilterHistory() {
-    return obCnState.history.filter(function(h) {
-        if (window.mdNavGcIsCompanyVisible) {
-            var code = obBranchToGcCode[h.branch];
-            if (code && !window.mdNavGcIsCompanyVisible(code)) return false;
-        }
-        if (obCnState.filterRowId >= 0 && h.rowId !== obCnState.filterRowId) return false;
-        if (obCnState.filterTask !== '' && (h.taskName || '') !== obCnState.filterTask) return false;
-        return true;
-    });
-}
-
-function obCnRenderHistoryItem(h) {
-    var iconChar = obCnIconChars[h.type] || '?';
-    var name = h.company ? h.company + ' / ' + (h.taskName || '(個別業務)') : (h.taskName || '(個別業務)');
-    var dayChip = h.day != null ? '<span class="cn-date-chip">' + currentMonth + '/' + h.day + '</span>' : '';
-    var summary = h.summary ? ' (' + h.summary + ')' : '';
-    var siteKey = h.taskName || h.siteName || '';
-    var attrs = (h.notificationId != null ? ' data-nid="' + h.notificationId + '"' : '') +
-        ' data-type="' + h.type + '"' +
-        ' data-site="' + escapeHtml(siteKey) + '"' +
-        ' data-account="' + escapeHtml(h.user || '') + '"';
-    return '<div class="cn-item type-' + h.type + '"' + attrs + '>' +
-        '<div class="cn-item-row">' +
-            '<div class="cn-icon type-' + h.type + '">' + iconChar + '</div>' +
-            '<div class="cn-text">' +
-                '<div class="cn-text-main">' + escapeHtml(name) + escapeHtml(summary) + dayChip + '</div>' +
-                '<div class="cn-text-sub">' + escapeHtml(h.user) + ' ・ ' + escapeHtml(h.time || '') + '</div>' +
-            '</div>' +
-        '</div>' +
-    '</div>';
-}
-
-function obCnGroupBy(items, keyFn) {
-    var groups = {};
-    var order = [];
-    items.forEach(function(it) {
-        var k = keyFn(it) || '(未分類)';
-        if (!groups[k]) { groups[k] = []; order.push(k); }
-        groups[k].push(it);
-    });
-    return order.map(function(k) { return { key: k, items: groups[k] }; });
-}
-
-function obCnRenderAxisGroups(grouped) {
-    if (grouped.length === 0) return '<div class="cn-empty">変更履歴はありません</div>';
-    return grouped.map(function(g) {
-        return '<div class="cn-axis-group">' +
-            '<button class="cn-axis-group-head" type="button" aria-expanded="true">' + escapeHtml(g.key) +
-                '<span class="cn-axis-group-toggle" aria-hidden="true">▴</span>' +
-            '</button>' +
-            g.items.map(obCnRenderHistoryItem).join('') +
-        '</div>';
-    }).join('');
-}
-
-function obCnRenderHistory() {
-    var siteBody = document.getElementById('obCnHistorySiteBody');
-    var accBody = document.getElementById('obCnHistoryAccountBody');
-    var filtered = obCnFilterHistory();
-
-    if (siteBody) {
-        var bySite = obCnGroupBy(filtered, function(h) {
-            return h.company ? h.company + ' / ' + (h.taskName || '(個別業務)') : (h.taskName || '(個別業務)');
-        });
-        siteBody.innerHTML = obCnRenderAxisGroups(bySite);
-    }
-    if (accBody) {
-        var byAcc = obCnGroupBy(filtered, function(h) { return h.user; });
-        accBody.innerHTML = obCnRenderAxisGroups(byAcc);
-    }
-
-    obCnRenderPickBadges(filtered);
-}
-
-function obCnRenderPickBadges(historyItems) {
-    var companyBadges = document.getElementById('obCnPickCompanyBadges');
-    var siteGroups = document.getElementById('obCnPickSiteBadgesGroups');
-    if (companyBadges && siteGroups) {
-        var byCompany = obCnGroupBy(
-            historyItems.filter(function(h) { return !!h.company; }),
-            function(h) { return h.company; }
-        );
-        companyBadges.innerHTML = byCompany.length
-            ? byCompany.map(function(g) {
-                return '<button class="cn-pick-badge" type="button" data-company="' + escapeHtml(g.key) + '">' + escapeHtml(g.key) + '</button>';
-            }).join('')
-            : '<button class="cn-pick-badge" type="button" disabled>契約先がありません</button>';
-
-        siteGroups.innerHTML = byCompany.map(function(g) {
-            var tasks = {};
-            g.items.forEach(function(h) {
-                var t = h.taskName || '(個別業務)';
-                tasks[t] = true;
-            });
-            return '<div class="cn-pick-badges" data-company="' + escapeHtml(g.key) + '" hidden>' +
-                Object.keys(tasks).map(function(t) {
-                    return '<button class="cn-pick-badge" type="button">' + escapeHtml(t) + '</button>';
-                }).join('') +
-            '</div>';
-        }).join('');
-    }
-    var accBadges = document.getElementById('obCnPickAccountBadges');
-    if (accBadges) {
-        var users = {};
-        historyItems.forEach(function(h) { if (h.user) users[h.user] = true; });
-        var userList = Object.keys(users);
-        accBadges.innerHTML = userList.length
-            ? userList.map(function(u) { return '<button class="cn-pick-badge" type="button">' + escapeHtml(u) + '</button>'; }).join('')
-            : '<button class="cn-pick-badge" type="button" disabled>アカウントがありません</button>';
-    }
-}
-
-// 履歴アイテム / 最新アイテム → セルへジャンプ
-document.addEventListener('cn:jump', function(e) {
-    var item = e.detail && e.detail.item;
-    if (!item) return;
-    var panel = item.closest('#obCnPanel');
-    if (!panel) return;
-    var nid = item.dataset && item.dataset.nid;
-    if (!nid) return;
-    obCnCardClick(parseInt(nid, 10));
-});
 
 // --- 自分の操作による変更通知 ---
 const obCurrentUser = '田中 太郎（自分）';
@@ -4488,466 +4086,99 @@ function _obCnBuildRowDiffs(oldRow, newRow) {
     return diffs;
 }
 
+// 自領域発信: co-notify-panel.js の addItem('ob', ...) ラッパー
+// 既存呼び出し21箇所で渡される opts.{rowIndex/day/subIndex/taskName/siteName/diffs/details/_snapshot/...} を受領するが、
+// _snapshot 等のコンフリクトバナー用フィールドは N-2.3 撤去に伴い破棄
 function obCnSelfNotify(type, opts) {
+    if (!opts) opts = {};
+    if (!window.coNotifyPanel || typeof window.coNotifyPanel.addItem !== 'function') return;
+
     var row = (opts.rowIndex !== undefined && opts.rowIndex !== null) ? sampleRows[opts.rowIndex] : null;
-    var n = {
-        type: type,
-        user: obCurrentUser,
-        taskName: opts.taskName || (row ? row.task : ''),
-        siteName: opts.siteName || '',
-        category: opts.category || (row ? row.category : ''),
-        shift: opts.shift || (row ? row.shift : ''),
-        branch: opts.branch || (row ? row.branch : ''),
-        company: opts.company || (row ? row.company : ''),
-        day: opts.day || null,
-        subIndex: opts.subIndex != null ? opts.subIndex : null,
-        time: obCnTimeNow(),
-        diffs: opts.diffs || null,
-        details: opts.details || null,
-        rowIndex: opts.rowIndex != null ? opts.rowIndex : null,
-        rowId: opts.rowId || (row ? row._rowId : null),
-        _selfAction: true
-    };
-    if (opts._snapshot) n._snapshot = opts._snapshot;
-    if (opts._newSnapshot) n._newSnapshot = opts._newSnapshot;
-    if (opts._addedRow) n._addedRow = opts._addedRow;
-    if (opts._addedRowIndex !== undefined) n._addedRowIndex = opts._addedRowIndex;
-    if (opts._addedCellData) n._addedCellData = opts._addedCellData;
-    if (opts._deletedRow) n._deletedRow = opts._deletedRow;
-    if (opts._deletedCellData) n._deletedCellData = opts._deletedCellData;
-    if (opts._deletedRowIndex !== undefined) n._deletedRowIndex = opts._deletedRowIndex;
-    obCnReceive(n);
-}
+    var siteName = opts.siteName || '';
+    var taskName = opts.taskName || (row ? row.task : '');
+    var company = opts.company || (row ? row.company : '');
+    var dayStr = opts.day != null ? (opts.day + '日') : '';
 
-// 通知受信
-function obCnReceive(n) {
-    n.id = obCnState.nextId++;
-    n.reverted = false;
-    n._read = false;
-    n._approved = true; // 受注簿ではデータ変更が即反映
-    obCnState.notifications.unshift(n);
-    obCnState.history.unshift({
-        notificationId: n.id,
-        type: n.type,
-        user: n.user,
-        time: n.time,
-        taskName: n.taskName || '',
-        company: n.company || '',
-        branch: n.branch || '',
-        day: n.day || null,
-        rowId: n.rowId,
-        summary: (n.type === 'modify' && n.diffs
-            ? n.diffs.map(function(d) { return d.field; }).join('・')
-            : '')
-    });
-    obCnState.unreadCount++;
-    obCnUpdateBadge();
-
-    if (obCnCheckConflict(n)) {
-        obCnShowConflictBanner(n);
-    }
-    obCnShowToast(n);
-    // ミニベル未読ドット更新 + 該当セルハイライト
-    renderGrid();
-    if (n.rowIndex !== undefined) {
-        setTimeout(function() { obCnHighlightCells(n.rowIndex, n.day, n.type, n.subIndex); }, 100);
-    }
-}
-
-// 競合検出
-function obCnCheckConflict(n) {
-    const editModal = document.getElementById('editModalOverlay');
-    const calModal = document.getElementById('calendarModalOverlay');
-    return (editModal && editModal.style.display !== 'none') ||
-           (calModal && calModal.style.display !== 'none');
-}
-
-function obCnShowConflictBanner(n) {
-    const msg = n.user + 'が「' + (n.taskName || n.siteName || '') + '」を変更しました。最新のデータに更新されます。';
-    obCnShowBodyOverlay('editModalOverlay', 'obCnBodyOverlay', 'obCnBodyOverlayText', msg);
-    obCnShowBodyOverlay('calendarModalOverlay', 'obCnBodyOverlayCal', 'obCnBodyOverlayTextCal', msg);
-}
-
-function obCnShowBodyOverlay(modalOverlayId, overlayId, textId, msg) {
-    const modalOverlay = document.getElementById(modalOverlayId);
-    if (!modalOverlay || modalOverlay.style.display === 'none') return;
-    const overlay = document.getElementById(overlayId);
-    if (!overlay) return;
-    const modal = overlay.parentElement;
-    const header = modal && modal.querySelector('.modal-header');
-    overlay.style.top = (header ? header.offsetHeight : 0) + 'px';
-    const txt = document.getElementById(textId);
-    if (txt) txt.textContent = msg;
-    overlay.style.display = 'flex';
-}
-
-function obCnHideConflictBanner() {
-    ['obCnBodyOverlay', 'obCnBodyOverlayCal'].forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
-}
-
-// --- 元に戻す / やっぱり反映 ---
-
-function obCnRevert(id) {
-    var n = obCnState.notifications.find(function(x) { return x.id === id; });
-    if (!n || n.reverted) return;
-
-    if ((n.type === 'modify' || ((n.type === 'delete' || n.type === 'add') && !n._deletedRow && !n._addedRowIndex)) && n._snapshot) {
-        // セルデータを復元（modify / セルレベルのdelete・add）
-        var snap = n._snapshot;
-        if (snap.cellEntries !== undefined) {
-            if (!cellData[snap.rowIndex]) cellData[snap.rowIndex] = {};
-            cellData[snap.rowIndex][snap.day] = JSON.parse(JSON.stringify(snap.cellEntries));
-        }
-        if (snap.rowData) {
-            sampleRows[snap.rowIndex] = JSON.parse(JSON.stringify(snap.rowData));
-        }
-        renderGrid();
-    } else if (n.type === 'add' && n._addedRowIndex !== undefined) {
-        // 追加された行を削除
-        var ri = n._addedRowIndex;
-        // cellDataのシフト
-        var newCellData = {};
-        Object.keys(cellData).forEach(function(k) {
-            var idx = parseInt(k);
-            if (idx < ri) newCellData[idx] = cellData[idx];
-            else if (idx > ri) newCellData[idx - 1] = cellData[idx];
-            // idx === ri は削除
-        });
-        cellData = newCellData;
-        sampleRows.splice(ri, 1);
-        // 他の通知のrowIndexを調整
-        obCnState.notifications.forEach(function(other) {
-            if (other !== n && other.rowIndex !== undefined && other.rowIndex > ri) other.rowIndex--;
-        });
-        renderGrid();
-    } else if (n.type === 'delete' && n._deletedRow) {
-        // 削除された行を復元
-        var ri = n._deletedRowIndex;
-        sampleRows.splice(ri, 0, JSON.parse(JSON.stringify(n._deletedRow)));
-        // cellDataのシフト
-        var newCellData = {};
-        Object.keys(cellData).forEach(function(k) {
-            var idx = parseInt(k);
-            if (idx < ri) newCellData[idx] = cellData[idx];
-            else newCellData[idx + 1] = cellData[idx];
-        });
-        newCellData[ri] = JSON.parse(JSON.stringify(n._deletedCellData || {}));
-        cellData = newCellData;
-        // 他の通知のrowIndexを調整
-        obCnState.notifications.forEach(function(other) {
-            if (other !== n && other.rowIndex !== undefined && other.rowIndex >= ri) other.rowIndex++;
-        });
-        n.rowIndex = ri;
-        renderGrid();
-    }
-
-    n.reverted = true;
-    n._approved = false;
-    // キャンセルした通知を未読に戻し、ミニベルを更新
-    if (n._read) {
-        n._read = false;
-        obCnState.unreadCount++;
-        obCnUpdateBadge();
-    }
-    obCnRenderLatest();
-    renderGrid();
-}
-
-function obCnReapprove(id) {
-    var n = obCnState.notifications.find(function(x) { return x.id === id; });
-    if (!n || !n.reverted) return;
-
-    if ((n.type === 'modify' || ((n.type === 'delete' || n.type === 'add') && !n._deletedRow && !n._addedRow)) && n._newSnapshot) {
-        // 変更を再適用（modify / セルレベルのdelete・add）
-        var snap = n._newSnapshot;
-        if (snap.cellEntries !== undefined) {
-            if (!cellData[n.rowIndex]) cellData[n.rowIndex] = {};
-            cellData[n.rowIndex][snap.day] = JSON.parse(JSON.stringify(snap.cellEntries));
-        }
-        if (snap.rowData) {
-            sampleRows[n.rowIndex] = JSON.parse(JSON.stringify(snap.rowData));
-        }
-        renderGrid();
-    } else if (n.type === 'add' && n._addedRow) {
-        // 行を再追加
-        var ri = n._addedRowIndex !== undefined ? n._addedRowIndex : sampleRows.length;
-        sampleRows.splice(ri, 0, JSON.parse(JSON.stringify(n._addedRow)));
-        // cellDataのシフト
-        var newCellData = {};
-        Object.keys(cellData).forEach(function(k) {
-            var idx = parseInt(k);
-            if (idx < ri) newCellData[idx] = cellData[idx];
-            else newCellData[idx + 1] = cellData[idx];
-        });
-        newCellData[ri] = JSON.parse(JSON.stringify(n._addedCellData || {}));
-        cellData = newCellData;
-        // 他の通知のrowIndexを調整
-        obCnState.notifications.forEach(function(other) {
-            if (other !== n && other.rowIndex !== undefined && other.rowIndex >= ri) other.rowIndex++;
-        });
-        n.rowIndex = ri;
-        n._addedRowIndex = ri;
-        renderGrid();
-    } else if (n.type === 'delete' && n._deletedRow) {
-        // 行を再削除
-        var ri = n.rowIndex;
-        if (ri === undefined || ri >= sampleRows.length) return;
-        // cellData保存
-        n._deletedCellData = JSON.parse(JSON.stringify(cellData[ri] || {}));
-        n._deletedRowIndex = ri;
-        // cellDataのシフト
-        var newCellData = {};
-        Object.keys(cellData).forEach(function(k) {
-            var idx = parseInt(k);
-            if (idx < ri) newCellData[idx] = cellData[idx];
-            else if (idx > ri) newCellData[idx - 1] = cellData[idx];
-        });
-        cellData = newCellData;
-        sampleRows.splice(ri, 1);
-        // 他の通知のrowIndexを調整
-        obCnState.notifications.forEach(function(other) {
-            if (other !== n && other.rowIndex !== undefined && other.rowIndex > ri) other.rowIndex--;
-        });
-        renderGrid();
-    }
-
-    n.reverted = false;
-    n._approved = true;
-    // 適用後は既読に戻し、該当行の全通知が既読ならミニベルも既読化
-    if (!n._read) {
-        n._read = true;
-        obCnState.unreadCount = Math.max(0, obCnState.unreadCount - 1);
-        obCnUpdateBadge();
-    }
-    obCnRenderLatest();
-    renderGrid();
-}
-
-// --- デモシミュレーション ---
-let obCnDemoInterval = null;
-let obCnDemoRunning = false;
-let obCnDemoIndex = 0;
-
-const obCnDemoSequence = [
-    {
-        type: 'modify', user: '山田（現場管理）',
-        diffs: [{ field: '人数', oldVal: '', newVal: '' }],
-        apply: function() {
-            var ri = sampleRows.findIndex(function(r) { return r.task === '東名SA巡回' && r.shift === '昼'; });
-            if (ri === -1) return null;
-            var day = 5;
-            var entries = getCellEntries(ri, day);
-            var oldCount = entries.length > 0 ? entries[0].count : 0;
-            var newCount = 5;
-            this.diffs[0].oldVal = oldCount + '名';
-            this.diffs[0].newVal = newCount + '名';
-            // スナップショット保存
-            this._snapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri] && cellData[ri][day] ? cellData[ri][day] : [])) };
-            // 変更適用
-            if (!cellData[ri]) cellData[ri] = {};
-            if (!cellData[ri][day]) cellData[ri][day] = [{ count: 0, subTasks: [], startTime: '08:00', endTime: '17:00', supervisor: '', supervisorTel: '', assignment: '', badge: { parentId: 'highway', childIds: [], grandchildMap: {} }, confidence: 'confirmed', remarks: '' }];
-            cellData[ri][day][0].count = newCount;
-            this._newSnapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri][day])) };
-            renderGrid();
-            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, subIndex: 0, rowIndex: ri, rowId: sampleRows[ri]._rowId };
-        }
-    },
-    {
-        type: 'add', user: '鈴木（受注担当）',
-        details: [{ field: '会社', value: '東央' }, { field: '区分', value: '交通（夜）' }, { field: '契約先', value: '(株)丸山建設' }, { field: '業務名', value: '〇〇交差点' }],
-        apply: function() {
-            var newRow = { _rowId: obNextRowId++, branch: '東央警備', category: '交通', shift: '夜', company: '(株)丸山建設', task: '〇〇交差点', hidden: false };
-            var ri = sampleRows.length;
-            sampleRows.push(newRow);
-            // cellDataシフト不要（末尾追加）
-            cellData[ri] = {};
-            this._addedRow = JSON.parse(JSON.stringify(newRow));
-            this._addedRowIndex = ri;
-            this._addedCellData = {};
-            renderGrid();
-            return { taskName: '〇〇交差点', category: '交通', shift: '夜', branch: '東央警備', company: '(株)丸山建設', day: null, rowIndex: ri, rowId: newRow._rowId };
-        }
-    },
-    {
-        type: 'modify', user: '伊藤（配車担当）',
-        diffs: [{ field: '開始時間', oldVal: '', newVal: '' }],
-        apply: function() {
-            var ri = sampleRows.findIndex(function(r) { return r.task === '商業施設A' && r.shift === '昼'; });
-            if (ri === -1) return null;
-            var day = 10;
-            var entries = getCellEntries(ri, day);
-            var oldTime = entries.length > 0 ? (entries[0].startTime || '08:00') : '08:00';
-            var newTime = '09:30';
-            this.diffs[0].oldVal = oldTime;
-            this.diffs[0].newVal = newTime;
-            this._snapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri] && cellData[ri][day] ? cellData[ri][day] : [])) };
-            if (!cellData[ri]) cellData[ri] = {};
-            if (!cellData[ri][day]) cellData[ri][day] = [{ count: 2, subTasks: [], startTime: oldTime, endTime: '17:00', supervisor: '', supervisorTel: '', assignment: '', badge: { parentId: 'facility', childIds: [], grandchildMap: {} }, confidence: 'confirmed', remarks: '' }];
-            cellData[ri][day][0].startTime = newTime;
-            this._newSnapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri][day])) };
-            renderGrid();
-            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, subIndex: 0, rowIndex: ri, rowId: sampleRows[ri]._rowId };
-        }
-    },
-    {
-        type: 'delete', user: '高橋（管理部）',
-        apply: function() {
-            var ri = sampleRows.findIndex(function(r) { return r.task === '中央道補修' && r.shift === '昼'; });
-            if (ri === -1) return null;
-            var deletedRow = JSON.parse(JSON.stringify(sampleRows[ri]));
-            var deletedCellData = JSON.parse(JSON.stringify(cellData[ri] || {}));
-            var taskName = sampleRows[ri].task;
-            var category = sampleRows[ri].category;
-            var shift = sampleRows[ri].shift;
-            var rowId = sampleRows[ri]._rowId;
-            // 行削除
-            sampleRows.splice(ri, 1);
-            // cellDataシフト
-            var newCellData = {};
-            Object.keys(cellData).forEach(function(k) {
-                var idx = parseInt(k);
-                if (idx < ri) newCellData[idx] = cellData[idx];
-                else if (idx > ri) newCellData[idx - 1] = cellData[idx];
-            });
-            cellData = newCellData;
-            // 他の通知のrowIndex調整
-            obCnState.notifications.forEach(function(other) {
-                if (other.rowIndex !== undefined && other.rowIndex > ri) other.rowIndex--;
-            });
-            renderGrid();
-            return { taskName: taskName, category: category, shift: shift, branch: deletedRow.branch, company: deletedRow.company, day: null, rowIndex: ri, rowId: rowId,
-                     _deletedRow: deletedRow, _deletedCellData: deletedCellData, _deletedRowIndex: ri };
-        }
-    },
-    {
-        type: 'add', user: '田中（営業部）',
-        details: [{ field: '会社', value: 'Nikkei' }, { field: '区分', value: '高速（夜）' }, { field: '契約先', value: '(株)〇〇高速' }, { field: '業務名', value: '名神SA巡回' }],
-        apply: function() {
-            var newRow = { _rowId: obNextRowId++, branch: 'Nikkeiホールディングス', category: '高速', shift: '夜', company: '(株)〇〇高速', task: '名神SA巡回', hidden: false };
-            var ri = sampleRows.length;
-            sampleRows.push(newRow);
-            cellData[ri] = {};
-            this._addedRow = JSON.parse(JSON.stringify(newRow));
-            this._addedRowIndex = ri;
-            this._addedCellData = {};
-            renderGrid();
-            return { taskName: '名神SA巡回', category: '高速', shift: '夜', branch: 'Nikkeiホールディングス', company: '(株)〇〇高速', day: null, rowIndex: ri, rowId: newRow._rowId };
-        }
-    },
-    {
-        type: 'modify', user: '佐藤（営業部）',
-        diffs: [{ field: '備考', oldVal: '', newVal: '' }],
-        apply: function() {
-            var ri = sampleRows.findIndex(function(r) { return r.task === '□□公園整備' && r.shift === '昼'; });
-            if (ri === -1) return null;
-            var day = 15;
-            var entries = getCellEntries(ri, day);
-            var oldRemarks = entries.length > 0 ? (entries[0].remarks || '(なし)') : '(なし)';
-            var newRemarks = '雨天中止の可能性あり';
-            this.diffs[0].oldVal = oldRemarks;
-            this.diffs[0].newVal = newRemarks;
-            this._snapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri] && cellData[ri][day] ? cellData[ri][day] : [])) };
-            if (!cellData[ri]) cellData[ri] = {};
-            if (!cellData[ri][day]) cellData[ri][day] = [{ count: 2, subTasks: [], startTime: '08:00', endTime: '17:00', supervisor: '', supervisorTel: '', assignment: '', badge: { parentId: 'traffic', childIds: [], grandchildMap: {} }, confidence: 'confirmed', remarks: '' }];
-            cellData[ri][day][0].remarks = newRemarks;
-            this._newSnapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri][day])) };
-            renderGrid();
-            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, subIndex: 0, rowIndex: ri, rowId: sampleRows[ri]._rowId };
-        }
-    },
-    {
-        type: 'modify', user: '田中 太郎（自分）',
-        diffs: [{ field: '人数', oldVal: '', newVal: '' }],
-        apply: function() {
-            var ri = sampleRows.findIndex(function(r) { return r.task === '〇〇ビル巡回' && r.shift === '昼'; });
-            if (ri === -1) return null;
-            var day = 8;
-            var entries = getCellEntries(ri, day);
-            var oldCount = entries.length > 0 ? entries[0].count : 0;
-            var newCount = 3;
-            this.diffs[0].oldVal = oldCount + '名';
-            this.diffs[0].newVal = newCount + '名';
-            this._snapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri] && cellData[ri][day] ? cellData[ri][day] : [])) };
-            if (!cellData[ri]) cellData[ri] = {};
-            if (!cellData[ri][day]) cellData[ri][day] = [{ count: 0, subTasks: [], startTime: '08:00', endTime: '17:00', supervisor: '', supervisorTel: '', assignment: '', badge: { parentId: 'traffic', childIds: [], grandchildMap: {} }, confidence: 'confirmed', remarks: '' }];
-            cellData[ri][day][0].count = newCount;
-            this._newSnapshot = { rowIndex: ri, day: day, cellEntries: JSON.parse(JSON.stringify(cellData[ri][day])) };
-            renderGrid();
-            return { taskName: sampleRows[ri].task, category: sampleRows[ri].category, shift: sampleRows[ri].shift, branch: sampleRows[ri].branch, company: sampleRows[ri].company, day: day, subIndex: 0, rowIndex: ri, rowId: sampleRows[ri]._rowId };
-        }
-    }
-];
-
-function obCnSendDemoNotification() {
-    if (obCnDemoIndex >= obCnDemoSequence.length) {
-        obCnToggleDemo();
-        return;
-    }
-    var item = obCnDemoSequence[obCnDemoIndex];
-    obCnDemoIndex++;
-    var result = item.apply();
-    if (!result) { obCnSendDemoNotification(); return; } // 行が見つからない場合はスキップ
-    var n = {
-        type: item.type,
-        user: item.user,
-        taskName: result.taskName,
-        siteName: result.taskName,
-        category: result.category,
-        shift: result.shift,
-        branch: result.branch || '',
-        company: result.company || '',
-        day: result.day || null,
-        subIndex: result.subIndex != null ? result.subIndex : null,
-        time: obCnTimeNow(),
-        diffs: item.diffs ? item.diffs.map(function(d) { return { field: d.field, oldVal: d.oldVal, newVal: d.newVal }; }) : null,
-        details: item.details ? item.details.map(function(d) { return { field: d.field, value: d.value }; }) : null,
-        rowIndex: result.rowIndex,
-        rowId: result.rowId
-    };
-    // スナップショット保存（revert用）
-    if (item.type === 'modify') {
-        n._snapshot = item._snapshot;
-        n._newSnapshot = item._newSnapshot;
-    } else if (item.type === 'add') {
-        n._addedRow = item._addedRow;
-        n._addedRowIndex = item._addedRowIndex;
-        n._addedCellData = item._addedCellData;
-    } else if (item.type === 'delete') {
-        n._deletedRow = result._deletedRow;
-        n._deletedCellData = result._deletedCellData;
-        n._deletedRowIndex = result._deletedRowIndex;
-    }
-    obCnReceive(n);
-}
-
-function obCnToggleDemo() {
-    var btn = document.getElementById('obCnDemoBtn');
-    if (obCnDemoRunning) {
-        clearInterval(obCnDemoInterval);
-        obCnDemoInterval = null;
-        obCnDemoRunning = false;
-        btn.textContent = '▶ デモ開始';
-        btn.style.background = '';
-        btn.style.color = '';
+    var typeLabel = { add: '追加', modify: '変更', delete: '削除' }[type] || type;
+    var mainText;
+    if (siteName && siteName !== taskName) {
+        mainText = (company ? company + ' / ' : '') + (taskName ? taskName + ' / ' : '') + siteName + (dayStr ? '(' + dayStr + ')' : '') + ' を' + typeLabel;
+    } else if (taskName) {
+        mainText = (company ? company + ' / ' : '') + taskName + (dayStr ? '(' + dayStr + ')' : '') + ' を' + typeLabel;
     } else {
-        obCnState.notifications = [];
-        obCnState.history = [];
-        obCnState.unreadCount = 0;
-        obCnState.nextId = 1;
-        obCnState.filterTask = '';
-        obCnState.filterRowId = -1;
-        obCnUpdateBadge();
-        obCnDemoIndex = 0;
-        obCnDemoRunning = true;
-        btn.textContent = '⏹ デモ停止';
-        btn.style.background = '#DB577B';
-        btn.style.color = '#fff';
-        obCnSendDemoNotification();
-        obCnDemoInterval = setInterval(obCnSendDemoNotification, 3000);
+        mainText = (company || '受注') + (dayStr ? '(' + dayStr + ')' : '') + ' を' + typeLabel;
     }
+
+    var subText = obCurrentUser + ' ・ ' + obCnTimeNow();
+
+    var expandText = '';
+    if (opts.diffs && opts.diffs.length > 0) {
+        expandText = opts.diffs.map(function(d) {
+            return d.field + ': ' + d.oldVal + ' → ' + d.newVal;
+        }).join(' / ');
+    } else if (opts.details && opts.details.length > 0) {
+        expandText = opts.details.map(function(d) {
+            return d.field + ': ' + (d.value != null ? d.value : '');
+        }).join(' / ');
+    }
+
+    var target = null;
+    if (row && row._rowId != null) {
+        target = { axis: 'orderId', value: row._rowId };
+    } else if (opts.rowId != null) {
+        target = { axis: 'orderId', value: opts.rowId };
+    }
+
+    window.coNotifyPanel.addItem('ob', {
+        type: type,
+        slot: 'type-ob-' + type,
+        main: mainText,
+        sub: subText,
+        date: obCnTodayLabel(),
+        expand: expandText,
+        affects: ['order-book', 'screen-layout', 'weekly-schedule'],
+        target: target
+    });
+}
+
+function obCnTodayLabel() {
+    const d = new Date();
+    return '今日 (' + (d.getMonth() + 1) + '/' + d.getDate() + ')';
+}
+
+// 初期デモ通知（起動時に投入。モック用）
+function obCnSeedInitialDemo() {
+    if (!window.coNotifyPanel || typeof window.coNotifyPanel.setItems !== 'function') return;
+    var today = obCnTodayLabel();
+    window.coNotifyPanel.setItems('ob', [
+        {
+            type: 'add',
+            slot: 'type-ob-add',
+            main: '東央警備 / 渋谷駅前ビル新築工事 を追加',
+            sub: '田中 太郎 ・ 09:14',
+            date: today,
+            expand: '新規受注: 警備員2名 / 08:00〜17:00 / 契約先=東央警備',
+            affects: ['order-book', 'screen-layout', 'weekly-schedule']
+        },
+        {
+            type: 'modify',
+            slot: 'type-ob-modify',
+            main: 'Nikkei / 大手町オフィスビル(15日) を変更',
+            sub: '佐藤 花子 ・ 11:30',
+            date: today,
+            expand: '人数: 1名 → 2名 / 開始時間: 09:00 → 08:00',
+            affects: ['order-book', 'screen-layout', 'weekly-schedule']
+        },
+        {
+            type: 'delete',
+            slot: 'type-ob-delete',
+            main: '全日本警備 / 新宿駅前イベント(20日) を削除',
+            sub: '山田 次郎 ・ 昨日 17:45',
+            date: '昨日',
+            expand: 'キャンセル: 顧客都合により受注取消',
+            affects: ['order-book', 'screen-layout', 'weekly-schedule']
+        }
+    ]);
 }
 
 // --- 初期化 ---
@@ -4961,4 +4192,6 @@ document.addEventListener('DOMContentLoaded', () => {
         todayEl.textContent = `本日: ${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}（${dayNames[now.getDay()]}）`;
     }
     renderGrid();
+    // 新通知システムに初期デモ通知を投入（co-notify-panel.js / co-navbar.js 読み込み後）
+    obCnSeedInitialDemo();
 });

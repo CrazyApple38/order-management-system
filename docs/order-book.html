@@ -64,113 +64,7 @@
             </div>
         </div>
         <div class="md-ob-header-right">
-            <div class="cn-anchor" id="obCnAnchor">
-                <button type="button" class="cn-trigger" id="obCnNotifyBtn" onclick="obCnOpenModal()" title="変更通知（受注簿）" aria-label="受注簿の変更通知を開く">
-                    <img src="mockup/icons/bell.svg" alt="">
-                    <span class="cn-trigger-badge" id="obCnBadge" hidden>0</span>
-                </button>
-                <div class="cn-panel" id="obCnPanel">
-                    <div class="cn-head">
-                        <span class="cn-title">変更通知</span>
-                        <span class="cn-row-filter-label" id="obCnRowFilterLabel" hidden></span>
-                        <button class="cn-mark-all">すべて既読にする</button>
-                    </div>
-                    <div class="cn-tabs">
-                        <button class="cn-tab is-active" data-tab="latest">最新</button>
-                        <button class="cn-tab" data-tab="history">履歴</button>
-                    </div>
-                    <!-- 最新タブ -->
-                    <div class="cn-tab-view is-active" data-tab="latest">
-                        <div class="cn-body cn-body--latest" id="obCnLatestBody">
-                            <div class="cn-empty">変更通知はありません</div>
-                        </div>
-                    </div>
-                    <!-- 履歴タブ (縦サブタブ: 現場名 / アカウント) -->
-                    <div class="cn-tab-view" data-tab="history">
-                        <div class="cn-history-layout">
-                            <div class="cn-side-tabs">
-                                <button class="cn-side-tab is-active" data-view="site">現場名</button>
-                                <button class="cn-side-tab" data-view="account">アカウント</button>
-                            </div>
-                            <div class="cn-history-main">
-                                <div class="cn-history-view is-active" data-view="site">
-                                    <div class="cn-history-toolbar">
-                                        <div class="cn-search-row">
-                                            <div class="cn-search">
-                                                <input type="text" placeholder="契約先・現場で検索..." aria-label="現場名で検索">
-                                            </div>
-                                            <button class="cn-list-pick-btn" data-prefix="現場">
-                                                <span class="cn-list-pick-label">一覧</span>
-                                                <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
-                                            </button>
-                                        </div>
-                                        <div class="cn-filter-chips" data-axis="site">
-                                            <button class="cn-filter-chip is-active" data-filter="all">すべて</button>
-                                            <button class="cn-filter-chip" data-filter="add">追加</button>
-                                            <button class="cn-filter-chip" data-filter="modify">変更</button>
-                                            <button class="cn-filter-chip" data-filter="delete">削除</button>
-                                        </div>
-                                    </div>
-                                    <div class="cn-body cn-body--history" id="obCnHistorySiteBody">
-                                        <div class="cn-empty">変更履歴はありません</div>
-                                    </div>
-                                    <div class="cn-pick-view" data-crumb-base="現場" data-step1-label="契約先を選択">
-                                        <div class="cn-pick-head">
-                                            <button class="cn-pick-back" aria-label="戻る">←</button>
-                                            <div class="cn-pick-crumbs">
-                                                <span>現場</span>
-                                                <span class="cn-pick-crumb-sep">&gt;</span>
-                                                <span class="cn-pick-crumb-current">契約先を選択</span>
-                                            </div>
-                                        </div>
-                                        <div class="cn-pick-step is-active" data-step="company">
-                                            <div class="cn-pick-badges" id="obCnPickCompanyBadges"></div>
-                                        </div>
-                                        <div class="cn-pick-step" data-step="site">
-                                            <div id="obCnPickSiteBadgesGroups"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="cn-history-view" data-view="account">
-                                    <div class="cn-history-toolbar">
-                                        <div class="cn-search-row">
-                                            <div class="cn-search">
-                                                <input type="text" placeholder="アカウントで検索..." aria-label="アカウントで検索">
-                                            </div>
-                                            <button class="cn-list-pick-btn" data-prefix="アカウント">
-                                                <span class="cn-list-pick-label">一覧</span>
-                                                <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
-                                            </button>
-                                        </div>
-                                        <div class="cn-filter-chips" data-axis="account">
-                                            <button class="cn-filter-chip is-active" data-filter="all">すべて</button>
-                                            <button class="cn-filter-chip" data-filter="add">追加</button>
-                                            <button class="cn-filter-chip" data-filter="modify">変更</button>
-                                            <button class="cn-filter-chip" data-filter="delete">削除</button>
-                                        </div>
-                                    </div>
-                                    <div class="cn-body cn-body--history" id="obCnHistoryAccountBody">
-                                        <div class="cn-empty">変更履歴はありません</div>
-                                    </div>
-                                    <div class="cn-pick-view" data-crumb-base="アカウント" data-step1-label="アカウントを選択">
-                                        <div class="cn-pick-head">
-                                            <button class="cn-pick-back" aria-label="戻る">←</button>
-                                            <div class="cn-pick-crumbs">
-                                                <span>アカウント</span>
-                                                <span class="cn-pick-crumb-sep">&gt;</span>
-                                                <span class="cn-pick-crumb-current">アカウントを選択</span>
-                                            </div>
-                                        </div>
-                                        <div class="cn-pick-step is-active" data-step="account">
-                                            <div class="cn-pick-badges" id="obCnPickAccountBadges"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- N-2.3 で旧 cn-anchor (#obCnAnchor) を撤去。変更通知はナビバー新ベル(bell-ob) に統合 -->
         </div>
     </header>
 
@@ -185,8 +79,6 @@
             <button class="md-ob-tb-btn" onclick="toggleFilterRow()"><img src="mockup/icons/search.svg" class="md-ob-icon"> フィルタ</button>
             <button class="md-ob-tb-btn" onclick="toggleHiddenRows()"><img src="mockup/icons/eye.svg" class="md-ob-icon"> 表示/非表示</button>
             <button class="md-ob-tb-btn" id="btnToggleBadges" onclick="toggleBadgeDisplay()"><img src="mockup/icons/tag.svg" class="md-ob-icon"> バッジ</button>
-            <span class="md-ob-toolbar-sep"></span>
-            <button class="md-ob-tb-btn" id="obCnDemoBtn" onclick="obCnToggleDemo()">デモ開始</button>
         </div>
         <div class="md-ob-toolbar-right">
             <span class="md-ob-summary" id="summaryText">全 12 件</span>
@@ -408,13 +300,6 @@
                     <button class="btn btn-primary" onclick="saveEdit()">保存</button>
                 </div>
             </div>
-            <div class="md-cn-body-overlay" id="obCnBodyOverlay" style="display:none;" onclick="obCnHideConflictBanner()">
-                <div class="md-cn-body-overlay-card">
-                    <span class="md-cn-body-overlay-icon">⚠</span>
-                    <div class="md-cn-body-overlay-text" id="obCnBodyOverlayText"></div>
-                    <div class="md-cn-body-overlay-hint">クリックで閉じる</div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -630,23 +515,13 @@
                     <button class="btn btn-primary md-ob-cal-footer-btn" onclick="saveEdit()" disabled>保存</button>
                 </div>
             </div>
-            <div class="md-cn-body-overlay" id="obCnBodyOverlayCal" style="display:none;" onclick="obCnHideConflictBanner()">
-                <div class="md-cn-body-overlay-card">
-                    <span class="md-cn-body-overlay-icon">⚠</span>
-                    <div class="md-cn-body-overlay-text" id="obCnBodyOverlayTextCal"></div>
-                    <div class="md-cn-body-overlay-hint">クリックで閉じる</div>
-                </div>
-            </div>
         </div>
     </div>
-
-    <!-- トースト通知コンテナ（aria-live: 内容変化をスクリーンリーダーに通知） -->
-    <div id="obCnToastContainer" class="no-print" role="status" aria-live="polite" aria-atomic="true"></div>
 
     <script src="mockup/demo-data.js?v=2"></script>
     <script src="mockup/co-notify-panel.js?v=9"></script>
     <script src="mockup/co-navbar.js?v=8"></script>
     <script src="mockup/co-company-input.js"></script>
-    <script src="mockup/order-book.js?v=3"></script>
+    <script src="mockup/order-book.js?v=4"></script>
 </body>
 </html>

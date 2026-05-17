@@ -115,17 +115,21 @@
 ## 4. Phase 構成（依存順）
 
 ```
-N-1: UIモック先行 — ベル並び・パネル設計の確定
-       ↓
-N-2: 変更通知システム基盤実装（co-navbar / co-notify-panel 改修）
-       ↓
-N-3: SLへの応援機能統合（WS応援/応援予約データの引継ぎ）
-       ↓
-N-4: グループ間応援の受注自動生成（完全ロック行）
-       ↓
-N-5: クロス画面フラッシュ実装（affects/target 配線）
-       ↓
-N-6: 結合テスト・既存計画との整合性確認
+N-1:   UIモック先行 — ベル並び・パネル設計の確定
+        ↓
+N-2.1: 統合プレビュー（27スロットのアイコン確定）
+        ↓
+N-2.2: 通知基盤本実装（co-navbar / co-notify-panel 改修・7ベル横並び）
+        ↓
+N-2.3: 旧画面ベル撤去 + OB/WS/LA 自領域発信化
+        ↓
+N-3:   SLへの応援機能統合 + SL 自領域発信化（同時実施）
+        ↓
+N-4:   グループ間応援の受注自動生成（完全ロック行）
+        ↓
+N-5:   クロス画面フラッシュ実装（affects/target 配線）
+        ↓
+N-6:   結合テスト・既存計画との整合性確認
 ```
 
 各 Phase は独立コミット可能な単位とし、**ユーザーレビューを経て次に進む**（Phase Gate Rules 準拠）。
@@ -137,16 +141,38 @@ N-6: 結合テスト・既存計画との整合性確認
 - アイコンは `docs/assets/icons/` から採用（CLAUDE.md「アイコン運用ルール」遵守）
 
 ### Phase N-2: 変更通知システム基盤実装
+N-2.1〜N-2.3 の3サブフェーズで段階実装。
+
+#### N-2.1: 統合プレビュー（完了）
+
+- `docs/preview/notify-compare.html` に 27スロット選定 UI を追加（詳細は §13）
+
+#### N-2.2: 通知基盤本実装（完了）
+
 - `co-navbar.js` の `mdNavCnAnchor` を「ベルコンテナ」に拡張
 - ベル定義テーブル（`coNotifyBells = [{ id, label, icon, scope }]`）導入
-- `co-notify-panel.js` を「複数アンカー対応」に変更
-- 各画面JSの通知データ生成箇所を「自領域のみ発信」に絞る
+- `co-notify-panel.js` を「複数アンカー対応 + P3 ハイブリッドパネル」化
 - 既読・件数バッジをベル単位で独立管理
+- API群（`setItems` / `addItem` / `removeItem` / `setHistory` / `updateBadge` 等）公開（§14）
 
-### Phase N-3: SL応援機能統合
+#### N-2.3: 旧画面ベル撤去 + OB/WS/LA 自領域発信化（未着手）
+
+- 4画面（OB/SL/WS/LA）のHTMLから旧 `cn-anchor` ブロックと旧トースト DOM を削除
+- 旧ベル関連JS群（`obCnOpenModal` / `openChangeNotifyModal` 等）を撤去
+- 行単位ベル機能（`md-ob-row-bell` / `cnOpenModalForRow`）も撤去（ユーザー判断、2026-05-18）
+- 旧トーストは単純削除（必要になれば後追いで新システムに移植、ユーザー判断 2026-05-18）
+- 各画面のCRUD操作箇所に `window.coNotifyPanel.addItem(bellId, item)` を埋め込んで自領域発信化
+- 既存デモ通知を新ベルへ移植（OB→bell-ob, WS→bell-ws, LA→bell-la）
+- SL の自領域発信化は N-3 と同時実施（SL応援が未実装のため）
+- quick-access のモバイル独自ベル（`qa-cn-anchor`）は今回スコープ外（ユーザー判断 2026-05-18）
+- 詳細は §15
+
+### Phase N-3: SL応援機能統合 + SL自領域発信化
+
 - WSの応援バッジ・応援予約データ構造を SL に移植
 - SLサイドバーに応援セクション追加
 - WS ⇔ SL のデータ同期モデル定義（単一情報源は WS、§7.2 参照）
+- 同時に SL の自領域発信化（社員/車両/応援/応援予約 の配置変更を発信）
 
 ### Phase N-4: グループ間応援の受注自動生成
 - 配置イベント検知ロジック（GC跨ぎ判定）
@@ -467,7 +493,8 @@ WSが先行実装した応援データ構造を **単一情報源（SSOT）** �
 | N-1 UIモック | 完了 | 2026-05-14 | 2026-05-15 | アイコン定義確定（`docs/preview/notify-icons-selected.json`）／ベル並び順確定（案A 業務頻度順）／パネル統一仕様確定（案P3 ハイブリッド）／自動生成行オーバーレイ確定（案OL-D 斜線パターン）。残課題: ロックアイコン正式選定は N-4 で実施 |
 | N-2.1 統合プレビュー | 完了 | 2026-05-15 | 2026-05-16 | `docs/preview/notify-compare.html` に「N-2 統合」モード追加。7ベル+専用P3パネル+クロス画面ヒント+履歴タブ（縦タブ/軸別ピッカー）+ アイコン編集トグル+IconPicker連動。実画面を見ながら27スロット（ベル7+共通4+パネル別16）を全件再選定し `notify-icons-selected.json` を確定。詳細は §13 参照 |
 | N-2.2 通知基盤本実装 | 完了 | 2026-05-16 | 2026-05-16 | `co-navbar.{js,css}` + `co-notify-panel.{js,css}` 改修。7ベル横並び+P3ハイブリッドパネル+アコーディオン+クロス画面ヒント+履歴タブ完全実装。詳細は §14 参照 |
-| N-3 SL応援統合 | 未着手 | — | — | ws-support-partner と統合 |
+| N-2.3 旧ベル撤去+OB/WS/LA発信化 | 未着手 | — | — | 4画面の旧 `cn-anchor` 撤去 + 行ベル/トースト撤去 + OB/WS/LA 自領域発信化（SLはN-3）。詳細は §15 参照 |
+| N-3 SL応援統合+SL発信化 | 未着手 | — | — | ws-support-partner と統合、SL自領域発信化を同時実施 |
 | N-4 自動受注生成 | 未着手 | — | — | — |
 | N-5 クロスフラッシュ | 未着手 | — | — | — |
 | N-6 結合テスト | 未着手 | — | — | — |
@@ -657,11 +684,14 @@ N-2.2 セッション内で以下の実装抜けがユーザー指摘で判明�
 
 → 反省点: 計画書 §5.4 / §6.5 / §13.4 の精読不足だった。次フェーズではプレビュー実装と本実装の対照確認を厳密に行う。
 
-### 14.10 引き継ぎ要点（N-3 SL応援統合 着手時）
+### 14.10 引き継ぎ要点（N-2.3 / N-3 着手時）
+
+**2026-05-18 更新**: 「#7 画面側既存ベル撤去」は **Phase N-2.3 として独立フェーズ化**（§15）。OB/WS/LA の自領域発信化は N-2.3、SL は N-3 と同時実施。
+
 1. **まず本計画 §7 を全読**: WS の `supportPartners` / `supportReservations` データ構造を SL に移植、単一情報源は WS（§7.2）
 2. **既存計画 `ws-support-partner-plan.md` Phase A5 以降と統合**: 本計画優先
-3. **#7 画面側既存ベル撤去** を同時実施推奨: 各画面JS が `coNotifyPanel.addItem()` で発信するよう改修。撤去とともに「自領域発信化」が完了
-4. **API 利用例**:
+3. **API 利用例**:
+
    ```js
    // 各画面JSが自領域変更時に呼ぶ
    window.coNotifyPanel.addItem('sl', {
@@ -675,6 +705,101 @@ N-2.2 セッション内で以下の実装抜けがユーザー指摘で判明�
        target: { axis: 'siteCode', value: 'S-042' }
    });
    ```
+
+---
+
+## 15. Phase N-2.3 詳細計画（旧画面ベル撤去 + OB/WS/LA 自領域発信化）
+
+### 15.1 確定方針（2026-05-18 ユーザー判断）
+
+| 論点 | 決定 | 備考 |
+|------|------|------|
+| 行単位ベル機能（`md-ob-row-bell` / `cnOpenModalForRow`） | **撤去** | 行絞り込みは履歴タブの軸別ピッカーで代替 |
+| 旧トースト（`obCnShowToast` / `cnShowToast`） | **単純削除** | 必要になれば後追いで新システム移植（共通API化） |
+| quick-access の `qa-cn-anchor`×2 | **今回スコープ外** | モバイル独自レイアウト、別途PWA用検討 |
+| 作業順序 | **N-2.3 先行 → N-3** | SL自領域発信化は応援未実装のため N-3 と統合 |
+| SL の承認待ち承認機能（`cnApprovePending` / `cnPendingMap`） | **未確定（実装着手時に再確認）** | 承認待ちベルパネル内のアクションに移植 or 廃止 |
+
+### 15.2 スコープ画面と対象要素
+
+| 画面 | HTML 撤去対象 | JS 撤去対象（主要） |
+|------|---------------|--------------------|
+| `docs/order-book.html` | `cn-anchor#obCnAnchor` ブロック / `obCnToastContainer` / 行ベル描画箇所 | `obCnOpenModal` / `obCnOpenModalForRow` / `obCnCloseModal` / `obCnSwitchTab` / `obCnShowToast` / `obCnRenderLatest` / `obCnRenderHistory` / `obCnGetRowBellHtml` / `obCnGetUnreadForRow` / `obCnState` / `obCnUpdateBadge` 等 |
+| `docs/screen-layout.html` | `cn-anchor#cnAnchor` ブロック / `cnToastContainer` / 行ベル描画箇所 | `openChangeNotifyModal` / `cnOpenModalForRow` / `closeChangeNotifyModal` / `switchCnTab` / `cnShowToast` / `cnRenderLatest` / `cnRenderHistory` / `cnState` / `cnUpdateBadge` / `cnUpdateRowBells` / `cnGetRowSiteName` 等。`cnApprovePending` / `cnPendingMap` は §15.1 残論点 |
+| `docs/weekly-schedule.html` | `cn-anchor#wsCnAnchor`（ツールバー内） | 旧ベル関連JS（着手時 grep で特定） |
+| `docs/leave-application.html` | `cn-anchor#laCnAnchor` | 旧ベル関連JS（着手時 grep で特定） |
+| `docs/quick-access.html` | **対象外** | `qa-cn-anchor` 系は現状維持 |
+
+### 15.3 自領域発信化 — フック対象イベント
+
+各画面の CRUD 操作箇所に `window.coNotifyPanel.addItem(bellId, item)` を埋め込む。
+
+| ベル | 発火イベント | 推奨 type / slot |
+|------|-------------|-----------------|
+| `ob` | 受注追加 / 変更 / 削除 | `add` (type-ob-add) / `modify` (type-ob-modify) / `delete` (type-ob-delete) |
+| `ws` | 週間予定変更 / 応援予約変更 / 休バッジ変更 | `modify` (type-ws-schedule-change) / `modify` (type-ws-leave-reflect) |
+| `la` | 休暇申請追加 / 承認 / 却下 | `new` (type-la-new) / `approve` (type-la-approve) / `reject` (type-la-reject) |
+| `sl` | （N-3 で実施） | — |
+
+モック段階では「手動でデモ通知発火するボタン」または「既存のサンプル通知を起動時に投入」の2方式を併用。実運用では Supabase Realtime のチャネル購読で発火（DB設計時に詳細）。
+
+### 15.4 デモ通知の移行
+
+旧 `cnState.notifications` / `obCnState.notifications` 等のデモデータを、N-2.2 で導入した `coNotifyBells` の各ベルへ振り分け。
+
+- OB由来 → `bell-ob`
+- SL由来 → `bell-sl`（暫定。応援関連は N-3 で再分類）
+- WS由来 → `bell-ws`
+- LA由来 → `bell-la`
+- マスタ更新／承認待ち／車両スケ系は既に `bell-master` / `bell-pending` / `bell-vehicle` に移行済（N-2.2 §14.1）
+
+### 15.5 作業手順（推奨）
+
+1. **OB から着手**（最もパターンが明確、旧コードが整理しやすい）
+   - HTML から `cn-anchor#obCnAnchor` + `obCnToastContainer` + 行ベル出力箇所削除
+   - JS から旧 `obCn*` 関数群削除
+   - 受注追加/変更/削除のフック点を特定し `coNotifyPanel.addItem('ob', ...)` 追加
+   - 既存デモ通知を `coNotifyPanel.setItems('ob', [...])` で起動時投入
+   - ブラウザ確認
+2. **WS、LA を同パターンで実施**
+3. **SL は最小限の撤去のみ**（承認待ち承認の扱い未確定のため）
+   - HTML/JS の旧ベル撤去
+   - 自領域発信は N-3 で実施
+   - `cnApprovePending` / `cnPendingMap` は §15.1 残論点として保留
+4. **キャッシュバージョン更新**: 影響JS（各画面JS）の `?v=N` を1つ上げる
+5. **検証**:
+   - 各画面で旧ベルが消えていること
+   - ナビバー新ベルに通知が表示されること
+   - 行ベル削除に伴う行レイアウト崩れがないこと
+   - script 読み込み順（panel → navbar → 各画面JS）
+
+### 15.6 ロールアウト戦略
+
+- **段階コミット**: OB / WS / LA を画面単位で別コミット
+- **各コミットでユーザーレビュー**（Phase Gate Rules 準拠）
+- 各コミット後に Playwright で動作確認
+
+### 15.7 残論点（実装着手時にユーザー確認）
+
+1. **SL の承認待ち承認機能 (`cnApprovePending` / `cnPendingMap`) の移行先**
+   - 案A: `bell-pending`（承認待ちベル）のパネル内アイテムに「承認」「却下」アクションを追加 → アクション実行で対応行のハイライト除去
+   - 案B: 機能廃止（実運用では Supabase Realtime で他者変更を即時反映するため承認概念が不要になる可能性）
+   - 案C: 当面保留（コードは残し、N-5 クロスフラッシュ実装時に再設計）
+2. **行レイアウトの調整**: 行ベル列の幅を取り戻すか、別UI要素（例: 行ハイライトフラッシュ）に置き換えるか
+3. **デモ通知の最終確定セット**: モックレビュー用に何件・どのパターンを残すか
+
+### 15.8 影響ファイル一覧（N-2.3 スコープ）
+
+- `docs/order-book.html` — 旧ベルブロック削除
+- `docs/screen-layout.html` — 旧ベルブロック削除
+- `docs/weekly-schedule.html` — 旧ベルブロック削除
+- `docs/leave-application.html` — 旧ベルブロック削除
+- `docs/mockup/order-book.js` — 旧JS削除 + 発信化フック追加 + デモ通知移行
+- `docs/mockup/screen-layout.js` — 旧JS削除（自領域発信は N-3）
+- `docs/mockup/weekly-schedule.js` — 旧JS削除 + 発信化フック追加 + デモ通知移行
+- `docs/mockup/leave-application.js` — 旧JS削除 + 発信化フック追加 + デモ通知移行
+- `docs/mockup/weekly-schedule.css` — `md-ws-cn-anchor` セレクタ削除
+- 各画面の他CSS（旧ベル関連スタイル `md-cn-toast*` 等）
 
 ---
 
