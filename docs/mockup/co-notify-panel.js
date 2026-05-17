@@ -195,8 +195,16 @@
         if (!item || !item.classList.contains('is-unread')) return;
         item.classList.remove('is-unread');
         var anchor = item.closest('.cn-anchor[data-bell]');
-        if (anchor && typeof updateBadge === 'function') {
-            updateBadge(anchor.dataset.bell);
+        if (!anchor) return;
+        var bellId = anchor.dataset.bell;
+        // ストアにも _read = true を反映（再レンダー時の is-unread 復活を防ぐ）
+        var itemId = item.dataset.id;
+        if (itemId && bellItemsStore && bellItemsStore[bellId]) {
+            var stored = bellItemsStore[bellId].find(function (it) { return it.id === itemId; });
+            if (stored) stored._read = true;
+        }
+        if (typeof updateBadge === 'function') {
+            updateBadge(bellId);
         }
     }
     document.addEventListener('click', function (e) {
@@ -249,9 +257,13 @@
         panel.querySelectorAll('.cn-item.is-unread').forEach(function (item) {
             item.classList.remove('is-unread');
         });
-        // 未読バッジも 0 に
-        var anchor = panel.closest('.cn-anchor');
+        // ストアにも _read = true を反映（再レンダー時の is-unread 復活を防ぐ）
+        var anchor = panel.closest('.cn-anchor[data-bell]');
         if (anchor) {
+            var bellId = anchor.dataset.bell;
+            if (bellItemsStore && bellItemsStore[bellId]) {
+                bellItemsStore[bellId].forEach(function (it) { it._read = true; });
+            }
             var badge = anchor.querySelector('.cn-trigger-badge');
             if (badge) {
                 badge.textContent = '0';
@@ -602,14 +614,7 @@
         }
     }
 
-    // 「すべて既読」押下時もベル単位でバッジ再計算
-    document.addEventListener('click', function (e) {
-        var btn = e.target.closest('.cn-mark-all');
-        if (!btn) return;
-        var anchor = btn.closest('.cn-anchor[data-bell]');
-        if (!anchor) return;
-        updateBadge(anchor.dataset.bell, 0);
-    });
+    // (N-2.2 にあった「すべて既読」の重複ハンドラは N-2.3 で統合。上の cn-mark-all ハンドラに集約済み)
 
     // ========== クロス画面ヒント（Phase N-2.2 / 簡易版） ==========
     // 本格的な画面遷移ロジックは Phase N-5 で実装。本フェーズではヒント表示と alert モック動作。
