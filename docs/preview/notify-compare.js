@@ -883,9 +883,9 @@
 
     /* 軸定義（固定。プロトタイプの 11 scope + 8 op） */
     var MTX_SCOPES = [
-        { key: 'row',         label: '業務行',   sub: 'row (OB)' },
+        { key: 'row',         label: '行',       sub: 'row (OB) シート1行' },
         { key: 'cell',        label: 'セル',     sub: 'cell (OB)' },
-        { key: 'site',        label: '配置先',   sub: 'site (OB)' },
+        { key: 'site',        label: '受注',     sub: 'site (OB) 同セル内の副受注' },
         { key: 'badge',       label: 'バッジ',   sub: 'badge (OB)' },
         { key: 'employee',    label: '社員',     sub: 'employee (SL)' },
         { key: 'vehicle',     label: '車両',     sub: 'vehicle (SL)' },
@@ -950,11 +950,11 @@
 
     /* サンプル通知アイテム（マトリクスのアイコンを使って render） */
     var MTX_SAMPLE_ITEMS = [
-        { scope: 'row',   op: 'add',    main: '東央警備 / 渋谷駅前ビル を業務行として追加', sub: '田中 太郎 ・ 5/18 09:14', unread: true },
+        { scope: 'row',   op: 'add',    main: '東央警備 / 渋谷駅前ビル を行として追加', sub: '田中 太郎 ・ 5/18 09:14', unread: true },
         { scope: 'cell',  op: 'place',  main: 'Nikkei / 大手町オフィス の 15日 に 2名 を配置', sub: '佐藤 花子 ・ 5/18 10:30', unread: true },
         { scope: 'cell',  op: 'modify', main: 'Nikkei / 大手町オフィス の 15日 の開始時間を変更', sub: '山田 次郎 ・ 5/18 11:42', unread: true },
         { scope: 'cell',  op: 'clear',  main: '全日本警備 / 新宿駅前 の 20日 配置をクリア', sub: '高橋 五郎 ・ 5/17 17:45', unread: false },
-        { scope: 'site',  op: 'add',    main: '東央警備 / 渋谷駅前ビル の 18日 に配置先を追加', sub: '伊藤 ・ 5/17 14:30', unread: false },
+        { scope: 'site',  op: 'add',    main: '東央警備 / 渋谷駅前ビル の 18日 に受注を追加', sub: '伊藤 ・ 5/17 14:30', unread: false },
         { scope: 'badge', op: 'add',    main: 'セル編集で「巡回業務」バッジを追加', sub: '鈴木 ・ 5/17 13:20', unread: false }
     ];
 
