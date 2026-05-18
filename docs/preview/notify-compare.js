@@ -2,7 +2,7 @@
 (function () {
     'use strict';
 
-    /* Before / After / 履歴 / アイコン選定 / ベル並び / パネルレイアウト / 自動生成行オーバーレイ / N-2統合 モード切替 */
+    /* Before / After / 履歴 / アイコン選定 / ベル並び / パネルレイアウト / 自動生成行オーバーレイ / N-2統合 / マトリクス選定 モード切替 */
     var modeTargets = {
         before: 'cmpBefore',
         after: 'cmpAfter',
@@ -11,7 +11,8 @@
         'bell-order': 'cmpBellOrder',
         'panel-layout': 'cmpPanelLayout',
         'auto-overlay': 'cmpAutoOverlay',
-        'n2-integration': 'cmpN2Integration'
+        'n2-integration': 'cmpN2Integration',
+        matrix: 'cmpMatrix'
     };
     document.querySelectorAll('.cmp-mode-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -869,5 +870,370 @@
         applyAllIconsInN2();
         applyAllBellIcons();
         document.querySelectorAll('.cmp-n2-panel').forEach(updateBellBadgeFromPanel);
+    });
+
+    /* ============================================================
+       マトリクス選定モード (N-2.4)
+       - scope × op の 2軸でアイコン合成
+       - localStorage:
+           notifyPrimitives.v1   = { "scope": {key: file}, "op": {key: file} }
+           notifyTypeOverrides.v1 = { "{scopeKey}-{opKey}": file }
+       - 既存 notifyIconSelections.v1 とは独立
+       ============================================================ */
+
+    /* 軸定義（固定。プロトタイプの 11 scope + 8 op） */
+    var MTX_SCOPES = [
+        { key: 'row',         label: '業務行',   sub: 'row (OB)' },
+        { key: 'cell',        label: 'セル',     sub: 'cell (OB)' },
+        { key: 'site',        label: '配置先',   sub: 'site (OB)' },
+        { key: 'badge',       label: 'バッジ',   sub: 'badge (OB)' },
+        { key: 'employee',    label: '社員',     sub: 'employee (SL)' },
+        { key: 'vehicle',     label: '車両',     sub: 'vehicle (SL)' },
+        { key: 'support',     label: '応援',     sub: 'support (SL/WS)' },
+        { key: 'reservation', label: '応援予約', sub: 'reservation (SL/WS)' },
+        { key: 'schedule',    label: '週間予定', sub: 'schedule (WS)' },
+        { key: 'leave-badge', label: '休バッジ', sub: 'leave-badge (WS)' },
+        { key: 'application', label: '申請',     sub: 'application (LA)' }
+    ];
+    var MTX_OPS = [
+        { key: 'add',     label: '追加',   sub: 'add' },
+        { key: 'modify',  label: '編集',   sub: 'modify' },
+        { key: 'delete',  label: '削除',   sub: 'delete' },
+        { key: 'clear',   label: 'クリア', sub: 'clear' },
+        { key: 'approve', label: '承認',   sub: 'approve (LA)' },
+        { key: 'reject',  label: '却下',   sub: 'reject (LA)' },
+        { key: 'place',   label: '配置',   sub: 'place (SL/cell)' },
+        { key: 'remove',  label: '解除',   sub: 'remove (site)' }
+    ];
+
+    /* applicableMatrix: scope ごとに有効な op の集合（プロトタイプの「—」判定に対応） */
+    var MTX_APPLICABLE = {
+        'row':         ['add', 'modify', 'delete'],
+        'cell':        ['modify', 'clear', 'place'],
+        'site':        ['add', 'remove'],
+        'badge':       ['add', 'delete'],
+        'employee':    ['modify', 'place', 'remove'],
+        'vehicle':     ['modify', 'place', 'remove'],
+        'support':     ['modify', 'place', 'remove'],
+        'reservation': ['add', 'modify', 'delete'],
+        'schedule':    ['modify'],
+        'leave-badge': ['modify'],
+        'application': ['add', 'approve', 'reject']
+    };
+
+    /* プリミティブのデフォルトアイコン（notify-icons-selected.json の流用 / プロトタイプ準拠） */
+    var MTX_PRIMITIVE_DEFAULT = {
+        scope: {
+            'row':         'business/im-12034-keiyaku-sho.svg',
+            'cell':        'stationery/im-12555-karendaa.svg',
+            'site':        'sign-mark/im-15851-kyouyuu.svg',
+            'badge':       'sign-mark/im-10058-okiniiri-osusume-ni-tsukaeru-hoshi-aikon.svg',
+            'employee':    'person/im-15537-jimbutsu.svg',
+            'vehicle':     'transport/im-10852-jouyousha.svg',
+            'support':     'person/im-12114-sns-jimbutsu.svg',
+            'reservation': 'person/si-13722-13722.png',
+            'schedule':    'stationery/si-48956-calendar.png',
+            'leave-badge': 'sign-mark/si-25968-mark-repeat.png',
+            'application': 'business/si-45841-document-teishutsu.png'
+        },
+        op: {
+            'add':     'sign-mark/im-00105-purasu.svg',
+            'modify':  'education/si-14519-14519.png',
+            'delete':  'sign-mark/im-11911-hosoi-batsu.svg',
+            'clear':   'sign-mark/im-11908-chuui-maaku.svg',
+            'approve': 'sign-mark/im-11451-chekku-maaku-no-muryou.svg',
+            'reject':  'sign-mark/im-11911-hosoi-batsu.svg',
+            'place':   'sign-mark/im-15851-kyouyuu.svg',
+            'remove':  'sign-mark/im-11911-hosoi-batsu.svg'
+        }
+    };
+
+    /* サンプル通知アイテム（マトリクスのアイコンを使って render） */
+    var MTX_SAMPLE_ITEMS = [
+        { scope: 'row',   op: 'add',    main: '東央警備 / 渋谷駅前ビル を業務行として追加', sub: '田中 太郎 ・ 5/18 09:14', unread: true },
+        { scope: 'cell',  op: 'place',  main: 'Nikkei / 大手町オフィス の 15日 に 2名 を配置', sub: '佐藤 花子 ・ 5/18 10:30', unread: true },
+        { scope: 'cell',  op: 'modify', main: 'Nikkei / 大手町オフィス の 15日 の開始時間を変更', sub: '山田 次郎 ・ 5/18 11:42', unread: true },
+        { scope: 'cell',  op: 'clear',  main: '全日本警備 / 新宿駅前 の 20日 配置をクリア', sub: '高橋 五郎 ・ 5/17 17:45', unread: false },
+        { scope: 'site',  op: 'add',    main: '東央警備 / 渋谷駅前ビル の 18日 に配置先を追加', sub: '伊藤 ・ 5/17 14:30', unread: false },
+        { scope: 'badge', op: 'add',    main: 'セル編集で「巡回業務」バッジを追加', sub: '鈴木 ・ 5/17 13:20', unread: false }
+    ];
+
+    var MTX_PRIMITIVES_KEY = 'notifyPrimitives.v1';
+    var MTX_OVERRIDES_KEY = 'notifyTypeOverrides.v1';
+    var MTX_ICON_BASE = '../assets/icons/';
+
+    function mtxReadPrimitives() {
+        try {
+            var raw = JSON.parse(localStorage.getItem(MTX_PRIMITIVES_KEY) || '{}');
+            return { scope: raw.scope || {}, op: raw.op || {} };
+        } catch (e) { return { scope: {}, op: {} }; }
+    }
+    function mtxWritePrimitive(axis, key, file) {
+        var p = mtxReadPrimitives();
+        if (file) p[axis][key] = file;
+        else delete p[axis][key];
+        try { localStorage.setItem(MTX_PRIMITIVES_KEY, JSON.stringify(p)); } catch (e) {}
+    }
+    function mtxReadOverrides() {
+        try { return JSON.parse(localStorage.getItem(MTX_OVERRIDES_KEY) || '{}'); }
+        catch (e) { return {}; }
+    }
+    function mtxWriteOverride(typeKey, file) {
+        var o = mtxReadOverrides();
+        if (file) o[typeKey] = file;
+        else delete o[typeKey];
+        try { localStorage.setItem(MTX_OVERRIDES_KEY, JSON.stringify(o)); } catch (e) {}
+    }
+
+    function mtxGetPrimitiveIcon(axis, key) {
+        var p = mtxReadPrimitives();
+        return p[axis][key] || MTX_PRIMITIVE_DEFAULT[axis][key] || null;
+    }
+    function mtxIsPrimitiveCustom(axis, key) {
+        var p = mtxReadPrimitives();
+        return !!p[axis][key];
+    }
+    function mtxGetTypeKey(scopeKey, opKey) {
+        return scopeKey + '-' + opKey;
+    }
+    function mtxIsApplicable(scopeKey, opKey) {
+        var ops = MTX_APPLICABLE[scopeKey] || [];
+        return ops.indexOf(opKey) >= 0;
+    }
+
+    /* セルの表示 HTML を生成（override 優先 → 合成 → なし）*/
+    function mtxBuildCellIconHtml(scopeKey, opKey) {
+        var typeKey = mtxGetTypeKey(scopeKey, opKey);
+        var overrides = mtxReadOverrides();
+        if (overrides[typeKey]) {
+            return '<img class="cmp-mtx-single-icon" src="' + MTX_ICON_BASE + overrides[typeKey] + '" alt="">';
+        }
+        var base = mtxGetPrimitiveIcon('scope', scopeKey);
+        var op = mtxGetPrimitiveIcon('op', opKey);
+        if (!base && !op) return '';
+        return '<span class="cmp-mtx-composed">'
+            + (base ? '<img class="cmp-mtx-icon-base" src="' + MTX_ICON_BASE + base + '" alt="">' : '')
+            + (op ? '<img class="cmp-mtx-icon-op" src="' + MTX_ICON_BASE + op + '" alt="">' : '')
+            + '</span>';
+    }
+
+    function mtxRenderPrimitiveTiles(axis, containerId) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+        var list = axis === 'scope' ? MTX_SCOPES : MTX_OPS;
+        container.innerHTML = list.map(function (item) {
+            var iconPath = mtxGetPrimitiveIcon(axis, item.key);
+            var customCls = mtxIsPrimitiveCustom(axis, item.key) ? ' is-custom' : '';
+            return '<div class="cmp-mtx-primitive-tile' + customCls + '"'
+                + ' data-axis="' + axis + '"'
+                + ' data-key="' + item.key + '"'
+                + ' title="' + item.label + ' (' + item.sub + ')">'
+                + (iconPath ? '<img src="' + MTX_ICON_BASE + iconPath + '" alt="">' : '<span style="width:28px;height:28px;background:#EEE;display:block;border-radius:4px"></span>')
+                + '<div class="cmp-mtx-tile-label">' + item.label + '</div>'
+                + '<div class="cmp-mtx-tile-sub">' + item.sub + '</div>'
+                + '</div>';
+        }).join('');
+    }
+
+    function mtxRenderMatrix() {
+        var table = document.getElementById('cmpMtxMatrix');
+        if (!table) return;
+        var overrides = mtxReadOverrides();
+        var html = '<thead><tr><th></th>';
+        MTX_OPS.forEach(function (op) { html += '<th>' + op.label + '</th>'; });
+        html += '</tr></thead><tbody>';
+        MTX_SCOPES.forEach(function (sc) {
+            html += '<tr><th class="cmp-mtx-th-row">' + sc.label + '</th>';
+            MTX_OPS.forEach(function (op) {
+                if (!mtxIsApplicable(sc.key, op.key)) {
+                    html += '<td class="cmp-mtx-cell is-na"></td>';
+                    return;
+                }
+                var typeKey = mtxGetTypeKey(sc.key, op.key);
+                var isOverride = !!overrides[typeKey];
+                html += '<td class="cmp-mtx-cell' + (isOverride ? ' is-override' : '') + '"'
+                    + ' data-scope="' + sc.key + '"'
+                    + ' data-op="' + op.key + '"'
+                    + ' title="' + sc.label + ' × ' + op.label + ' (' + typeKey + ')">'
+                    + mtxBuildCellIconHtml(sc.key, op.key)
+                    + '</td>';
+            });
+            html += '</tr>';
+        });
+        html += '</tbody>';
+        table.innerHTML = html;
+    }
+
+    function mtxRenderSampleItems() {
+        var container = document.getElementById('cmpMtxSampleItems');
+        if (!container) return;
+        container.innerHTML = MTX_SAMPLE_ITEMS.map(function (it) {
+            var typeKey = mtxGetTypeKey(it.scope, it.op);
+            return '<div class="cmp-mtx-sample-item' + (it.unread ? ' is-unread' : '') + '">'
+                + '<div class="cmp-mtx-sample-item-icon">' + mtxBuildCellIconHtml(it.scope, it.op) + '</div>'
+                + '<div class="cmp-mtx-sample-item-text">'
+                +     '<div class="cmp-mtx-sample-item-main">' + escapeHtmlMtx(it.main) + '</div>'
+                +     '<div class="cmp-mtx-sample-item-sub">' + escapeHtmlMtx(it.sub) + ' <span style="color:#999">(' + typeKey + ')</span></div>'
+                + '</div>'
+                + '</div>';
+        }).join('');
+    }
+
+    function escapeHtmlMtx(s) {
+        return String(s || '').replace(/[&<>"']/g, function (c) {
+            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+        });
+    }
+
+    function mtxRefreshAll() {
+        mtxRenderPrimitiveTiles('scope', 'cmpMtxScopeTiles');
+        mtxRenderPrimitiveTiles('op', 'cmpMtxOpTiles');
+        mtxRenderMatrix();
+        mtxRenderSampleItems();
+    }
+
+    function mtxOpenPicker(title, onPick) {
+        if (!window.IconPicker) { alert('IconPicker が読み込まれていません。'); return; }
+        window.IconPicker.open({
+            title: title,
+            accept: ['svg', 'png'],
+            basePath: MTX_ICON_BASE,
+            onPick: onPick
+        });
+    }
+
+    /* プリミティブタイルクリック → IconPicker */
+    document.addEventListener('click', function (e) {
+        var tile = e.target.closest('.cmp-mtx-primitive-tile');
+        if (!tile) return;
+        var axis = tile.dataset.axis;
+        var key = tile.dataset.key;
+        var label = tile.querySelector('.cmp-mtx-tile-label');
+        var title = 'プリミティブ ' + (axis === 'scope' ? 'scope' : 'op') + ': ' + (label ? label.textContent : key);
+        mtxOpenPicker(title, function (file) {
+            mtxWritePrimitive(axis, key, file);
+            mtxRefreshAll();
+            mtxSetStatus('プリミティブ ' + axis + '.' + key + ' を更新しました');
+        });
+    });
+
+    /* マトリクスセルクリック → ポップオーバー */
+    function mtxClosePopover() {
+        document.querySelectorAll('.cmp-mtx-override-popover').forEach(function (p) { p.remove(); });
+    }
+    document.addEventListener('click', function (e) {
+        var cell = e.target.closest('.cmp-mtx-cell');
+        if (!cell) { mtxClosePopover(); return; }
+        if (cell.classList.contains('is-na')) return;
+        e.stopPropagation();
+        mtxClosePopover();
+        var scopeKey = cell.dataset.scope;
+        var opKey = cell.dataset.op;
+        var typeKey = mtxGetTypeKey(scopeKey, opKey);
+        var overrides = mtxReadOverrides();
+        var hasOverride = !!overrides[typeKey];
+
+        var pop = document.createElement('div');
+        pop.className = 'cmp-mtx-override-popover';
+        pop.innerHTML = '<div class="cmp-mtx-pop-title">' + escapeHtmlMtx(typeKey) + '</div>'
+            + '<div class="cmp-mtx-pop-info">'
+            +     '現状: ' + (hasOverride ? '個別 override (<code>' + escapeHtmlMtx(overrides[typeKey]) + '</code>)' : 'プリミティブ合成')
+            + '</div>'
+            + '<div class="cmp-mtx-pop-actions">'
+            +     '<button data-act="override">個別アイコンを指定...</button>'
+            +     (hasOverride ? '<button data-act="reset" class="is-danger">合成に戻す (override 削除)</button>' : '')
+            +     '<button data-act="cancel">キャンセル</button>'
+            + '</div>';
+        document.body.appendChild(pop);
+        var rect = cell.getBoundingClientRect();
+        var top = rect.bottom + window.scrollY + 4;
+        var left = rect.left + window.scrollX;
+        if (left + 240 > window.innerWidth) left = window.innerWidth - 250;
+        pop.style.top = top + 'px';
+        pop.style.left = left + 'px';
+
+        pop.addEventListener('click', function (ev) {
+            var btn = ev.target.closest('button');
+            if (!btn) return;
+            ev.stopPropagation();
+            var act = btn.dataset.act;
+            if (act === 'override') {
+                mtxClosePopover();
+                mtxOpenPicker('個別 override: ' + typeKey, function (file) {
+                    mtxWriteOverride(typeKey, file);
+                    mtxRefreshAll();
+                    mtxSetStatus('override ' + typeKey + ' を設定しました');
+                });
+            } else if (act === 'reset') {
+                mtxWriteOverride(typeKey, null);
+                mtxClosePopover();
+                mtxRefreshAll();
+                mtxSetStatus('override ' + typeKey + ' を削除しました');
+            } else {
+                mtxClosePopover();
+            }
+        });
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') mtxClosePopover(); });
+
+    /* ツールバー */
+    function mtxSetStatus(msg) {
+        var el = document.getElementById('cmpMtxStatus');
+        if (!el) return;
+        el.textContent = msg;
+        clearTimeout(mtxSetStatus._t);
+        mtxSetStatus._t = setTimeout(function () { el.textContent = ''; }, 3000);
+    }
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('#cmpMtxExport');
+        if (!btn) return;
+        var data = {
+            _meta: {
+                exportedAt: new Date().toISOString(),
+                source: 'notify-compare.html マトリクス選定モード',
+                scopes: MTX_SCOPES.map(function (s) { return s.key; }),
+                ops: MTX_OPS.map(function (o) { return o.key; }),
+                applicable: MTX_APPLICABLE
+            },
+            primitives: mtxReadPrimitives(),
+            typeOverrides: mtxReadOverrides()
+        };
+        var json = JSON.stringify(data, null, 2);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(json).then(function () {
+                mtxSetStatus('JSON をクリップボードにコピーしました (' + json.length + ' 文字)');
+            }).catch(function () {
+                console.log(json);
+                mtxSetStatus('クリップボード失敗。コンソール出力しました');
+            });
+        } else {
+            console.log(json);
+            mtxSetStatus('navigator.clipboard 非対応。コンソール出力しました');
+        }
+    });
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('#cmpMtxReset');
+        if (!btn) return;
+        if (!confirm('プリミティブ・override すべてをリセットしますか？\n(localStorage の notifyPrimitives.v1 / notifyTypeOverrides.v1 を削除)')) return;
+        try {
+            localStorage.removeItem(MTX_PRIMITIVES_KEY);
+            localStorage.removeItem(MTX_OVERRIDES_KEY);
+        } catch (e2) {}
+        mtxRefreshAll();
+        mtxSetStatus('すべてリセットしました');
+    });
+
+    /* マトリクスモード初回表示時に描画 */
+    document.querySelectorAll('.cmp-mode-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            if (btn.dataset.mode === 'matrix') {
+                mtxRefreshAll();
+            }
+        });
+    });
+
+    /* 起動時にもレンダリング（マトリクスタブが直接ロードされた場合に備える） */
+    document.addEventListener('DOMContentLoaded', function () {
+        mtxRefreshAll();
     });
 })();

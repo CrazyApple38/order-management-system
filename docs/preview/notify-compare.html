@@ -25,6 +25,7 @@
             <button class="cmp-mode-btn" data-mode="panel-layout">パネルレイアウト</button>
             <button class="cmp-mode-btn" data-mode="auto-overlay">自動生成行</button>
             <button class="cmp-mode-btn" data-mode="n2-integration">N-2 統合</button>
+            <button class="cmp-mode-btn" data-mode="matrix">マトリクス選定 (N-2.4)</button>
         </div>
     </header>
 
@@ -2636,6 +2637,71 @@
                     <li>✓ アコーディオン展開時に「現在画面で開く ↗ / 他画面で開く ↗」ヒントを表示</li>
                     <li>※ 実際の画面ジャンプロジックは Phase N-5 で実装</li>
                 </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============================================================
+         マトリクス選定モード (N-2.4)
+         scope × op の 2軸でアイコンを合成、個別 override も可能
+         ============================================================ -->
+    <main class="cmp-hidden" id="cmpMatrix">
+        <section class="cmp-mtx-section">
+            <h2><span class="cmp-mtx-tag">操作</span> ツールバー</h2>
+            <p class="cmp-mtx-desc">
+                プリミティブタイル or マトリクスセルをクリックでアイコンを選定。<br>
+                選定結果は localStorage (<code>notifyPrimitives.v1</code> / <code>notifyTypeOverrides.v1</code>) に保存。
+                ページ更新後も保持される。
+            </p>
+            <div class="cmp-mtx-toolbar">
+                <button class="cmp-mtx-btn is-primary" id="cmpMtxExport">JSON出力 (クリップボード)</button>
+                <button class="cmp-mtx-btn is-danger" id="cmpMtxReset">全リセット</button>
+                <span class="cmp-mtx-status" id="cmpMtxStatus"></span>
+            </div>
+        </section>
+
+        <section class="cmp-mtx-section">
+            <h2><span class="cmp-mtx-tag">①</span> プリミティブ選定 — scope × op</h2>
+            <p class="cmp-mtx-desc">
+                <strong>scope (操作対象)</strong> と <strong>op (操作内容)</strong> を別軸で個別に選定。各タイルクリックで IconPicker 起動。<br>
+                <span class="cmp-mtx-legend-dot is-custom"></span>マークは「ユーザーがカスタム選定したプリミティブ」(未指定時はデフォルト値を使用)。
+            </p>
+            <div class="cmp-mtx-primitive-row">
+                <div class="cmp-mtx-primitive-group">
+                    <p class="cmp-mtx-primitive-group-title">scope (操作対象) — 11 種類</p>
+                    <div class="cmp-mtx-primitive-tiles" id="cmpMtxScopeTiles"></div>
+                </div>
+                <div class="cmp-mtx-primitive-group">
+                    <p class="cmp-mtx-primitive-group-title">op (操作内容) — 8 種類</p>
+                    <div class="cmp-mtx-primitive-tiles" id="cmpMtxOpTiles"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cmp-mtx-section">
+            <h2><span class="cmp-mtx-tag">②</span> マトリクスプレビュー — scope × op</h2>
+            <p class="cmp-mtx-desc">
+                プリミティブ合成の結果を一覧。<br>
+                各セルクリック → アクションメニュー（「個別アイコン指定」/「合成に戻す」）。<br>
+                <span class="cmp-mtx-legend-dot"></span>マークは「個別 override 設定済み」(プリミティブ合成より優先)。<br>
+                「—」は意味的に存在しない組み合わせ (applicableMatrix で定義)。
+            </p>
+            <div class="cmp-mtx-matrix-wrap">
+                <table class="cmp-mtx-matrix" id="cmpMtxMatrix"></table>
+            </div>
+        </section>
+
+        <section class="cmp-mtx-section">
+            <h2><span class="cmp-mtx-tag">③</span> 通知アイテムでの見え方</h2>
+            <p class="cmp-mtx-desc">
+                マトリクスで選定中のアイコンが、実際のパネル内通知アイテムとしてどう見えるかのサンプル。
+            </p>
+            <div class="cmp-mtx-sample-panel">
+                <div class="cmp-mtx-sample-head">
+                    <span class="cmp-mtx-sample-head-title">OB の変更通知 (サンプル)</span>
+                    <button class="cmp-mtx-btn">すべて既読にする</button>
+                </div>
+                <div class="cmp-mtx-sample-items" id="cmpMtxSampleItems"></div>
             </div>
         </section>
     </main>

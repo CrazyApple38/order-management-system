@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>変更通知 アイコンマトリクス選定 プロトタイプ — N-2.4</title>
+    <link rel="stylesheet" href="../mockup/co-tokens.css">
+    <link rel="stylesheet" href="../mockup/co-shared-badges.css">
+    <style>
+        body {
+            font-family: var(--font-base, sans-serif);
+            background: var(--bg-app, #E9F1F6);
+            margin: 0;
+            padding: 24px;
+            color: var(--text-primary, #1A1A1A);
+        }
+        .pp-header { max-width: 1280px; margin: 0 auto 24px; }
+        .pp-header h1 { margin: 0 0 4px; font-size: 22px; }
+        .pp-header .pp-subtitle { color: var(--text-tertiary, #777); font-size: 13px; margin: 0; line-height: 1.7; }
+        .pp-section {
+            max-width: 1280px; margin: 0 auto 28px;
+            background: var(--bg-surface, #FFF);
+            border: 1px solid var(--divider, #DEE6EA);
+            border-radius: 12px;
+            padding: 20px 24px;
+        }
+        .pp-section h2 {
+            margin: 0 0 4px; font-size: 16px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .pp-section h2 .pp-tag {
+            background: var(--accent-primary, #44A6B5); color: #FFF;
+            font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600;
+        }
+        .pp-section .pp-desc { color: var(--text-tertiary, #777); font-size: 12px; margin: 0 0 16px; }
+
+        /* === プリミティブ選定エリア === */
+        .pp-primitive-row { display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start; }
+        .pp-primitive-group { flex: 1; min-width: 360px; }
+        .pp-primitive-group-title {
+            font-size: 12px; font-weight: 600; color: var(--text-secondary, #555);
+            margin: 0 0 8px;
+        }
+        .pp-primitive-tiles { display: flex; gap: 10px; flex-wrap: wrap; }
+        .pp-primitive-tile {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            border: 1px solid var(--divider, #DEE6EA); border-radius: 8px;
+            background: var(--bg-surface-2, #F7FAFC);
+            padding: 10px 8px; min-width: 80px; cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .pp-primitive-tile:hover { border-color: var(--accent-primary, #44A6B5); background: #FFF; }
+        .pp-primitive-tile img { width: 28px; height: 28px; }
+        .pp-primitive-tile .pp-tile-label { font-size: 11px; color: var(--text-secondary, #555); }
+        .pp-primitive-tile .pp-tile-sub { font-size: 10px; color: var(--text-disabled, #999); font-family: ui-monospace, monospace; }
+
+        /* === マトリクスプレビュー === */
+        .pp-matrix-wrap { overflow-x: auto; margin-top: 8px; }
+        .pp-matrix { border-collapse: separate; border-spacing: 4px; }
+        .pp-matrix th, .pp-matrix td { text-align: center; }
+        .pp-matrix th {
+            font-size: 11px; font-weight: 600; color: var(--text-secondary, #555);
+            padding: 6px 8px;
+        }
+        .pp-matrix th.pp-th-row {
+            text-align: left; min-width: 90px;
+            background: var(--bg-surface-2, #F7FAFC);
+            border-radius: 6px;
+        }
+        .pp-matrix td.pp-cell {
+            width: 60px; height: 60px;
+            background: var(--bg-surface-2, #F7FAFC);
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+            transition: border 0.15s, background 0.15s;
+            border: 1px solid transparent;
+        }
+        .pp-matrix td.pp-cell:hover { border-color: var(--accent-primary, #44A6B5); background: #FFF; }
+        .pp-matrix td.pp-cell.is-na { background: transparent; cursor: not-allowed; }
+        .pp-matrix td.pp-cell.is-na::after {
+            content: '—'; color: var(--text-disabled, #BBB);
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+        }
+        .pp-matrix td.pp-cell.is-override::before {
+            content: ''; position: absolute; top: 3px; right: 3px;
+            width: 6px; height: 6px; background: var(--semantic-warning, #DECCBE); border-radius: 50%;
+        }
+
+        /* === 合成アイコン === */
+        .pp-composed {
+            position: relative; display: inline-block; width: 36px; height: 36px;
+        }
+        .pp-composed .pp-icon-base {
+            width: 100%; height: 100%; display: block;
+        }
+        .pp-composed .pp-icon-op {
+            position: absolute; right: -3px; bottom: -3px;
+            width: 16px; height: 16px;
+            background: #FFF;
+            border: 1.5px solid var(--bg-surface, #FFF);
+            border-radius: 50%;
+            padding: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        /* マトリクスセル内の合成アイコンは少し小さく */
+        .pp-cell .pp-composed { width: 32px; height: 32px; }
+        .pp-cell .pp-composed .pp-icon-op { width: 14px; height: 14px; padding: 1.5px; }
+
+        /* === 通知アイテムサンプル === */
+        .pp-sample-panel {
+            background: var(--bg-surface, #FFF);
+            border: 1px solid var(--divider, #DEE6EA);
+            border-radius: 10px;
+            max-width: 380px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .pp-sample-head {
+            padding: 12px 16px; border-bottom: 1px solid var(--divider, #DEE6EA);
+            background: var(--bg-surface-2, #F7FAFC);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .pp-sample-head-title { font-size: 14px; font-weight: 600; }
+        .pp-sample-items { padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+        .pp-sample-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 10px 12px; border-radius: 8px;
+        }
+        .pp-sample-item.is-unread { background: rgba(68, 166, 181, 0.06); }
+        .pp-sample-item-icon { flex-shrink: 0; }
+        .pp-sample-item-text { flex: 1; min-width: 0; }
+        .pp-sample-item-main { font-size: 13px; line-height: 1.4; color: var(--text-primary, #1A1A1A); }
+        .pp-sample-item-sub { font-size: 11px; color: var(--text-tertiary, #777); margin-top: 3px; }
+
+        /* === 個別上書きエリア === */
+        .pp-override-zone {
+            border-left: 3px solid var(--semantic-warning, #DECCBE);
+            background: rgba(222, 204, 190, 0.08);
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 13px; line-height: 1.7;
+        }
+        .pp-override-zone code { background: rgba(0,0,0,0.05); padding: 1px 6px; border-radius: 3px; font-size: 12px; }
+        .pp-override-zone strong { color: var(--accent-primary, #44A6B5); }
+
+        /* === 解決順序図 === */
+        .pp-resolve-flow {
+            display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+            font-size: 12px;
+            padding: 12px 16px;
+            background: var(--bg-surface-2, #F7FAFC);
+            border-radius: 8px;
+        }
+        .pp-resolve-step {
+            background: #FFF; border: 1px solid var(--divider, #DEE6EA);
+            padding: 6px 12px; border-radius: 6px;
+        }
+        .pp-resolve-arrow { color: var(--text-disabled, #BBB); }
+
+        /* === レジェンド === */
+        .pp-legend { font-size: 11px; color: var(--text-tertiary, #777); margin-top: 10px; display: flex; gap: 16px; }
+        .pp-legend-item { display: flex; align-items: center; gap: 6px; }
+        .pp-legend-dot { width: 8px; height: 8px; background: var(--semantic-warning, #DECCBE); border-radius: 50%; }
+    </style>
+</head>
+<body>
+    <header class="pp-header">
+        <h1>変更通知 アイコンマトリクス選定 プロトタイプ <span class="pp-tag" style="background:#DECCBE;color:#5C4A33;font-size:10px;padding:2px 8px;border-radius:10px;vertical-align:middle;font-weight:600">N-2.4 静的モック</span></h1>
+        <p class="pp-subtitle">
+            計画書 <code>docs/plan/notification-refactor-plan.md</code> §16 N-2.4 詳細計画 のビジュアル化。<br>
+            「案B: スコープ×操作マトリクス」+「マトリクスUI + プリミティブ固定セット」の組み合わせを静的モックで提示。<br>
+            実装前の<strong>画面イメージ確認用</strong>。本HTMLでは選定操作は動作しません（クリックでもアイコンピッカーは開きません）。
+        </p>
+    </header>
+
+    <!-- ========== セクション1: プリミティブ選定エリア ========== -->
+    <section class="pp-section">
+        <h2><span class="pp-tag">① 入力</span> プリミティブ選定エリア</h2>
+        <p class="pp-desc">
+            <strong>scope (操作対象)</strong> と <strong>op (操作内容)</strong> を別軸として個別に選定。各タイルクリックで IconPicker 起動。
+            このプロトタイプではアイコンは <code>notify-icons-selected.json</code> の確定値から仮流用。
+        </p>
+
+        <div class="pp-primitive-row">
+            <div class="pp-primitive-group">
+                <p class="pp-primitive-group-title">scope (操作対象) — 全画面で共通定義</p>
+                <div class="pp-primitive-tiles">
+                    <div class="pp-primitive-tile"><img src="../assets/icons/business/im-12034-keiyaku-sho.svg"><div class="pp-tile-label">業務行</div><div class="pp-tile-sub">row (OB)</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/stationery/im-12555-karendaa.svg"><div class="pp-tile-label">セル</div><div class="pp-tile-sub">cell (OB)</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/sign-mark/im-15851-kyouyuu.svg"><div class="pp-tile-label">配置先</div><div class="pp-tile-sub">site (OB)</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/sign-mark/im-10058-okiniiri-osusume-ni-tsukaeru-hoshi-aikon.svg"><div class="pp-tile-label">バッジ</div><div class="pp-tile-sub">badge (OB)</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/person/im-15537-jimbutsu.svg"><div class="pp-tile-label">社員</div><div class="pp-tile-sub">employee (SL)</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/transport/im-10852-jouyousha.svg"><div class="pp-tile-label">車両</div><div class="pp-tile-sub">vehicle (SL)</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/person/im-12114-sns-jimbutsu.svg"><div class="pp-tile-label">応援</div><div class="pp-tile-sub">support (SL/WS)</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/person/si-13722-13722.png"><div class="pp-tile-label">応援予約</div><div class="pp-tile-sub">reservation (SL/WS)</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/stationery/si-48956-calendar.png"><div class="pp-tile-label">週間予定</div><div class="pp-tile-sub">schedule (WS)</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/sign-mark/si-25968-mark-repeat.png"><div class="pp-tile-label">休バッジ</div><div class="pp-tile-sub">leave-badge (WS)</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/business/si-45841-document-teishutsu.png"><div class="pp-tile-label">申請</div><div class="pp-tile-sub">application (LA)</div></div>
+                </div>
+            </div>
+
+            <div class="pp-primitive-group">
+                <p class="pp-primitive-group-title">op (操作内容) — scope と同じ意味で全画面共通</p>
+                <div class="pp-primitive-tiles">
+                    <div class="pp-primitive-tile"><img src="../assets/icons/sign-mark/im-00105-purasu.svg"><div class="pp-tile-label">追加</div><div class="pp-tile-sub">add</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/education/si-14519-14519.png"><div class="pp-tile-label">編集</div><div class="pp-tile-sub">modify</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/sign-mark/im-11911-hosoi-batsu.svg"><div class="pp-tile-label">削除</div><div class="pp-tile-sub">delete</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/sign-mark/im-11908-chuui-maaku.svg"><div class="pp-tile-label">クリア</div><div class="pp-tile-sub">clear</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/sign-mark/im-11451-chekku-maaku-no-muryou.svg"><div class="pp-tile-label">承認</div><div class="pp-tile-sub">approve (LA)</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/sign-mark/im-11911-hosoi-batsu.svg"><div class="pp-tile-label">却下</div><div class="pp-tile-sub">reject (LA)</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/sign-mark/im-15851-kyouyuu.svg"><div class="pp-tile-label">配置</div><div class="pp-tile-sub">place (SL/cell)</div></div>
+                    <div class="pp-primitive-tile"><img src="../assets/icons/sign-mark/im-11911-hosoi-batsu.svg"><div class="pp-tile-label">解除</div><div class="pp-tile-sub">remove (site)</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pp-legend">
+            <div class="pp-legend-item">scope は <strong>11</strong> 種類 / op は <strong>8</strong> 種類 → 合計選定 <strong>19 個</strong> で全画面の type 表現が可能</div>
+        </div>
+    </section>
+
+    <!-- ========== セクション2: マトリクスプレビュー ========== -->
+    <section class="pp-section">
+        <h2><span class="pp-tag">② プレビュー</span> scope × op マトリクス</h2>
+        <p class="pp-desc">
+            scope × op の組み合わせで全 type を自動合成。「—」のセルは意味的にあり得ない組み合わせ（例: バッジ階層のクリアなど）。
+            <span class="pp-legend-dot" style="display:inline-block;margin:0 4px;vertical-align:middle"></span> = 個別上書き設定済み。
+        </p>
+
+        <div class="pp-matrix-wrap">
+            <table class="pp-matrix">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>追加</th>
+                        <th>編集</th>
+                        <th>削除</th>
+                        <th>クリア</th>
+                        <th>承認</th>
+                        <th>却下</th>
+                        <th>配置</th>
+                        <th>解除</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th class="pp-th-row">業務行</th>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/business/im-12034-keiyaku-sho.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-00105-purasu.svg"></span></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/business/im-12034-keiyaku-sho.svg"><img class="pp-icon-op" src="../assets/icons/education/si-14519-14519.png"></span></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/business/im-12034-keiyaku-sho.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-11911-hosoi-batsu.svg"></span></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                    </tr>
+                    <tr>
+                        <th class="pp-th-row">セル</th>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/stationery/im-12555-karendaa.svg"><img class="pp-icon-op" src="../assets/icons/education/si-14519-14519.png"></span></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/stationery/im-12555-karendaa.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-11908-chuui-maaku.svg"></span></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/stationery/im-12555-karendaa.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-15851-kyouyuu.svg"></span></td>
+                        <td class="pp-cell is-na"></td>
+                    </tr>
+                    <tr>
+                        <th class="pp-th-row">配置先</th>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/sign-mark/im-15851-kyouyuu.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-00105-purasu.svg"></span></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/sign-mark/im-15851-kyouyuu.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-11911-hosoi-batsu.svg"></span></td>
+                    </tr>
+                    <tr>
+                        <th class="pp-th-row">バッジ</th>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/sign-mark/im-10058-okiniiri-osusume-ni-tsukaeru-hoshi-aikon.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-00105-purasu.svg"></span></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/sign-mark/im-10058-okiniiri-osusume-ni-tsukaeru-hoshi-aikon.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-11911-hosoi-batsu.svg"></span></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                    </tr>
+                    <tr>
+                        <th class="pp-th-row">社員</th>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/person/im-15537-jimbutsu.svg"><img class="pp-icon-op" src="../assets/icons/education/si-14519-14519.png"></span></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-override"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/person/im-15537-jimbutsu.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-15851-kyouyuu.svg"></span></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/person/im-15537-jimbutsu.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-11911-hosoi-batsu.svg"></span></td>
+                    </tr>
+                    <tr>
+                        <th class="pp-th-row">車両</th>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/transport/im-10852-jouyousha.svg"><img class="pp-icon-op" src="../assets/icons/education/si-14519-14519.png"></span></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/transport/im-10852-jouyousha.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-15851-kyouyuu.svg"></span></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/transport/im-10852-jouyousha.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-11911-hosoi-batsu.svg"></span></td>
+                    </tr>
+                    <tr>
+                        <th class="pp-th-row">応援</th>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/person/im-12114-sns-jimbutsu.svg"><img class="pp-icon-op" src="../assets/icons/education/si-14519-14519.png"></span></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/person/im-12114-sns-jimbutsu.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-15851-kyouyuu.svg"></span></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/person/im-12114-sns-jimbutsu.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-11911-hosoi-batsu.svg"></span></td>
+                    </tr>
+                    <tr>
+                        <th class="pp-th-row">応援予約</th>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/person/si-13722-13722.png"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-00105-purasu.svg"></span></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/person/si-13722-13722.png"><img class="pp-icon-op" src="../assets/icons/education/si-14519-14519.png"></span></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/person/si-13722-13722.png"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-11911-hosoi-batsu.svg"></span></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                    </tr>
+                    <tr>
+                        <th class="pp-th-row">週間予定</th>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/stationery/si-48956-calendar.png"><img class="pp-icon-op" src="../assets/icons/education/si-14519-14519.png"></span></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                    </tr>
+                    <tr>
+                        <th class="pp-th-row">休バッジ</th>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/sign-mark/si-25968-mark-repeat.png"><img class="pp-icon-op" src="../assets/icons/education/si-14519-14519.png"></span></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                    </tr>
+                    <tr>
+                        <th class="pp-th-row">申請</th>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/business/si-45841-document-teishutsu.png"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-00105-purasu.svg"></span></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/business/si-45841-document-teishutsu.png"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-11451-chekku-maaku-no-muryou.svg"></span></td>
+                        <td class="pp-cell"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/business/si-45841-document-teishutsu.png"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-11911-hosoi-batsu.svg"></span></td>
+                        <td class="pp-cell is-na"></td>
+                        <td class="pp-cell is-na"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ========== セクション3: 個別上書き ========== -->
+    <section class="pp-section">
+        <h2><span class="pp-tag">③ 上書き</span> 個別カスタマイズ (override) — 必要な type だけ手動指定</h2>
+        <p class="pp-desc">
+            プリミティブ合成の結果が気に入らない場合、特定セルだけ単一アイコンで上書きできる。マトリクスのセルクリックで「個別上書きモード」に切替→既存の <code>[アイコン選定]</code> モードと同じ IconPicker が起動。
+        </p>
+        <div class="pp-override-zone">
+            例: <code>type-sl-employee-place</code> をマトリクスから上書き<br>
+            → <strong>scope=社員 + op=配置</strong> の合成（人物+共有）ではなく、<strong>「社員配置」専用の単一アイコン</strong>（例: <code>person/si-13878-13878.png 配置済み人物図</code>）を指定<br>
+            → このセルだけ <span class="pp-legend-dot" style="display:inline-block;vertical-align:middle"></span> マークが付き、override 設定済みであることを表示
+        </div>
+    </section>
+
+    <!-- ========== セクション4: 解決順序 ========== -->
+    <section class="pp-section">
+        <h2><span class="pp-tag">④ 解決ロジック</span> アイコン解決順序</h2>
+        <p class="pp-desc">
+            <code>co-notify-panel.js</code> 内のアイコン解決ロジック。3 層で順次フォールバック。
+        </p>
+        <div class="pp-resolve-flow">
+            <span>type <code>cell-place</code></span>
+            <span class="pp-resolve-arrow">→</span>
+            <span class="pp-resolve-step">① typeOverrides[<code>cell-place</code>] あり？</span>
+            <span class="pp-resolve-arrow">→</span>
+            <span class="pp-resolve-step">② primitives[<code>scope=cell</code>] + primitives[<code>op=place</code>] を合成</span>
+            <span class="pp-resolve-arrow">→</span>
+            <span class="pp-resolve-step">③ 既定アイコン</span>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-tertiary,#777)">
+            既存 27 スロット (<code>notifyIconSelections.v1</code>) との関係:<br>
+            ・ ベル7個 + 共通4個 はマトリクス対象外（既存のまま）<br>
+            ・ パネル別 16 個 (type-ob-add/modify/delete 等) は <strong>typeOverrides として吸収</strong>（互換性維持）<br>
+            ・ 新規追加分はマトリクス合成 (primitive) で表現
+        </div>
+    </section>
+
+    <!-- ========== セクション5: 通知アイテムサンプル ========== -->
+    <section class="pp-section">
+        <h2><span class="pp-tag">⑤ 実物</span> 通知アイテムでの見え方</h2>
+        <p class="pp-desc">
+            実際のパネル内に並んだ場合の見え方サンプル。合成アイコン (ベース + 右下オーバーレイ) の視認性確認用。
+        </p>
+
+        <div class="pp-sample-panel">
+            <div class="pp-sample-head">
+                <span class="pp-sample-head-title">OB の変更通知</span>
+                <button style="background:none;border:none;color:#44A6B5;font-size:11px;cursor:pointer">すべて既読にする</button>
+            </div>
+            <div class="pp-sample-items">
+                <div class="pp-sample-item is-unread">
+                    <div class="pp-sample-item-icon"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/business/im-12034-keiyaku-sho.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-00105-purasu.svg"></span></div>
+                    <div class="pp-sample-item-text">
+                        <div class="pp-sample-item-main">東央警備 / 渋谷駅前ビル を業務行として追加</div>
+                        <div class="pp-sample-item-sub">田中 太郎 ・ 5/18 09:14 <span style="color:#999">(row-add)</span></div>
+                    </div>
+                </div>
+                <div class="pp-sample-item is-unread">
+                    <div class="pp-sample-item-icon"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/stationery/im-12555-karendaa.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-15851-kyouyuu.svg"></span></div>
+                    <div class="pp-sample-item-text">
+                        <div class="pp-sample-item-main">Nikkei / 大手町オフィス の 15日 に 2名 を配置</div>
+                        <div class="pp-sample-item-sub">佐藤 花子 ・ 5/18 10:30 <span style="color:#999">(cell-place)</span></div>
+                    </div>
+                </div>
+                <div class="pp-sample-item is-unread">
+                    <div class="pp-sample-item-icon"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/stationery/im-12555-karendaa.svg"><img class="pp-icon-op" src="../assets/icons/education/si-14519-14519.png"></span></div>
+                    <div class="pp-sample-item-text">
+                        <div class="pp-sample-item-main">Nikkei / 大手町オフィス の 15日 の開始時間を変更</div>
+                        <div class="pp-sample-item-sub">山田 次郎 ・ 5/18 11:42 <span style="color:#999">(cell-edit)</span></div>
+                    </div>
+                </div>
+                <div class="pp-sample-item">
+                    <div class="pp-sample-item-icon"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/stationery/im-12555-karendaa.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-11908-chuui-maaku.svg"></span></div>
+                    <div class="pp-sample-item-text">
+                        <div class="pp-sample-item-main">全日本警備 / 新宿駅前 の 20日 配置をクリア</div>
+                        <div class="pp-sample-item-sub">高橋 五郎 ・ 5/17 17:45 <span style="color:#999">(cell-clear)</span></div>
+                    </div>
+                </div>
+                <div class="pp-sample-item">
+                    <div class="pp-sample-item-icon"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/sign-mark/im-15851-kyouyuu.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-00105-purasu.svg"></span></div>
+                    <div class="pp-sample-item-text">
+                        <div class="pp-sample-item-main">東央警備 / 渋谷駅前ビル の 18日 に配置先を追加</div>
+                        <div class="pp-sample-item-sub">伊藤 ・ 5/17 14:30 <span style="color:#999">(site-add)</span></div>
+                    </div>
+                </div>
+                <div class="pp-sample-item">
+                    <div class="pp-sample-item-icon"><span class="pp-composed"><img class="pp-icon-base" src="../assets/icons/sign-mark/im-10058-okiniiri-osusume-ni-tsukaeru-hoshi-aikon.svg"><img class="pp-icon-op" src="../assets/icons/sign-mark/im-00105-purasu.svg"></span></div>
+                    <div class="pp-sample-item-text">
+                        <div class="pp-sample-item-main">セル編集で「巡回業務」バッジを追加</div>
+                        <div class="pp-sample-item-sub">鈴木 ・ 5/17 13:20 <span style="color:#999">(badge-child-add)</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:16px;font-size:12px;color:var(--text-tertiary,#777)">
+            <strong>視認性チェックポイント:</strong> ベースとオーバーレイの組み合わせで意味が伝わるか / 似た合成同士の判別ができるか / オーバーレイサイズ・位置・背景白丸の白枠は適切か。
+        </div>
+    </section>
+
+</body>
+</html>

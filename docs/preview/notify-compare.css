@@ -1963,3 +1963,377 @@ button.cn-date-group-head:hover {
 .cmp-card--n2.is-icon-editing .cmp-bell-item.is-active::before {
     content: none;
 }
+
+/* ============================================================
+   マトリクス選定モード (N-2.4)
+   ============================================================ */
+#cmpMatrix { max-width: 1280px; margin: 0 auto; padding: 0 12px 32px; }
+.cmp-mtx-section {
+    background: var(--bg-surface, #FFF);
+    border: 1px solid var(--divider, #DEE6EA);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+}
+.cmp-mtx-section h2 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.cmp-mtx-section h2 .cmp-mtx-tag {
+    background: var(--accent-primary, #44A6B5);
+    color: #FFF;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+.cmp-mtx-section .cmp-mtx-desc {
+    color: var(--text-tertiary, #777);
+    font-size: 12px;
+    margin: 0 0 16px;
+    line-height: 1.7;
+}
+
+/* --- プリミティブ選定エリア --- */
+.cmp-mtx-primitive-row { display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start; }
+.cmp-mtx-primitive-group { flex: 1; min-width: 360px; }
+.cmp-mtx-primitive-group-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary, #555);
+    margin: 0 0 8px;
+}
+.cmp-mtx-primitive-tiles { display: flex; gap: 10px; flex-wrap: wrap; }
+.cmp-mtx-primitive-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid var(--divider, #DEE6EA);
+    border-radius: 8px;
+    background: var(--bg-surface-2, #F7FAFC);
+    padding: 10px 8px;
+    min-width: 80px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    position: relative;
+}
+.cmp-mtx-primitive-tile:hover {
+    border-color: var(--accent-primary, #44A6B5);
+    background: #FFF;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.cmp-mtx-primitive-tile img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+.cmp-mtx-primitive-tile .cmp-mtx-tile-label { font-size: 11px; color: var(--text-secondary, #555); }
+.cmp-mtx-primitive-tile .cmp-mtx-tile-sub {
+    font-size: 10px;
+    color: var(--text-disabled, #999);
+    font-family: ui-monospace, monospace;
+}
+.cmp-mtx-primitive-tile.is-custom::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 6px;
+    height: 6px;
+    background: var(--accent-primary, #44A6B5);
+    border-radius: 50%;
+}
+
+/* --- マトリクスプレビュー --- */
+.cmp-mtx-matrix-wrap { overflow-x: auto; margin-top: 8px; }
+.cmp-mtx-matrix { border-collapse: separate; border-spacing: 4px; }
+.cmp-mtx-matrix th,
+.cmp-mtx-matrix td { text-align: center; }
+.cmp-mtx-matrix th {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary, #555);
+    padding: 6px 8px;
+}
+.cmp-mtx-matrix th.cmp-mtx-th-row {
+    text-align: left;
+    min-width: 90px;
+    background: var(--bg-surface-2, #F7FAFC);
+    border-radius: 6px;
+}
+.cmp-mtx-matrix td.cmp-mtx-cell {
+    /* op が scope 右下角から大きくはみ出すため、セル幅を 72px に拡大して四隅切れを防止 */
+    width: 72px;
+    height: 72px;
+    background: var(--bg-surface-2, #F7FAFC);
+    border-radius: 8px;
+    position: relative;
+    cursor: pointer;
+    transition: border 0.15s, background 0.15s;
+    border: 1px solid transparent;
+}
+.cmp-mtx-matrix td.cmp-mtx-cell:hover {
+    border-color: var(--accent-primary, #44A6B5);
+    background: #FFF;
+}
+.cmp-mtx-matrix td.cmp-mtx-cell.is-na {
+    background: transparent;
+    cursor: not-allowed;
+}
+.cmp-mtx-matrix td.cmp-mtx-cell.is-na:hover {
+    border-color: transparent;
+    background: transparent;
+}
+.cmp-mtx-matrix td.cmp-mtx-cell.is-na::after {
+    content: '—';
+    color: var(--text-disabled, #BBB);
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cmp-mtx-matrix td.cmp-mtx-cell.is-override::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 6px;
+    height: 6px;
+    background: var(--semantic-warning, #DECCBE);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+/* --- 合成アイコン --- */
+.cmp-mtx-composed {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+}
+.cmp-mtx-composed .cmp-mtx-icon-base {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+}
+.cmp-mtx-composed .cmp-mtx-icon-op {
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    width: 16px;
+    height: 16px;
+    background: #FFF;
+    border: 1.5px solid var(--bg-surface, #FFF);
+    /* 角丸 6px の四角バッジ。border-radius: 50% (円形) は四角アイコンの四隅を切り取るため不適 */
+    border-radius: 6px;
+    padding: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    object-fit: contain;
+    box-sizing: border-box;
+}
+.cmp-mtx-cell .cmp-mtx-composed {
+    /* 表示領域は 32px のまま。scope を中央寄せで配置、op は右下にずらして scope と少しだけ重ねる */
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cmp-mtx-cell .cmp-mtx-composed .cmp-mtx-icon-base {
+    /* 親 (scope): 30px に拡大、視認性向上 */
+    width: 30px;
+    height: 30px;
+}
+.cmp-mtx-cell .cmp-mtx-composed .cmp-mtx-icon-op {
+    /* 子 (op): 28px に拡大、中心点を scope の右下角に重ねる配置
+       op (28) の中心 (14, 14) が scope 右下角 (合成領域 32×32 の右下 = 31,31) に来る
+       → top = 31-14 = 17 (= bottom -13)、left も同様 (= right -13) */
+    width: 28px;
+    height: 28px;
+    padding: 3px;
+    right: -13px;
+    bottom: -13px;
+}
+
+/* 通知アイテムサンプル内の合成アイコン: マトリクスセルと同寸法を適用 */
+.cmp-mtx-sample-item-icon .cmp-mtx-composed {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cmp-mtx-sample-item-icon .cmp-mtx-composed .cmp-mtx-icon-base {
+    width: 30px;
+    height: 30px;
+}
+.cmp-mtx-sample-item-icon .cmp-mtx-composed .cmp-mtx-icon-op {
+    width: 28px;
+    height: 28px;
+    padding: 3px;
+    right: -13px;
+    bottom: -13px;
+}
+/* 通知サンプルのアイコン枠を広げて op が右側コンテンツに被らないようにする */
+.cmp-mtx-sample-item-icon {
+    width: 32px;
+    padding-right: 18px;
+    flex-shrink: 0;
+}
+
+/* override が個別アイコン(単一)の場合 */
+.cmp-mtx-cell .cmp-mtx-single-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+/* --- 通知アイテムサンプル --- */
+.cmp-mtx-sample-panel {
+    background: var(--bg-surface, #FFF);
+    border: 1px solid var(--divider, #DEE6EA);
+    border-radius: 10px;
+    max-width: 380px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+.cmp-mtx-sample-head {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--divider, #DEE6EA);
+    background: var(--bg-surface-2, #F7FAFC);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.cmp-mtx-sample-head-title { font-size: 14px; font-weight: 600; }
+.cmp-mtx-sample-items {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.cmp-mtx-sample-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+}
+.cmp-mtx-sample-item.is-unread { background: rgba(68, 166, 181, 0.06); }
+.cmp-mtx-sample-item-icon { flex-shrink: 0; }
+.cmp-mtx-sample-item-text { flex: 1; min-width: 0; }
+.cmp-mtx-sample-item-main { font-size: 13px; line-height: 1.4; color: var(--text-primary, #1A1A1A); }
+.cmp-mtx-sample-item-sub { font-size: 11px; color: var(--text-tertiary, #777); margin-top: 3px; }
+
+/* --- ツールバー --- */
+.cmp-mtx-toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.cmp-mtx-btn {
+    background: var(--bg-surface-2, #F7FAFC);
+    border: 1px solid var(--divider, #DEE6EA);
+    color: var(--text-secondary, #555);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.cmp-mtx-btn:hover {
+    background: #FFF;
+    border-color: var(--accent-primary, #44A6B5);
+    color: var(--accent-primary, #44A6B5);
+}
+.cmp-mtx-btn.is-primary {
+    background: var(--accent-primary, #44A6B5);
+    color: #FFF;
+    border-color: var(--accent-primary, #44A6B5);
+}
+.cmp-mtx-btn.is-danger {
+    color: var(--semantic-error, #DB577B);
+}
+.cmp-mtx-btn.is-danger:hover {
+    border-color: var(--semantic-error, #DB577B);
+    color: var(--semantic-error, #DB577B);
+}
+.cmp-mtx-status {
+    font-size: 11px;
+    color: var(--text-tertiary, #777);
+    margin-left: auto;
+}
+
+/* --- override 操作モーダル (シンプル alert 風) --- */
+.cmp-mtx-override-popover {
+    position: fixed;
+    z-index: 9999;
+    background: #FFF;
+    border: 1px solid var(--divider, #DEE6EA);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    padding: 12px;
+    min-width: 220px;
+    font-size: 12px;
+}
+.cmp-mtx-override-popover .cmp-mtx-pop-title {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+.cmp-mtx-override-popover .cmp-mtx-pop-info {
+    color: var(--text-tertiary, #777);
+    font-size: 11px;
+    margin-bottom: 10px;
+    word-break: break-all;
+}
+.cmp-mtx-override-popover .cmp-mtx-pop-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.cmp-mtx-override-popover button {
+    width: 100%;
+    text-align: left;
+    background: var(--bg-surface-2, #F7FAFC);
+    border: 1px solid var(--divider, #DEE6EA);
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+.cmp-mtx-override-popover button:hover {
+    background: #FFF;
+    border-color: var(--accent-primary, #44A6B5);
+}
+.cmp-mtx-override-popover button.is-danger {
+    color: var(--semantic-error, #DB577B);
+}
+
+/* --- レジェンド --- */
+.cmp-mtx-legend {
+    font-size: 11px;
+    color: var(--text-tertiary, #777);
+    margin-top: 10px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.cmp-mtx-legend-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--semantic-warning, #DECCBE);
+    border-radius: 50%;
+    vertical-align: middle;
+    margin: 0 4px;
+}
+.cmp-mtx-legend-dot.is-custom { background: var(--accent-primary, #44A6B5); }
