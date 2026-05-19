@@ -1281,9 +1281,9 @@ function deleteBadge(level, id, childId) {
         if (selIdx >= 0) selectedChildBadges.splice(selIdx, 1);
         delete selectedGrandchildBadges[id];
         deletedBadgeInfo = { level: 'child', parentId: selectedParentBadge, badge, index: idx, wasSelected, grandchildIds: savedGcIds };
-        obCnSelfNotify('delete', {
+        obCnSelfNotify('badge', 'delete', {
             rowIndex: editingRi, day: editingDay,
-            details: [{ field: '作業内容削除', value: badge.name + '（' + parent.name + '）' }]
+            badgeLabel: '作業内容', badgeName: badge.name, parentName: parent.name
         });
         renderChildBadges();
         showBadgeUndoBar(badge.name, 'badgeUndoBar');
@@ -1300,9 +1300,9 @@ function deleteBadge(level, id, childId) {
             selectedGrandchildBadges[childId] = gcIds.filter(gid => gid !== id);
         }
         deletedBadgeInfo = { level: 'grandchild', parentId: selectedParentBadge, childId, badge, index: idx, wasSelected };
-        obCnSelfNotify('delete', {
+        obCnSelfNotify('badge', 'delete', {
             rowIndex: editingRi, day: editingDay,
-            details: [{ field: '詳細項目削除', value: badge.name + '（' + child.name + '）' }]
+            badgeLabel: '詳細項目', badgeName: badge.name, parentName: child.name
         });
         renderChildBadges();
         showBadgeUndoBar(badge.name, `gcUndoBar_${childId}`);
@@ -1386,9 +1386,9 @@ function addChildBadge() {
     if (!parent) return;
     const id = generateBadgeId('child');
     parent.children.push({ id, name: name.trim(), children: [] });
-    obCnSelfNotify('add', {
+    obCnSelfNotify('badge', 'add', {
         rowIndex: editingRi, day: editingDay,
-        details: [{ field: '作業内容追加', value: name.trim() + '（' + parent.name + '）' }]
+        badgeLabel: '作業内容', badgeName: name.trim(), parentName: parent.name
     });
     renderChildBadges();
 }
@@ -1403,9 +1403,9 @@ function addGrandchildBadge(childId) {
     if (!child.children) child.children = [];
     const id = generateBadgeId('gc');
     child.children.push({ id, name: name.trim() });
-    obCnSelfNotify('add', {
+    obCnSelfNotify('badge', 'add', {
         rowIndex: editingRi, day: editingDay,
-        details: [{ field: '詳細項目追加', value: name.trim() + '（' + child.name + '）' }]
+        badgeLabel: '詳細項目', badgeName: name.trim(), parentName: child.name
     });
     renderChildBadges();
 }
@@ -1994,12 +1994,10 @@ function addSiteEntry() {
         editingSiteIdx = entries.length - 1;
     }
 
-    // 変更通知: 配置先追加
-    var _cnNewSnapshot = { rowIndex: editingRi, day: editingDay, cellEntries: JSON.parse(JSON.stringify(cellData[editingRi][editingDay])) };
-    obCnSelfNotify('add', {
+    // 変更通知: 配置先追加（受注を新規に追加）
+    obCnSelfNotify('site', 'add', {
         rowIndex: editingRi, day: editingDay, subIndex: editingSiteIdx,
-        details: [{ field: '配置先追加', value: '1名' }],
-        _snapshot: _cnOldSnapshot, _newSnapshot: _cnNewSnapshot
+        details: [{ field: '人数', value: '1名' }]
     });
 
     loadSiteToModal();
@@ -2025,8 +2023,7 @@ function deleteSiteEntry() {
         editingSiteIdx = entries.length - 1;
     }
 
-    var _cnNewSnapshot = { rowIndex: _cnRi, day: _cnDay, cellEntries: JSON.parse(JSON.stringify(cellData[_cnRi][_cnDay])) };
-    obCnSelfNotify('delete', { rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi, _snapshot: _cnOldSnapshot, _newSnapshot: _cnNewSnapshot });
+    obCnSelfNotify('site', 'delete', { rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi });
 
     loadSiteToModal();
     if (typeof renderCalendarGrid === 'function') renderCalendarGrid();
@@ -2115,20 +2112,16 @@ function saveEdit() {
     if (_cnNewEntry && _cnNewEntry.count > 0) {
         var _cnDiffs = _obCnBuildCellDiffs(_cnOldEntry, _cnNewEntry);
         if (_cnDiffs.length > 0) {
-            var _cnNewSnapshot = { rowIndex: _cnRi, day: _cnDay, cellEntries: JSON.parse(JSON.stringify(cellData[_cnRi][_cnDay])) };
-            obCnSelfNotify(_cnOldEntry ? 'modify' : 'add', {
+            obCnSelfNotify('site', _cnOldEntry ? 'modify' : 'add', {
                 rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi,
                 diffs: _cnOldEntry ? _cnDiffs : null,
-                details: !_cnOldEntry ? _cnDiffs.map(function(d) { return { field: d.field, value: d.newVal }; }) : null,
-                _snapshot: _cnOldSnapshot, _newSnapshot: _cnNewSnapshot
+                details: !_cnOldEntry ? _cnDiffs.map(function(d) { return { field: d.field, value: d.newVal }; }) : null
             });
         }
     } else if (_cnOldEntry && (!_cnNewEntry || _cnNewEntry.count === 0)) {
         // count=0 → 削除された
-        var _cnDelNewSnapshot = { rowIndex: _cnRi, day: _cnDay, cellEntries: JSON.parse(JSON.stringify(cellData[_cnRi] && cellData[_cnRi][_cnDay] ? cellData[_cnRi][_cnDay] : [])) };
-        obCnSelfNotify('delete', {
-            rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi,
-            _snapshot: _cnOldSnapshot, _newSnapshot: _cnDelNewSnapshot
+        obCnSelfNotify('site', 'delete', {
+            rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi
         });
     }
 
@@ -2157,8 +2150,7 @@ function deleteCell() {
     if (entries.length > 1) {
         entries.splice(editingSiteIdx, 1);
         if (editingSiteIdx >= entries.length) editingSiteIdx = entries.length - 1;
-        var _cnNewSnap1 = { rowIndex: _cnRi, day: _cnDay, cellEntries: JSON.parse(JSON.stringify(cellData[_cnRi][_cnDay])) };
-        obCnSelfNotify('delete', { rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi, _snapshot: _cnOldSnapshot, _newSnapshot: _cnNewSnap1 });
+        obCnSelfNotify('site', 'delete', { rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi });
         loadSiteToModal();
         if (calEditPanelActive) { renderCalendarGrid(); return; }
         renderGrid();
@@ -2167,8 +2159,7 @@ function deleteCell() {
     if (cellData[editingRi]) {
         delete cellData[editingRi][editingDay];
     }
-    var _cnNewSnap2 = { rowIndex: _cnRi, day: _cnDay, cellEntries: [] };
-    obCnSelfNotify('delete', { rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi, _snapshot: _cnOldSnapshot, _newSnapshot: _cnNewSnap2 });
+    obCnSelfNotify('site', 'delete', { rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi });
     if (calEditPanelActive) {
         collapseCalEditPanel();
         editingDay = null;
@@ -2753,9 +2744,17 @@ function addRowCategory() {
     badgeDefinitions.push({ id: badgeId, name: trimmed, children: [] });
     categoryToBadgeId[trimmed] = badgeId;
 
-    obCnSelfNotify('add', {
-        details: [{ field: '区分追加', value: trimmed }]
-    });
+    // マスタ更新 (区分追加) は master ベルへ送る
+    if (window.coNotifyPanel && typeof window.coNotifyPanel.addItem === 'function') {
+        window.coNotifyPanel.addItem('master', {
+            type: 'add',
+            slot: 'type-master-add',
+            main: '区分を追加: ' + trimmed,
+            sub: obCurrentUser + ' ・ ' + obCnTimeNow(),
+            date: obCnTodayLabel(),
+            affects: ['order-book']
+        });
+    }
 
     // 新しい区分を選択状態にして再描画
     rowEditSelected.category = trimmed;
@@ -2893,16 +2892,15 @@ function saveRowEdit() {
         sortRows();
         // ソート後のインデックスを取得
         var sortedRi = sampleRows.findIndex(function(r) { return r._rowId === newRow._rowId; });
-        obCnSelfNotify('add', {
+        obCnSelfNotify('row', 'add', {
             rowIndex: sortedRi, rowId: newRow._rowId,
-            taskName: task, company: company, category: category, shift: shift, branch: branch,
+            taskName: task, company: company,
             details: [
                 { field: '会社', value: branch },
                 { field: '区分', value: category + '（' + shift + '）' },
                 { field: '契約先', value: company },
                 { field: '業務名', value: task || '(未設定)' }
-            ],
-            _addedRow: JSON.parse(JSON.stringify(newRow)), _addedRowIndex: sortedRi, _addedCellData: {}
+            ]
         });
         closeRowEditModal();
         renderGrid();
@@ -2926,12 +2924,10 @@ function saveRowEdit() {
     var _cnNewRow = { company: row.company, task: row.task, branch: row.branch, category: row.category, shift: row.shift, presetStartTime: row.presetStartTime, presetEndTime: row.presetEndTime };
     var _cnRowDiffs = _obCnBuildRowDiffs(_cnOldRow, _cnNewRow);
     if (_cnRowDiffs.length > 0) {
-        obCnSelfNotify('modify', {
+        obCnSelfNotify('row', 'modify', {
             rowIndex: editingRowRi, rowId: row._rowId,
-            taskName: row.task, company: row.company, category: row.category, shift: row.shift, branch: row.branch,
-            diffs: _cnRowDiffs,
-            _snapshot: { rowIndex: editingRowRi, rowData: JSON.parse(JSON.stringify(_cnOldRow)) },
-            _newSnapshot: { rowIndex: editingRowRi, rowData: JSON.parse(JSON.stringify(_cnNewRow)) }
+            taskName: row.task, company: row.company,
+            diffs: _cnRowDiffs
         });
     }
 
@@ -3887,11 +3883,9 @@ function _calAutoSave() {
     if (_cnOldEntry && _cnNewEntry) {
         var _cnDiffs = _obCnBuildCellDiffs(_cnOldEntry, _cnNewEntry);
         if (_cnDiffs.length > 0) {
-            var _cnNewSnapshot = { rowIndex: _cnRi, day: _cnDay, cellEntries: JSON.parse(JSON.stringify(cellData[_cnRi][_cnDay])) };
-            obCnSelfNotify('modify', {
+            obCnSelfNotify('site', 'modify', {
                 rowIndex: _cnRi, day: _cnDay, subIndex: _cnSi,
-                diffs: _cnDiffs,
-                _snapshot: _cnOldSnapshot, _newSnapshot: _cnNewSnapshot
+                diffs: _cnDiffs
             });
         }
     }
@@ -4086,10 +4080,12 @@ function _obCnBuildRowDiffs(oldRow, newRow) {
     return diffs;
 }
 
-// 自領域発信: co-notify-panel.js の addItem('ob', ...) ラッパー
-// 既存呼び出し21箇所で渡される opts.{rowIndex/day/subIndex/taskName/siteName/diffs/details/_snapshot/...} を受領するが、
-// _snapshot 等のコンフリクトバナー用フィールドは N-2.3 撤去に伴い破棄
-function obCnSelfNotify(type, opts) {
+// 自領域発信: co-notify-panel.js の addItem('ob', ...) ラッパー — N-2.4.4 で scope×op 形式に変更
+// scope: 'row' (行) / 'site' (受注) / 'badge' (作業内容・詳細項目)
+// op:    'add' / 'modify' / 'delete'
+// opts.{rowIndex/day/subIndex/taskName/siteName/badgeLabel/badgeName/diffs/details/rowId/...} を受領。
+// _snapshot 等のコンフリクトバナー用フィールドは N-2.3 撤去に伴い破棄。
+function obCnSelfNotify(scope, op, opts) {
     if (!opts) opts = {};
     if (!window.coNotifyPanel || typeof window.coNotifyPanel.addItem !== 'function') return;
 
@@ -4099,14 +4095,29 @@ function obCnSelfNotify(type, opts) {
     var company = opts.company || (row ? row.company : '');
     var dayStr = opts.day != null ? (opts.day + '日') : '';
 
-    var typeLabel = { add: '追加', modify: '変更', delete: '削除' }[type] || type;
+    // scope×op → main 文言テンプレート
+    var opLabel = { add: '追加', modify: '編集', delete: '削除' }[op] || op;
     var mainText;
-    if (siteName && siteName !== taskName) {
-        mainText = (company ? company + ' / ' : '') + (taskName ? taskName + ' / ' : '') + siteName + (dayStr ? '(' + dayStr + ')' : '') + ' を' + typeLabel;
-    } else if (taskName) {
-        mainText = (company ? company + ' / ' : '') + taskName + (dayStr ? '(' + dayStr + ')' : '') + ' を' + typeLabel;
+    if (scope === 'badge') {
+        // 作業内容/詳細項目 (badgeLabel) の追加・削除。badgeName は項目名、parentName は親バッジ名（オプション）
+        var badgeLabel = opts.badgeLabel || '作業内容';
+        var badgeName = opts.badgeName || '';
+        var parentSuffix = opts.parentName ? '（' + opts.parentName + '）' : '';
+        mainText = badgeLabel + (badgeName ? '「' + badgeName + '」' : '') + parentSuffix + ' を' + opLabel;
+    } else if (scope === 'row') {
+        // 行 (契約先 + 業務名の組)
+        mainText = (company ? company + ' / ' : '') + (taskName || '(業務名未設定)') + ' を行として' + opLabel;
     } else {
-        mainText = (company || '受注') + (dayStr ? '(' + dayStr + ')' : '') + ' を' + typeLabel;
+        // scope === 'site' (受注 / マス内のエントリ)
+        var prefix;
+        if (siteName && siteName !== taskName) {
+            prefix = (company ? company + ' / ' : '') + (taskName ? taskName + ' / ' : '') + siteName;
+        } else if (taskName) {
+            prefix = (company ? company + ' / ' : '') + taskName;
+        } else {
+            prefix = (company || '受注');
+        }
+        mainText = prefix + (dayStr ? '(' + dayStr + ')' : '') + ' の受注を' + opLabel;
     }
 
     var subText = obCurrentUser + ' ・ ' + obCnTimeNow();
@@ -4130,8 +4141,8 @@ function obCnSelfNotify(type, opts) {
     }
 
     window.coNotifyPanel.addItem('ob', {
-        type: type,
-        slot: 'type-ob-' + type,
+        scope: scope,
+        op: op,
         main: mainText,
         sub: subText,
         date: obCnTodayLabel(),
@@ -4146,33 +4157,30 @@ function obCnTodayLabel() {
     return '今日 (' + (d.getMonth() + 1) + '/' + d.getDate() + ')';
 }
 
-// 初期デモ通知（起動時に投入。モック用）
+// 初期デモ通知（起動時に投入。モック用） — N-2.4.4 で scope×op 形式に変更
 function obCnSeedInitialDemo() {
     if (!window.coNotifyPanel || typeof window.coNotifyPanel.setItems !== 'function') return;
     var today = obCnTodayLabel();
     window.coNotifyPanel.setItems('ob', [
         {
-            type: 'add',
-            slot: 'type-ob-add',
-            main: '東央警備 / 渋谷駅前ビル新築工事 を追加',
+            scope: 'row', op: 'add',
+            main: '東央警備 / 渋谷駅前ビル新築工事 を行として追加',
             sub: '田中 太郎 ・ 09:14',
             date: today,
             expand: '新規受注: 警備員2名 / 08:00〜17:00 / 契約先=東央警備',
             affects: ['order-book', 'screen-layout', 'weekly-schedule']
         },
         {
-            type: 'modify',
-            slot: 'type-ob-modify',
-            main: 'Nikkei / 大手町オフィスビル(15日) を変更',
+            scope: 'site', op: 'modify',
+            main: 'Nikkei / 大手町オフィスビル(15日) の受注を編集',
             sub: '佐藤 花子 ・ 11:30',
             date: today,
             expand: '人数: 1名 → 2名 / 開始時間: 09:00 → 08:00',
             affects: ['order-book', 'screen-layout', 'weekly-schedule']
         },
         {
-            type: 'delete',
-            slot: 'type-ob-delete',
-            main: '全日本警備 / 新宿駅前イベント(20日) を削除',
+            scope: 'site', op: 'delete',
+            main: '全日本警備 / 新宿駅前イベント(20日) の受注を削除',
             sub: '山田 次郎 ・ 昨日 17:45',
             date: '昨日',
             expand: 'キャンセル: 顧客都合により受注取消',

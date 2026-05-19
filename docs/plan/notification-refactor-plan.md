@@ -923,8 +923,8 @@ OB では `clear` / `place` / `remove` は使わず、site の状態遷移は全
 | N-2.4.2c | **scope 設計見直し: cell+site → site(受注) に統合 / op の clear 廃止** | **完了**（2026-05-19 / 未コミット → 次コミットで反映予定） |
 | N-2.4.2b | **ユーザーによるアイコン選定作業** | **完了**（2026-05-19 / scope 8/10 + op 5/7 を明示選定、残 4 はデフォルト採用 / typeOverrides は空 / `notify-icons-selected.json` の `primitives` セクションに反映済） |
 | N-2.4.3 | co-notify-panel.js 本体のアイコン合成描画実装 | **完了**（2026-05-19 / `docs/mockup/notify-icons-selected.js` 新規作成・5HTML 読込追加 / `buildItemHtml` を scope+op で合成描画に拡張 / CSS `.cn-composed` / `.cn-composed-base` / `.cn-composed-op` 追加） |
-| N-2.4.4 | OB の type 細分化（obCnSelfNotify 21 箇所を新 type へ振り分け） | **次着手** |
-| N-2.4.5 | SL / WS / LA のスコープ × 操作リスト確定とアイコン選定 | 未着手 |
+| N-2.4.4 | OB の type 細分化（obCnSelfNotify 13 箇所を新 scope×op へ振り分け） | **完了**（2026-05-19 / `obCnSelfNotify(scope, op, opts)` 形式に変更 / badge×add×2 / badge×delete×2 / site×add×1 / site×delete×5 / site×add or modify×1 / site×modify×1 / row×add×1 / row×modify×1 / L2756 区分追加は master ベルへ分離） |
+| N-2.4.5 | SL / WS / LA のスコープ × 操作リスト確定とアイコン選定 | **次着手** |
 
 **N-2.4.2c 設計変更サマリ（2026-05-19）**:
 
@@ -935,7 +935,7 @@ OB では `clear` / `place` / `remove` は使わず、site の状態遷移は全
 
 ### 16.10 次会話への引き継ぎ要点 ★重要
 
-**現在地**: N-2.4.3 合成描画実装完了 (2026-05-19)。`co-notify-panel.js` の `buildItemHtml` は `item.scope` + `item.op` を受け取り合成HTMLを出力可能。次は N-2.4.4 (OB の type 細分化)。
+**現在地**: N-2.4.4 OB 細分化完了 (2026-05-19)。OB の `obCnSelfNotify` は `(scope, op, opts)` 形式で動作中。次は N-2.4.5 (SL/WS/LA の scope×op リスト確定とアイコン選定)。
 
 **N-2.4.3 実装内容（完了）**:
 
@@ -950,26 +950,35 @@ OB では `clear` / `place` / `remove` は使わず、site の状態遷移は全
 - 5 HTML 更新: `notify-icons-selected.js?v=1` を panel より先に読込 + panel を `?v=11` にバンプ
 - localStorage マイグレーション (notify-compare.js MTX_MIGRATION_KEY 経由) は引き続き有効
 
-**新会話でやるべき手順 (N-2.4.4 着手時)**:
+**N-2.4.4 実装内容（完了 / 2026-05-19）**:
 
-1. **本計画書 §16 全体を全読**（特に §16.2 確定タイプ / §16.9 進捗 / §16.10 本セクション）
+- `obCnSelfNotify(scope, op, opts)` に変更（旧 `(type, opts)` 廃止）— `addItem('ob', { scope, op, ... })` を呼ぶラッパー
+- main 文言テンプレート: `scope==='row'`「{company}/{task} を行として{op}」/ `scope==='site'`「{company}/{task}({day}日) の受注を{op}」/ `scope==='badge'`「{badgeLabel}「{badgeName}」（{parentName}） を{op}」
+- op label: add=「追加」/ modify=「編集」/ delete=「削除」
+- 振り分け確定:
+  - L1284, L1303 → `badge × delete` (badgeLabel='作業内容'/'詳細項目')
+  - L1389, L1406 → `badge × add`
+  - L1998 → `site × add` (配置先追加)
+  - L2026, L2123, L2153, L2162 → `site × delete`
+  - L2115 → `site × (modify or add)` (`_cnOldEntry` 有無で分岐)
+  - L2756 → master ベル分離 (`addItem('master', { type:'add', slot:'type-master-add', ... })`) — `obCnSelfNotify` 経由ではない
+  - L2895 → `row × add`
+  - L2927 → `row × modify`
+  - L3886 → `site × modify`
+- `obCnSeedInitialDemo` も新形式 (row×add / site×modify / site×delete) に更新
+- 不要になった `_snapshot` / `_newSnapshot` / `_addedRow` 等の opts フィールドは call site から削除（N-2.3 撤去で読み手側は既に無い）。`_cnOldSnapshot` 等のローカル変数は残置（dead code だが用途不明な参照リスクを避ける）
+- `order-book.js` を `?v=5` にバンプ
+
+**新会話でやるべき手順 (N-2.4.5 着手時)**:
+
+1. **本計画書 §16 全体を全読**（特に §16.2 確定タイプ / §16.3 SL/WS/LA 想定 / §16.9 進捗）
 2. **メモリ `project_notification_refactor.md` を読む**
-3. **N-2.4.4 (OB の type 細分化) に進む**
-   - `obCnSelfNotify` を新形式に変更 — 呼び出し側で `{ scope, op, main, sub, ... }` を直接 addItem に渡すか、ラッパー側で旧 type を scope/op へ map するか、着手時に判断
-   - panel API は `addItem('ob', { scope:'site', op:'add', main:..., sub:... })` を受け付け済（N-2.4.3 完了）
-   - 既存呼び出し 21 箇所を新 type へ振り分け（§16.2 のマッピング表参照）
-   - 代表呼び出し位置の振り分け案（**2026-05-19 cell+site 統合後**）:
-     - L1284, L1303 → badge × delete (作業内容/詳細項目の削除)
-     - L1389, L1406 → badge × add (作業内容/詳細項目の追加)
-     - L1999 → **site × add** (受注追加 / 旧 site-add 相当)
-     - L2029, L2161, L2171 → **site × delete** (受注削除 / 旧 site-remove 相当)
-     - L2119 → **site × add** or **site × modify** (_cnOldEntry 有無で分岐 / 旧 cell-place / cell-modify 相当)
-     - L2129 → **site × delete** (旧 cell-clear 相当)
-     - L2756 → master ベル管轄 (bell-master) へ送る
-     - L2896 → **row × add**
-     - L2929 → **row × modify**
-     - L3891 → **site × modify** (旧 cell-modify 相当)
-   - 実装層の内部 type key（cell-place / site-add / cell-modify / cell-clear / site-remove）は残してよく、通知発信時に scope/op へ mapping する形でもよい。直接 (scope, op) を渡す形でもよい。実装着手時に判断
+3. **N-2.4.5 (SL/WS/LA の scope×op 確定とアイコン選定) に進む**
+   - SL: employee / vehicle / support / reservation × place / remove / modify / (add/delete for reservation)
+   - WS: schedule / leave-badge / reservation × modify / add / delete
+   - LA: application × add / approve / reject
+   - 既に `notify-icons-selected.json` の `primitives.scope` / `primitives.op` には対応キー (employee/vehicle/support/reservation/schedule/leave-badge/application + place/remove/approve/reject) が登録済
+   - 各画面のフック（SL自領域発信 / WS自領域発信 / LA自領域発信）は N-2.3 で WS/LA 未着手、N-3 で SL 同時着手の計画。N-2.4.5 はその下準備として scope×op 一覧 + 文言テンプレート + 振り分け案を確定する作業
 
 **関連ファイル**:
 
