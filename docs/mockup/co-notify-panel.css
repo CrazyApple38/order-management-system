@@ -245,12 +245,12 @@
    ============================================================ */
 .cn-icon:has(.cn-composed),
 .cn-icon:has(.cn-composed-single) {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     border-radius: 0;
     background: transparent !important;
     /* op が右側コンテンツに被らないよう右余白を確保 */
-    margin-right: 22px;
+    margin-right: 18px;
     overflow: visible;
 }
 .cn-composed {
@@ -258,23 +258,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
 }
 .cn-composed .cn-composed-base {
-    width: 30px;
-    height: 30px;
+    width: 22px;
+    height: 22px;
     object-fit: contain;
     display: block;
 }
 .cn-composed .cn-composed-op {
     position: absolute;
-    /* op (28) の中心が scope 右下角の +4px 右に来る (right: -17px, bottom: -13px) */
-    right: -17px;
-    bottom: -13px;
-    width: 28px;
-    height: 28px;
-    padding: 3px;
+    /* op (20) の中心が scope 右下角の +4px 右に来る (right: -13px, bottom: -9px) */
+    right: -13px;
+    bottom: -9px;
+    width: 20px;
+    height: 20px;
+    padding: 2px;
     background: #FFF;
     border: 1.5px solid var(--bg-surface, #FFF);
     /* 角丸 6px の四角バッジ (border-radius: 50% は img 四隅を切り取るため不適) */
@@ -284,8 +284,8 @@
     box-sizing: border-box;
 }
 .cn-composed-single {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     object-fit: contain;
     display: block;
 }

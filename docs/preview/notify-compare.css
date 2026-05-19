@@ -2138,61 +2138,60 @@ button.cn-date-group-head:hover {
     box-sizing: border-box;
 }
 .cmp-mtx-cell .cmp-mtx-composed {
-    /* 表示領域は 32px のまま。scope を中央寄せで配置、op は右下にずらして scope と少しだけ重ねる */
-    width: 32px;
-    height: 32px;
+    /* 2026-05-20 二段階縮小 (32→28→24 / 30→26→22 / 28→24→20 / -17→-15→-13 / -13→-11→-9) */
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .cmp-mtx-cell .cmp-mtx-composed .cmp-mtx-icon-base {
-    /* 親 (scope): 30px に拡大、視認性向上 */
-    width: 30px;
-    height: 30px;
+    /* 親 (scope): 22px */
+    width: 22px;
+    height: 22px;
 }
 .cmp-mtx-cell .cmp-mtx-composed .cmp-mtx-icon-op {
-    /* 子 (op): 28px に拡大、scope 右下にずらし配置
-       基本は op (28) の中心が scope 右下角に来る (right/bottom -13px)。
-       2026-05-19 微調整: 右方向のみ +4px して scope 視認性を確保 (right: -17px) */
-    width: 28px;
-    height: 28px;
-    padding: 3px;
-    right: -17px;
-    bottom: -13px;
+    /* 子 (op): 20px、scope 右下にずらし配置
+       op (20) の中心が scope 右下角 (+4px 右シフト) に来る: right -13px / bottom -9px */
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+    right: -13px;
+    bottom: -9px;
 }
 
 /* 通知アイテムサンプル内の合成アイコン: マトリクスセルと同寸法を適用 */
 .cmp-mtx-sample-item-icon .cmp-mtx-composed {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .cmp-mtx-sample-item-icon .cmp-mtx-composed .cmp-mtx-icon-base {
-    width: 30px;
-    height: 30px;
+    width: 22px;
+    height: 22px;
 }
 .cmp-mtx-sample-item-icon .cmp-mtx-composed .cmp-mtx-icon-op {
-    /* マトリクスセルと寸法・位置を一致させる (2026-05-19 +4px 右シフト) */
-    width: 28px;
-    height: 28px;
-    padding: 3px;
-    right: -17px;
-    bottom: -13px;
+    /* マトリクスセルと寸法・位置を一致させる (2026-05-20 二段階縮小) */
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+    right: -13px;
+    bottom: -9px;
 }
 /* 通知サンプルのアイコン枠を広げて op が右側コンテンツに被らないようにする
    box-sizing: border-box では padding が内側に食い込み外形に効かないため margin-right を使用 */
 .cmp-mtx-sample-item-icon {
-    width: 32px;
-    margin-right: 22px;
+    width: 24px;
+    margin-right: 18px;
     flex-shrink: 0;
 }
 
 /* override が個別アイコン(単一)の場合 */
 .cmp-mtx-cell .cmp-mtx-single-icon {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     object-fit: contain;
 }
 
