@@ -924,6 +924,7 @@ OB では `clear` / `place` / `remove` は使わず、site の状態遷移は全
 | N-2.4.2b | **ユーザーによるアイコン選定作業** | **完了**（2026-05-19 / scope 8/10 + op 5/7 を明示選定、残 4 はデフォルト採用 / typeOverrides は空 / `notify-icons-selected.json` の `primitives` セクションに反映済） |
 | N-2.4.3 | co-notify-panel.js 本体のアイコン合成描画実装 | **完了**（2026-05-19 / `docs/mockup/notify-icons-selected.js` 新規作成・5HTML 読込追加 / `buildItemHtml` を scope+op で合成描画に拡張 / CSS `.cn-composed` / `.cn-composed-base` / `.cn-composed-op` 追加） |
 | N-2.4.4 | OB の type 細分化（obCnSelfNotify 13 箇所を新 scope×op へ振り分け） | **完了**（2026-05-19 / `obCnSelfNotify(scope, op, opts)` 形式に変更 / badge×add×2 / badge×delete×2 / site×add×1 / site×delete×5 / site×add or modify×1 / site×modify×1 / row×add×1 / row×modify×1 / L2756 区分追加は master ベルへ分離） |
+| N-2.4.S | 合成アイコン視覚調整（寸法縮小 + op 連動角丸カラー背景） | **完了**（2026-05-20 / 寸法 32→24px 二段階縮小 → op 連動角丸カラー背景 (24x30, radius 6px) + scope 白シルエット化 (`filter: brightness(0) invert(1)`) で「新規/変更/削除」一目判別を実現） |
 | N-2.4.5 | SL / WS / LA のスコープ × 操作リスト確定とアイコン選定 | **次着手** |
 
 **N-2.4.2c 設計変更サマリ（2026-05-19）**:
@@ -935,7 +936,22 @@ OB では `clear` / `place` / `remove` は使わず、site の状態遷移は全
 
 ### 16.10 次会話への引き継ぎ要点 ★重要
 
-**現在地**: N-2.4.4 OB 細分化完了 (2026-05-19)。OB の `obCnSelfNotify` は `(scope, op, opts)` 形式で動作中。次は N-2.4.5 (SL/WS/LA の scope×op リスト確定とアイコン選定)。
+**現在地**: N-2.4.4 OB 細分化完了 (2026-05-19) + N-2.4.S 視覚調整完了 (2026-05-20)。OB の `obCnSelfNotify` は `(scope, op, opts)` 形式で動作中、合成アイコンは op 連動の角丸カラー背景 + 白シルエットで「新規/変更/削除」一目判別。次は N-2.4.5 (SL/WS/LA の scope×op リスト確定とアイコン選定)。
+
+**N-2.4.S 視覚調整実装内容（完了 / 2026-05-20）**:
+
+- 寸法の二段階縮小（コミット `3dc65ae`）:
+  - 合成枠: 32→24px / scope base: 30→22px / op バッジ: 28→20px (padding 3→2)
+  - op 突出位置: right -17→-13 / bottom -13→-9
+  - 右側コンテンツとの余白: 22→18
+- op 連動カラー背景 + 白シルエット化（コミット `d290650`）:
+  - `.cn-composed::before` で角丸カラー背景: 24×30 (上下 3px ずつ container 外へ拡張、縦長) / `border-radius: 6px` / solid 色
+  - 背景色マッピング (`.cn-icon.type-*` 経由): add/place/new/leave=`--accent-primary` / modify/master/pending=`--accent-secondary` / delete/remove/reject/rejected=`--semantic-error` / approve/approved=`--semantic-success`
+  - scope img: `filter: brightness(0) invert(1)` で白シルエット化
+  - z-index: 背景 0 / scope 1 / op バッジ 2
+  - OP バッジ (右下) は触らず: 白背景 + カラー op アイコン (現状維持)
+- マトリクス選定 UI (notify-compare.css / .js) も同仕様で更新 (`[data-op="..."]` 属性ベース)
+- `notify-compare.js`: サンプル描画に `data-op` 属性を付加
 
 **N-2.4.3 実装内容（完了）**:
 
@@ -995,12 +1011,14 @@ OB では `clear` / `place` / `remove` は使わず、site の状態遷移は全
 - `notifyMatrix.migrated.cellToSite` = `"1"` — マイグレーション実行済フラグ（リセットボタンでクリアされる）
 - 既存 `notifyIconSelections.v1`（27 スロット）とは独立
 
-**アイコン UI 仕様（確定済み 2026-05-18）**:
+**アイコン UI 仕様（2026-05-20 N-2.4.S 確定）**:
 
-- scope (親): 30px、合成領域 32px 中央配置
-- op (子): 28px、scope 右下角に中心配置（right/bottom -13px）
-- op 背景: 角丸 6px 四角バッジ（border-radius:50% は img 四隅が円形 mask で切れるため不採用）
+- 合成枠 (.cn-composed): 24×24px / position: relative
+- scope (.cn-composed-base): 22×22px、container 中央、`filter: brightness(0) invert(1)` で白シルエット化、z-index: 1
+- op (.cn-composed-op): 20×20px、scope 右下角に中心配置（right: -13px / bottom: -9px / +4px 右シフト調整済）、padding: 2px、白背景、角丸 6px、z-index: 2
+- 背景 (.cn-composed::before): 24×30px (上下 3px 拡張)、角丸 6px、op 連動 solid 色、z-index: 0
 - box-sizing: border-box 必須
+- .cn-icon コンテナ: 24×24px、`overflow: visible` (op 突出と背景拡張のため)、margin-right: 18px
 
 ---
 
