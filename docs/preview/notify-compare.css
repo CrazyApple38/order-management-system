@@ -2151,13 +2151,13 @@ button.cn-date-group-head:hover {
     height: 30px;
 }
 .cmp-mtx-cell .cmp-mtx-composed .cmp-mtx-icon-op {
-    /* 子 (op): 28px に拡大、中心点を scope の右下角に重ねる配置
-       op (28) の中心 (14, 14) が scope 右下角 (合成領域 32×32 の右下 = 31,31) に来る
-       → top = 31-14 = 17 (= bottom -13)、left も同様 (= right -13) */
+    /* 子 (op): 28px に拡大、scope 右下にずらし配置
+       基本は op (28) の中心が scope 右下角に来る (right/bottom -13px)。
+       2026-05-19 微調整: 右方向のみ +4px して scope 視認性を確保 (right: -17px) */
     width: 28px;
     height: 28px;
     padding: 3px;
-    right: -13px;
+    right: -17px;
     bottom: -13px;
 }
 
@@ -2174,16 +2174,18 @@ button.cn-date-group-head:hover {
     height: 30px;
 }
 .cmp-mtx-sample-item-icon .cmp-mtx-composed .cmp-mtx-icon-op {
+    /* マトリクスセルと寸法・位置を一致させる (2026-05-19 +4px 右シフト) */
     width: 28px;
     height: 28px;
     padding: 3px;
-    right: -13px;
+    right: -17px;
     bottom: -13px;
 }
-/* 通知サンプルのアイコン枠を広げて op が右側コンテンツに被らないようにする */
+/* 通知サンプルのアイコン枠を広げて op が右側コンテンツに被らないようにする
+   box-sizing: border-box では padding が内側に食い込み外形に効かないため margin-right を使用 */
 .cmp-mtx-sample-item-icon {
     width: 32px;
-    padding-right: 18px;
+    margin-right: 22px;
     flex-shrink: 0;
 }
 

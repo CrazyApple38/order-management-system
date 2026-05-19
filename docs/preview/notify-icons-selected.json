@@ -1,13 +1,30 @@
 {
   "_meta": {
     "purpose": "Phase N-1 (UIモック先行) 確定アイコン定義。Phase N-2 着手時に co-navbar/co-notify-panel のベル定義テーブルに反映する",
-    "selectedAt": "2026-05-16",
+    "selectedAt": "2026-05-19",
     "plan": "docs/plan/notification-refactor-plan.md",
     "iconBasePath": "docs/assets/icons/",
     "history": [
       { "date": "2026-05-14", "note": "初版確定" },
-      { "date": "2026-05-16", "note": "N-2.1 統合プレビューで実画面を見ながら再選定（27スロット）" }
-    ]
+      { "date": "2026-05-16", "note": "N-2.1 統合プレビューで実画面を見ながら再選定（27スロット）" },
+      { "date": "2026-05-19", "note": "N-2.4.2b cell+site → site(受注) 統合後、マトリクス選定UIで primitives (scope×op) を確定。typeOverrides は空 (全マスがプリミティブ合成で運用)" }
+    ],
+    "matrix": {
+      "scopes": ["row", "site", "badge", "employee", "vehicle", "support", "reservation", "schedule", "leave-badge", "application"],
+      "ops": ["add", "modify", "delete", "approve", "reject", "place", "remove"],
+      "applicable": {
+        "row":         ["add", "modify", "delete"],
+        "site":        ["add", "modify", "delete"],
+        "badge":       ["add", "delete"],
+        "employee":    ["modify", "place", "remove"],
+        "vehicle":     ["modify", "place", "remove"],
+        "support":     ["modify", "place", "remove"],
+        "reservation": ["add", "modify", "delete"],
+        "schedule":    ["modify"],
+        "leave-badge": ["modify"],
+        "application": ["add", "approve", "reject"]
+      }
+    }
   },
   "bells": {
     "bell-ob": "business/si-46623-personal-information.png",
@@ -55,5 +72,37 @@
       "type-master-modify": "education/si-14519-14519.png",
       "type-master-delete": "sign-mark/im-11911-hosoi-batsu.svg"
     }
+  },
+  "primitives": {
+    "_note": "N-2.4 マトリクス選定 (scope×op の 2軸でアイコンを合成)。未選定スロットはコメント注記 + デフォルト値を保持。",
+    "scope": {
+      "row":         "stationery/im-12036-hakushi-no-shorui-fairu.svg",
+      "site":        "stationery/im-12041-shimpuru-na-shorui-fairu.svg",
+      "badge":       "sign-mark/si-1981-1981.png",
+      "employee":    "person/im-11324-sarariiman.svg",
+      "vehicle":     "transport/si-24610-norimono-car.png",
+      "support":     "person/im-11558-chiimu-no-muryou.svg",
+      "reservation": "person/im-00195-kouru-sentaa-no-jimbutsu-aikon-sozai-sono-3.svg",
+      "schedule":    "stationery/si-48956-calendar.png",
+      "leave-badge": "person/im-11564-kazoku.svg",
+      "application": "business/si-45841-document-teishutsu.png"
+    },
+    "op": {
+      "add":     "sign-mark/im-00105-purasu.svg",
+      "modify":  "education/si-14519-14519.png",
+      "delete":  "stationery/si-14569-14569.png",
+      "approve": "sign-mark/im-11451-chekku-maaku-no-muryou.svg",
+      "reject":  "sign-mark/im-11914-futoi-batsu.svg",
+      "place":   "person/im-14440-jimbutsu-no-muryou-sozai.svg",
+      "remove":  "sign-mark/si-1710-1710.png"
+    },
+    "userSelected": {
+      "_note": "ユーザーが明示的にカスタム選定したキー一覧 (デフォルトを採用したキーと区別するため)",
+      "scope": ["row", "site", "badge", "employee", "vehicle", "support", "reservation", "leave-badge"],
+      "op": ["modify", "delete", "reject", "place", "remove"]
+    }
+  },
+  "typeOverrides": {
+    "_note": "個別 typeKey (scope-op) で primitives 合成を上書きしたい場合のみ記載。N-2.4.2b 時点では空 (全マスを合成で運用)。"
   }
 }

@@ -820,25 +820,44 @@ OB 撤去後の動作確認で、ユーザーから以下の指摘あり (2026-0
 - しかし実際の業務操作は粒度がもっと細かい
 - SL / WS / LA でも同様の分類粒度問題が発生する見込み
 
-### 16.2 OB 通知タイプ細分化（確定 / 2026-05-18 ユーザー承認）
+### 16.2 OB 通知タイプ細分化（確定 / 2026-05-19 cell+site 統合方針で再確定）
 
-ラベル: 「業務行」→ **「行」** / 「配置先」→ **「受注」**（2026-05-18 ユーザー指示で名称統一）。
-内部 key は意味準拠の英語 (`row` / `cell` / `site` / `badge`) 維持。
+**ラベル**: 「業務行」→ **「行」** / 「配置先」→ **「受注」**（2026-05-18 ユーザー指示で名称統一）。
+**scope 統合**: 内部実装上の `cell`（行×日付の1マス）と `site`（マス内の副 entry）はユーザー操作観点ではいずれも「受注を入れる/編集する/消す」操作であるため、通知 scope としては **`site`（= 受注）に統合**（2026-05-19 ユーザー判断）。
 
-| 操作 | 現状 type | 細分化 type | 表示ラベル | 想定アイコン方向性 |
-|------|----------|------------|----------|------------------|
-| シートに**行**を新規追加（契約先・業務名・区分・シフトの組） | add | `row-add` | 行追加 | 行追加系（リスト+） |
-| **セル**に人数を初めて入れる（0名 → N名） | add | `cell-place` | セル配置 | 配置追加系（人物+） |
-| **行**のメタ情報変更（契約先名・業務名・区分等） | modify | `row-modify` | 行編集 | 行編集系（リスト編集） |
-| **セル**内の人数・時間・責任者・備考・サブタスク変更 | modify | `cell-modify` | セル編集 | 配置編集系（人物編集） |
-| **セル**内の人数を N → 0（配置クリア） | delete | `cell-clear` | セルクリア | 配置除去系 |
-| **行**ごと削除 | delete | `row-delete` | 行削除 | 行削除系（リスト−） |
-| **セル**内に複数業務がある場合、**受注**（副 entry）を追加 | add | `site-add` | 受注追加 | site +（同セル副 entry 追加） |
-| **セル**内の **受注**（副 entry）を除去 | delete | `site-remove` | 受注解除 | site ×（副 entry 除去） |
-| セル編集モーダル内で子バッジ（作業内容）を追加 | add | `badge-child-add` | 作業内容追加 | star + |
-| 子バッジ（作業内容）を削除 | delete | `badge-child-delete` | 作業内容削除 | star × |
-| セル編集モーダル内で孫バッジ（詳細項目）を追加 | add | `badge-grand-add` | 詳細項目追加 | star + |
-| 孫バッジ（詳細項目）を削除 | delete | `badge-grand-delete` | 詳細項目削除 | star × |
+- 内部 key: `row` / `site` / `badge`（cell 廃止）
+- 内部 type 細分化（実装層）と 通知 scope×op（UI層）を分離: 実装の `cell-place` / `site-add` 等は内部 type key として残存可能だが、通知発信時は **`{ scope:'site', op:'add' }` に変換**する mapping を介する
+
+| 操作 | 内部 type | 通知 scope×op | 表示ラベル |
+|------|----------|---------------|----------|
+| シートに**行**を新規追加（契約先・業務名・区分・シフトの組） | `row-add` | row × add | 行追加 |
+| **行**のメタ情報変更（契約先名・業務名・区分等） | `row-modify` | row × modify | 行編集 |
+| **行**ごと削除 | `row-delete` | row × delete | 行削除 |
+| マスに人数を初めて入れる（0名 → N名） | `cell-place` | **site × add** | 受注追加 |
+| マス内に副 entry（受注）を追加 | `site-add` | **site × add** | 受注追加 |
+| マス内の人数・時間・責任者・備考・サブタスク変更 | `cell-modify` | **site × modify** | 受注編集 |
+| マスの人数を N → 0（配置クリア） | `cell-clear` | **site × delete** | 受注削除 |
+| マス内の副 entry（受注）を除去 | `site-remove` | **site × delete** | 受注削除 |
+| セル編集モーダル内で子バッジ（作業内容）を追加 | `badge-child-add` | badge × add | 作業内容追加 |
+| 子バッジ（作業内容）を削除 | `badge-child-delete` | badge × delete | 作業内容削除 |
+| セル編集モーダル内で孫バッジ（詳細項目）を追加 | `badge-grand-add` | badge × add | 詳細項目追加 |
+| 孫バッジ（詳細項目）を削除 | `badge-grand-delete` | badge × delete | 詳細項目削除 |
+
+→ **OB の通知 type は 7 種に集約**: `row-add` / `row-modify` / `row-delete` / `site-add` / `site-modify` / `site-delete` / `badge-add` / `badge-delete`（実質 8 種）。
+
+**op 集約方針**（領域別 / 2026-05-19 確定）:
+
+| 領域 | scope | op |
+|------|-------|----|
+| OB | row / site / badge | add / modify / delete |
+| SL | employee / vehicle / support / reservation | modify / **place / remove** + add/delete (reservation 用) |
+| WS | schedule / leave-badge / reservation | modify / add / delete |
+| LA | application | add / approve / reject |
+
+OB では `clear` / `place` / `remove` は使わず、site の状態遷移は全て add/modify/delete で表現。SL では「現場に張る/外す」のメタファが強いため `place` / `remove` を独立 op として保持。マトリクス選定UIも同方針に更新済 (commit 予定)。
+
+**失われる情報の評価**:
+内部 type の cell/site 区別は通知 scope では無くなるが、通知アイテムの **main 文言**（「○○ビル の 5/1 配置をクリア」「立哨業務を除去」）で書き分けるため、scope×op アイコンで区別する必要は薄い。アコーディオン展開時の `expand` 文言で詳細補足も可能。
 
 ### 16.3 SL / WS / LA も同パターンで洗い出し
 
@@ -894,51 +913,55 @@ OB 撤去後の動作確認で、ユーザーから以下の指摘あり (2026-0
 2. 「業務行追加 → 同時にセル配置も入れる」ような複合操作で 1 通知 / 2 通知 どちらにするか
 3. デモ通知（initial seed）の更新方針: 全パターン網羅 / 代表3件のみ
 
-### 16.9 サブフェーズ進捗（2026-05-18 時点）
+### 16.9 サブフェーズ進捗（2026-05-19 時点）
 
 | サブ | 内容 | 状態 |
 |------|------|------|
 | N-2.4.1 | 通知タイプ分類設計（OB 12 type 確定 §16.2 / 命名規則案 / アイコングループ分け案B採用） | **完了** |
 | N-2.4.2 | プレビュー [マトリクス選定] モード実装 (notify-compare.html) | **完了**（コミット 5ba8082） |
-| N-2.4.2a | scope ラベル変更 (業務行→行 / 配置先→受注) + 通知サンプル文言調整 | **完了**（未コミット → 次コミットで反映予定） |
-| N-2.4.2b | **ユーザーによるアイコン選定作業** | **進行中**（新会話で継続） |
-| N-2.4.3 | co-notify-panel.js 本体のアイコン合成描画実装 | 未着手（選定完了後） |
+| N-2.4.2a | scope ラベル変更 (業務行→行 / 配置先→受注) + 通知サンプル文言調整 | **完了**（コミット 8aeab78） |
+| N-2.4.2c | **scope 設計見直し: cell+site → site(受注) に統合 / op の clear 廃止** | **完了**（2026-05-19 / 未コミット → 次コミットで反映予定） |
+| N-2.4.2b | **ユーザーによるアイコン選定作業** | **完了**（2026-05-19 / scope 8/10 + op 5/7 を明示選定、残 4 はデフォルト採用 / typeOverrides は空 / `notify-icons-selected.json` の `primitives` セクションに反映済） |
+| N-2.4.3 | co-notify-panel.js 本体のアイコン合成描画実装 | **次着手**（選定完了 / `notify-icons-selected.json` の `primitives` を `co-notify-panel.js` に読み込み、`buildItemHtml` で scope×op 合成に拡張） |
 | N-2.4.4 | OB の type 細分化（obCnSelfNotify 21 箇所を新 type へ振り分け） | 未着手 |
 | N-2.4.5 | SL / WS / LA のスコープ × 操作リスト確定とアイコン選定 | 未着手 |
 
+**N-2.4.2c 設計変更サマリ（2026-05-19）**:
+
+- scope: `cell` を削除し、`site`（= 受注）に統合 → 10 scope
+- op: `clear` を削除（site × delete で代替） → 7 op
+- SL の `place` / `remove` は配置メタファのため保持
+- localStorage マイグレーション: `notifyPrimitives.v1.scope.cell` → `scope.site` に昇格 / `cell-*` override → `site-*` にリネーム / `*-clear` override 削除 / `op.clear` 削除（一度だけ実行、`notifyMatrix.migrated.cellToSite` フラグで管理）
+
 ### 16.10 次会話への引き継ぎ要点 ★重要
 
-**現在地**: N-2.4.2b ユーザーアイコン選定中。マトリクス選定 UI は完成・動作確認済み。
+**現在地**: N-2.4.2b アイコン選定完了 (2026-05-19)。`notify-icons-selected.json` に primitives 反映済 / typeOverrides は空。次は N-2.4.3 (co-notify-panel.js 本体の合成描画実装)。
 
 **新会話でやるべき手順**:
 
 1. **本計画書 §16 全体を全読**（特に §16.2 確定タイプ / §16.9 進捗 / §16.10 本セクション）
 2. **メモリ `project_notification_refactor.md` を読む**
-3. ユーザーに選定状況を確認:
-   - 「マトリクス選定UI でアイコン選定は進みましたか？JSON 出力していただけますか？」
-   - もしくは「localStorage の選定値を JSON 出力ボタンで取得済みですか？」
-4. ユーザーから JSON を受領 → 以下に反映:
-   - `docs/preview/notify-icons-selected.json` に `primitives` セクションと `typeOverrides` セクションを追加
-   - 既存の `bells` / `commonTypes` / `panelTypes` とは別構造で保持
-   - 既存スロット (`type-ob-add` 等) は **typeOverrides として吸収**するか、廃止するか確認
-5. アイコン選定確定後、N-2.4.3 (co-notify-panel 本体の合成描画) に進む
-   - `notifyPrimitives.v1` / `notifyTypeOverrides.v1` を `co-notify-panel.js` に読み込む
-   - `buildItemHtml` を拡張: scope + op から typeKey を構築 → typeOverride or primitive 合成
-   - `CN_SLOT_DEFAULT` を `MTX_PRIMITIVE_DEFAULT` ベースに再構築
-6. その後 N-2.4.4 (OB の type 細分化) に進む
+3. **`docs/preview/notify-icons-selected.json` の `primitives` + `_meta.matrix.applicable` を全読** — N-2.4.3 で参照する SSOT
+4. N-2.4.3 (co-notify-panel 本体の合成描画) に進む
+   - `notify-icons-selected.json` の `primitives.scope` / `primitives.op` / `typeOverrides` を `co-notify-panel.js` に読み込む（fetch or script タグ 経由）
+   - `buildItemHtml` を拡張: アイテムの `scope` + `op` から typeKey を構築 → typeOverride 優先 → 無ければ primitive 合成
+   - 既存 `CN_SLOT_DEFAULT` (27スロット) は段階的に primitives ベースへ移行
+   - 合成 UI 仕様: scope 30px 中央 / op 28px 右下角に中心配置 (right/bottom -13px、マトリクス選定UIでは更に +4px = right -17px、本実装でどちらを採用するかは N-2.4.3 着手時に確認)
+5. その後 N-2.4.4 (OB の type 細分化) に進む
    - `obCnSelfNotify` を `(scope, op, opts)` 形式に変更
    - 既存呼び出し 21 箇所を新 type へ振り分け（§16.2 のマッピング表参照）
-   - 代表呼び出し位置の振り分け案:
-     - L1284, L1303 → `badge-child-delete` / `badge-grand-delete`
-     - L1389, L1406 → `badge-child-add` / `badge-grand-add`
-     - L1999 → `site-add` （配置先追加）
-     - L2029, L2161, L2171 → `site-remove` （配置先削除）
-     - L2119 → `cell-place` または `cell-modify` （_cnOldEntry 有無で分岐）
-     - L2129 → `cell-clear`
+   - 代表呼び出し位置の振り分け案（**2026-05-19 cell+site 統合後**）:
+     - L1284, L1303 → badge × delete (作業内容/詳細項目の削除)
+     - L1389, L1406 → badge × add (作業内容/詳細項目の追加)
+     - L1999 → **site × add** (受注追加 / 旧 site-add 相当)
+     - L2029, L2161, L2171 → **site × delete** (受注削除 / 旧 site-remove 相当)
+     - L2119 → **site × add** or **site × modify** (_cnOldEntry 有無で分岐 / 旧 cell-place / cell-modify 相当)
+     - L2129 → **site × delete** (旧 cell-clear 相当)
      - L2756 → master ベル管轄 (bell-master) へ送る
-     - L2896 → `row-add`
-     - L2929 → `row-modify`
-     - L3891 → `cell-modify`
+     - L2896 → **row × add**
+     - L2929 → **row × modify**
+     - L3891 → **site × modify** (旧 cell-modify 相当)
+   - 実装層の内部 type key（cell-place / site-add / cell-modify / cell-clear / site-remove）は残してよく、通知発信時に scope/op へ mapping する形でもよい。直接 (scope, op) を渡す形でもよい。実装着手時に判断
 
 **関連ファイル**:
 
@@ -950,8 +973,9 @@ OB 撤去後の動作確認で、ユーザーから以下の指摘あり (2026-0
 
 **localStorage キー（ユーザー選定の保存先）**:
 
-- `notifyPrimitives.v1` = `{ "scope": { "row": "...", "cell": "...", ... }, "op": { "add": "...", "modify": "...", ... } }`
-- `notifyTypeOverrides.v1` = `{ "row-add": "...", "cell-place": "...", ... }`
+- `notifyPrimitives.v1` = `{ "scope": { "row": "...", "site": "...", ... }, "op": { "add": "...", "modify": "...", ... } }`（scope に `cell` キーはもう存在しない）
+- `notifyTypeOverrides.v1` = `{ "row-add": "...", "site-add": "...", "site-modify": "...", "site-delete": "...", ... }`（`cell-*` / `*-clear` キーはマイグレーションで除去・リネーム済）
+- `notifyMatrix.migrated.cellToSite` = `"1"` — マイグレーション実行済フラグ（リセットボタンでクリアされる）
 - 既存 `notifyIconSelections.v1`（27 スロット）とは独立
 
 **アイコン UI 仕様（確定済み 2026-05-18）**:

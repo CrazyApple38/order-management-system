@@ -881,11 +881,12 @@
        - 既存 notifyIconSelections.v1 とは独立
        ============================================================ */
 
-    /* 軸定義（固定。プロトタイプの 11 scope + 8 op） */
+    /* 軸定義（2026-05-19 確定: cell+site → 受注(site) 統合 / op の clear 廃止）
+       - OB は scope=row/site/badge × op=add/modify/delete の3軸2op に集約
+       - SL は配置系の place/remove を保持（社員/車両/応援を現場に張る/外す） */
     var MTX_SCOPES = [
         { key: 'row',         label: '行',       sub: 'row (OB) シート1行' },
-        { key: 'cell',        label: 'セル',     sub: 'cell (OB)' },
-        { key: 'site',        label: '受注',     sub: 'site (OB) 同セル内の副受注' },
+        { key: 'site',        label: '受注',     sub: 'site (OB) セル内の受注エントリ' },
         { key: 'badge',       label: 'バッジ',   sub: 'badge (OB)' },
         { key: 'employee',    label: '社員',     sub: 'employee (SL)' },
         { key: 'vehicle',     label: '車両',     sub: 'vehicle (SL)' },
@@ -899,18 +900,16 @@
         { key: 'add',     label: '追加',   sub: 'add' },
         { key: 'modify',  label: '編集',   sub: 'modify' },
         { key: 'delete',  label: '削除',   sub: 'delete' },
-        { key: 'clear',   label: 'クリア', sub: 'clear' },
         { key: 'approve', label: '承認',   sub: 'approve (LA)' },
         { key: 'reject',  label: '却下',   sub: 'reject (LA)' },
-        { key: 'place',   label: '配置',   sub: 'place (SL/cell)' },
-        { key: 'remove',  label: '解除',   sub: 'remove (site)' }
+        { key: 'place',   label: '配置',   sub: 'place (SL)' },
+        { key: 'remove',  label: '解除',   sub: 'remove (SL)' }
     ];
 
-    /* applicableMatrix: scope ごとに有効な op の集合（プロトタイプの「—」判定に対応） */
+    /* applicableMatrix: scope ごとに有効な op の集合（「—」判定に対応） */
     var MTX_APPLICABLE = {
         'row':         ['add', 'modify', 'delete'],
-        'cell':        ['modify', 'clear', 'place'],
-        'site':        ['add', 'remove'],
+        'site':        ['add', 'modify', 'delete'],
         'badge':       ['add', 'delete'],
         'employee':    ['modify', 'place', 'remove'],
         'vehicle':     ['modify', 'place', 'remove'],
@@ -925,8 +924,7 @@
     var MTX_PRIMITIVE_DEFAULT = {
         scope: {
             'row':         'business/im-12034-keiyaku-sho.svg',
-            'cell':        'stationery/im-12555-karendaa.svg',
-            'site':        'sign-mark/im-15851-kyouyuu.svg',
+            'site':        'stationery/im-12555-karendaa.svg',
             'badge':       'sign-mark/im-10058-okiniiri-osusume-ni-tsukaeru-hoshi-aikon.svg',
             'employee':    'person/im-15537-jimbutsu.svg',
             'vehicle':     'transport/im-10852-jouyousha.svg',
@@ -940,7 +938,6 @@
             'add':     'sign-mark/im-00105-purasu.svg',
             'modify':  'education/si-14519-14519.png',
             'delete':  'sign-mark/im-11911-hosoi-batsu.svg',
-            'clear':   'sign-mark/im-11908-chuui-maaku.svg',
             'approve': 'sign-mark/im-11451-chekku-maaku-no-muryou.svg',
             'reject':  'sign-mark/im-11911-hosoi-batsu.svg',
             'place':   'sign-mark/im-15851-kyouyuu.svg',
@@ -951,16 +948,55 @@
     /* サンプル通知アイテム（マトリクスのアイコンを使って render） */
     var MTX_SAMPLE_ITEMS = [
         { scope: 'row',   op: 'add',    main: '東央警備 / 渋谷駅前ビル を行として追加', sub: '田中 太郎 ・ 5/18 09:14', unread: true },
-        { scope: 'cell',  op: 'place',  main: 'Nikkei / 大手町オフィス の 15日 に 2名 を配置', sub: '佐藤 花子 ・ 5/18 10:30', unread: true },
-        { scope: 'cell',  op: 'modify', main: 'Nikkei / 大手町オフィス の 15日 の開始時間を変更', sub: '山田 次郎 ・ 5/18 11:42', unread: true },
-        { scope: 'cell',  op: 'clear',  main: '全日本警備 / 新宿駅前 の 20日 配置をクリア', sub: '高橋 五郎 ・ 5/17 17:45', unread: false },
-        { scope: 'site',  op: 'add',    main: '東央警備 / 渋谷駅前ビル の 18日 に受注を追加', sub: '伊藤 ・ 5/17 14:30', unread: false },
+        { scope: 'site',  op: 'add',    main: 'Nikkei / 大手町オフィス の 15日 に受注を追加 (2名)', sub: '佐藤 花子 ・ 5/18 10:30', unread: true },
+        { scope: 'site',  op: 'modify', main: 'Nikkei / 大手町オフィス の 15日 の開始時間を変更', sub: '山田 次郎 ・ 5/18 11:42', unread: true },
+        { scope: 'site',  op: 'delete', main: '全日本警備 / 新宿駅前 の 20日 の受注を削除', sub: '高橋 五郎 ・ 5/17 17:45', unread: false },
+        { scope: 'row',   op: 'modify', main: '東央警備 / 渋谷駅前ビル の業務名を変更', sub: '伊藤 ・ 5/17 14:30', unread: false },
         { scope: 'badge', op: 'add',    main: 'セル編集で「巡回業務」バッジを追加', sub: '鈴木 ・ 5/17 13:20', unread: false }
     ];
 
     var MTX_PRIMITIVES_KEY = 'notifyPrimitives.v1';
     var MTX_OVERRIDES_KEY = 'notifyTypeOverrides.v1';
     var MTX_ICON_BASE = '../assets/icons/';
+    var MTX_MIGRATION_KEY = 'notifyMatrix.migrated.cellToSite';
+
+    /* 2026-05-19 マイグレーション: scope.cell → scope.site / cell-* override → site-*
+       cell 削除と clear op 廃止に伴う既存選定の保護。一度だけ実行。
+       op の対応関係: place→add, clear→delete, modify→modify (cell の op を site の op に変換) */
+    var MTX_CELL_OP_TO_SITE_OP = { 'place': 'add', 'modify': 'modify', 'clear': 'delete' };
+    function mtxMigrateCellToSite() {
+        try {
+            if (localStorage.getItem(MTX_MIGRATION_KEY) === '1') return;
+            // primitives: scope.cell があり scope.site が未設定なら昇格 / op.clear 削除
+            var rawP = JSON.parse(localStorage.getItem(MTX_PRIMITIVES_KEY) || '{}');
+            var p = { scope: rawP.scope || {}, op: rawP.op || {} };
+            if (p.scope.cell && !p.scope.site) p.scope.site = p.scope.cell;
+            delete p.scope.cell;
+            delete p.op.clear;
+            localStorage.setItem(MTX_PRIMITIVES_KEY, JSON.stringify(p));
+            // overrides: cell-{op} → site-{op'} (op' は MTX_CELL_OP_TO_SITE_OP 変換)
+            //   既存 site-{op'} が未設定の場合のみ昇格。それ以外の不明な op は破棄
+            var o = JSON.parse(localStorage.getItem(MTX_OVERRIDES_KEY) || '{}');
+            Object.keys(o).slice().forEach(function (k) {
+                if (k.indexOf('cell-') === 0) {
+                    var oldOp = k.slice(5);
+                    var newOp = MTX_CELL_OP_TO_SITE_OP[oldOp];
+                    if (newOp) {
+                        var siteKey = 'site-' + newOp;
+                        if (!o[siteKey]) o[siteKey] = o[k];
+                    }
+                    delete o[k];
+                }
+            });
+            // 残った *-clear override も削除（applicableMatrix から外れる）
+            Object.keys(o).slice().forEach(function (k) {
+                if (k.indexOf('-clear') === k.length - 6) delete o[k];
+            });
+            localStorage.setItem(MTX_OVERRIDES_KEY, JSON.stringify(o));
+            localStorage.setItem(MTX_MIGRATION_KEY, '1');
+        } catch (e) { /* localStorage 不可なら無視 */ }
+    }
+    mtxMigrateCellToSite();
 
     function mtxReadPrimitives() {
         try {
@@ -1218,6 +1254,7 @@
         try {
             localStorage.removeItem(MTX_PRIMITIVES_KEY);
             localStorage.removeItem(MTX_OVERRIDES_KEY);
+            localStorage.removeItem(MTX_MIGRATION_KEY);
         } catch (e2) {}
         mtxRefreshAll();
         mtxSetStatus('すべてリセットしました');
