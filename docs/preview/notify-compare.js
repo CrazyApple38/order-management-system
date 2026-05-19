@@ -1106,7 +1106,7 @@
         container.innerHTML = MTX_SAMPLE_ITEMS.map(function (it) {
             var typeKey = mtxGetTypeKey(it.scope, it.op);
             return '<div class="cmp-mtx-sample-item' + (it.unread ? ' is-unread' : '') + '">'
-                + '<div class="cmp-mtx-sample-item-icon">' + mtxBuildCellIconHtml(it.scope, it.op) + '</div>'
+                + '<div class="cmp-mtx-sample-item-icon" data-op="' + it.op + '">' + mtxBuildCellIconHtml(it.scope, it.op) + '</div>'
                 + '<div class="cmp-mtx-sample-item-text">'
                 +     '<div class="cmp-mtx-sample-item-main">' + escapeHtmlMtx(it.main) + '</div>'
                 +     '<div class="cmp-mtx-sample-item-sub">' + escapeHtmlMtx(it.sub) + ' <span style="color:#999">(' + typeKey + ')</span></div>'

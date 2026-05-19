@@ -238,10 +238,11 @@
 }
 
 /* ============================================================
-   合成アイコン (scope×op) — Phase N-2.4.3
-   item.scope + item.op が指定された場合、円形カラー背景は使わず、
-   scope アイコン中央 + op アイコン右下バッジ で合成する。
-   寸法・位置はマトリクス選定UI (.cmp-mtx-composed) と一致。
+   合成アイコン (scope×op) — Phase N-2.4.3 / 2026-05-20 背景円追加
+   item.scope + item.op が指定された場合:
+   - scope アイコン (色そのまま) の下層に op 連動の小さな円カラー背景
+   - SVG の透明部分から色が透けて、新規/変更/削除 を一目で判別可能
+   - op アイコン (右下バッジ) は独立した白背景バッジ
    ============================================================ */
 .cn-icon:has(.cn-composed),
 .cn-icon:has(.cn-composed-single) {
@@ -261,12 +262,40 @@
     width: 24px;
     height: 24px;
 }
+/* op 連動カラー背景 (角丸四角 24x30 / scope を包み込み / 縦長)
+   配置: container 24x24 に対し上下 3px ずつ拡張 (top:-3 / height:30)
+   角丸 6px (OP バッジと揃える) / 背景色は solid */
+.cn-composed::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 0;
+    width: 24px;
+    height: 30px;
+    border-radius: 6px;
+    background: transparent;
+    z-index: 0;
+}
 .cn-composed .cn-composed-base {
     width: 22px;
     height: 22px;
     object-fit: contain;
     display: block;
+    position: relative;
+    z-index: 1;
+    /* 角丸カラー背景の上に白シルエットで載せる */
+    filter: brightness(0) invert(1);
 }
+/* op 連動の背景色 — .cn-icon.type-* (resolveTypeClass の結果) 経由 / solid */
+.cn-icon.type-add     .cn-composed::before,
+.cn-icon.type-new     .cn-composed::before,
+.cn-icon.type-leave   .cn-composed::before    { background: var(--accent-primary); }
+.cn-icon.type-modify  .cn-composed::before,
+.cn-icon.type-master  .cn-composed::before,
+.cn-icon.type-pending .cn-composed::before    { background: var(--accent-secondary); }
+.cn-icon.type-delete  .cn-composed::before,
+.cn-icon.type-rejected .cn-composed::before   { background: var(--semantic-error); }
+.cn-icon.type-approved .cn-composed::before   { background: var(--semantic-success); }
 .cn-composed .cn-composed-op {
     position: absolute;
     /* op (20) の中心が scope 右下角の +4px 右に来る (right: -13px, bottom: -9px) */
@@ -282,6 +311,7 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.15);
     object-fit: contain;
     box-sizing: border-box;
+    z-index: 2;
 }
 .cn-composed-single {
     width: 24px;

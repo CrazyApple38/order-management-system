@@ -2144,11 +2144,45 @@ button.cn-date-group-head:hover {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
+/* op 連動カラー背景 (角丸四角 24x30 / scope を包み込み / 縦長 / 角丸 6px / solid)
+   container 24x24 に対し上下 3px ずつ拡張 (top:-3 / height:30) */
+.cmp-mtx-cell .cmp-mtx-composed::before,
+.cmp-mtx-sample-item-icon .cmp-mtx-composed::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 0;
+    width: 24px;
+    height: 30px;
+    border-radius: 6px;
+    background: transparent;
+    z-index: 0;
+}
+/* op 連動の背景色 (data-op 属性経由) — solid */
+.cmp-mtx-cell[data-op="add"]    .cmp-mtx-composed::before,
+.cmp-mtx-cell[data-op="place"]  .cmp-mtx-composed::before,
+.cmp-mtx-sample-item-icon[data-op="add"]    .cmp-mtx-composed::before,
+.cmp-mtx-sample-item-icon[data-op="place"]  .cmp-mtx-composed::before    { background: var(--accent-primary); }
+.cmp-mtx-cell[data-op="modify"] .cmp-mtx-composed::before,
+.cmp-mtx-sample-item-icon[data-op="modify"] .cmp-mtx-composed::before    { background: var(--accent-secondary); }
+.cmp-mtx-cell[data-op="delete"] .cmp-mtx-composed::before,
+.cmp-mtx-cell[data-op="remove"] .cmp-mtx-composed::before,
+.cmp-mtx-cell[data-op="reject"] .cmp-mtx-composed::before,
+.cmp-mtx-sample-item-icon[data-op="delete"] .cmp-mtx-composed::before,
+.cmp-mtx-sample-item-icon[data-op="remove"] .cmp-mtx-composed::before,
+.cmp-mtx-sample-item-icon[data-op="reject"] .cmp-mtx-composed::before    { background: var(--semantic-error); }
+.cmp-mtx-cell[data-op="approve"] .cmp-mtx-composed::before,
+.cmp-mtx-sample-item-icon[data-op="approve"] .cmp-mtx-composed::before   { background: var(--semantic-success); }
+
 .cmp-mtx-cell .cmp-mtx-composed .cmp-mtx-icon-base {
-    /* 親 (scope): 22px */
+    /* 親 (scope): 22px / 角丸カラー背景の上に白シルエットで載せる */
     width: 22px;
     height: 22px;
+    position: relative;
+    z-index: 1;
+    filter: brightness(0) invert(1);
 }
 .cmp-mtx-cell .cmp-mtx-composed .cmp-mtx-icon-op {
     /* 子 (op): 20px、scope 右下にずらし配置
@@ -2158,6 +2192,7 @@ button.cn-date-group-head:hover {
     padding: 2px;
     right: -13px;
     bottom: -9px;
+    z-index: 2;
 }
 
 /* 通知アイテムサンプル内の合成アイコン: マトリクスセルと同寸法を適用 */
@@ -2167,10 +2202,15 @@ button.cn-date-group-head:hover {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
 .cmp-mtx-sample-item-icon .cmp-mtx-composed .cmp-mtx-icon-base {
+    /* 角丸カラー背景の上に白シルエットで載せる */
     width: 22px;
     height: 22px;
+    position: relative;
+    z-index: 1;
+    filter: brightness(0) invert(1);
 }
 .cmp-mtx-sample-item-icon .cmp-mtx-composed .cmp-mtx-icon-op {
     /* マトリクスセルと寸法・位置を一致させる (2026-05-20 二段階縮小) */
@@ -2179,6 +2219,7 @@ button.cn-date-group-head:hover {
     padding: 2px;
     right: -13px;
     bottom: -9px;
+    z-index: 2;
 }
 /* 通知サンプルのアイコン枠を広げて op が右側コンテンツに被らないようにする
    box-sizing: border-box では padding が内側に食い込み外形に効かないため margin-right を使用 */
