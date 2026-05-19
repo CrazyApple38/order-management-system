@@ -922,8 +922,8 @@ OB では `clear` / `place` / `remove` は使わず、site の状態遷移は全
 | N-2.4.2a | scope ラベル変更 (業務行→行 / 配置先→受注) + 通知サンプル文言調整 | **完了**（コミット 8aeab78） |
 | N-2.4.2c | **scope 設計見直し: cell+site → site(受注) に統合 / op の clear 廃止** | **完了**（2026-05-19 / 未コミット → 次コミットで反映予定） |
 | N-2.4.2b | **ユーザーによるアイコン選定作業** | **完了**（2026-05-19 / scope 8/10 + op 5/7 を明示選定、残 4 はデフォルト採用 / typeOverrides は空 / `notify-icons-selected.json` の `primitives` セクションに反映済） |
-| N-2.4.3 | co-notify-panel.js 本体のアイコン合成描画実装 | **次着手**（選定完了 / `notify-icons-selected.json` の `primitives` を `co-notify-panel.js` に読み込み、`buildItemHtml` で scope×op 合成に拡張） |
-| N-2.4.4 | OB の type 細分化（obCnSelfNotify 21 箇所を新 type へ振り分け） | 未着手 |
+| N-2.4.3 | co-notify-panel.js 本体のアイコン合成描画実装 | **完了**（2026-05-19 / `docs/mockup/notify-icons-selected.js` 新規作成・5HTML 読込追加 / `buildItemHtml` を scope+op で合成描画に拡張 / CSS `.cn-composed` / `.cn-composed-base` / `.cn-composed-op` 追加） |
+| N-2.4.4 | OB の type 細分化（obCnSelfNotify 21 箇所を新 type へ振り分け） | **次着手** |
 | N-2.4.5 | SL / WS / LA のスコープ × 操作リスト確定とアイコン選定 | 未着手 |
 
 **N-2.4.2c 設計変更サマリ（2026-05-19）**:
@@ -935,20 +935,28 @@ OB では `clear` / `place` / `remove` は使わず、site の状態遷移は全
 
 ### 16.10 次会話への引き継ぎ要点 ★重要
 
-**現在地**: N-2.4.2b アイコン選定完了 (2026-05-19)。`notify-icons-selected.json` に primitives 反映済 / typeOverrides は空。次は N-2.4.3 (co-notify-panel.js 本体の合成描画実装)。
+**現在地**: N-2.4.3 合成描画実装完了 (2026-05-19)。`co-notify-panel.js` の `buildItemHtml` は `item.scope` + `item.op` を受け取り合成HTMLを出力可能。次は N-2.4.4 (OB の type 細分化)。
 
-**新会話でやるべき手順**:
+**N-2.4.3 実装内容（完了）**:
+
+- `docs/mockup/notify-icons-selected.js` 新規作成 — `window.NotifyIconsSelected` に primitives/bells/commonTypes/typeOverrides を公開（file:// 対応）
+- `co-notify-panel.js` 拡張:
+  - `buildComposedIconHtml(scope, op)` 追加 — override 優先 → primitive 合成 → null
+  - `resolvePrimitive(axis, key)` / `resolveTypeOverride(scope, op)` 追加（localStorage > 組み込み）
+  - `buildItemHtml`: `item.scope` あれば合成、なければ従来の slot 解決にフォールバック
+  - typeClass 推測ロジック追加（item.type 未指定でも item.op から add/modify/delete 色を決定）
+  - data-scope / data-op 属性出力
+- `co-notify-panel.css` に `.cn-composed` / `.cn-composed-base` / `.cn-composed-op` / `.cn-composed-single` 追加（マトリクス選定UIと寸法一致: scope 30px / op 28px / right:-17px bottom:-13px）
+- 5 HTML 更新: `notify-icons-selected.js?v=1` を panel より先に読込 + panel を `?v=11` にバンプ
+- localStorage マイグレーション (notify-compare.js MTX_MIGRATION_KEY 経由) は引き続き有効
+
+**新会話でやるべき手順 (N-2.4.4 着手時)**:
 
 1. **本計画書 §16 全体を全読**（特に §16.2 確定タイプ / §16.9 進捗 / §16.10 本セクション）
 2. **メモリ `project_notification_refactor.md` を読む**
-3. **`docs/preview/notify-icons-selected.json` の `primitives` + `_meta.matrix.applicable` を全読** — N-2.4.3 で参照する SSOT
-4. N-2.4.3 (co-notify-panel 本体の合成描画) に進む
-   - `notify-icons-selected.json` の `primitives.scope` / `primitives.op` / `typeOverrides` を `co-notify-panel.js` に読み込む（fetch or script タグ 経由）
-   - `buildItemHtml` を拡張: アイテムの `scope` + `op` から typeKey を構築 → typeOverride 優先 → 無ければ primitive 合成
-   - 既存 `CN_SLOT_DEFAULT` (27スロット) は段階的に primitives ベースへ移行
-   - 合成 UI 仕様: scope 30px 中央 / op 28px 右下角に中心配置 (right/bottom -13px、マトリクス選定UIでは更に +4px = right -17px、本実装でどちらを採用するかは N-2.4.3 着手時に確認)
-5. その後 N-2.4.4 (OB の type 細分化) に進む
-   - `obCnSelfNotify` を `(scope, op, opts)` 形式に変更
+3. **N-2.4.4 (OB の type 細分化) に進む**
+   - `obCnSelfNotify` を新形式に変更 — 呼び出し側で `{ scope, op, main, sub, ... }` を直接 addItem に渡すか、ラッパー側で旧 type を scope/op へ map するか、着手時に判断
+   - panel API は `addItem('ob', { scope:'site', op:'add', main:..., sub:... })` を受け付け済（N-2.4.3 完了）
    - 既存呼び出し 21 箇所を新 type へ振り分け（§16.2 のマッピング表参照）
    - 代表呼び出し位置の振り分け案（**2026-05-19 cell+site 統合後**）:
      - L1284, L1303 → badge × delete (作業内容/詳細項目の削除)

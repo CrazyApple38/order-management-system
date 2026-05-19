@@ -238,6 +238,59 @@
 }
 
 /* ============================================================
+   合成アイコン (scope×op) — Phase N-2.4.3
+   item.scope + item.op が指定された場合、円形カラー背景は使わず、
+   scope アイコン中央 + op アイコン右下バッジ で合成する。
+   寸法・位置はマトリクス選定UI (.cmp-mtx-composed) と一致。
+   ============================================================ */
+.cn-icon:has(.cn-composed),
+.cn-icon:has(.cn-composed-single) {
+    width: 32px;
+    height: 32px;
+    border-radius: 0;
+    background: transparent !important;
+    /* op が右側コンテンツに被らないよう右余白を確保 */
+    margin-right: 22px;
+    overflow: visible;
+}
+.cn-composed {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+.cn-composed .cn-composed-base {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    display: block;
+}
+.cn-composed .cn-composed-op {
+    position: absolute;
+    /* op (28) の中心が scope 右下角の +4px 右に来る (right: -17px, bottom: -13px) */
+    right: -17px;
+    bottom: -13px;
+    width: 28px;
+    height: 28px;
+    padding: 3px;
+    background: #FFF;
+    border: 1.5px solid var(--bg-surface, #FFF);
+    /* 角丸 6px の四角バッジ (border-radius: 50% は img 四隅を切り取るため不適) */
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    object-fit: contain;
+    box-sizing: border-box;
+}
+.cn-composed-single {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    display: block;
+}
+
+/* ============================================================
    アコーディオン内サマリ + クロス画面ヒント（Phase N-2.2）
    N-5 で実装される画面遷移ロジックの UI 受け皿。
    ============================================================ */

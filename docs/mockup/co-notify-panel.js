@@ -442,6 +442,66 @@
         var sel = readStoredSelections();
         return sel[slotKey] || CN_SLOT_DEFAULT[slotKey] || null;
     }
+
+    // ========== プリミティブ (scope×op) 合成 — Phase N-2.4.3 ==========
+    // window.NotifyIconsSelected (notify-icons-selected.js) と
+    // localStorage の notifyPrimitives.v1 / notifyTypeOverrides.v1 を統合し、
+    // item.scope + item.op の組み合わせから合成アイコン HTML を生成する。
+    var CN_PRIMITIVES_KEY = 'notifyPrimitives.v1';
+    var CN_OVERRIDES_KEY = 'notifyTypeOverrides.v1';
+    function getBuiltInPrimitives() {
+        var src = (window.NotifyIconsSelected && window.NotifyIconsSelected.primitives) || {};
+        return {
+            scope: src.scope || {},
+            op: src.op || {}
+        };
+    }
+    function getBuiltInTypeOverrides() {
+        return (window.NotifyIconsSelected && window.NotifyIconsSelected.typeOverrides) || {};
+    }
+    function readStoredPrimitives() {
+        try {
+            var raw = JSON.parse(localStorage.getItem(CN_PRIMITIVES_KEY) || '{}');
+            return { scope: raw.scope || {}, op: raw.op || {} };
+        } catch (e) { return { scope: {}, op: {} }; }
+    }
+    function readStoredTypeOverrides() {
+        try { return JSON.parse(localStorage.getItem(CN_OVERRIDES_KEY) || '{}'); }
+        catch (e) { return {}; }
+    }
+    // axis: 'scope' | 'op'。localStorage > 組み込み の順で解決
+    function resolvePrimitive(axis, key) {
+        if (!key) return null;
+        var stored = readStoredPrimitives();
+        if (stored[axis] && stored[axis][key]) return stored[axis][key];
+        var builtin = getBuiltInPrimitives();
+        return builtin[axis][key] || null;
+    }
+    // (scope, op) → 個別 typeOverride 取得
+    function resolveTypeOverride(scope, op) {
+        if (!scope || !op) return null;
+        var typeKey = scope + '-' + op;
+        var stored = readStoredTypeOverrides();
+        if (stored[typeKey]) return stored[typeKey];
+        var builtin = getBuiltInTypeOverrides();
+        return builtin[typeKey] || null;
+    }
+    // 合成アイコン HTML（マトリクス選定 UI の .cmp-mtx-composed と等価構造）
+    // override 優先 → primitive 合成 → null
+    function buildComposedIconHtml(scope, op) {
+        if (!scope) return null;
+        var override = resolveTypeOverride(scope, op);
+        if (override) {
+            return '<img class="cn-composed-single" src="' + CN_ICON_BASE + override + '" alt="">';
+        }
+        var basePath = resolvePrimitive('scope', scope);
+        var opPath = op ? resolvePrimitive('op', op) : null;
+        if (!basePath && !opPath) return null;
+        return '<span class="cn-composed">'
+            + (basePath ? '<img class="cn-composed-base" src="' + CN_ICON_BASE + basePath + '" alt="">' : '')
+            + (opPath ? '<img class="cn-composed-op" src="' + CN_ICON_BASE + opPath + '" alt="">' : '')
+            + '</span>';
+    }
     // item から slotKey を決定（item.slot 明示優先 → type-{bellId}-{type} → 種別フォールバック）
     function resolveItemSlotKey(bellId, item) {
         if (item.slot && CN_SLOT_DEFAULT[item.slot]) return item.slot;
@@ -481,13 +541,22 @@
         if (img) img.src = CN_ICON_BASE + path;
     }
     function buildItemHtml(bellId, item) {
-        var typeClass = resolveTypeClass(item.type);
+        // Phase N-2.4.3: item.scope + item.op があれば合成優先。
+        // type は表示色クラス用に scope-op から推測（add/place→add色、modify/approve→modify色、delete/reject/remove→delete色）。
+        var effectiveType = item.type;
+        if (!effectiveType && item.op) {
+            var opToType = { add: 'add', place: 'add', modify: 'modify', approve: 'approve', delete: 'delete', remove: 'delete', reject: 'reject' };
+            effectiveType = opToType[item.op] || 'modify';
+        }
+        var typeClass = resolveTypeClass(effectiveType);
         var unread = item._read ? '' : ' is-unread';
-        var slotKey = resolveItemSlotKey(bellId, item) || '';
-        var iconPath = resolveSlot(slotKey);
-        var iconInner = iconPath
-            ? '<img class="cn-icon-img" src="' + CN_ICON_BASE + iconPath + '" alt="">'
-            : '';
+        // 合成アイコン優先（scope 必須、op はオプション）
+        var composedHtml = item.scope ? buildComposedIconHtml(item.scope, item.op) : null;
+        var slotKey = composedHtml ? '' : (resolveItemSlotKey(bellId, item) || '');
+        var iconPath = composedHtml ? null : resolveSlot(slotKey);
+        var iconInner = composedHtml
+            ? composedHtml
+            : (iconPath ? '<img class="cn-icon-img" src="' + CN_ICON_BASE + iconPath + '" alt="">' : '');
         // expand または affects のいずれかがあればアコーディオン展開可（種別問わず）
         var hasExpand = !!(item.expand || (item.affects && item.affects.length));
         var affectsAttr = (item.affects && item.affects.length)
@@ -504,11 +573,15 @@
                 : '';
             expandHtml = '<div class="cn-expand">' + summary + hint + '</div>';
         }
+        var scopeAttr = item.scope ? ' data-scope="' + escapeHtml(item.scope) + '"' : '';
+        var opAttr = item.op ? ' data-op="' + escapeHtml(item.op) + '"' : '';
         return ''
             + '<div class="cn-item type-' + typeClass + unread + '"'
             +   idAttr
-            +   ' data-type="' + escapeHtml(item.type || '') + '"'
+            +   ' data-type="' + escapeHtml(item.type || effectiveType || '') + '"'
             +   (slotKey ? ' data-slot="' + escapeHtml(slotKey) + '"' : '')
+            +   scopeAttr
+            +   opAttr
             +   affectsAttr
             +   targetAttr + '>'
             +   '<div class="cn-item-row">'
@@ -846,6 +919,10 @@
         getCurrentPage: getCurrentPage,
         iconBase: CN_ICON_BASE,
         slotDefault: CN_SLOT_DEFAULT,
-        pageLabels: CN_PAGE_LABELS
+        pageLabels: CN_PAGE_LABELS,
+        // Phase N-2.4.3 追加
+        buildComposedIconHtml: buildComposedIconHtml,
+        resolvePrimitive: resolvePrimitive,
+        resolveTypeOverride: resolveTypeOverride
     };
 })();
