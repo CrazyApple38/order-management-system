@@ -567,9 +567,16 @@
             var sa = supportAssignments[partnerId];
             if (sa && sa[dateKey]) delete sa[dateKey];
         }
+        var prevCount = 0;
         if (supportReservations[partnerId] && supportReservations[partnerId][dateKey]) {
+            prevCount = supportReservations[partnerId][dateKey].flex || 0;
             delete supportReservations[partnerId][dateKey];
         }
+        wsCnSelfNotify('reservation', 'delete', {
+            partnerName: partner.shortName,
+            day: wsCnGetDayLabel(dateKey),
+            count: prevCount
+        });
         renderGrid();
         renderSidebar();
     }
@@ -2280,30 +2287,74 @@
             return;
         }
 
+        var siteName = wsCnGetSiteLabel(siteId);
+        var dayStr = wsCnGetDayLabel(date);
+
         if (data.type === 'sidebar-emp') {
             addAssignment(data.empIndex, date, shift, siteId);
+            wsCnSelfNotify('schedule', 'add', {
+                empName: wsCnGetEmpName(data.empIndex),
+                siteName: siteName, day: dayStr, shift: shift,
+                siteId: siteId, dateKey: date
+            });
         } else if (data.type === 'move-emp') {
             removeAssignment(data.empIndex, data.fromDate, data.fromShift, data.fromSiteId);
             addAssignment(data.empIndex, date, shift, siteId);
+            wsCnSelfNotify('schedule', 'modify', {
+                empName: wsCnGetEmpName(data.empIndex),
+                srcSite: wsCnGetSiteLabel(data.fromSiteId),
+                srcDay: wsCnGetDayLabel(data.fromDate), srcShift: data.fromShift,
+                dstSite: siteName, dstDay: dayStr, dstShift: shift,
+                siteId: siteId, dateKey: date
+            });
         } else if (data.type === 'reservation-partner') {
             // 予約行 → 現場セル（配置）。残0時は超過配置を防ぐためトーストで拒否
             if (getRemainingCount(data.partnerId, date) <= 0) {
                 showToast('予約残が0のため配置できません');
             } else {
                 addSupportAssignment(data.partnerId, date, shift, siteId);
+                wsCnSelfNotify('schedule', 'add', {
+                    empName: wsCnGetPartnerName(data.partnerId) + '（応援）',
+                    siteName: siteName, day: dayStr, shift: shift,
+                    siteId: siteId, dateKey: date
+                });
             }
         } else if (data.type === 'sidebar-support') {
             // サイドバー（プリセット応援 or 実在パートナー） → 現場セル
             addSupportAssignment(data.partnerId, date, shift, siteId);
+            wsCnSelfNotify('schedule', 'add', {
+                empName: wsCnGetPartnerName(data.partnerId) + '（応援）',
+                siteName: siteName, day: dayStr, shift: shift,
+                siteId: siteId, dateKey: date
+            });
         } else if (data.type === 'move-partner') {
             // 現場セル → 現場セル（移動）
             removeSupportAssignment(data.partnerId, data.fromDate, data.fromShift, data.fromSiteId);
             addSupportAssignment(data.partnerId, date, shift, siteId);
+            wsCnSelfNotify('schedule', 'modify', {
+                empName: wsCnGetPartnerName(data.partnerId) + '（応援）',
+                srcSite: wsCnGetSiteLabel(data.fromSiteId),
+                srcDay: wsCnGetDayLabel(data.fromDate), srcShift: data.fromShift,
+                dstSite: siteName, dstDay: dayStr, dstShift: shift,
+                siteId: siteId, dateKey: date
+            });
         } else if (data.type === 'sidebar-vehicle') {
             addVehicleAssignment(date, shift, siteId, data.vehicleId);
+            wsCnSelfNotify('schedule', 'add', {
+                vehicleName: wsCnGetVehicleName(data.vehicleId),
+                siteName: siteName, day: dayStr, shift: shift,
+                siteId: siteId, dateKey: date
+            });
         } else if (data.type === 'move-vehicle') {
             removeVehicleAssignment(data.fromDate, data.fromShift, data.fromSiteId);
             addVehicleAssignment(date, shift, siteId, data.vehicleId);
+            wsCnSelfNotify('schedule', 'modify', {
+                vehicleName: wsCnGetVehicleName(data.vehicleId),
+                srcSite: wsCnGetSiteLabel(data.fromSiteId),
+                srcDay: wsCnGetDayLabel(data.fromDate), srcShift: data.fromShift,
+                dstSite: siteName, dstDay: dayStr, dstShift: shift,
+                siteId: siteId, dateKey: date
+            });
         }
 
         deactivateDragMode();
@@ -2331,11 +2382,27 @@
             return;
         }
 
+        var dayStr = wsCnGetDayLabel(date);
+
         if (data.type === 'sidebar-site') {
             addAssignment(empIndex, date, shift, data.siteId);
+            wsCnSelfNotify('schedule', 'add', {
+                empName: wsCnGetEmpName(empIndex),
+                siteName: wsCnGetSiteLabel(data.siteId),
+                day: dayStr, shift: shift,
+                siteId: data.siteId, dateKey: date
+            });
         } else if (data.type === 'move-chip') {
             removeAssignment(data.fromEmpIndex, data.fromDate, data.fromShift, data.siteId);
             addAssignment(empIndex, date, shift, data.siteId);
+            wsCnSelfNotify('schedule', 'modify', {
+                empName: wsCnGetEmpName(empIndex),
+                srcSite: wsCnGetSiteLabel(data.siteId),
+                srcDay: wsCnGetDayLabel(data.fromDate), srcShift: data.fromShift,
+                dstSite: wsCnGetSiteLabel(data.siteId),
+                dstDay: dayStr, dstShift: shift,
+                siteId: data.siteId, dateKey: date
+            });
         }
 
         deactivateDragMode();
@@ -2363,11 +2430,27 @@
             return;
         }
 
+        var dayStr = wsCnGetDayLabel(date);
+
         if (data.type === 'sidebar-site') {
             addVehicleAssignment(date, shift, data.siteId, vehicleId);
+            wsCnSelfNotify('schedule', 'add', {
+                vehicleName: wsCnGetVehicleName(vehicleId),
+                siteName: wsCnGetSiteLabel(data.siteId),
+                day: dayStr, shift: shift,
+                siteId: data.siteId, dateKey: date
+            });
         } else if (data.type === 'move-vehicle-chip') {
             removeVehicleAssignment(data.fromDate, data.fromShift, data.siteId);
             addVehicleAssignment(date, shift, data.siteId, vehicleId);
+            wsCnSelfNotify('schedule', 'modify', {
+                vehicleName: wsCnGetVehicleName(vehicleId),
+                srcSite: wsCnGetSiteLabel(data.siteId),
+                srcDay: wsCnGetDayLabel(data.fromDate), srcShift: data.fromShift,
+                dstSite: wsCnGetSiteLabel(data.siteId),
+                dstDay: dayStr, dstShift: shift,
+                siteId: data.siteId, dateKey: date
+            });
         }
 
         deactivateDragMode();
@@ -2408,7 +2491,13 @@
 
         var partner = findPartner(data.partnerId);
         if (partner && !partner.isPreset && partner.gcCode !== newGcCode) {
+            var oldGc = partner.gcCode;
             partner.gcCode = newGcCode;
+            wsCnSelfNotify('reservation', 'modify', {
+                partnerName: partner.shortName,
+                day: wsCnGetDayLabel(cellDate),
+                diffs: [{ field: '所属GC', oldVal: oldGc, newVal: newGcCode }]
+            });
             renderGrid();
             renderSidebar();
         }
@@ -4479,12 +4568,21 @@
                 }
                 var count = stepper.getValue();
                 var partnerId = selectedPartnerId;
+                var oldCount = 0;
                 if (!partnerId) {
                     // 入力文字列で新規登録（既存が無ければ）
                     var existing = getActivePartners(gcCode).filter(function (p) { return p.shortName === name; })[0];
                     partnerId = existing ? existing.id : addPartner(name, gcCode);
+                } else {
+                    oldCount = getReservedCount(partnerId, dateKey);
                 }
                 setReservedCount(partnerId, dateKey, count);
+                var newOp = (oldCount === 0) ? 'add' : 'modify';
+                wsCnSelfNotify('reservation', newOp, {
+                    partnerName: wsCnGetPartnerName(partnerId),
+                    day: wsCnGetDayLabel(dateKey),
+                    count: count, oldCount: oldCount, newCount: count
+                });
                 ctx.close();
                 renderGrid();
                 renderSidebar();
@@ -4550,7 +4648,14 @@
                             stepper.setValue(assigned);
                             return;
                         }
+                        var oldVal = getReservedCount(p.id, dk);
                         setReservedCount(p.id, dk, v);
+                        var stepOp = (oldVal === 0 && v > 0) ? 'add' : ((v === 0 && oldVal > 0) ? 'delete' : 'modify');
+                        wsCnSelfNotify('reservation', stepOp, {
+                            partnerName: p.shortName,
+                            day: wsCnGetDayLabel(dk),
+                            count: v, oldCount: oldVal, newCount: v
+                        });
                         renderGrid();
                         renderSidebar();
                     }, { min: 0 });
@@ -5063,205 +5168,181 @@
     }
 
     // ==========================================================
-    // 変更通知パネル（業務管理計画書 固有）
+    // 変更通知（N-2.3 / N-2.4.5 自領域発信）
+    // 旧 wsCn* ベル/パネル/サンプルデータは N-2.3 で撤去。
+    // 共通ベルは co-notify-panel.js (window.coNotifyPanel) が管理。
     // ==========================================================
 
-    var wsCnState = {
-        notifications: [],   // 最新タブ用（未読ドット表示）
-        history: [],         // 履歴タブ用（全件）
-        nextId: 1
-    };
-    var wsCnIconChars = { add: '＋', modify: '✎', delete: '✕' };
-
-    function wsCnEscape(s) {
-        return String(s == null ? '' : s)
-            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    function wsCnTodayLabel() {
+        var d = new Date();
+        return '今日 (' + (d.getMonth() + 1) + '/' + d.getDate() + ')';
     }
 
-    function wsCnGetSite(siteId) {
+    function wsCnTimeNow() {
+        var d = new Date();
+        var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+        return pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
+    function wsCnShiftLabel(shift) {
+        if (shift === 'day')   return '昼';
+        if (shift === 'night') return '夜';
+        return '';
+    }
+
+    // ----- 名称取得ヘルパー（フック用） -----
+    function wsCnGetSiteLabel(siteId) {
+        if (!siteId) return '';
         for (var i = 0; i < wsSitesData.length; i++) {
-            if (wsSitesData[i].id === siteId) return wsSitesData[i];
+            if (wsSitesData[i].id === siteId) {
+                return wsSitesData[i].company + ' / ' + wsSitesData[i].name;
+            }
         }
-        return null;
+        return siteId;
     }
 
-    function wsCnSiteLabel(n) {
-        var site = wsCnGetSite(n.siteId);
-        if (!site) return n.siteName || '(不明な現場)';
-        return site.company + ' / ' + site.name;
+    function wsCnGetDayLabel(dateKey) {
+        if (!dateKey) return '';
+        var d = parseDate(dateKey);
+        if (!d) return dateKey;
+        return (d.getMonth() + 1) + '/' + d.getDate() + '日';
     }
 
-    function wsCnShiftMark(shift) {
-        if (shift === 'day')   return ' 昼';
-        if (shift === 'night') return ' 夜';
-        return '';
+    function wsCnGetEmpName(empIndex) {
+        if (empIndex == null) return '';
+        if (typeof employeesData === 'undefined') return '';
+        var e = employeesData[empIndex];
+        return e ? e.name : '';
     }
 
-    function wsCnDescribeAction(n) {
-        var name = wsCnSiteLabel(n);
-        if (n.type === 'add')    return name + ' を新規配置';
-        if (n.type === 'delete') return name + ' を削除';
-        if (n.type === 'modify') {
-            var fields = (n.diffs || []).map(function (d) { return d.field; }).join('・');
-            return name + (fields ? ' の' + fields + 'を変更' : ' を変更');
+    function wsCnGetVehicleName(vehicleId) {
+        if (!vehicleId) return '';
+        if (typeof findVehicle !== 'function') return vehicleId;
+        var v = findVehicle(vehicleId);
+        return v ? (v.plate || v.model || vehicleId) : vehicleId;
+    }
+
+    function wsCnGetPartnerName(partnerId) {
+        if (!partnerId) return '';
+        var p = findPartner(partnerId);
+        return p ? p.shortName : partnerId;
+    }
+
+    // 自領域発信: addItem('ws', ...) ラッパー (scope×op 形式 / N-2.4.5)
+    // scope: 'schedule' (社員/車両配置) / 'reservation' (応援予約・協力業者)
+    // op:    'add' / 'modify' / 'delete'
+    // opts: { kind, empName, vehicleName, partnerName, siteName, day, shift,
+    //         srcSite, srcDay, srcShift, dstSite, dstDay, dstShift,
+    //         count, oldCount, newCount, siteId, dateKey, diffs, details, user }
+    //   kind: 'partner' で協力業者 CRUD、それ以外は通常の予約 / 配置
+    function wsCnSelfNotify(scope, op, opts) {
+        if (!opts) opts = {};
+        if (!window.coNotifyPanel || typeof window.coNotifyPanel.addItem !== 'function') return;
+
+        var opLabel = { add: '追加', modify: '編集', delete: '削除' }[op] || op;
+        var mainText = '';
+
+        if (scope === 'schedule') {
+            var subject = opts.empName || opts.vehicleName || opts.subject || '';
+            var siteStr = opts.siteName || '';
+            var dayStr = opts.day ? '(' + opts.day + ')' : '';
+            var shiftStr = opts.shift ? ' [' + wsCnShiftLabel(opts.shift) + ']' : '';
+            if (op === 'modify' && (opts.srcSite || opts.srcDay)) {
+                // セル間移動
+                var src = (opts.srcSite || siteStr) +
+                          (opts.srcDay ? '(' + opts.srcDay + ')' : '') +
+                          (opts.srcShift ? ' [' + wsCnShiftLabel(opts.srcShift) + ']' : '');
+                var dst = (opts.dstSite || siteStr) +
+                          (opts.dstDay ? '(' + opts.dstDay + ')' : '') +
+                          (opts.dstShift ? ' [' + wsCnShiftLabel(opts.dstShift) + ']' : '');
+                mainText = subject + ' を ' + src + ' → ' + dst + ' に移動';
+            } else {
+                var action = (op === 'add') ? 'に配置' : ((op === 'delete') ? 'から削除' : 'を編集');
+                mainText = subject + ' を ' + siteStr + dayStr + shiftStr + ' ' + action;
+            }
+        } else if (scope === 'reservation') {
+            if (opts.kind === 'partner') {
+                mainText = '協力業者 ' + (opts.partnerName || '') + ' を' + opLabel;
+            } else {
+                var cnt = '';
+                if (op === 'modify' && opts.oldCount != null && opts.newCount != null) {
+                    cnt = '(' + opts.oldCount + '名 → ' + opts.newCount + '名)';
+                } else if (opts.count != null) {
+                    cnt = '(' + opts.count + '名)';
+                }
+                mainText = (opts.partnerName || '') +
+                           (opts.day ? ' の ' + opts.day + ' 予約' : ' の予約') +
+                           'を' + opLabel + cnt;
+            }
+        } else {
+            mainText = scope + ' × ' + op;
         }
-        return name;
-    }
 
-    function wsCnBuildDiffHtml(n) {
-        if (n.type === 'modify' && n.diffs) {
-            return n.diffs.map(function (d) {
-                return '<div class="cn-diff-line">' +
-                    '<span class="cn-diff-label">' + wsCnEscape(d.field) + '</span>' +
-                    '<span class="cn-diff-from">' + wsCnEscape(d.oldVal) + '</span>' +
-                    '<span class="cn-diff-arrow">→</span>' +
-                    '<span class="cn-diff-to">' + wsCnEscape(d.newVal) + '</span>' +
-                '</div>';
-            }).join('');
+        var subText = (opts.user || '自分') + ' ・ ' + wsCnTimeNow();
+
+        var expandText = '';
+        if (opts.diffs && opts.diffs.length > 0) {
+            expandText = opts.diffs.map(function (d) {
+                return d.field + ': ' + d.oldVal + ' → ' + d.newVal;
+            }).join(' / ');
+        } else if (opts.details && opts.details.length > 0) {
+            expandText = opts.details.map(function (d) {
+                return d.field + ': ' + (d.value != null ? d.value : '');
+            }).join(' / ');
         }
-        if (n.type === 'add' && n.details) {
-            return n.details.map(function (d) {
-                return '<div class="cn-diff-line">' +
-                    '<span class="cn-diff-label">' + wsCnEscape(d.field) + '</span>' +
-                    '<span class="cn-diff-to">' + wsCnEscape(d.value) + '</span>' +
-                '</div>';
-            }).join('');
+
+        var target = null;
+        if (opts.siteId && opts.dateKey) {
+            target = { axis: 'wsCell', value: opts.siteId, date: opts.dateKey,
+                       shift: opts.shift || '', op: op };
         }
-        if (n.type === 'delete') {
-            return '<div class="cn-diff-line"><span class="cn-diff-from">この配置は削除されました</span></div>';
-        }
-        return '';
-    }
 
-    function wsCnRenderItem(n) {
-        var iconChar = wsCnIconChars[n.type] || '?';
-        var unreadClass = !n._read ? ' is-unread' : '';
-        var site = wsCnGetSite(n.siteId);
-        var siteKey = site ? site.name : (n.siteName || '');
-        var d = parseDate(n.date);
-        var dayChip = '<span class="cn-date-chip">' + (d.getMonth() + 1) + '/' + d.getDate() + wsCnShiftMark(n.shift) + '</span>';
-        var diffHtml = wsCnBuildDiffHtml(n);
-        var expandHtml = '<div class="cn-expand">' + diffHtml + '</div>';
-        var chevron = '<span class="cn-chevron">▾</span>';
-
-        return '<div class="cn-item type-' + n.type + unreadClass +
-                '" data-nid="' + n.id +
-                '" data-type="' + n.type +
-                '" data-site="' + wsCnEscape(siteKey) +
-                '" data-account="' + wsCnEscape(n.user || '') + '">' +
-            '<div class="cn-item-row">' +
-                '<div class="cn-icon type-' + n.type + '">' + iconChar + '</div>' +
-                '<div class="cn-text">' +
-                    '<div class="cn-text-main">' + wsCnEscape(wsCnDescribeAction(n)) + dayChip + '</div>' +
-                    '<div class="cn-text-sub">' + wsCnEscape(n.user || '') + ' ・ ' + wsCnEscape(n.time || '') + '</div>' +
-                '</div>' +
-                chevron +
-            '</div>' +
-            expandHtml +
-        '</div>';
-    }
-
-    function wsCnRenderLatest() {
-        var body = document.getElementById('wsCnLatestBody');
-        if (!body) return;
-        if (wsCnState.notifications.length === 0) {
-            body.innerHTML = '<div class="cn-empty">変更通知はありません</div>';
-            return;
-        }
-        body.innerHTML = '<div class="cn-date-group">' +
-            '<button class="cn-date-group-head" type="button" aria-expanded="true">最近' +
-                '<span class="cn-date-group-toggle" aria-hidden="true">▴</span>' +
-            '</button>' +
-            wsCnState.notifications.map(wsCnRenderItem).join('') +
-        '</div>';
-    }
-
-    function wsCnGroupBy(items, keyFn) {
-        var groups = {}, order = [];
-        items.forEach(function (it) {
-            var k = keyFn(it) || '(未分類)';
-            if (!groups[k]) { groups[k] = []; order.push(k); }
-            groups[k].push(it);
+        window.coNotifyPanel.addItem('ws', {
+            scope: scope,
+            op: op,
+            main: mainText,
+            sub: subText,
+            date: wsCnTodayLabel(),
+            expand: expandText,
+            affects: ['weekly-schedule', 'screen-layout'],
+            target: target
         });
-        return order.map(function (k) { return { key: k, items: groups[k] }; });
     }
 
-    function wsCnRenderAxisGroups(grouped) {
-        if (grouped.length === 0) return '<div class="cn-empty">変更履歴はありません</div>';
-        return grouped.map(function (g) {
-            return '<div class="cn-axis-group">' +
-                '<button class="cn-axis-group-head" type="button" aria-expanded="true">' + wsCnEscape(g.key) +
-                    '<span class="cn-axis-group-toggle" aria-hidden="true">▴</span>' +
-                '</button>' +
-                g.items.map(wsCnRenderItem).join('') +
-            '</div>';
-        }).join('');
+    // 初期デモ通知（起動時投入。モック用 / N-2.4.5 確定の代表 3 件）
+    function wsCnSeedInitialDemo() {
+        if (!window.coNotifyPanel || typeof window.coNotifyPanel.setItems !== 'function') return;
+        var today = wsCnTodayLabel();
+        window.coNotifyPanel.setItems('ws', [
+            {
+                scope: 'schedule', op: 'add',
+                main: '田中 太郎 を 渋谷駅前ビル新築工事(10日) [昼] に配置',
+                sub: '佐藤 花子 ・ 09:30',
+                date: today,
+                expand: '社員配置: 田中 太郎 (touo)',
+                affects: ['weekly-schedule', 'screen-layout']
+            },
+            {
+                scope: 'schedule', op: 'modify',
+                main: '佐藤 花子 を 大手町オフィスビル(15日) [昼] → 大手町オフィスビル(15日) [夜] に移動',
+                sub: '山田 次郎 ・ 11:45',
+                date: today,
+                expand: 'シフト: 昼 → 夜',
+                affects: ['weekly-schedule', 'screen-layout']
+            },
+            {
+                scope: 'reservation', op: 'add',
+                main: 'A社① の 12日 予約を追加(3名)',
+                sub: '田中 太郎 ・ 14:20',
+                date: today,
+                expand: '協力業者 A社① (touo) / フレックス 3名',
+                affects: ['weekly-schedule', 'screen-layout']
+            }
+        ]);
     }
 
-    function wsCnRenderHistory() {
-        var siteBody = document.getElementById('wsCnHistorySiteBody');
-        var accBody = document.getElementById('wsCnHistoryAccountBody');
-        if (siteBody) {
-            var bySite = wsCnGroupBy(wsCnState.history, function (h) { return wsCnSiteLabel(h); });
-            siteBody.innerHTML = wsCnRenderAxisGroups(bySite);
-        }
-        if (accBody) {
-            var byAcc = wsCnGroupBy(wsCnState.history, function (h) { return h.user; });
-            accBody.innerHTML = wsCnRenderAxisGroups(byAcc);
-        }
-        wsCnRenderPickBadges(wsCnState.history);
-    }
-
-    function wsCnRenderPickBadges(historyItems) {
-        var companyBadges = document.getElementById('wsCnPickCompanyBadges');
-        var siteGroups = document.getElementById('wsCnPickSiteBadgesGroups');
-        if (companyBadges && siteGroups) {
-            var byCompany = wsCnGroupBy(historyItems, function (h) {
-                var s = wsCnGetSite(h.siteId);
-                return s ? s.company : '(未分類)';
-            });
-            companyBadges.innerHTML = byCompany.length
-                ? byCompany.map(function (g) {
-                    return '<button type="button" class="cn-pick-badge" data-company="' + wsCnEscape(g.key) + '">' + wsCnEscape(g.key) + '</button>';
-                }).join('')
-                : '<button type="button" class="cn-pick-badge" disabled>契約先がありません</button>';
-            siteGroups.innerHTML = byCompany.map(function (g) {
-                var siteNames = {};
-                g.items.forEach(function (h) {
-                    var s = wsCnGetSite(h.siteId);
-                    if (s) siteNames[s.name] = true;
-                });
-                return '<div class="cn-pick-badges" data-company="' + wsCnEscape(g.key) + '" hidden>' +
-                    Object.keys(siteNames).map(function (sn) {
-                        return '<button type="button" class="cn-pick-badge">' + wsCnEscape(sn) + '</button>';
-                    }).join('') +
-                '</div>';
-            }).join('');
-        }
-        var accBadges = document.getElementById('wsCnPickAccountBadges');
-        if (accBadges) {
-            var users = {};
-            historyItems.forEach(function (h) { if (h.user) users[h.user] = true; });
-            var userList = Object.keys(users);
-            accBadges.innerHTML = userList.length
-                ? userList.map(function (u) {
-                    return '<button type="button" class="cn-pick-badge">' + wsCnEscape(u) + '</button>';
-                }).join('')
-                : '<button type="button" class="cn-pick-badge" disabled>アカウントがありません</button>';
-        }
-    }
-
-    function wsCnUpdateBadge() {
-        var badge = document.getElementById('wsCnBadge');
-        if (!badge) return;
-        var unread = wsCnState.notifications.filter(function (n) { return !n._read; }).length;
-        badge.textContent = String(unread);
-        badge.hidden = unread <= 0;
-    }
-
+    // セル明滅ハイライト（cn:jump 着地用 / 旧版から流用）
     function wsCnHighlightCell(siteId, dateKey, shift, type) {
-        // 既存ハイライト除去
         document.querySelectorAll('.md-ws-cell[class*="md-cn-cell-glow-"]').forEach(function (c) {
             c.classList.remove('md-cn-cell-glow-add', 'md-cn-cell-glow-modify', 'md-cn-cell-glow-delete');
         });
@@ -5271,107 +5352,36 @@
         if (targets.length === 0) return;
         var cls = 'md-cn-cell-glow-' + (type || 'modify');
         targets.forEach(function (c) { c.classList.add(cls); });
-        // 最初のセルを画面内へ
         targets[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
         setTimeout(function () {
             targets.forEach(function (c) { c.classList.remove(cls); });
         }, 5000);
     }
 
-    // cn:jump → 該当セルへフラッシュ（パネルは開いたまま）
+    // cn:jump イベント (新システム / §6.5 仕様準拠) — WS ベル発信通知のクリックで該当セルに着地
     document.addEventListener('cn:jump', function (e) {
-        var item = e.detail && e.detail.item;
-        if (!item) return;
-        if (!item.closest('#wsCnPanel')) return;
-        var nid = parseInt(item.dataset.nid, 10);
-        var n = null;
-        for (var i = 0; i < wsCnState.notifications.length; i++) {
-            if (wsCnState.notifications[i].id === nid) { n = wsCnState.notifications[i]; break; }
-        }
-        if (!n) {
-            for (var j = 0; j < wsCnState.history.length; j++) {
-                if (wsCnState.history[j].id === nid) { n = wsCnState.history[j]; break; }
-            }
-        }
-        if (!n) return;
-        // 既読化
-        n._read = true;
-        wsCnUpdateBadge();
-        // 社員軸の場合は現場軸へ切替（セルは data-site-id で識別するため）
+        var d = e.detail || {};
+        if (d.source !== 'ws') return;
+        var target = d.target;
+        if (!target || target.axis !== 'wsCell') return;
+        var siteId = target.value;
+        var dateKey = target.date;
+        var shift = target.shift || '';
+        var op = target.op || 'modify';
         var needsRender = false;
         if (viewMode !== 'site') {
             switchView('site');
             needsRender = true;
         }
-        // ジャンプ先がビュー範囲外なら週を移動
-        var d = parseDate(n.date);
-        if (d < viewStartDate || d >= new Date(viewStartDate.getTime() + visibleWeeks * 7 * 86400000)) {
-            viewStartDate = getWeekStart(d);
+        var dd = parseDate(dateKey);
+        if (dd < viewStartDate || dd >= new Date(viewStartDate.getTime() + visibleWeeks * 7 * 86400000)) {
+            viewStartDate = getWeekStart(dd);
             renderGrid();
             renderSidebar();
             needsRender = true;
         }
-        setTimeout(function () { wsCnHighlightCell(n.siteId, n.date, n.shift, n.type); }, needsRender ? 100 : 0);
+        setTimeout(function () { wsCnHighlightCell(siteId, dateKey, shift, op); }, needsRender ? 100 : 0);
     });
-
-    // すべて既読
-    document.addEventListener('cn:mark-all', function (e) {
-        if (!e.target.closest || !e.target.closest('#wsCnPanel')) return;
-        wsCnState.notifications.forEach(function (n) { n._read = true; });
-        wsCnUpdateBadge();
-    });
-
-    // ベル: 共通 co-notify-panel.js が is-open 制御。クリック時に未読再計算のみ
-    function wsCnBindBell() {
-        var btn = document.getElementById('wsCnNotifyBtn');
-        if (!btn) return;
-        btn.addEventListener('click', function () {
-            // 共通レイヤがトグルした後の状態に依らず、最新数値を反映
-            setTimeout(wsCnUpdateBadge, 0);
-        });
-    }
-
-    function wsCnBuildSampleData() {
-        // ビュー基準週内の日付を使う（generateDemoAssignments と同じ流れ）
-        var dates = getVisibleDates(); // 7日分
-        function dk(i) { return formatDateKey(dates[i]); }
-
-        // 最新タブ用（未読ベース、最近の通知）
-        var latest = [
-            { siteId: 's1', date: dk(2), shift: 'day',  type: 'modify', user: '田中 太郎', time: '5分前',
-              diffs: [{ field: '人数', oldVal: '3名', newVal: '4名' }] },
-            { siteId: 's5', date: dk(1), shift: 'day',  type: 'modify', user: '鈴木 一郎', time: '18分前',
-              diffs: [{ field: '開始時間', oldVal: '08:00', newVal: '07:30' }] },
-            { siteId: 's2', date: dk(3), shift: 'night',type: 'add', user: '佐藤 花子', time: '32分前',
-              details: [{ field: '配置人数', value: '2名' }, { field: 'シフト', value: '夜' }] },
-            { siteId: 's4', date: dk(4), shift: 'day',  type: 'delete', user: '加藤 健', time: '1時間前' }
-        ];
-        latest.forEach(function (n) { n.id = wsCnState.nextId++; n._read = false; });
-
-        // 履歴タブ用（latest を含む + 過去ぶん）
-        var older = [
-            { siteId: 's3', date: dk(0), shift: 'day',  type: 'add', user: '田中 太郎', time: '昨日 16:40',
-              details: [{ field: '配置人数', value: '4名' }] },
-            { siteId: 's6', date: dk(5), shift: 'day',  type: 'modify', user: '加藤 健', time: '昨日 14:12',
-              diffs: [{ field: '集合場所', oldVal: '正面ゲート', newVal: '東側入口' }] },
-            { siteId: 's1', date: dk(0), shift: 'night',type: 'modify', user: '鈴木 一郎', time: '2日前',
-              diffs: [{ field: '人数', oldVal: '1名', newVal: '2名' }] },
-            { siteId: 's2', date: dk(1), shift: 'day',  type: 'modify', user: '佐藤 花子', time: '3日前',
-              diffs: [{ field: '責任者', oldVal: '山田', newVal: '佐藤' }] }
-        ];
-        older.forEach(function (n) { n.id = wsCnState.nextId++; n._read = true; });
-
-        wsCnState.notifications = latest;
-        wsCnState.history = latest.concat(older);
-    }
-
-    function wsCnInit() {
-        wsCnBuildSampleData();
-        wsCnRenderLatest();
-        wsCnRenderHistory();
-        wsCnUpdateBadge();
-        wsCnBindBell();
-    }
 
     function init() {
         restoreTheme();
@@ -5437,8 +5447,8 @@
         renderSidebar();
         onDateHeaderClick(selectedDate);
 
-        // 変更通知パネル初期化
-        wsCnInit();
+        // 変更通知デモ初期投入（共通ベル co-notify-panel が管理）
+        wsCnSeedInitialDemo();
     }
 
     function injectViewToggle() {
