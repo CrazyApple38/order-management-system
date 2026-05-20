@@ -7,7 +7,8 @@
     "history": [
       { "date": "2026-05-14", "note": "初版確定" },
       { "date": "2026-05-16", "note": "N-2.1 統合プレビューで実画面を見ながら再選定（27スロット）" },
-      { "date": "2026-05-19", "note": "N-2.4.2b cell+site → site(受注) 統合後、マトリクス選定UIで primitives (scope×op) を確定。typeOverrides は空 (全マスがプリミティブ合成で運用)" }
+      { "date": "2026-05-19", "note": "N-2.4.2b cell+site → site(受注) 統合後、マトリクス選定UIで primitives (scope×op) を確定。typeOverrides は空 (全マスがプリミティブ合成で運用)" },
+      { "date": "2026-05-20", "note": "N-2.4.5 SL/WS/LA scope×op 確定。schedule に add/delete を追加 / application に modify/delete を追加" }
     ],
     "matrix": {
       "scopes": ["row", "site", "badge", "employee", "vehicle", "support", "reservation", "schedule", "leave-badge", "application"],
@@ -20,9 +21,9 @@
         "vehicle":     ["modify", "place", "remove"],
         "support":     ["modify", "place", "remove"],
         "reservation": ["add", "modify", "delete"],
-        "schedule":    ["modify"],
+        "schedule":    ["add", "modify", "delete"],
         "leave-badge": ["modify"],
-        "application": ["add", "approve", "reject"]
+        "application": ["add", "modify", "delete", "approve", "reject"]
       }
     }
   },

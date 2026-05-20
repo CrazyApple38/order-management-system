@@ -859,13 +859,167 @@ OB では `clear` / `place` / `remove` は使わず、site の状態遷移は全
 **失われる情報の評価**:
 内部 type の cell/site 区別は通知 scope では無くなるが、通知アイテムの **main 文言**（「○○ビル の 5/1 配置をクリア」「立哨業務を除去」）で書き分けるため、scope×op アイコンで区別する必要は薄い。アコーディオン展開時の `expand` 文言で詳細補足も可能。
 
-### 16.3 SL / WS / LA も同パターンで洗い出し
+### 16.3 SL / WS / LA scope×op 確定（N-2.4.5 / 2026-05-20）
 
-実装着手時に各画面で同じ粒度設計を行う。現時点で想定される分類:
+OB §16.2 と同パターンで、画面別 scope×op 一覧を確定。実装フックは N-3 (SL 自領域発信化 + SL 応援統合) と N-2.3 残り (WS / LA 撤去 + 自領域発信化) で順次着手。
 
-- **SL**: 社員/車両/応援/応援予約 × 配置追加/変更/削除/解除 = 約 12 タイプ
-- **WS**: 週間予定変更（業務行 vs 日付セル）/ 応援予約追加・変更・削除 / 休バッジ変更 = 約 6 タイプ
-- **LA**: 休暇申請新規 / 承認 / 却下 / 取消（既存 new/approve/reject + 1）
+#### 16.3.1 SL (Site List / 配置画面)
+
+**scope**: `row` / `employee` / `vehicle` / `support` / `reservation`
+
+| 操作 | 内部 type | 通知 scope×op | 表示ラベル |
+|------|----------|---------------|----------|
+| 現場行を新規追加（slSaveNewRow） | `row-add` | row × add | 行追加 |
+| 現場行のメタ情報変更（契約先/業務名/区分/シフト） | `row-modify` | row × modify | 行編集 |
+| 現場行を削除（deleteRow） | `row-delete` | row × delete | 行削除 |
+| 社員を現場セルへ D&D 配置（drop） | `employee-place` | employee × place | 社員配置 |
+| 社員を配置解除（removeEmployee の × ボタン） | `employee-remove` | employee × remove | 社員解除 |
+| 社員メタ情報変更（saveSiteModal / saveMeetingModal / saveWorkModal / saveNotesModal / saveMapModal / saveWorkTimeModal / startCountEdit） | `employee-modify` | employee × modify | 社員編集 |
+| 車両 / ETC を D&D 配置（vtDrop） | `vehicle-place` | vehicle × place | 車両配置 |
+| 車両 / ETC を配置解除（removeVehicle / removeEtc） | `vehicle-remove` | vehicle × remove | 車両解除 |
+| 車両メタ情報変更（時間 / 備考 等） | `vehicle-modify` | vehicle × modify | 車両編集 |
+| 応援社員を現場へ配置（N-3 実装） | `support-place` | support × place | 応援配置 |
+| 応援社員を解除（N-3 実装） | `support-remove` | support × remove | 応援解除 |
+| 応援メタ情報変更（N-3 実装） | `support-modify` | support × modify | 応援編集 |
+| 応援予約を SL 側で追加（N-3 実装） | `reservation-add` | reservation × add | 応援予約追加 |
+| 応援予約を SL 側で変更（N-3 実装） | `reservation-modify` | reservation × modify | 応援予約編集 |
+| 応援予約を SL 側で取消（N-3 実装） | `reservation-delete` | reservation × delete | 応援予約取消 |
+
+→ **SL の通知 type は 15 種**（row 3 + employee 3 + vehicle 3 + support 3 + reservation 3）
+
+**文言テンプレート（SL）**:
+- `row` × `add` / `modify` / `delete`: 「{company} / {task} を行として {op}」（OB row と共通形式）
+- `employee` × `place`: 「{empName} を {siteName}（{shift}）に配置」
+- `employee` × `remove`: 「{empName} を {siteName} から解除」
+- `employee` × `modify`: 「{siteName}（{shift}）の {fieldLabel} を変更」（fieldLabel: 集合時間 / 連絡先 / 作業内容 / 備考 / 地図 / 必要人数 / 勤務時間）
+- `vehicle` × `place` / `remove` / `modify`: 同上 vehicle 版（empName → vehicleName）
+- `support` × `place` / `remove` / `modify`: 同上 support 版（empName → supportName）
+- `reservation` × `add` / `modify` / `delete`: 「{partnerName} の {day} 予約を {op}（{count} 名）」
+
+**op 補足（SL）**:
+- `place` / `remove` は「現場に張る / 外す」配置メタファ、`modify` はメタ情報変更
+- reservation は WS が単一情報源（§7.2）だが、SL ベルから操作した場合は **SL ベルでも録信して履歴に残す**（2026-05-20 確定）。同じデータ変更が WS ベルにも文脈ジャンプとして表示される
+
+#### 16.3.2 WS (Weekly Schedule)
+
+**scope**: `schedule` / `reservation` （`leave-badge` は LA → WS 自動同期のため WS では発信しない）
+
+| 操作 | 内部 type | 通知 scope×op | 表示ラベル |
+|------|----------|---------------|----------|
+| セルに社員配置（addAssignment） | `schedule-emp-add` | schedule × add | 配置追加 |
+| セルから社員配置を除去（removeAssignment） | `schedule-emp-delete` | schedule × delete | 配置削除 |
+| 社員配置を別セルへ移動（onCellDropEmployeeView） | `schedule-emp-move` | schedule × modify | 配置変更 |
+| セルに車両配置（addVehicleAssignment） | `schedule-veh-add` | schedule × add | 車両配置追加 |
+| 車両配置を除去（removeVehicleAssignment） | `schedule-veh-delete` | schedule × delete | 車両配置削除 |
+| 車両配置を移動（onCellDropVehicleView） | `schedule-veh-move` | schedule × modify | 車両配置変更 |
+| 現場ビューでのセル D&D（onCellDropSiteView） | `schedule-site-move` | schedule × modify | 現場間配置変更 |
+| 応援予約をクイック追加（openReservationQuickModal） | `reservation-add` | reservation × add | 応援予約追加 |
+| 応援予約週マトリクス編集（openReservationWeekModal） | `reservation-modify` | reservation × modify | 応援予約編集 |
+| 当日予約を一括削除（cancelReservationForDate） | `reservation-delete` | reservation × delete | 応援予約取消 |
+| 応援予約人数を変更（setReservedCount） | `reservation-modify` | reservation × modify | 応援予約編集 |
+| 予約セル間 D&D（onReservationCellDrop） | `reservation-modify` | reservation × modify | 応援予約編集 |
+| 協力業者を新規登録（addPartner） | `reservation-partner-add` | reservation × add | 協力業者追加 |
+| 協力業者を非アクティブ化（deactivatePartner） | `reservation-partner-delete` | reservation × delete | 協力業者削除 |
+| 休バッジ（LA 同期表示） | — | （WS では発信しない） | — |
+
+→ **WS の通知 type は 6 種**（内部 14 type を schedule × add/modify/delete と reservation × add/modify/delete の 6 つに集約）
+
+**scope 集約方針（WS）**:
+- 内部 type は `schedule-emp-*` / `schedule-veh-*` / `schedule-site-*` で区別するが、通知 scope は **`schedule` 1 つに集約**（2026-05-20 確定。OB の cell/site → site 集約と同じ思想）
+- 内部 type の社員 / 車両 / 現場の区別は **main 文言テンプレートで書き分け**
+- reservation も同様に partner CRUD と予約セル CRUD を 1 scope に集約
+
+**文言テンプレート（WS）**:
+- `schedule` × `add` (社員): 「{empName} を {siteName}（{day}）に配置」
+- `schedule` × `add` (車両): 「{vehicleName} を {siteName}（{day}）に配置」
+- `schedule` × `delete` (社員): 「{empName} を {siteName}（{day}）から削除」
+- `schedule` × `modify`: 「{empName / vehicleName} を {srcSite}（{srcDay}）→ {dstSite}（{dstDay}）に移動」
+- `reservation` × `add`: 「{partnerName} の {day} 予約を追加（{count} 名）」または「協力業者 {partnerName} を登録」
+- `reservation` × `modify`: 「{partnerName} の {day} 予約を変更（{old} 名 → {new} 名）」
+- `reservation` × `delete`: 「{partnerName} の {day} 予約を取消」または「協力業者 {partnerName} を削除」
+
+**leave-badge について**:
+- LA → WS 自動同期表示のみ。WS ベルからは発信しない
+- ただし `leave-badge` scope は **LA → WS の文脈ジャンプ用** に primitives として保持（クロス画面フラッシュ §6.3 で利用）
+
+#### 16.3.3 LA (Leave Application)
+
+**scope**: `application`
+**op**: `add` / `modify` / `delete` / `approve` / `reject`（2026-05-20 拡張: 旧 add/approve/reject から +modify +delete）
+
+| 操作 | 内部 type | 通知 scope×op | 表示ラベル |
+|------|----------|---------------|----------|
+| 新規申請作成（onCellDrop 新規 / popover 追加） | `application-add` | application × add | 申請追加 |
+| 週間繰り返し展開（expandRecurrence） | `application-add` | application × add | 申請追加（繰返） |
+| 申請日付を D&D で変更（onCellDrop badge-src） | `application-modify` | application × modify | 申請日付変更 |
+| 申請メタ編集（partition / kind / reason / memo 経由 onSaveLeave） | `application-modify` | application × modify | 申請編集 |
+| 申請を承認（onApproveReject 'approved'） | `application-approve` | application × approve | 申請承認 |
+| 申請を却下（onApproveReject 'rejected'） | `application-reject` | application × reject | 申請却下 |
+| 申請を削除（onDeleteLeave） | `application-delete` | application × delete | 申請削除 |
+| 通知から承認取消（laRevertNotification） | `application-revert` | application × modify | 申請取消 |
+| 通知から再適用（laReapplyNotification） | `application-reapply` | application × modify | 申請再適用 |
+
+→ **LA の通知 type は 5 種**（add / modify / delete / approve / reject）
+
+**op 拡張理由**:
+- 既存実装に `onDeleteLeave` / `onSaveLeave`（partition / kind / reason / memo 編集）があり、`add / approve / reject` だけでは表現できない
+- `revert` / `reapply` は独立 op に昇格せず `modify` に集約（main 文言で書き分け）
+
+**文言テンプレート（LA）**:
+- `application` × `add`: 「{empName} の {day} {kind}（{partition}）申請を追加」
+- `application` × `modify`: 「{empName} の {day} 申請の {fieldLabel} を変更」
+- `application` × `delete`: 「{empName} の {day} {kind} 申請を削除」
+- `application` × `approve`: 「{empName} の {day} 申請を承認（{approver}）」
+- `application` × `reject`: 「{empName} の {day} 申請を却下（{approver}）」
+
+#### 16.3.4 集計
+
+| 画面 | scope 数 | 通知 type 数 | 内部 type 数 |
+|------|---------|-------------|--------------|
+| OB | 3 (row / site / badge) | 8 | 13 |
+| SL | 5 (row / employee / vehicle / support / reservation) | 15 | 15 |
+| WS | 2 (schedule / reservation) | 6 | 14 |
+| LA | 1 (application) | 5 | 9 |
+| **合計** | **11 scope** | **34 type** | **51 内部 type** |
+
+#### 16.3.5 実装ギャップ（N-2.4.5 で発覚）
+
+設計確定時点での既存実装との乖離をメモ。各ギャップの解消は N-3 / N-2.3 残りで対応。
+
+| 画面 | ギャップ | 解消フェーズ |
+|------|---------|-------------|
+| SL | `cnSelfNotify(type, opts)` 旧形式のまま（OB は N-2.4.4 で `(scope, op, opts)` に移行済） | N-3 で `slCnSelfNotify(scope, op, opts)` へ移行 |
+| SL | `removeEmployee` / `removeVehicle` / `removeEtc` が cnSelfNotify 未呼出 | N-3 で employee/vehicle × remove 発信を追加 |
+| SL | `slSaveNewRow` / `deleteRow` 行追加・削除も現状 employee scope 扱いの可能性 | N-3 で row scope に振り分け（要再確認） |
+| SL | 応援・応援予約機能が SL に未実装 | N-3 で SL 応援統合と同時実装 |
+| WS | 自領域発信フック自体が未実装（cnSelfNotify 関数なし） | N-2.3 残り（WS 撤去）＋ 自領域発信化 |
+| LA | 自領域発信フック自体が未実装（cnSelfNotify 関数なし） | N-2.3 残り（LA 撤去）＋ 自領域発信化 |
+| LA | 旧 panel の type alias で `new/approve/reject` → `modify/delete` フォールバック中（co-notify-panel.js L506-526） | LA 自領域発信化時に scope=application + 新 op で書き換え |
+
+#### 16.3.6 applicable マトリクス更新（2026-05-20）
+
+`notify-icons-selected.json` / `notify-icons-selected.js` / `notify-compare.js` の `MTX_APPLICABLE` を以下に更新する:
+
+```json
+"applicable": {
+  "row":         ["add", "modify", "delete"],
+  "site":        ["add", "modify", "delete"],
+  "badge":       ["add", "delete"],
+  "employee":    ["modify", "place", "remove"],
+  "vehicle":     ["modify", "place", "remove"],
+  "support":     ["modify", "place", "remove"],
+  "reservation": ["add", "modify", "delete"],
+  "schedule":    ["add", "modify", "delete"],
+  "leave-badge": ["modify"],
+  "application": ["add", "modify", "delete", "approve", "reject"]
+}
+```
+
+変更点:
+- `schedule`: `["modify"]` → `["add", "modify", "delete"]`（WS で社員 / 車両配置の add/delete 操作を含めるため）
+- `application`: `["add", "approve", "reject"]` → `["add", "modify", "delete", "approve", "reject"]`（LA の onDeleteLeave / onSaveLeave をカバー）
+- `leave-badge`: `["modify"]` のまま保持（WS 発信しないが LA → WS 文脈ジャンプ用に primitives は残す）
+- `row`: 既に `["add", "modify", "delete"]`、SL でも利用
 
 ### 16.4 slot 命名規則の選択肢
 
@@ -925,7 +1079,7 @@ OB では `clear` / `place` / `remove` は使わず、site の状態遷移は全
 | N-2.4.3 | co-notify-panel.js 本体のアイコン合成描画実装 | **完了**（2026-05-19 / `docs/mockup/notify-icons-selected.js` 新規作成・5HTML 読込追加 / `buildItemHtml` を scope+op で合成描画に拡張 / CSS `.cn-composed` / `.cn-composed-base` / `.cn-composed-op` 追加） |
 | N-2.4.4 | OB の type 細分化（obCnSelfNotify 13 箇所を新 scope×op へ振り分け） | **完了**（2026-05-19 / `obCnSelfNotify(scope, op, opts)` 形式に変更 / badge×add×2 / badge×delete×2 / site×add×1 / site×delete×5 / site×add or modify×1 / site×modify×1 / row×add×1 / row×modify×1 / L2756 区分追加は master ベルへ分離） |
 | N-2.4.S | 合成アイコン視覚調整（寸法縮小 + op 連動角丸カラー背景） | **完了**（2026-05-20 / 寸法 32→24px 二段階縮小 → op 連動角丸カラー背景 (24x30, radius 6px) + scope 白シルエット化 (`filter: brightness(0) invert(1)`) で「新規/変更/削除」一目判別を実現） |
-| N-2.4.5 | SL / WS / LA のスコープ × 操作リスト確定とアイコン選定 | **次着手** |
+| N-2.4.5 | SL / WS / LA の scope × op 一覧 + 文言テンプレート + 振り分け案確定 | **完了**（2026-05-20 / §16.3 に SL 15 type / WS 6 type / LA 5 type を確定 + applicable マトリクス拡張 [schedule+add/delete, application+modify/delete] + 文言テンプレ + 実装ギャップ §16.3.5 を記録） |
 
 **N-2.4.2c 設計変更サマリ（2026-05-19）**:
 
@@ -936,7 +1090,7 @@ OB では `clear` / `place` / `remove` は使わず、site の状態遷移は全
 
 ### 16.10 次会話への引き継ぎ要点 ★重要
 
-**現在地**: N-2.4.4 OB 細分化完了 (2026-05-19) + N-2.4.S 視覚調整完了 (2026-05-20)。OB の `obCnSelfNotify` は `(scope, op, opts)` 形式で動作中、合成アイコンは op 連動の角丸カラー背景 + 白シルエットで「新規/変更/削除」一目判別。次は N-2.4.5 (SL/WS/LA の scope×op リスト確定とアイコン選定)。
+**現在地**: N-2.4.5 完了 (2026-05-20)。N-2.4 全サブフェーズ完了。OB は `(scope, op, opts)` 形式で動作中、SL/WS/LA は §16.3 で設計確定（実装はまだ）。次は **N-3 (SL 応援統合 + SL 自領域発信化)** または **N-2.3 残り (WS/LA 撤去 + 自領域発信化)** のどちらから着手するかをユーザー判断で決定する。
 
 **N-2.4.S 視覚調整実装内容（完了 / 2026-05-20）**:
 
@@ -985,16 +1139,35 @@ OB では `clear` / `place` / `remove` は使わず、site の状態遷移は全
 - 不要になった `_snapshot` / `_newSnapshot` / `_addedRow` 等の opts フィールドは call site から削除（N-2.3 撤去で読み手側は既に無い）。`_cnOldSnapshot` 等のローカル変数は残置（dead code だが用途不明な参照リスクを避ける）
 - `order-book.js` を `?v=5` にバンプ
 
-**新会話でやるべき手順 (N-2.4.5 着手時)**:
+**N-2.4.5 実装内容（完了 / 2026-05-20）**:
 
-1. **本計画書 §16 全体を全読**（特に §16.2 確定タイプ / §16.3 SL/WS/LA 想定 / §16.9 進捗）
+- §16.3 を SL / WS / LA の scope×op 確定表で全面書き換え
+  - SL: `row` / `employee` / `vehicle` / `support` / `reservation` の 5 scope / 15 type
+  - WS: `schedule` / `reservation` の 2 scope / 6 type (内部 14 type を集約)
+  - LA: `application` 1 scope / 5 type (op を `add/modify/delete/approve/reject` の 5 つに拡張)
+- applicable マトリクス更新 (`notify-icons-selected.json` / `notify-icons-selected.js` / `notify-compare.js`):
+  - `schedule`: `[modify]` → `[add, modify, delete]`
+  - `application`: `[add, approve, reject]` → `[add, modify, delete, approve, reject]`
+  - `leave-badge`: `[modify]` のまま保持（WS 発信しないが LA → WS 文脈ジャンプ用に primitives は残す）
+- 文言テンプレート全 scope×op に対して暫定確定（実装時に微調整）
+- 実装ギャップを §16.3.5 に記録:
+  - SL は旧 `cnSelfNotify(type, opts)` 形式のまま（N-3 で `slCnSelfNotify(scope, op, opts)` へ移行）
+  - SL の `removeEmployee` / `removeVehicle` / `removeEtc` が cnSelfNotify 未呼出（N-3 で追加）
+  - WS / LA は自領域発信フック自体が未実装（N-2.3 残りで実装）
+- 5 HTML の `notify-icons-selected.js?v=1` → `?v=2` バンプ
+- `notify-compare.js?v=n2-op-white` → `?v=n2-mtx-applicable` バンプ
+- N-2.4 全サブフェーズ完了
+
+**新会話でやるべき手順 (N-3 または N-2.3 残り 着手時)**:
+
+1. **本計画書 §16 全体を全読**（特に §16.2 OB 確定 / §16.3 SL/WS/LA 確定 / §16.3.5 実装ギャップ）
 2. **メモリ `project_notification_refactor.md` を読む**
-3. **N-2.4.5 (SL/WS/LA の scope×op 確定とアイコン選定) に進む**
-   - SL: employee / vehicle / support / reservation × place / remove / modify / (add/delete for reservation)
-   - WS: schedule / leave-badge / reservation × modify / add / delete
-   - LA: application × add / approve / reject
-   - 既に `notify-icons-selected.json` の `primitives.scope` / `primitives.op` には対応キー (employee/vehicle/support/reservation/schedule/leave-badge/application + place/remove/approve/reject) が登録済
-   - 各画面のフック（SL自領域発信 / WS自領域発信 / LA自領域発信）は N-2.3 で WS/LA 未着手、N-3 で SL 同時着手の計画。N-2.4.5 はその下準備として scope×op 一覧 + 文言テンプレート + 振り分け案を確定する作業
+3. **着手順をユーザーに確認**:
+   - 案A: N-3 (SL 応援統合 + SL 自領域発信化) を先に
+   - 案B: N-2.3 残り (WS/LA 撤去 + 自領域発信化) を先に
+4. **SL 着手時の参考**: `obCnSelfNotify(scope, op, opts)` を雛形に `slCnSelfNotify(scope, op, opts)` を新設。§16.3.1 の振り分けに沿って既存 cnSelfNotify 呼び出し箇所を新形式へ移行
+5. **WS / LA 着手時の参考**: 自領域発信フックを新規導入。§16.3.2 / §16.3.3 の振り分けに従い `wsCnSelfNotify` / `laCnSelfNotify` を作成
+6. **デモ通知**: 各画面のデモ通知 (initial seed) も新 scope×op 形式に書き換え
 
 **関連ファイル**:
 

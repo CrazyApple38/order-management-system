@@ -915,9 +915,9 @@
         'vehicle':     ['modify', 'place', 'remove'],
         'support':     ['modify', 'place', 'remove'],
         'reservation': ['add', 'modify', 'delete'],
-        'schedule':    ['modify'],
+        'schedule':    ['add', 'modify', 'delete'],
         'leave-badge': ['modify'],
-        'application': ['add', 'approve', 'reject']
+        'application': ['add', 'modify', 'delete', 'approve', 'reject']
     };
 
     /* プリミティブのデフォルトアイコン（notify-icons-selected.json の流用 / プロトタイプ準拠） */

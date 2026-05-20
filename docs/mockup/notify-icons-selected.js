@@ -12,7 +12,7 @@
 
     window.NotifyIconsSelected = {
         _meta: {
-            selectedAt: '2026-05-19',
+            selectedAt: '2026-05-20',
             plan: 'docs/plan/notification-refactor-plan.md',
             iconBasePath: 'docs/assets/icons/',
             matrix: {
@@ -26,9 +26,9 @@
                     'vehicle':     ['modify', 'place', 'remove'],
                     'support':     ['modify', 'place', 'remove'],
                     'reservation': ['add', 'modify', 'delete'],
-                    'schedule':    ['modify'],
+                    'schedule':    ['add', 'modify', 'delete'],
                     'leave-badge': ['modify'],
-                    'application': ['add', 'approve', 'reject']
+                    'application': ['add', 'modify', 'delete', 'approve', 'reject']
                 }
             }
         },
