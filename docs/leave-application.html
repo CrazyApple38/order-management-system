@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=8">
-    <link rel="stylesheet" href="mockup/leave-application.css?v=30">
+    <link rel="stylesheet" href="mockup/leave-application.css?v=31">
 </head>
 <body>
     <!-- SVG icon sprite (CLAUDE.md アイコン運用ルール準拠) -->
@@ -64,114 +64,6 @@
 
             <!-- アクション -->
             <div class="md-la-header-actions">
-                <!-- 通知鈴 -->
-                <div class="cn-anchor md-la-cn-anchor" id="laCnAnchor">
-                    <button type="button" class="cn-trigger md-la-header-action md-la-notify-btn" id="laNotifyBtn" title="通知">
-                        <svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-bell"/></svg>
-                        <span class="cn-trigger-badge" id="laNotifyCount" hidden>0</span>
-                    </button>
-                    <div class="cn-panel" id="laCnPanel">
-                        <div class="cn-head">
-                            <span class="cn-title">通知</span>
-                            <button type="button" class="cn-mark-all">すべて既読にする</button>
-                        </div>
-                        <div class="cn-tabs">
-                            <button type="button" class="cn-tab is-active" data-tab="latest">最新</button>
-                            <button type="button" class="cn-tab" data-tab="history">履歴</button>
-                        </div>
-                        <!-- 最新タブ -->
-                        <div class="cn-tab-view is-active" data-tab="latest">
-                            <div class="cn-body cn-body--latest" id="laCnBody">
-                                <div class="cn-empty">通知はありません</div>
-                            </div>
-                        </div>
-                        <!-- 履歴タブ (縦サブタブ: 社員名 / アカウント) -->
-                        <div class="cn-tab-view" data-tab="history">
-                            <div class="cn-history-layout">
-                                <div class="cn-side-tabs">
-                                    <button type="button" class="cn-side-tab is-active" data-view="site">社員名</button>
-                                    <button type="button" class="cn-side-tab" data-view="account">アカウント</button>
-                                </div>
-                                <div class="cn-history-main">
-                                    <div class="cn-history-view is-active" data-view="site">
-                                        <div class="cn-history-toolbar">
-                                            <div class="cn-search-row">
-                                                <div class="cn-search">
-                                                    <input type="text" placeholder="社員名で検索..." aria-label="社員名で検索">
-                                                </div>
-                                                <button type="button" class="cn-list-pick-btn" data-prefix="社員">
-                                                    <span class="cn-list-pick-label">一覧</span>
-                                                    <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
-                                                </button>
-                                            </div>
-                                            <div class="cn-filter-chips" data-axis="site">
-                                                <button type="button" class="cn-filter-chip is-active" data-filter="all">すべて</button>
-                                                <button type="button" class="cn-filter-chip" data-filter="new">申請</button>
-                                                <button type="button" class="cn-filter-chip" data-filter="approved">承認</button>
-                                                <button type="button" class="cn-filter-chip" data-filter="rejected">却下</button>
-                                            </div>
-                                        </div>
-                                        <div class="cn-body cn-body--history" id="laCnHistorySiteBody">
-                                            <div class="cn-empty">履歴はありません</div>
-                                        </div>
-                                        <!-- 一覧選択 (会社 → 社員 2段階) -->
-                                        <div class="cn-pick-view" data-crumb-base="社員" data-step1-label="会社を選択">
-                                            <div class="cn-pick-head">
-                                                <button type="button" class="cn-pick-back" aria-label="戻る">←</button>
-                                                <div class="cn-pick-crumbs">
-                                                    <span>社員</span>
-                                                    <span class="cn-pick-crumb-sep">&gt;</span>
-                                                    <span class="cn-pick-crumb-current">会社を選択</span>
-                                                </div>
-                                            </div>
-                                            <div class="cn-pick-step is-active" data-step="company">
-                                                <div class="cn-pick-badges" id="laCnPickCompanyBadges"></div>
-                                            </div>
-                                            <div class="cn-pick-step" data-step="site">
-                                                <div id="laCnPickSiteBadgesGroups"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="cn-history-view" data-view="account">
-                                        <div class="cn-history-toolbar">
-                                            <div class="cn-search-row">
-                                                <div class="cn-search">
-                                                    <input type="text" placeholder="アカウントで検索..." aria-label="アカウントで検索">
-                                                </div>
-                                                <button type="button" class="cn-list-pick-btn" data-prefix="アカウント">
-                                                    <span class="cn-list-pick-label">一覧</span>
-                                                    <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
-                                                </button>
-                                            </div>
-                                            <div class="cn-filter-chips" data-axis="account">
-                                                <button type="button" class="cn-filter-chip is-active" data-filter="all">すべて</button>
-                                                <button type="button" class="cn-filter-chip" data-filter="new">申請</button>
-                                                <button type="button" class="cn-filter-chip" data-filter="approved">承認</button>
-                                                <button type="button" class="cn-filter-chip" data-filter="rejected">却下</button>
-                                            </div>
-                                        </div>
-                                        <div class="cn-body cn-body--history" id="laCnHistoryAccountBody">
-                                            <div class="cn-empty">履歴はありません</div>
-                                        </div>
-                                        <div class="cn-pick-view" data-crumb-base="アカウント" data-step1-label="アカウントを選択">
-                                            <div class="cn-pick-head">
-                                                <button type="button" class="cn-pick-back" aria-label="戻る">←</button>
-                                                <div class="cn-pick-crumbs">
-                                                    <span>アカウント</span>
-                                                    <span class="cn-pick-crumb-sep">&gt;</span>
-                                                    <span class="cn-pick-crumb-current">アカウントを選択</span>
-                                                </div>
-                                            </div>
-                                            <div class="cn-pick-step is-active" data-step="account">
-                                                <div class="cn-pick-badges" id="laCnPickAccountBadges"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <button class="md-la-header-action" id="laCompactBtn" title="イニシャル圧縮表示">圧縮</button>
                 <button class="md-la-header-action" id="laReportBtn" title="月次集計・CSV出力">集計</button>
             </div>
@@ -336,6 +228,6 @@
     <script src="mockup/notify-icons-selected.js?v=2"></script>
     <script src="mockup/co-notify-panel.js?v=12"></script>
     <script src="mockup/co-navbar.js?v=8"></script>
-    <script src="mockup/leave-application.js?v=16"></script>
+    <script src="mockup/leave-application.js?v=17"></script>
 </body>
 </html>
