@@ -499,7 +499,7 @@
         if (!basePath && !opPath) return null;
         return '<span class="cn-composed">'
             + (basePath ? '<img class="cn-composed-base" src="' + CN_ICON_BASE + basePath + '" alt="">' : '')
-            + (opPath ? '<img class="cn-composed-op" src="' + CN_ICON_BASE + opPath + '" alt="">' : '')
+            + (opPath ? '<span class="cn-composed-op"><img class="cn-composed-op-img" src="' + CN_ICON_BASE + opPath + '" alt=""></span>' : '')
             + '</span>';
     }
     // item から slotKey を決定（item.slot 明示優先 → type-{bellId}-{type} → 種別フォールバック）

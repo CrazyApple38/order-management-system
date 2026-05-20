@@ -296,6 +296,8 @@
 .cn-icon.type-delete  .cn-composed::before,
 .cn-icon.type-rejected .cn-composed::before   { background: var(--semantic-error); }
 .cn-icon.type-approved .cn-composed::before   { background: var(--semantic-success); }
+/* OP バッジ: <span> ラッパー (背景色 + border + 影) + <img> (白シルエット)
+   bg は scope 背景と同じ op 色 (.cn-icon.type-* 経由) */
 .cn-composed .cn-composed-op {
     position: absolute;
     /* op (20) の中心が scope 右下角の +4px 右に来る (right: -13px, bottom: -9px) */
@@ -304,15 +306,35 @@
     width: 20px;
     height: 20px;
     padding: 2px;
-    background: #FFF;
     border: 1.5px solid var(--bg-surface, #FFF);
-    /* 角丸 6px の四角バッジ (border-radius: 50% は img 四隅を切り取るため不適) */
+    /* 角丸 6px の四角バッジ */
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-    object-fit: contain;
     box-sizing: border-box;
     z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
 }
+.cn-composed .cn-composed-op-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    /* 白シルエット化 (filter は背景色も白くするため、bg は親 span 側で持つ) */
+    filter: brightness(0) invert(1);
+}
+/* OP バッジ背景色 — scope 背景と同じ op 色 */
+.cn-icon.type-add     .cn-composed .cn-composed-op,
+.cn-icon.type-new     .cn-composed .cn-composed-op,
+.cn-icon.type-leave   .cn-composed .cn-composed-op    { background: var(--accent-primary); }
+.cn-icon.type-modify  .cn-composed .cn-composed-op,
+.cn-icon.type-master  .cn-composed .cn-composed-op,
+.cn-icon.type-pending .cn-composed .cn-composed-op    { background: var(--accent-secondary); }
+.cn-icon.type-delete  .cn-composed .cn-composed-op,
+.cn-icon.type-rejected .cn-composed .cn-composed-op   { background: var(--semantic-error); }
+.cn-icon.type-approved .cn-composed .cn-composed-op   { background: var(--semantic-success); }
 .cn-composed-single {
     width: 24px;
     height: 24px;

@@ -1049,7 +1049,7 @@
         if (!base && !op) return '';
         return '<span class="cmp-mtx-composed">'
             + (base ? '<img class="cmp-mtx-icon-base" src="' + MTX_ICON_BASE + base + '" alt="">' : '')
-            + (op ? '<img class="cmp-mtx-icon-op" src="' + MTX_ICON_BASE + op + '" alt="">' : '')
+            + (op ? '<span class="cmp-mtx-icon-op"><img class="cmp-mtx-icon-op-img" src="' + MTX_ICON_BASE + op + '" alt=""></span>' : '')
             + '</span>';
     }
 

@@ -2160,21 +2160,38 @@ button.cn-date-group-head:hover {
     background: transparent;
     z-index: 0;
 }
-/* op 連動の背景色 (data-op 属性経由) — solid */
+/* op 連動の背景色 (data-op 属性経由) — solid (背景円 + OP バッジ両方に適用) */
 .cmp-mtx-cell[data-op="add"]    .cmp-mtx-composed::before,
 .cmp-mtx-cell[data-op="place"]  .cmp-mtx-composed::before,
+.cmp-mtx-cell[data-op="add"]    .cmp-mtx-composed .cmp-mtx-icon-op,
+.cmp-mtx-cell[data-op="place"]  .cmp-mtx-composed .cmp-mtx-icon-op,
 .cmp-mtx-sample-item-icon[data-op="add"]    .cmp-mtx-composed::before,
-.cmp-mtx-sample-item-icon[data-op="place"]  .cmp-mtx-composed::before    { background: var(--accent-primary); }
+.cmp-mtx-sample-item-icon[data-op="place"]  .cmp-mtx-composed::before,
+.cmp-mtx-sample-item-icon[data-op="add"]    .cmp-mtx-composed .cmp-mtx-icon-op,
+.cmp-mtx-sample-item-icon[data-op="place"]  .cmp-mtx-composed .cmp-mtx-icon-op    { background: var(--accent-primary); }
+
 .cmp-mtx-cell[data-op="modify"] .cmp-mtx-composed::before,
-.cmp-mtx-sample-item-icon[data-op="modify"] .cmp-mtx-composed::before    { background: var(--accent-secondary); }
+.cmp-mtx-cell[data-op="modify"] .cmp-mtx-composed .cmp-mtx-icon-op,
+.cmp-mtx-sample-item-icon[data-op="modify"] .cmp-mtx-composed::before,
+.cmp-mtx-sample-item-icon[data-op="modify"] .cmp-mtx-composed .cmp-mtx-icon-op    { background: var(--accent-secondary); }
+
 .cmp-mtx-cell[data-op="delete"] .cmp-mtx-composed::before,
 .cmp-mtx-cell[data-op="remove"] .cmp-mtx-composed::before,
 .cmp-mtx-cell[data-op="reject"] .cmp-mtx-composed::before,
+.cmp-mtx-cell[data-op="delete"] .cmp-mtx-composed .cmp-mtx-icon-op,
+.cmp-mtx-cell[data-op="remove"] .cmp-mtx-composed .cmp-mtx-icon-op,
+.cmp-mtx-cell[data-op="reject"] .cmp-mtx-composed .cmp-mtx-icon-op,
 .cmp-mtx-sample-item-icon[data-op="delete"] .cmp-mtx-composed::before,
 .cmp-mtx-sample-item-icon[data-op="remove"] .cmp-mtx-composed::before,
-.cmp-mtx-sample-item-icon[data-op="reject"] .cmp-mtx-composed::before    { background: var(--semantic-error); }
+.cmp-mtx-sample-item-icon[data-op="reject"] .cmp-mtx-composed::before,
+.cmp-mtx-sample-item-icon[data-op="delete"] .cmp-mtx-composed .cmp-mtx-icon-op,
+.cmp-mtx-sample-item-icon[data-op="remove"] .cmp-mtx-composed .cmp-mtx-icon-op,
+.cmp-mtx-sample-item-icon[data-op="reject"] .cmp-mtx-composed .cmp-mtx-icon-op    { background: var(--semantic-error); }
+
 .cmp-mtx-cell[data-op="approve"] .cmp-mtx-composed::before,
-.cmp-mtx-sample-item-icon[data-op="approve"] .cmp-mtx-composed::before   { background: var(--semantic-success); }
+.cmp-mtx-cell[data-op="approve"] .cmp-mtx-composed .cmp-mtx-icon-op,
+.cmp-mtx-sample-item-icon[data-op="approve"] .cmp-mtx-composed::before,
+.cmp-mtx-sample-item-icon[data-op="approve"] .cmp-mtx-composed .cmp-mtx-icon-op   { background: var(--semantic-success); }
 
 .cmp-mtx-cell .cmp-mtx-composed .cmp-mtx-icon-base {
     /* 親 (scope): 22px / 角丸カラー背景の上に白シルエットで載せる */
@@ -2185,14 +2202,33 @@ button.cn-date-group-head:hover {
     filter: brightness(0) invert(1);
 }
 .cmp-mtx-cell .cmp-mtx-composed .cmp-mtx-icon-op {
-    /* 子 (op): 20px、scope 右下にずらし配置
-       op (20) の中心が scope 右下角 (+4px 右シフト) に来る: right -13px / bottom -9px */
+    /* 子 (op): 20px、scope 右下にずらし配置 (<span> ラッパー)
+       op (20) の中心が scope 右下角 (+4px 右シフト) に来る: right -13px / bottom -9px
+       bg は親 .cmp-mtx-cell[data-op="..."] 経由で op 色を適用 */
     width: 20px;
     height: 20px;
     padding: 2px;
     right: -13px;
     bottom: -9px;
     z-index: 2;
+    background: transparent;
+    border: 1.5px solid #FFF;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+}
+.cmp-mtx-cell .cmp-mtx-composed .cmp-mtx-icon-op-img,
+.cmp-mtx-sample-item-icon .cmp-mtx-composed .cmp-mtx-icon-op-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    /* 白シルエット化 */
+    filter: brightness(0) invert(1);
 }
 
 /* 通知アイテムサンプル内の合成アイコン: マトリクスセルと同寸法を適用 */
@@ -2213,13 +2249,23 @@ button.cn-date-group-head:hover {
     filter: brightness(0) invert(1);
 }
 .cmp-mtx-sample-item-icon .cmp-mtx-composed .cmp-mtx-icon-op {
-    /* マトリクスセルと寸法・位置を一致させる (2026-05-20 二段階縮小) */
+    /* マトリクスセルと寸法・位置を一致させる (2026-05-20 二段階縮小)
+       bg は親 .cmp-mtx-sample-item-icon[data-op="..."] 経由で op 色を適用 */
     width: 20px;
     height: 20px;
     padding: 2px;
     right: -13px;
     bottom: -9px;
     z-index: 2;
+    background: transparent;
+    border: 1.5px solid #FFF;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
 }
 /* 通知サンプルのアイコン枠を広げて op が右側コンテンツに被らないようにする
    box-sizing: border-box では padding が内側に食い込み外形に効かないため margin-right を使用 */
