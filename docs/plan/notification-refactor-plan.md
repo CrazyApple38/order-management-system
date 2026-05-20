@@ -804,6 +804,26 @@ N-2.2 セッション内で以下の実装抜けがユーザー指摘で判明�
 - `docs/mockup/weekly-schedule.css` — `md-ws-cn-anchor` セレクタ削除
 - 各画面の他CSS（旧ベル関連スタイル `md-cn-toast*` 等）
 
+### 15.9 完了サマリ（2026-05-21）
+
+N-2.3 全画面の旧ベル UI 撤去が完了（OB は 2026-05-18 / WS・LA・SL は 2026-05-21）。
+
+| 画面 | コミット | 内容 |
+|------|---------|------|
+| OB | `2405df7` (2026-05-18) | 旧ベル撤去 + `obCnSelfNotify` 自領域発信 + デモ通知 3件 |
+| WS | `d56df31` (2026-05-21) | 旧ベル/サンプルデータ撤去 + `wsCnSelfNotify(scope, op, opts)` (N-2.4.5 新形式) + D&D・予約モーダルにフック + デモ通知 3件 |
+| LA | `0a700b5` (2026-05-21) | 旧ベル/`notifications`/`pushNotification`/旧ハンドラ撤去 + `laCnSelfNotify(op, opts)` (application×op) + onCellDrop/onSaveLeave/onDeleteLeave にフック + デモ通知 3件 |
+| SL | `9697c64` (2026-05-21) | 旧ベル HTML/トースト/デモボタン撤去 + 行ベル DOM 追加箇所撤去（**最小撤去**。`cnSelfNotify` 新形式移行と応援統合は N-3 で実施） |
+
+**残課題（N-3 着手時に対応）**:
+
+- SL の `cnSelfNotify(type, opts)` を `slCnSelfNotify(scope, op, opts)` 新形式へ移行（§16.3.5 実装ギャップ参照）
+- SL の `removeEmployee` / `removeVehicle` / `removeEtc` に cnSelfNotify 呼出を追加
+- SL の `cnApprovePending` / `cnPendingMap` の扱い確定（§15.7-1 案A/B/C）
+- WS のサイドバー直接呼出パスの `addPartner` / `deactivatePartner` フック追加（呼出箇所要再特定）
+- LA の `expandRecurrence` 展開時の add 通知（現状は initial save 1件のみ発火）
+- LA の onSaveLeave メタ編集（partition/kind/reason/memo）の modify 発火
+
 ---
 
 ## 16. Phase N-2.4 詳細計画（通知タイプ分類の細分化）
