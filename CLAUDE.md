@@ -59,47 +59,6 @@ MCP設定: `docs/mcp-servers.md` を参照
 - **命名整合性ルール**: 用語・名付けについて、整合性が取れないものや判断が必要なものがある場合、ユーザーにステップバイステップで確認すること。自己判断で用語を統一しない。
 - **進行中プロジェクト参照ルール**: `docs/plan/*.md` に計画書が存在するテーマ（応援予約・UIコンポーネント整備・DS移行・LCログ等）の作業指示を受けたら、**まず該当プランを全読してから着手すること**。計画書がプロジェクトの単一情報源（Single Source of Truth）。
 
-## UI実装ルール（厳守）
-
-1. **モーダルボディはカード型を優先**
-   - カード型（`#E9F1F6` 背景 + 白カード `.modal-body-card`）をデフォルトとする
-   - フラット型（`var(--bg-surface)` 背景のみ）はデザインの統一性が損なわれるため極力避ける
-   - ソートや変更通知のような特殊レイアウトモーダルのみフラット型を許容
-
-## アイコン運用ルール（厳守）
-
-UIコンポーネント集・モックアップでアイコンが必要な場面は、必ず `docs/assets/icons/` のアイコンライブラリから採用すること。
-
-1. **ライブラリ所在**
-   - 場所: `docs/assets/icons/`（27カテゴリ、15,652件）
-   - 検索インデックス: `docs/assets/icons/index.json`（`id / title / cat / file / fmt / src` フィールド）
-   - 命名: `im-{id}-{slug}.svg`（icooon-mono、推奨）/ `si-{id}-{slug}.png`（silhouette-illust）
-2. **採用ルール**
-   - アイコンが必要になったら、まずライブラリから探す。見つからない場合のみカスタムSVGを自作する
-   - **絵文字（📋 等）・Unicode記号（×、✓、！、？、★、＋、▾、⋮ 等）での代用は禁止**（OS・ブラウザで見た目がバラつくため）
-   - 色変更が必要な箇所は必ずSVG形式（`im-*.svg`）を選ぶ。PNG（`si-*.png`）は色変更が難しいため避ける
-3. **実装パターン（推奨）**
-   - `<svg><defs><symbol id="ui-icon-xxx" viewBox="0 0 512 512">...</symbol></defs></svg>` でスプライト定義
-   - 各所で `<svg class="ui-icon"><use href="#ui-icon-xxx"/></svg>` で参照
-   - 共通CSS: `.ui-icon { width: 1em; height: 1em; fill: currentColor; vertical-align: -0.125em; }`
-   - icooon-mono のSVGはすでに `fill: currentColor` が適用済みのため、親要素の `color` プロパティで色が一括制御できる
-4. **よく使う記号の採用アイコン（UIコンポーネント集で確定済）**
-   - info → `sign-mark/im-11925-infomeeshon.svg`
-   - check（成功・チェック）→ `sign-mark/im-11451-chekku-maaku-no-muryou.svg`
-   - exclaim（警告・エラー）→ `sign-mark/im-11478-bikkuri-maaku.svg`
-   - caution（三角注意）→ `sign-mark/im-11908-chuui-maaku.svg`
-   - close（×）→ `sign-mark/im-11911-hosoi-batsu.svg`
-   - question（?）→ `sign-mark/im-11574-hatena.svg`
-   - plus（+）→ `sign-mark/im-00105-purasu.svg`
-   - star（★）→ `sign-mark/im-10058-okiniiri-osusume-ni-tsukaeru-hoshi-aikon.svg`
-   - chevron-down（▾）→ `sign-mark/im-12243-yajirushi-aikon-shimo-2.svg`
-   - chevron-up（▴）→ `sign-mark/im-12242-yajirushi-aikon-ue-2.svg`
-   - document（書類）→ `stationery/im-00051-kami-to-pen.svg`
-   - settings（歯車）→ `sign-mark/im-00001-muryou-no-settei-haguruma.svg`
-5. **再ダウンロード / 追加DL**: `scripts/download-icons.js`（レジューム対応）
-
-メニュー（⋮ kebab/three-dots）に相当するアイコンはライブラリに無いため、当面は「歯車（settings）」で代替する。必要になったら新規追加するか自作SVGで対応。
-
 ## Context Optimization Rules（厳守）
 
 コンテキストウィンドウの消費を最小化するため、以下を厳守すること。
