@@ -4542,8 +4542,8 @@
             }
         }
 
-        // 初期化時にベルを挿入
-        cnInsertRowBells();
+        // N-2.3 で旧 cnInsertRowBells() を撤去（行ベル UI 廃止）。
+        // cnGetRowBellHtml / cnInsertRowBells / cnUpdateRowBells は dead code として残し、N-3 で完全撤去予定。
 
         // --- 元に戻す / やっぱり反映 ---
 
@@ -4763,10 +4763,7 @@
             tr.setAttribute('onclick', 'selectRow(this, event)');
             var countClass = d.shortage ? 'count-display count-shortage' : 'count-display count-ok';
             tr.innerHTML =
-                '<td class="col-no">' + d.no +
-                    '<span class="md-cn-row-bell" onclick="event.stopPropagation(); cnOpenModalForRow(this)" title="この現場の変更通知">' +
-                        '<img src="mockup/icons/bell.svg" class="md-cn-row-bell-img">' +
-                    '</span></td>' +
+                '<td class="col-no">' + d.no + '</td>' +
                 '<td class="col-site-info clickable-cell"' + (d.gcCode ? ' data-group-company="' + d.gcCode + '" data-gc-name="' + (d.gcName || '') + '"' : '') + ' onclick="openSiteModal(this)">' +
                   '<div class="site-info"><div class="site-badges">' +
                     '<span class="shift-badge ' + d.shiftClass + '">' + d.shiftLabel + '</span>' +
