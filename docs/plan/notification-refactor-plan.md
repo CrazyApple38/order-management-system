@@ -828,7 +828,8 @@ N-2.3 全画面の旧ベル UI 撤去が完了（OB は 2026-05-18 / WS・LA・S
 
 ## 15.10 Phase N-3.1 完了サマリ（2026-05-21）
 
-SL 自領域発信化を完遂。コミット `672f045`。
+SL 自領域発信化を完遂。コミット `672f045` (実装) + `90e12e4` (docs)。
+**N-3.1.1 追加修正 (2026-05-21)**: ユーザー指摘で employee×modify → site×modify 振り分け是正。SL から OB 由来の受注メタ (集合時間/連絡先/人数/集合場所/現場監督/作業内容/備考/地図/作業時間) を編集した場合は scope=site で発信する。saveSiteModal は row 系 diffs と site 系 diffs を分割して 2 発信。詳細は §16.3.1 SL 表参照。
 
 | 観点 | 内容 |
 |------|------|
@@ -907,27 +908,31 @@ OB §16.2 と同パターンで、画面別 scope×op 一覧を確定。実装�
 
 #### 16.3.1 SL (Site List / 配置画面)
 
-**scope**: `row` / `employee` / `vehicle` / `support` / `reservation`
+**scope**: `row` / `site` / `employee` / `vehicle` / `support` / `reservation`
+
+**重要 (N-3.1.1 / 2026-05-21 確定)**: SL から OB 由来の受注フィールド（集合時間/連絡先/人数/集合場所/現場監督/作業内容/備考/地図/作業時間）を編集した場合は **scope=site で発信**。SL と OB のどちらで編集しても同じ受注を変更しているため、scope を統一する。社員/車両のメタ編集は `employee/vehicle × modify` を残置するが、現状の保存モーダルは全て受注メタを触るため未使用。
 
 | 操作 | 内部 type | 通知 scope×op | 表示ラベル |
 |------|----------|---------------|----------|
 | 現場行を新規追加（slSaveNewRow） | `row-add` | row × add | 行追加 |
-| 現場行のメタ情報変更（契約先/業務名/区分/シフト） | `row-modify` | row × modify | 行編集 |
+| 現場行のメタ情報変更（契約先/現場名/区分/シフト の diff のみ） | `row-modify` | row × modify | 行編集 |
 | 現場行を削除（deleteRow） | `row-delete` | row × delete | 行削除 |
+| 受注メタ変更（saveSiteModal の集合時間/連絡先/人数/集合場所/現場監督 diff） | `site-modify` | site × modify | 受注編集 |
+| 受注メタ変更（saveMeetingModal / saveWorkModal / saveNotesModal / saveMapModal / saveWorkTimeModal / startCountEdit） | `site-modify` | site × modify | 受注編集 |
 | 社員を現場セルへ D&D 配置（drop） | `employee-place` | employee × place | 社員配置 |
 | 社員を配置解除（removeEmployee の × ボタン） | `employee-remove` | employee × remove | 社員解除 |
-| 社員メタ情報変更（saveSiteModal / saveMeetingModal / saveWorkModal / saveNotesModal / saveMapModal / saveWorkTimeModal / startCountEdit） | `employee-modify` | employee × modify | 社員編集 |
+| 社員メタ情報変更（将来的に社員ごとの集合時間 等を編集する UI を追加した場合） | `employee-modify` | employee × modify | 社員編集 |
 | 車両 / ETC を D&D 配置（vtDrop） | `vehicle-place` | vehicle × place | 車両配置 |
 | 車両 / ETC を配置解除（removeVehicle / removeEtc） | `vehicle-remove` | vehicle × remove | 車両解除 |
 | 車両メタ情報変更（時間 / 備考 等） | `vehicle-modify` | vehicle × modify | 車両編集 |
-| 応援社員を現場へ配置（N-3 実装） | `support-place` | support × place | 応援配置 |
-| 応援社員を解除（N-3 実装） | `support-remove` | support × remove | 応援解除 |
-| 応援メタ情報変更（N-3 実装） | `support-modify` | support × modify | 応援編集 |
-| 応援予約を SL 側で追加（N-3 実装） | `reservation-add` | reservation × add | 応援予約追加 |
-| 応援予約を SL 側で変更（N-3 実装） | `reservation-modify` | reservation × modify | 応援予約編集 |
-| 応援予約を SL 側で取消（N-3 実装） | `reservation-delete` | reservation × delete | 応援予約取消 |
+| 応援社員を現場へ配置（N-3.2 実装） | `support-place` | support × place | 応援配置 |
+| 応援社員を解除（N-3.2 実装） | `support-remove` | support × remove | 応援解除 |
+| 応援メタ情報変更（N-3.2 実装） | `support-modify` | support × modify | 応援編集 |
+| 応援予約を SL 側で追加（N-3.2 実装） | `reservation-add` | reservation × add | 応援予約追加 |
+| 応援予約を SL 側で変更（N-3.2 実装） | `reservation-modify` | reservation × modify | 応援予約編集 |
+| 応援予約を SL 側で取消（N-3.2 実装） | `reservation-delete` | reservation × delete | 応援予約取消 |
 
-→ **SL の通知 type は 15 種**（row 3 + employee 3 + vehicle 3 + support 3 + reservation 3）
+→ **SL の通知 type は 18 種**（row 3 + site 1 + employee 3 + vehicle 3 + support 3 + reservation 3 + 内部 site の add/delete 予約 2）。saveSiteModal は row 系 diffs と site 系 diffs を分割して 2 発信する場合がある。
 
 **文言テンプレート（SL）**:
 - `row` × `add` / `modify` / `delete`: 「{company} / {task} を行として {op}」（OB row と共通形式）
@@ -1019,10 +1024,12 @@ OB §16.2 と同パターンで、画面別 scope×op 一覧を確定。実装�
 | 画面 | scope 数 | 通知 type 数 | 内部 type 数 |
 |------|---------|-------------|--------------|
 | OB | 3 (row / site / badge) | 8 | 13 |
-| SL | 5 (row / employee / vehicle / support / reservation) | 15 | 15 |
+| SL | 6 (row / **site** / employee / vehicle / support / reservation) | 18 | 18 |
 | WS | 2 (schedule / reservation) | 6 | 14 |
 | LA | 1 (application) | 5 | 9 |
-| **合計** | **11 scope** | **34 type** | **51 内部 type** |
+| **合計** | **12 scope (重複除外で 10)** | **37 type** | **54 内部 type** |
+
+注 (N-3.1.1): SL は OB と `site` scope を共有。受注メタの編集は OB から行っても SL から行っても scope=site で発信される。SL の scope 数を 6 に増、type 数を 18 に増 (site×modify + 内部 site×add/delete 予約)。
 
 #### 16.3.5 実装ギャップ（N-2.4.5 で発覚）
 

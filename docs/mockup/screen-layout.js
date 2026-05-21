@@ -936,13 +936,29 @@
             if (_cnOld.requiredCount !== (requiredCount || '')) _cnDiffs.push({ field: '人数', oldVal: _cnOld.requiredCount, newVal: requiredCount || '' });
             if (_cnOld.meetingPlace !== meetingPlace) _cnDiffs.push({ field: '集合場所', oldVal: _cnOld.meetingPlace, newVal: meetingPlace });
             if (_cnOld.supervisor !== supervisor) _cnDiffs.push({ field: '現場監督', oldVal: _cnOld.supervisor, newVal: supervisor });
+            // N-3.1.1: 行メタ (契約先/現場名/区分/シフト) と 受注メタ (集合時間/連絡先/人数/集合場所/現場監督) を分割
             if (_cnDiffs.length > 0) {
-                slCnSelfNotify('employee', 'modify', {
-                    siteName: _cnNewSiteName || _cnOld.siteName,
-                    category: _cnNewCategory || _cnOld.category,
-                    shift: _cnNewShift || _cnOld.shift,
-                    diffs: _cnDiffs
-                });
+                var _rowFieldSet = { '契約先': 1, '現場名': 1, '区分': 1, 'シフト': 1 };
+                var _rowDiffs = _cnDiffs.filter(function (d) { return _rowFieldSet[d.field]; });
+                var _siteDiffs = _cnDiffs.filter(function (d) { return !_rowFieldSet[d.field]; });
+                if (_rowDiffs.length > 0) {
+                    slCnSelfNotify('row', 'modify', {
+                        siteName: _cnNewSiteName || _cnOld.siteName,
+                        category: _cnNewCategory || _cnOld.category,
+                        shift: _cnNewShift || _cnOld.shift,
+                        company: _cnNewCompany,
+                        diffs: _rowDiffs
+                    });
+                }
+                if (_siteDiffs.length > 0) {
+                    slCnSelfNotify('site', 'modify', {
+                        siteName: _cnNewSiteName || _cnOld.siteName,
+                        category: _cnNewCategory || _cnOld.category,
+                        shift: _cnNewShift || _cnOld.shift,
+                        company: _cnNewCompany,
+                        diffs: _siteDiffs
+                    });
+                }
             }
 
             document.getElementById('siteModal').style.display = 'none';
@@ -1064,7 +1080,7 @@
             if (_cnOldTime !== meetingTime) _cnDiffs.push({ field: '集合時間', oldVal: _cnOldTime, newVal: meetingTime });
             if (_cnOldContact !== (mtSelectedContact || '')) _cnDiffs.push({ field: '連絡先', oldVal: _cnOldContact, newVal: mtSelectedContact || '' });
             if (_cnDiffs.length > 0) {
-                slCnSelfNotify('employee', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift, diffs: _cnDiffs });
+                slCnSelfNotify('site', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift, diffs: _cnDiffs });
             }
 
             closeMeetingModal();
@@ -1138,7 +1154,7 @@
             // --- 変更通知: diff生成 ---
             var _cnNewBadgeText = currentWorkCell.textContent.trim();
             if (_cnOldBadgeText !== _cnNewBadgeText) {
-                slCnSelfNotify('employee', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
+                slCnSelfNotify('site', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
                     diffs: [{ field: '作業内容', oldVal: _cnOldBadgeText, newVal: _cnNewBadgeText }] });
             }
 
@@ -1223,7 +1239,7 @@
             // --- 変更通知: diff生成 ---
             var _cnNewNotesText = currentNotesCell.textContent.trim();
             if (_cnOldNotesText !== _cnNewNotesText) {
-                slCnSelfNotify('employee', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
+                slCnSelfNotify('site', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
                     diffs: [{ field: '備考', oldVal: _cnOldNotesText, newVal: _cnNewNotesText }] });
             }
 
@@ -1411,7 +1427,7 @@
                 if (newRequired !== required) {
                     var _cnRow = cell.closest('tr');
                     var _cnInfo = cnGetRowInfo(_cnRow);
-                    slCnSelfNotify('employee', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
+                    slCnSelfNotify('site', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
                         diffs: [{ field: '人数', oldVal: assigned + '/' + required, newVal: assigned + '/' + newRequired }]
                     });
                 }
@@ -1696,7 +1712,7 @@
             // --- 変更通知: diff生成 ---
             var _cnNewMaps = filtered.map(function(m) { return m.label; }).join(', ');
             if (_cnOldMaps !== _cnNewMaps) {
-                slCnSelfNotify('employee', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
+                slCnSelfNotify('site', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
                     diffs: [{ field: '地図', oldVal: _cnOldMaps, newVal: _cnNewMaps }] });
             }
 
@@ -3812,9 +3828,15 @@
         // ============================================================
         // Phase N-3.1: 自領域発信 — co-notify-panel.js の addItem('sl', ...) ラッパー
         // ============================================================
-        // scope: 'row' / 'employee' / 'vehicle' / 'support' (N-3.2) / 'reservation' (N-3.2)
-        // op:    row=add/modify/delete / employee=place/remove/modify / vehicle=place/remove/modify
+        // scope: 'row' / 'site' / 'employee' / 'vehicle' / 'support' (N-3.2) / 'reservation' (N-3.2)
+        // op:    row=add/modify/delete / site=add/modify/delete /
+        //        employee=place/remove/modify / vehicle=place/remove/modify
         // opts.{ siteName, category, shift, company, empName, vehicleName, isEtc, diffs, fromSiteName }
+        //
+        // N-3.1.1 (2026-05-21) 注: SL から OB 由来の受注メタ (集合時間/連絡先/人数/集合場所/
+        //   現場監督/作業内容/備考/地図/作業時間) を編集した場合は scope=site で発信する。
+        //   行のメタ (契約先/現場名/区分/シフト) は scope=row、社員/車両の配置・解除は
+        //   scope=employee/vehicle。
         function slCnSelfNotify(scope, op, opts) {
             if (!opts) opts = {};
             if (!window.coNotifyPanel || typeof window.coNotifyPanel.addItem !== 'function') return;
@@ -3834,6 +3856,17 @@
                     var fs = (opts.diffs || []).map(function (d) { return d.field; }).join('・');
                     mainText = rowHead + ' の ' + (fs || 'メタ情報') + ' を編集';
                 } else mainText = rowHead + ' を' + op;
+            } else if (scope === 'site') {
+                if (op === 'add') {
+                    mainText = (company ? company + ' / ' : '') + (siteName || '(無名)') + ' の受注を追加';
+                } else if (op === 'delete') {
+                    mainText = siteLabel + ' の受注を削除';
+                } else if (op === 'modify') {
+                    var fsSite = (opts.diffs || []).map(function (d) { return d.field; }).join('・');
+                    mainText = siteLabel + ' の ' + (fsSite || '受注メタ情報') + ' を変更';
+                } else {
+                    mainText = siteLabel + ' の受注を' + op;
+                }
             } else if (scope === 'employee') {
                 var empName = opts.empName || '社員';
                 if (op === 'place') {
@@ -3889,7 +3922,7 @@
             return '今日 (' + (d.getMonth() + 1) + '/' + d.getDate() + ')';
         }
 
-        // 初期デモ通知 (代表 3件: row×add / employee×place / vehicle×place)
+        // 初期デモ通知 (代表 3件: row×add / site×modify / employee×place)
         function slCnSeedInitialDemo() {
             if (!window.coNotifyPanel || typeof window.coNotifyPanel.setItems !== 'function') return;
             var today = slCnTodayLabel();
@@ -3904,22 +3937,22 @@
                     target: { axis: 'siteName', value: '渋谷駅前ビル' }
                 },
                 {
+                    scope: 'site', op: 'modify',
+                    main: '〇〇会館 展示会（昼） の 人数 を変更',
+                    sub: '伊藤（配車担当） ・ 10:08',
+                    date: today,
+                    expand: '人数: 1/2 → 3/2',
+                    affects: ['screen-layout', 'order-book'],
+                    target: { axis: 'siteName', value: '〇〇会館 展示会' }
+                },
+                {
                     scope: 'employee', op: 'place',
                     main: '田中 一郎 を 国道〇号線 舗装工事（昼） に配置',
-                    sub: '山田（現場管理） ・ 10:08',
+                    sub: '山田（現場管理） ・ 10:33',
                     date: today,
                     expand: '',
                     affects: ['screen-layout', 'weekly-schedule'],
                     target: { axis: 'siteName', value: '国道〇号線 舗装工事' }
-                },
-                {
-                    scope: 'vehicle', op: 'place',
-                    main: '品川 500 あ 12-34 を 〇〇会館 展示会（昼） に配置',
-                    sub: '伊藤（配車担当） ・ 10:33',
-                    date: today,
-                    expand: '',
-                    affects: ['screen-layout', 'weekly-schedule'],
-                    target: { axis: 'siteName', value: '〇〇会館 展示会' }
                 }
             ]);
         }
@@ -4801,7 +4834,7 @@
             if (_cnOldStart !== startTime) _cnDiffs.push({ field: '開始時間', oldVal: _cnOldStart, newVal: startTime });
             if (_cnOldEnd !== endTime) _cnDiffs.push({ field: '終了時間', oldVal: _cnOldEnd, newVal: endTime });
             if (_cnDiffs.length > 0) {
-                slCnSelfNotify('employee', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift, diffs: _cnDiffs });
+                slCnSelfNotify('site', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift, diffs: _cnDiffs });
             }
 
             closeWorkTimeModal();
