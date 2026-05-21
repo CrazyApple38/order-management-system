@@ -2425,3 +2425,310 @@ button.cn-date-group-head:hover {
     margin: 0 4px;
 }
 .cmp-mtx-legend-dot.is-custom { background: var(--accent-primary, #44A6B5); }
+
+/* ============================================================
+   N-3.4 通知タイプ一覧 (全画面マスタ)
+   ============================================================ */
+#cmpN34 {
+    padding: 20px 24px 40px;
+    background: var(--bg-page);
+    min-height: 100vh;
+}
+.cmp-n34-section {
+    background: var(--bg-surface);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.cmp-n34-section h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.cmp-n34-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--accent-primary);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+}
+.cmp-n34-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 12px;
+}
+.cmp-n34-desc code {
+    background: var(--bg-surface-2);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+.cmp-n34-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.cmp-n34-search {
+    flex: 1 1 280px;
+    min-width: 200px;
+    padding: 6px 10px;
+    font-size: 12px;
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    background: var(--bg-surface);
+}
+.cmp-n34-filter {
+    padding: 6px 10px;
+    font-size: 12px;
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    background: var(--bg-surface);
+}
+.cmp-n34-btn {
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid var(--divider);
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+}
+.cmp-n34-btn:hover { background: var(--bg-surface-3); }
+.cmp-n34-btn.is-primary {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #fff;
+}
+.cmp-n34-btn.is-primary:hover { filter: brightness(1.08); }
+.cmp-n34-btn.is-danger {
+    background: var(--semantic-error);
+    border-color: var(--semantic-error);
+    color: #fff;
+}
+.cmp-n34-btn.is-danger:hover { filter: brightness(1.08); }
+.cmp-n34-status {
+    font-size: 11px;
+    color: var(--accent-primary);
+    margin-left: auto;
+    min-height: 16px;
+}
+
+/* ---- テーブル本体 ---- */
+.cmp-n34-table-wrap {
+    overflow-x: auto;
+    max-width: 100%;
+}
+.cmp-n34-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    min-width: 1400px;
+}
+.cmp-n34-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 11px;
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid var(--divider);
+    z-index: 2;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+.cmp-n34-table tbody td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--divider);
+    vertical-align: middle;
+    background: var(--bg-surface);
+}
+.cmp-n34-table tbody tr:hover td { background: rgba(68, 166, 181, 0.04); }
+.cmp-n34-table tbody tr.is-edited td {
+    background: rgba(214, 158, 46, 0.06);
+}
+.cmp-n34-table tbody tr.is-edited:hover td {
+    background: rgba(214, 158, 46, 0.12);
+}
+
+/* 列幅 */
+.cmp-n34-table .col-bell     { width: 70px; text-align: center; }
+.cmp-n34-table .col-scope    { width: 130px; }
+.cmp-n34-table .col-op       { width: 90px; }
+.cmp-n34-table .col-icon     { width: 60px; text-align: center; }
+.cmp-n34-table .col-color    { width: 50px; text-align: center; }
+.cmp-n34-table .col-label    { width: 180px; }
+.cmp-n34-table .col-template { width: 280px; }
+.cmp-n34-table .col-trigger  { width: 240px; }
+.cmp-n34-table .col-fields   { width: 220px; }
+.cmp-n34-table .col-status   { width: 110px; text-align: center; }
+
+/* ベルチップ */
+.cmp-n34-bell-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+}
+.cmp-n34-bell-chip.bell-ob       { background: #3A6FA5; }
+.cmp-n34-bell-chip.bell-sl       { background: #44A6B5; }
+.cmp-n34-bell-chip.bell-ws       { background: #629E78; }
+.cmp-n34-bell-chip.bell-la       { background: #B48764; }
+.cmp-n34-bell-chip.bell-master   { background: #8A5CB0; }
+.cmp-n34-bell-chip.bell-pending  { background: #D69E2E; }
+.cmp-n34-bell-chip.bell-vehicle  { background: #5A6B7C; }
+
+/* セル入力 */
+.cmp-n34-table select,
+.cmp-n34-table .cmp-n34-input {
+    width: 100%;
+    padding: 4px 6px;
+    font-size: 11px;
+    border: 1px solid var(--divider);
+    border-radius: 3px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    box-sizing: border-box;
+}
+.cmp-n34-table select:focus,
+.cmp-n34-table .cmp-n34-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(68, 166, 181, 0.2);
+}
+.cmp-n34-template {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+}
+.cmp-n34-readonly {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    white-space: normal;
+    word-break: break-all;
+}
+
+/* アイコンセル */
+.cmp-n34-icon-empty {
+    display: inline-block;
+    color: var(--text-disabled);
+    font-weight: 700;
+}
+.cmp-n34-icon-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+}
+.cmp-n34-icon-wrap.op-add,
+.cmp-n34-icon-wrap.op-place    { background: var(--accent-primary); }
+.cmp-n34-icon-wrap.op-modify   { background: var(--accent-secondary); }
+.cmp-n34-icon-wrap.op-delete,
+.cmp-n34-icon-wrap.op-remove,
+.cmp-n34-icon-wrap.op-reject   { background: var(--semantic-error); }
+.cmp-n34-icon-wrap.op-approve  { background: var(--semantic-success); }
+.cmp-n34-composed {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cmp-n34-base {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+.cmp-n34-op-badge {
+    position: absolute;
+    right: -8px;
+    bottom: -6px;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    box-sizing: border-box;
+}
+.cmp-n34-op-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.cmp-n34-icon-single {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+/* 背景色サンプル swatch (op に応じた色) */
+.cmp-n34-color-swatch {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid var(--divider);
+}
+.cmp-n34-color-swatch.op-add,
+.cmp-n34-color-swatch.op-place    { background: var(--accent-primary); }
+.cmp-n34-color-swatch.op-modify   { background: var(--accent-secondary); }
+.cmp-n34-color-swatch.op-delete,
+.cmp-n34-color-swatch.op-remove,
+.cmp-n34-color-swatch.op-reject   { background: var(--semantic-error); }
+.cmp-n34-color-swatch.op-approve  { background: var(--semantic-success); }
+
+/* 状態セル */
+.cmp-n34-status-default {
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+.cmp-n34-status-edited {
+    font-size: 11px;
+    color: var(--semantic-warning-text, #92400e);
+    font-weight: 700;
+}
+.cmp-n34-revert {
+    margin-left: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid var(--divider);
+    border-radius: 3px;
+    color: var(--text-secondary);
+}
+.cmp-n34-revert:hover {
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+}
+
+.cmp-n34-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-disabled);
+    font-style: italic;
+}

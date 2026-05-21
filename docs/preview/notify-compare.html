@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../mockup/co-tokens.css">
     <link rel="stylesheet" href="../mockup/co-shared-badges.css">
     <link rel="stylesheet" href="../mockup/co-icon-picker.css">
-    <link rel="stylesheet" href="notify-compare.css?v=n2-op-white">
+    <link rel="stylesheet" href="notify-compare.css?v=n34-list">
 </head>
 <body>
     <header class="cmp-header">
@@ -26,6 +26,7 @@
             <button class="cmp-mode-btn" data-mode="auto-overlay">自動生成行</button>
             <button class="cmp-mode-btn" data-mode="n2-integration">N-2 統合</button>
             <button class="cmp-mode-btn" data-mode="matrix">マトリクス選定 (N-2.4)</button>
+            <button class="cmp-mode-btn" data-mode="n34">通知一覧 (N-3.4)</button>
         </div>
     </header>
 
@@ -2706,7 +2707,59 @@
         </section>
     </main>
 
-    <script src="notify-compare.js?v=n2-mtx-applicable"></script>
+    <main class="cmp-hidden" id="cmpN34">
+        <section class="cmp-n34-section">
+            <h2><span class="cmp-n34-tag">N-3.4</span> 通知タイプ一覧 — 全画面マスタ</h2>
+            <p class="cmp-n34-desc">
+                全画面 (OB / SL / WS / LA / マスタ / 承認待ち / 車両) の<strong>通知タイプ全件</strong>を一覧化。
+                各行は「どの操作でどのアイコン・どの文言を発信するか」のマスタレコード。
+                セルクリックで scope / op / 表示ラベル / main 文言テンプレートを直接編集できる。
+                編集結果は localStorage (<code>notifyTypeMaster.v1</code>) に保存。
+                JSON出力ボタンでクリップボードコピー後、各画面 JS の slCnSelfNotify テンプレート等に手動反映する想定。
+            </p>
+            <div class="cmp-n34-toolbar">
+                <input type="search" class="cmp-n34-search" id="cmpN34Search" placeholder="検索 (操作/フィールド/main 文言)">
+                <select class="cmp-n34-filter" id="cmpN34BellFilter">
+                    <option value="">全ベル</option>
+                    <option value="ob">OB (受注簿)</option>
+                    <option value="sl">SL (現場割付)</option>
+                    <option value="ws">WS (週間予定)</option>
+                    <option value="la">LA (休暇申請)</option>
+                    <option value="master">マスタ</option>
+                    <option value="pending">承認待ち</option>
+                    <option value="vehicle">車両</option>
+                </select>
+                <button class="cmp-n34-btn is-primary" id="cmpN34Export">JSON出力 (クリップボード)</button>
+                <button class="cmp-n34-btn is-danger" id="cmpN34Reset">編集をリセット</button>
+                <span class="cmp-n34-status" id="cmpN34Status"></span>
+            </div>
+        </section>
+
+        <section class="cmp-n34-section">
+            <div class="cmp-n34-table-wrap">
+                <table class="cmp-n34-table">
+                    <thead>
+                        <tr>
+                            <th class="col-bell">ベル</th>
+                            <th class="col-scope">scope</th>
+                            <th class="col-op">op</th>
+                            <th class="col-icon">合成<br>アイコン</th>
+                            <th class="col-color">背景色</th>
+                            <th class="col-label">表示ラベル</th>
+                            <th class="col-template">main 文言テンプレート</th>
+                            <th class="col-trigger">トリガー操作 (関数/モーダル)</th>
+                            <th class="col-fields">リンク項目 (DOM/フィールド)</th>
+                            <th class="col-status">状態</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cmpN34TableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="../mockup/notify-icons-selected.js?v=2"></script>
+    <script src="notify-compare.js?v=n34-list-v2"></script>
     <script src="../mockup/co-icon-picker.js"></script>
     <script src="notify-icons-data.js"></script>
     <script src="notify-icons.js"></script>

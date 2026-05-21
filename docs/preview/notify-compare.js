@@ -2,7 +2,7 @@
 (function () {
     'use strict';
 
-    /* Before / After / 履歴 / アイコン選定 / ベル並び / パネルレイアウト / 自動生成行オーバーレイ / N-2統合 / マトリクス選定 モード切替 */
+    /* Before / After / 履歴 / アイコン選定 / ベル並び / パネルレイアウト / 自動生成行オーバーレイ / N-2統合 / マトリクス選定 / 通知一覧 モード切替 */
     var modeTargets = {
         before: 'cmpBefore',
         after: 'cmpAfter',
@@ -12,7 +12,8 @@
         'panel-layout': 'cmpPanelLayout',
         'auto-overlay': 'cmpAutoOverlay',
         'n2-integration': 'cmpN2Integration',
-        matrix: 'cmpMatrix'
+        matrix: 'cmpMatrix',
+        n34: 'cmpN34'
     };
     document.querySelectorAll('.cmp-mode-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -1272,5 +1273,398 @@
     /* 起動時にもレンダリング（マトリクスタブが直接ロードされた場合に備える） */
     document.addEventListener('DOMContentLoaded', function () {
         mtxRefreshAll();
+    });
+
+    /* ============================================================
+       N-3.4 通知タイプ一覧 — 全画面マスタ
+       ============================================================ */
+    var N34_STORAGE_KEY = 'notifyTypeMaster.v1';
+    var N34_BELL_LABELS = {
+        ob: 'OB', sl: 'SL', ws: 'WS', la: 'LA',
+        master: 'マスタ', pending: '承認待ち', vehicle: '車両'
+    };
+
+    /* op → CSS クラス名 (背景色マッピング用) */
+    var N34_OP_CLASS = {
+        add: 'add', modify: 'modify', delete: 'delete',
+        approve: 'approve', reject: 'reject',
+        place: 'add', remove: 'delete'
+    };
+
+    /* 全画面の通知タイプ マスタ
+       SSOT として、各画面の実装はこの表を参照して main 文言テンプレートを書く想定。
+       実装と乖離した場合はこの表が正で、各画面 JS を修正する。 */
+    var N34_TYPES = [
+        /* ===== OB (受注簿) ===== */
+        { id: 'ob-row-add',     bell: 'ob', scope: 'row',   op: 'add',
+          label: '行追加', template: '{company} / {task} を行として追加',
+          trigger: 'OB ツールバー 行追加 / addNewRow',
+          fields: '契約先・業務名・区分・シフトの組' },
+        { id: 'ob-row-modify',  bell: 'ob', scope: 'row',   op: 'modify',
+          label: '行編集', template: '{company} / {siteName} の {fields} を編集',
+          trigger: '行メタ編集 (契約先名・業務名・区分・シフト変更)',
+          fields: '契約先名・業務名・区分・シフト' },
+        { id: 'ob-row-delete',  bell: 'ob', scope: 'row',   op: 'delete',
+          label: '行削除', template: '{company} / {siteName} を行として削除',
+          trigger: '行削除ボタン', fields: '行全体' },
+        { id: 'ob-site-add',    bell: 'ob', scope: 'site',  op: 'add',
+          label: '受注追加', template: '{company} / {task}({day}日) の受注を追加',
+          trigger: 'セル編集モーダル 保存 (新規エントリ追加)',
+          fields: 'マス内に副 entry (受注) を追加 / cellData[ri][day] への push' },
+        { id: 'ob-site-modify', bell: 'ob', scope: 'site',  op: 'modify',
+          label: '受注編集', template: '{company} / {task}({day}日) の受注を編集',
+          trigger: 'セル編集モーダル 保存 (人数/時間/責任者/備考/サブタスク変更)',
+          fields: 'count / startTime / endTime / supervisor / supervisorTel / meetingPlace / meetingTime / remarks' },
+        { id: 'ob-site-delete', bell: 'ob', scope: 'site',  op: 'delete',
+          label: '受注削除', template: '{company} / {task}({day}日) の受注を削除',
+          trigger: 'セル編集モーダル 削除 / count=0',
+          fields: 'マス内 entry の除去 / cellData[ri][day] からの splice' },
+        { id: 'ob-badge-add',   bell: 'ob', scope: 'badge', op: 'add',
+          label: 'バッジ追加', template: '{badgeLabel}「{badgeName}」({parentName}) を追加',
+          trigger: 'セル編集モーダル 作業内容/詳細項目 追加',
+          fields: 'badgeData.childIds / badgeData.grandchildMap への追加' },
+        { id: 'ob-badge-delete', bell: 'ob', scope: 'badge', op: 'delete',
+          label: 'バッジ削除', template: '{badgeLabel}「{badgeName}」({parentName}) を削除',
+          trigger: 'セル編集モーダル 作業内容/詳細項目 削除',
+          fields: 'badgeData.childIds / badgeData.grandchildMap からの除去' },
+
+        /* ===== SL (現場割付) ===== */
+        { id: 'sl-row-add',     bell: 'sl', scope: 'row',   op: 'add',
+          label: '行追加', template: '{company} / {siteName} を行として追加',
+          trigger: 'slSaveNewRow / slAddModalOverlay 保存',
+          fields: '契約先・現場名・区分・シフトの組' },
+        { id: 'sl-row-modify',  bell: 'sl', scope: 'row',   op: 'modify',
+          label: '行編集 (行メタ)', template: '{company} / {siteName} の {fields} を編集',
+          trigger: 'saveSiteModal の行メタ系 diffs (N-3.1.1 で分割発信)',
+          fields: '契約先 / 現場名 / 区分 / シフト' },
+        { id: 'sl-row-delete',  bell: 'sl', scope: 'row',   op: 'delete',
+          label: '行削除', template: '{company} / {siteName} を行として削除',
+          trigger: 'deleteRow', fields: '行全体 (releaseRowEmployees 後 row.remove)' },
+        { id: 'sl-site-modify', bell: 'sl', scope: 'site',  op: 'modify',
+          label: '受注編集', template: '{siteLabel} の {fields} を変更',
+          trigger: 'saveSiteModal の site 系 diffs / saveMeetingModal / saveWorkModal / saveNotesModal / saveMapModal / saveWorkTimeModal / startCountEdit',
+          fields: '集合時間・連絡先・人数・集合場所・現場監督・作業内容・備考・地図・開始/終了時間' },
+        { id: 'sl-employee-place',  bell: 'sl', scope: 'employee', op: 'place',
+          label: '社員配置', template: '{empName} を {siteLabel} に配置',
+          trigger: 'drop (assignment-zone への D&D)',
+          fields: '.assigned-employee 追加 / 移動時は fromSiteName 付与' },
+        { id: 'sl-employee-remove', bell: 'sl', scope: 'employee', op: 'remove',
+          label: '社員解除', template: '{empName} を {siteLabel} から解除',
+          trigger: 'removeEmployee (×ボタン)',
+          fields: '.assigned-employee の削除' },
+        { id: 'sl-employee-modify', bell: 'sl', scope: 'employee', op: 'modify',
+          label: '社員編集', template: '{siteLabel} の社員 {empName} の {fields} を変更',
+          trigger: '(将来用) 社員ごとの集合時間/連絡先などを編集する UI が追加された場合',
+          fields: '(未実装)' },
+        { id: 'sl-vehicle-place',  bell: 'sl', scope: 'vehicle', op: 'place',
+          label: '車両配置', template: '{vehicleName} を {siteLabel} に配置',
+          trigger: 'vtDrop (vehicle-drop-zone への D&D / ETC は isEtc:true)',
+          fields: '.vehicle-tag / .etc-tag の追加' },
+        { id: 'sl-vehicle-remove', bell: 'sl', scope: 'vehicle', op: 'remove',
+          label: '車両解除', template: '{vehicleName} を {siteLabel} から解除',
+          trigger: 'removeVehicle / removeEtc',
+          fields: '.vehicle-tag / .etc-tag の削除' },
+        { id: 'sl-vehicle-modify', bell: 'sl', scope: 'vehicle', op: 'modify',
+          label: '車両編集', template: '{siteLabel} の車両 {vehicleName} の {fields} を変更',
+          trigger: '(将来用) 車両ごとの時間/備考編集 UI', fields: '(未実装)' },
+        { id: 'sl-support-place',  bell: 'sl', scope: 'support', op: 'place',
+          label: '応援配置', template: '{supportName} を {siteLabel} に配置',
+          trigger: '(N-3.2 で実装) WS の supportPartners を SL カレンダーセルに配置',
+          fields: 'supportAssignments[partnerId][dateKey] への追加' },
+        { id: 'sl-support-remove', bell: 'sl', scope: 'support', op: 'remove',
+          label: '応援解除', template: '{supportName} を {siteLabel} から解除',
+          trigger: '(N-3.2 で実装)',
+          fields: 'supportAssignments[partnerId][dateKey] からの除去' },
+        { id: 'sl-support-modify', bell: 'sl', scope: 'support', op: 'modify',
+          label: '応援編集', template: '{siteLabel} の応援 {supportName} の {fields} を変更',
+          trigger: '(N-3.2 で実装)', fields: '(未確定)' },
+        { id: 'sl-reservation-add',    bell: 'sl', scope: 'reservation', op: 'add',
+          label: '応援予約追加', template: '{partnerName} の {day} 予約を追加 ({count} 名)',
+          trigger: '(N-3.2 で実装) SL から openReservationQuickModal を呼出',
+          fields: 'supportReservations[partnerId][dateKey].flex の設定 (SSOT=WS)' },
+        { id: 'sl-reservation-modify', bell: 'sl', scope: 'reservation', op: 'modify',
+          label: '応援予約編集', template: '{partnerName} の {day} 予約を編集',
+          trigger: '(N-3.2 で実装)',
+          fields: 'supportReservations[partnerId][dateKey].flex の更新' },
+        { id: 'sl-reservation-delete', bell: 'sl', scope: 'reservation', op: 'delete',
+          label: '応援予約取消', template: '{partnerName} の {day} 予約を取消',
+          trigger: '(N-3.2 で実装)',
+          fields: 'supportReservations[partnerId][dateKey] の削除' },
+
+        /* ===== WS (週間予定表) ===== */
+        { id: 'ws-schedule-add',    bell: 'ws', scope: 'schedule', op: 'add',
+          label: '配置追加', template: '{empOrVehicleName} を {siteName}({day}) に配置',
+          trigger: 'addAssignment / addVehicleAssignment',
+          fields: 'wsAssignments / wsVehicleAssignments への追加' },
+        { id: 'ws-schedule-modify', bell: 'ws', scope: 'schedule', op: 'modify',
+          label: '配置変更', template: '{empOrVehicleName} を {srcSite}({srcDay}) → {dstSite}({dstDay}) に移動',
+          trigger: 'onCellDropEmployeeView / onCellDropVehicleView / onCellDropSiteView',
+          fields: '配置データ移動 (削除 + 追加の合成)' },
+        { id: 'ws-schedule-delete', bell: 'ws', scope: 'schedule', op: 'delete',
+          label: '配置削除', template: '{empOrVehicleName} を {siteName}({day}) から削除',
+          trigger: 'removeAssignment / removeVehicleAssignment',
+          fields: 'wsAssignments / wsVehicleAssignments からの除去' },
+        { id: 'ws-reservation-add',    bell: 'ws', scope: 'reservation', op: 'add',
+          label: '応援予約追加', template: '{partnerName} の {day} 予約を追加 ({count} 名)',
+          trigger: 'openReservationQuickModal 保存 / addPartner (サイドバー)',
+          fields: 'supportReservations / supportPartners への追加' },
+        { id: 'ws-reservation-modify', bell: 'ws', scope: 'reservation', op: 'modify',
+          label: '応援予約編集', template: '{partnerName} の {day} 予約を変更 ({old} 名 → {new} 名)',
+          trigger: 'openReservationWeekModal / setReservedCount / onReservationCellDrop',
+          fields: 'supportReservations[partnerId][dateKey].flex の変更' },
+        { id: 'ws-reservation-delete', bell: 'ws', scope: 'reservation', op: 'delete',
+          label: '応援予約取消', template: '{partnerName} の {day} 予約を取消',
+          trigger: 'cancelReservationForDate / deactivatePartner (サイドバー)',
+          fields: 'supportReservations の削除 / partner.isActive=false' },
+
+        /* ===== LA (休暇申請管理) ===== */
+        { id: 'la-application-add',     bell: 'la', scope: 'application', op: 'add',
+          label: '申請追加', template: '{empName} の {day} {kind}({partition}) 申請を追加',
+          trigger: 'onCellDrop (新規) / popover 追加 / expandRecurrence (週間繰り返し展開 — N-3.3 で対応)',
+          fields: 'laLeaves への追加 (status: pending)' },
+        { id: 'la-application-modify',  bell: 'la', scope: 'application', op: 'modify',
+          label: '申請編集', template: '{empName} の {day} 申請の {fieldLabel} を変更',
+          trigger: 'onCellDrop (badge 移動 = 日付変更) / onSaveLeave (partition/kind/reason/memo — N-3.3 で対応)',
+          fields: 'laLeaves[id].date / .partition / .kind / .reason / .memo' },
+        { id: 'la-application-delete',  bell: 'la', scope: 'application', op: 'delete',
+          label: '申請削除', template: '{empName} の {day} {kind} 申請を削除',
+          trigger: 'onDeleteLeave',
+          fields: 'laLeaves から splice' },
+        { id: 'la-application-approve', bell: 'la', scope: 'application', op: 'approve',
+          label: '申請承認', template: '{empName} の {day} 申請を承認 ({approver})',
+          trigger: 'onApproveReject 第二引数 "approved"',
+          fields: 'laLeaves[id].status = "approved"' },
+        { id: 'la-application-reject',  bell: 'la', scope: 'application', op: 'reject',
+          label: '申請却下', template: '{empName} の {day} 申請を却下 ({approver})',
+          trigger: 'onApproveReject 第二引数 "rejected"',
+          fields: 'laLeaves[id].status = "rejected"' },
+
+        /* ===== マスタ更新 ===== */
+        { id: 'master-add',    bell: 'master', scope: '_legacy', op: 'add',
+          label: 'マスタ追加', template: '{masterType}: {itemName} を追加',
+          trigger: 'OB の区分追加 (badgeDefinitions push) / 他画面の新規カテゴリ等',
+          fields: 'masters テーブル (将来 DB)' },
+        { id: 'master-modify', bell: 'master', scope: '_legacy', op: 'modify',
+          label: 'マスタ編集', template: '{masterType}: {itemName} を編集',
+          trigger: 'マスタ管理画面 (現状は OB の区分編集等が暫定)',
+          fields: 'masters テーブル' },
+        { id: 'master-delete', bell: 'master', scope: '_legacy', op: 'delete',
+          label: 'マスタ削除', template: '{masterType}: {itemName} を削除',
+          trigger: 'マスタ管理画面', fields: 'masters テーブル' },
+
+        /* ===== 承認待ち (旧 cn-pending の後継 / SL の cnApprovePending は N-3.1 案B で廃止) ===== */
+        { id: 'pending-wait',     bell: 'pending', scope: '_legacy', op: 'modify',
+          label: '承認待ち', template: '{user} の {action} が承認待ち',
+          trigger: '(将来) 重要操作の承認フロー / 現状は SL は廃止',
+          fields: 'pending_approvals テーブル' },
+        { id: 'pending-approved', bell: 'pending', scope: '_legacy', op: 'approve',
+          label: '承認済み', template: '{user} の {action} を承認',
+          trigger: '(将来)', fields: 'pending_approvals.status = approved' },
+        { id: 'pending-rejected', bell: 'pending', scope: '_legacy', op: 'reject',
+          label: '却下', template: '{user} の {action} を却下',
+          trigger: '(将来)', fields: 'pending_approvals.status = rejected' },
+
+        /* ===== 車両 (車検・点検・整備) ===== */
+        { id: 'vehicle-add',    bell: 'vehicle', scope: '_legacy', op: 'add',
+          label: '車両登録', template: '{plate} ({vehicleName}) を登録',
+          trigger: 'LA 車両スケジュール画面 vsVehicles push',
+          fields: 'vsVehicles 追加' },
+        { id: 'vehicle-modify', bell: 'vehicle', scope: '_legacy', op: 'modify',
+          label: '車両情報変更', template: '{plate} の {fieldLabel} を変更',
+          trigger: 'LA 車両編集モーダル保存',
+          fields: 'numberPlate / numberLast4 / vehicleName / owner / nextShakenDate / nextInspectionDate 等' },
+        { id: 'vehicle-delete', bell: 'vehicle', scope: '_legacy', op: 'delete',
+          label: '車両削除', template: '{plate} ({vehicleName}) を削除',
+          trigger: 'LA 車両削除', fields: 'vsVehicles から splice' },
+        { id: 'vehicle-shaken', bell: 'vehicle', scope: '_legacy', op: 'modify',
+          label: '車検予定', template: '{plate} の車検期限まで {days} 日',
+          trigger: '(将来) 自動アラート / 日次バッチ',
+          fields: 'nextShakenDate の閾値判定' },
+        { id: 'vehicle-inspection', bell: 'vehicle', scope: '_legacy', op: 'modify',
+          label: '点検予定', template: '{plate} の点検期限まで {days} 日',
+          trigger: '(将来) 自動アラート',
+          fields: 'nextInspectionDate の閾値判定' }
+    ];
+
+    /* localStorage から override を読込 */
+    function n34ReadOverrides() {
+        try { return JSON.parse(localStorage.getItem(N34_STORAGE_KEY) || '{}'); }
+        catch (e) { return {}; }
+    }
+    function n34WriteOverrides(obj) {
+        try { localStorage.setItem(N34_STORAGE_KEY, JSON.stringify(obj)); }
+        catch (e) {}
+    }
+
+    /* マージ済み (override 適用後) のレコードを取得 */
+    function n34GetMerged() {
+        var ov = n34ReadOverrides();
+        return N34_TYPES.map(function (t) {
+            var u = ov[t.id] || {};
+            return Object.assign({}, t, u);
+        });
+    }
+
+    /* op → 背景色 CSS class */
+    function n34OpClass(op) { return 'op-' + (N34_OP_CLASS[op] || 'modify'); }
+
+    /* 合成アイコンの HTML を生成 (co-notify-panel.js の buildComposedIconHtml と同パターン) */
+    /* preview/ ディレクトリから見たアイコンパス基点は ../assets/icons/ (mockup の iconBasePath とは異なる) */
+    var N34_ICON_BASE = '../assets/icons/';
+    function n34BuildIconHtml(scope, op) {
+        var src = (window.NotifyIconsSelected && window.NotifyIconsSelected.primitives) || { scope: {}, op: {} };
+        /* localStorage の上書きを優先 */
+        var stored = { scope: {}, op: {} };
+        try {
+            var raw = JSON.parse(localStorage.getItem('notifyPrimitives.v1') || '{}');
+            stored = { scope: raw.scope || {}, op: raw.op || {} };
+        } catch (e) {}
+        var scopePath = stored.scope[scope] || src.scope[scope] || '';
+        var opPath = stored.op[op] || src.op[op] || '';
+        /* legacy scope (master/pending/vehicle のみ) は scope アイコン無し → op のみ表示 */
+        var isLegacy = scope === '_legacy';
+        if (!scopePath && !opPath) return '<span class="cmp-n34-icon-empty">—</span>';
+        if (isLegacy) {
+            /* op アイコン単体 */
+            return '<span class="cmp-n34-icon-wrap ' + n34OpClass(op) + '">' +
+                   (opPath ? '<img class="cmp-n34-icon-single" src="' + N34_ICON_BASE + opPath + '" alt="">' : '') +
+                   '</span>';
+        }
+        return '<span class="cmp-n34-icon-wrap ' + n34OpClass(op) + '">' +
+               '<span class="cmp-n34-composed">' +
+               (scopePath ? '<img class="cmp-n34-base" src="' + N34_ICON_BASE + scopePath + '" alt="">' : '') +
+               (opPath ? '<span class="cmp-n34-op-badge"><img class="cmp-n34-op-img" src="' + N34_ICON_BASE + opPath + '" alt=""></span>' : '') +
+               '</span>' +
+               '</span>';
+    }
+
+    /* セル用: scope と op のドロップダウン (MTX_SCOPES / MTX_OPS を流用) */
+    function n34ScopeOptionsHtml(current) {
+        var opts = MTX_SCOPES.map(function (s) {
+            return '<option value="' + s.key + '"' + (s.key === current ? ' selected' : '') + '>' + escapeHtml(s.label) + '</option>';
+        }).join('');
+        /* legacy 用 */
+        opts += '<option value="_legacy"' + (current === '_legacy' ? ' selected' : '') + '>(レガシー)</option>';
+        return opts;
+    }
+    function n34OpOptionsHtml(current) {
+        return MTX_OPS.map(function (o) {
+            return '<option value="' + o.key + '"' + (o.key === current ? ' selected' : '') + '>' + escapeHtml(o.label) + '</option>';
+        }).join('');
+    }
+
+    /* 表のレンダリング */
+    function n34Render() {
+        var tbody = document.getElementById('cmpN34TableBody');
+        if (!tbody) return;
+        var merged = n34GetMerged();
+        var search = (document.getElementById('cmpN34Search') || {}).value || '';
+        var bellFilter = (document.getElementById('cmpN34BellFilter') || {}).value || '';
+        var searchLc = search.toLowerCase();
+        var ov = n34ReadOverrides();
+
+        var html = merged.filter(function (t) {
+            if (bellFilter && t.bell !== bellFilter) return false;
+            if (!searchLc) return true;
+            return (t.label + ' ' + t.template + ' ' + t.trigger + ' ' + t.fields).toLowerCase().indexOf(searchLc) >= 0;
+        }).map(function (t) {
+            var isEdited = !!ov[t.id];
+            return '<tr data-id="' + t.id + '" class="' + (isEdited ? 'is-edited' : '') + '">' +
+                '<td class="col-bell"><span class="cmp-n34-bell-chip bell-' + t.bell + '">' + N34_BELL_LABELS[t.bell] + '</span></td>' +
+                '<td class="col-scope"><select class="cmp-n34-scope-select" data-field="scope">' + n34ScopeOptionsHtml(t.scope) + '</select></td>' +
+                '<td class="col-op"><select class="cmp-n34-op-select" data-field="op">' + n34OpOptionsHtml(t.op) + '</select></td>' +
+                '<td class="col-icon">' + n34BuildIconHtml(t.scope, t.op) + '</td>' +
+                '<td class="col-color"><span class="cmp-n34-color-swatch ' + n34OpClass(t.op) + '"></span></td>' +
+                '<td class="col-label"><input class="cmp-n34-input" data-field="label" value="' + escapeHtml(t.label) + '"></td>' +
+                '<td class="col-template"><input class="cmp-n34-input cmp-n34-template" data-field="template" value="' + escapeHtml(t.template) + '"></td>' +
+                '<td class="col-trigger"><div class="cmp-n34-readonly">' + escapeHtml(t.trigger) + '</div></td>' +
+                '<td class="col-fields"><div class="cmp-n34-readonly">' + escapeHtml(t.fields) + '</div></td>' +
+                '<td class="col-status">' +
+                    (isEdited ? '<span class="cmp-n34-status-edited">編集済</span>' : '<span class="cmp-n34-status-default">既定</span>') +
+                    (isEdited ? ' <button class="cmp-n34-revert" data-id="' + t.id + '">↺</button>' : '') +
+                '</td>' +
+            '</tr>';
+        }).join('');
+        tbody.innerHTML = html || '<tr><td colspan="10" class="cmp-n34-empty">該当する通知タイプがありません</td></tr>';
+    }
+
+    /* ステータスメッセージ */
+    function n34SetStatus(text) {
+        var el = document.getElementById('cmpN34Status');
+        if (!el) return;
+        el.textContent = text;
+        setTimeout(function () { el.textContent = ''; }, 3000);
+    }
+
+    /* セル編集 (select / input の change) */
+    document.addEventListener('change', function (e) {
+        var row = e.target.closest('#cmpN34TableBody tr');
+        if (!row) return;
+        var field = e.target.dataset.field;
+        if (!field) return;
+        var id = row.dataset.id;
+        var ov = n34ReadOverrides();
+        if (!ov[id]) ov[id] = {};
+        ov[id][field] = e.target.value;
+        n34WriteOverrides(ov);
+        n34Render();
+        n34SetStatus(id + ' の ' + field + ' を更新しました');
+    });
+
+    /* リバート (1 行の override 削除) */
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('.cmp-n34-revert');
+        if (!btn) return;
+        var id = btn.dataset.id;
+        var ov = n34ReadOverrides();
+        delete ov[id];
+        n34WriteOverrides(ov);
+        n34Render();
+        n34SetStatus(id + ' の編集を取消しました');
+    });
+
+    /* 検索・フィルタ */
+    document.addEventListener('input', function (e) {
+        if (e.target.id === 'cmpN34Search') n34Render();
+    });
+    document.addEventListener('change', function (e) {
+        if (e.target.id === 'cmpN34BellFilter') n34Render();
+    });
+
+    /* JSON 出力 */
+    document.addEventListener('click', function (e) {
+        if (e.target.id !== 'cmpN34Export') return;
+        var merged = n34GetMerged();
+        var json = JSON.stringify(merged, null, 2);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(json).then(function () {
+                n34SetStatus('JSON をクリップボードにコピーしました (' + merged.length + ' 件)');
+            }).catch(function () {
+                n34SetStatus('クリップボードコピー失敗 — コンソールに出力しました');
+                console.log(json);
+            });
+        } else {
+            n34SetStatus('navigator.clipboard 未対応 — コンソールに出力しました');
+            console.log(json);
+        }
+    });
+
+    /* 全リセット */
+    document.addEventListener('click', function (e) {
+        if (e.target.id !== 'cmpN34Reset') return;
+        if (!confirm('通知タイプ一覧の編集をすべてリセットしますか？\n(localStorage の notifyTypeMaster.v1 を削除)')) return;
+        try { localStorage.removeItem(N34_STORAGE_KEY); } catch (e2) {}
+        n34Render();
+        n34SetStatus('編集をすべてリセットしました');
+    });
+
+    /* 通知一覧モードに切替えた時に描画 */
+    document.querySelectorAll('.cmp-mode-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            if (btn.dataset.mode === 'n34') n34Render();
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        n34Render();
     });
 })();
