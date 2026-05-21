@@ -2732,3 +2732,94 @@ button.cn-date-group-head:hover {
     color: var(--text-disabled);
     font-style: italic;
 }
+
+/* 色プリセット (上書き用) — op 連動とは独立 */
+.cmp-n34-color-swatch.color-primary,
+.cmp-n34-icon-wrap.color-primary     { background: var(--accent-primary); }
+.cmp-n34-color-swatch.color-secondary,
+.cmp-n34-icon-wrap.color-secondary   { background: var(--accent-secondary); }
+.cmp-n34-color-swatch.color-error,
+.cmp-n34-icon-wrap.color-error       { background: var(--semantic-error); }
+.cmp-n34-color-swatch.color-success,
+.cmp-n34-icon-wrap.color-success     { background: var(--semantic-success); }
+.cmp-n34-color-swatch.color-warning,
+.cmp-n34-icon-wrap.color-warning     { background: var(--semantic-warning); }
+
+/* swatch をボタンとして見せる */
+.cmp-n34-color-swatch {
+    cursor: pointer;
+    padding: 0;
+    box-sizing: border-box;
+}
+.cmp-n34-color-swatch:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.cmp-n34-color-swatch.is-custom {
+    border: 2px solid var(--text-primary);
+    position: relative;
+}
+.cmp-n34-color-swatch.is-custom::after {
+    content: '✎';
+    position: absolute;
+    top: -3px;
+    right: -5px;
+    width: 12px;
+    height: 12px;
+    background: var(--text-primary);
+    color: #fff;
+    font-size: 8px;
+    line-height: 12px;
+    text-align: center;
+    border-radius: 50%;
+}
+
+/* 色ピッカー ポップオーバー */
+.cmp-n34-color-pop {
+    position: absolute;
+    z-index: 1000;
+    background: var(--bg-surface);
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    padding: 10px;
+    min-width: 200px;
+}
+.cmp-n34-color-pop-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+.cmp-n34-color-pop-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+.cmp-n34-color-pop-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+}
+.cmp-n34-color-pop-item:hover { filter: brightness(1.08); }
+.cmp-n34-color-pop-label { flex: 1; }
+.cmp-n34-color-pop-reset {
+    width: 100%;
+    padding: 6px 8px;
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    border: 1px solid var(--divider);
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+}
+.cmp-n34-color-pop-reset:hover { background: var(--bg-surface-3); }

@@ -829,7 +829,9 @@ N-2.3 全画面の旧ベル UI 撤去が完了（OB は 2026-05-18 / WS・LA・S
 ## 15.10 Phase N-3.1 完了サマリ（2026-05-21）
 
 SL 自領域発信化を完遂。コミット `672f045` (実装) + `90e12e4` (docs)。
-**N-3.1.1 追加修正 (2026-05-21)**: ユーザー指摘で employee×modify → site×modify 振り分け是正。SL から OB 由来の受注メタ (集合時間/連絡先/人数/集合場所/現場監督/作業内容/備考/地図/作業時間) を編集した場合は scope=site で発信する。saveSiteModal は row 系 diffs と site 系 diffs を分割して 2 発信。詳細は §16.3.1 SL 表参照。
+**N-3.1.1 追加修正 (2026-05-21)**: ユーザー指摘で employee×modify → site×modify 振り分け是正。SL から OB 由来の受注メタ (集合時間/連絡先/人数/集合場所/現場監督/作業内容/備考/地図/作業時間) を編集した場合は scope=site で発信する。saveSiteModal は row 系 diffs と site 系 diffs を分割して 2 発信。
+**N-3.1.2 追加修正 (2026-05-21)**: saveSiteModal の連絡先 dead code 撤去 + 誤 diff 解消。siteModal に存在しない `#contactCombobox` を読みに行く dead code が「連絡先を変更」誤通知を発火していたため、連絡先関連ロジックを全撤去。連絡先編集は saveMeetingModal の責務に統一。
+**N-3.4.1 追加修正 (2026-05-21)**: ユーザー指摘で SL 行追加/削除の scope 再整理。SL の行追加 (slSaveNewRow) は OB の受注追加に該当するため **site × add** へ、SL の行削除 (deleteRow) は OB の受注削除に該当するため **site × delete** へ移行。行メタ編集 (契約先/現場名/区分/シフト) は OB の行編集と同義のため **row × modify** のまま据置。詳細は §16.3.1 SL 表参照。同時に N-3.4 通知一覧 UI に背景色プリセット 5色ピッカーを追加 (op 連動とは独立に色を上書き可能)。
 
 | 観点 | 内容 |
 |------|------|
@@ -910,13 +912,20 @@ OB §16.2 と同パターンで、画面別 scope×op 一覧を確定。実装�
 
 **scope**: `row` / `site` / `employee` / `vehicle` / `support` / `reservation`
 
-**重要 (N-3.1.1 / 2026-05-21 確定)**: SL から OB 由来の受注フィールド（集合時間/連絡先/人数/集合場所/現場監督/作業内容/備考/地図/作業時間）を編集した場合は **scope=site で発信**。SL と OB のどちらで編集しても同じ受注を変更しているため、scope を統一する。社員/車両のメタ編集は `employee/vehicle × modify` を残置するが、現状の保存モーダルは全て受注メタを触るため未使用。
+**重要 (N-3.4.1 / 2026-05-21 確定)**: SL ↔ OB の scope 対応をユーザー指摘で再整理。SL では「1 行 = 1 つの日の受注エントリ」であり、行の追加/削除は OB で言う**受注の追加/削除**に該当する。一方、行のメタ情報変更（契約先/現場名/区分/シフト）は**継続的にその現場の属性を変える**操作で、OB の**行編集**と同義。
+
+| SL 操作 | OB 相当 | 通知 scope×op | 説明 |
+|---------|---------|---------------|------|
+| 行追加 (slSaveNewRow) | 受注追加 | **site × add** | その日の受注エントリ生成 |
+| 行メタ編集 (saveSiteModal の契約先/現場名/区分/シフト diff) | 行編集 | **row × modify** | 現場の継続属性 (マスタ) 変更 |
+| 行削除 (deleteRow) | 受注削除 | **site × delete** | その日の受注エントリ消去 |
+| 受注メタ編集 (saveSiteModal の site 系 + saveMeetingModal / saveWorkModal / saveNotesModal / saveMapModal / saveWorkTimeModal / startCountEdit) | 受注編集 | **site × modify** | 集合時間/連絡先/人数/集合場所/現場監督/作業内容/備考/地図/作業時間 |
 
 | 操作 | 内部 type | 通知 scope×op | 表示ラベル |
 |------|----------|---------------|----------|
-| 現場行を新規追加（slSaveNewRow） | `row-add` | row × add | 行追加 |
-| 現場行のメタ情報変更（契約先/現場名/区分/シフト の diff のみ） | `row-modify` | row × modify | 行編集 |
-| 現場行を削除（deleteRow） | `row-delete` | row × delete | 行削除 |
+| 行追加（slSaveNewRow） = OB の受注追加 | `site-add` | site × add | 受注追加 |
+| 行メタ編集（契約先/現場名/区分/シフト の diff のみ）= OB の行編集 | `row-modify` | row × modify | 行編集 |
+| 行削除（deleteRow）= OB の受注削除 | `site-delete` | site × delete | 受注削除 |
 | 受注メタ変更（saveSiteModal の集合時間/連絡先/人数/集合場所/現場監督 diff） | `site-modify` | site × modify | 受注編集 |
 | 受注メタ変更（saveMeetingModal / saveWorkModal / saveNotesModal / saveMapModal / saveWorkTimeModal / startCountEdit） | `site-modify` | site × modify | 受注編集 |
 | 社員を現場セルへ D&D 配置（drop） | `employee-place` | employee × place | 社員配置 |
@@ -1029,7 +1038,16 @@ OB §16.2 と同パターンで、画面別 scope×op 一覧を確定。実装�
 | LA | 1 (application) | 5 | 9 |
 | **合計** | **12 scope (重複除外で 10)** | **37 type** | **54 内部 type** |
 
-注 (N-3.1.1): SL は OB と `site` scope を共有。受注メタの編集は OB から行っても SL から行っても scope=site で発信される。SL の scope 数を 6 に増、type 数を 18 に増 (site×modify + 内部 site×add/delete 予約)。
+注 (N-3.1.1 / N-3.4.1): SL は OB と `site` scope を共有。受注の追加/削除/編集は OB から行っても SL から行っても scope=site で発信される。SL の scope 数を 6、type 数を 18 (site×add + site×modify + site×delete + row×modify + その他 14)。
+
+**SL ↔ OB scope 対応 (N-3.4.1 確定)**:
+
+| SL 操作 | OB 相当操作 | 共通 scope×op |
+|---------|------------|---------------|
+| 行追加 (slSaveNewRow) | 受注追加 (セル追加) | site × add |
+| 行メタ編集 (契約先/現場名/区分/シフト) | 行編集 (業務行のメタ変更) | row × modify |
+| 行削除 (deleteRow) | 受注削除 (セル削除) | site × delete |
+| 受注メタ編集 (集合時間/連絡先/人数 等) | 受注編集 (セル内属性変更) | site × modify |
 
 #### 16.3.5 実装ギャップ（N-2.4.5 で発覚）
 

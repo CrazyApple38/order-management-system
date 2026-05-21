@@ -1291,6 +1291,15 @@
         place: 'add', remove: 'delete'
     };
 
+    /* 色プリセット (5色) — ユーザーが op 連動以外の任意色を選びたい場合 */
+    var N34_COLOR_PRESETS = [
+        { key: 'primary',   label: '青 (Primary)' },
+        { key: 'secondary', label: '橙 (Secondary)' },
+        { key: 'error',     label: '赤 (Error)' },
+        { key: 'success',   label: '緑 (Success)' },
+        { key: 'warning',   label: '黄 (Warning)' }
+    ];
+
     /* 全画面の通知タイプ マスタ
        SSOT として、各画面の実装はこの表を参照して main 文言テンプレートを書く想定。
        実装と乖離した場合はこの表が正で、各画面 JS を修正する。 */
@@ -1329,17 +1338,17 @@
           fields: 'badgeData.childIds / badgeData.grandchildMap からの除去' },
 
         /* ===== SL (現場割付) ===== */
-        { id: 'sl-row-add',     bell: 'sl', scope: 'row',   op: 'add',
-          label: '行追加', template: '{company} / {siteName} を行として追加',
+        { id: 'sl-site-add',     bell: 'sl', scope: 'site',  op: 'add',
+          label: '受注追加 (行追加)', template: '{company} / {siteName} の受注を追加',
           trigger: 'slSaveNewRow / slAddModalOverlay 保存',
-          fields: '契約先・現場名・区分・シフトの組' },
-        { id: 'sl-row-modify',  bell: 'sl', scope: 'row',   op: 'modify',
+          fields: '契約先・現場名・区分・シフトの組 (SL の行追加 = OB の受注追加に該当)' },
+        { id: 'sl-row-modify',   bell: 'sl', scope: 'row',   op: 'modify',
           label: '行編集 (行メタ)', template: '{company} / {siteName} の {fields} を編集',
           trigger: 'saveSiteModal の行メタ系 diffs (N-3.1.1 で分割発信)',
-          fields: '契約先 / 現場名 / 区分 / シフト' },
-        { id: 'sl-row-delete',  bell: 'sl', scope: 'row',   op: 'delete',
-          label: '行削除', template: '{company} / {siteName} を行として削除',
-          trigger: 'deleteRow', fields: '行全体 (releaseRowEmployees 後 row.remove)' },
+          fields: '契約先 / 現場名 / 区分 / シフト (SL の行メタ編集 = OB の行編集に該当)' },
+        { id: 'sl-site-delete',  bell: 'sl', scope: 'site',  op: 'delete',
+          label: '受注削除 (行削除)', template: '{company} / {siteName} の受注を削除',
+          trigger: 'deleteRow', fields: '行全体 = その日の受注エントリ削除 (SL の行削除 = OB の受注削除に該当)' },
         { id: 'sl-site-modify', bell: 'sl', scope: 'site',  op: 'modify',
           label: '受注編集', template: '{siteLabel} の {fields} を変更',
           trigger: 'saveSiteModal の site 系 diffs / saveMeetingModal / saveWorkModal / saveNotesModal / saveMapModal / saveWorkTimeModal / startCountEdit',
@@ -1508,10 +1517,16 @@
     /* op → 背景色 CSS class */
     function n34OpClass(op) { return 'op-' + (N34_OP_CLASS[op] || 'modify'); }
 
+    /* 通知タイプの実効背景色 CSS class を取得 (color override 優先 / なければ op 連動) */
+    function n34ColorClass(t) {
+        if (t.color) return 'color-' + t.color;
+        return n34OpClass(t.op);
+    }
+
     /* 合成アイコンの HTML を生成 (co-notify-panel.js の buildComposedIconHtml と同パターン) */
     /* preview/ ディレクトリから見たアイコンパス基点は ../assets/icons/ (mockup の iconBasePath とは異なる) */
     var N34_ICON_BASE = '../assets/icons/';
-    function n34BuildIconHtml(scope, op) {
+    function n34BuildIconHtml(scope, op, colorClass) {
         var src = (window.NotifyIconsSelected && window.NotifyIconsSelected.primitives) || { scope: {}, op: {} };
         /* localStorage の上書きを優先 */
         var stored = { scope: {}, op: {} };
@@ -1523,14 +1538,15 @@
         var opPath = stored.op[op] || src.op[op] || '';
         /* legacy scope (master/pending/vehicle のみ) は scope アイコン無し → op のみ表示 */
         var isLegacy = scope === '_legacy';
+        var cls = colorClass || n34OpClass(op);
         if (!scopePath && !opPath) return '<span class="cmp-n34-icon-empty">—</span>';
         if (isLegacy) {
             /* op アイコン単体 */
-            return '<span class="cmp-n34-icon-wrap ' + n34OpClass(op) + '">' +
+            return '<span class="cmp-n34-icon-wrap ' + cls + '">' +
                    (opPath ? '<img class="cmp-n34-icon-single" src="' + N34_ICON_BASE + opPath + '" alt="">' : '') +
                    '</span>';
         }
-        return '<span class="cmp-n34-icon-wrap ' + n34OpClass(op) + '">' +
+        return '<span class="cmp-n34-icon-wrap ' + cls + '">' +
                '<span class="cmp-n34-composed">' +
                (scopePath ? '<img class="cmp-n34-base" src="' + N34_ICON_BASE + scopePath + '" alt="">' : '') +
                (opPath ? '<span class="cmp-n34-op-badge"><img class="cmp-n34-op-img" src="' + N34_ICON_BASE + opPath + '" alt=""></span>' : '') +
@@ -1569,12 +1585,14 @@
             return (t.label + ' ' + t.template + ' ' + t.trigger + ' ' + t.fields).toLowerCase().indexOf(searchLc) >= 0;
         }).map(function (t) {
             var isEdited = !!ov[t.id];
+            var colorCls = n34ColorClass(t);
+            var colorTitle = t.color ? '背景色: ' + t.color + ' (上書き) — クリックで変更' : '背景色: op 連動 — クリックで上書き';
             return '<tr data-id="' + t.id + '" class="' + (isEdited ? 'is-edited' : '') + '">' +
                 '<td class="col-bell"><span class="cmp-n34-bell-chip bell-' + t.bell + '">' + N34_BELL_LABELS[t.bell] + '</span></td>' +
                 '<td class="col-scope"><select class="cmp-n34-scope-select" data-field="scope">' + n34ScopeOptionsHtml(t.scope) + '</select></td>' +
                 '<td class="col-op"><select class="cmp-n34-op-select" data-field="op">' + n34OpOptionsHtml(t.op) + '</select></td>' +
-                '<td class="col-icon">' + n34BuildIconHtml(t.scope, t.op) + '</td>' +
-                '<td class="col-color"><span class="cmp-n34-color-swatch ' + n34OpClass(t.op) + '"></span></td>' +
+                '<td class="col-icon">' + n34BuildIconHtml(t.scope, t.op, colorCls) + '</td>' +
+                '<td class="col-color"><button type="button" class="cmp-n34-color-swatch ' + colorCls + (t.color ? ' is-custom' : '') + '" data-id="' + t.id + '" title="' + escapeHtml(colorTitle) + '"></button></td>' +
                 '<td class="col-label"><input class="cmp-n34-input" data-field="label" value="' + escapeHtml(t.label) + '"></td>' +
                 '<td class="col-template"><input class="cmp-n34-input cmp-n34-template" data-field="template" value="' + escapeHtml(t.template) + '"></td>' +
                 '<td class="col-trigger"><div class="cmp-n34-readonly">' + escapeHtml(t.trigger) + '</div></td>' +
@@ -1656,6 +1674,77 @@
         try { localStorage.removeItem(N34_STORAGE_KEY); } catch (e2) {}
         n34Render();
         n34SetStatus('編集をすべてリセットしました');
+    });
+
+    /* 色ピッカー ポップオーバー */
+    var n34PopoverEl = null;
+    function n34ClosePopover() {
+        if (n34PopoverEl) { n34PopoverEl.remove(); n34PopoverEl = null; }
+    }
+    function n34OpenColorPopover(swatchBtn) {
+        n34ClosePopover();
+        var id = swatchBtn.dataset.id;
+        if (!id) return;
+        var rect = swatchBtn.getBoundingClientRect();
+        var pop = document.createElement('div');
+        pop.className = 'cmp-n34-color-pop';
+        pop.style.left = (rect.left + window.scrollX) + 'px';
+        pop.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+        var html = '<div class="cmp-n34-color-pop-title">背景色を選択 (op 連動を上書き)</div>' +
+            '<div class="cmp-n34-color-pop-grid">' +
+            N34_COLOR_PRESETS.map(function (p) {
+                return '<button type="button" class="cmp-n34-color-pop-item color-' + p.key + '" data-id="' + id + '" data-color="' + p.key + '" title="' + escapeHtml(p.label) + '"><span class="cmp-n34-color-pop-label">' + escapeHtml(p.label) + '</span></button>';
+            }).join('') +
+            '</div>' +
+            '<button type="button" class="cmp-n34-color-pop-reset" data-id="' + id + '">op 連動に戻す</button>';
+        pop.innerHTML = html;
+        document.body.appendChild(pop);
+        n34PopoverEl = pop;
+    }
+
+    /* swatch クリック → ポップオーバー */
+    document.addEventListener('click', function (e) {
+        var swatch = e.target.closest('.cmp-n34-color-swatch');
+        if (swatch) {
+            e.stopPropagation();
+            n34OpenColorPopover(swatch);
+            return;
+        }
+        /* プリセット選択 */
+        var presetItem = e.target.closest('.cmp-n34-color-pop-item');
+        if (presetItem) {
+            e.stopPropagation();
+            var id = presetItem.dataset.id;
+            var color = presetItem.dataset.color;
+            var ov = n34ReadOverrides();
+            if (!ov[id]) ov[id] = {};
+            ov[id].color = color;
+            n34WriteOverrides(ov);
+            n34ClosePopover();
+            n34Render();
+            n34SetStatus(id + ' の背景色を ' + color + ' に上書きしました');
+            return;
+        }
+        /* リセット (op 連動に戻す) */
+        var resetBtn = e.target.closest('.cmp-n34-color-pop-reset');
+        if (resetBtn) {
+            e.stopPropagation();
+            var idR = resetBtn.dataset.id;
+            var ovR = n34ReadOverrides();
+            if (ovR[idR] && ovR[idR].color) {
+                delete ovR[idR].color;
+                if (Object.keys(ovR[idR]).length === 0) delete ovR[idR];
+                n34WriteOverrides(ovR);
+            }
+            n34ClosePopover();
+            n34Render();
+            n34SetStatus(idR + ' の背景色を op 連動に戻しました');
+            return;
+        }
+        /* 外側クリック → ポップオーバー閉じる */
+        if (n34PopoverEl && !e.target.closest('.cmp-n34-color-pop')) {
+            n34ClosePopover();
+        }
     });
 
     /* 通知一覧モードに切替えた時に描画 */

@@ -2883,10 +2883,10 @@
             if (selectedGridRow.dataset.fixed === 'true') { alert('固定行は削除できません'); return; }
             if (!confirm('この行を削除しますか？\n配置中の社員は自動的に解除されます。')) return;
             pushUndo();
-            // --- 変更通知: 削除通知 ---
+            // --- 変更通知: 削除通知 (SL の行削除 = OB の受注削除に該当) ---
             var _cnInfo = cnGetRowInfo(selectedGridRow);
             if (_cnInfo.siteName) {
-                slCnSelfNotify('row', 'delete', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift, company: _cnInfo.company });
+                slCnSelfNotify('site', 'delete', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift, company: _cnInfo.company });
             }
             releaseRowEmployees(selectedGridRow);
             selectedGridRow.remove();
@@ -3804,14 +3804,18 @@
         // Phase N-3.1: 自領域発信 — co-notify-panel.js の addItem('sl', ...) ラッパー
         // ============================================================
         // scope: 'row' / 'site' / 'employee' / 'vehicle' / 'support' (N-3.2) / 'reservation' (N-3.2)
-        // op:    row=add/modify/delete / site=add/modify/delete /
+        // op:    row=modify (行メタ変更のみ) / site=add/modify/delete /
         //        employee=place/remove/modify / vehicle=place/remove/modify
         // opts.{ siteName, category, shift, company, empName, vehicleName, isEtc, diffs, fromSiteName }
         //
-        // N-3.1.1 (2026-05-21) 注: SL から OB 由来の受注メタ (集合時間/連絡先/人数/集合場所/
-        //   現場監督/作業内容/備考/地図/作業時間) を編集した場合は scope=site で発信する。
-        //   行のメタ (契約先/現場名/区分/シフト) は scope=row、社員/車両の配置・解除は
-        //   scope=employee/vehicle。
+        // SL ↔ OB の scope 対応 (N-3.4.1 2026-05-21 確定):
+        //   SL の行追加 (slSaveNewRow)        = OB の受注追加 → site × add
+        //   SL の行削除 (deleteRow)           = OB の受注削除 → site × delete
+        //   SL の行メタ編集 (saveSiteModal の契約先/現場名/区分/シフト) = OB の行編集 → row × modify
+        //   SL の受注メタ編集 (集合時間/連絡先/人数/集合場所/現場監督/作業内容/備考/地図/作業時間
+        //     = saveSiteModal の site 系 / saveMeetingModal / saveWorkModal / saveNotesModal /
+        //       saveMapModal / saveWorkTimeModal / startCountEdit) → site × modify
+        //   社員/車両の配置・解除は scope=employee/vehicle
         function slCnSelfNotify(scope, op, opts) {
             if (!opts) opts = {};
             if (!window.coNotifyPanel || typeof window.coNotifyPanel.addItem !== 'function') return;
@@ -6327,10 +6331,10 @@
             insertBeforeFixedRows(tbody, tr);
             renumberRows();
 
-            // 変更通知
+            // 変更通知 (SL の行追加 = OB の受注追加に該当)
             var info = cnGetRowInfo(tr);
             if (info.siteName || company) {
-                slCnSelfNotify('row', 'add', {
+                slCnSelfNotify('site', 'add', {
                     siteName: info.siteName || company,
                     category: category,
                     shift: shift,
