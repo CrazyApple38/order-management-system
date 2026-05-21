@@ -817,12 +817,34 @@ N-2.3 全画面の旧ベル UI 撤去が完了（OB は 2026-05-18 / WS・LA・S
 
 **残課題（N-3 着手時に対応）**:
 
-- SL の `cnSelfNotify(type, opts)` を `slCnSelfNotify(scope, op, opts)` 新形式へ移行（§16.3.5 実装ギャップ参照）
-- SL の `removeEmployee` / `removeVehicle` / `removeEtc` に cnSelfNotify 呼出を追加
-- SL の `cnApprovePending` / `cnPendingMap` の扱い確定（§15.7-1 案A/B/C）
-- WS のサイドバー直接呼出パスの `addPartner` / `deactivatePartner` フック追加（呼出箇所要再特定）
-- LA の `expandRecurrence` 展開時の add 通知（現状は initial save 1件のみ発火）
-- LA の onSaveLeave メタ編集（partition/kind/reason/memo）の modify 発火
+- SL の `cnSelfNotify(type, opts)` を `slCnSelfNotify(scope, op, opts)` 新形式へ移行（§16.3.5 実装ギャップ参照）→ **N-3.1 完了 (`672f045`)**
+- SL の `removeEmployee` / `removeVehicle` / `removeEtc` に cnSelfNotify 呼出を追加 → **N-3.1 完了**
+- SL の `cnApprovePending` / `cnPendingMap` の扱い確定（§15.7-1 案A/B/C）→ **案B (機能廃止) 採用・N-3.1 で全撤去完了**
+- WS のサイドバー直接呼出パスの `addPartner` / `deactivatePartner` フック追加（呼出箇所要再特定）→ N-3.3
+- LA の `expandRecurrence` 展開時の add 通知（現状は initial save 1件のみ発火）→ N-3.3
+- LA の onSaveLeave メタ編集（partition/kind/reason/memo）の modify 発火 → N-3.3
+
+---
+
+## 15.10 Phase N-3.1 完了サマリ（2026-05-21）
+
+SL 自領域発信化を完遂。コミット `672f045`。
+
+| 観点 | 内容 |
+|------|------|
+| 新設関数 | `slCnSelfNotify(scope, op, opts)` / `slCnTimeNow` / `slCnTodayLabel` / `slCnSeedInitialDemo` |
+| 移行 | 9 箇所の `cnSelfNotify(type, opts)` を新形式へ振り分け |
+| 移行内訳 | saveSiteModal / saveMeetingModal / saveWorkModal / saveNotesModal / saveMapModal / saveWorkTimeModal / startCountEdit → `employee × modify` / deleteRow → `row × delete` / slSaveNewRow → `row × add` |
+| 新規フック | `removeEmployee` (employee×remove) / `removeVehicle` (vehicle×remove) / `removeEtc` (vehicle×remove + isEtc:true) / `drop` (employee×place、移動時は fromSiteName 付与) / `vtDrop` (vehicle×place×4) |
+| 案B 撤去 | cnState / cnPendingMap / cnApprovePending / cnMarkPending / cnRevertNotification / cnReapproveNotification / receiveChangeNotification / showChangeToast / checkConflict / showConflictBanner / hideConflictBanner / cnDemoSequence / cnRenderItem / renderLatestChanges / renderChangeHistory / cnRenderPickBadges / cnGetRowBellHtml ほか **約 1070 行** を撤去 |
+| 保持 | `cnGetRowInfo` (slCnSelfNotify が利用) / `cnCreateRow` (slSaveNewRow が利用) |
+| HTML 撤去 | `cnBodyOverlay` ブロック (siteModal 内コンフリクト警告。N-5 クロスフラッシュで再設計予定) |
+| キャッシュ | `screen-layout.js?v=19 → ?v=20` |
+| 動作確認 | Playwright で `slCnSelfNotify` 呼出 / 初期デモ 3件描画 / vehicle×remove 合成アイコン (車両 + ×バッジ) / console error 0 を確認 |
+
+**主要ファイル変更行数**: `docs/mockup/screen-layout.js` (+182 / -1084) / `docs/screen-layout.html` (-9)
+
+**残課題は N-3.2 (SL 応援統合) / N-3.3 (WS/LA 残ギャップ) で対応**。
 
 ---
 
@@ -1008,13 +1030,16 @@ OB §16.2 と同パターンで、画面別 scope×op 一覧を確定。実装�
 
 | 画面 | ギャップ | 解消フェーズ |
 |------|---------|-------------|
-| SL | `cnSelfNotify(type, opts)` 旧形式のまま（OB は N-2.4.4 で `(scope, op, opts)` に移行済） | N-3 で `slCnSelfNotify(scope, op, opts)` へ移行 |
-| SL | `removeEmployee` / `removeVehicle` / `removeEtc` が cnSelfNotify 未呼出 | N-3 で employee/vehicle × remove 発信を追加 |
-| SL | `slSaveNewRow` / `deleteRow` 行追加・削除も現状 employee scope 扱いの可能性 | N-3 で row scope に振り分け（要再確認） |
-| SL | 応援・応援予約機能が SL に未実装 | N-3 で SL 応援統合と同時実装 |
-| WS | 自領域発信フック自体が未実装（cnSelfNotify 関数なし） | N-2.3 残り（WS 撤去）＋ 自領域発信化 |
-| LA | 自領域発信フック自体が未実装（cnSelfNotify 関数なし） | N-2.3 残り（LA 撤去）＋ 自領域発信化 |
-| LA | 旧 panel の type alias で `new/approve/reject` → `modify/delete` フォールバック中（co-notify-panel.js L506-526） | LA 自領域発信化時に scope=application + 新 op で書き換え |
+| SL | `cnSelfNotify(type, opts)` 旧形式のまま（OB は N-2.4.4 で `(scope, op, opts)` に移行済） | ✅ N-3.1 完了 (`672f045`) `slCnSelfNotify(scope, op, opts)` へ移行 |
+| SL | `removeEmployee` / `removeVehicle` / `removeEtc` が cnSelfNotify 未呼出 | ✅ N-3.1 完了 employee/vehicle × remove 発信追加 |
+| SL | `slSaveNewRow` / `deleteRow` 行追加・削除も現状 employee scope 扱いの可能性 | ✅ N-3.1 完了 row × add / row × delete に振り分け |
+| SL | D&D `drop` / `vtDrop` (employee/vehicle/ETC 配置) も cnSelfNotify 未呼出 | ✅ N-3.1 完了 employee/vehicle × place 発信追加 |
+| SL | 応援・応援予約機能が SL に未実装 | N-3.2 で SL 応援統合と同時実装 |
+| WS | 自領域発信フック自体が未実装（cnSelfNotify 関数なし） | ✅ N-2.3 完了 |
+| WS | サイドバー直接呼出パス (`addPartner` / `deactivatePartner`) フック追加 | N-3.3 |
+| LA | 自領域発信フック自体が未実装（cnSelfNotify 関数なし） | ✅ N-2.3 完了 |
+| LA | 旧 panel の type alias で `new/approve/reject` → `modify/delete` フォールバック中（co-notify-panel.js L506-526） | LA 自領域発信化時に scope=application + 新 op で書き換え（✅ N-2.3 で `laCnSelfNotify` 自体は新 op 利用、alias は残置） |
+| LA | `expandRecurrence` 展開時の add 通知 / `onSaveLeave` メタ編集 modify 発火 | N-3.3 |
 
 #### 16.3.6 applicable マトリクス更新（2026-05-20）
 
@@ -1110,7 +1135,16 @@ OB §16.2 と同パターンで、画面別 scope×op 一覧を確定。実装�
 
 ### 16.10 次会話への引き継ぎ要点 ★重要
 
-**現在地**: N-2.4.5 完了 (2026-05-20)。N-2.4 全サブフェーズ完了。OB は `(scope, op, opts)` 形式で動作中、SL/WS/LA は §16.3 で設計確定（実装はまだ）。次は **N-3 (SL 応援統合 + SL 自領域発信化)** または **N-2.3 残り (WS/LA 撤去 + 自領域発信化)** のどちらから着手するかをユーザー判断で決定する。
+**現在地**: N-3.1 完了 (2026-05-21)。OB/WS/LA/SL の **4 画面すべてが `(scope, op, opts)` 形式で動作中**。SL の応援機能のみ未実装。
+
+**次のフェーズ**:
+
+- **N-3.2 SL 応援統合**: WS の `supportPartners` / `supportReservations` を SSOT として SL からも参照・操作。SL サイドバーに応援セクション追加 / カレンダーセルに応援バッジ。`support × place/remove/modify` / `reservation × add/modify/delete` を SL ベルに発信。WS の応援予約モーダル (`openReservationQuickModal` / `openReservationWeekModal`) を SL からも共用。
+- **N-3.3 WS / LA 残ギャップ**: WS の `addPartner` / `deactivatePartner` サイドバー直接呼出フック / LA の `expandRecurrence` 展開時 add 発火 / LA の `onSaveLeave` メタ編集 modify 発火。
+
+**初期確認 (確定済 2026-05-21)**:
+
+- 案 B (機能廃止): SL の `cnApprovePending` / `cnPendingMap` / `cnMarkPending` / コンフリクトバナーは全撤去。実運用は Supabase Realtime で他者変更を即時反映予定のため承認待ち概念が不要 (N-5 で再確認可能)。
 
 **N-2.4.S 視覚調整実装内容（完了 / 2026-05-20）**:
 
