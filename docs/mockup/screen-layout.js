@@ -297,7 +297,7 @@
         }
 
         // Comboboxインスタンス
-        let companyCombobox, siteNameCombobox, contactCombobox;
+        let companyCombobox, siteNameCombobox;
         // 動的追加項目のComboboxリスト
         let subItemComboboxes = [];
         let subItemIdCounter = 0;
@@ -472,17 +472,8 @@
                 });
             }
 
-            if (document.getElementById('contactCombobox')) {
-                contactCombobox = new Combobox('contactCombobox', {
-                    items: contactsData,
-                    allowAddNew: false,
-                    onSelect: (item) => {
-                        if (item) {
-                            console.log('連絡選択:', item);
-                        }
-                    }
-                });
-            }
+            // 注 (N-3.1.2): #contactCombobox は siteModal の HTML に存在しない (連絡先は #smContactChips
+            // チップ UI で管理されており Combobox は使わない)。旧 init は dead code として撤去。
 
             // カラー設定パネル: カラーピッカー変更時にCSS変数を即時更新
             // グループ会社（従来の直接CSS変数ピッカー）
@@ -677,6 +668,8 @@
             pushUndo();
 
             // --- 変更通知: 旧データキャプチャ ---
+            // 注 (N-3.1.2 2026-05-21): siteModal には連絡先 UI がないため connect 系 diff は扱わない。
+            // 連絡先の編集は saveMeetingModal が担当。
             var _cnOld = {};
             if (currentSiteCell) {
                 var _cnRow = currentSiteCell.closest('tr');
@@ -689,14 +682,13 @@
                 _cnOld.meetingPlace = currentSiteCell.dataset.meetingPlace || '';
                 _cnOld.supervisor = currentSiteCell.dataset.supervisor || '';
                 _cnOld.requiredCount = '';
+                _cnOld.meetingTime = '';
                 if (_cnRow) {
                     var _cnCountEl = _cnRow.querySelector('.count-display');
                     if (_cnCountEl) { var _m = _cnCountEl.textContent.trim().match(/\d+\/(\d+)/); _cnOld.requiredCount = _m ? _m[1] : ''; }
                     var _cnMeetCell = _cnRow.querySelectorAll('td')[2];
                     var _cnTimeDisp = _cnMeetCell ? _cnMeetCell.querySelector('.time-display') : null;
                     _cnOld.meetingTime = _cnTimeDisp ? _cnTimeDisp.textContent.trim() : '';
-                    var _cnContactEl = _cnMeetCell ? _cnMeetCell.querySelector('.contact-badge') : null;
-                    _cnOld.contact = _cnContactEl ? _cnContactEl.textContent.trim() : '';
                 }
             }
 
@@ -712,7 +704,6 @@
             const meetingPlace = meetingPlaceEl ? meetingPlaceEl.value : '';
             const requiredCountEl = document.getElementById('smCount');
             const requiredCount = requiredCountEl ? requiredCountEl.value : '';
-            const contact = contactCombobox ? contactCombobox.selectedItem : null;
 
             // 契約先名・業務名（inputから取得）
             const companyName = (document.getElementById('smCompany') || {}).value || '';
@@ -837,11 +828,10 @@
                 if (row) {
                     const cells = row.querySelectorAll('td');
 
-                    // 集合時間・連絡 (index 2)
+                    // 集合時間 (index 2) — 連絡先は saveMeetingModal の責務のため触らない
                     const meetingCell = cells[2];
                     if (meetingCell) {
                         let timeDisp = meetingCell.querySelector('.time-display');
-                        let contactEl = meetingCell.querySelector('.contact-badge');
                         if (meetingTime) {
                             if (!timeDisp) {
                                 timeDisp = document.createElement('span');
@@ -851,20 +841,6 @@
                             timeDisp.textContent = meetingTime;
                         } else if (timeDisp) {
                             timeDisp.textContent = '';
-                        }
-                        if (contact) {
-                            if (!contactEl) {
-                                contactEl = document.createElement('span');
-                                contactEl.className = 'contact-badge';
-                                meetingCell.appendChild(contactEl);
-                            }
-                            contactEl.textContent = contact.name;
-                            // contactクラス更新
-                            [...contactEl.classList].filter(c => c.startsWith('contact-') && c !== 'contact-badge').forEach(c => contactEl.classList.remove(c));
-                            const empContact = employeeContactItems.find(ec => ec.name === contact.name);
-                            if (empContact) contactEl.classList.add(empContact.cssClass);
-                        } else if (contactEl) {
-                            contactEl.remove();
                         }
                     }
 
@@ -932,7 +908,6 @@
             if (_cnOld.category !== _cnNewCategory) _cnDiffs.push({ field: '区分', oldVal: _cnOld.category, newVal: _cnNewCategory });
             if (_cnOld.shift !== _cnNewShift) _cnDiffs.push({ field: 'シフト', oldVal: _cnOld.shift, newVal: _cnNewShift });
             if (_cnOld.meetingTime !== meetingTime) _cnDiffs.push({ field: '集合時間', oldVal: _cnOld.meetingTime, newVal: meetingTime });
-            if (_cnOld.contact !== (contact ? contact.name : '')) _cnDiffs.push({ field: '連絡先', oldVal: _cnOld.contact, newVal: contact ? contact.name : '' });
             if (_cnOld.requiredCount !== (requiredCount || '')) _cnDiffs.push({ field: '人数', oldVal: _cnOld.requiredCount, newVal: requiredCount || '' });
             if (_cnOld.meetingPlace !== meetingPlace) _cnDiffs.push({ field: '集合場所', oldVal: _cnOld.meetingPlace, newVal: meetingPlace });
             if (_cnOld.supervisor !== supervisor) _cnDiffs.push({ field: '現場監督', oldVal: _cnOld.supervisor, newVal: supervisor });
