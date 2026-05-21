@@ -937,7 +937,7 @@
             if (_cnOld.meetingPlace !== meetingPlace) _cnDiffs.push({ field: '集合場所', oldVal: _cnOld.meetingPlace, newVal: meetingPlace });
             if (_cnOld.supervisor !== supervisor) _cnDiffs.push({ field: '現場監督', oldVal: _cnOld.supervisor, newVal: supervisor });
             if (_cnDiffs.length > 0) {
-                cnSelfNotify('modify', {
+                slCnSelfNotify('employee', 'modify', {
                     siteName: _cnNewSiteName || _cnOld.siteName,
                     category: _cnNewCategory || _cnOld.category,
                     shift: _cnNewShift || _cnOld.shift,
@@ -1064,7 +1064,7 @@
             if (_cnOldTime !== meetingTime) _cnDiffs.push({ field: '集合時間', oldVal: _cnOldTime, newVal: meetingTime });
             if (_cnOldContact !== (mtSelectedContact || '')) _cnDiffs.push({ field: '連絡先', oldVal: _cnOldContact, newVal: mtSelectedContact || '' });
             if (_cnDiffs.length > 0) {
-                cnSelfNotify('modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift, diffs: _cnDiffs });
+                slCnSelfNotify('employee', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift, diffs: _cnDiffs });
             }
 
             closeMeetingModal();
@@ -1138,7 +1138,7 @@
             // --- 変更通知: diff生成 ---
             var _cnNewBadgeText = currentWorkCell.textContent.trim();
             if (_cnOldBadgeText !== _cnNewBadgeText) {
-                cnSelfNotify('modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
+                slCnSelfNotify('employee', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
                     diffs: [{ field: '作業内容', oldVal: _cnOldBadgeText, newVal: _cnNewBadgeText }] });
             }
 
@@ -1223,7 +1223,7 @@
             // --- 変更通知: diff生成 ---
             var _cnNewNotesText = currentNotesCell.textContent.trim();
             if (_cnOldNotesText !== _cnNewNotesText) {
-                cnSelfNotify('modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
+                slCnSelfNotify('employee', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
                     diffs: [{ field: '備考', oldVal: _cnOldNotesText, newVal: _cnNewNotesText }] });
             }
 
@@ -1411,7 +1411,7 @@
                 if (newRequired !== required) {
                     var _cnRow = cell.closest('tr');
                     var _cnInfo = cnGetRowInfo(_cnRow);
-                    cnSelfNotify('modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
+                    slCnSelfNotify('employee', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
                         diffs: [{ field: '人数', oldVal: assigned + '/' + required, newVal: assigned + '/' + newRequired }]
                     });
                 }
@@ -1696,7 +1696,7 @@
             // --- 変更通知: diff生成 ---
             var _cnNewMaps = filtered.map(function(m) { return m.label; }).join(', ');
             if (_cnOldMaps !== _cnNewMaps) {
-                cnSelfNotify('modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
+                slCnSelfNotify('employee', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift,
                     diffs: [{ field: '地図', oldVal: _cnOldMaps, newVal: _cnNewMaps }] });
             }
 
@@ -1732,8 +1732,15 @@
         function removeVehicle(btn) {
             pushUndo();
             const tag = btn.closest('.vehicle-tag');
-            if (tag) tag.remove();
+            if (!tag) { updateVehicleListStatus(); return; }
+            var _row = tag.closest('tr');
+            var _info = cnGetRowInfo(_row);
+            var _plate = (tag.childNodes[0] && tag.childNodes[0].textContent) ? tag.childNodes[0].textContent.trim() : '';
+            tag.remove();
             updateVehicleListStatus();
+            if (_info.siteName) {
+                slCnSelfNotify('vehicle', 'remove', { siteName: _info.siteName, category: _info.category, shift: _info.shift, vehicleName: _plate });
+            }
         }
 
         // 配置中の社員名を取得
@@ -2167,6 +2174,10 @@
                     makeAssignedVehicleDraggable(newTag);
                     dragSourceVehicleTag = null;
                     updateVehicleListStatus();
+                    var _cnVehInfoMv = cnGetRowInfo(vZone.closest('tr'));
+                    if (_cnVehInfoMv.siteName) {
+                        slCnSelfNotify('vehicle', 'place', { siteName: _cnVehInfoMv.siteName, category: _cnVehInfoMv.category, shift: _cnVehInfoMv.shift, vehicleName: plate });
+                    }
                 } else {
                     // サイドパネルからの配置（同一シフト帯に既存配置があれば移動）
                     var targetShift = getRowShift(vZone);
@@ -2201,6 +2212,10 @@
                     vZone.appendChild(tag);
                     makeAssignedVehicleDraggable(tag);
                     updateVehicleListStatus();
+                    var _cnVehInfoNew = cnGetRowInfo(vZone.closest('tr'));
+                    if (_cnVehInfoNew.siteName) {
+                        slCnSelfNotify('vehicle', 'place', { siteName: _cnVehInfoNew.siteName, category: _cnVehInfoNew.category, shift: _cnVehInfoNew.shift, vehicleName: plate });
+                    }
                 }
             } else if (label) {
                 var eZone = split.querySelector('.etc-drop-zone');
@@ -2239,6 +2254,10 @@
                     makeAssignedEtcDraggable(newETag);
                     dragSourceEtcTag = null;
                     updateVehicleListStatus();
+                    var _cnEtcInfoMv = cnGetRowInfo(eZone.closest('tr'));
+                    if (_cnEtcInfoMv.siteName) {
+                        slCnSelfNotify('vehicle', 'place', { siteName: _cnEtcInfoMv.siteName, category: _cnEtcInfoMv.category, shift: _cnEtcInfoMv.shift, vehicleName: label, isEtc: true });
+                    }
                 } else {
                     // サイドパネルからの新規配置
                     var targetShift2 = getRowShift(eZone);
@@ -2257,6 +2276,10 @@
                     eZone.appendChild(eTag);
                     makeAssignedEtcDraggable(eTag);
                     updateVehicleListStatus();
+                    var _cnEtcInfoNew = cnGetRowInfo(eZone.closest('tr'));
+                    if (_cnEtcInfoNew.siteName) {
+                        slCnSelfNotify('vehicle', 'place', { siteName: _cnEtcInfoNew.siteName, category: _cnEtcInfoNew.category, shift: _cnEtcInfoNew.shift, vehicleName: label, isEtc: true });
+                    }
                 }
             }
         }
@@ -2271,8 +2294,15 @@
         function removeEtc(btn) {
             pushUndo();
             var tag = btn.closest('.etc-tag');
-            if (tag) tag.remove();
+            if (!tag) { updateVehicleListStatus(); return; }
+            var _row = tag.closest('tr');
+            var _info = cnGetRowInfo(_row);
+            var _label = (tag.childNodes[0] && tag.childNodes[0].textContent) ? tag.childNodes[0].textContent.trim() : '';
+            tag.remove();
             updateVehicleListStatus();
+            if (_info.siteName) {
+                slCnSelfNotify('vehicle', 'remove', { siteName: _info.siteName, category: _info.category, shift: _info.shift, vehicleName: _label, isEtc: true });
+            }
         }
 
         function updateRowCount(zone) {
@@ -2307,12 +2337,18 @@
             pushUndo();
             const employeeTag = btn.closest('.assigned-employee');
             if (employeeTag) {
+                var _row = employeeTag.closest('tr');
+                var _info = cnGetRowInfo(_row);
+                var _empName = getEmployeeName(employeeTag) || '';
                 const zone = employeeTag.closest('.assignment-zone');
                 employeeTag.remove();
                 if (zone) updateRowCount(zone);
                 updateEmployeeListStatus();
                 slRenderHolidayRow();
                 slRefreshContinuousBadges();
+                if (_info.siteName) {
+                    slCnSelfNotify('employee', 'remove', { siteName: _info.siteName, category: _info.category, shift: _info.shift, empName: _empName });
+                }
             }
         }
 
@@ -2727,6 +2763,10 @@
 
                 pushUndo();
 
+                // 変更通知用: 移動元情報を捕捉
+                var _cnSrcInfo = cnGetRowInfo(sourceZone.closest('tr'));
+                var _cnDstInfo = cnGetRowInfo(zone.closest('tr'));
+
                 // 元の行から削除
                 dragSourceAssignedEmployee.remove();
 
@@ -2745,6 +2785,14 @@
                 updateEmployeeListStatus();
                 slRenderHolidayRow();
                 slRefreshContinuousBadges();
+
+                if (_cnDstInfo.siteName) {
+                    slCnSelfNotify('employee', 'place', {
+                        siteName: _cnDstInfo.siteName, category: _cnDstInfo.category, shift: _cnDstInfo.shift,
+                        empName: name,
+                        fromSiteName: _cnSrcInfo.siteName + (_cnSrcInfo.shift ? '（' + _cnSrcInfo.shift + '）' : '')
+                    });
+                }
 
                 dragSourceAssignedEmployee = null;
             } else {
@@ -2789,6 +2837,14 @@
                 updateEmployeeListStatus();
                 slRenderHolidayRow();
                 slRefreshContinuousBadges();
+
+                var _cnDstInfo2 = cnGetRowInfo(zone.closest('tr'));
+                if (_cnDstInfo2.siteName) {
+                    slCnSelfNotify('employee', 'place', {
+                        siteName: _cnDstInfo2.siteName, category: _cnDstInfo2.category, shift: _cnDstInfo2.shift,
+                        empName: data
+                    });
+                }
             }
         }
 
@@ -2839,7 +2895,7 @@
             // --- 変更通知: 削除通知 ---
             var _cnInfo = cnGetRowInfo(selectedGridRow);
             if (_cnInfo.siteName) {
-                cnSelfNotify('delete', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift });
+                slCnSelfNotify('row', 'delete', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift, company: _cnInfo.company });
             }
             releaseRowEmployees(selectedGridRow);
             selectedGridRow.remove();
@@ -3738,1023 +3794,134 @@
             resetColorsToDefault();
         }
 
-        // ==================== 変更通知システム ====================
-
-        const cnState = {
-            notifications: [],
-            history: [],
-            unreadCount: 0,
-            activeTab: 'latest',
-            nextId: 1,
-            filterRowId: ''   // 行ベルから開いた場合の現場名（空=フィルタなし）
-        };
-
-        function cnTimeNow() {
-            const d = new Date();
-            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
-        }
-
-        function updateNotifyBadge() {
-            const badge = document.getElementById('cnBadge');
-            if (!badge) return;
-            if (cnState.unreadCount > 0) {
-                badge.textContent = cnState.unreadCount;
-                badge.hidden = false;
-            } else {
-                badge.textContent = '0';
-                badge.hidden = true;
-            }
-        }
-
-        function showChangeToast(notification) {
-            const container = document.getElementById('cnToastContainer');
-            const toast = document.createElement('div');
-            const typeClass = 'md-cn-toast-' + notification.type;
-            const dotColors = { add: '#44A6B5', modify: '#DECCBE', delete: '#DB577B' };
-            const typeLabels = { add: '追加', modify: '変更', delete: '削除' };
-
-            toast.className = 'md-cn-toast ' + typeClass;
-            toast.innerHTML =
-                '<span class="md-cn-toast-icon" style="width:14px;height:14px;border-radius:50%;background:' + dotColors[notification.type] + ';flex-shrink:0;"></span>' +
-                '<div class="md-cn-toast-body">' +
-                    '<div class="md-cn-toast-title">' + typeLabels[notification.type] + ' — ' + notification.user + '</div>' +
-                    '<div class="md-cn-toast-desc">' + escapeHtml(notification.siteName) + '</div>' +
-                '</div>' +
-                '<span class="md-cn-toast-time">' + notification.time + '</span>';
-
-            toast.onclick = function() {
-                toast.classList.add('md-cn-toast-exit');
-                setTimeout(function() { toast.remove(); }, 300);
-                openChangeNotifyModal();
-            };
-
-            container.appendChild(toast);
-
-            setTimeout(function() {
-                if (toast.parentNode) {
-                    toast.classList.add('md-cn-toast-exit');
-                    setTimeout(function() { toast.remove(); }, 300);
-                }
-            }, 5000);
-        }
-
-        // ヘッダーベルクリック: 内容を更新するのみ。パネルの開閉は co-notify-panel.js が .cn-trigger クリックで処理
-        function openChangeNotifyModal() {
-            var anchor = document.getElementById('cnAnchor');
-            // 既に開いている場合 → 閉じるためのクリック → 描画は不要
-            if (anchor && anchor.classList.contains('is-open')) return;
-            cnState.filterRowId = '';
-            // ヘッダーベルからは全既読
-            cnState.notifications.forEach(function(n) { n._read = true; });
-            cnState.unreadCount = 0;
-            updateNotifyBadge();
-            cnUpdateRowBells();
-            var label = document.getElementById('cnRowFilterLabel');
-            if (label) label.hidden = true;
-            renderLatestChanges();
-            renderChangeHistory();
-        }
-
-        function cnOpenModalForRow(bellEl) {
-            var row = bellEl.closest('tr');
-            var siteName = cnGetRowSiteName(row);
-            var pending = cnPendingMap.get(row);
-            // 承認待ちの行 → ベルクリックで承認（既読化 + 変更適用 + ハイライト除去）
-            if (pending) {
-                if (pending.type === 'delete') {
-                    // 削除はモーダルを開かずに承認のみ
-                    cnApprovePending(row);
-                    return;
-                }
-                cnApprovePending(row);
-            }
-            cnState.filterRowId = siteName;
-            // 該当行の通知のみ既読
-            cnState.notifications.forEach(function(n) {
-                if (!n._read && n._rowId === siteName) n._read = true;
-            });
-            // 全体の未読数を再計算
-            cnState.unreadCount = cnState.notifications.filter(function(n) { return !n._read; }).length;
-            updateNotifyBadge();
-            cnUpdateRowBells();
-            // フィルタラベルを表示 (現場名でフィルタしている旨)
-            var label = document.getElementById('cnRowFilterLabel');
-            if (label) {
-                label.textContent = siteName;
-                label.hidden = false;
-            }
-            renderLatestChanges();
-            renderChangeHistory();
-            var anchor = document.getElementById('cnAnchor');
-            if (anchor && window.coNotifyPanel) window.coNotifyPanel.open(anchor);
-        }
-
-        function closeChangeNotifyModal() {
-            var anchor = document.getElementById('cnAnchor');
-            if (anchor && window.coNotifyPanel) window.coNotifyPanel.close(anchor);
-            cnState.filterRowId = '';
-            var label = document.getElementById('cnRowFilterLabel');
-            if (label) label.hidden = true;
-        }
-
-        // 上タブ切替は co-notify-panel.js が処理 (互換ラッパー)
-        function switchCnTab(tabName) {
-            cnState.activeTab = tabName;
-            var panel = document.getElementById('cnPanel');
-            if (!panel) return;
-            panel.querySelectorAll('.cn-tab').forEach(function (t) {
-                t.classList.toggle('is-active', t.dataset.tab === tabName);
-            });
-            panel.querySelectorAll('.cn-tab-view').forEach(function (v) {
-                v.classList.toggle('is-active', v.dataset.tab === tabName);
-            });
-        }
-
-        // ========== 変更通知パネル レンダリング (cn-* 規約) ==========
-        const cnIconChars = {
-            add: '＋', modify: '✎', delete: '✕',
-            new: '＋', approved: '✓', rejected: '✕'
-        };
-        const cnTypeLabels = { add: '新規追加', modify: '変更', delete: '削除' };
-
-        function cnDescribeAction(n) {
-            if (n.type === 'add') return n.siteName + ' を新規追加';
-            if (n.type === 'delete') return n.siteName + ' を削除';
-            if (n.type === 'modify') {
-                var fields = n.diffs ? n.diffs.map(function(d) { return d.field; }).join('・') : '';
-                return n.siteName + (fields ? ' の' + fields + 'を変更' : ' を変更');
-            }
-            return n.siteName || '';
-        }
-
-        function cnBuildDiffHtml(n) {
-            var html = '';
-            if (n.type === 'modify' && n.diffs) {
-                html = n.diffs.map(function(d) {
-                    return '<div class="cn-diff-line">' +
-                        '<span class="cn-diff-label">' + escapeHtml(d.field) + '</span>' +
-                        '<span class="cn-diff-from">' + escapeHtml(d.oldVal) + '</span>' +
-                        '<span class="cn-diff-arrow">→</span>' +
-                        '<span class="cn-diff-to">' + escapeHtml(d.newVal) + '</span>' +
-                    '</div>';
-                }).join('');
-            } else if (n.type === 'add' && n.details) {
-                html = n.details.map(function(d) {
-                    return '<div class="cn-diff-line">' +
-                        '<span class="cn-diff-label">' + escapeHtml(d.field) + '</span>' +
-                        '<span class="cn-diff-to">' + escapeHtml(d.value) + '</span>' +
-                    '</div>';
-                }).join('');
-            }
-            return html;
-        }
-
-        function cnRenderItem(n, options) {
-            options = options || {};
-            var iconChar = cnIconChars[n.type] || '?';
-            // 追加/変更/削除すべてアコーディオン展開でキャンセル/適用ボタンを出す
-            var stateClass = n.reverted ? ' is-reverted' : (n._approved ? ' is-approved' : '');
-            var unreadClass = (!options.suppressUnread && !n._read) ? ' is-unread' : '';
-
-            var diffHtml = cnBuildDiffHtml(n);
-            if (!diffHtml && n.type === 'delete') {
-                diffHtml = '<div class="cn-diff-line"><span class="cn-diff-from">この行は削除されました</span></div>';
-            }
-            var actionBtn = n.reverted
-                ? '<button class="cn-jump-btn" type="button" onclick="event.stopPropagation();cnReapproveNotification(' + n.id + ')">↻ 適用する</button>'
-                : '<button class="cn-jump-btn" type="button" onclick="event.stopPropagation();cnRevertNotification(' + n.id + ')">↩ キャンセル</button>';
-            var expandHtml = '<div class="cn-expand">' + diffHtml + actionBtn + '</div>';
-            var chevron = '<span class="cn-chevron">▾</span>';
-
-            var dateChip = options.showDateChip && n.time ? '<span class="cn-date-chip">' + escapeHtml(n.time) + '</span>' : '';
-            return '<div class="cn-item type-' + n.type + unreadClass + stateClass + '" data-nid="' + n.id + '" data-type="' + n.type + '" data-site="' + escapeHtml(n.siteName || '') + '" data-account="' + escapeHtml(n.user || '') + '">' +
-                '<div class="cn-item-row">' +
-                    '<div class="cn-icon type-' + n.type + '">' + iconChar + '</div>' +
-                    '<div class="cn-text">' +
-                        '<div class="cn-text-main">' + escapeHtml(cnDescribeAction(n)) + dateChip + '</div>' +
-                        '<div class="cn-text-sub">' + escapeHtml(n.user) + ' ・ ' + escapeHtml(n.time || '') + '</div>' +
-                    '</div>' +
-                    chevron +
-                '</div>' +
-                expandHtml +
-            '</div>';
-        }
-
-        function cnFilterNotifications() {
-            return cnState.notifications.filter(function(n) {
-                if (n.gcCode && !window.mdNavGcIsCompanyVisible(n.gcCode)) return false;
-                if (cnState.filterRowId && n._rowId !== cnState.filterRowId) return false;
-                return true;
-            });
-        }
-
-        function renderLatestChanges() {
-            var body = document.getElementById('cnLatestBody');
-            if (!body) return;
-            var filtered = cnFilterNotifications();
-            if (filtered.length === 0) {
-                body.innerHTML = '<div class="cn-empty">変更通知はありません</div>';
-                return;
-            }
-            // 日付グルーピング: SLは当日分のみ流入のため「今日」一括
-            var groupLabel = '今日';
-            body.innerHTML = '<div class="cn-date-group">' +
-                '<button class="cn-date-group-head" type="button" aria-expanded="true">' + escapeHtml(groupLabel) +
-                    '<span class="cn-date-group-toggle" aria-hidden="true">▴</span>' +
-                '</button>' +
-                filtered.map(function(n) { return cnRenderItem(n, {}); }).join('') +
-            '</div>';
-        }
-
-        function cnFilterHistory() {
-            return cnState.history.filter(function(h) {
-                if (h.gcCode && !window.mdNavGcIsCompanyVisible(h.gcCode)) return false;
-                if (cnState.filterRowId && h.siteName !== cnState.filterRowId) return false;
-                return true;
-            });
-        }
-
-        function cnRenderHistoryItem(h) {
-            var iconChar = cnIconChars[h.type] || '?';
-            var attrs = (h.notificationId != null ? ' data-nid="' + h.notificationId + '"' : '') +
-                ' data-type="' + h.type + '"' +
-                ' data-site="' + escapeHtml(h.siteName || '') + '"' +
-                ' data-account="' + escapeHtml(h.user || '') + '"';
-            return '<div class="cn-item type-' + h.type + '"' + attrs + '>' +
-                '<div class="cn-item-row">' +
-                    '<div class="cn-icon type-' + h.type + '">' + iconChar + '</div>' +
-                    '<div class="cn-text">' +
-                        '<div class="cn-text-main">' + escapeHtml(h.summary || h.siteName || '') + '</div>' +
-                        '<div class="cn-text-sub">' + escapeHtml(h.user) + ' ・ ' + escapeHtml(h.time || '') + '</div>' +
-                    '</div>' +
-                '</div>' +
-            '</div>';
-        }
-
-        function cnGroupBy(items, keyFn) {
-            var groups = {};
-            var order = [];
-            items.forEach(function(it) {
-                var k = keyFn(it) || '(未分類)';
-                if (!groups[k]) { groups[k] = []; order.push(k); }
-                groups[k].push(it);
-            });
-            return order.map(function(k) { return { key: k, items: groups[k] }; });
-        }
-
-        function cnRenderAxisGroups(grouped) {
-            if (grouped.length === 0) return '<div class="cn-empty">変更履歴はありません</div>';
-            return grouped.map(function(g) {
-                return '<div class="cn-axis-group">' +
-                    '<button class="cn-axis-group-head" type="button" aria-expanded="true">' + escapeHtml(g.key) +
-                        '<span class="cn-axis-group-toggle" aria-hidden="true">▴</span>' +
-                    '</button>' +
-                    g.items.map(cnRenderHistoryItem).join('') +
-                '</div>';
-            }).join('');
-        }
-
-        function renderChangeHistory() {
-            var siteBody = document.getElementById('cnHistorySiteBody');
-            var accBody = document.getElementById('cnHistoryAccountBody');
-            var filtered = cnFilterHistory();
-
-            if (siteBody) {
-                var bySite = cnGroupBy(filtered, function(h) { return h.siteName; });
-                siteBody.innerHTML = cnRenderAxisGroups(bySite);
-            }
-            if (accBody) {
-                var byAcc = cnGroupBy(filtered, function(h) { return h.user; });
-                accBody.innerHTML = cnRenderAxisGroups(byAcc);
-            }
-
-            // 一覧選択バッジ (契約先 → 現場 / アカウント) をデモ用に組み立て
-            cnRenderPickBadges(filtered);
-        }
-
-        function cnRenderPickBadges(historyItems) {
-            // 現場名: グループ会社別 (gcCode → 現場一覧)
-            var companyBadges = document.getElementById('cnPickCompanyBadges');
-            var siteGroups = document.getElementById('cnPickSiteBadgesGroups');
-            if (companyBadges && siteGroups) {
-                var byGc = cnGroupBy(
-                    historyItems.filter(function(h) { return !!h.siteName; }),
-                    function(h) { return h.gcCode || '一般'; }
-                );
-                companyBadges.innerHTML = byGc.map(function(g) {
-                    var label = (function() {
-                        for (var i = 0; i < (window.groupCompaniesData || []).length; i++) {
-                            if (window.groupCompaniesData[i].code === g.key) return window.groupCompaniesData[i].name;
-                        }
-                        return g.key;
-                    })();
-                    return '<button class="cn-pick-badge" type="button" data-company="' + escapeHtml(g.key) + '">' + escapeHtml(label) + '</button>';
-                }).join('') || '<button class="cn-pick-badge" type="button" disabled>契約先がありません</button>';
-
-                siteGroups.innerHTML = byGc.map(function(g) {
-                    var sites = {};
-                    g.items.forEach(function(h) { sites[h.siteName] = true; });
-                    var siteList = Object.keys(sites);
-                    return '<div class="cn-pick-badges" data-company="' + escapeHtml(g.key) + '" hidden>' +
-                        siteList.map(function(s) {
-                            return '<button class="cn-pick-badge" type="button">' + escapeHtml(s) + '</button>';
-                        }).join('') +
-                    '</div>';
-                }).join('');
-            }
-            // アカウント
-            var accBadges = document.getElementById('cnPickAccountBadges');
-            if (accBadges) {
-                var users = {};
-                historyItems.forEach(function(h) { if (h.user) users[h.user] = true; });
-                var userList = Object.keys(users);
-                accBadges.innerHTML = userList.length
-                    ? userList.map(function(u) { return '<button class="cn-pick-badge" type="button">' + escapeHtml(u) + '</button>'; }).join('')
-                    : '<button class="cn-pick-badge" type="button" disabled>アカウントがありません</button>';
-            }
-        }
-
-        function cnJumpToCard(notificationId) {
-            switchCnTab('latest');
-            setTimeout(function() {
-                var item = document.querySelector('.cn-item[data-nid="' + notificationId + '"]');
-                if (!item) return;
-                item.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                item.classList.add('cn-item-highlight');
-                setTimeout(function() { item.classList.remove('cn-item-highlight'); }, 1500);
-            }, 50);
-        }
-
-        // 履歴タブのアイテム → 最新タブの該当カードへジャンプ
-        document.addEventListener('cn:jump', function(e) {
-            var item = e.detail && e.detail.item;
-            if (!item) return;
-            var nid = item.dataset && item.dataset.nid;
-            if (!nid) return;
-            // 履歴タブで発火した場合は最新タブへジャンプ
-            var inHistory = item.closest('.cn-tab-view[data-tab="history"]');
-            if (inHistory) cnJumpToCard(parseInt(nid, 10));
-        });
-
-        function checkConflict(notification) {
-            const siteModal = document.getElementById('siteModal');
-            if (siteModal.style.display === 'none' || siteModal.style.display === '') return false;
-            return true;
-        }
-
-        function showConflictBanner(notification) {
-            const siteModal = document.getElementById('siteModal');
-            if (!siteModal || siteModal.style.display === 'none') return;
-            const overlay = document.getElementById('cnBodyOverlay');
-            if (!overlay) return;
-            const modal = overlay.parentElement;
-            const header = modal && modal.querySelector('.modal-header');
-            overlay.style.top = (header ? header.offsetHeight : 0) + 'px';
-            const text = document.getElementById('cnBodyOverlayText');
-            if (text) text.textContent = notification.user + 'が「' + notification.siteName + '」を変更しました。最新のデータに更新されます。';
-            overlay.style.display = 'flex';
-        }
-
-        function hideConflictBanner() {
-            const overlay = document.getElementById('cnBodyOverlay');
-            if (overlay) overlay.style.display = 'none';
-        }
-
-        // 行要素からグループ会社コードを取得
-        function cnGetGcCodeFromRow(row) {
-            if (!row) return '';
-            for (var i = 0; i < groupCompaniesData.length; i++) {
-                if (row.classList && row.classList.contains(groupCompaniesData[i].rowClass)) return groupCompaniesData[i].code;
-            }
-            return '';
-        }
-
-        function receiveChangeNotification(notification) {
-            notification.id = cnState.nextId++;
-            notification.reverted = false;
-            notification._read = false;
-            notification._rowId = notification.siteName || '';
-            // GCコード付与（行参照 or siteName検索）
-            if (!notification.gcCode) {
-                var gcRow = notification._row || cnFindRow(notification.siteName);
-                if (gcRow) notification.gcCode = cnGetGcCodeFromRow(gcRow);
-            }
-            cnState.notifications.unshift(notification);
-            cnState.history.unshift({
-                notificationId: notification.id,
-                type: notification.type,
-                user: notification.user,
-                time: notification.time,
-                siteName: notification.siteName || '',
-                gcCode: notification.gcCode || '',
-                summary: notification.siteName + (notification.type === 'modify' && notification.diffs
-                    ? '（' + notification.diffs.map(function(d) { return d.field; }).join('・') + '）'
-                    : '')
-            });
-            cnState.unreadCount++;
-            updateNotifyBadge();
-
-            if (checkConflict(notification)) {
-                showConflictBanner(notification);
-            }
-
-            showChangeToast(notification);
-            cnUpdateRowBells();
-        }
-
-        // --- 自分の操作を変更通知として送信 ---
-        const cnCurrentUser = '自分';
-
         function cnGetRowInfo(row) {
-            if (!row) return { siteName: '', category: '', shift: '' };
+            if (!row) return { siteName: '', category: '', shift: '', company: '' };
             var siteCell = row.querySelector('.col-site-info');
             var sn = row.querySelector('.site-name');
             var catBadge = siteCell ? siteCell.querySelector('.category-badge') : null;
             var shiftBadge = siteCell ? siteCell.querySelector('.shift-badge') : null;
+            var companyEl = siteCell ? siteCell.querySelector('.company') : null;
             return {
                 siteName: sn ? sn.textContent.trim() : '',
                 category: catBadge ? catBadge.textContent.trim() : '',
-                shift: shiftBadge ? shiftBadge.textContent.trim() : ''
+                shift: shiftBadge ? shiftBadge.textContent.trim() : '',
+                company: companyEl ? companyEl.textContent.trim() : ''
             };
         }
 
-        function cnSelfNotify(type, opts) {
-            var n = {
-                type: type,
-                user: cnCurrentUser,
-                siteName: opts.siteName || '',
-                category: opts.category || '',
-                shift: opts.shift || '',
-                time: cnTimeNow(),
-                diffs: opts.diffs || null,
-                details: opts.details || null,
-                _selfAction: true,
-                _approved: true
-            };
-            // 行参照を保存（キャンセル時の復元用）
-            var row = cnFindRow(n.siteName);
-            if (row) {
-                n._row = row;
-                // 削除通知: 行HTML・位置を保存（復元用）
-                if (type === 'delete') {
-                    n._deletedRowHtml = row.outerHTML;
-                    n._deletedRowIndex = Array.from(row.parentNode.children).indexOf(row);
-                    n._deletedRowParent = row.parentNode;
-                }
+        // ============================================================
+        // Phase N-3.1: 自領域発信 — co-notify-panel.js の addItem('sl', ...) ラッパー
+        // ============================================================
+        // scope: 'row' / 'employee' / 'vehicle' / 'support' (N-3.2) / 'reservation' (N-3.2)
+        // op:    row=add/modify/delete / employee=place/remove/modify / vehicle=place/remove/modify
+        // opts.{ siteName, category, shift, company, empName, vehicleName, isEtc, diffs, fromSiteName }
+        function slCnSelfNotify(scope, op, opts) {
+            if (!opts) opts = {};
+            if (!window.coNotifyPanel || typeof window.coNotifyPanel.addItem !== 'function') return;
+
+            var siteName = opts.siteName || '';
+            var shift = opts.shift || '';
+            var company = opts.company || '';
+            var siteLabel = siteName + (shift ? '（' + shift + '）' : '');
+            var mainText = '';
+            var expandText = '';
+
+            if (scope === 'row') {
+                var rowHead = (company ? company + ' / ' : '') + (siteName || '(無名)');
+                if (op === 'add')         mainText = rowHead + ' を行として追加';
+                else if (op === 'delete') mainText = rowHead + ' を行として削除';
+                else if (op === 'modify') {
+                    var fs = (opts.diffs || []).map(function (d) { return d.field; }).join('・');
+                    mainText = rowHead + ' の ' + (fs || 'メタ情報') + ' を編集';
+                } else mainText = rowHead + ' を' + op;
+            } else if (scope === 'employee') {
+                var empName = opts.empName || '社員';
+                if (op === 'place') {
+                    mainText = empName + ' を ' + siteLabel + ' に配置';
+                    if (opts.fromSiteName) expandText = '移動元: ' + opts.fromSiteName;
+                } else if (op === 'remove') {
+                    mainText = empName + ' を ' + siteLabel + ' から解除';
+                } else if (op === 'modify') {
+                    var fs2 = (opts.diffs || []).map(function (d) { return d.field; }).join('・');
+                    mainText = siteLabel + ' の ' + (fs2 || 'メタ情報') + ' を変更';
+                } else mainText = siteLabel + ' の社員を' + op;
+            } else if (scope === 'vehicle') {
+                var vehicleName = opts.vehicleName || '車両';
+                var isEtc = !!opts.isEtc;
+                var prefix = isEtc ? 'ETC ' : '';
+                if (op === 'place')       mainText = prefix + vehicleName + ' を ' + siteLabel + ' に配置';
+                else if (op === 'remove') mainText = prefix + vehicleName + ' を ' + siteLabel + ' から解除';
+                else if (op === 'modify') {
+                    var fs3 = (opts.diffs || []).map(function (d) { return d.field; }).join('・');
+                    mainText = siteLabel + ' の車両 ' + (fs3 || 'メタ情報') + ' を変更';
+                } else mainText = siteLabel + ' の車両を' + op;
+            } else {
+                mainText = siteLabel + ' を' + op;
             }
-            receiveChangeNotification(n);
-        }
 
-        // フィールド名 → セル要素のマッピング（diffs から DOM を逆引き）
-        var cnFieldCellMap = {
-            '集合時間':   function(row) { return row.querySelector('.time-display'); },
-            '連絡先':     function(row) { return row.querySelector('.contact-badge'); },
-            '人数':       function(row) { return row.querySelector('.count-display'); },
-            '開始時間':   function(row) { return row.querySelector('.work-time-start'); },
-            '終了時間':   function(row) { return row.querySelector('.work-time-end'); },
-            '現場名':     function(row) { var si = row.querySelector('.col-site-info'); return si ? si.querySelector('.site-name') : null; },
-            '区分':       function(row) { var si = row.querySelector('.col-site-info'); return si ? si.querySelector('.category-badge') : null; },
-            'シフト':     function(row) { var si = row.querySelector('.col-site-info'); return si ? si.querySelector('.shift-badge') : null; },
-            '契約先':     function(row) { var si = row.querySelector('.col-site-info'); return si ? si.querySelector('.company') : null; },
-            '作業内容':   function(row) { return row.querySelector('.col-badge'); },
-            '備考':       function(row) { return row.querySelector('.col-notes'); },
-            '地図':       function(row) { return row.querySelector('.col-map'); }
-        };
+            if (!expandText && opts.diffs && opts.diffs.length > 0) {
+                expandText = opts.diffs.map(function (d) {
+                    return d.field + ': ' + (d.oldVal || '(空)') + ' → ' + (d.newVal || '(空)');
+                }).join(' / ');
+            }
 
-        // diffs から _modifyData 相当の配列を生成（復元用）
-        function cnBuildModifyDataFromDiffs(row, diffs) {
-            if (!row || !diffs) return [];
-            var result = [];
-            diffs.forEach(function(d) {
-                var resolver = cnFieldCellMap[d.field];
-                if (!resolver) return;
-                var el = resolver(row);
-                if (!el) return;
-                result.push({
-                    el: el,
-                    td: el.closest('td'),
-                    originalText: d.oldVal || '',
-                    changedText: d.newVal || ''
-                });
+            var target = siteName ? { axis: 'siteName', value: siteName } : null;
+
+            window.coNotifyPanel.addItem('sl', {
+                scope: scope,
+                op: op,
+                main: mainText,
+                sub: '自分 ・ ' + slCnTimeNow(),
+                date: slCnTodayLabel(),
+                expand: expandText,
+                affects: ['screen-layout', 'weekly-schedule'],
+                target: target
             });
-            return result;
         }
 
-        // --- デモシミュレーション（承認方式） ---
-        let cnDemoInterval = null;
-        let cnDemoRunning = false;
-        let cnDemoIndex = 0;
-        const cnPendingMap = new Map();
-
-        const cnDemoSequence = [
-            { type: 'modify', user: '山田（現場管理）', siteName: '国道〇号線 舗装工事', category: '交通', shift: '昼', gcCode: 'touo',
-              diffs: [{ field: '時間', oldVal: '08:00 - 17:00', newVal: '09:00 - 18:00' }],
-              apply: function(self) {
-                  var row = cnFindRow('国道〇号線 舗装工事'); if (!row) return;
-                  var tsEl = row.querySelector('.work-time-start');
-                  var teEl = row.querySelector('.work-time-end');
-                  var wtCell = row.querySelector('.col-work-time');
-                  if (tsEl) cnShowCellDiff(tsEl, tsEl.textContent, '09:00');
-                  if (teEl) cnShowCellDiff(teEl, teEl.textContent, '18:00');
-                  if (wtCell) cnAddCellBadge(wtCell);
-                  cnMarkPending(row, 'modify', function() {
-                      if (tsEl) tsEl.textContent = '09:00';
-                      if (teEl) teEl.textContent = '18:00';
-                      cnCleanCellBadges(row);
-                  });
-              }},
-            { type: 'add', user: '鈴木（受注担当）', siteName: '△△マンション 常駐警備', category: '施設', shift: '夜', gcCode: 'touo',
-              details: [{ field: '会社', value: '△△不動産' }, { field: '区分', value: '施設（夜）' }, { field: '時間', value: '20:00 - 08:00' }, { field: '人数', value: '2名' }, { field: '集合', value: '19:30' }],
-              apply: function(self) {
-                  var tbody = document.querySelector('.grid-table tbody');
-                  var no = tbody.querySelectorAll('tr').length + 1;
-                  var tr = cnCreateRow({ no: no, gcClass: 'md-gc-row-touo', gcCode: 'touo', gcName: '東央警備', shiftClass: 'shift-night', shiftLabel: '夜',
-                      categoryClass: 'category-facility', categoryLabel: '施設', company: '△△不動産',
-                      siteName: '△△マンション 常駐警備', meetingTime: '19:30', meetingMethod: '直', meetingMethodClass: 'method-direct',
-                      timeStart: '20:00', timeEnd: '08:00', count: '0/2', shortage: true });
-                  insertBeforeFixedRows(tbody, tr);
-                  if (typeof renderMinimap === 'function') renderMinimap();
-                  cnMarkPending(tr, 'add', function() {});
-              }},
-            { type: 'modify', user: '伊藤（配車担当）', siteName: '〇〇会館 展示会', category: 'イベント', shift: '昼', gcCode: 'touo',
-              diffs: [{ field: '人数', oldVal: '1/2', newVal: '3/2' }, { field: '配置', oldVal: '山本', newVal: '山本, 吉田, 松本' }],
-              apply: function(self) {
-                  var row = cnFindRow('〇〇会館 展示会'); if (!row) return;
-                  var countEl = row.querySelector('.count-display');
-                  var countCell = countEl ? countEl.closest('td') : null;
-                  if (countEl) cnShowCellDiff(countEl, countEl.textContent.trim(), '3/2');
-                  if (countCell) cnAddCellBadge(countCell);
-                  cnMarkPending(row, 'modify', function() {
-                      if (countEl) { countEl.textContent = '3/2'; countEl.className = 'count-display count-over'; }
-                      cnCleanCellBadges(row);
-                  });
-              }},
-            { type: 'delete', user: '高橋（管理部）', siteName: '県道〇号 夜間規制', category: '高速', shift: '夜', gcCode: 'nikkei', diffs: null,
-              apply: function(self) {
-                  var row = cnFindRow('県道〇号 夜間規制'); if (!row) return;
-                  cnMarkPending(row, 'delete', function() {
-                      releaseRowEmployees(row);
-                      row.remove(); cnRenumberRows();
-                  });
-              }},
-            { type: 'add', user: '田中（営業部）', siteName: '□□公園 花火大会警備', category: 'イベント', shift: '昼', gcCode: 'nikkei',
-              details: [{ field: '会社', value: '□□イベント' }, { field: '区分', value: 'イベント（昼）' }, { field: '時間', value: '16:00 - 22:00' }, { field: '人数', value: '5名' }, { field: '集合', value: '15:00' }],
-              apply: function(self) {
-                  var tbody = document.querySelector('.grid-table tbody');
-                  var no = tbody.querySelectorAll('tr').length + 1;
-                  var tr = cnCreateRow({ no: no, gcClass: 'md-gc-row-nikkei', gcCode: 'nikkei', gcName: 'Nikkeiホールディングス', shiftClass: 'shift-day', shiftLabel: '昼',
-                      categoryClass: 'category-event', categoryLabel: 'イベント', company: '□□イベント',
-                      siteName: '□□公園 花火大会警備', meetingTime: '15:00', meetingMethod: '会社', meetingMethodClass: 'method-company',
-                      timeStart: '16:00', timeEnd: '22:00', count: '0/5', shortage: true });
-                  insertBeforeFixedRows(tbody, tr);
-                  if (typeof renderMinimap === 'function') renderMinimap();
-                  cnMarkPending(tr, 'add', function() {});
-              }},
-            { type: 'modify', user: '佐藤（営業部）', siteName: '〇〇ビル 巡回警備', category: '施設', shift: '昼', gcCode: 'touo',
-              diffs: [{ field: '集合時間', oldVal: '08:45', newVal: '08:30' }],
-              apply: function(self) {
-                  var row = cnFindRow('〇〇ビル 巡回警備'); if (!row) return;
-                  var mtEl = row.querySelector('.time-display');
-                  var timeCell = mtEl ? mtEl.closest('td') : null;
-                  if (mtEl) cnShowCellDiff(mtEl, mtEl.textContent, '08:30');
-                  if (timeCell) cnAddCellBadge(timeCell);
-                  cnMarkPending(row, 'modify', function() {
-                      if (mtEl) mtEl.textContent = '08:30';
-                      cnCleanCellBadges(row);
-                  });
-              }},
-            { type: 'modify', user: '田中 太郎（自分）', siteName: '〇〇ビル 夜間警備', category: '施設', shift: '夜', gcCode: 'touo',
-              diffs: [{ field: '人数', oldVal: '', newVal: '' }],
-              apply: function(self) {
-                  var row = cnFindRow('〇〇ビル 夜間警備'); if (!row) return;
-                  var countEl = row.querySelector('.count-display');
-                  var countCell = countEl ? countEl.closest('td') : null;
-                  var oldVal = countEl ? countEl.textContent.trim() : '0/2';
-                  self.diffs[0].oldVal = oldVal;
-                  self.diffs[0].newVal = '2/2';
-                  if (countEl) cnShowCellDiff(countEl, oldVal, '2/2');
-                  if (countCell) cnAddCellBadge(countCell);
-                  cnMarkPending(row, 'modify', function() {
-                      if (countEl) { countEl.textContent = '2/2'; countEl.className = 'count-display count-full'; }
-                      cnCleanCellBadges(row);
-                  });
-              }}
-        ];
-
-        // セル内差分表示ヘルパー
-        function cnShowCellDiff(el, oldText, newText) {
-            el.innerHTML = '<span class="md-cn-cell-old">' + oldText + '</span><div class="md-cn-cell-new">' + newText + '</div>';
+        function slCnTimeNow() {
+            var d = new Date();
+            return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
         }
 
-        function cnAddCellBadge(cell) {
-            var badge = document.createElement('div');
-            badge.className = 'md-cn-cell-badge';
-            badge.textContent = '変更';
-            cell.insertBefore(badge, cell.firstChild);
+        function slCnTodayLabel() {
+            var d = new Date();
+            return '今日 (' + (d.getMonth() + 1) + '/' + d.getDate() + ')';
         }
 
-        function cnCleanCellBadges(row) {
-            var els = row.querySelectorAll('.md-cn-cell-badge');
-            for (var i = 0; i < els.length; i++) els[i].remove();
-        }
-
-        function cnFindRow(siteName) {
-            var rows = document.querySelectorAll('.grid-table tbody tr');
-            for (var i = 0; i < rows.length; i++) {
-                var sn = rows[i].querySelector('.site-name');
-                if (sn && sn.textContent.trim() === siteName) return rows[i];
-            }
-            return null;
-        }
-
-        function cnMarkPending(row, type, commitFn) {
-            // 既存のpendingハンドラがあれば先に解除（同一行への重複登録を防止）
-            if (row._cnClickHandler) {
-                row.removeEventListener('click', row._cnClickHandler, true);
-                row._cnClickHandler = null;
-            }
-            row.classList.add('md-cn-pending');
-            cnPendingMap.set(row, { type: type, commit: commitFn });
-            // 追加・削除バッジ → No列に配置
-            if (type === 'add' || type === 'delete') {
-                var noCell = row.querySelector('.col-no');
-                if (noCell) {
-                    var badge = document.createElement('span');
-                    badge.className = 'md-cn-row-badge md-cn-row-badge-' + type;
-                    badge.textContent = type === 'add' ? '追加' : '削除';
-                    noCell.appendChild(badge);
+        // 初期デモ通知 (代表 3件: row×add / employee×place / vehicle×place)
+        function slCnSeedInitialDemo() {
+            if (!window.coNotifyPanel || typeof window.coNotifyPanel.setItems !== 'function') return;
+            var today = slCnTodayLabel();
+            window.coNotifyPanel.setItems('sl', [
+                {
+                    scope: 'row', op: 'add',
+                    main: '東央警備 / 渋谷駅前ビル を行として追加',
+                    sub: '鈴木（受注担当） ・ 09:42',
+                    date: today,
+                    expand: '区分: 施設 / シフト: 昼',
+                    affects: ['screen-layout', 'weekly-schedule'],
+                    target: { axis: 'siteName', value: '渋谷駅前ビル' }
+                },
+                {
+                    scope: 'employee', op: 'place',
+                    main: '田中 一郎 を 国道〇号線 舗装工事（昼） に配置',
+                    sub: '山田（現場管理） ・ 10:08',
+                    date: today,
+                    expand: '',
+                    affects: ['screen-layout', 'weekly-schedule'],
+                    target: { axis: 'siteName', value: '国道〇号線 舗装工事' }
+                },
+                {
+                    scope: 'vehicle', op: 'place',
+                    main: '品川 500 あ 12-34 を 〇〇会館 展示会（昼） に配置',
+                    sub: '伊藤（配車担当） ・ 10:33',
+                    date: today,
+                    expand: '',
+                    affects: ['screen-layout', 'weekly-schedule'],
+                    target: { axis: 'siteName', value: '〇〇会館 展示会' }
                 }
-            }
-            // セルグロー（box-shadow inset）
-            if (type === 'modify') {
-                // 変更：cn-cell-badgeを持つセルのみ明滅
-                var badgeCells = row.querySelectorAll('.md-cn-cell-badge');
-                for (var j = 0; j < badgeCells.length; j++) {
-                    var td = badgeCells[j].closest('td');
-                    if (td) td.classList.add('md-cn-cell-glow-modify');
-                }
-            } else {
-                // 追加・削除：行全体を明滅
-                var cells = row.querySelectorAll('td');
-                for (var j = 0; j < cells.length; j++) {
-                    cells[j].classList.add('md-cn-cell-glow-' + type);
-                }
-            }
-            // 行クリックで承認（captureフェーズでインラインonclickより先に発火）
-            row._cnClickHandler = function(e) {
-                // D&D操作中やボタンクリックは除外
-                if (e.target.closest('button, .vehicle-send-section')) return;
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                e.preventDefault();
-                cnApprovePending(row);
-            };
-            row.addEventListener('click', row._cnClickHandler, true);
-        }
-
-        function cnApprovePending(row) {
-            var pending = cnPendingMap.get(row);
-            if (!pending) return;
-            // 対応する通知を承認済みにマーク
-            var notif = cnState.notifications.find(function(n) { return n._row === row; });
-            // delete承認前に行HTMLを保存（後で復元可能にする）
-            if (pending.type === 'delete' && notif) {
-                notif._deletedRowHtml = row.outerHTML;
-                notif._deletedRowIndex = Array.from(row.parentNode.children).indexOf(row);
-                notif._deletedRowParent = row.parentNode;
-            }
-            pending.commit();
-            row.classList.remove('md-cn-pending');
-            // セルグロー除去
-            var cells = row.querySelectorAll('td');
-            for (var j = 0; j < cells.length; j++) {
-                cells[j].classList.remove('md-cn-cell-glow-add', 'md-cn-cell-glow-modify', 'md-cn-cell-glow-delete');
-            }
-            var els = row.querySelectorAll('.md-cn-row-badge, .md-cn-cell-badge');
-            for (var i = 0; i < els.length; i++) els[i].remove();
-            // 行クリックハンドラ解除
-            if (row._cnClickHandler) {
-                row.removeEventListener('click', row._cnClickHandler, true);
-                row._cnClickHandler = null;
-            }
-            cnPendingMap.delete(row);
-            if (notif) {
-                notif._approved = true;
-                notif._read = true;
-            }
-            if (pending.type !== 'delete') {
-                row.classList.add('md-cn-flash-approve');
-                setTimeout(function() { row.classList.remove('md-cn-flash-approve'); }, 2000);
-            }
-            // 未読数再計算 + ベル更新
-            cnState.unreadCount = cnState.notifications.filter(function(n) { return !n._read; }).length;
-            updateNotifyBadge();
-            cnUpdateRowBells();
-            // パネルが開いていれば再描画
-            var anchor = document.getElementById('cnAnchor');
-            if (anchor && anchor.classList.contains('is-open')) {
-                renderLatestChanges();
-                renderChangeHistory();
-            }
-            if (typeof renderMinimap === 'function') renderMinimap();
-        }
-
-        function cnFlashRow(row, type) {
-            row.classList.add('md-cn-flash-' + type);
-            setTimeout(function() { row.classList.remove('md-cn-flash-' + type); }, 3000);
-        }
-
-        function cnRenumberRows() {
-            var rows = document.querySelectorAll('.grid-table tbody tr');
-            for (var i = 0; i < rows.length; i++) {
-                var no = rows[i].querySelector('.col-no');
-                if (!no) continue;
-                // .md-cn-overlay等の子要素を破壊しないよう、テキストノードのみ更新
-                var textNode = no.firstChild;
-                if (textNode && textNode.nodeType === 3) {
-                    textNode.textContent = i + 1;
-                } else {
-                    no.insertBefore(document.createTextNode(i + 1), no.firstChild);
-                }
-            }
-            if (typeof renderMinimap === 'function') renderMinimap();
-        }
-
-        // --- 行ミニベルアイコン ---
-
-        function cnGetRowSiteName(row) {
-            var sn = row.querySelector('.site-name');
-            return sn ? sn.textContent.trim() : '';
-        }
-
-        function cnGetUnreadForSite(siteName) {
-            if (!siteName) return 0;
-            return cnState.notifications.filter(function(n) {
-                return !n._read && n._rowId === siteName;
-            }).length;
-        }
-
-        function cnGetRowBellHtml(row) {
-            var siteName = cnGetRowSiteName(row);
-            var count = cnGetUnreadForSite(siteName);
-            var cls = count > 0 ? 'md-cn-row-bell has-unread' : 'md-cn-row-bell';
-            return '<span class="' + cls + '" onclick="event.stopPropagation(); cnOpenModalForRow(this)" title="この現場の変更通知">' +
-                '<img src="mockup/icons/bell.svg" class="md-cn-row-bell-img">' +
-                (count > 0 ? '<span class="md-cn-row-bell-dot"></span>' : '') +
-            '</span>';
-        }
-
-        function cnInsertRowBells() {
-            var rows = document.querySelectorAll('.grid-table tbody tr');
-            for (var i = 0; i < rows.length; i++) {
-                var noCell = rows[i].querySelector('.col-no');
-                if (!noCell || noCell.querySelector('.md-cn-row-bell')) continue;
-                var bell = document.createElement('span');
-                bell.className = 'md-cn-row-bell';
-                bell.setAttribute('onclick', 'event.stopPropagation(); cnOpenModalForRow(this)');
-                bell.title = 'この現場の変更通知';
-                bell.innerHTML = '<img src="mockup/icons/bell.svg" class="md-cn-row-bell-img">';
-                noCell.appendChild(bell);
-            }
-        }
-
-        function cnUpdateRowBells() {
-            var rows = document.querySelectorAll('.grid-table tbody tr');
-            for (var i = 0; i < rows.length; i++) {
-                var noCell = rows[i].querySelector('.col-no');
-                if (!noCell) continue;
-                var bell = noCell.querySelector('.md-cn-row-bell');
-                if (!bell) continue;
-                var siteName = cnGetRowSiteName(rows[i]);
-                var count = cnGetUnreadForSite(siteName);
-                var dot = bell.querySelector('.md-cn-row-bell-dot');
-                if (count > 0) {
-                    bell.classList.add('has-unread');
-                    if (!dot) {
-                        dot = document.createElement('span');
-                        dot.className = 'md-cn-row-bell-dot';
-                        bell.appendChild(dot);
-                    }
-                } else {
-                    bell.classList.remove('has-unread');
-                    if (dot) dot.remove();
-                }
-            }
-        }
-
-        // N-2.3 で旧 cnInsertRowBells() を撤去（行ベル UI 廃止）。
-        // cnGetRowBellHtml / cnInsertRowBells / cnUpdateRowBells は dead code として残し、N-3 で完全撤去予定。
-
-        // --- 元に戻す / やっぱり反映 ---
-
-        // revert/reapprove後のオーバーレイ＋差分可視化
-        function cnShowRevertOverlay(row, type, diffs) {
-            // 既存の差分要素を先にクリーンアップ（重複防止）
-            var staleEls = row.querySelectorAll('.md-cn-row-badge, .md-cn-cell-badge, .md-cn-cell-old, .md-cn-cell-new');
-            for (var i = 0; i < staleEls.length; i++) staleEls[i].remove();
-
-            // 該当行の通知を未読に戻す
-            var siteName = cnGetRowSiteName(row);
-            if (siteName) {
-                cnState.notifications.forEach(function(n) {
-                    if (n._rowId === siteName) n._read = false;
-                });
-                cnState.unreadCount = cnState.notifications.filter(function(n) { return !n._read; }).length;
-                updateNotifyBadge();
-                cnUpdateRowBells();
-            }
-
-            row.classList.add('md-cn-pending');
-            // バッジ
-            var noCell = row.querySelector('.col-no');
-            if (noCell && (type === 'add' || type === 'delete')) {
-                var badge = document.createElement('span');
-                badge.className = 'md-cn-row-badge md-cn-row-badge-' + (type === 'add' ? 'delete' : 'add');
-                badge.textContent = type === 'add' ? '削除' : '復元';
-                noCell.appendChild(badge);
-            }
-            // modify差分表示（バッジはtdセル単位で重複防止）
-            if (type === 'modify' && diffs) {
-                var badgedTds = [];
-                diffs.forEach(function(d) {
-                    if (d.el) {
-                        cnShowCellDiff(d.el, d.oldText, d.newText);
-                        var td = d.td || d.el.closest('td');
-                        if (td && badgedTds.indexOf(td) === -1) {
-                            cnAddCellBadge(td);
-                            badgedTds.push(td);
-                        }
-                    }
-                });
-            }
-            // 行クリックで確認済みとして除去
-            if (row._cnClickHandler) {
-                row.removeEventListener('click', row._cnClickHandler, true);
-            }
-            row._cnClickHandler = function(e) {
-                if (e.target.closest('button, .vehicle-send-section')) return;
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                e.preventDefault();
-                row.classList.remove('md-cn-pending');
-                var els = row.querySelectorAll('.md-cn-row-badge, .md-cn-cell-badge');
-                for (var i = 0; i < els.length; i++) els[i].remove();
-                // modifyの場合、差分表示をクリーンアップ（現在値のみ表示）
-                var oldSpans = row.querySelectorAll('.md-cn-cell-old');
-                for (var i = 0; i < oldSpans.length; i++) oldSpans[i].remove();
-                var newSpans = row.querySelectorAll('.md-cn-cell-new');
-                for (var i = 0; i < newSpans.length; i++) {
-                    var parent = newSpans[i].parentElement;
-                    var text = newSpans[i].textContent;
-                    parent.textContent = text;
-                }
-                // 該当行の通知を既読に
-                var sn = cnGetRowSiteName(row);
-                if (sn) {
-                    cnState.notifications.forEach(function(n) {
-                        if (n._rowId === sn) n._read = true;
-                    });
-                    cnState.unreadCount = cnState.notifications.filter(function(n) { return !n._read; }).length;
-                    updateNotifyBadge();
-                    cnUpdateRowBells();
-                }
-                row.removeEventListener('click', row._cnClickHandler, true);
-                row._cnClickHandler = null;
-            };
-            row.addEventListener('click', row._cnClickHandler, true);
-        }
-
-        function cnClearPending(row) {
-            cnPendingMap.delete(row);
-            row.classList.remove('md-cn-pending');
-            var els = row.querySelectorAll('.md-cn-row-badge, .md-cn-cell-badge');
-            for (var i = 0; i < els.length; i++) els[i].remove();
-            if (row._cnClickHandler) {
-                row.removeEventListener('click', row._cnClickHandler, true);
-                row._cnClickHandler = null;
-            }
-        }
-
-        function cnRevertNotification(id) {
-            var n = cnState.notifications.find(function(x) { return x.id === id; });
-            if (!n || n.reverted) return;
-
-            if (n._approved) {
-                // --- 承認済みからのrevert ---
-                if (n.type === 'modify') {
-                    var row = n._row || cnFindRow(n.siteName);
-                    // _modifyData がなければ diffs から生成（自己変更通知用）
-                    var modData = n._modifyData || cnBuildModifyDataFromDiffs(row, n.diffs);
-                    if (row && modData.length > 0) {
-                        // セルをクリーン状態にして元の値を復元
-                        modData.forEach(function(d) { d.el.textContent = d.originalText; });
-                        // 差分可視化（変更後B → 元の値A）
-                        var diffs = modData.map(function(d) {
-                            return { el: d.el, td: d.td, oldText: d.changedText, newText: d.originalText };
-                        });
-                        cnShowRevertOverlay(row, 'modify', diffs);
-                    }
-                } else if (n.type === 'add') {
-                    var row = n._row || cnFindRow(n.siteName);
-                    if (row) { row.remove(); cnRenumberRows(); }
-                } else if (n.type === 'delete') {
-                    // 保存済みHTMLから行を復元
-                    if (n._deletedRowHtml && n._deletedRowParent) {
-                        var temp = document.createElement('tbody');
-                        temp.innerHTML = n._deletedRowHtml;
-                        var restored = temp.firstChild;
-                        var parent = n._deletedRowParent;
-                        var siblings = parent.children;
-                        if (n._deletedRowIndex < siblings.length) {
-                            parent.insertBefore(restored, siblings[n._deletedRowIndex]);
-                        } else {
-                            parent.appendChild(restored);
-                        }
-                        n._row = restored;
-                        cnRenumberRows();
-                        cnShowRevertOverlay(restored, 'delete', null);
-                    }
-                }
-            } else {
-                // --- 未承認（pending）からのrevert ---
-                if (n.type === 'modify') {
-                    var row = n._row || cnFindRow(n.siteName);
-                    var modData = n._modifyData || cnBuildModifyDataFromDiffs(row, n.diffs);
-                    if (!row || modData.length === 0) return;
-                    // セルをクリーン状態にして元の値を復元
-                    modData.forEach(function(d) { d.el.textContent = d.originalText; });
-                    cnClearPending(row);
-                    // 差分可視化（変更後B → 元の値A）
-                    var revertDiffs = modData.map(function(d) {
-                        return { el: d.el, td: d.td, oldText: d.changedText, newText: d.originalText };
-                    });
-                    cnShowRevertOverlay(row, 'modify', revertDiffs);
-                } else if (n.type === 'add') {
-                    var row = n._row || cnFindRow(n.siteName);
-                    if (row) { releaseRowEmployees(row); cnPendingMap.delete(row); row.remove(); cnRenumberRows(); }
-                } else if (n.type === 'delete') {
-                    var row = n._row || cnFindRow(n.siteName);
-                    if (!row) return;
-                    cnClearPending(row);
-                }
-            }
-
-            n.reverted = true;
-            n._approved = false;
-            renderLatestChanges();
-        }
-
-        function cnReapproveNotification(id) {
-            var n = cnState.notifications.find(function(x) { return x.id === id; });
-            if (!n || !n.reverted) return;
-
-            if (n.type === 'modify') {
-                var row = n._row || cnFindRow(n.siteName);
-                var modData = n._modifyData || cnBuildModifyDataFromDiffs(row, n.diffs);
-                if (row && modData.length > 0) {
-                    // revert状態をクリア
-                    row.classList.remove('md-cn-pending');
-                    var els = row.querySelectorAll('.md-cn-row-badge, .md-cn-cell-badge');
-                    for (var i = 0; i < els.length; i++) els[i].remove();
-                    if (row._cnClickHandler) {
-                        row.removeEventListener('click', row._cnClickHandler, true);
-                        row._cnClickHandler = null;
-                    }
-                    // セルをクリーン状態にして変更後の値を再設定
-                    modData.forEach(function(d) { d.el.textContent = d.changedText; });
-                    // 差分可視化（元の値A → 変更後B）
-                    var diffs = modData.map(function(d) {
-                        return { el: d.el, td: d.td, oldText: d.originalText, newText: d.changedText };
-                    });
-                    cnShowRevertOverlay(row, 'modify', diffs);
-                }
-            } else if (n.type === 'add') {
-                // 行を再作成し即承認
-                if (n._demoItem && n._demoItem.apply) {
-                    n._demoItem.apply(n._demoItem);
-                    var newRow = cnFindRow(n.siteName);
-                    if (newRow) {
-                        cnApprovePending(newRow);
-                        n._row = newRow;
-                        cnShowRevertOverlay(newRow, 'add', null);
-                    }
-                }
-            } else if (n.type === 'delete') {
-                var row = n._row || cnFindRow(n.siteName);
-                if (row) {
-                    // 再削除前に行HTMLを保存
-                    n._deletedRowHtml = row.outerHTML;
-                    n._deletedRowIndex = Array.from(row.parentNode.children).indexOf(row);
-                    n._deletedRowParent = row.parentNode;
-                    releaseRowEmployees(row);
-                    row.remove();
-                    cnRenumberRows();
-                }
-            }
-
-            n.reverted = false;
-            n._approved = true;
-            renderLatestChanges();
+            ]);
         }
 
         function cnCreateRow(d) {
@@ -4789,70 +3956,6 @@
                 '<td class="col-vt"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div><div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div></div></td>' +
                 '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"></td>';
             return tr;
-        }
-
-        function sendDemoNotification() {
-            if (cnDemoIndex >= cnDemoSequence.length) {
-                toggleChangeNotifyDemo();
-                return;
-            }
-            var item = cnDemoSequence[cnDemoIndex];
-            cnDemoIndex++;
-            var n = { type: item.type, user: item.user, siteName: item.siteName,
-                category: item.category, shift: item.shift, gcCode: item.gcCode || '', time: cnTimeNow(),
-                diffs: item.diffs ? item.diffs.map(function(d) { return Object.assign({}, d); }) : null,
-                details: item.details ? item.details.map(function(d) { return Object.assign({}, d); }) : null };
-            n._demoItem = item;
-            receiveChangeNotification(n);
-            if (item.apply) item.apply(item);
-            // 通知と行をリンク
-            var row = cnFindRow(n.siteName);
-            if (row) {
-                n._row = row;
-                var pending = cnPendingMap.get(row);
-                if (pending) n._commitFn = pending.commit;
-                // modify: 不変のテキスト値と要素参照を保存（DOM状態に依存しない）
-                if (n.type === 'modify') {
-                    var modifyData = [];
-                    row.querySelectorAll('.md-cn-cell-old').forEach(function(el) {
-                        var parent = el.parentElement;
-                        var newSpan = parent.querySelector('.md-cn-cell-new');
-                        modifyData.push({
-                            el: parent,
-                            td: parent.closest('td'),
-                            originalText: el.textContent,
-                            changedText: newSpan ? newSpan.textContent : ''
-                        });
-                    });
-                    n._modifyData = modifyData;
-                }
-            }
-        }
-
-        function toggleChangeNotifyDemo() {
-            var btn = document.getElementById('cnDemoBtn');
-            if (cnDemoRunning) {
-                clearInterval(cnDemoInterval);
-                cnDemoInterval = null;
-                cnDemoRunning = false;
-                btn.textContent = '▶ デモ開始';
-                btn.style.background = '';
-                btn.style.color = '';
-            } else {
-                cnState.notifications = [];
-                cnState.history = [];
-                cnState.unreadCount = 0;
-                cnState.nextId = 1;
-                cnPendingMap.clear();
-                updateNotifyBadge();
-                cnDemoIndex = 0;
-                cnDemoRunning = true;
-                btn.textContent = '⏹ デモ停止';
-                btn.style.background = '#DB577B';
-                btn.style.color = '#fff';
-                sendDemoNotification();
-                cnDemoInterval = setInterval(sendDemoNotification, 3000);
-            }
         }
 
         // --- フッター詳細情報 折りたたみ ---
@@ -5698,7 +4801,7 @@
             if (_cnOldStart !== startTime) _cnDiffs.push({ field: '開始時間', oldVal: _cnOldStart, newVal: startTime });
             if (_cnOldEnd !== endTime) _cnDiffs.push({ field: '終了時間', oldVal: _cnOldEnd, newVal: endTime });
             if (_cnDiffs.length > 0) {
-                cnSelfNotify('modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift, diffs: _cnDiffs });
+                slCnSelfNotify('employee', 'modify', { siteName: _cnInfo.siteName, category: _cnInfo.category, shift: _cnInfo.shift, diffs: _cnDiffs });
             }
 
             closeWorkTimeModal();
@@ -5716,6 +4819,13 @@
         slApplyOnLeaveMarkersToAllAssigned();
         slRenderHolidayRow();
         slRefreshContinuousBadges();
+
+        // N-3.1: SL ベル 初期デモ通知 (row×add / employee×place / vehicle×place の代表3件)
+        if (typeof slCnSeedInitialDemo === 'function') {
+            // co-notify-panel 読込後に呼び出し
+            if (window.coNotifyPanel) slCnSeedInitialDemo();
+            else document.addEventListener('DOMContentLoaded', slCnSeedInitialDemo);
+        }
 
         // 地図セルの初期表示を data-maps から再描画（onclick ハンドラ付与）
         document.querySelectorAll('td.col-map[data-maps]').forEach(function(cell) {
@@ -5776,12 +4886,6 @@
 
         document.addEventListener('gcFilterChanged', function() {
             applyGcFilter();
-            // 変更通知パネルが開いていれば再描画
-            var cnAnchorEl = document.getElementById('cnAnchor');
-            if (cnAnchorEl && cnAnchorEl.classList.contains('is-open')) {
-                renderLatestChanges();
-                renderChangeHistory();
-            }
         });
 
         // 初期表示にGCフィルタを適用
@@ -7218,10 +6322,11 @@
             // 変更通知
             var info = cnGetRowInfo(tr);
             if (info.siteName || company) {
-                cnSelfNotify('add', {
+                slCnSelfNotify('row', 'add', {
                     siteName: info.siteName || company,
                     category: category,
-                    shift: shift
+                    shift: shift,
+                    company: company || info.company
                 });
             }
 
