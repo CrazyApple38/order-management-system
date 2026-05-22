@@ -1316,14 +1316,20 @@
         var kindStr = opts.kind || '';
         var partStr = opts.partition || '';
 
+        // N-3.4.2: main 文言テンプレートは notify-compare.html 通知一覧 (N-3.4) 表が SSOT。
+        //   add:     '{empName} が {day} {kind}({partition}) に休暇申請'
+        //   modify:  '{empName} の {day} {fieldLabel} 申請を変更'
+        //   delete:  '{empName} の {day} {kind} 申請を削除'
+        //   approve: '{empName} の {day} 申請を承認'
+        //   reject:  '{empName} の {day} 申請を却下'
         var mainText;
         if (op === 'add') {
-            mainText = empName + ' の ' + dayStr + ' ' + kindStr +
-                       (partStr ? '（' + partStr + '）' : '') + ' 申請を追加';
+            mainText = empName + ' が ' + dayStr + ' ' + kindStr +
+                       (partStr ? '（' + partStr + '）' : '') + ' に休暇申請';
         } else if (op === 'modify') {
             mainText = opts.fieldLabel
-                ? empName + ' の ' + dayStr + ' 申請の ' + opts.fieldLabel + ' を変更'
-                : empName + ' の ' + dayStr + ' 申請を編集';
+                ? empName + ' の ' + dayStr + ' ' + opts.fieldLabel + ' 申請を変更'
+                : empName + ' の ' + dayStr + ' 申請を変更';
         } else if (op === 'delete') {
             mainText = empName + ' の ' + dayStr + ' ' + kindStr + ' 申請を削除';
         } else if (op === 'approve') {
@@ -1378,8 +1384,8 @@
             var emp1 = findEmp(pending);
             if (emp1) items.push({
                 scope: 'application', op: 'add',
-                main: emp1.name + ' の ' + laCnDayLabel(pending.date) + ' ' + KIND[pending.kind] +
-                      '（' + PART[pending.partition] + '） 申請を追加',
+                main: emp1.name + ' が ' + laCnDayLabel(pending.date) + ' ' + KIND[pending.kind] +
+                      '（' + PART[pending.partition] + '） に休暇申請',
                 sub: emp1.name + '（本人） ・ 09:15',
                 date: today,
                 expand: '理由: ' + (pending.reason || '私用'),

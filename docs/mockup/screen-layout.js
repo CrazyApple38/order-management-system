@@ -3827,19 +3827,19 @@
             var mainText = '';
             var expandText = '';
 
+            // N-3.4.2: main 文言テンプレートは notify-compare.html 通知一覧 (N-3.4) 表が SSOT。
+            // 表で編集された template と一致させる。
             if (scope === 'row') {
                 var rowHead = (company ? company + ' / ' : '') + (siteName || '(無名)');
-                if (op === 'add')         mainText = rowHead + ' を行として追加';
-                else if (op === 'delete') mainText = rowHead + ' を行として削除';
-                else if (op === 'modify') {
+                if (op === 'modify') {
                     var fs = (opts.diffs || []).map(function (d) { return d.field; }).join('・');
-                    mainText = rowHead + ' の ' + (fs || 'メタ情報') + ' を編集';
+                    mainText = rowHead + ' の ' + (fs || 'メタ情報') + ' を変更';
                 } else mainText = rowHead + ' を' + op;
             } else if (scope === 'site') {
                 if (op === 'add') {
                     mainText = (company ? company + ' / ' : '') + (siteName || '(無名)') + ' の受注を追加';
                 } else if (op === 'delete') {
-                    mainText = siteLabel + ' の受注を削除';
+                    mainText = (company ? company + ' / ' : '') + (siteName || '(無名)') + ' の受注を削除';
                 } else if (op === 'modify') {
                     var fsSite = (opts.diffs || []).map(function (d) { return d.field; }).join('・');
                     mainText = siteLabel + ' の ' + (fsSite || '受注メタ情報') + ' を変更';
@@ -3849,27 +3849,32 @@
             } else if (scope === 'employee') {
                 var empName = opts.empName || '社員';
                 if (op === 'place') {
-                    mainText = empName + ' を ' + siteLabel + ' に配置';
+                    mainText = siteLabel + ' に ' + empName + ' を配置';
                     if (opts.fromSiteName) expandText = '移動元: ' + opts.fromSiteName;
                 } else if (op === 'remove') {
-                    mainText = empName + ' を ' + siteLabel + ' から解除';
+                    mainText = siteLabel + ' から ' + empName + ' を削除';
                 } else if (op === 'modify') {
                     var fs2 = (opts.diffs || []).map(function (d) { return d.field; }).join('・');
-                    mainText = siteLabel + ' の ' + (fs2 || 'メタ情報') + ' を変更';
+                    mainText = siteLabel + ' ' + empName + ' の ' + (fs2 || 'メタ情報') + ' を変更';
                 } else mainText = siteLabel + ' の社員を' + op;
             } else if (scope === 'vehicle') {
                 var vehicleName = opts.vehicleName || '車両';
                 var isEtc = !!opts.isEtc;
                 var prefix = isEtc ? 'ETC ' : '';
-                if (op === 'place')       mainText = prefix + vehicleName + ' を ' + siteLabel + ' に配置';
-                else if (op === 'remove') mainText = prefix + vehicleName + ' を ' + siteLabel + ' から解除';
+                if (op === 'place')       mainText = siteLabel + ' に ' + prefix + vehicleName + ' を配置';
+                else if (op === 'remove') mainText = siteLabel + ' から ' + prefix + vehicleName + ' を削除';
                 else if (op === 'modify') {
                     var fs3 = (opts.diffs || []).map(function (d) { return d.field; }).join('・');
-                    mainText = siteLabel + ' の車両 ' + (fs3 || 'メタ情報') + ' を変更';
+                    mainText = siteLabel + ' ' + prefix + vehicleName + ' の ' + (fs3 || 'メタ情報') + ' を変更';
                 } else mainText = siteLabel + ' の車両を' + op;
             } else {
                 mainText = siteLabel + ' を' + op;
             }
+
+            // N-3.4.2: 通知タイプ別の色 override (N-3.4 表 N34_TYPES の color フィールド準拠)
+            // 現状ハードコード。将来は notify-icons-selected.js または別マスタから参照する設計に変更可。
+            var colorOverride = null;
+            if (scope === 'employee' && op === 'place') colorOverride = 'secondary';
 
             if (!expandText && opts.diffs && opts.diffs.length > 0) {
                 expandText = opts.diffs.map(function (d) {
@@ -3879,7 +3884,7 @@
 
             var target = siteName ? { axis: 'siteName', value: siteName } : null;
 
-            window.coNotifyPanel.addItem('sl', {
+            var itemPayload = {
                 scope: scope,
                 op: op,
                 main: mainText,
@@ -3888,7 +3893,9 @@
                 expand: expandText,
                 affects: ['screen-layout', 'weekly-schedule'],
                 target: target
-            });
+            };
+            if (colorOverride) itemPayload.color = colorOverride;
+            window.coNotifyPanel.addItem('sl', itemPayload);
         }
 
         function slCnTimeNow() {
@@ -3907,12 +3914,12 @@
             var today = slCnTodayLabel();
             window.coNotifyPanel.setItems('sl', [
                 {
-                    scope: 'row', op: 'add',
-                    main: '東央警備 / 渋谷駅前ビル を行として追加',
+                    scope: 'site', op: 'add',
+                    main: '東央警備 / 渋谷駅前ビル の受注を追加',
                     sub: '鈴木（受注担当） ・ 09:42',
                     date: today,
                     expand: '区分: 施設 / シフト: 昼',
-                    affects: ['screen-layout', 'weekly-schedule'],
+                    affects: ['screen-layout', 'weekly-schedule', 'order-book'],
                     target: { axis: 'siteName', value: '渋谷駅前ビル' }
                 },
                 {
@@ -3925,8 +3932,8 @@
                     target: { axis: 'siteName', value: '〇〇会館 展示会' }
                 },
                 {
-                    scope: 'employee', op: 'place',
-                    main: '田中 一郎 を 国道〇号線 舗装工事（昼） に配置',
+                    scope: 'employee', op: 'place', color: 'secondary',
+                    main: '国道〇号線 舗装工事（昼） に 田中 一郎 を配置',
                     sub: '山田（現場管理） ・ 10:33',
                     date: today,
                     expand: '',

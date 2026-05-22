@@ -5242,6 +5242,10 @@
         var opLabel = { add: '追加', modify: '編集', delete: '削除' }[op] || op;
         var mainText = '';
 
+        // N-3.4.2: main 文言テンプレートは notify-compare.html 通知一覧 (N-3.4) 表が SSOT。
+        //   schedule × add:    '{siteName}({day}) に {empOrVehicleName} を配置'
+        //   schedule × modify: '{srcSite}({srcDay}) → {dstSite}({dstDay}) に {empOrVehicleName} を移動'
+        //   schedule × delete: '{siteName}({day}) から {empOrVehicleName} を削除'
         if (scope === 'schedule') {
             var subject = opts.empName || opts.vehicleName || opts.subject || '';
             var siteStr = opts.siteName || '';
@@ -5255,10 +5259,13 @@
                 var dst = (opts.dstSite || siteStr) +
                           (opts.dstDay ? '(' + opts.dstDay + ')' : '') +
                           (opts.dstShift ? ' [' + wsCnShiftLabel(opts.dstShift) + ']' : '');
-                mainText = subject + ' を ' + src + ' → ' + dst + ' に移動';
+                mainText = src + ' → ' + dst + ' に ' + subject + ' を移動';
+            } else if (op === 'add') {
+                mainText = siteStr + dayStr + shiftStr + ' に ' + subject + ' を配置';
+            } else if (op === 'delete') {
+                mainText = siteStr + dayStr + shiftStr + ' から ' + subject + ' を削除';
             } else {
-                var action = (op === 'add') ? 'に配置' : ((op === 'delete') ? 'から削除' : 'を編集');
-                mainText = subject + ' を ' + siteStr + dayStr + shiftStr + ' ' + action;
+                mainText = siteStr + dayStr + shiftStr + ' の ' + subject + ' を編集';
             }
         } else if (scope === 'reservation') {
             if (opts.kind === 'partner') {
@@ -5316,7 +5323,7 @@
         window.coNotifyPanel.setItems('ws', [
             {
                 scope: 'schedule', op: 'add',
-                main: '田中 太郎 を 渋谷駅前ビル新築工事(10日) [昼] に配置',
+                main: '渋谷駅前ビル新築工事(10日) [昼] に 田中 太郎 を配置',
                 sub: '佐藤 花子 ・ 09:30',
                 date: today,
                 expand: '社員配置: 田中 太郎 (touo)',
@@ -5324,7 +5331,7 @@
             },
             {
                 scope: 'schedule', op: 'modify',
-                main: '佐藤 花子 を 大手町オフィスビル(15日) [昼] → 大手町オフィスビル(15日) [夜] に移動',
+                main: '大手町オフィスビル(15日) [昼] → 大手町オフィスビル(15日) [夜] に 佐藤 花子 を移動',
                 sub: '山田 次郎 ・ 11:45',
                 date: today,
                 expand: 'シフト: 昼 → 夜',

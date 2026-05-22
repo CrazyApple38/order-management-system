@@ -575,6 +575,9 @@
         }
         var scopeAttr = item.scope ? ' data-scope="' + escapeHtml(item.scope) + '"' : '';
         var opAttr = item.op ? ' data-op="' + escapeHtml(item.op) + '"' : '';
+        // N-3.4.2: item.color (primary/secondary/error/success/warning) で op 連動を上書き
+        var colorAttr = item.color ? ' data-color="' + escapeHtml(item.color) + '"' : '';
+        var iconColorCls = item.color ? (' color-' + item.color) : '';
         return ''
             + '<div class="cn-item type-' + typeClass + unread + '"'
             +   idAttr
@@ -582,10 +585,11 @@
             +   (slotKey ? ' data-slot="' + escapeHtml(slotKey) + '"' : '')
             +   scopeAttr
             +   opAttr
+            +   colorAttr
             +   affectsAttr
             +   targetAttr + '>'
             +   '<div class="cn-item-row">'
-            +     '<div class="cn-icon type-' + typeClass + '">' + iconInner + '</div>'
+            +     '<div class="cn-icon type-' + typeClass + iconColorCls + '">' + iconInner + '</div>'
             +     '<div class="cn-text">'
             +       '<div class="cn-text-main">' + escapeHtml(item.main || '') + '</div>'
             +       (item.sub ? '<div class="cn-text-sub">' + escapeHtml(item.sub) + '</div>' : '')

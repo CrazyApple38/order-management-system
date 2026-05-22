@@ -4095,18 +4095,33 @@ function obCnSelfNotify(scope, op, opts) {
     var company = opts.company || (row ? row.company : '');
     var dayStr = opts.day != null ? (opts.day + '日') : '';
 
-    // scope×op → main 文言テンプレート
-    var opLabel = { add: '追加', modify: '編集', delete: '削除' }[op] || op;
+    // N-3.4.2: main 文言テンプレートは notify-compare.html 通知一覧 (N-3.4) 表が SSOT。
+    //   row × add:    '{company} / {task} 行を追加'
+    //   row × modify: '{company} / {siteName} の {fields} を編集'
+    //   row × delete: '{company} / {siteName} 行を削除'
+    //   site × add:   '{company} / {task}({day}日) に受注追加'
+    //   site × modify:'{company} / {task}({day}日) の受注変更'
+    //   site × delete:'{company} / {task}({day}日) の受注削除'
+    //   badge × *:    '{badgeLabel}「{badgeName}」({parentName}) を追加/削除'
     var mainText;
     if (scope === 'badge') {
-        // 作業内容/詳細項目 (badgeLabel) の追加・削除。badgeName は項目名、parentName は親バッジ名（オプション）
+        var opLabelBadge = { add: '追加', delete: '削除' }[op] || op;
         var badgeLabel = opts.badgeLabel || '作業内容';
         var badgeName = opts.badgeName || '';
         var parentSuffix = opts.parentName ? '（' + opts.parentName + '）' : '';
-        mainText = badgeLabel + (badgeName ? '「' + badgeName + '」' : '') + parentSuffix + ' を' + opLabel;
+        mainText = badgeLabel + (badgeName ? '「' + badgeName + '」' : '') + parentSuffix + ' を' + opLabelBadge;
     } else if (scope === 'row') {
-        // 行 (契約先 + 業務名の組)
-        mainText = (company ? company + ' / ' : '') + (taskName || '(業務名未設定)') + ' を行として' + opLabel;
+        var rowHead = (company ? company + ' / ' : '') + (taskName || siteName || '(業務名未設定)');
+        if (op === 'modify') {
+            var fs = (opts.diffs || []).map(function (d) { return d.field; }).join('・');
+            mainText = rowHead + ' の ' + (fs || 'メタ情報') + ' を編集';
+        } else if (op === 'add') {
+            mainText = rowHead + ' 行を追加';
+        } else if (op === 'delete') {
+            mainText = rowHead + ' 行を削除';
+        } else {
+            mainText = rowHead + ' を' + op;
+        }
     } else {
         // scope === 'site' (受注 / マス内のエントリ)
         var prefix;
@@ -4117,7 +4132,16 @@ function obCnSelfNotify(scope, op, opts) {
         } else {
             prefix = (company || '受注');
         }
-        mainText = prefix + (dayStr ? '(' + dayStr + ')' : '') + ' の受注を' + opLabel;
+        var siteTail = (dayStr ? '(' + dayStr + ')' : '');
+        if (op === 'add') {
+            mainText = prefix + siteTail + ' に受注追加';
+        } else if (op === 'modify') {
+            mainText = prefix + siteTail + ' の受注変更';
+        } else if (op === 'delete') {
+            mainText = prefix + siteTail + ' の受注削除';
+        } else {
+            mainText = prefix + siteTail + ' の受注を' + op;
+        }
     }
 
     var subText = obCurrentUser + ' ・ ' + obCnTimeNow();
@@ -4164,7 +4188,7 @@ function obCnSeedInitialDemo() {
     window.coNotifyPanel.setItems('ob', [
         {
             scope: 'row', op: 'add',
-            main: '東央警備 / 渋谷駅前ビル新築工事 を行として追加',
+            main: '東央警備 / 渋谷駅前ビル新築工事 行を追加',
             sub: '田中 太郎 ・ 09:14',
             date: today,
             expand: '新規受注: 警備員2名 / 08:00〜17:00 / 契約先=東央警備',
@@ -4172,7 +4196,7 @@ function obCnSeedInitialDemo() {
         },
         {
             scope: 'site', op: 'modify',
-            main: 'Nikkei / 大手町オフィスビル(15日) の受注を編集',
+            main: 'Nikkei / 大手町オフィスビル(15日) の受注変更',
             sub: '佐藤 花子 ・ 11:30',
             date: today,
             expand: '人数: 1名 → 2名 / 開始時間: 09:00 → 08:00',
@@ -4180,7 +4204,7 @@ function obCnSeedInitialDemo() {
         },
         {
             scope: 'site', op: 'delete',
-            main: '全日本警備 / 新宿駅前イベント(20日) の受注を削除',
+            main: '全日本警備 / 新宿駅前イベント(20日) の受注削除',
             sub: '山田 次郎 ・ 昨日 17:45',
             date: '昨日',
             expand: 'キャンセル: 顧客都合により受注取消',
