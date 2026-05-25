@@ -376,6 +376,11 @@
         return supportPartners.find(function (p) { return p.id === partnerId; });
     }
 
+    function wsCnGetGcLabel(gcCode) {
+        var gc = groupCompaniesData.filter(function (g) { return g.code === gcCode; })[0];
+        return gc ? gc.shortName : (gcCode || '');
+    }
+
     function getActivePartners(gcCode, opts) {
         var includePreset = opts && opts.includePreset;
         return supportPartners.filter(function (p) {
@@ -384,7 +389,8 @@
     }
 
     // 協力業者追加（サイドバー ＋ボタンから、または 紐付けポップオーバーから）
-    function addPartner(shortName, gcCode) {
+    function addPartner(shortName, gcCode, opts) {
+        opts = opts || {};
         var id = 'partner-' + (nextPartnerId++);
         supportPartners.push({
             id: id, gcCode: gcCode, shortName: shortName,
@@ -395,12 +401,29 @@
             isMasterComplete: false,
             isActive: true
         });
+        if (!opts.silent) {
+            wsCnSelfNotify('reservation', 'add', {
+                kind: 'partner',
+                partnerName: shortName,
+                details: [{ field: '所属GC', value: wsCnGetGcLabel(gcCode) }]
+            });
+        }
         return id;
     }
 
-    function deactivatePartner(partnerId) {
+    function deactivatePartner(partnerId, opts) {
+        opts = opts || {};
         var p = findPartner(partnerId);
-        if (p && !p.isPreset) p.isActive = false;
+        if (p && !p.isPreset) {
+            p.isActive = false;
+            if (!opts.silent) {
+                wsCnSelfNotify('reservation', 'delete', {
+                    kind: 'partner',
+                    partnerName: p.shortName,
+                    details: [{ field: '所属GC', value: wsCnGetGcLabel(p.gcCode) }]
+                });
+            }
+        }
     }
 
     // 日別の予約人数を取得（フレックスのみ。未定義は0）
@@ -4572,7 +4595,7 @@
                 if (!partnerId) {
                     // 入力文字列で新規登録（既存が無ければ）
                     var existing = getActivePartners(gcCode).filter(function (p) { return p.shortName === name; })[0];
-                    partnerId = existing ? existing.id : addPartner(name, gcCode);
+                    partnerId = existing ? existing.id : addPartner(name, gcCode, { silent: true });
                 } else {
                     oldCount = getReservedCount(partnerId, dateKey);
                 }

@@ -1305,6 +1305,14 @@
         return (d.getMonth() + 1) + '/' + d.getDate();
     }
 
+    function laCnRecurrenceLabel(recurrence) {
+        if (!recurrence || !recurrence.rule) return 'なし';
+        if (recurrence.rule === 'weekly') {
+            return '毎週（' + laCnDayLabel(recurrence.until) + 'まで）';
+        }
+        return recurrence.rule;
+    }
+
     // 自領域発信: addItem('la', ...) ラッパー (scope='application', op=add/modify/delete/approve/reject)
     // opts: { leaveId, employeeName, day, kind, partition, operator, fieldLabel, diffs }
     function laCnSelfNotify(op, opts) {
@@ -2577,6 +2585,13 @@
         if (!lv) { laClosePopover(); return; }
 
         var statusChanged = lv.status !== popoverState.draft.status;
+        var oldMeta = {
+            partition: lv.partition,
+            kind: lv.kind,
+            reason: lv.reason || '',
+            memo: lv.memo || '',
+            recurrenceLabel: laCnRecurrenceLabel(lv.recurrence)
+        };
 
         lv.partition = popoverState.draft.partition;
         lv.kind      = popoverState.draft.kind;
@@ -2584,6 +2599,24 @@
         lv.reason    = popoverState.draft.reason;
         lv.memo      = popoverState.draft.memo;
         lv.recurrence = popoverState.draft.recurrence;
+
+        var metaDiffs = [];
+        if (oldMeta.partition !== lv.partition) {
+            metaDiffs.push({ field: '区分', oldVal: PART[oldMeta.partition] || oldMeta.partition, newVal: PART[lv.partition] || lv.partition });
+        }
+        if (oldMeta.kind !== lv.kind) {
+            metaDiffs.push({ field: '種別', oldVal: KIND[oldMeta.kind] || oldMeta.kind, newVal: KIND[lv.kind] || lv.kind });
+        }
+        if (oldMeta.reason !== (lv.reason || '')) {
+            metaDiffs.push({ field: '理由', oldVal: oldMeta.reason || '(空)', newVal: lv.reason || '(空)' });
+        }
+        if (oldMeta.memo !== (lv.memo || '')) {
+            metaDiffs.push({ field: 'メモ', oldVal: oldMeta.memo || '(空)', newVal: lv.memo || '(空)' });
+        }
+        var newRecurrenceLabel = laCnRecurrenceLabel(lv.recurrence);
+        if (oldMeta.recurrenceLabel !== newRecurrenceLabel) {
+            metaDiffs.push({ field: '繰り返し', oldVal: oldMeta.recurrenceLabel, newVal: newRecurrenceLabel });
+        }
 
         // ステータス変更 → 監査情報+通知
         if (statusChanged) {
@@ -2610,6 +2643,19 @@
                     operator: currentRoleLabel()
                 });
             }
+        }
+
+        if (metaDiffs.length > 0) {
+            laCnSelfNotify('modify', {
+                leaveId: lv.id,
+                employeeName: popoverState.employee.name,
+                day: laCnDayLabel(lv.date),
+                kind: KIND[lv.kind],
+                partition: PART[lv.partition],
+                operator: currentRoleLabel(),
+                fieldLabel: metaDiffs.map(function (d) { return d.field; }).join('・'),
+                diffs: metaDiffs
+            });
         }
 
         // 繰り返し: 有効時は以降の同曜日に自動展開
@@ -2639,7 +2685,7 @@
                 return x.employeeId === lv.employeeId && x.date === key && x.status !== 'rejected';
             });
             if (!dup) {
-                laLeaves.push({
+                var newLv = {
                     id: 'lv-' + (nextLeaveId++),
                     employeeId: lv.employeeId,
                     date: key,
@@ -2649,6 +2695,16 @@
                     reason: lv.reason,
                     memo: lv.memo,
                     recurrence: null   // 生成されたレコード側は自己参照しない
+                };
+                laLeaves.push(newLv);
+                var emp = laEmployees.find(function (e) { return e.id === newLv.employeeId; });
+                laCnSelfNotify('add', {
+                    leaveId: newLv.id,
+                    employeeName: emp ? emp.name : '',
+                    day: laCnDayLabel(newLv.date),
+                    kind: KIND[newLv.kind],
+                    partition: PART[newLv.partition],
+                    operator: currentRoleLabel()
                 });
                 created++;
             }
