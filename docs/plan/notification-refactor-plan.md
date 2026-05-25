@@ -1160,11 +1160,10 @@ OB §16.2 と同パターンで、画面別 scope×op 一覧を確定。実装�
 
 ### 16.10 次会話への引き継ぎ要点 ★重要
 
-**現在地**: N-3.1 完了 (2026-05-21)。OB/WS/LA/SL の **4 画面すべてが `(scope, op, opts)` 形式で動作中**。SL の応援機能のみ未実装。
+**現在地**: N-3.2 完了 (2026-05-25)。OB/WS/LA/SL の **4 画面すべてが `(scope, op, opts)` 形式で動作中**。SL には応援タブ / 応援予約編集 / 応援D&D配置 / `support`・`reservation` 通知発信を追加済み。Playwright MCP で応援タブ表示 / 予約追加 / 応援D&D配置 / SLベル通知反映を確認済み。
 
 **次のフェーズ**:
 
-- **N-3.2 SL 応援統合**: WS の `supportPartners` / `supportReservations` を SSOT として SL からも参照・操作。SL サイドバーに応援セクション追加 / カレンダーセルに応援バッジ。`support × place/remove/modify` / `reservation × add/modify/delete` を SL ベルに発信。WS の応援予約モーダル (`openReservationQuickModal` / `openReservationWeekModal`) を SL からも共用。
 - **N-3.3 WS / LA 残ギャップ**: WS の `addPartner` / `deactivatePartner` サイドバー直接呼出フック / LA の `expandRecurrence` 展開時 add 発火 / LA の `onSaveLeave` メタ編集 modify 発火。
 
 **初期確認 (確定済 2026-05-21)**:

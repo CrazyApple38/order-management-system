@@ -227,6 +227,213 @@ h1 {
     padding: 0;
 }
 
+.md-sp-support-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.md-sp-support-count {
+    display: block;
+    font-size: 11px;
+    opacity: 0.85;
+    line-height: 1.2;
+}
+
+.sl-support-toolbar,
+.sl-support-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 10px 0;
+}
+
+.sl-support-gc-chip,
+.sl-support-action-btn,
+.sl-support-mini-btn {
+    border: 1px solid var(--divider);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.sl-support-gc-chip {
+    padding: 4px 8px;
+}
+
+.sl-support-gc-chip.is-active {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #fff;
+}
+
+.sl-support-action-btn {
+    padding: 5px 9px;
+    color: var(--accent-primary);
+}
+
+.sl-support-section {
+    padding: 10px;
+    border-bottom: 1px solid var(--divider);
+}
+
+.sl-support-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.sl-support-mini-btn {
+    width: 24px;
+    height: 24px;
+    line-height: 1;
+}
+
+.sl-support-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.sl-support-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 28px;
+    padding: 5px 8px;
+    border: 1px solid rgba(56, 161, 105, 0.35);
+    border-radius: 6px;
+    background: rgba(56, 161, 105, 0.10);
+    color: var(--semantic-success-text);
+    font-size: 12px;
+    cursor: grab;
+    user-select: none;
+}
+
+.sl-support-tag:hover {
+    background: rgba(56, 161, 105, 0.16);
+}
+
+.sl-support-tag-preset {
+    border-color: var(--divider);
+    background: var(--bg-surface-2);
+    color: var(--text-secondary);
+}
+
+.sl-support-tag.is-empty {
+    opacity: 0.48;
+    cursor: not-allowed;
+    filter: grayscale(0.6);
+}
+
+.sl-support-count {
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+.sl-support-warn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--semantic-warning-bg);
+    color: var(--semantic-warning-text);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.sl-support-empty {
+    color: var(--text-tertiary);
+    font-size: 12px;
+    padding: 4px 0;
+}
+
+.assigned-support {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    height: 26px;
+    padding: 3px 6px;
+    border: 1px solid rgba(56, 161, 105, 0.38);
+    border-radius: 6px;
+    background: rgba(56, 161, 105, 0.12);
+    color: var(--semantic-success-text);
+    font-size: 12px;
+    cursor: grab;
+    user-select: none;
+}
+
+.assigned-support-preset {
+    border-color: var(--divider);
+    background: var(--bg-surface-2);
+    color: var(--text-secondary);
+}
+
+.sl-support-remove-btn {
+    opacity: 0;
+    color: var(--semantic-error);
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.assigned-support:hover .sl-support-remove-btn {
+    opacity: 0.75;
+}
+
+.sl-support-modal {
+    width: 520px;
+    max-width: 92vw;
+}
+
+.sl-support-form,
+.sl-support-week {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sl-support-form-note {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.sl-support-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.sl-support-picker-chip {
+    border: 1px solid var(--divider);
+    border-radius: 6px;
+    padding: 5px 8px;
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.sl-support-week-row,
+.sl-support-week-add {
+    display: grid;
+    grid-template-columns: 1fr 90px;
+    gap: 8px;
+    align-items: center;
+}
+
+.sl-support-week-name {
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
 /* 車両リストタグ */
 .vehicle-list-tag {
     display: inline-flex;

@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=10">
     <link rel="stylesheet" href="mockup/co-company-input.css">
-    <link rel="stylesheet" href="mockup/screen-layout.css?v=16">
+    <link rel="stylesheet" href="mockup/screen-layout.css?v=17">
     <link rel="stylesheet" href="mockup/print-touo-nikkei.css?v=8">
 </head>
 <body>
@@ -564,6 +564,7 @@
                 <div class="side-panel-header">
                     <div class="md-sp-tab active" data-sp-main="employee" onclick="spSwitchMainTab('employee')">社員リスト <span class="md-sp-employee-count">全17名</span></div>
                     <div class="md-sp-tab" data-sp-main="vehicle" onclick="spSwitchMainTab('vehicle')">車両 <span class="md-sp-vehicle-count">全6台</span></div>
+                    <div class="md-sp-tab" data-sp-main="support" onclick="spSwitchMainTab('support')">応援 <span class="md-sp-support-count">予約0件</span></div>
                 </div>
                 <!-- 社員パネル -->
                 <div class="md-sp-main-panel" id="spEmployeePanel">
@@ -591,6 +592,15 @@
                     </div>
                     <div class="side-panel-body md-sp-vehicle-body">
                         <div class="md-sp-content" id="spVehicleContent"><!-- JS動的生成 --></div>
+                    </div>
+                </div>
+                <!-- 応援パネル -->
+                <div class="md-sp-main-panel" id="spSupportPanel" style="display:none">
+                    <div class="side-panel-search">
+                        <input type="text" class="md-fi-input" id="spSupportSearchInput" placeholder="応援検索...">
+                    </div>
+                    <div class="side-panel-body md-sp-support-body">
+                        <div class="md-sp-content" id="spSupportContent"><!-- JS動的生成 --></div>
                     </div>
                 </div>
             </div>
@@ -1611,7 +1621,7 @@
     <script src="mockup/co-notify-panel.js?v=13"></script>
     <script src="mockup/co-navbar.js?v=9"></script>
     <script src="mockup/co-company-input.js"></script>
-    <script src="mockup/screen-layout.js?v=25"></script>
+    <script src="mockup/screen-layout.js?v=26"></script>
     <script src="mockup/print-touo-nikkei.js?v=1"></script>
 </body>
 </html>

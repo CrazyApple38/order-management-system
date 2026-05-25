@@ -19,11 +19,184 @@
         const spState = {
             activeTab: 'all',
             expandedCompanies: new Set(),
-            mainTab: 'employee'
+            mainTab: 'employee',
+            supportGc: 'all'
         };
 
         // デモデータは demo-data.js から読み込み
         // companiesData, sitesData, contactsData 等は demo-data.js で定義済み
+
+        // ============================================================
+        // Phase N-3.2: SL 応援統合
+        // ============================================================
+        // WS の supportPartners / supportReservations / supportAssignments と同型の
+        // データを SL からも扱う。モックアップ単体動作のためローカル保持だが、
+        // フィールド構造は WS 側に合わせる。
+        const slSupportPartners = [];
+        const slSupportReservations = {};
+        const slSupportAssignments = {};
+        let slNextPartnerId = 1;
+        let slDragSourceSupportChip = null;
+
+        function slCurrentDateKey() {
+            const dateEl = document.querySelector('.date-display');
+            const txt = dateEl ? dateEl.textContent : '';
+            const m = txt.match(/(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日/);
+            if (!m) return '2026-01-27';
+            return m[1] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[3]).slice(-2);
+        }
+
+        function slDateLabel(dateKey) {
+            const d = new Date(dateKey + 'T00:00:00');
+            if (Number.isNaN(d.getTime())) return dateKey;
+            const dow = ['日', '月', '火', '水', '木', '金', '土'][d.getDay()];
+            return (d.getMonth() + 1) + '/' + d.getDate() + '(' + dow + ')';
+        }
+
+        function slFindSupportPartner(partnerId) {
+            return slSupportPartners.find(function(p) { return p.id === partnerId; });
+        }
+
+        function slGetSupportPartnerName(partnerId) {
+            const p = slFindSupportPartner(partnerId);
+            return p ? p.shortName : '応援';
+        }
+
+        function slGetActiveSupportPartners(gcCode, opts) {
+            const includePreset = opts && opts.includePreset;
+            return slSupportPartners.filter(function(p) {
+                if (!p.isActive) return false;
+                if (!includePreset && p.isPreset) return false;
+                return gcCode === 'all' ? true : p.gcCode === gcCode;
+            });
+        }
+
+        function slAddSupportPartner(shortName, gcCode) {
+            const id = 'partner-' + (slNextPartnerId++);
+            slSupportPartners.push({
+                id: id,
+                gcCode: gcCode,
+                shortName: shortName,
+                formalName: null,
+                postalCode: null,
+                address: null,
+                representativeTitle: null,
+                representativeName: null,
+                phone: null,
+                email: null,
+                isPreset: false,
+                isMasterComplete: false,
+                isActive: true
+            });
+            return id;
+        }
+
+        function slDeactivateSupportPartner(partnerId) {
+            const p = slFindSupportPartner(partnerId);
+            if (p && !p.isPreset) p.isActive = false;
+        }
+
+        function slGetReservedCount(partnerId, dateKey) {
+            const r = slSupportReservations[partnerId];
+            if (!r || !r[dateKey]) return 0;
+            return r[dateKey].flex || 0;
+        }
+
+        function slSetReservedCount(partnerId, dateKey, count) {
+            if (!slSupportReservations[partnerId]) slSupportReservations[partnerId] = {};
+            if (!slSupportReservations[partnerId][dateKey]) slSupportReservations[partnerId][dateKey] = { flex: 0 };
+            slSupportReservations[partnerId][dateKey].flex = Math.max(0, count | 0);
+        }
+
+        function slRowShiftKey(row) {
+            const badge = row ? row.querySelector('.shift-badge') : null;
+            if (!badge) return 'day';
+            return badge.textContent.trim() === '夜' ? 'night' : 'day';
+        }
+
+        function slGetRowKey(row) {
+            if (!row) return '';
+            if (!row.dataset.slRowKey) {
+                const no = row.querySelector('.col-no');
+                const info = cnGetRowInfo(row);
+                row.dataset.slRowKey = [
+                    no ? no.textContent.trim() : '',
+                    info.company || '',
+                    info.siteName || '',
+                    info.shift || ''
+                ].join('|');
+            }
+            return row.dataset.slRowKey;
+        }
+
+        function slGetAssignedSupportCount(partnerId, dateKey) {
+            const byDate = slSupportAssignments[partnerId] && slSupportAssignments[partnerId][dateKey];
+            if (!byDate) return 0;
+            let count = 0;
+            ['day', 'night'].forEach(function(shift) {
+                count += byDate[shift] ? byDate[shift].length : 0;
+            });
+            return count;
+        }
+
+        function slGetSupportRemaining(partnerId, dateKey) {
+            const p = slFindSupportPartner(partnerId);
+            if (p && p.isPreset) return null;
+            return slGetReservedCount(partnerId, dateKey) - slGetAssignedSupportCount(partnerId, dateKey);
+        }
+
+        function slAddSupportAssignment(partnerId, dateKey, shift, rowKey) {
+            if (!slSupportAssignments[partnerId]) slSupportAssignments[partnerId] = {};
+            if (!slSupportAssignments[partnerId][dateKey]) slSupportAssignments[partnerId][dateKey] = {};
+            if (!slSupportAssignments[partnerId][dateKey][shift]) slSupportAssignments[partnerId][dateKey][shift] = [];
+            slSupportAssignments[partnerId][dateKey][shift].push({ rowKey: rowKey });
+        }
+
+        function slRemoveSupportAssignment(partnerId, dateKey, shift, rowKey) {
+            const byDate = slSupportAssignments[partnerId] && slSupportAssignments[partnerId][dateKey];
+            const arr = byDate && byDate[shift];
+            if (!arr) return null;
+            for (let i = 0; i < arr.length; i++) {
+                if (arr[i].rowKey === rowKey) return arr.splice(i, 1)[0];
+            }
+            return null;
+        }
+
+        function slSupportGcLabel(gcCode) {
+            const gc = groupCompaniesData.find(function(g) { return g.code === gcCode; });
+            return gc ? gc.shortName : gcCode;
+        }
+
+        (function slSeedSupportDemoData() {
+            slSupportPartners.push({
+                id: 'preset-unified',
+                gcCode: null,
+                shortName: '応援',
+                formalName: null,
+                postalCode: null,
+                address: null,
+                representativeTitle: null,
+                representativeName: null,
+                phone: null,
+                email: null,
+                isPreset: true,
+                isMasterComplete: false,
+                isActive: true
+            });
+            const p1 = slAddSupportPartner('A社①', 'touo');
+            const p2 = slAddSupportPartner('B社②', 'touo');
+            const p3 = slAddSupportPartner('C社③', 'nikkei');
+            const p4 = slAddSupportPartner('E社⑤', 'zennihon');
+            const dk = slCurrentDateKey();
+            slSetReservedCount(p1, dk, 3);
+            slSetReservedCount(p2, dk, 1);
+            slSetReservedCount(p3, dk, 2);
+            slSetReservedCount(p4, dk, 2);
+            const p1Obj = slFindSupportPartner(p1);
+            const p3Obj = slFindSupportPartner(p3);
+            if (p1Obj) p1Obj.isMasterComplete = true;
+            if (p3Obj) p3Obj.isMasterComplete = true;
+        })();
 
         // --- Undo/Redo ---
         const undoStack = [];
@@ -40,6 +213,9 @@
                     ? JSON.parse(JSON.stringify(employeeContactItems)) : [],
                 vehicleList: typeof vehicleList !== 'undefined'
                     ? JSON.parse(JSON.stringify(vehicleList)) : [],
+                slSupportPartners: JSON.parse(JSON.stringify(slSupportPartners)),
+                slSupportReservations: JSON.parse(JSON.stringify(slSupportReservations)),
+                slSupportAssignments: JSON.parse(JSON.stringify(slSupportAssignments)),
             };
         }
 
@@ -58,8 +234,22 @@
                 vehicleList.length = 0;
                 snapshot.vehicleList.forEach(v => vehicleList.push(v));
             }
+            if (snapshot.slSupportPartners) {
+                slSupportPartners.length = 0;
+                snapshot.slSupportPartners.forEach(p => slSupportPartners.push(p));
+            }
+            if (snapshot.slSupportReservations) {
+                Object.keys(slSupportReservations).forEach(k => delete slSupportReservations[k]);
+                Object.assign(slSupportReservations, JSON.parse(JSON.stringify(snapshot.slSupportReservations)));
+            }
+            if (snapshot.slSupportAssignments) {
+                Object.keys(slSupportAssignments).forEach(k => delete slSupportAssignments[k]);
+                Object.assign(slSupportAssignments, JSON.parse(JSON.stringify(snapshot.slSupportAssignments)));
+            }
             selectedGridRow = null;
+            document.querySelectorAll('.assigned-support').forEach(makeAssignedSupportDraggable);
             updateEmployeeListStatus();
+            updateSupportPanelStatus();
         }
 
         function pushUndo() {
@@ -1936,7 +2126,8 @@
             spState.mainTab = tab;
             var empPanel = document.getElementById('spEmployeePanel');
             var vehPanel = document.getElementById('spVehiclePanel');
-            if (!empPanel || !vehPanel) return;
+            var supPanel = document.getElementById('spSupportPanel');
+            if (!empPanel || !vehPanel || !supPanel) return;
             var tabs = document.querySelectorAll('.md-sp-tab');
             tabs.forEach(function(t) {
                 t.classList.toggle('active', t.dataset.spMain === tab);
@@ -1944,11 +2135,18 @@
             if (tab === 'employee') {
                 empPanel.style.display = '';
                 vehPanel.style.display = 'none';
+                supPanel.style.display = 'none';
                 renderSidePanel();
-            } else {
+            } else if (tab === 'vehicle') {
                 empPanel.style.display = 'none';
                 vehPanel.style.display = '';
+                supPanel.style.display = 'none';
                 renderVehiclePanel();
+            } else {
+                empPanel.style.display = 'none';
+                vehPanel.style.display = 'none';
+                supPanel.style.display = '';
+                renderSupportPanel();
             }
         }
 
@@ -2048,6 +2246,296 @@
 
         function updateVehicleListStatus() {
             if (spState.mainTab === 'vehicle') renderVehiclePanel();
+        }
+
+        function updateSupportPanelStatus() {
+            if (spState.mainTab === 'support') renderSupportPanel();
+        }
+
+        function slEl(tagName, className, text) {
+            const node = document.createElement(tagName);
+            if (className) node.className = className;
+            if (text !== undefined && text !== null) node.textContent = text;
+            return node;
+        }
+
+        function slCreateSupportBadge(partner) {
+            const dk = slCurrentDateKey();
+            const remaining = slGetSupportRemaining(partner.id, dk);
+            const tag = slEl('span', 'sl-support-tag' + (partner.isPreset ? ' sl-support-tag-preset' : ''));
+            tag.dataset.partnerId = partner.id;
+            tag.draggable = true;
+
+            const name = slEl('span', 'sl-support-name', partner.shortName);
+            tag.appendChild(name);
+            if (!partner.isPreset) {
+                const reserved = slGetReservedCount(partner.id, dk);
+                tag.appendChild(slEl('span', 'sl-support-count', '予' + reserved + ' / 残' + remaining));
+                if (!partner.isMasterComplete) {
+                    const warn = slEl('span', 'sl-support-warn', '!');
+                    warn.title = 'マスタ未完備';
+                    tag.appendChild(warn);
+                }
+                if (remaining <= 0) tag.classList.add('is-empty');
+            }
+
+            tag.addEventListener('dragstart', function(ev) {
+                if (!partner.isPreset && remaining <= 0) {
+                    ev.preventDefault();
+                    return;
+                }
+                ev.dataTransfer.setData('text/sl-support', JSON.stringify({ type: 'sidebar-support', partnerId: partner.id }));
+                ev.dataTransfer.effectAllowed = 'copy';
+                tag.classList.add('dragging');
+            });
+            tag.addEventListener('dragend', function() {
+                tag.classList.remove('dragging');
+            });
+            return tag;
+        }
+
+        function renderSupportPanel() {
+            const content = document.getElementById('spSupportContent');
+            const searchInput = document.getElementById('spSupportSearchInput');
+            if (!content) return;
+            const searchTerm = searchInput ? searchInput.value.trim() : '';
+            const dk = slCurrentDateKey();
+            const visibleCompanies = groupCompaniesData.filter(function(gc) {
+                return window.mdNavGcIsCompanyVisible(gc.code);
+            });
+
+            content.innerHTML = '';
+
+            const tool = slEl('div', 'sl-support-toolbar');
+            const allBtn = slEl('button', 'sl-support-gc-chip' + (spState.supportGc === 'all' ? ' is-active' : ''), 'すべて');
+            allBtn.type = 'button';
+            allBtn.addEventListener('click', function() {
+                spState.supportGc = 'all';
+                renderSupportPanel();
+            });
+            tool.appendChild(allBtn);
+            visibleCompanies.forEach(function(gc) {
+                const btn = slEl('button', 'sl-support-gc-chip' + (spState.supportGc === gc.code ? ' is-active' : ''), gc.shortName);
+                btn.type = 'button';
+                btn.addEventListener('click', function() {
+                    spState.supportGc = gc.code;
+                    renderSupportPanel();
+                });
+                tool.appendChild(btn);
+            });
+            content.appendChild(tool);
+
+            const actions = slEl('div', 'sl-support-actions');
+            const targetGc = spState.supportGc === 'all'
+                ? (visibleCompanies[0] ? visibleCompanies[0].code : 'touo')
+                : spState.supportGc;
+            const quickBtn = slEl('button', 'sl-support-action-btn', '予約追加');
+            quickBtn.type = 'button';
+            quickBtn.addEventListener('click', function() { slOpenReservationQuickModal(targetGc, dk); });
+            const weekBtn = slEl('button', 'sl-support-action-btn', '予約編集');
+            weekBtn.type = 'button';
+            weekBtn.addEventListener('click', function() { slOpenReservationWeekModal(targetGc); });
+            actions.appendChild(quickBtn);
+            actions.appendChild(weekBtn);
+            content.appendChild(actions);
+
+            const preset = slFindSupportPartner('preset-unified');
+            if (preset) {
+                const presetSection = slEl('div', 'sl-support-section');
+                presetSection.appendChild(slEl('div', 'sl-support-section-title', '応援'));
+                const wrap = slEl('div', 'sl-support-badges');
+                wrap.appendChild(slCreateSupportBadge(preset));
+                presetSection.appendChild(wrap);
+                content.appendChild(presetSection);
+            }
+
+            visibleCompanies.forEach(function(gc) {
+                if (spState.supportGc !== 'all' && spState.supportGc !== gc.code) return;
+                const partners = slGetActiveSupportPartners(gc.code).filter(function(p) {
+                    if (searchTerm && p.shortName.indexOf(searchTerm) === -1) return false;
+                    return slGetReservedCount(p.id, dk) > 0;
+                });
+                const section = slEl('div', 'sl-support-section');
+                const title = slEl('div', 'sl-support-section-title', gc.shortName + ' 応援予約');
+                const addBtn = slEl('button', 'sl-support-mini-btn', '+');
+                addBtn.type = 'button';
+                addBtn.title = gc.shortName + ' の予約を追加';
+                addBtn.addEventListener('click', function() { slOpenReservationQuickModal(gc.code, dk); });
+                title.appendChild(addBtn);
+                section.appendChild(title);
+
+                const wrap = slEl('div', 'sl-support-badges');
+                if (partners.length === 0) {
+                    wrap.appendChild(slEl('div', 'sl-support-empty', '予約なし'));
+                } else {
+                    partners.forEach(function(p) { wrap.appendChild(slCreateSupportBadge(p)); });
+                }
+                section.appendChild(wrap);
+                content.appendChild(section);
+            });
+
+            const countEl = document.querySelector('.md-sp-support-count');
+            if (countEl) {
+                const total = slSupportPartners.filter(function(p) {
+                    return !p.isPreset && p.isActive && slGetReservedCount(p.id, dk) > 0;
+                }).length;
+                countEl.textContent = '予約' + total + '件';
+            }
+        }
+
+        function slOpenSupportModal(title, body, actions) {
+            const old = document.getElementById('slSupportModal');
+            if (old) old.remove();
+            const overlay = slEl('div', 'md-modal-overlay active sl-support-modal-overlay');
+            overlay.id = 'slSupportModal';
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) overlay.remove();
+            });
+            const modal = slEl('div', 'md-modal-content sl-support-modal');
+            const header = slEl('div', 'md-modal-site-header');
+            header.appendChild(slEl('h3', null, title));
+            const close = slEl('button', 'modal-close', '×');
+            close.type = 'button';
+            close.addEventListener('click', function() { overlay.remove(); });
+            header.appendChild(close);
+            modal.appendChild(header);
+            const modalBody = slEl('div', 'md-modal-site-body');
+            modalBody.appendChild(body);
+            modal.appendChild(modalBody);
+            const footer = slEl('div', 'modal-footer');
+            footer.appendChild(slEl('div'));
+            const right = slEl('div', 'modal-footer-right');
+            actions.forEach(function(action) {
+                const btn = slEl('button', 'btn ' + (action.primary ? 'btn-primary' : 'btn-secondary'), action.label);
+                btn.type = 'button';
+                btn.addEventListener('click', function() { action.onClick({ close: function() { overlay.remove(); } }); });
+                right.appendChild(btn);
+            });
+            footer.appendChild(right);
+            modal.appendChild(footer);
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+        }
+
+        function slOpenReservationQuickModal(gcCode, dateKey) {
+            const gcLabel = slSupportGcLabel(gcCode);
+            const body = slEl('div', 'sl-support-form');
+            body.appendChild(slEl('div', 'sl-support-form-note', gcLabel + ' / ' + slDateLabel(dateKey)));
+
+            const nameLabel = slEl('label', 'md-fi-label', '協力業者');
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.className = 'md-fi-input';
+            nameInput.placeholder = '略称を入力';
+            const countLabel = slEl('label', 'md-fi-label', '人数');
+            const countInput = document.createElement('input');
+            countInput.type = 'number';
+            countInput.min = '0';
+            countInput.className = 'md-fi-input';
+            countInput.value = '1';
+            const chips = slEl('div', 'sl-support-picker');
+            slGetActiveSupportPartners(gcCode).forEach(function(p) {
+                const chip = slEl('button', 'sl-support-picker-chip', p.shortName + '（現' + slGetReservedCount(p.id, dateKey) + '）');
+                chip.type = 'button';
+                chip.addEventListener('click', function() {
+                    nameInput.value = p.shortName;
+                    countInput.value = String(slGetReservedCount(p.id, dateKey) || 1);
+                });
+                chips.appendChild(chip);
+            });
+            body.appendChild(nameLabel);
+            body.appendChild(nameInput);
+            body.appendChild(chips);
+            body.appendChild(countLabel);
+            body.appendChild(countInput);
+
+            slOpenSupportModal(gcLabel + ' 応援予約追加', body, [
+                { label: 'キャンセル', onClick: function(ctx) { ctx.close(); } },
+                { label: '保存', primary: true, onClick: function(ctx) {
+                    const name = nameInput.value.trim();
+                    if (!name) { alert('協力業者を入力してください'); return; }
+                    const count = Math.max(0, parseInt(countInput.value, 10) || 0);
+                    let partner = slGetActiveSupportPartners(gcCode).find(function(p) { return p.shortName === name; });
+                    const oldCount = partner ? slGetReservedCount(partner.id, dateKey) : 0;
+                    if (!partner) {
+                        const id = slAddSupportPartner(name, gcCode);
+                        partner = slFindSupportPartner(id);
+                    }
+                    slSetReservedCount(partner.id, dateKey, count);
+                    slCnSelfNotify('reservation', count === 0 && oldCount > 0 ? 'delete' : (oldCount === 0 ? 'add' : 'modify'), {
+                        partnerName: partner.shortName,
+                        day: slDateLabel(dateKey),
+                        count: count,
+                        oldCount: oldCount,
+                        newCount: count
+                    });
+                    ctx.close();
+                    renderSupportPanel();
+                } }
+            ]);
+            setTimeout(function() { nameInput.focus(); }, 30);
+        }
+
+        function slOpenReservationWeekModal(gcCode) {
+            const dateKey = slCurrentDateKey();
+            const gcLabel = slSupportGcLabel(gcCode);
+            const body = slEl('div', 'sl-support-week');
+            body.appendChild(slEl('div', 'sl-support-form-note', gcLabel + ' の予約人数を編集'));
+            const partners = slGetActiveSupportPartners(gcCode);
+            partners.forEach(function(p) {
+                const row = slEl('div', 'sl-support-week-row');
+                row.appendChild(slEl('span', 'sl-support-week-name', p.shortName));
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = String(slGetAssignedSupportCount(p.id, dateKey));
+                input.className = 'md-fi-input sl-support-week-input';
+                input.value = String(slGetReservedCount(p.id, dateKey));
+                input.dataset.partnerId = p.id;
+                row.appendChild(input);
+                body.appendChild(row);
+            });
+            const addRow = slEl('div', 'sl-support-week-add');
+            const addInput = document.createElement('input');
+            addInput.type = 'text';
+            addInput.className = 'md-fi-input';
+            addInput.placeholder = '新規業者';
+            addRow.appendChild(addInput);
+            body.appendChild(addRow);
+
+            slOpenSupportModal(gcLabel + ' 応援予約編集', body, [
+                { label: 'キャンセル', onClick: function(ctx) { ctx.close(); } },
+                { label: '保存', primary: true, onClick: function(ctx) {
+                    body.querySelectorAll('.sl-support-week-input').forEach(function(input) {
+                        const partnerId = input.dataset.partnerId;
+                        const oldCount = slGetReservedCount(partnerId, dateKey);
+                        const min = slGetAssignedSupportCount(partnerId, dateKey);
+                        const next = Math.max(min, parseInt(input.value, 10) || 0);
+                        if (next === oldCount) return;
+                        slSetReservedCount(partnerId, dateKey, next);
+                        slCnSelfNotify('reservation', next === 0 ? 'delete' : (oldCount === 0 ? 'add' : 'modify'), {
+                            partnerName: slGetSupportPartnerName(partnerId),
+                            day: slDateLabel(dateKey),
+                            count: next,
+                            oldCount: oldCount,
+                            newCount: next
+                        });
+                    });
+                    const newName = addInput.value.trim();
+                    if (newName) {
+                        const id = slAddSupportPartner(newName, gcCode);
+                        slSetReservedCount(id, dateKey, 1);
+                        slCnSelfNotify('reservation', 'add', {
+                            partnerName: newName,
+                            day: slDateLabel(dateKey),
+                            count: 1,
+                            oldCount: 0,
+                            newCount: 1
+                        });
+                    }
+                    ctx.close();
+                    renderSupportPanel();
+                } }
+            ]);
         }
 
         // ===== 車両D&D =====
@@ -2296,6 +2784,102 @@
             }
         }
 
+        function slBuildAssignedSupportMarkup(partner) {
+            return '<span class="sl-support-assigned-name">' + partner.shortName + '</span>'
+                + '<span class="sl-support-remove-btn" onclick="slRemoveSupport(this, event)">×</span>';
+        }
+
+        function makeAssignedSupportDraggable(el) {
+            el.draggable = true;
+            el.addEventListener('dragstart', function(ev) {
+                ev.stopPropagation();
+                slDragSourceSupportChip = el;
+                ev.dataTransfer.setData('text/sl-support', JSON.stringify({
+                    type: 'move-support',
+                    partnerId: el.dataset.partnerId
+                }));
+                ev.dataTransfer.effectAllowed = 'move';
+                el.classList.add('dragging');
+            });
+            el.addEventListener('dragend', function() {
+                el.classList.remove('dragging');
+                slDragSourceSupportChip = null;
+            });
+        }
+
+        function slPlaceSupportInZone(zone, partnerId, opts) {
+            opts = opts || {};
+            const partner = slFindSupportPartner(partnerId);
+            if (!partner || !zone) return false;
+            const row = zone.closest('tr');
+            if (!row || row.classList.contains('md-row-fixed-off-approved')) return false;
+            const dateKey = slCurrentDateKey();
+            const shift = slRowShiftKey(row);
+            const rowKey = slGetRowKey(row);
+            const remaining = slGetSupportRemaining(partnerId, dateKey);
+            if (!partner.isPreset && remaining <= 0 && !opts.moving) return false;
+
+            if (opts.moving && slDragSourceSupportChip) {
+                const sourceZone = slDragSourceSupportChip.closest('.assignment-zone');
+                const sourceRow = sourceZone ? sourceZone.closest('tr') : null;
+                if (sourceZone === zone) {
+                    slDragSourceSupportChip = null;
+                    return false;
+                }
+                if (sourceRow) {
+                    slRemoveSupportAssignment(partnerId, dateKey, slRowShiftKey(sourceRow), slGetRowKey(sourceRow));
+                }
+                slDragSourceSupportChip.remove();
+                if (sourceZone) updateRowCount(sourceZone);
+            }
+
+            slAddSupportAssignment(partnerId, dateKey, shift, rowKey);
+            const chip = document.createElement('span');
+            chip.className = 'assigned-support' + (partner.isPreset ? ' assigned-support-preset' : '');
+            chip.dataset.partnerId = partner.id;
+            chip.innerHTML = slBuildAssignedSupportMarkup(partner);
+            zone.appendChild(chip);
+            makeAssignedSupportDraggable(chip);
+            updateRowCount(zone);
+            updateSupportPanelStatus();
+
+            const info = cnGetRowInfo(row);
+            if (info.siteName) {
+                slCnSelfNotify('support', 'place', {
+                    siteName: info.siteName,
+                    category: info.category,
+                    shift: info.shift,
+                    supportName: partner.shortName,
+                    fromSiteName: opts.fromSiteName
+                });
+            }
+            return true;
+        }
+
+        function slRemoveSupport(btn, event) {
+            if (event) event.stopPropagation();
+            pushUndo();
+            const chip = btn.closest('.assigned-support');
+            if (!chip) return;
+            const zone = chip.closest('.assignment-zone');
+            const row = chip.closest('tr');
+            const partnerId = chip.dataset.partnerId;
+            const partner = slFindSupportPartner(partnerId);
+            const info = cnGetRowInfo(row);
+            slRemoveSupportAssignment(partnerId, slCurrentDateKey(), slRowShiftKey(row), slGetRowKey(row));
+            chip.remove();
+            if (zone) updateRowCount(zone);
+            updateSupportPanelStatus();
+            if (info.siteName) {
+                slCnSelfNotify('support', 'remove', {
+                    siteName: info.siteName,
+                    category: info.category,
+                    shift: info.shift,
+                    supportName: partner ? partner.shortName : '応援'
+                });
+            }
+        }
+
         function updateRowCount(zone) {
             const row = zone.closest('tr');
             if (!row) return;
@@ -2303,7 +2887,7 @@
             if (!countCell) return;
             const countDisp = countCell.querySelector('.count-display');
             if (!countDisp) return;
-            const assigned = zone.querySelectorAll('.assigned-employee').length;
+            const assigned = zone.querySelectorAll('.assigned-employee, .assigned-support').length;
             const text = countDisp.textContent.trim();
             const match = text.match(/\d+\/(\d+)/);
             const required = match ? parseInt(match[1]) : 1;
@@ -2349,11 +2933,18 @@
             for (var i = 0; i < assigned.length; i++) {
                 assigned[i].remove();
             }
+            var supports = row.querySelectorAll('.assigned-support');
+            for (var s = 0; s < supports.length; s++) {
+                var chip = supports[s];
+                slRemoveSupportAssignment(chip.dataset.partnerId, slCurrentDateKey(), slRowShiftKey(row), slGetRowKey(row));
+                chip.remove();
+            }
             if (assigned.length > 0) {
                 updateEmployeeListStatus();
                 slRenderHolidayRow();
                 slRefreshContinuousBadges();
             }
+            if (supports.length > 0) updateSupportPanelStatus();
         }
 
         // ============================================================
@@ -2659,6 +3250,7 @@
 
         // 初期化: 既存の配置済み社員をドラッグ可能にする
         document.querySelectorAll('.assigned-employee').forEach(makeAssignedEmployeeDraggable);
+        document.querySelectorAll('.assigned-support').forEach(makeAssignedSupportDraggable);
 
         function drag(ev) {
             ev.dataTransfer.setData("text", ev.target.textContent);
@@ -2719,6 +3311,23 @@
             if (targetTr && targetTr.classList.contains('md-row-fixed-off-approved')) {
                 dragSourceAssignedEmployee = null;
                 return;
+            }
+
+            var supportRaw = ev.dataTransfer.getData('text/sl-support');
+            if (supportRaw) {
+                var supportData = null;
+                try { supportData = JSON.parse(supportRaw); } catch (_) {}
+                if (supportData && supportData.partnerId) {
+                    var supportOpts = { moving: supportData.type === 'move-support' };
+                    if (supportOpts.moving && slDragSourceSupportChip) {
+                        var sourceInfo = cnGetRowInfo(slDragSourceSupportChip.closest('tr'));
+                        supportOpts.fromSiteName = sourceInfo.siteName + (sourceInfo.shift ? '（' + sourceInfo.shift + '）' : '');
+                    }
+                    pushUndo();
+                    slPlaceSupportInZone(zone, supportData.partnerId, supportOpts);
+                    slDragSourceSupportChip = null;
+                    return;
+                }
             }
 
             if (dragSourceAssignedEmployee) {
@@ -2843,7 +3452,7 @@
         let selectedGridRow = null;
 
         function selectRow(tr, event) {
-            if (event.target.closest('.md-modal-overlay, .contact-popup, .assigned-employee, .vehicle-drop-zone')) return;
+            if (event.target.closest('.md-modal-overlay, .contact-popup, .assigned-employee, .assigned-support, .vehicle-drop-zone')) return;
             if (event.target.closest('.clickable-cell')) return;
 
             if (selectedGridRow === tr) {
@@ -3867,6 +4476,30 @@
                     var fs3 = (opts.diffs || []).map(function (d) { return d.field; }).join('・');
                     mainText = siteLabel + ' ' + prefix + vehicleName + ' の ' + (fs3 || 'メタ情報') + ' を変更';
                 } else mainText = siteLabel + ' の車両を' + op;
+            } else if (scope === 'support') {
+                var supportName = opts.supportName || '応援';
+                if (op === 'place') {
+                    mainText = siteLabel + ' に ' + supportName + ' を配置';
+                    if (opts.fromSiteName) expandText = '移動元: ' + opts.fromSiteName;
+                } else if (op === 'remove') {
+                    mainText = siteLabel + ' から ' + supportName + ' を削除';
+                } else if (op === 'modify') {
+                    var fs4 = (opts.diffs || []).map(function (d) { return d.field; }).join('・');
+                    mainText = siteLabel + ' ' + supportName + ' の ' + (fs4 || 'メタ情報') + ' を変更';
+                } else mainText = siteLabel + ' の応援を' + op;
+            } else if (scope === 'reservation') {
+                var partnerName = opts.partnerName || '協力業者';
+                var day = opts.day || '';
+                if (op === 'add') {
+                    mainText = partnerName + ' の ' + day + ' 予約を追加（' + (opts.count || opts.newCount || 0) + '名）';
+                } else if (op === 'modify') {
+                    mainText = partnerName + ' の ' + day + ' 予約を変更';
+                    if (opts.oldCount !== undefined || opts.newCount !== undefined) {
+                        expandText = '人数: ' + (opts.oldCount || 0) + '名 → ' + (opts.newCount || 0) + '名';
+                    }
+                } else if (op === 'delete') {
+                    mainText = partnerName + ' の ' + day + ' 予約を取消';
+                } else mainText = partnerName + ' の予約を' + op;
             } else {
                 mainText = siteLabel + ' を' + op;
             }
@@ -3875,6 +4508,7 @@
             // 現状ハードコード。将来は notify-icons-selected.js または別マスタから参照する設計に変更可。
             var colorOverride = null;
             if (scope === 'employee' && op === 'place') colorOverride = 'secondary';
+            if (scope === 'support' && op === 'place') colorOverride = 'secondary';
 
             if (!expandText && opts.diffs && opts.diffs.length > 0) {
                 expandText = opts.diffs.map(function (d) {
@@ -4867,6 +5501,13 @@
                 renderVehiclePanel();
             });
         }
+        var spSupportSearchEl = document.getElementById('spSupportSearchInput');
+        if (spSupportSearchEl) {
+            spSupportSearchEl.addEventListener('input', function() {
+                renderSupportPanel();
+            });
+        }
+        renderSupportPanel();
 
         // 共通GCフィルタ変更イベントを受けて画面を更新
         function applyGcFilter() {
@@ -4899,7 +5540,11 @@
             groupCompaniesData.forEach(function(gc) {
                 if (window.mdNavGcIsCompanyVisible(gc.code)) spState.expandedCompanies.add(gc.code);
             });
+            if (spState.supportGc !== 'all' && !window.mdNavGcIsCompanyVisible(spState.supportGc)) {
+                spState.supportGc = 'all';
+            }
             renderSidePanel();
+            renderSupportPanel();
             renderMinimap();
         }
 
