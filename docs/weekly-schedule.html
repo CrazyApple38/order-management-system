@@ -57,11 +57,12 @@
             <div class="md-ws-nav-group">
                 <button type="button" class="md-ws-nav-btn" id="wsPrevWeek" aria-label="前週" title="前週"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevrons-left"/></svg></button>
                 <button type="button" class="md-ws-nav-btn" id="wsPrevDay" aria-label="前日" title="前日"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-left"/></svg></button>
-                <span class="md-ws-month-label" id="wsMonthLabel">2026年 4月6日～12日</span>
+                <span class="md-ws-month-label" id="wsMonthLabel">2026年 4月27日～5月3日</span>
                 <button type="button" class="md-ws-nav-btn" id="wsNextDay" aria-label="翌日" title="翌日"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-right"/></svg></button>
                 <button type="button" class="md-ws-nav-btn" id="wsNextWeek" aria-label="翌週" title="翌週"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevrons-right"/></svg></button>
             </div>
             <button type="button" class="md-ws-today-btn" id="wsTodayBtn">今日</button>
+            <button type="button" class="md-ws-today-btn" onclick="OmsMockStore.resetAndReload()" title="共通ダミーデータを初期状態に戻す">データリセット</button>
         </div>
 
         <!-- メインエリア -->
@@ -77,8 +78,8 @@
             <div class="md-ws-sidebar">
                 <div class="md-ws-sidebar-header">
                     <img src="mockup/icons/calendar.svg" alt="" style="width:16px;height:16px;filter:brightness(10);">
-                    <span class="md-ws-sidebar-date" id="wsSidebarDate">4月9日</span>
-                    <span class="md-ws-sidebar-dow" id="wsSidebarDow">(木)</span>
+                    <span class="md-ws-sidebar-date" id="wsSidebarDate">5月1日</span>
+                    <span class="md-ws-sidebar-dow" id="wsSidebarDow">(金)</span>
                     <span style="flex:1;"></span>
                     <span class="md-ws-employee-count" id="wsEmpCount"></span>
                 </div>
@@ -95,6 +96,7 @@
     <script src="mockup/notify-icons-selected.js?v=2"></script>
     <script src="mockup/co-notify-panel.js?v=13"></script>
     <script src="mockup/co-navbar.js?v=9"></script>
-    <script src="mockup/weekly-schedule.js?v=4"></script>
+    <script src="mockup/co-mock-store.js?v=4"></script>
+    <script src="mockup/weekly-schedule.js?v=5"></script>
 </body>
 </html>

@@ -126,9 +126,11 @@
     var laWsAssignments = {}; // 'emp-id|YYYY-MM-DD' → { siteName, shift }
 
     // ビュー状態
-    var currentDate = new Date(2026, 3, 1); // 2026-04-01 起点 (デモデータの想定月)
+    var LA_DEFAULT_DATE_KEY = (window.OmsMockStore && window.OmsMockStore.defaultDate) || '2026-05-01';
+    var laStateRestoring = false;
+    var currentDate = laStoreCurrentDate();
     var currentView = 'month'; // 'month' | 'week' | 'year' (E5 以降で拡張)
-    var currentWeekAnchor = new Date(2026, 3, 13); // 2026-04-13 (月曜) 起点
+    var currentWeekAnchor = new Date(currentDate);
     var sidebarMode = 'emp'; // 'emp' | 'alerts' — 縦タブで切替
     var sidebarCollapsed = false;
     var sidebarActiveTab = 'all'; // 'all' | 'touo' | 'nikkei' | 'zennihon' | 'dueSoon'
@@ -156,6 +158,17 @@
     var currentUserGc = null;
     // 旧 notifications / nextNotifId は N-2.3 で撤去。共通ベル (window.coNotifyPanel) が管理。
 
+    function laDemoTodayDate() {
+        var key = (window.OmsMockStore && window.OmsMockStore.getDemoToday && window.OmsMockStore.getDemoToday()) || LA_DEFAULT_DATE_KEY;
+        return parseDate(key);
+    }
+
+    function laStoreCurrentDate() {
+        var key = (window.OmsMockStore && window.OmsMockStore.getCurrentDate && window.OmsMockStore.getCurrentDate()) || LA_DEFAULT_DATE_KEY;
+        var d = parseDate(key);
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    }
+
     // ==========================================================
     // 初期化: 社員データ構築 + デモ休暇レコード
     // ==========================================================
@@ -179,22 +192,23 @@
     }
 
     function seedWsAssignments() {
-        // 当月 (2026-04) に WS 配置がある想定のデモデータを仕込む
+        // 当月に WS 配置がある想定のデモデータを仕込む
         // 休暇申請と競合する日を含めることで衝突警告の動作確認ができる
+        var ym = currentDate.getFullYear() + '-' + pad(currentDate.getMonth() + 1) + '-';
         var seeds = [
-            // 林 (empIdx=5) が 4/3, 4/4 に休暇申請中 → 4/4 に配置済み (衝突)
-            { empIdx: 5,  date: '2026-04-04', siteName: '〇〇ビル', shift: '昼' },
-            // 清水 (empIdx=14) が 4/8, 4/9 に休暇申請中 → 4/9 に配置済み (衝突)
-            { empIdx: 14, date: '2026-04-09', siteName: '□□イベント', shift: '夜' },
-            // 山田 (empIdx=18) が 4/15 に休暇申請中 → 4/15 に配置済み (衝突)
-            { empIdx: 18, date: '2026-04-15', siteName: '高速SA補修', shift: '昼' },
+            // 林 (empIdx=5) が 3日, 4日に休暇申請中 → 4日に配置済み (衝突)
+            { empIdx: 5,  day: 4, siteName: '〇〇ビル', shift: '昼' },
+            // 清水 (empIdx=14) が 8日, 9日に休暇申請中 → 9日に配置済み (衝突)
+            { empIdx: 14, day: 9, siteName: '□□イベント', shift: '夜' },
+            // 山田 (empIdx=18) が 15日に休暇申請中 → 15日に配置済み (衝突)
+            { empIdx: 18, day: 15, siteName: '高速SA補修', shift: '昼' },
             // 衝突しない配置も混ぜる (一覧での通常表示用)
-            { empIdx: 3,  date: '2026-04-20', siteName: '△△マンション', shift: '昼' },
-            { empIdx: 10, date: '2026-04-22', siteName: '△△マンション', shift: '昼' }
+            { empIdx: 3,  day: 20, siteName: '△△マンション', shift: '昼' },
+            { empIdx: 10, day: 22, siteName: '△△マンション', shift: '昼' }
         ];
         seeds.forEach(function (s) {
             if (!laEmployees[s.empIdx]) return;
-            var key = laEmployees[s.empIdx].id + '|' + s.date;
+            var key = laEmployees[s.empIdx].id + '|' + ym + pad(s.day);
             laWsAssignments[key] = { siteName: s.siteName, shift: s.shift };
         });
     }
@@ -226,7 +240,7 @@
     // 過去日? (今日より前)
     function isPastDate(dateKey) {
         var d = parseDate(dateKey);
-        var today = new Date();
+        var today = laDemoTodayDate();
         today.setHours(0, 0, 0, 0);
         return d < today;
     }
@@ -240,7 +254,8 @@
     }
 
     function seedDemoLeaves() {
-        // 2026-04 のダミー申請を何件か
+        // 表示月のダミー申請を何件か
+        var ym = currentDate.getFullYear() + '-' + pad(currentDate.getMonth() + 1) + '-';
         var seeds = [
             { empIdx: 5,  day: 3,  partition: 'full', kind: 'paid',   status: 'approved' },
             { empIdx: 5,  day: 4,  partition: 'full', kind: 'paid',   status: 'approved' },
@@ -262,7 +277,7 @@
             laLeaves.push({
                 id: 'lv-' + (nextLeaveId++),
                 employeeId: laEmployees[s.empIdx].id,
-                date: '2026-04-' + pad(s.day),
+                date: ym + pad(s.day),
                 partition: s.partition,
                 kind: s.kind,
                 status: s.status,
@@ -308,6 +323,26 @@
         return gcFilter[emp.company] === true;
     }
 
+    function laLoadApplicationsFromStore() {
+        if (!window.OmsMockStore || typeof window.OmsMockStore.getLeaveApplications !== 'function') return false;
+        var saved = window.OmsMockStore.getLeaveApplications();
+        if (!Array.isArray(saved)) return false;
+        laLeaves = JSON.parse(JSON.stringify(saved));
+        var maxId = 0;
+        laLeaves.forEach(function(lv) {
+            var m = String(lv.id || '').match(/(\d+)$/);
+            if (m) maxId = Math.max(maxId, parseInt(m[1], 10));
+        });
+        nextLeaveId = Math.max(nextLeaveId, maxId + 1);
+        return true;
+    }
+
+    function laSaveApplicationsToStore() {
+        if (laStateRestoring || !window.OmsMockStore) return;
+        window.OmsMockStore.setCurrentDate(currentView === 'week' ? fmtDate(currentWeekAnchor) : fmtDate(currentDate));
+        window.OmsMockStore.setLeaveApplications(laLeaves, { nextLeaveId: nextLeaveId });
+    }
+
     function render() {
         renderLabel();
         updateViewVisibility();
@@ -319,6 +354,7 @@
         }
         renderSidebar();
         renderMiniCal();
+        laSaveApplicationsToStore();
     }
 
     // ==========================================================
@@ -351,7 +387,7 @@
         var firstDow = (first.getDay() + 6) % 7; // 月=0, 日=6
         var start = new Date(first);
         start.setDate(start.getDate() - firstDow);
-        var todayKey = fmtDate(new Date());
+        var todayKey = fmtDate(laDemoTodayDate());
         var selectedKey = fmtDate(currentDate);
         var leaveDays = {};
         laLeaves.forEach(function (lv) { leaveDays[lv.date] = true; });
@@ -509,7 +545,7 @@
 
         var cells = getMonthCells(currentDate.getFullYear(), currentDate.getMonth());
         var byDate = leavesByDate();
-        var today = new Date();
+        var today = laDemoTodayDate();
         var countsByDate = {};
 
         cells.forEach(function (d) {
@@ -588,7 +624,7 @@
         if (!grid) return;
         grid.innerHTML = '';
         var monday = weekAnchorMonday(currentWeekAnchor);
-        var today = new Date();
+        var today = laDemoTodayDate();
         today.setHours(0, 0, 0, 0);
 
         // ヘッダー行: 左コーナー + 7日
@@ -712,6 +748,7 @@
         }
         renderWeek();
         renderSidebar();
+        laSaveApplicationsToStore();
     }
 
     // ==========================================================
@@ -740,7 +777,7 @@
         root.appendChild(legend);
 
         var year = currentDate.getFullYear();
-        var today = new Date(); today.setHours(0, 0, 0, 0);
+        var today = laDemoTodayDate(); today.setHours(0, 0, 0, 0);
         var byDate = leavesByDate();
 
         for (var m = 0; m < 12; m++) {
@@ -899,7 +936,7 @@
         root.appendChild(legend);
 
         var year = currentDate.getFullYear();
-        var today = new Date(); today.setHours(0, 0, 0, 0);
+        var today = laDemoTodayDate(); today.setHours(0, 0, 0, 0);
         var byDate = vsBuildDueDateMap();
 
         for (var m = 0; m < 12; m++) {
@@ -1288,7 +1325,7 @@
     // ==========================================================
 
     function laCnTodayLabel() {
-        var d = new Date();
+        var d = laDemoTodayDate();
         return '今日 (' + (d.getMonth() + 1) + '/' + d.getDate() + ')';
     }
 
@@ -2778,7 +2815,7 @@
         render();
     }
     function navigateToday() {
-        var t = new Date();
+        var t = laDemoTodayDate();
         if (currentView === 'week') {
             currentWeekAnchor = new Date(t);
         } else {
@@ -3280,7 +3317,7 @@
     }
 
     function vsIsDueSoon(vehicle) {
-        var now = new Date(); now.setHours(0, 0, 0, 0);
+        var now = laDemoTodayDate(); now.setHours(0, 0, 0, 0);
         var threshold = new Date(now.getTime() + VS_DUE_SOON_DAYS * 24 * 60 * 60 * 1000);
         function within(dateStr) {
             if (!dateStr) return false;
@@ -3395,9 +3432,16 @@
     // ==========================================================
 
     document.addEventListener('DOMContentLoaded', function () {
+        currentDate = laStoreCurrentDate();
+        currentWeekAnchor = new Date(currentDate);
+        miniCalDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
         buildEmployees();
         seedWsAssignments();
-        seedDemoLeaves();
+        laStateRestoring = true;
+        var loadedLeaves = laLoadApplicationsFromStore();
+        if (!loadedLeaves) seedDemoLeaves();
+        laStateRestoring = false;
+        if (!loadedLeaves) laSaveApplicationsToStore();
         laCnSeedInitialDemo(); // 共通ベル (window.coNotifyPanel) へデモ通知投入
         // 祝日データ: キャッシュ即時適用 / API 取得後は再描画
         ensureHolidays(function () { render(); });
@@ -3497,6 +3541,20 @@
         document.addEventListener('mdNavGcFilterChanged', function () {
             syncGcFilter();
             renderCalendar();
+        });
+
+        window.addEventListener('storage', function(e) {
+            if (!window.OmsMockStore || e.key !== window.OmsMockStore.key) return;
+            laStateRestoring = true;
+            try {
+                currentDate = laStoreCurrentDate();
+                currentWeekAnchor = new Date(currentDate);
+                miniCalDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                laLoadApplicationsFromStore();
+            } finally {
+                laStateRestoring = false;
+            }
+            render();
         });
 
         // モード切替 (休暇申請管理 / 車両スケジュール管理)

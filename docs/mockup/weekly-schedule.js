@@ -43,6 +43,19 @@
         { id: 'v5', plate: '\u304b 5678', model: '\u30ad\u30e3\u30f3\u30bf\u30fc', owner: 'nikkei' }
     ];
 
+    var WS_DEFAULT_DATE_KEY = (window.OmsMockStore && window.OmsMockStore.defaultDate) || '2026-05-01';
+    var wsStateRestoring = false;
+
+    function wsDemoTodayDate() {
+        var key = (window.OmsMockStore && window.OmsMockStore.getDemoToday && window.OmsMockStore.getDemoToday()) || WS_DEFAULT_DATE_KEY;
+        return parseDate(key);
+    }
+
+    function wsCurrentStoreDate() {
+        var key = (window.OmsMockStore && window.OmsMockStore.getCurrentDate && window.OmsMockStore.getCurrentDate()) || WS_DEFAULT_DATE_KEY;
+        return parseDate(key);
+    }
+
     var assignments = {};
     var vehicleAssignments = {};
     var holidays = {};
@@ -127,7 +140,7 @@
             isMasterComplete: true
         });
         // 今日前後の予約（viewStartDateは下で定義されるので、ここは直近日付で手動計算）
-        var baseDate = new Date(2026, 3, 9); // 2026-04-09
+        var baseDate = wsDemoTodayDate();
         function dk(offset) {
             var d = new Date(baseDate); d.setDate(d.getDate() + offset);
             var y = d.getFullYear(), m = ('0' + (d.getMonth() + 1)).slice(-2), day = ('0' + d.getDate()).slice(-2);
@@ -149,7 +162,7 @@
     // 状態管理
     // ==========================================================
 
-    var today = new Date(2026, 3, 9);
+    var today = wsDemoTodayDate();
     var viewStartDate = getWeekStart(today);
     var visibleWeeks = 1;
     var selectedDate = formatDateKey(today);
@@ -226,7 +239,13 @@
         return dates;
     }
 
-    var holidayDates = { '2026-04-29': '\u662d\u548c\u306e\u65e5' };
+    var holidayDates = {
+        '2026-04-29': '\u662d\u548c\u306e\u65e5',
+        '2026-05-03': '\u61b2\u6cd5\u8a18\u5ff5\u65e5',
+        '2026-05-04': '\u307f\u3069\u308a\u306e\u65e5',
+        '2026-05-05': '\u3053\u3069\u3082\u306e\u65e5',
+        '2026-05-06': '\u4f11\u65e5'
+    };
 
     function parseDate(dk) {
         var parts = dk.split('-');
@@ -309,6 +328,96 @@
         vehicleMaintenance['v4'][formatDateKey(dates[2])] = true;
         vehicleMaintenance['v5'] = {};
         vehicleMaintenance['v5'][formatDateKey(dates[3])] = true;
+    }
+
+    function wsEmpIdToIndex(employeeId) {
+        var m = String(employeeId || '').match(/^emp-(\d+)$/);
+        if (!m) return -1;
+        var idx = parseInt(m[1], 10) - 1;
+        return idx >= 0 && idx < employeesData.length ? idx : -1;
+    }
+
+    function wsApplyLeaveApplications() {
+        if (!window.OmsMockStore || typeof window.OmsMockStore.getLeaveApplications !== 'function') return;
+        var leaves = window.OmsMockStore.getLeaveApplications();
+        if (!Array.isArray(leaves)) return;
+        Object.keys(holidays).forEach(function(empIdx) {
+            Object.keys(holidays[empIdx] || {}).forEach(function(dateKey) {
+                if (holidays[empIdx][dateKey] === 'la') delete holidays[empIdx][dateKey];
+            });
+            if (Object.keys(holidays[empIdx] || {}).length === 0) delete holidays[empIdx];
+        });
+        leaves.forEach(function(lv) {
+            if (!lv || lv.status === 'rejected') return;
+            if (lv.partition && lv.partition !== 'full') return;
+            var idx = wsEmpIdToIndex(lv.employeeId);
+            if (idx < 0 || !lv.date) return;
+            if (!holidays[idx]) holidays[idx] = {};
+            holidays[idx][lv.date] = 'la';
+        });
+    }
+
+    function wsBuildWeekState() {
+        return {
+            version: 1,
+            weekKey: formatDateKey(getWeekStart(viewStartDate)),
+            selectedDate: selectedDate,
+            viewMode: viewMode,
+            assignments: JSON.parse(JSON.stringify(assignments)),
+            vehicleAssignments: JSON.parse(JSON.stringify(vehicleAssignments)),
+            holidays: JSON.parse(JSON.stringify(holidays)),
+            vehicleMaintenance: JSON.parse(JSON.stringify(vehicleMaintenance)),
+            supportPartners: JSON.parse(JSON.stringify(supportPartners)),
+            nextPartnerId: nextPartnerId,
+            supportReservations: JSON.parse(JSON.stringify(supportReservations)),
+            supportAssignments: JSON.parse(JSON.stringify(supportAssignments))
+        };
+    }
+
+    function wsRestoreWeekState(saved) {
+        if (!saved || saved.version !== 1) return false;
+        assignments = JSON.parse(JSON.stringify(saved.assignments || {}));
+        vehicleAssignments = JSON.parse(JSON.stringify(saved.vehicleAssignments || {}));
+        holidays = JSON.parse(JSON.stringify(saved.holidays || {}));
+        vehicleMaintenance = JSON.parse(JSON.stringify(saved.vehicleMaintenance || {}));
+        supportPartners.length = 0;
+        (saved.supportPartners || []).forEach(function(p) { supportPartners.push(JSON.parse(JSON.stringify(p))); });
+        nextPartnerId = saved.nextPartnerId || nextPartnerId;
+        supportReservations = JSON.parse(JSON.stringify(saved.supportReservations || {}));
+        supportAssignments = JSON.parse(JSON.stringify(saved.supportAssignments || {}));
+        selectedDate = saved.selectedDate || selectedDate;
+        viewMode = saved.viewMode || viewMode;
+        wsApplyLeaveApplications();
+        return true;
+    }
+
+    function wsSaveWeekToStore() {
+        if (wsStateRestoring || !window.OmsMockStore) return;
+        window.OmsMockStore.setWsWeek(formatDateKey(viewStartDate), wsBuildWeekState());
+    }
+
+    function wsLoadWeekFromStore() {
+        if (!window.OmsMockStore) {
+            generateDemoAssignments();
+            return;
+        }
+        var needsSave = false;
+        wsStateRestoring = true;
+        try {
+            var saved = window.OmsMockStore.getWsWeek(formatDateKey(viewStartDate));
+            if (!wsRestoreWeekState(saved)) {
+                generateDemoAssignments();
+                wsApplyLeaveApplications();
+                needsSave = true;
+            }
+        } finally {
+            wsStateRestoring = false;
+        }
+        if (needsSave) wsSaveWeekToStore();
+    }
+
+    function wsSyncCurrentDateToStore(dateKey) {
+        if (window.OmsMockStore) window.OmsMockStore.setCurrentDate(dateKey);
     }
 
     // ==========================================================
@@ -865,6 +974,7 @@
         }
         updateMonthLabel();
         fixStickyHeaderTops();
+        wsSaveWeekToStore();
     }
 
     function fixStickyHeaderTops() {
@@ -5037,6 +5147,7 @@
     function onDateHeaderClick(dk) {
         deselectCell();
         selectedDate = dk;
+        wsSyncCurrentDateToStore(dk);
         renderSidebar();
         // 日付ヘッダーハイライト
         document.querySelectorAll('.md-ws-date-header').forEach(function (h) {
@@ -5050,28 +5161,44 @@
 
     function prevWeek() {
         deselectCell();
+        wsSaveWeekToStore();
         viewStartDate.setDate(viewStartDate.getDate() - 7);
+        selectedDate = formatDateKey(viewStartDate);
+        wsSyncCurrentDateToStore(selectedDate);
+        wsLoadWeekFromStore();
         renderGrid();
         renderSidebar();
     }
 
     function nextWeek() {
         deselectCell();
+        wsSaveWeekToStore();
         viewStartDate.setDate(viewStartDate.getDate() + 7);
+        selectedDate = formatDateKey(viewStartDate);
+        wsSyncCurrentDateToStore(selectedDate);
+        wsLoadWeekFromStore();
         renderGrid();
         renderSidebar();
     }
 
     function prevDay() {
         deselectCell();
+        wsSaveWeekToStore();
         viewStartDate.setDate(viewStartDate.getDate() - 1);
+        selectedDate = formatDateKey(viewStartDate);
+        wsSyncCurrentDateToStore(selectedDate);
+        wsLoadWeekFromStore();
         renderGrid();
         renderSidebar();
     }
 
     function nextDay() {
         deselectCell();
+        wsSaveWeekToStore();
         viewStartDate.setDate(viewStartDate.getDate() + 1);
+        selectedDate = formatDateKey(viewStartDate);
+        wsSyncCurrentDateToStore(selectedDate);
+        wsLoadWeekFromStore();
         renderGrid();
         renderSidebar();
     }
@@ -5080,6 +5207,8 @@
         deselectCell();
         viewStartDate = getWeekStart(today);
         selectedDate = formatDateKey(today);
+        wsSyncCurrentDateToStore(selectedDate);
+        wsLoadWeekFromStore();
         renderGrid();
         renderSidebar();
     }
@@ -5197,7 +5326,7 @@
     // ==========================================================
 
     function wsCnTodayLabel() {
-        var d = new Date();
+        var d = wsDemoTodayDate();
         return '今日 (' + (d.getMonth() + 1) + '/' + d.getDate() + ')';
     }
 
@@ -5415,7 +5544,11 @@
 
     function init() {
         restoreTheme();
-        generateDemoAssignments();
+        today = wsDemoTodayDate();
+        var current = wsCurrentStoreDate();
+        viewStartDate = getWeekStart(current);
+        selectedDate = formatDateKey(current);
+        wsLoadWeekFromStore();
         initHolidayCursor();
 
         // ツールバーにビュー切替ボタンを注入
@@ -5436,6 +5569,24 @@
         // 共通GCフィルタ変更イベントを受けて画面を更新
         document.addEventListener('gcFilterChanged', function () {
             deselectCell();
+            renderGrid();
+            renderSidebar();
+        });
+
+        window.addEventListener('storage', function(e) {
+            if (!window.OmsMockStore || e.key !== window.OmsMockStore.key) return;
+            var parts = window.OmsMockStore.dateToParts(window.OmsMockStore.getCurrentDate());
+            var currentKey = parts.year + '-' + String(parts.month).padStart(2, '0') + '-' + String(parts.day).padStart(2, '0');
+            today = wsDemoTodayDate();
+            selectedDate = currentKey;
+            var currentDateObj = parseDate(currentKey);
+            if (currentDateObj < viewStartDate || currentDateObj >= new Date(viewStartDate.getTime() + visibleWeeks * 7 * 86400000)) {
+                wsSaveWeekToStore();
+                viewStartDate = getWeekStart(currentDateObj);
+                wsLoadWeekFromStore();
+            } else {
+                wsApplyLeaveApplications();
+            }
             renderGrid();
             renderSidebar();
         });
