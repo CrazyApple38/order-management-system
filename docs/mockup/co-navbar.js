@@ -14,6 +14,7 @@
     else if (path.indexOf('weekly-schedule') !== -1) currentPage = 'weekly-schedule';
     else if (path.indexOf('leave-application') !== -1) currentPage = 'leave-application';
     else if (path.indexOf('quick-access') !== -1) currentPage = 'quick-access';
+    else if (path.indexOf('admin-notify') !== -1) currentPage = 'admin-notify';
 
     // --- 変更通知ベル定義（Phase N-1 確定 / 2026-05-15）
     //     業務頻度順（OB→SL→WS→LA │ 承認待ち→車両→マスタ）
@@ -42,7 +43,9 @@
         { id: 'group-company',  label: 'グループ会社',       icon: 'chart.svg' },
         { id: 'org-unit',       label: '組織階層',           icon: 'chart.svg' },
         { id: 'penalty-code',   label: 'ペナルティコード',   icon: 'pencil.svg' },
-        { id: 'holiday',        label: '祝日',               icon: 'calendar.svg' }
+        { id: 'holiday',        label: '祝日',               icon: 'calendar.svg' },
+        { divider: true },
+        { id: 'admin-notify',   label: '変更通知設定',       icon: 'gear.svg' }
     ];
 
     // --- スケジュールメニュー項目 ---
@@ -185,45 +188,46 @@
     //     ・modify/auto/pending は expand + affects 付与でアコーディオン展開可
     var mdNavCnBellItems = {
         ob: [
-            { type: 'add',    main: '東央警備 / 渋谷駅前ビル の受注を追加', sub: '山田太郎 ・ 09:14', date: '今日 (5/15)',
+            { scope: 'site', op: 'add',    main: '東央警備 / 渋谷駅前ビル の受注を追加', sub: '山田太郎 ・ 09:14', date: '今日 (5/15)',
               expand: '2026-05-18（月） / 警備員8名 / 単価¥18,000', affects: ['order-book', 'screen-layout', 'weekly-schedule'] },
-            { type: 'modify', main: '新宿三井ビル の受注日を変更',       sub: '山田太郎 ・ 10:42', date: '今日 (5/15)',
+            { scope: 'site', op: 'modify', main: '新宿三井ビル の受注日を変更',       sub: '山田太郎 ・ 10:42', date: '今日 (5/15)',
               expand: '受注日: 5/20 → 5/22', affects: ['order-book', 'screen-layout'] },
-            { type: 'delete', main: '池袋現場 の受注を取消',             sub: '佐藤次郎 ・ 16:08', date: '昨日 (5/14)',
+            { scope: 'site', op: 'delete', main: '池袋現場 の受注を取消',             sub: '佐藤次郎 ・ 16:08', date: '昨日 (5/14)',
               expand: '取消理由: 契約先キャンセル', affects: ['order-book', 'screen-layout'] }
         ],
         sl: [
-            { type: 'modify', slot: 'type-sl-auto', main: '渋谷駅前ビル に他GC社員を配置（自動受注生成）',
+            { scope: 'employee', op: 'place', main: '渋谷駅前ビル に他GC社員を配置（自動受注生成）',
               sub: '田中一郎(Nikkei) ・ 11:30', date: '今日 (5/15)',
               expand: 'グループ間応援を検出 → OB側に自動受注行を生成（編集ロック行）',
               affects: ['screen-layout', 'order-book'] },
-            { type: 'add', slot: 'type-employee', main: '高田馬場ビル に社員 を新規配置',
+            { scope: 'employee', op: 'place', main: '高田馬場ビル に社員 を新規配置',
               sub: '配置: 佐藤太郎 ・ 10:05', date: '今日 (5/15)', affects: ['screen-layout'] },
-            { type: 'modify', slot: 'type-vehicle', main: '渋谷駅前ビル の車両配置を更新',
+            { scope: 'vehicle', op: 'modify', main: '渋谷駅前ビル の車両配置を更新',
               sub: '車両 #002 ・ 13:22', date: '今日 (5/15)',
               expand: '配置車両を #001 → #002 へ変更', affects: ['screen-layout'] }
         ],
         ws: [
-            { type: 'modify', slot: 'type-ws-schedule-change', main: '5/16 (土) の予定を変更',
+            { scope: 'schedule', op: 'modify', main: '5/16 (土) の予定を変更',
               sub: '田中一郎 ・ 09:42', date: '今日 (5/15)',
               expand: '時間帯: 9:00-17:00 → 10:00-18:00', affects: ['weekly-schedule'] }
         ],
         la: [
-            { type: 'new',     main: '清水 から新規申請', sub: '5/22 / 有給休暇 ・ 14:01', date: '今日 (5/15)',
+            { scope: 'application', op: 'add',     main: '清水 から新規申請', sub: '5/22 / 有給休暇 ・ 14:01', date: '今日 (5/15)',
               affects: ['leave-application', 'screen-layout'] },
-            { type: 'approve', main: '林 の休暇を承認',   sub: '5/18 / 有給 ・ 09:14',     date: '今日 (5/15)',
+            { scope: 'application', op: 'approve', main: '林 の休暇を承認',   sub: '5/18 / 有給 ・ 09:14',     date: '今日 (5/15)',
               expand: 'ステータス: 承認待ち → 承認済', affects: ['leave-application'] }
         ],
         pending: [
-            { type: 'pending', main: 'DCP承認待ち: 1件', sub: '鈴木 一郎 / 2026-04-24 (金) 有給休暇 ・ 32分前',
+            { scope: 'application', op: 'add', main: 'DCP承認待ち: 1件',
+              sub: '鈴木 一郎 / 2026-04-24 (金) 有給休暇 ・ 32分前',
               date: '今日 (5/15)', expand: '承認画面で処理してください', affects: ['leave-application'] }
         ],
         vehicle: [],
         master: [
-            { type: 'modify', main: '社員マスタが更新されました',
+            { type: 'modify', slot: 'type-master-modify', main: '社員マスタが更新されました',
               sub: '佐藤 太郎 さんの所属が変更 (部署A → 部署B) ・ 10分前', date: '今日 (5/15)',
               expand: '所属: 部署A → 部署B', affects: ['order-book', 'screen-layout'] },
-            { type: 'add',    main: '現場マスタに新規現場が追加されました',
+            { type: 'add', slot: 'type-master-add', main: '現場マスタに新規現場が追加されました',
               sub: '〇〇ビル新築工事 (東央警備) ・ 2時間前', date: '今日 (5/15)',
               affects: ['order-book', 'screen-layout', 'weekly-schedule'] }
         ]
@@ -235,17 +239,17 @@
             businessAxis: { tab: '契約先/現場', search: '現場名で検索...', prefix: '現場',
                 groups: [
                     { title: '東央警備 / 渋谷駅前ビル', items: [
-                        { type: 'add',    main: '受注を追加', sub: '山田太郎 ・ 5/15 09:14',
+                        { scope: 'site', op: 'add', main: '受注を追加', sub: '山田太郎 ・ 5/15 09:14',
                           affects: ['order-book', 'screen-layout', 'weekly-schedule'] },
-                        { type: 'modify', main: '受注日を変更', sub: '山田太郎 ・ 5/12 10:42',
+                        { scope: 'site', op: 'modify', main: '受注日を変更', sub: '山田太郎 ・ 5/12 10:42',
                           expand: '受注日: 5/10 → 5/12', affects: ['order-book', 'screen-layout'] }
                     ]},
                     { title: '三菱地所 / 丸の内本社', items: [
-                        { type: 'add', main: '受注を追加', sub: '山田太郎 ・ 5/12 14:00',
+                        { scope: 'site', op: 'add', main: '受注を追加', sub: '山田太郎 ・ 5/12 14:00',
                           affects: ['order-book', 'screen-layout'] }
                     ]},
                     { title: '東央警備 / 池袋現場', items: [
-                        { type: 'delete', main: '受注を取消', sub: '佐藤次郎 ・ 5/14 16:08',
+                        { scope: 'site', op: 'delete', main: '受注を取消', sub: '佐藤次郎 ・ 5/14 16:08',
                           affects: ['order-book', 'screen-layout'] }
                     ]}
                 ],
@@ -257,13 +261,13 @@
             accountAxis: { tab: 'アカウント', search: 'アカウント名で検索...', prefix: 'アカウント',
                 groups: [
                     { title: '山田太郎', items: [
-                        { type: 'add',    main: '東央警備 / 渋谷駅前ビル の受注を追加', sub: '5/15 09:14',
+                        { scope: 'site', op: 'add', main: '東央警備 / 渋谷駅前ビル の受注を追加', sub: '5/15 09:14',
                           affects: ['order-book', 'screen-layout', 'weekly-schedule'] },
-                        { type: 'modify', main: '東央警備 / 渋谷駅前ビル の受注日を変更', sub: '5/12 10:42',
+                        { scope: 'site', op: 'modify', main: '東央警備 / 渋谷駅前ビル の受注日を変更', sub: '5/12 10:42',
                           expand: '受注日: 5/10 → 5/12', affects: ['order-book', 'screen-layout'] }
                     ]},
                     { title: '佐藤次郎', items: [
-                        { type: 'delete', main: '東央警備 / 池袋現場 の受注を取消', sub: '5/14 16:08',
+                        { scope: 'site', op: 'delete', main: '東央警備 / 池袋現場 の受注を取消', sub: '5/14 16:08',
                           affects: ['order-book', 'screen-layout'] }
                     ]}
                 ],
@@ -274,13 +278,13 @@
             businessAxis: { tab: '現場', search: '現場名で検索...', prefix: '現場',
                 groups: [
                     { title: '東央警備 / 渋谷駅前ビル', items: [
-                        { type: 'modify', slot: 'type-sl-auto', main: '他GC社員を配置（自動受注生成）',
+                        { scope: 'employee', op: 'place', main: '他GC社員を配置（自動受注生成）',
                           sub: '田中一郎(Nikkei) ・ 5/15 11:30',
                           expand: 'グループ間応援を検出 → OB側に自動受注行を生成',
                           affects: ['screen-layout', 'order-book'] }
                     ]},
                     { title: '東央警備 / 高田馬場ビル', items: [
-                        { type: 'add', slot: 'type-employee', main: '佐藤太郎 を配置', sub: '5/13',
+                        { scope: 'employee', op: 'place', main: '佐藤太郎 を配置', sub: '5/13',
                           affects: ['screen-layout'] }
                     ]}
                 ],
@@ -289,7 +293,7 @@
             accountAxis: { tab: 'アカウント', search: 'アカウント名で検索...', prefix: 'アカウント',
                 groups: [
                     { title: '山田太郎', items: [
-                        { type: 'modify', slot: 'type-sl-auto', main: '渋谷駅前ビル に田中一郎を配置',
+                        { scope: 'employee', op: 'place', main: '渋谷駅前ビル に田中一郎を配置',
                           sub: '5/15 11:30',
                           expand: 'グループ間応援を検出 → OB側に自動受注行を生成',
                           affects: ['screen-layout', 'order-book'] }
@@ -302,7 +306,7 @@
             businessAxis: { tab: '現場', search: '現場名で検索...', prefix: '現場',
                 groups: [
                     { title: '東央警備 / 渋谷駅前ビル', items: [
-                        { type: 'add', main: '5/16(土) に応援予約 Aチーム4名', sub: '田中一郎 ・ 5/13' }
+                        { scope: 'reservation', op: 'add', main: '5/16(土) に応援予約 Aチーム4名', sub: '田中一郎 ・ 5/13' }
                     ]}
                 ],
                 companies: ['東央警備'], sites: { '東央警備': ['渋谷駅前ビル'] }
@@ -310,7 +314,7 @@
             accountAxis: { tab: 'アカウント', search: 'アカウント名で検索...', prefix: 'アカウント',
                 groups: [
                     { title: '田中一郎', items: [
-                        { type: 'add', main: '渋谷駅前ビル 5/16 応援予約', sub: '5/13' }
+                        { scope: 'reservation', op: 'add', main: '渋谷駅前ビル 5/16 応援予約', sub: '5/13' }
                     ]}
                 ],
                 accounts: ['田中一郎']
@@ -320,16 +324,16 @@
             businessAxis: { tab: '申請者', search: '申請者名で検索...', prefix: '申請者',
                 groups: [
                     { title: '清水', items: [
-                        { type: 'new', main: '5/22 有給休暇 を申請', sub: '5/15 14:01',
+                        { scope: 'application', op: 'add', main: '5/22 有給休暇 を申請', sub: '5/15 14:01',
                           affects: ['leave-application', 'screen-layout'] }
                     ]},
                     { title: '林', items: [
-                        { type: 'approve', main: '5/18 有給休暇 を承認', sub: '5/15 09:14',
+                        { scope: 'application', op: 'approve', main: '5/18 有給休暇 を承認', sub: '5/15 09:14',
                           expand: 'ステータス: 承認待ち → 承認済',
                           affects: ['leave-application', 'weekly-schedule'] }
                     ]},
                     { title: '山田', items: [
-                        { type: 'reject', main: '5/14 有給休暇 を却下', sub: '5/14 13:24',
+                        { scope: 'application', op: 'reject', main: '5/14 有給休暇 を却下', sub: '5/14 13:24',
                           affects: ['leave-application'] }
                     ]}
                 ],
@@ -339,10 +343,10 @@
             accountAxis: { tab: '承認者', search: '承認者名で検索...', prefix: '承認者',
                 groups: [
                     { title: '林部長', items: [
-                        { type: 'approve', main: '林 の5/18申請を承認', sub: '5/15 09:14',
+                        { scope: 'application', op: 'approve', main: '林 の5/18申請を承認', sub: '5/15 09:14',
                           expand: 'ステータス: 承認待ち → 承認済',
                           affects: ['leave-application', 'weekly-schedule'] },
-                        { type: 'reject',  main: '山田 の5/14申請を却下', sub: '5/14 13:24',
+                        { scope: 'application', op: 'reject',  main: '山田 の5/14申請を却下', sub: '5/14 13:24',
                           affects: ['leave-application'] }
                     ]}
                 ],
@@ -353,7 +357,7 @@
             businessAxis: { tab: '申請者', search: '申請者名で検索...', prefix: '申請者',
                 groups: [
                     { title: '清水', items: [
-                        { type: 'pending', main: '5/22 有給休暇 承認待ち', sub: '5/15 14:01',
+                        { scope: 'application', op: 'add', main: '5/22 有給休暇 承認待ち', sub: '5/15 14:01',
                           expand: '承認画面で処理してください',
                           affects: ['leave-application'] }
                     ]}
@@ -363,7 +367,7 @@
             accountAxis: { tab: '承認者', search: '承認者名で検索...', prefix: '承認者',
                 groups: [
                     { title: '林部長', items: [
-                        { type: 'pending', main: '清水 の5/22申請が承認待ち', sub: '5/15 14:01',
+                        { scope: 'application', op: 'add', main: '清水 の5/22申請が承認待ち', sub: '5/15 14:01',
                           expand: '承認画面で処理してください',
                           affects: ['leave-application'] }
                     ]}
@@ -375,7 +379,7 @@
             businessAxis: { tab: '車両', search: '車両名で検索...', prefix: '車両',
                 groups: [
                     { title: '車両 #001 トヨタハイエース', items: [
-                        { type: 'modify', main: '5/16 の運行予定を変更', sub: '5/14 山田太郎',
+                        { scope: 'vehicle', op: 'modify', main: '5/16 の運行予定を変更', sub: '5/14 山田太郎',
                           expand: '出発時刻: 9:00 → 10:30',
                           affects: ['screen-layout', 'weekly-schedule'] }
                     ]}
@@ -385,7 +389,7 @@
             accountAxis: { tab: 'アカウント', search: 'アカウント名で検索...', prefix: 'アカウント',
                 groups: [
                     { title: '山田太郎', items: [
-                        { type: 'modify', main: '車両 #001 の運行予定を変更', sub: '5/14',
+                        { scope: 'vehicle', op: 'modify', main: '車両 #001 の運行予定を変更', sub: '5/14',
                           expand: '出発時刻: 9:00 → 10:30',
                           affects: ['screen-layout', 'weekly-schedule'] }
                     ]}
@@ -397,11 +401,11 @@
             businessAxis: { tab: 'マスタ種別', search: 'マスタ種別で検索...', prefix: '種別',
                 groups: [
                     { title: '現場マスタ', items: [
-                        { type: 'add', main: '〇〇ビル新築工事 (東央警備) を追加', sub: '管理者 ・ 5/15',
+                        { type: 'add', slot: 'type-master-add', main: '〇〇ビル新築工事 (東央警備) を追加', sub: '管理者 ・ 5/15',
                           affects: ['order-book', 'screen-layout', 'weekly-schedule'] }
                     ]},
                     { title: '社員マスタ', items: [
-                        { type: 'modify', main: '佐藤 太郎 さんの所属を変更（部署A → 部署B）',
+                        { type: 'modify', slot: 'type-master-modify', main: '佐藤 太郎 さんの所属を変更（部署A → 部署B）',
                           sub: '管理者 ・ 5/14',
                           expand: '所属: 部署A → 部署B',
                           affects: ['order-book', 'screen-layout'] }
@@ -412,9 +416,9 @@
             accountAxis: { tab: '管理者', search: '管理者名で検索...', prefix: '管理者',
                 groups: [
                     { title: '管理者', items: [
-                        { type: 'add',    main: '現場マスタに〇〇ビルを追加', sub: '5/15',
+                        { type: 'add', slot: 'type-master-add', main: '現場マスタに〇〇ビルを追加', sub: '5/15',
                           affects: ['order-book', 'screen-layout', 'weekly-schedule'] },
-                        { type: 'modify', main: '社員マスタで佐藤太郎の所属を変更', sub: '5/14',
+                        { type: 'modify', slot: 'type-master-modify', main: '社員マスタで佐藤太郎の所属を変更', sub: '5/14',
                           expand: '所属: 部署A → 部署B',
                           affects: ['order-book', 'screen-layout'] }
                     ]}
@@ -479,7 +483,8 @@
     // ページ遷移するメニュー項目
     var pageLinks = {
         'weekly-schedule':   'weekly-schedule.html',
-        'leave-application': 'leave-application.html'
+        'leave-application': 'leave-application.html',
+        'admin-notify':      'admin-notify.html'
     };
 
     document.querySelectorAll('.md-nav-menu-item[data-master]').forEach(function (btn) {

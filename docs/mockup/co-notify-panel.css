@@ -297,12 +297,18 @@
 .cn-icon.type-rejected .cn-composed::before   { background: var(--semantic-error); }
 .cn-icon.type-approved .cn-composed::before   { background: var(--semantic-success); }
 
-/* N-3.4.2: item.color による色 override (op 連動より優先 / 表で指定された色を強制) */
-.cn-icon.color-primary   .cn-composed::before { background: var(--accent-primary)   !important; }
-.cn-icon.color-secondary .cn-composed::before { background: var(--accent-secondary) !important; }
-.cn-icon.color-error     .cn-composed::before { background: var(--semantic-error)   !important; }
-.cn-icon.color-success   .cn-composed::before { background: var(--semantic-success) !important; }
-.cn-icon.color-warning   .cn-composed::before { background: var(--semantic-warning) !important; }
+/* N-3.4.2: item.color による色 override (op 連動より優先 / 表で指定された色を強制)
+   scope 背景 (::before) と op バッジ (.cn-composed-op) の両方に同じ色を適用して一致させる */
+.cn-icon.color-primary   .cn-composed::before,
+.cn-icon.color-primary   .cn-composed .cn-composed-op { background: var(--accent-primary)   !important; }
+.cn-icon.color-secondary .cn-composed::before,
+.cn-icon.color-secondary .cn-composed .cn-composed-op { background: var(--accent-secondary) !important; }
+.cn-icon.color-error     .cn-composed::before,
+.cn-icon.color-error     .cn-composed .cn-composed-op { background: var(--semantic-error)   !important; }
+.cn-icon.color-success   .cn-composed::before,
+.cn-icon.color-success   .cn-composed .cn-composed-op { background: var(--semantic-success) !important; }
+.cn-icon.color-warning   .cn-composed::before,
+.cn-icon.color-warning   .cn-composed .cn-composed-op { background: var(--semantic-warning) !important; }
 
 /* OP バッジ: <span> ラッパー (背景色 + border + 影) + <img> (白シルエット)
    bg は scope 背景と同じ op 色 (.cn-icon.type-* 経由) */

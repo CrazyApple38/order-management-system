@@ -350,7 +350,7 @@
        N-2 アイコン適用: notify-icons-selected.json 相当のマッピングを
        インラインで持ち、.cn-icon 内に <img> を注入する
        ============================================================ */
-    var CN_ICON_BASE = '../assets/icons/';
+    var CN_ICON_BASE = window.NOTIFY_COMPARE_ICON_BASE || '../assets/icons/';
     var CN_ICON_MAP = {
         ob: {
             add: 'business/im-12032-shimpuru-na-shomei-keiyaku.svg',
@@ -716,7 +716,7 @@
        - 選択結果は notifyIconSelections.v1 に保存され、両モードに反映
        ============================================================ */
     var ICON_STORAGE_KEY = 'notifyIconSelections.v1';
-    var ICON_BASE_PATH = '../assets/icons/';
+    var ICON_BASE_PATH = window.NOTIFY_COMPARE_ICON_BASE || '../assets/icons/';
 
     function readSelections() {
         try { return JSON.parse(localStorage.getItem(ICON_STORAGE_KEY) || '{}'); }
@@ -958,7 +958,7 @@
 
     var MTX_PRIMITIVES_KEY = 'notifyPrimitives.v1';
     var MTX_OVERRIDES_KEY = 'notifyTypeOverrides.v1';
-    var MTX_ICON_BASE = '../assets/icons/';
+    var MTX_ICON_BASE = window.NOTIFY_COMPARE_ICON_BASE || '../assets/icons/';
     var MTX_MIGRATION_KEY = 'notifyMatrix.migrated.cellToSite';
 
     /* 2026-05-19 マイグレーション: scope.cell → scope.site / cell-* override → site-*
@@ -1528,7 +1528,7 @@
 
     /* 合成アイコンの HTML を生成 (co-notify-panel.js の buildComposedIconHtml と同パターン) */
     /* preview/ ディレクトリから見たアイコンパス基点は ../assets/icons/ (mockup の iconBasePath とは異なる) */
-    var N34_ICON_BASE = '../assets/icons/';
+    var N34_ICON_BASE = window.NOTIFY_COMPARE_ICON_BASE || '../assets/icons/';
     function n34BuildIconHtml(scope, op, colorClass) {
         var src = (window.NotifyIconsSelected && window.NotifyIconsSelected.primitives) || { scope: {}, op: {} };
         /* localStorage の上書きを優先 */

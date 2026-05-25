@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>変更通知設定 — 管理者</title>
+    <link rel="stylesheet" href="mockup/co-tokens.css">
+    <link rel="stylesheet" href="mockup/co-buttons.css">
+    <link rel="stylesheet" href="mockup/co-modal.css">
+    <link rel="stylesheet" href="mockup/co-shared-badges.css">
+    <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
+    <link rel="stylesheet" href="mockup/co-notify-panel.css?v=10">
+    <style>
+        :root { color-scheme: light; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: var(--bg-base, #F5F7FA);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "メイリオ", Meiryo, sans-serif;
+            color: var(--text-primary, #1F2937);
+        }
+        body { display: flex; flex-direction: column; min-height: 100vh; }
+        .admin-page-header {
+            padding: 16px 24px 0;
+            background: var(--bg-surface, #FFFFFF);
+            border-bottom: 1px solid var(--border-light, #E5E7EB);
+        }
+        .admin-page-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 4px;
+            color: var(--text-primary, #1F2937);
+        }
+        .admin-page-sub {
+            font-size: 12px;
+            color: var(--text-secondary, #6B7280);
+            margin: 0 0 12px;
+        }
+        .admin-tabs {
+            display: flex;
+            gap: 4px;
+            margin: 0;
+            padding: 0;
+        }
+        .admin-tab {
+            background: transparent;
+            border: none;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary, #6B7280);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .admin-tab:hover { color: var(--text-primary, #1F2937); }
+        .admin-tab.is-active {
+            color: var(--accent-primary, #44A6B5);
+            border-bottom-color: var(--accent-primary, #44A6B5);
+        }
+        .admin-iframe-wrap {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+        }
+        .admin-iframe {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background: var(--bg-base, #F5F7FA);
+        }
+        .admin-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary, #6B7280);
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-page-header">
+        <h1 class="admin-page-title">📌 変更通知設定 <small style="font-weight:400;font-size:12px;color:var(--text-secondary);">(管理者)</small></h1>
+        <p class="admin-page-sub">システム全体の通知アイコン・通知タイプを編集します。保存は自動 (localStorage)。</p>
+        <div class="admin-tabs" role="tablist">
+            <button class="admin-tab is-active" data-mode="matrix" role="tab">マトリクス選定</button>
+            <button class="admin-tab" data-mode="n34" role="tab">通知タイプ一覧</button>
+            <button class="admin-tab" data-mode="icons" role="tab">アイコン選定</button>
+            <button class="admin-tab" data-mode="n2-integration" role="tab">ベルパネルプレビュー</button>
+        </div>
+    </div>
+    <div class="admin-iframe-wrap">
+        <iframe id="adminNotifyIframe"
+                class="admin-iframe"
+                src="preview/notify-compare.html"
+                title="変更通知設定 — 詳細編集パネル"></iframe>
+    </div>
+
+    <script src="mockup/demo-data.js?v=4"></script>
+    <script src="mockup/notify-icons-selected.js?v=2"></script>
+    <script src="mockup/co-notify-panel.js?v=13"></script>
+    <script src="mockup/co-navbar.js?v=10"></script>
+    <script>
+    (function () {
+        'use strict';
+
+        var iframe = document.getElementById('adminNotifyIframe');
+        var tabs = Array.from(document.querySelectorAll('.admin-tab'));
+
+        // admin 用に表示するモード一覧
+        var ADMIN_MODES = ['icons', 'n2-integration', 'matrix', 'n34'];
+        // URL ハッシュ初期モード (#matrix / #n34 / #icons / #n2-integration)
+        var initialMode = (location.hash || '#matrix').replace('#', '');
+        if (ADMIN_MODES.indexOf(initialMode) === -1) initialMode = 'matrix';
+
+        function switchTab(mode) {
+            tabs.forEach(function (t) {
+                t.classList.toggle('is-active', t.dataset.mode === mode);
+            });
+            var doc = iframe.contentDocument;
+            if (!doc) return;
+            var btn = doc.querySelector('.cmp-mode-btn[data-mode="' + mode + '"]');
+            if (btn) btn.click();
+            location.hash = '#' + mode;
+        }
+
+        tabs.forEach(function (t) {
+            t.addEventListener('click', function () { switchTab(t.dataset.mode); });
+        });
+
+        iframe.addEventListener('load', function () {
+            var doc = iframe.contentDocument;
+            if (!doc) return;
+            // preview ヘッダー (タイトル/サブタイトル/モードボタン) を全て非表示
+            var header = doc.querySelector('.cmp-header');
+            if (header) header.style.display = 'none';
+            // 初期モードに切替
+            var btn = doc.querySelector('.cmp-mode-btn[data-mode="' + initialMode + '"]');
+            if (btn) btn.click();
+            tabs.forEach(function (t) {
+                t.classList.toggle('is-active', t.dataset.mode === initialMode);
+            });
+        });
+
+        // ハッシュ変更にも追従 (戻る/進む対応)
+        window.addEventListener('hashchange', function () {
+            var mode = (location.hash || '#matrix').replace('#', '');
+            if (ADMIN_MODES.indexOf(mode) === -1) mode = 'matrix';
+            switchTab(mode);
+        });
+    })();
+    </script>
+</body>
+</html>
