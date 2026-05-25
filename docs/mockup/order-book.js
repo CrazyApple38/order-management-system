@@ -341,29 +341,15 @@ function generateBadgeId(prefix) {
 
 // --- サンプルデータ ---
 // 【モックアップ専用】本番環境ではDBのorder_rows / ordersテーブルからAPI経由で取得
-let sampleRows = [
-    { _rowId: 1,  branch: '東央警備', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '東名SA巡回', hidden: false },
-    { _rowId: 2,  branch: '東央警備', category: '高速', shift: '夜', company: '(株)〇〇高速', task: '東名SA巡回', hidden: false },
-    { _rowId: 3,  branch: '東央警備', category: '高速',   shift: '昼', company: '△△建設(株)',  task: '中央道補修', hidden: false },
-    { _rowId: 4,  branch: '東央警備', category: '交通', shift: '昼', company: '(株)丸山建設', task: '〇〇ビル巡回', hidden: false },
-    { _rowId: 5,  branch: '東央警備', category: '交通', shift: '昼', company: '(株)丸山建設', task: '△△マンション', hidden: false },
-    { _rowId: 6,  branch: '東央警備', category: '交通', shift: '夜', company: '□□警備(株)',  task: '国道1号線',  hidden: false },
-    { _rowId: 7,  branch: '東央警備', category: '施設',   shift: '昼', company: '全日本エンタープライズ', task: '商業施設A', hidden: false },
-    { _rowId: 8,  branch: '東央警備', category: '交通', shift: '昼', company: '(株)丸山建設', task: '', hidden: false },
-    { _rowId: 9,  branch: 'Nikkeiホールディングス', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '名神SA巡回', hidden: false },
-    { _rowId: 10, branch: 'Nikkeiホールディングス', category: '高速',   shift: '昼', company: '△△建設(株)',  task: '東名高速補修', hidden: true },
-    { _rowId: 11, branch: 'Nikkeiホールディングス', category: '交通', shift: '昼', company: '(株)丸山建設', task: '□□公園整備', hidden: false },
-    { _rowId: 12, branch: 'Nikkeiホールディングス', category: '交通', shift: '夜', company: '□□警備(株)',  task: '県道12号線', hidden: false },
-    { _rowId: 13, branch: 'Nikkeiホールディングス', category: '施設',   shift: '昼', company: '全日本エンタープライズ', task: '商業施設B', hidden: false },
-    { _rowId: 14, branch: '全日本エンタープライズ', category: '高速', shift: '昼', company: '(株)〇〇高速', task: '新東名SA巡回', hidden: false },
-    { _rowId: 15, branch: '全日本エンタープライズ', category: '交通', shift: '昼', company: '(株)丸山建設', task: '〇〇交差点', hidden: false },
-    { _rowId: 16, branch: '全日本エンタープライズ', category: '交通', shift: '夜', company: '□□警備(株)',  task: '国道246号線', hidden: false },
-    { _rowId: 17, branch: '全日本エンタープライズ', category: '施設', shift: '昼', company: '全日本エンタープライズ', task: '商業施設C', hidden: false },
-];
-let obNextRowId = 18;
+const obCommonOrders = window.OmsMockOrdersData || null;
+let sampleRows = obCommonOrders ? obCommonOrders.createSampleRows() : [];
+let obNextRowId = obCommonOrders ? obCommonOrders.getNextRowId(sampleRows) : 1;
 
 // --- 計画書業務名の自動生成（親業務名 > 子 > 孫 の階層表示） ---
 function buildDailyTaskName(parentTask, subTasks) {
+    if (obCommonOrders && obCommonOrders.buildDailyTaskName) {
+        return obCommonOrders.buildDailyTaskName(parentTask, subTasks);
+    }
     const parts = [];
     if (parentTask) parts.push(parentTask);
     if (subTasks && subTasks.length > 0) {
@@ -375,6 +361,14 @@ function buildDailyTaskName(parentTask, subTasks) {
 // セルデータ生成（サンプル）
 // 【モックアップ専用】本番環境ではorder_cellsテーブルからAPI経由で取得。この関数全体が不要。
 function generateCellData() {
+    if (obCommonOrders && obCommonOrders.generateCellData) {
+        return obCommonOrders.generateCellData({
+            year: currentYear,
+            month: currentMonth,
+            rows: sampleRows,
+            demoTodayKey: obGetDemoTodayKey()
+        });
+    }
     const data = {};
     const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
     const demoToday = obGetDemoTodayDate();

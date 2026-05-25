@@ -48,6 +48,8 @@
         let slStateSaveTimer = null;
         let slStateObserver = null;
         let slStateRestoring = false;
+        let slStateDirty = false;
+        let slSuppressNextObserverSave = false;
         let slDefaultSnapshot = null;
 
         function slCurrentDateKey() {
@@ -69,7 +71,11 @@
         }
 
         function slShiftDate(days) {
-            slSaveStateNow();
+            if (slStateDirty) {
+                if (slStateSaveTimer) clearTimeout(slStateSaveTimer);
+                slStateSaveTimer = null;
+                slSaveStateNow();
+            }
             const current = slCurrentDateKey();
             const p = current.split('-').map(function(v) { return parseInt(v, 10); });
             const d = new Date(p[0], p[1] - 1, p[2]);
@@ -79,7 +85,6 @@
             slSetDateDisplay(nextKey);
             slRestoreStateFromStorage(nextKey);
             if (typeof applyGcFilter === 'function') applyGcFilter();
-            slScheduleStateSave();
         }
 
         function slDateLabel(dateKey) {
@@ -216,7 +221,12 @@
             return [slCurrentDateKey(), slGetRowKey(row), empName || ''].join('::');
         }
 
+        function slCanGenerateAutoOrderFromRow(row) {
+            return !!(row && (row.dataset.obRowId || row.dataset.slOrigin === 'manual'));
+        }
+
         function slBuildAutoOrderForEmployee(row, empName, dateKey) {
+            if (!slCanGenerateAutoOrderFromRow(row)) return null;
             const info = cnGetRowInfo(row);
             const emp = slFindEmployeeByName(empName);
             if (!row || !emp || !info.gcCode || emp.company === info.gcCode) return null;
@@ -409,6 +419,221 @@
             }
         }
 
+        function slCreateSnapshotWithTbody(tbodyHTML) {
+            return {
+                tbodyHTML: tbodyHTML,
+                companiesData: JSON.parse(JSON.stringify(companiesData)),
+                sitesData: JSON.parse(JSON.stringify(sitesData)),
+                employeeContactItems: typeof employeeContactItems !== 'undefined'
+                    ? JSON.parse(JSON.stringify(employeeContactItems)) : [],
+                vehicleList: typeof vehicleList !== 'undefined'
+                    ? JSON.parse(JSON.stringify(vehicleList)) : [],
+                slSupportPartners: JSON.parse(JSON.stringify(slSupportPartners)),
+                slSupportReservations: JSON.parse(JSON.stringify(slSupportReservations)),
+                slSupportAssignments: JSON.parse(JSON.stringify(slSupportAssignments)),
+            };
+        }
+
+        function slParseDateKeyParts(dateKey) {
+            const m = String(dateKey || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (!m) return null;
+            return { year: parseInt(m[1], 10), month: parseInt(m[2], 10), day: parseInt(m[3], 10) };
+        }
+
+        function slGetFixedRowsHtmlFromDefault() {
+            if (!slDefaultSnapshot || !slDefaultSnapshot.tbodyHTML) return '';
+            const tpl = document.createElement('template');
+            tpl.innerHTML = '<table><tbody>' + slDefaultSnapshot.tbodyHTML + '</tbody></table>';
+            return Array.from(tpl.content.querySelectorAll('tr[data-fixed="true"]'))
+                .map(function(row) { return row.outerHTML; })
+                .join('');
+        }
+
+        function slNormalizeOrderBookEntries(entryOrEntries) {
+            if (!entryOrEntries) return [];
+            return Array.isArray(entryOrEntries) ? entryOrEntries.filter(Boolean) : [entryOrEntries];
+        }
+
+        function slOrderBookGc(branch) {
+            if (typeof groupCompaniesData === 'undefined') return null;
+            return groupCompaniesData.find(function(gc) { return gc.name === branch; }) || null;
+        }
+
+        function slOrderBookShiftClass(shift) {
+            return shift === '夜' ? 'shift-night' : 'shift-day';
+        }
+
+        function slOrderBookCategoryClass(category) {
+            const map = {
+                '施設': 'category-facility',
+                'イベント': 'category-event',
+                '交通': 'category-traffic',
+                '高速': 'category-highway',
+                '応援交通': 'category-traffic'
+            };
+            return map[category] || 'category-facility';
+        }
+
+        function slSavedRowsByOrderBookKey(savedSnapshot) {
+            const byKey = {};
+            if (!savedSnapshot || !savedSnapshot.tbodyHTML) return byKey;
+            const tpl = document.createElement('template');
+            tpl.innerHTML = '<table><tbody>' + savedSnapshot.tbodyHTML + '</tbody></table>';
+            tpl.content.querySelectorAll('tr[data-ob-row-id][data-ob-day][data-ob-site-index]').forEach(function(row) {
+                byKey[
+                    row.dataset.obRowId + '|' + row.dataset.obDay + '|' + row.dataset.obSiteIndex
+                ] = row;
+            });
+            return byKey;
+        }
+
+        function slApplySavedPlacementToOrderBookRow(targetRow, savedRow) {
+            if (!targetRow || !savedRow) return;
+            const targetZone = targetRow.querySelector('.assignment-zone');
+            const savedZone = savedRow.querySelector('.assignment-zone');
+            if (targetZone && savedZone) targetZone.innerHTML = savedZone.innerHTML;
+
+            const targetVt = targetRow.querySelector('.col-vt');
+            const savedVt = savedRow.querySelector('.col-vt');
+            if (targetVt && savedVt) targetVt.innerHTML = savedVt.innerHTML;
+
+            const assigned = targetZone ? targetZone.querySelectorAll('.assigned-employee, .assigned-support').length : 0;
+            const countDisplay = targetRow.querySelector('.count-display');
+            if (!countDisplay) return;
+            const match = countDisplay.textContent.trim().match(/\d+\/(\d+)/);
+            const required = match ? parseInt(match[1], 10) : 0;
+            countDisplay.textContent = assigned + '/' + required;
+            countDisplay.classList.remove('count-ok', 'count-shortage', 'count-excess');
+            countDisplay.classList.add(assigned < required ? 'count-shortage' : assigned > required ? 'count-excess' : 'count-ok');
+
+            const countCell = targetRow.cells[4];
+            if (!countCell) return;
+            const shortageBadge = countCell.querySelector('.count-shortage-badge');
+            const excessBadge = countCell.querySelector('.count-excess-badge');
+            if (shortageBadge) shortageBadge.remove();
+            if (excessBadge) excessBadge.remove();
+            if (assigned < required) {
+                const badge = document.createElement('span');
+                badge.className = 'count-shortage-badge';
+                badge.textContent = '不足';
+                countCell.appendChild(badge);
+            } else if (assigned > required) {
+                const badge = document.createElement('span');
+                badge.className = 'count-excess-badge';
+                badge.textContent = '過多';
+                countCell.appendChild(badge);
+            }
+        }
+
+        function slBuildStateFromOrderBookDate(dateKey, savedSnapshot) {
+            if (!window.OmsMockStore || !window.OmsMockStore.getObMonth) return null;
+            const parts = slParseDateKeyParts(dateKey || slCurrentDateKey());
+            if (!parts) return null;
+            let monthState = window.OmsMockStore.getObMonth(parts.year, parts.month);
+            if (!monthState && window.OmsMockOrdersData && window.OmsMockOrdersData.buildMonthState) {
+                monthState = window.OmsMockOrdersData.buildMonthState(
+                    parts.year,
+                    parts.month,
+                    window.OmsMockStore.getDemoToday ? window.OmsMockStore.getDemoToday() : SL_DEFAULT_DATE_KEY
+                );
+                window.OmsMockStore.setObMonth(parts.year, parts.month, monthState);
+            }
+            if (!monthState || !Array.isArray(monthState.sampleRows) || !monthState.cellData) return null;
+
+            const tbody = document.createElement('tbody');
+            const savedRows = slSavedRowsByOrderBookKey(savedSnapshot);
+
+            monthState.sampleRows.forEach(function(orderRow, ri) {
+                if (!orderRow || orderRow.hidden) return;
+                const entries = slNormalizeOrderBookEntries(monthState.cellData[ri] && monthState.cellData[ri][parts.day]);
+                entries.forEach(function(entry, si) {
+                    const requiredCount = Math.max(0, parseInt(entry.count, 10) || 0);
+                    const gc = slOrderBookGc(orderRow.branch);
+                    const subTasks = Array.isArray(entry.subTasks) ? entry.subTasks : [];
+                    const siteName = entry.dailyTaskName || slAddBuildSiteNameDisplay(orderRow.task || '', subTasks);
+                    const maps = Array.isArray(entry.maps) ? entry.maps : (entry.mapUrl ? [{ label: '現場地図', url: entry.mapUrl }] : []);
+                    const tr = cnCreateRow({
+                        no: 0,
+                        gcClass: gc ? gc.rowClass : '',
+                        gcCode: gc ? gc.code : '',
+                        gcName: gc ? gc.name : orderRow.branch,
+                        shiftClass: slOrderBookShiftClass(orderRow.shift),
+                        shiftLabel: escapeHtml(orderRow.shift || ''),
+                        categoryClass: slOrderBookCategoryClass(orderRow.category),
+                        categoryLabel: escapeHtml(orderRow.category || ''),
+                        company: escapeHtml(orderRow.company || ''),
+                        siteName: escapeHtml(siteName || ''),
+                        meetingTime: escapeHtml(entry.meetingTime || ''),
+                        meetingMethod: entry.meetingPlace ? '集合' : '',
+                        meetingMethodClass: entry.meetingPlace ? 'contact-badge-meeting' : '',
+                        contactBadgeHtml: '',
+                        timeStart: escapeHtml(entry.startTime || ''),
+                        timeEnd: escapeHtml(entry.endTime || ''),
+                        count: '0/' + requiredCount,
+                        shortage: requiredCount > 0
+                    });
+
+                    tr.dataset.obRowId = String(orderRow._rowId || ri);
+                    tr.dataset.obDay = String(parts.day);
+                    tr.dataset.obSiteIndex = String(si);
+                    tr.dataset.slAddConfidence = entry.confidence || 'tentative_high';
+                    tr.dataset.slAddCount = String(requiredCount);
+                    tr.dataset.slAddSubTasks = JSON.stringify(subTasks);
+                    tr.dataset.slAddBadge = JSON.stringify(entry.badge || null);
+                    tr.dataset.slAddSupervisor = entry.supervisor || '';
+                    tr.dataset.slAddSupervisorTel = entry.supervisorTel || '';
+                    tr.dataset.slAddMeetingPlace = entry.meetingPlace || '';
+                    tr.dataset.slAddContact = entry.contact || '';
+                    tr.dataset.slAddMaps = JSON.stringify(maps);
+                    tr.dataset.slAddRemarks = entry.remarks || '';
+
+                    const siteCell = tr.querySelector('.col-site-info');
+                    if (siteCell) {
+                        siteCell.dataset.obRowId = tr.dataset.obRowId;
+                        siteCell.dataset.obDay = tr.dataset.obDay;
+                        siteCell.dataset.obSiteIndex = tr.dataset.obSiteIndex;
+                        siteCell.dataset.supervisor = entry.supervisor || '';
+                        siteCell.dataset.supervisorTel = entry.supervisorTel || '';
+                        siteCell.dataset.meetingPlace = entry.meetingPlace || '';
+                        siteCell.dataset.subTasks = JSON.stringify(subTasks);
+                        siteCell.dataset.badgeData = JSON.stringify(entry.badge || null);
+                    }
+
+                    const mapCell = tr.querySelector('.col-map');
+                    if (mapCell && maps.length > 0) {
+                        mapCell.dataset.maps = JSON.stringify(maps);
+                        smUpdateMapCellDisplay(mapCell, maps);
+                    }
+
+                    const badgeCell = tr.querySelector('.col-badge');
+                    if (badgeCell && entry.badge && entry.badge.childIds && entry.badge.childIds.length > 0) {
+                        badgeCell.innerHTML = smBuildBadgeDisplayHtml(entry.badge);
+                    }
+
+                    const notesCell = tr.querySelector('.col-notes');
+                    if (notesCell && entry.remarks) {
+                        notesCell.dataset.remarks = entry.remarks;
+                        notesCell.textContent = entry.remarks;
+                    }
+
+                    const savedKey = tr.dataset.obRowId + '|' + tr.dataset.obDay + '|' + tr.dataset.obSiteIndex;
+                    slApplySavedPlacementToOrderBookRow(tr, savedRows[savedKey]);
+                    tbody.appendChild(tr);
+                });
+            });
+
+            const fixedRowsHtml = slGetFixedRowsHtmlFromDefault();
+            if (fixedRowsHtml) tbody.insertAdjacentHTML('beforeend', fixedRowsHtml);
+
+            return {
+                version: 1,
+                source: 'order-book',
+                dateKey: dateKey || slCurrentDateKey(),
+                savedAt: new Date().toISOString(),
+                snapshot: slCreateSnapshotWithTbody(tbody.innerHTML)
+            };
+        }
+
         function slSaveStateNow() {
             if (slStateRestoring) return;
             const payload = {
@@ -424,10 +649,12 @@
             try {
                 localStorage.setItem(SL_STATE_STORAGE_KEY, JSON.stringify(payload));
             } catch (_) {}
+            slStateDirty = false;
         }
 
         function slScheduleStateSave() {
             if (slStateRestoring) return;
+            slStateDirty = true;
             if (slStateSaveTimer) clearTimeout(slStateSaveTimer);
             slStateSaveTimer = setTimeout(function() {
                 slStateSaveTimer = null;
@@ -436,17 +663,21 @@
         }
 
         function slRestoreStateFromStorage(dateKey) {
+            const targetKey = dateKey || slCurrentDateKey();
             const saved = window.OmsMockStore
-                ? window.OmsMockStore.getSlState(dateKey || slCurrentDateKey())
+                ? window.OmsMockStore.getSlState(targetKey)
                 : slReadStateFromStorage();
-            const stateToRestore = saved && saved.snapshot ? saved : (slDefaultSnapshot ? { snapshot: slDefaultSnapshot } : null);
+            const orderBookState = slBuildStateFromOrderBookDate(targetKey, saved && saved.snapshot ? saved.snapshot : null);
+            const stateToRestore = orderBookState || (saved && saved.snapshot ? saved : (slDefaultSnapshot ? { snapshot: slDefaultSnapshot } : null));
             if (!stateToRestore) return false;
             slStateRestoring = true;
+            slSuppressNextObserverSave = !!slStateObserver;
             try {
                 restoreGridState(stateToRestore.snapshot);
             } finally {
                 slStateRestoring = false;
             }
+            slStateDirty = false;
             return true;
         }
 
@@ -454,6 +685,11 @@
             const tbody = document.querySelector('.grid-table tbody');
             if (!tbody || slStateObserver) return;
             slStateObserver = new MutationObserver(function() {
+                if (slStateRestoring) return;
+                if (slSuppressNextObserverSave) {
+                    slSuppressNextObserverSave = false;
+                    return;
+                }
                 slScheduleStateSave();
             });
             slStateObserver.observe(tbody, {
@@ -480,6 +716,7 @@
                 const rows = slRowsFromSnapshot(state && state.snapshot);
                 rows.forEach(function(row) {
                     if (row.dataset.fixed === 'true') return;
+                    if (!slCanGenerateAutoOrderFromRow(row)) return;
                     row.querySelectorAll('.assignment-zone .assigned-employee').forEach(function(empEl) {
                         const name = getEmployeeName(empEl);
                         const order = slBuildAutoOrderForEmployee(row, name, dateKey);
@@ -2372,11 +2609,11 @@
 
         // ===== メインタブ切替（社員/車両） =====
         function spSwitchMainTab(tab) {
+            if (tab !== 'vehicle') tab = 'employee';
             spState.mainTab = tab;
             var empPanel = document.getElementById('spEmployeePanel');
             var vehPanel = document.getElementById('spVehiclePanel');
-            var supPanel = document.getElementById('spSupportPanel');
-            if (!empPanel || !vehPanel || !supPanel) return;
+            if (!empPanel || !vehPanel) return;
             var tabs = document.querySelectorAll('.md-sp-tab');
             tabs.forEach(function(t) {
                 t.classList.toggle('active', t.dataset.spMain === tab);
@@ -2384,18 +2621,12 @@
             if (tab === 'employee') {
                 empPanel.style.display = '';
                 vehPanel.style.display = 'none';
-                supPanel.style.display = 'none';
                 renderSidePanel();
+                renderSupportPanel();
             } else if (tab === 'vehicle') {
                 empPanel.style.display = 'none';
                 vehPanel.style.display = '';
-                supPanel.style.display = 'none';
                 renderVehiclePanel();
-            } else {
-                empPanel.style.display = 'none';
-                vehPanel.style.display = 'none';
-                supPanel.style.display = '';
-                renderSupportPanel();
             }
         }
 
@@ -2498,7 +2729,7 @@
         }
 
         function updateSupportPanelStatus() {
-            if (spState.mainTab === 'support') renderSupportPanel();
+            renderSupportPanel();
         }
 
         function slEl(tagName, className, text) {
@@ -7236,6 +7467,7 @@
             }
 
             // 追加データを行の dataset に保存（モック用）
+            tr.dataset.slOrigin = 'manual';
             tr.dataset.slAddConfidence = slAddSelectedConfidence;
             tr.dataset.slAddCount = count;
             tr.dataset.slAddSubTasks = JSON.stringify(slAddCollectSubTasks());

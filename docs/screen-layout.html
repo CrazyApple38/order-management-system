@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=10">
     <link rel="stylesheet" href="mockup/co-company-input.css">
-    <link rel="stylesheet" href="mockup/screen-layout.css?v=17">
+    <link rel="stylesheet" href="mockup/screen-layout.css?v=19">
     <link rel="stylesheet" href="mockup/print-touo-nikkei.css?v=8">
 </head>
 <body>
@@ -49,6 +49,19 @@
     <div class="container">
         <!-- メインレイアウト -->
         <div class="main-layout">
+            <!-- 左サイドパネル（配置状況） -->
+            <div class="side-panel side-panel--left">
+                <div class="minimap">
+                    <div class="minimap-header" onclick="toggleMinimap()">
+                        <span class="minimap-title">配置状況</span>
+                        <span class="minimap-total" id="minimapTotal"></span>
+                    </div>
+                    <div class="minimap-body expanded" id="minimapBody">
+                        <!-- JS動的生成 -->
+                    </div>
+                </div>
+            </div>
+
             <!-- 画面モックアップ -->
             <div class="screen-mockup">
                 <!-- ヘッダー部 -->
@@ -104,382 +117,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- 行1: 施設警備 昼 -->
-                            <tr class="md-gc-row-touo" onclick="selectRow(this, event)">
-                                <td class="col-no">1</td>
-                                <td class="col-site-info clickable-cell" data-group-company="touo" data-gc-name="東央警備"
-                                    data-company-id="1" data-site-id="101"
-                                    data-meeting-place="〇〇ビル正面玄関" data-supervisor="山田太郎" data-supervisor-tel="090-1234-5678"
-                                    data-sub-tasks='[{"label":"工事名①","value":"巡回警備"}]'
-                                    onclick="openSiteModal(this)">
-                                    <div class="site-info">
-                                        <div class="site-badges">
-                                            <span class="shift-badge shift-day">昼</span>
-                                            <span class="category-badge category-facility">施設</span>
-                                        </div>
-                                        <div class="site-details">
-                                            <div class="company">〇〇株式会社</div>
-                                            <div class="site-name">〇〇ビル 巡回警備</div>
-                                            <div class="supervisor-badge">山田太郎 090-1234-5678</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="clickable-cell" onclick="openMeetingModal(this, event)"><span class="time-display">08:45</span><span class="contact-badge contact-direct">直</span></td>
-                                <td class="col-work-time clickable-cell" onclick="openWorkTimeModal(this, event)" data-start-time="09:00" data-end-time="18:00">
-                                    <span class="work-time-start">09:00</span>
-                                    <span class="work-time-end">18:00</span>
-                                </td>
-                                <td class="clickable-cell" onclick="startCountEdit(this, event)"><span class="count-display count-ok">2/2</span></td>
-                                <td>
-                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-                                        <span class="assigned-employee" data-company="touo">
-                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
-                                                <span class="employee-with-continuous">
-                                                    <span>田中</span>
-                                                    <span class="continuous-badge continuous-badge-below" title="連続勤務（昼→夜）">▼</span>
-                                                </span>
-                                                <span class="contact-badge contact-direct">直</span>
-                                            </span>
-                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
-                                        </span>
-                                        <span class="assigned-employee" data-company="touo">
-                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
-                                                <span>佐藤</span>
-                                                <span class="contact-badge contact-company">会社</span>
-                                            </span>
-                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
-                                        </span>
-                                    </div>
-                                </td>
-                                <td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>
-                                <td class="col-map clickable-cell" onclick="openMapModal(this, 1)" data-maps='[{"label":"現場地図","url":"https://maps.google.com/?q=33.8,130.8"}]'><span class="map-tag">現場地図</span></td>
-                                <td class="col-vt">
-                                    <div class="vt-split-zone">
-                                        <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
-                                        <div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
-                                    </div>
-                                </td>
-                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
-                                    data-vt-items='[{"label":"集合場所","value":"〇〇ビル正面玄関","bg":"rgba(68,166,181,0.12)","color":"#2A6B7A"}]'>
-                                    <div class="notes-transport" style="color:#2A6B7A;"><span class="notes-label" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">集合場所</span>〇〇ビル正面玄関</div>
-                                </td>
-                            </tr>
-
-                            <!-- 行2: 施設警備 夜 -->
-                            <tr class="row-night md-gc-row-touo" onclick="selectRow(this, event)">
-                                <td class="col-no">2</td>
-                                <td class="col-site-info clickable-cell" data-group-company="touo" data-gc-name="東央警備"
-                                    data-company-id="1" data-site-id="101"
-                                    data-meeting-place="〇〇ビル正面玄関" data-supervisor="山田太郎" data-supervisor-tel="090-1234-5678"
-                                    data-sub-tasks='[{"label":"工事名①","value":"夜間警備"}]'
-                                    onclick="openSiteModal(this)">
-                                    <div class="site-info">
-                                        <div class="site-badges">
-                                            <span class="shift-badge shift-night">夜</span>
-                                            <span class="category-badge category-facility">施設</span>
-                                        </div>
-                                        <div class="site-details">
-                                            <div class="company">〇〇株式会社</div>
-                                            <div class="site-name">〇〇ビル 夜間警備</div>
-                                            <div class="supervisor-badge">山田太郎 090-1234-5678</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="clickable-cell" onclick="openMeetingModal(this, event)"><span class="time-display">17:45</span><span class="contact-badge contact-direct">直</span></td>
-                                <td class="col-work-time clickable-cell" onclick="openWorkTimeModal(this, event)" data-start-time="18:00" data-end-time="09:00">
-                                    <span class="work-time-start">18:00</span>
-                                    <span class="work-time-end">09:00</span>
-                                </td>
-                                <td class="clickable-cell" onclick="startCountEdit(this, event)"><span class="count-display count-ok">1/1</span></td>
-                                <td>
-                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-                                        <span class="assigned-employee" data-company="touo">
-                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
-                                                <span class="employee-with-continuous">
-                                                    <span class="continuous-badge continuous-badge-above" title="連続勤務（昼→夜）">▼</span>
-                                                    <span>田中</span>
-                                                </span>
-                                                <span class="contact-badge contact-direct">直</span>
-                                            </span>
-                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
-                                        </span>
-                                    </div>
-                                </td>
-                                <td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>
-                                <td class="col-map clickable-cell" onclick="openMapModal(this, 2)" data-maps='[{"label":"現場地図","url":"https://maps.google.com/?q=33.8,130.8"}]'><span class="map-tag">現場地図</span></td>
-                                <td class="col-vt">
-                                    <div class="vt-split-zone">
-                                        <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
-                                        <div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
-                                    </div>
-                                </td>
-                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
-                                    data-vt-items='[{"label":"集合場所","value":"〇〇ビル正面玄関","bg":"rgba(68,166,181,0.12)","color":"#2A6B7A"},{"label":"備考","value":"田中さん連続勤務","bg":"rgba(160,160,160,0.15)","color":"#6B7280"}]'>
-                                    <div class="notes-transport" style="color:#2A6B7A;"><span class="notes-label" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">集合場所</span>〇〇ビル正面玄関</div>
-                                    <div class="notes-transport" style="color:#6B7280;"><span class="notes-label" style="background:rgba(160,160,160,0.15); color:#6B7280;">備考</span>田中さん連続勤務</div>
-                                </td>
-                            </tr>
-
-                            <!-- 行3: イベント 昼 -->
-                            <tr class="md-gc-row-nikkei" onclick="selectRow(this, event)">
-                                <td class="col-no">3</td>
-                                <td class="col-site-info clickable-cell" data-group-company="nikkei" data-gc-name="Nikkeiホールディングス"
-                                    data-company-id="3"
-                                    data-meeting-place="〇〇会館 搬入口"
-                                    onclick="openSiteModal(this)">
-                                    <div class="site-info">
-                                        <div class="site-badges">
-                                            <span class="shift-badge shift-day">昼</span>
-                                            <span class="category-badge category-event">イベント</span>
-                                        </div>
-                                        <div class="site-details">
-                                            <div class="company">□□イベント</div>
-                                            <div class="site-name">〇〇会館 展示会</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="clickable-cell" onclick="openMeetingModal(this, event)"><span class="time-display">09:30</span><span class="contact-badge contact-line">LINE</span></td>
-                                <td class="col-work-time clickable-cell" onclick="openWorkTimeModal(this, event)" data-start-time="10:00" data-end-time="20:00">
-                                    <span class="work-time-start">10:00</span>
-                                    <span class="work-time-end">20:00</span>
-                                </td>
-                                <td class="clickable-cell" onclick="startCountEdit(this, event)"><span class="count-display count-shortage">1/2</span><span class="count-shortage-badge">不足</span></td>
-                                <td>
-                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-                                        <span class="assigned-employee" data-company="nikkei">
-                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
-                                                <span>山本</span>
-                                                <span class="contact-badge contact-line">LINE</span>
-                                            </span>
-                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
-                                        </span>
-                                    </div>
-                                </td>
-                                <td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>
-                                <td class="col-map clickable-cell" onclick="openMapModal(this, 3)" data-maps='[]'><span class="map-empty">＋</span></td>
-                                <td class="col-vt">
-                                    <div class="vt-split-zone">
-                                        <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
-                                        <div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
-                                    </div>
-                                </td>
-                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
-                                    data-vt-items='[{"label":"集合場所","value":"〇〇会館 搬入口","bg":"rgba(68,166,181,0.12)","color":"#2A6B7A"},{"label":"備考","value":"要1名追加","bg":"rgba(160,160,160,0.15)","color":"#6B7280"}]'>
-                                    <div class="notes-transport" style="color:#2A6B7A;"><span class="notes-label" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">集合場所</span>〇〇会館 搬入口</div>
-                                    <div class="notes-transport" style="color:#6B7280;"><span class="notes-label" style="background:rgba(160,160,160,0.15); color:#6B7280;">備考</span>要1名追加</div>
-                                </td>
-                            </tr>
-
-                            <!-- 行4: 交通誘導 昼 -->
-                            <tr class="md-gc-row-touo" onclick="selectRow(this, event)">
-                                <td class="col-no">4</td>
-                                <td class="col-site-info clickable-cell" data-group-company="touo" data-gc-name="東央警備"
-                                    data-company-id="2"
-                                    data-meeting-place="△△建設 現場事務所前" data-supervisor="佐藤次郎" data-supervisor-tel="080-9876-5432"
-                                    data-sub-tasks='[{"label":"工事名①","value":"舗装工事"}]'
-                                    data-badge-data='{"parentId":"traffic","childIds":["tr-alternate"],"grandchildMap":{}}'
-                                    onclick="openSiteModal(this)">
-                                    <div class="site-info">
-                                        <div class="site-badges">
-                                            <span class="shift-badge shift-day">昼</span>
-                                            <span class="category-badge category-traffic">交通</span>
-                                        </div>
-                                        <div class="site-details">
-                                            <div class="company">△△建設</div>
-                                            <div class="site-name">国道〇号線 舗装工事</div>
-                                            <div class="supervisor-badge">佐藤次郎 080-9876-5432</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="clickable-cell" onclick="openMeetingModal(this, event)"><span class="time-display">07:30</span><span class="contact-badge contact-company">会社</span></td>
-                                <td class="col-work-time clickable-cell" onclick="openWorkTimeModal(this, event)" data-start-time="08:00" data-end-time="17:00">
-                                    <span class="work-time-start">08:00</span>
-                                    <span class="work-time-end">17:00</span>
-                                </td>
-                                <td class="clickable-cell" onclick="startCountEdit(this, event)"><span class="count-display count-ok">3/3</span></td>
-                                <td>
-                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-                                        <span class="assigned-employee" data-company="touo">
-                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
-                                                <span>鈴木</span>
-                                                <span class="contact-badge contact-company">会社</span>
-                                            </span>
-                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
-                                        </span>
-                                        <span class="assigned-employee" data-company="touo">
-                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
-                                                <span>高橋</span>
-                                                <span class="contact-badge contact-direct">直</span>
-                                            </span>
-                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
-                                        </span>
-                                        <span class="assigned-employee" data-company="touo">
-                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
-                                                <span>伊藤</span>
-                                                <span class="contact-badge contact-pickup" style="background:rgba(214,158,46,0.1); color:#975A16;">迎え</span>
-                                            </span>
-                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
-                                        </span>
-                                    </div>
-                                </td>
-                                <td class="col-badge clickable-cell" onclick="openWorkModal(this, event)">
-                                    <div class="badge-display">
-                                        <span class="badge-tag badge-child-tag">片側交互</span>
-                                    </div>
-                                </td>
-                                <td class="col-map clickable-cell" onclick="openMapModal(this, 4)" data-maps='[{"label":"現場地図","url":"https://maps.google.com/?q=33.9,130.9"},{"label":"迂回路","url":"https://maps.google.com/?q=33.85,130.85"}]'><span class="map-tag">現場地図</span><span class="map-tag">迂回路</span></td>
-                                <td class="col-vt">
-                                    <div class="vt-split-zone">
-                                        <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)">
-                                            <span class="vehicle-tag">さ 3078<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button></span>
-                                        </div>
-                                        <div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
-                                    </div>
-                                </td>
-                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
-                                    data-vt-items='[{"label":"送迎","value":"鈴木→高橋","base":"#975A16","bg":"rgba(151, 90, 22, 0.12)","color":"#663b0a"},{"label":"集合場所","value":"△△建設 現場事務所前","bg":"rgba(68,166,181,0.12)","color":"#2A6B7A"},{"label":"備考","value":"雨天中止の場合連絡","bg":"rgba(160,160,160,0.15)","color":"#6B7280"}]'>
-                                    <div class="notes-transport" style="color:#663b0a;"><span class="notes-label" style="background:rgba(151, 90, 22, 0.12); color:#663b0a;">送迎</span>鈴木→高橋</div>
-                                    <div class="notes-transport" style="color:#2A6B7A;"><span class="notes-label" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">集合場所</span>△△建設 現場事務所前</div>
-                                    <div class="notes-transport" style="color:#6B7280;"><span class="notes-label" style="background:rgba(160,160,160,0.15); color:#6B7280;">備考</span>雨天中止の場合連絡</div>
-                                </td>
-                            </tr>
-
-                            <!-- 行5: 高速 昼 -->
-                            <tr class="md-gc-row-touo" onclick="selectRow(this, event)">
-                                <td class="col-no">5</td>
-                                <td class="col-site-info clickable-cell" data-group-company="touo" data-gc-name="東央警備"
-                                    data-company-id="4"
-                                    data-meeting-place="高速SA集合" data-supervisor="田中三郎" data-supervisor-tel="070-5555-1234"
-                                    data-sub-tasks='[{"label":"工事名①","value":"〇〇橋補修"},{"label":"工事名②","value":"点検"}]'
-                                    data-badge-data='{"parentId":"highway","childIds":["hw-lane"],"grandchildMap":{"hw-lane":["hw-lane-sign","hw-lane-mat"]}}'
-                                    onclick="openSiteModal(this)">
-                                    <div class="site-info">
-                                        <div class="site-badges">
-                                            <span class="shift-badge shift-day">昼</span>
-                                            <span class="category-badge category-highway">高速</span>
-                                        </div>
-                                        <div class="site-details">
-                                            <div class="company">西日本高速道路</div>
-                                            <div class="site-name">24-1234 〇〇橋補修 点検</div>
-                                            <div class="supervisor-badge">田中三郎 070-5555-1234</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="clickable-cell" onclick="openMeetingModal(this, event)"><span class="time-display">08:00</span><span class="contact-badge contact-company">会社</span></td>
-                                <td class="col-work-time clickable-cell" onclick="openWorkTimeModal(this, event)" data-start-time="08:30" data-end-time="17:30">
-                                    <span class="work-time-start">08:30</span>
-                                    <span class="work-time-end">17:30</span>
-                                </td>
-                                <td class="clickable-cell" onclick="startCountEdit(this, event)"><span class="count-display count-ok">2/2</span></td>
-                                <td>
-                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-                                        <span class="assigned-employee" data-company="nikkei">
-                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
-                                                <span>中村</span>
-                                                <span class="contact-badge contact-op" style="background:rgba(128,90,213,0.1); color:#6B46C1;">OP</span>
-                                            </span>
-                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
-                                        </span>
-                                        <span class="assigned-employee" data-company="nikkei">
-                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
-                                                <span>小林</span>
-                                                <span class="contact-badge contact-direct">直</span>
-                                            </span>
-                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
-                                        </span>
-                                    </div>
-                                </td>
-                                <td class="col-badge clickable-cell" onclick="openWorkModal(this, event)">
-                                    <div class="badge-display">
-                                        <span class="badge-tag badge-child-tag">車線規制</span>
-                                        <span class="badge-gc-sep">›</span>
-                                        <span class="badge-tag badge-gc-tag">標識車</span>
-                                        <span class="badge-tag badge-gc-tag">規制材</span>
-                                    </div>
-                                </td>
-                                <td class="col-map clickable-cell" onclick="openMapModal(this, 5)" data-maps='[]'><span class="map-empty">＋</span></td>
-                                <td class="col-vt">
-                                    <div class="vt-split-zone">
-                                        <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)">
-                                            <span class="vehicle-tag">わ 2490<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button></span>
-                                        </div>
-                                        <div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
-                                    </div>
-                                </td>
-                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
-                                    data-vt-items='[{"label":"集合場所","value":"高速SA集合","bg":"rgba(68,166,181,0.12)","color":"#2A6B7A"}]'>
-                                    <div class="notes-transport" style="color:#2A6B7A;"><span class="notes-label" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">集合場所</span>高速SA集合</div>
-                                </td>
-                            </tr>
-
-                            <!-- 行6: 高速 夜 -->
-                            <tr class="row-night md-gc-row-nikkei" onclick="selectRow(this, event)">
-                                <td class="col-no">6</td>
-                                <td class="col-site-info clickable-cell" data-group-company="nikkei" data-gc-name="Nikkeiホールディングス"
-                                    data-company-id="5"
-                                    data-meeting-place="◇◇工業 本社前" data-supervisor="佐藤次郎" data-supervisor-tel="080-9876-5432"
-                                    data-sub-tasks='[{"label":"工事名①","value":"夜間規制"}]'
-                                    data-badge-data='{"parentId":"highway","childIds":["hw-lane"],"grandchildMap":{"hw-lane":["hw-lane-light"]}}'
-                                    onclick="openSiteModal(this)">
-                                    <div class="site-info">
-                                        <div class="site-badges">
-                                            <span class="shift-badge shift-night">夜</span>
-                                            <span class="category-badge category-highway">高速</span>
-                                        </div>
-                                        <div class="site-details">
-                                            <div class="company">◇◇工業</div>
-                                            <div class="site-name">県道〇号 夜間規制</div>
-                                            <div class="supervisor-badge">佐藤次郎 080-9876-5432</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="clickable-cell" onclick="openMeetingModal(this, event)"><span class="time-display">19:30</span><span class="contact-badge contact-company">会社</span></td>
-                                <td class="col-work-time clickable-cell" onclick="openWorkTimeModal(this, event)" data-start-time="20:00" data-end-time="06:00">
-                                    <span class="work-time-start">20:00</span>
-                                    <span class="work-time-end">06:00</span>
-                                </td>
-                                <td class="clickable-cell" onclick="startCountEdit(this, event)"><span class="count-display count-ok">2/2</span></td>
-                                <td>
-                                    <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-                                        <span class="assigned-employee" data-company="nikkei">
-                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
-                                                <span>渡辺</span>
-                                                <span class="contact-badge contact-company">会社</span>
-                                            </span>
-                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
-                                            <span class="indicator indicator-conflict" title="配置制約あり">⚠</span>
-                                        </span>
-                                        <span class="assigned-employee" data-company="nikkei">
-                                            <span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">
-                                                <span>加藤</span>
-                                            </span>
-                                            <span class="remove-btn" onclick="removeEmployee(this, event)">×</span>
-                                            <span class="indicator indicator-conflict" title="配置制約あり">⚠</span>
-                                        </span>
-                                    </div>
-                                </td>
-                                <td class="col-badge clickable-cell" onclick="openWorkModal(this, event)">
-                                    <div class="badge-display">
-                                        <span class="badge-tag badge-child-tag">車線規制</span>
-                                        <span class="badge-gc-sep">›</span>
-                                        <span class="badge-tag badge-gc-tag">保安灯</span>
-                                    </div>
-                                </td>
-                                <td class="col-map clickable-cell" onclick="openMapModal(this, 6)" data-maps='[]'><span class="map-empty">＋</span></td>
-                                <td class="col-vt">
-                                    <div class="vt-split-zone">
-                                        <div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)">
-                                            <span class="vehicle-tag">く 7521<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button></span>
-                                        </div>
-                                        <div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div>
-                                    </div>
-                                </td>
-                                <td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"
-                                    data-vt-items='[{"label":"集合場所","value":"◇◇工業 本社前","bg":"rgba(68,166,181,0.12)","color":"#2A6B7A"},{"label":"備考","value":"渡辺・加藤 相性注意","bg":"rgba(160,160,160,0.15)","color":"#6B7280"}]'>
-                                    <div class="notes-transport" style="color:#2A6B7A;"><span class="notes-label" style="background:rgba(68,166,181,0.12); color:#2A6B7A;">集合場所</span>◇◇工業 本社前</div>
-                                    <div class="notes-transport" style="color:#6B7280;"><span class="notes-label" style="background:rgba(160,160,160,0.15); color:#6B7280;">備考</span>渡辺・加藤 相性注意</div>
-                                </td>
-                            </tr>
+                            <!-- 通常行は mock-orders-data.js -> screen-layout.js でOB受注から動的生成 -->
 
                             <!-- 固定行: 会社 -->
                             <tr class="md-row-fixed md-row-fixed-company" data-fixed="true" onclick="selectRow(this, event)">
@@ -553,19 +191,9 @@
 
             <!-- 右サイドパネル（社員リスト） -->
             <div class="side-panel">
-                <div class="minimap">
-                    <div class="minimap-header" onclick="toggleMinimap()">
-                        <span class="minimap-title">配置状況</span>
-                        <span class="minimap-total" id="minimapTotal"></span>
-                    </div>
-                    <div class="minimap-body expanded" id="minimapBody">
-                        <!-- JS動的生成 -->
-                    </div>
-                </div>
                 <div class="side-panel-header">
                     <div class="md-sp-tab active" data-sp-main="employee" onclick="spSwitchMainTab('employee')">社員リスト <span class="md-sp-employee-count">全17名</span></div>
                     <div class="md-sp-tab" data-sp-main="vehicle" onclick="spSwitchMainTab('vehicle')">車両 <span class="md-sp-vehicle-count">全6台</span></div>
-                    <div class="md-sp-tab" data-sp-main="support" onclick="spSwitchMainTab('support')">応援 <span class="md-sp-support-count">予約0件</span></div>
                 </div>
                 <!-- 社員パネル -->
                 <div class="md-sp-main-panel" id="spEmployeePanel">
@@ -582,6 +210,16 @@
                         <div class="md-sp-vtabs" id="spVtabs"><!-- JS動的生成 --></div>
                         <div class="md-sp-content" id="spContent"><!-- JS動的生成 --></div>
                     </div>
+                    <!-- 応援パネル -->
+                    <div class="md-sp-support-embedded" id="spSupportPanel">
+                        <div class="side-panel-search">
+                            <input type="text" class="md-fi-input" id="spSupportSearchInput" placeholder="応援検索...">
+                            <span class="md-sp-support-count">予約0件</span>
+                        </div>
+                        <div class="side-panel-body md-sp-support-body">
+                            <div class="md-sp-content" id="spSupportContent"><!-- JS動的生成 --></div>
+                        </div>
+                    </div>
                 </div>
                 <!-- 車両パネル -->
                 <div class="md-sp-main-panel" id="spVehiclePanel" style="display:none">
@@ -593,15 +231,6 @@
                     </div>
                     <div class="side-panel-body md-sp-vehicle-body">
                         <div class="md-sp-content" id="spVehicleContent"><!-- JS動的生成 --></div>
-                    </div>
-                </div>
-                <!-- 応援パネル -->
-                <div class="md-sp-main-panel" id="spSupportPanel" style="display:none">
-                    <div class="side-panel-search">
-                        <input type="text" class="md-fi-input" id="spSupportSearchInput" placeholder="応援検索...">
-                    </div>
-                    <div class="side-panel-body md-sp-support-body">
-                        <div class="md-sp-content" id="spSupportContent"><!-- JS動的生成 --></div>
                     </div>
                 </div>
             </div>
@@ -1617,13 +1246,16 @@
         </div>
     </div>
 
-    <script src="mockup/demo-data.js?v=4"></script>
+    <script src="mockup/mock-employees-data.js?v=1"></script>
+    <script src="mockup/mock-vehicles-data.js?v=1"></script>
+    <script src="mockup/demo-data.js?v=6"></script>
+    <script src="mockup/mock-orders-data.js?v=1"></script>
     <script src="mockup/notify-icons-selected.js?v=2"></script>
     <script src="mockup/co-notify-panel.js?v=13"></script>
     <script src="mockup/co-navbar.js?v=9"></script>
     <script src="mockup/co-company-input.js"></script>
     <script src="mockup/co-mock-store.js?v=4"></script>
-    <script src="mockup/screen-layout.js?v=30"></script>
+    <script src="mockup/screen-layout.js?v=36"></script>
     <script src="mockup/print-touo-nikkei.js?v=1"></script>
 </body>
 </html>
