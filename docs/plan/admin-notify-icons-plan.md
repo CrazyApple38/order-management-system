@@ -1,7 +1,7 @@
 # 管理者アカウント用 変更通知アイコン管理画面 — 計画書
 
 **最終更新**: 2026-05-25
-**ステータス**: 計画策定中 / 実装未着手
+**ステータス**: Phase A 完了 / Phase B (タブ集約) 完了
 **対象**: ナビバー「マスタ管理」配下 + `docs/admin-notify.html` (新規)
 **起点**: ユーザーからの「notify-compare.html のマトリクス選定 / 通知一覧を管理者向け機能として組み込む」依頼 (2026-05-25)
 
@@ -197,6 +197,37 @@ A-4: ユーザーレビュー
 |---------|------|
 | `notification-refactor-plan.md` | 本計画は通知システム本体のリファクタ完了後 (Phase N-2.4) の運用補助。本計画着手後も notification-refactor の Phase N-3 以降は独立進行可 |
 | `project_account_management.md` (メモリ) | 個人設定保存・ログイン時復元の方針が確定したら、admin 側の localStorage を個人設定領域に統合 |
+
+---
+
+## 8. Phase B: タブ集約 + ベルアイコン編集をマトリクス選定に統合 (2026-05-25)
+
+### 8.1 背景
+
+Phase A 完了後のユーザーレビュー (2026-05-25) で以下の方針が確定:
+
+- 「アイコン選定」タブと「ベルパネルプレビュー」タブは **不要**
+- 「ベルパネルプレビュー」の **アイコン編集 ON/OFF トグル方式は採用しない** (ナンセンス)
+- 共通ナビバーの 7 ベルアイコンは **マトリクス選定の primitive 選定と同じパターン** で、ワンクリック直接変更できるようにする
+
+### 8.2 変更内容
+
+| ファイル | 内容 |
+|---------|------|
+| `docs/preview/notify-compare.js` | `MTX_BELLS` 定義追加 / `mtxRenderBellTiles` 関数追加 / `mtxRefreshAll` で呼出 / クリックハンドラに bell 分岐追加 (writeSelection → 親ナビバー applyBellIcon) |
+| `docs/preview/notify-compare.html` | matrix モードのツールバー section 直下に「共通メニューバー — ベルアイコン (7個)」section を新規追加 (`#cmpMtxBellTiles`) |
+| `docs/admin-notify.html` | タブから `icons` / `n2-integration` を削除。ADMIN_MODES を `['matrix', 'n34']` に縮小 |
+
+### 8.3 実装ポイント
+
+- 既存の primitive 選定タイル (`.cmp-mtx-primitive-tile`) のスタイル/レイアウトを流用 (`data-axis="bell"` で識別)
+- localStorage キーはアイコン選定モードと共通の `notifyIconSelections.v1` (slot key = `bell-ob`/`bell-sl`/...)
+- 親ナビバーへの即反映: `window.parent.coNotifyPanel.applyBellIcon(bellId)` を呼ぶ (admin-notify.html iframe 経由)。preview 単体時は `parent === window` で skip
+- preview のアイコン選定モード (`mode=icons`) は開発者用に残置 (旧 27 スロット選定 UI の参照モックとして)
+
+### 8.4 残課題
+
+- preview の `mode=icons` / `mode=n2-integration` は admin から見えないだけで、preview 直接アクセスでは依然表示。今後の整理は Phase 4 で判断
 
 ---
 

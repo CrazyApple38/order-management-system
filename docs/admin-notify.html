@@ -86,14 +86,12 @@
         <div class="admin-tabs" role="tablist">
             <button class="admin-tab is-active" data-mode="matrix" role="tab">マトリクス選定</button>
             <button class="admin-tab" data-mode="n34" role="tab">通知タイプ一覧</button>
-            <button class="admin-tab" data-mode="icons" role="tab">アイコン選定</button>
-            <button class="admin-tab" data-mode="n2-integration" role="tab">ベルパネルプレビュー</button>
         </div>
     </div>
     <div class="admin-iframe-wrap">
         <iframe id="adminNotifyIframe"
                 class="admin-iframe"
-                src="preview/notify-compare.html"
+                src="preview/notify-compare.html?v=phaseb"
                 title="変更通知設定 — 詳細編集パネル"></iframe>
     </div>
 
@@ -109,7 +107,7 @@
         var tabs = Array.from(document.querySelectorAll('.admin-tab'));
 
         // admin 用に表示するモード一覧
-        var ADMIN_MODES = ['icons', 'n2-integration', 'matrix', 'n34'];
+        var ADMIN_MODES = ['matrix', 'n34'];
         // URL ハッシュ初期モード (#matrix / #n34 / #icons / #n2-integration)
         var initialMode = (location.hash || '#matrix').replace('#', '');
         if (ADMIN_MODES.indexOf(initialMode) === -1) initialMode = 'matrix';

@@ -907,6 +907,17 @@
         { key: 'remove',  label: '解除',   sub: 'remove (SL)' }
     ];
 
+    /* 共通メニューバー ベルアイコン (7個) — マトリクス選定モードに統合表示 */
+    var MTX_BELLS = [
+        { id: 'bell-ob',      label: 'OB',       sub: '受注簿' },
+        { id: 'bell-sl',      label: 'SL',       sub: '業務管理計画書' },
+        { id: 'bell-ws',      label: 'WS',       sub: '週間予定表' },
+        { id: 'bell-la',      label: 'LA',       sub: '休暇申請管理' },
+        { id: 'bell-pending', label: '承認待ち', sub: '休暇申請承認待ち' },
+        { id: 'bell-vehicle', label: '車両',     sub: '車両スケジュール' },
+        { id: 'bell-master',  label: 'マスタ',   sub: 'マスタ更新' }
+    ];
+
     /* applicableMatrix: scope ごとに有効な op の集合（「—」判定に対応） */
     var MTX_APPLICABLE = {
         'row':         ['add', 'modify', 'delete'],
@@ -1122,7 +1133,27 @@
         });
     }
 
+    /* 共通メニューバー ベルアイコンタイル描画 (アイコン選定モードと localStorage キーを共有) */
+    function mtxRenderBellTiles(containerId) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+        var sel = readSelections();
+        container.innerHTML = MTX_BELLS.map(function (item) {
+            var iconPath = sel[item.id] || SLOT_DEFAULT[item.id] || null;
+            var customCls = sel[item.id] ? ' is-custom' : '';
+            return '<div class="cmp-mtx-primitive-tile' + customCls + '"'
+                + ' data-axis="bell"'
+                + ' data-key="' + item.id + '"'
+                + ' title="' + item.label + ' (' + item.sub + ')">'
+                + (iconPath ? '<img src="' + MTX_ICON_BASE + iconPath + '" alt="">' : '<span style="width:28px;height:28px;background:#EEE;display:block;border-radius:4px"></span>')
+                + '<div class="cmp-mtx-tile-label">' + item.label + '</div>'
+                + '<div class="cmp-mtx-tile-sub">' + item.sub + '</div>'
+                + '</div>';
+        }).join('');
+    }
+
     function mtxRefreshAll() {
+        mtxRenderBellTiles('cmpMtxBellTiles');
         mtxRenderPrimitiveTiles('scope', 'cmpMtxScopeTiles');
         mtxRenderPrimitiveTiles('op', 'cmpMtxOpTiles');
         mtxRenderMatrix();
@@ -1139,13 +1170,31 @@
         });
     }
 
-    /* プリミティブタイルクリック → IconPicker */
+    /* プリミティブタイル / ベルタイルクリック → IconPicker */
     document.addEventListener('click', function (e) {
         var tile = e.target.closest('.cmp-mtx-primitive-tile');
         if (!tile) return;
         var axis = tile.dataset.axis;
         var key = tile.dataset.key;
         var label = tile.querySelector('.cmp-mtx-tile-label');
+        if (axis === 'bell') {
+            var btitle = 'ベル: ' + (label ? label.textContent : key);
+            mtxOpenPicker(btitle, function (file) {
+                writeSelection(key, file);
+                mtxRefreshAll();
+                /* 親ナビバーに即反映 (admin-notify.html iframe 経由 / preview 単体時は parent === window で skip) */
+                try {
+                    var p = window.parent;
+                    if (p && p !== window && p.coNotifyPanel
+                        && typeof p.coNotifyPanel.applyBellIcon === 'function') {
+                        var bellId = key.replace(/^bell-/, '');
+                        p.coNotifyPanel.applyBellIcon(bellId);
+                    }
+                } catch (err) { /* cross-origin 等 */ }
+                mtxSetStatus('ベル ' + key + ' を更新しました');
+            });
+            return;
+        }
         var title = 'プリミティブ ' + (axis === 'scope' ? 'scope' : 'op') + ': ' + (label ? label.textContent : key);
         mtxOpenPicker(title, function (file) {
             mtxWritePrimitive(axis, key, file);
