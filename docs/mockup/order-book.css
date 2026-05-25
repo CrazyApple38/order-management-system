@@ -406,6 +406,42 @@ body {
     background: var(--base-grid-alt);
 }
 
+/* SL配置から自動生成された受注行（完全ロック） */
+.md-ob-row-auto-generated {
+    background:
+        repeating-linear-gradient(
+            135deg,
+            rgba(0, 0, 0, 0.08) 0,
+            rgba(0, 0, 0, 0.08) 6px,
+            transparent 6px,
+            transparent 12px
+        ),
+        rgba(255, 255, 255, 0.30) !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+    color: var(--text-secondary);
+}
+.md-ob-row-auto-generated.tbl-grid__sticky--4 {
+    pointer-events: auto;
+}
+.md-ob-row-auto-generated.tbl-grid__date-cell:hover {
+    background:
+        repeating-linear-gradient(
+            135deg,
+            rgba(0, 0, 0, 0.08) 0,
+            rgba(0, 0, 0, 0.08) 6px,
+            transparent 6px,
+            transparent 12px
+        ),
+        rgba(255, 255, 255, 0.30) !important;
+    box-shadow: none !important;
+}
+.md-ob-auto-lock {
+    font-size: 13px;
+    line-height: 1;
+    opacity: 0.72;
+}
+
 /* 行複製＋ボタン列 */
 .tbl-grid__row-add-btn {
     background: none; border: none; cursor: pointer;

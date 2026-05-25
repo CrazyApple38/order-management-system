@@ -46,6 +46,13 @@ Excel VBAで運用していた受注簿・業務管理計画書をWebシステ�
 
 MCP設定: `docs/mcp-servers.md` を参照
 
+## Local Browser Verification
+
+- このプロジェクトのローカル画面確認は、可能な限り XAMPP Apache 経由で行う。
+- URL は `http://localhost/order-management-system/...` を優先する。
+- SL / OB など `localStorage` 連携が必要な画面は、必ず同じ host (`localhost`) で開く。
+- Apache が起動していない場合は、起動前にユーザーへ確認する。
+
 ## Project Rules
 
 - **会話言語**: 会話は日本語で行うこと。
