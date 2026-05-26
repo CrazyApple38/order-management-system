@@ -1403,10 +1403,13 @@
         window.coNotifyPanel.addItem('la', {
             scope: 'application',
             op: op,
+            domain: 'leave',
+            primaryPage: 'leave-application',
             main: mainText,
             sub: subText,
             date: laCnTodayLabel(),
             expand: expandText,
+            diffs: opts.diffs || null,
             affects: ['leave-application', 'weekly-schedule'],
             target: target
         });

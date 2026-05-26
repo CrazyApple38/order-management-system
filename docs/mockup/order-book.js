@@ -4409,10 +4409,13 @@ function obCnSelfNotify(scope, op, opts) {
     window.coNotifyPanel.addItem('ob', {
         scope: scope,
         op: op,
+        domain: 'order',
+        primaryPage: 'order-book',
         main: mainText,
         sub: subText,
         date: obCnTodayLabel(),
         expand: expandText,
+        diffs: opts.diffs || null,
         affects: ['order-book', 'screen-layout', 'weekly-schedule'],
         target: target
     });

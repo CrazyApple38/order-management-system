@@ -5459,11 +5459,16 @@
         window.coNotifyPanel.addItem('ws', {
             scope: scope,
             op: op,
+            domain: scope === 'reservation' ? 'support-reservation' : 'person-assignment',
+            primaryPage: scope === 'reservation' ? 'weekly-schedule' : 'screen-layout',
             main: mainText,
             sub: subText,
             date: wsCnTodayLabel(),
             expand: expandText,
-            affects: ['weekly-schedule', 'screen-layout'],
+            diffs: opts.diffs || null,
+            affects: scope === 'reservation'
+                ? ['weekly-schedule', 'screen-layout']
+                : ['weekly-schedule', 'screen-layout', 'leave-application'],
             target: target
         });
     }

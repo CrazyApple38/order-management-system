@@ -2823,3 +2823,71 @@ button.cn-date-group-head:hover {
     cursor: pointer;
 }
 .cmp-n34-color-pop-reset:hover { background: var(--bg-surface-3); }
+
+/* ============================================================
+   クロス画面フラッシュ優先度 (N-5)
+   ============================================================ */
+.cmp-routing-section {
+    margin: 20px;
+    padding: 18px;
+    background: var(--bg-surface, #fff);
+    border: 1px solid var(--divider, #E5E7EB);
+    border-radius: 8px;
+    box-shadow: var(--elevation-1, 0 1px 2px rgba(0,0,0,0.04));
+}
+.cmp-routing-section h2 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    color: var(--text-primary, #1F2937);
+}
+.cmp-routing-tag {
+    display: inline-block;
+    margin-right: 8px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: var(--accent-primary, #44A6B5);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+.cmp-routing-desc {
+    margin: 0;
+    color: var(--text-secondary, #6B7280);
+    font-size: 13px;
+    line-height: 1.7;
+}
+.cmp-routing-table-wrap {
+    overflow-x: auto;
+}
+.cmp-routing-table {
+    width: 100%;
+    min-width: 920px;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.cmp-routing-table th,
+.cmp-routing-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--divider, #E5E7EB);
+    text-align: left;
+    vertical-align: top;
+}
+.cmp-routing-table th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-surface-2, #F8FAFC);
+    color: var(--text-secondary, #6B7280);
+    font-weight: 700;
+}
+.cmp-routing-table td:first-child,
+.cmp-routing-table td:nth-child(2) {
+    font-weight: 700;
+    color: var(--text-primary, #1F2937);
+}
+.cmp-routing-table code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--bg-surface-3, #EEF2F7);
+    color: var(--text-secondary, #4B5563);
+    font-size: 11px;
+}

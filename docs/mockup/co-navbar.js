@@ -291,58 +291,82 @@
             items.ob.push({
                 scope: 'site',
                 op: op,
+                domain: 'order',
+                primaryPage: 'order-book',
                 main: (row.company || '契約先') + ' / ' + (entry.dailyTaskName || row.task || '受注') + '(' + hit.day + '日) の受注' + (op === 'add' ? '追加' : op === 'delete' ? '削除' : '変更'),
                 sub: '共通モックデータ ・ ' + today,
                 date: idx === 2 ? '昨日' : today,
                 expand: '人数: ' + (entry.count || 0) + '名 / シフト: ' + (row.shift || ''),
                 affects: ['order-book', 'screen-layout', 'weekly-schedule'],
-                target: row._rowId != null ? { axis: 'orderId', value: row._rowId } : null
+                target: row._rowId != null ? { 'order-book': { axis: 'orderId', value: row._rowId } } : null
             });
         });
 
         if (firstOb) {
             items.sl.push({
                 scope: 'site', op: 'add',
+                domain: 'order',
+                primaryPage: 'order-book',
                 main: siteLabel + ' の受注を追加',
                 sub: '共通モックデータ ・ ' + today,
                 date: today,
                 expand: 'OB共通データからSL行へ反映',
                 affects: ['screen-layout', 'order-book', 'weekly-schedule'],
-                target: { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' }
+                target: {
+                    'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' },
+                    'weekly-schedule': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' }
+                }
             });
             items.sl.push({
                 scope: 'employee', op: 'place', color: 'secondary',
+                domain: 'person-assignment',
+                primaryPage: 'screen-layout',
                 main: (firstOb.entry.dailyTaskName || firstOb.row.task || '現場') + ' に ' + employee.name + ' を配置',
                 sub: employee.company + ' ・ ' + today,
                 date: today,
-                affects: ['screen-layout', 'weekly-schedule'],
-                target: { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' }
+                affects: ['screen-layout', 'weekly-schedule', 'leave-application'],
+                target: {
+                    'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' },
+                    'weekly-schedule': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' }
+                }
             });
             items.ws.push({
                 scope: 'schedule', op: 'add',
+                domain: 'person-assignment',
+                primaryPage: 'weekly-schedule',
                 main: (firstOb.entry.dailyTaskName || firstOb.row.task || '現場') + '(' + mdNavDayLabel(mdNavCurrentDateKey()) + ') に ' + employee.name + ' を配置',
                 sub: '共通モックデータ ・ ' + today,
                 date: today,
                 expand: '受注人数: ' + (firstOb.entry.count || 0) + '名',
-                affects: ['weekly-schedule', 'screen-layout']
+                affects: ['weekly-schedule', 'screen-layout', 'leave-application'],
+                target: {
+                    'weekly-schedule': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' },
+                    'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' }
+                }
             });
         }
         if (secondOb && vehicles.length > 0) {
             items.sl.push({
                 scope: 'vehicle', op: 'place',
+                domain: 'vehicle-assignment',
+                primaryPage: 'screen-layout',
                 main: (secondOb.entry.dailyTaskName || secondOb.row.task || '現場') + ' に ' + (vehicle.plate || vehicle.model || '車両') + ' を配置',
                 sub: (vehicle.model || '車両') + ' ・ ' + today,
                 date: today,
-                affects: ['screen-layout', 'weekly-schedule'],
-                target: { axis: 'siteName', value: secondOb.entry.dailyTaskName || secondOb.row.task || '' }
+                affects: ['screen-layout', 'leave-application'],
+                target: {
+                    'screen-layout': { axis: 'siteName', value: secondOb.entry.dailyTaskName || secondOb.row.task || '' }
+                }
             });
             items.vehicle.push({
                 scope: 'vehicle', op: 'modify',
+                domain: 'vehicle-assignment',
+                primaryPage: 'screen-layout',
                 main: (vehicle.plate || vehicle.model || '車両') + ' の車両予定を更新',
                 sub: (vehicle.model || '共通車両データ') + ' ・ ' + today,
                 date: today,
                 expand: '車両マスタ: ' + (vehicle.owner || '') + ' / ' + (vehicle.model || ''),
-                affects: ['screen-layout', 'weekly-schedule']
+                affects: ['screen-layout', 'leave-application']
             });
         }
 
@@ -351,6 +375,8 @@
             items.la.push({
                 scope: 'application',
                 op: op,
+                domain: 'leave',
+                primaryPage: 'leave-application',
                 main: mdNavEmployeeNameById(lv.employeeId) + ' の ' + mdNavDayLabel(lv.date) + ' 休暇申請を' + (op === 'add' ? '追加' : op === 'approve' ? '承認' : '却下'),
                 sub: lv.status + ' ・ ' + today,
                 date: today,
@@ -363,6 +389,8 @@
             items.pending.push({
                 scope: 'application',
                 op: 'add',
+                domain: 'leave',
+                primaryPage: 'leave-application',
                 main: 'DCP承認待ち: ' + pendingLeaves.length + '件',
                 sub: mdNavEmployeeNameById(pendingLeaves[0].employeeId) + ' / ' + mdNavDayLabel(pendingLeaves[0].date),
                 date: today,
@@ -376,6 +404,8 @@
             items.master.push({
                 type: 'add',
                 slot: 'type-master-add',
+                domain: 'master',
+                primaryPage: 'order-book',
                 main: '現場マスタに ' + masterSite + ' を追加',
                 sub: '共通受注データ ・ ' + today,
                 date: today,
@@ -386,6 +416,8 @@
             items.master.push({
                 type: 'modify',
                 slot: 'type-master-modify',
+                domain: 'master',
+                primaryPage: 'screen-layout',
                 main: '社員マスタで ' + employee.name + ' の所属を確認',
                 sub: (employee.company || '所属未設定') + ' ・ ' + today,
                 date: today,

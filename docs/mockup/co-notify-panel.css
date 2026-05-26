@@ -470,27 +470,41 @@
 }
 .cn-item.is-expanded .cn-expand { display: flex; }
 
+.cn-diff-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
 .cn-diff-label {
     font-size: 10px;
     font-weight: 700;
     color: var(--text-tertiary);
     letter-spacing: 0.04em;
+    padding-top: 1px;
 }
 .cn-diff-line {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    display: grid;
+    grid-template-columns: minmax(56px, max-content) minmax(0, 1fr);
+    gap: 8px;
     font-size: 11px;
-    flex-wrap: wrap;
+}
+.cn-diff-values {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
 }
 .cn-diff-from {
-    color: var(--text-tertiary);
+    color: var(--semantic-error);
     text-decoration: line-through;
+    text-decoration-thickness: 1px;
+    overflow-wrap: anywhere;
 }
 .cn-diff-arrow { color: var(--text-tertiary); }
 .cn-diff-to {
-    color: var(--accent-primary);
-    font-weight: 600;
+    color: var(--text-primary);
+    font-weight: 700;
+    overflow-wrap: anywhere;
 }
 
 /* ジャンプボタン */

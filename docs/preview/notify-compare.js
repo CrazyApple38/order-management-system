@@ -2,7 +2,7 @@
 (function () {
     'use strict';
 
-    /* Before / After / 履歴 / アイコン選定 / ベル並び / パネルレイアウト / 自動生成行オーバーレイ / N-2統合 / マトリクス選定 / 通知一覧 モード切替 */
+    /* Before / After / 履歴 / アイコン選定 / ベル並び / パネルレイアウト / 自動生成行オーバーレイ / N-2統合 / マトリクス選定 / 通知一覧 / 優先度ルール モード切替 */
     var modeTargets = {
         before: 'cmpBefore',
         after: 'cmpAfter',
@@ -13,7 +13,8 @@
         'auto-overlay': 'cmpAutoOverlay',
         'n2-integration': 'cmpN2Integration',
         matrix: 'cmpMatrix',
-        n34: 'cmpN34'
+        n34: 'cmpN34',
+        routing: 'cmpRouting'
     };
     document.querySelectorAll('.cmp-mode-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {

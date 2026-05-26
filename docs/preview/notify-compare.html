@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../mockup/co-tokens.css">
     <link rel="stylesheet" href="../mockup/co-shared-badges.css">
     <link rel="stylesheet" href="../mockup/co-icon-picker.css">
-    <link rel="stylesheet" href="notify-compare.css?v=n34-list-v2">
+    <link rel="stylesheet" href="notify-compare.css?v=routing-v1">
 </head>
 <body>
     <header class="cmp-header">
@@ -27,6 +27,7 @@
             <button class="cmp-mode-btn" data-mode="n2-integration">N-2 統合</button>
             <button class="cmp-mode-btn" data-mode="matrix">マトリクス選定 (N-2.4)</button>
             <button class="cmp-mode-btn" data-mode="n34">通知一覧 (N-3.4)</button>
+            <button class="cmp-mode-btn" data-mode="routing">優先度ルール</button>
         </div>
     </header>
 
@@ -2767,8 +2768,71 @@
         </section>
     </main>
 
+    <main class="cmp-hidden" id="cmpRouting">
+        <section class="cmp-routing-section">
+            <h2><span class="cmp-routing-tag">N-5</span> クロス画面フラッシュ優先度</h2>
+            <p class="cmp-routing-desc">
+                通知は「画面別の重複」ではなく、業務イベントを1件として扱う。
+                現在画面で対象 target が解決できる場合だけフラッシュし、解決できない場合は主担当画面へのジャンプボタンを表示する。
+            </p>
+        </section>
+
+        <section class="cmp-routing-section">
+            <div class="cmp-routing-table-wrap">
+                <table class="cmp-routing-table">
+                    <thead>
+                        <tr>
+                            <th>通知ドメイン</th>
+                            <th>主担当画面</th>
+                            <th>関連画面</th>
+                            <th>現在画面で開いた時の優先</th>
+                            <th>target 軸</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>受注内容の変更</td>
+                            <td>OB（受注簿）</td>
+                            <td>SL / WS</td>
+                            <td>SL/WSで対象が表示中ならその画面をフラッシュ。未解決ならOBで開く。</td>
+                            <td><code>orderId</code> / <code>siteName</code></td>
+                        </tr>
+                        <tr>
+                            <td>人の配置</td>
+                            <td>SL（業務管理計画書）</td>
+                            <td>WS / LA</td>
+                            <td>SLの現場行を優先。WSは週セル、LAは休暇競合がある場合だけ対象化。</td>
+                            <td><code>siteName</code> / <code>wsCell</code> / <code>leaveId</code></td>
+                        </tr>
+                        <tr>
+                            <td>車の配置</td>
+                            <td>SL（業務管理計画書）</td>
+                            <td>LA（車両スケジュール）</td>
+                            <td>SLの現場行を優先。車両予定IDがある場合だけLA車両画面へ遷移。</td>
+                            <td><code>siteName</code> / <code>vehicleSchedule</code></td>
+                        </tr>
+                        <tr>
+                            <td>休暇申請</td>
+                            <td>LA（休暇申請）</td>
+                            <td>WS / SL</td>
+                            <td>LAの申請バッジを優先。WS/SLは配置影響がある時だけ補助対象。</td>
+                            <td><code>leaveId</code> / <code>wsCell</code></td>
+                        </tr>
+                        <tr>
+                            <td>応援予約</td>
+                            <td>WS（週間予定表）</td>
+                            <td>SL</td>
+                            <td>WSの予約セルを優先。SLでは現場行が特定できる時だけフラッシュ。</td>
+                            <td><code>wsCell</code> / <code>siteName</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
     <script src="../mockup/notify-icons-selected.js?v=2"></script>
-    <script src="notify-compare.js?v=n34-v4-bell-tiles"></script>
+    <script src="notify-compare.js?v=routing-v1"></script>
     <script src="../mockup/co-icon-picker.js"></script>
     <script src="notify-icons-data.js"></script>
     <script src="notify-icons.js"></script>

@@ -5065,16 +5065,38 @@
                 }).join(' / ');
             }
 
-            var target = siteName ? { axis: 'siteName', value: siteName } : null;
+            var target = siteName ? {
+                'screen-layout': { axis: 'siteName', value: siteName },
+                'weekly-schedule': { axis: 'siteName', value: siteName }
+            } : null;
+            var domain = 'order';
+            var primaryPage = 'order-book';
+            var affects = ['screen-layout', 'order-book', 'weekly-schedule'];
+            if (scope === 'employee') {
+                domain = 'person-assignment';
+                primaryPage = 'screen-layout';
+                affects = ['screen-layout', 'weekly-schedule', 'leave-application'];
+            } else if (scope === 'vehicle') {
+                domain = 'vehicle-assignment';
+                primaryPage = 'screen-layout';
+                affects = ['screen-layout', 'leave-application'];
+            } else if (scope === 'support' || scope === 'reservation') {
+                domain = 'support-reservation';
+                primaryPage = 'weekly-schedule';
+                affects = ['weekly-schedule', 'screen-layout'];
+            }
 
             var itemPayload = {
                 scope: scope,
                 op: op,
+                domain: domain,
+                primaryPage: primaryPage,
                 main: mainText,
                 sub: '自分 ・ ' + slCnTimeNow(),
                 date: slCnTodayLabel(),
                 expand: expandText,
-                affects: ['screen-layout', 'weekly-schedule'],
+                diffs: opts.diffs || null,
+                affects: affects,
                 target: target
             };
             if (colorOverride) itemPayload.color = colorOverride;

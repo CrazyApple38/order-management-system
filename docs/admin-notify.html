@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="mockup/co-modal.css">
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
-    <link rel="stylesheet" href="mockup/co-notify-panel.css?v=10">
+    <link rel="stylesheet" href="mockup/co-notify-panel.css?v=11">
     <style>
         :root { color-scheme: light; }
         html, body {
@@ -86,21 +86,23 @@
         <div class="admin-tabs" role="tablist">
             <button class="admin-tab is-active" data-mode="matrix" role="tab">マトリクス選定</button>
             <button class="admin-tab" data-mode="n34" role="tab">通知タイプ一覧</button>
+            <button class="admin-tab" data-mode="routing" role="tab">優先度ルール</button>
         </div>
     </div>
     <div class="admin-iframe-wrap">
         <iframe id="adminNotifyIframe"
                 class="admin-iframe"
-                src="preview/notify-compare.html?v=phaseb"
+                src="preview/notify-compare.html?v=phase-routing"
                 title="変更通知設定 — 詳細編集パネル"></iframe>
     </div>
 
     <script src="mockup/mock-employees-data.js?v=1"></script>
     <script src="mockup/mock-vehicles-data.js?v=1"></script>
     <script src="mockup/demo-data.js?v=6"></script>
+    <script src="mockup/co-mock-store.js?v=4"></script>
     <script src="mockup/notify-icons-selected.js?v=2"></script>
-    <script src="mockup/co-notify-panel.js?v=13"></script>
-    <script src="mockup/co-navbar.js?v=10"></script>
+    <script src="mockup/co-notify-panel.js?v=15"></script>
+    <script src="mockup/co-navbar.js?v=11"></script>
     <script>
     (function () {
         'use strict';
@@ -109,8 +111,8 @@
         var tabs = Array.from(document.querySelectorAll('.admin-tab'));
 
         // admin 用に表示するモード一覧
-        var ADMIN_MODES = ['matrix', 'n34'];
-        // URL ハッシュ初期モード (#matrix / #n34 / #icons / #n2-integration)
+        var ADMIN_MODES = ['matrix', 'n34', 'routing'];
+        // URL ハッシュ初期モード (#matrix / #n34 / #routing)
         var initialMode = (location.hash || '#matrix').replace('#', '');
         if (ADMIN_MODES.indexOf(initialMode) === -1) initialMode = 'matrix';
 

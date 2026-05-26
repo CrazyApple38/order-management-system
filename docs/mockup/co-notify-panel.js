@@ -163,33 +163,96 @@
         try { return JSON.parse(item.dataset.target); }
         catch (err) { return null; }
     }
+    function targetOwnerPage(rawTarget) {
+        if (!rawTarget || !rawTarget.axis) return '';
+        var axisPage = {
+            orderId: 'order-book',
+            orderBookEntry: 'order-book',
+            siteName: 'screen-layout',
+            slRow: 'screen-layout',
+            wsCell: 'weekly-schedule',
+            leaveId: 'leave-application',
+            vehicleSchedule: 'leave-application'
+        };
+        return axisPage[rawTarget.axis] || '';
+    }
     function resolveTargetForPage(rawTarget, page) {
-        if (!rawTarget) return null;
-        if (rawTarget.axis) return rawTarget;
-        if (page && rawTarget[page]) return rawTarget[page];
-        return null;
+        if (!rawTarget || !page) return null;
+        if (rawTarget.axis) {
+            return targetOwnerPage(rawTarget) === page ? rawTarget : null;
+        }
+        return rawTarget[page] || null;
+    }
+    function targetPages(rawTarget) {
+        if (!rawTarget) return [];
+        if (rawTarget.axis) {
+            var owner = targetOwnerPage(rawTarget);
+            return owner ? [owner] : [];
+        }
+        return Object.keys(rawTarget).filter(function (key) {
+            return !!(rawTarget[key] && rawTarget[key].axis);
+        });
+    }
+    function sourceToPrimaryPage(source) {
+        var map = {
+            ob: 'order-book',
+            sl: 'screen-layout',
+            ws: 'weekly-schedule',
+            la: 'leave-application',
+            pending: 'leave-application',
+            vehicle: 'screen-layout'
+        };
+        return map[source] || '';
+    }
+    function inferDomain(source, scope) {
+        if (source === 'ob' || scope === 'row' || scope === 'site' || scope === 'badge') return 'order';
+        if (scope === 'employee' || scope === 'support') return 'person-assignment';
+        if (scope === 'vehicle' || source === 'vehicle') return 'vehicle-assignment';
+        if (scope === 'reservation') return 'support-reservation';
+        if (scope === 'application' || source === 'la' || source === 'pending') return 'leave';
+        if (source === 'master') return 'master';
+        return '';
+    }
+    function inferPrimaryPage(source, scope, rawTarget) {
+        var domain = inferDomain(source, scope);
+        var domainPrimary = {
+            order: 'order-book',
+            'person-assignment': 'screen-layout',
+            'vehicle-assignment': 'screen-layout',
+            'support-reservation': 'weekly-schedule',
+            leave: 'leave-application',
+            master: 'order-book'
+        };
+        var firstTarget = targetPages(rawTarget)[0] || '';
+        return domainPrimary[domain] || firstTarget || sourceToPrimaryPage(source);
     }
     function buildJumpDetail(item, pageOverride) {
         var affects = (item.dataset.affects || '').split(',')
             .map(function (s) { return s.trim(); }).filter(Boolean);
         var page = pageOverride || getCurrentPage();
-        var inContext = !!(page && affects.indexOf(page) !== -1);
         var anchor = item.closest('.cn-anchor[data-bell]');
         var source = anchor ? anchor.dataset.bell : '';
         var rawTarget = parseItemTarget(item);
         var target = resolveTargetForPage(rawTarget, page);
-        if (!target && pageOverride) inContext = false;
+        var scope = item.dataset.scope || '';
+        var domain = item.dataset.domain || inferDomain(source, scope);
+        var primaryPage = item.dataset.primaryPage || inferPrimaryPage(source, scope, rawTarget);
+        var inContext = !!(page && target && affects.indexOf(page) !== -1);
         return {
             item: item,
             source: source,
             affects: affects,
             inContext: inContext,
             page: page,
+            domain: domain,
+            primaryPage: primaryPage,
             type: item.dataset.type || '',
             op: item.dataset.op || '',
+            scope: scope,
             slot: item.dataset.slot || '',
             target: target,
-            rawTarget: rawTarget
+            rawTarget: rawTarget,
+            targetPages: targetPages(rawTarget)
         };
     }
     function fireJump(item) {
@@ -566,6 +629,22 @@
         var img = document.querySelector('[data-bell-icon="' + bellId + '"]');
         if (img) img.src = CN_ICON_BASE + path;
     }
+    function normalizeDiffValue(value) {
+        if (value === null || value === undefined || value === '') return '(空)';
+        return String(value);
+    }
+    function buildDiffHtml(diffs) {
+        if (!Array.isArray(diffs) || diffs.length === 0) return '';
+        return '<div class="cn-diff-list">' + diffs.map(function (d) {
+            return '<div class="cn-diff-line">'
+                 +   '<div class="cn-diff-label">' + escapeHtml(d.field || '変更') + '</div>'
+                 +   '<div class="cn-diff-values">'
+                 +     '<div class="cn-diff-to">' + escapeHtml(normalizeDiffValue(d.newVal)) + '</div>'
+                 +     '<div class="cn-diff-from">' + escapeHtml(normalizeDiffValue(d.oldVal)) + '</div>'
+                 +   '</div>'
+                 + '</div>';
+        }).join('') + '</div>';
+    }
     function buildItemHtml(bellId, item) {
         // Phase N-2.4.3: item.scope + item.op があれば合成優先。
         // type は表示色クラス用に scope-op から推測（add/place→add色、modify/approve→modify色、delete/reject/remove→delete色）。
@@ -584,20 +663,24 @@
             ? composedHtml
             : (iconPath ? '<img class="cn-icon-img" src="' + CN_ICON_BASE + iconPath + '" alt="">' : '');
         // expand または affects のいずれかがあればアコーディオン展開可（種別問わず）
-        var hasExpand = !!(item.expand || (item.affects && item.affects.length));
+        var hasDiffs = Array.isArray(item.diffs) && item.diffs.length > 0;
+        var hasExpand = !!(item.expand || hasDiffs || (item.affects && item.affects.length));
         var affectsAttr = (item.affects && item.affects.length)
             ? ' data-affects="' + escapeHtml(item.affects.join(',')) + '"' : '';
         var idAttr = item.id ? ' data-id="' + escapeHtml(item.id) + '"' : '';
         var targetAttr = item.target
             ? ' data-target="' + escapeHtml(JSON.stringify(item.target)) + '"' : '';
+        var domainAttr = item.domain ? ' data-domain="' + escapeHtml(item.domain) + '"' : '';
+        var primaryAttr = item.primaryPage ? ' data-primary-page="' + escapeHtml(item.primaryPage) + '"' : '';
         var chevronHtml = hasExpand ? '<span class="cn-chevron">▾</span>' : '';
         var expandHtml = '';
         if (hasExpand) {
             var summary = item.expand ? '<div class="cn-expand-summary">' + escapeHtml(item.expand) + '</div>' : '';
+            var diffsHtml = buildDiffHtml(item.diffs);
             var hint = (item.affects && item.affects.length)
                 ? '<div class="cn-cross-hint" data-affects="' + escapeHtml(item.affects.join(',')) + '"></div>'
                 : '';
-            expandHtml = '<div class="cn-expand">' + summary + hint + '</div>';
+            expandHtml = '<div class="cn-expand">' + summary + diffsHtml + hint + '</div>';
         }
         var scopeAttr = item.scope ? ' data-scope="' + escapeHtml(item.scope) + '"' : '';
         var opAttr = item.op ? ' data-op="' + escapeHtml(item.op) + '"' : '';
@@ -613,6 +696,8 @@
             +   opAttr
             +   colorAttr
             +   affectsAttr
+            +   domainAttr
+            +   primaryAttr
             +   targetAttr + '>'
             +   '<div class="cn-item-row">'
             +     '<div class="cn-icon type-' + typeClass + iconColorCls + '">' + iconInner + '</div>'
@@ -752,17 +837,24 @@
             .map(function (s) { return s.trim(); }).filter(Boolean);
         if (affects.length === 0) { hintEl.innerHTML = ''; return; }
         var current = getCurrentPage();
+        var currentDetail = buildJumpDetail(item, current);
         var html = '';
-        if (affects.indexOf(current) >= 0) {
+        if (currentDetail.inContext && currentDetail.target) {
             html += '<span class="cn-cross-hint-in-context">現在画面（'
                   + (CN_PAGE_LABELS[current] || current)
                   + '）で対象セルがフラッシュされます</span>';
         } else {
             html += '<span class="cn-cross-hint-out">現在画面（'
                   + (CN_PAGE_LABELS[current] || current || '—')
-                  + '）には波及しません</span>';
+                  + '）では直接フラッシュしません</span>';
         }
-        var others = affects.filter(function (a) { return a !== current; });
+        var pages = currentDetail.targetPages.slice();
+        if (currentDetail.primaryPage && pages.indexOf(currentDetail.primaryPage) === -1) {
+            pages.unshift(currentDetail.primaryPage);
+        }
+        var others = pages.filter(function (a, idx) {
+            return a && a !== current && pages.indexOf(a) === idx && resolveTargetForPage(currentDetail.rawTarget, a);
+        });
         if (others.length > 0) {
             html += '<span class="cn-cross-jumps">';
             others.forEach(function (a) {
@@ -791,17 +883,22 @@
         var path = CN_PAGE_URLS[page];
         if (!path) return '';
         var base = new URL(path, location.href);
-        base.searchParams.set('cnJump', JSON.stringify({
-            source: detail.source,
-            affects: detail.affects,
-            page: page,
-            inContext: false,
-            type: detail.type,
-            op: detail.op,
-            slot: detail.slot,
-            target: detail.target,
-            rawTarget: detail.rawTarget
-        }));
+        if (detail.target) {
+            base.searchParams.set('cnJump', JSON.stringify({
+                source: detail.source,
+                affects: detail.affects,
+                page: page,
+                inContext: false,
+                domain: detail.domain,
+                primaryPage: detail.primaryPage,
+                type: detail.type,
+                op: detail.op,
+                scope: detail.scope,
+                slot: detail.slot,
+                target: detail.target,
+                rawTarget: detail.rawTarget
+            }));
+        }
         return base.toString();
     }
     // 「○○で開く ↗」ボタン: 対象画面を新タブで開き、URL パラメータで target を渡す
