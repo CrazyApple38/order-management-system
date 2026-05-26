@@ -201,8 +201,8 @@ h1 {
 }
 
 .side-panel--left {
-    border-left: 1px solid var(--divider);
-    border-right: none;
+    border-left: none;
+    border-right: 1px solid var(--divider);
     transition: width 0.2s ease, flex-basis 0.2s ease;
 }
 
