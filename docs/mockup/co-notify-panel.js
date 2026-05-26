@@ -901,7 +901,8 @@
         }
         return base.toString();
     }
-    // 「○○で開く ↗」ボタン: 対象画面を新タブで開き、URL パラメータで target を渡す
+    // 「○○で開く ↗」ボタン: 対象画面を同じタブで開き、URL パラメータで target を渡す
+    // (旧仕様: window.open(_blank) で新タブが量産される問題を解消 / 2026-05-27)
     document.addEventListener('click', function (e) {
         var btn = e.target.closest('.cn-cross-jump-btn');
         if (!btn) return;
@@ -913,7 +914,7 @@
         var url = buildPageUrl(page, detail);
         if (!url) return;
         markItemReadAndRefresh(item);
-        window.open(url, '_blank', 'noopener');
+        window.location.href = url;
     });
 
     function dispatchJumpFromUrl() {
@@ -921,6 +922,12 @@
         try { raw = new URLSearchParams(location.search || '').get('cnJump') || ''; }
         catch (err) { raw = ''; }
         if (!raw) return;
+        // URL から cnJump を除去 (リロード時の再発火 + ブックマーク汚染防止)
+        try {
+            var cleanUrl = new URL(location.href);
+            cleanUrl.searchParams.delete('cnJump');
+            window.history.replaceState({}, '', cleanUrl.toString());
+        } catch (errClean) { /* 古いブラウザ等 */ }
         var payload = null;
         try { payload = JSON.parse(raw); }
         catch (err2) { payload = null; }
