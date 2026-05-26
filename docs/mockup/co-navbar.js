@@ -181,252 +181,258 @@
         +   '</div>'
         + '</div>';
 
-    // --- ベル単位デモ通知データ（Phase N-2.2 移行版）---
-    //     ・旧 mdNavCnItems の3件を bell-master / bell-pending へ振り分け
-    //     ・将来は各画面JS（OB/SL/WS/LA）が自領域発信ロジックで coNotifyPanel.setItems() を呼ぶ
-    //     ・本フェーズではモック視認用にハードコード初期投入
-    //     ・modify/auto/pending は expand + affects 付与でアコーディオン展開可
-    var mdNavCnBellItems = {
-        ob: [
-            { scope: 'site', op: 'add',    main: '東央警備 / 渋谷駅前ビル の受注を追加', sub: '山田太郎 ・ 09:14', date: '今日 (5/15)',
-              expand: '2026-05-18（月） / 警備員8名 / 単価¥18,000', affects: ['order-book', 'screen-layout', 'weekly-schedule'] },
-            { scope: 'site', op: 'modify', main: '新宿三井ビル の受注日を変更',       sub: '山田太郎 ・ 10:42', date: '今日 (5/15)',
-              expand: '受注日: 5/20 → 5/22', affects: ['order-book', 'screen-layout'] },
-            { scope: 'site', op: 'delete', main: '池袋現場 の受注を取消',             sub: '佐藤次郎 ・ 16:08', date: '昨日 (5/14)',
-              expand: '取消理由: 契約先キャンセル', affects: ['order-book', 'screen-layout'] }
-        ],
-        sl: [
-            { scope: 'employee', op: 'place', main: '渋谷駅前ビル に他GC社員を配置（自動受注生成）',
-              sub: '田中一郎(Nikkei) ・ 11:30', date: '今日 (5/15)',
-              expand: 'グループ間応援を検出 → OB側に自動受注行を生成（編集ロック行）',
-              affects: ['screen-layout', 'order-book'] },
-            { scope: 'employee', op: 'place', main: '高田馬場ビル に社員 を新規配置',
-              sub: '配置: 佐藤太郎 ・ 10:05', date: '今日 (5/15)', affects: ['screen-layout'] },
-            { scope: 'vehicle', op: 'modify', main: '渋谷駅前ビル の車両配置を更新',
-              sub: '車両 #002 ・ 13:22', date: '今日 (5/15)',
-              expand: '配置車両を #001 → #002 へ変更', affects: ['screen-layout'] }
-        ],
-        ws: [
-            { scope: 'schedule', op: 'modify', main: '5/16 (土) の予定を変更',
-              sub: '田中一郎 ・ 09:42', date: '今日 (5/15)',
-              expand: '時間帯: 9:00-17:00 → 10:00-18:00', affects: ['weekly-schedule'] }
-        ],
-        la: [
-            { scope: 'application', op: 'add',     main: '清水 から新規申請', sub: '5/22 / 有給休暇 ・ 14:01', date: '今日 (5/15)',
-              affects: ['leave-application', 'screen-layout'] },
-            { scope: 'application', op: 'approve', main: '林 の休暇を承認',   sub: '5/18 / 有給 ・ 09:14',     date: '今日 (5/15)',
-              expand: 'ステータス: 承認待ち → 承認済', affects: ['leave-application'] }
-        ],
-        pending: [
-            { scope: 'application', op: 'add', main: 'DCP承認待ち: 1件',
-              sub: '鈴木 一郎 / 2026-04-24 (金) 有給休暇 ・ 32分前',
-              date: '今日 (5/15)', expand: '承認画面で処理してください', affects: ['leave-application'] }
-        ],
-        vehicle: [],
-        master: [
-            { type: 'modify', slot: 'type-master-modify', main: '社員マスタが更新されました',
-              sub: '佐藤 太郎 さんの所属が変更 (部署A → 部署B) ・ 10分前', date: '今日 (5/15)',
-              expand: '所属: 部署A → 部署B', affects: ['order-book', 'screen-layout'] },
-            { type: 'add', slot: 'type-master-add', main: '現場マスタに新規現場が追加されました',
-              sub: '〇〇ビル新築工事 (東央警備) ・ 2時間前', date: '今日 (5/15)',
-              affects: ['order-book', 'screen-layout', 'weekly-schedule'] }
-        ]
-    };
-
-    // 履歴タブ用デモ設定（軸別ピッカー込み）
-    var mdNavCnBellHistory = {
-        ob: {
-            businessAxis: { tab: '契約先/現場', search: '現場名で検索...', prefix: '現場',
-                groups: [
-                    { title: '東央警備 / 渋谷駅前ビル', items: [
-                        { scope: 'site', op: 'add', main: '受注を追加', sub: '山田太郎 ・ 5/15 09:14',
-                          affects: ['order-book', 'screen-layout', 'weekly-schedule'] },
-                        { scope: 'site', op: 'modify', main: '受注日を変更', sub: '山田太郎 ・ 5/12 10:42',
-                          expand: '受注日: 5/10 → 5/12', affects: ['order-book', 'screen-layout'] }
-                    ]},
-                    { title: '三菱地所 / 丸の内本社', items: [
-                        { scope: 'site', op: 'add', main: '受注を追加', sub: '山田太郎 ・ 5/12 14:00',
-                          affects: ['order-book', 'screen-layout'] }
-                    ]},
-                    { title: '東央警備 / 池袋現場', items: [
-                        { scope: 'site', op: 'delete', main: '受注を取消', sub: '佐藤次郎 ・ 5/14 16:08',
-                          affects: ['order-book', 'screen-layout'] }
-                    ]}
-                ],
-                companies: ['東央警備', '三菱地所', 'Nikkei'],
-                sites: { '東央警備': ['渋谷駅前ビル', '池袋現場', '新宿三井ビル'],
-                         '三菱地所': ['丸の内本社', '大手町タワー'],
-                         'Nikkei':   ['日本橋オフィス'] }
-            },
-            accountAxis: { tab: 'アカウント', search: 'アカウント名で検索...', prefix: 'アカウント',
-                groups: [
-                    { title: '山田太郎', items: [
-                        { scope: 'site', op: 'add', main: '東央警備 / 渋谷駅前ビル の受注を追加', sub: '5/15 09:14',
-                          affects: ['order-book', 'screen-layout', 'weekly-schedule'] },
-                        { scope: 'site', op: 'modify', main: '東央警備 / 渋谷駅前ビル の受注日を変更', sub: '5/12 10:42',
-                          expand: '受注日: 5/10 → 5/12', affects: ['order-book', 'screen-layout'] }
-                    ]},
-                    { title: '佐藤次郎', items: [
-                        { scope: 'site', op: 'delete', main: '東央警備 / 池袋現場 の受注を取消', sub: '5/14 16:08',
-                          affects: ['order-book', 'screen-layout'] }
-                    ]}
-                ],
-                accounts: ['山田太郎', '佐藤次郎', '鈴木花子']
-            }
-        },
-        sl: {
-            businessAxis: { tab: '現場', search: '現場名で検索...', prefix: '現場',
-                groups: [
-                    { title: '東央警備 / 渋谷駅前ビル', items: [
-                        { scope: 'employee', op: 'place', main: '他GC社員を配置（自動受注生成）',
-                          sub: '田中一郎(Nikkei) ・ 5/15 11:30',
-                          expand: 'グループ間応援を検出 → OB側に自動受注行を生成',
-                          affects: ['screen-layout', 'order-book'] }
-                    ]},
-                    { title: '東央警備 / 高田馬場ビル', items: [
-                        { scope: 'employee', op: 'place', main: '佐藤太郎 を配置', sub: '5/13',
-                          affects: ['screen-layout'] }
-                    ]}
-                ],
-                companies: ['東央警備'], sites: { '東央警備': ['渋谷駅前ビル', '高田馬場ビル'] }
-            },
-            accountAxis: { tab: 'アカウント', search: 'アカウント名で検索...', prefix: 'アカウント',
-                groups: [
-                    { title: '山田太郎', items: [
-                        { scope: 'employee', op: 'place', main: '渋谷駅前ビル に田中一郎を配置',
-                          sub: '5/15 11:30',
-                          expand: 'グループ間応援を検出 → OB側に自動受注行を生成',
-                          affects: ['screen-layout', 'order-book'] }
-                    ]}
-                ],
-                accounts: ['山田太郎', '佐藤次郎']
-            }
-        },
-        ws: {
-            businessAxis: { tab: '現場', search: '現場名で検索...', prefix: '現場',
-                groups: [
-                    { title: '東央警備 / 渋谷駅前ビル', items: [
-                        { scope: 'reservation', op: 'add', main: '5/16(土) に応援予約 Aチーム4名', sub: '田中一郎 ・ 5/13' }
-                    ]}
-                ],
-                companies: ['東央警備'], sites: { '東央警備': ['渋谷駅前ビル'] }
-            },
-            accountAxis: { tab: 'アカウント', search: 'アカウント名で検索...', prefix: 'アカウント',
-                groups: [
-                    { title: '田中一郎', items: [
-                        { scope: 'reservation', op: 'add', main: '渋谷駅前ビル 5/16 応援予約', sub: '5/13' }
-                    ]}
-                ],
-                accounts: ['田中一郎']
-            }
-        },
-        la: {
-            businessAxis: { tab: '申請者', search: '申請者名で検索...', prefix: '申請者',
-                groups: [
-                    { title: '清水', items: [
-                        { scope: 'application', op: 'add', main: '5/22 有給休暇 を申請', sub: '5/15 14:01',
-                          affects: ['leave-application', 'screen-layout'] }
-                    ]},
-                    { title: '林', items: [
-                        { scope: 'application', op: 'approve', main: '5/18 有給休暇 を承認', sub: '5/15 09:14',
-                          expand: 'ステータス: 承認待ち → 承認済',
-                          affects: ['leave-application', 'weekly-schedule'] }
-                    ]},
-                    { title: '山田', items: [
-                        { scope: 'application', op: 'reject', main: '5/14 有給休暇 を却下', sub: '5/14 13:24',
-                          affects: ['leave-application'] }
-                    ]}
-                ],
-                companies: ['営業部', '工事部'],
-                sites: { '営業部': ['清水', '山田'], '工事部': ['林'] }
-            },
-            accountAxis: { tab: '承認者', search: '承認者名で検索...', prefix: '承認者',
-                groups: [
-                    { title: '林部長', items: [
-                        { scope: 'application', op: 'approve', main: '林 の5/18申請を承認', sub: '5/15 09:14',
-                          expand: 'ステータス: 承認待ち → 承認済',
-                          affects: ['leave-application', 'weekly-schedule'] },
-                        { scope: 'application', op: 'reject',  main: '山田 の5/14申請を却下', sub: '5/14 13:24',
-                          affects: ['leave-application'] }
-                    ]}
-                ],
-                accounts: ['林部長']
-            }
-        },
-        pending: {
-            businessAxis: { tab: '申請者', search: '申請者名で検索...', prefix: '申請者',
-                groups: [
-                    { title: '清水', items: [
-                        { scope: 'application', op: 'add', main: '5/22 有給休暇 承認待ち', sub: '5/15 14:01',
-                          expand: '承認画面で処理してください',
-                          affects: ['leave-application'] }
-                    ]}
-                ],
-                companies: ['営業部'], sites: { '営業部': ['清水'] }
-            },
-            accountAxis: { tab: '承認者', search: '承認者名で検索...', prefix: '承認者',
-                groups: [
-                    { title: '林部長', items: [
-                        { scope: 'application', op: 'add', main: '清水 の5/22申請が承認待ち', sub: '5/15 14:01',
-                          expand: '承認画面で処理してください',
-                          affects: ['leave-application'] }
-                    ]}
-                ],
-                accounts: ['林部長']
-            }
-        },
-        vehicle: {
-            businessAxis: { tab: '車両', search: '車両名で検索...', prefix: '車両',
-                groups: [
-                    { title: '車両 #001 トヨタハイエース', items: [
-                        { scope: 'vehicle', op: 'modify', main: '5/16 の運行予定を変更', sub: '5/14 山田太郎',
-                          expand: '出発時刻: 9:00 → 10:30',
-                          affects: ['screen-layout', 'weekly-schedule'] }
-                    ]}
-                ],
-                companies: ['東央警備'], sites: { '東央警備': ['車両 #001', '車両 #002'] }
-            },
-            accountAxis: { tab: 'アカウント', search: 'アカウント名で検索...', prefix: 'アカウント',
-                groups: [
-                    { title: '山田太郎', items: [
-                        { scope: 'vehicle', op: 'modify', main: '車両 #001 の運行予定を変更', sub: '5/14',
-                          expand: '出発時刻: 9:00 → 10:30',
-                          affects: ['screen-layout', 'weekly-schedule'] }
-                    ]}
-                ],
-                accounts: ['山田太郎']
-            }
-        },
-        master: {
-            businessAxis: { tab: 'マスタ種別', search: 'マスタ種別で検索...', prefix: '種別',
-                groups: [
-                    { title: '現場マスタ', items: [
-                        { type: 'add', slot: 'type-master-add', main: '〇〇ビル新築工事 (東央警備) を追加', sub: '管理者 ・ 5/15',
-                          affects: ['order-book', 'screen-layout', 'weekly-schedule'] }
-                    ]},
-                    { title: '社員マスタ', items: [
-                        { type: 'modify', slot: 'type-master-modify', main: '佐藤 太郎 さんの所属を変更（部署A → 部署B）',
-                          sub: '管理者 ・ 5/14',
-                          expand: '所属: 部署A → 部署B',
-                          affects: ['order-book', 'screen-layout'] }
-                    ]}
-                ],
-                companies: ['マスタ'], sites: { 'マスタ': ['現場', '社員', '車両', '契約先'] }
-            },
-            accountAxis: { tab: '管理者', search: '管理者名で検索...', prefix: '管理者',
-                groups: [
-                    { title: '管理者', items: [
-                        { type: 'add', slot: 'type-master-add', main: '現場マスタに〇〇ビルを追加', sub: '5/15',
-                          affects: ['order-book', 'screen-layout', 'weekly-schedule'] },
-                        { type: 'modify', slot: 'type-master-modify', main: '社員マスタで佐藤太郎の所属を変更', sub: '5/14',
-                          expand: '所属: 部署A → 部署B',
-                          affects: ['order-book', 'screen-layout'] }
-                    ]}
-                ],
-                accounts: ['管理者']
-            }
+    // --- ベル単位デモ通知データ（共通モックデータ同期版）---
+    // 固定文言ではなく demo-data.js / mock-orders-data.js / co-mock-store.js の実値から組み立てる。
+    function mdNavPad2(n) { return String(n).padStart(2, '0'); }
+    function mdNavCurrentDateKey() {
+        return (window.OmsMockStore && window.OmsMockStore.getCurrentDate && window.OmsMockStore.getCurrentDate()) ||
+            (window.OmsMockStore && window.OmsMockStore.defaultDate) || '2026-05-01';
+    }
+    function mdNavDemoTodayLabel() {
+        var parts = String((window.OmsMockStore && window.OmsMockStore.getDemoToday && window.OmsMockStore.getDemoToday()) || mdNavCurrentDateKey()).split('-');
+        return '今日 (' + (+parts[1]) + '/' + (+parts[2]) + ')';
+    }
+    function mdNavDayLabel(dateKey) {
+        var parts = String(dateKey || mdNavCurrentDateKey()).split('-');
+        return (+parts[1]) + '/' + (+parts[2]);
+    }
+    function mdNavGetEmployees() {
+        return (typeof employeesData !== 'undefined' && Array.isArray(employeesData)) ? employeesData : [];
+    }
+    function mdNavGetVehicles() {
+        return (typeof vehiclesData !== 'undefined' && Array.isArray(vehiclesData)) ? vehiclesData : [];
+    }
+    function mdNavGetObMonthState() {
+        var key = mdNavCurrentDateKey();
+        var p = window.OmsMockStore && window.OmsMockStore.dateToParts
+            ? window.OmsMockStore.dateToParts(key)
+            : { year: +key.slice(0, 4), month: +key.slice(5, 7), day: +key.slice(8, 10) };
+        var saved = window.OmsMockStore && window.OmsMockStore.getObMonth
+            ? window.OmsMockStore.getObMonth(p.year, p.month)
+            : null;
+        if (saved && Array.isArray(saved.sampleRows) && saved.cellData) return { state: saved, day: p.day };
+        if (window.OmsMockOrdersData && window.OmsMockOrdersData.buildMonthState) {
+            return {
+                state: window.OmsMockOrdersData.buildMonthState(
+                    p.year,
+                    p.month,
+                    (window.OmsMockStore && window.OmsMockStore.getDemoToday && window.OmsMockStore.getDemoToday()) || key
+                ),
+                day: p.day
+            };
         }
-    };
+        return { state: null, day: p.day };
+    }
+    function mdNavNormalizeEntries(value) {
+        if (!value) return [];
+        return Array.isArray(value) ? value.filter(Boolean) : [value];
+    }
+    function mdNavFindObDemoEntries(limit) {
+        var data = mdNavGetObMonthState();
+        var state = data.state;
+        var out = [];
+        if (!state || !Array.isArray(state.sampleRows) || !state.cellData) return out;
+        function pushForDay(day) {
+            state.sampleRows.forEach(function (row, ri) {
+                if (!row || row.hidden || out.length >= limit) return;
+                mdNavNormalizeEntries(state.cellData[ri] && state.cellData[ri][day]).forEach(function (entry, si) {
+                    if (out.length >= limit) return;
+                    out.push({ row: row, rowIndex: ri, day: day, entry: entry, subIndex: si });
+                });
+            });
+        }
+        pushForDay(data.day);
+        if (out.length < limit) {
+            Object.keys(state.cellData || {}).forEach(function (ri) {
+                Object.keys(state.cellData[ri] || {}).forEach(function (day) {
+                    if (out.length >= limit) return;
+                    mdNavNormalizeEntries(state.cellData[ri][day]).forEach(function (entry, si) {
+                        if (out.length >= limit) return;
+                        out.push({ row: state.sampleRows[ri], rowIndex: +ri, day: +day, entry: entry, subIndex: si });
+                    });
+                });
+            });
+        }
+        return out;
+    }
+    function mdNavGetLeaveApplications() {
+        var leaves = window.OmsMockStore && window.OmsMockStore.getLeaveApplications
+            ? window.OmsMockStore.getLeaveApplications()
+            : null;
+        return Array.isArray(leaves) ? leaves : [];
+    }
+    function mdNavEmployeeNameById(id) {
+        var m = String(id || '').match(/^emp-(\d+)$/);
+        var employees = mdNavGetEmployees();
+        var idx = m ? parseInt(m[1], 10) - 1 : -1;
+        return employees[idx] ? employees[idx].name : (id || '');
+    }
+    function mdNavBuildBellItems() {
+        var today = mdNavDemoTodayLabel();
+        var obEntries = mdNavFindObDemoEntries(3);
+        var employees = mdNavGetEmployees();
+        var vehicles = mdNavGetVehicles();
+        var leaves = mdNavGetLeaveApplications();
+        var pendingLeaves = leaves.filter(function (lv) { return lv && lv.status === 'pending'; });
+        var approvedLeave = leaves.find(function (lv) { return lv && lv.status === 'approved'; });
+        var rejectedLeave = leaves.find(function (lv) { return lv && lv.status === 'rejected'; });
+        var firstOb = obEntries[0];
+        var secondOb = obEntries[1] || firstOb;
+        var siteLabel = firstOb && firstOb.row ? ((firstOb.row.company || '') + ' / ' + (firstOb.entry.dailyTaskName || firstOb.row.task || '')).replace(/^ \/ /, '') : '';
+        var employee = employees[0] || { name: '社員', company: '' };
+        var vehicle = vehicles[0] || {};
+        var masterSite = firstOb && firstOb.row ? (firstOb.entry.dailyTaskName || firstOb.row.task || '') : '';
+        var items = { ob: [], sl: [], ws: [], la: [], pending: [], vehicle: [], master: [] };
+
+        obEntries.forEach(function (hit, idx) {
+            var row = hit.row || {};
+            var entry = hit.entry || {};
+            var op = idx === 0 ? 'add' : (idx === 1 ? 'modify' : 'delete');
+            items.ob.push({
+                scope: 'site',
+                op: op,
+                main: (row.company || '契約先') + ' / ' + (entry.dailyTaskName || row.task || '受注') + '(' + hit.day + '日) の受注' + (op === 'add' ? '追加' : op === 'delete' ? '削除' : '変更'),
+                sub: '共通モックデータ ・ ' + today,
+                date: idx === 2 ? '昨日' : today,
+                expand: '人数: ' + (entry.count || 0) + '名 / シフト: ' + (row.shift || ''),
+                affects: ['order-book', 'screen-layout', 'weekly-schedule'],
+                target: row._rowId != null ? { axis: 'orderId', value: row._rowId } : null
+            });
+        });
+
+        if (firstOb) {
+            items.sl.push({
+                scope: 'site', op: 'add',
+                main: siteLabel + ' の受注を追加',
+                sub: '共通モックデータ ・ ' + today,
+                date: today,
+                expand: 'OB共通データからSL行へ反映',
+                affects: ['screen-layout', 'order-book', 'weekly-schedule'],
+                target: { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' }
+            });
+            items.sl.push({
+                scope: 'employee', op: 'place', color: 'secondary',
+                main: (firstOb.entry.dailyTaskName || firstOb.row.task || '現場') + ' に ' + employee.name + ' を配置',
+                sub: employee.company + ' ・ ' + today,
+                date: today,
+                affects: ['screen-layout', 'weekly-schedule'],
+                target: { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' }
+            });
+            items.ws.push({
+                scope: 'schedule', op: 'add',
+                main: (firstOb.entry.dailyTaskName || firstOb.row.task || '現場') + '(' + mdNavDayLabel(mdNavCurrentDateKey()) + ') に ' + employee.name + ' を配置',
+                sub: '共通モックデータ ・ ' + today,
+                date: today,
+                expand: '受注人数: ' + (firstOb.entry.count || 0) + '名',
+                affects: ['weekly-schedule', 'screen-layout']
+            });
+        }
+        if (secondOb && vehicles.length > 0) {
+            items.sl.push({
+                scope: 'vehicle', op: 'place',
+                main: (secondOb.entry.dailyTaskName || secondOb.row.task || '現場') + ' に ' + (vehicle.plate || vehicle.model || '車両') + ' を配置',
+                sub: (vehicle.model || '車両') + ' ・ ' + today,
+                date: today,
+                affects: ['screen-layout', 'weekly-schedule'],
+                target: { axis: 'siteName', value: secondOb.entry.dailyTaskName || secondOb.row.task || '' }
+            });
+            items.vehicle.push({
+                scope: 'vehicle', op: 'modify',
+                main: (vehicle.plate || vehicle.model || '車両') + ' の車両予定を更新',
+                sub: (vehicle.model || '共通車両データ') + ' ・ ' + today,
+                date: today,
+                expand: '車両マスタ: ' + (vehicle.owner || '') + ' / ' + (vehicle.model || ''),
+                affects: ['screen-layout', 'weekly-schedule']
+            });
+        }
+
+        [pendingLeaves[0], approvedLeave, rejectedLeave].filter(Boolean).forEach(function (lv) {
+            var op = lv.status === 'approved' ? 'approve' : (lv.status === 'rejected' ? 'reject' : 'add');
+            items.la.push({
+                scope: 'application',
+                op: op,
+                main: mdNavEmployeeNameById(lv.employeeId) + ' の ' + mdNavDayLabel(lv.date) + ' 休暇申請を' + (op === 'add' ? '追加' : op === 'approve' ? '承認' : '却下'),
+                sub: lv.status + ' ・ ' + today,
+                date: today,
+                expand: lv.reason ? '理由: ' + lv.reason : '',
+                affects: ['leave-application', 'weekly-schedule'],
+                target: { axis: 'leaveId', value: String(lv.id) }
+            });
+        });
+        if (pendingLeaves.length > 0) {
+            items.pending.push({
+                scope: 'application',
+                op: 'add',
+                main: 'DCP承認待ち: ' + pendingLeaves.length + '件',
+                sub: mdNavEmployeeNameById(pendingLeaves[0].employeeId) + ' / ' + mdNavDayLabel(pendingLeaves[0].date),
+                date: today,
+                expand: '共通休暇申請データの pending 件数',
+                affects: ['leave-application'],
+                target: { axis: 'leaveId', value: String(pendingLeaves[0].id) }
+            });
+        }
+
+        if (masterSite) {
+            items.master.push({
+                type: 'add',
+                slot: 'type-master-add',
+                main: '現場マスタに ' + masterSite + ' を追加',
+                sub: '共通受注データ ・ ' + today,
+                date: today,
+                affects: ['order-book', 'screen-layout', 'weekly-schedule']
+            });
+        }
+        if (employees.length > 0) {
+            items.master.push({
+                type: 'modify',
+                slot: 'type-master-modify',
+                main: '社員マスタで ' + employee.name + ' の所属を確認',
+                sub: (employee.company || '所属未設定') + ' ・ ' + today,
+                date: today,
+                expand: '社員データ: ' + (employee.dept || '') + ' / ' + (employee.role || ''),
+                affects: ['screen-layout', 'weekly-schedule', 'leave-application']
+            });
+        }
+        return items;
+    }
+    function mdNavGroupItems(title, items) {
+        return [{ title: title, items: (items || []).filter(Boolean) }];
+    }
+    function mdNavBuildHistoryForItems(kind, title, items, opts) {
+        opts = opts || {};
+        var safeItems = (items || []).filter(Boolean);
+        if (safeItems.length === 0) return null;
+        return {
+            businessAxis: {
+                tab: opts.businessTab || '対象',
+                search: (opts.businessPrefix || '対象') + 'で検索...',
+                prefix: opts.businessPrefix || '対象',
+                groups: mdNavGroupItems(title, safeItems),
+                companies: [title],
+                sites: {}
+            },
+            accountAxis: {
+                tab: 'アカウント',
+                search: 'アカウント名で検索...',
+                prefix: 'アカウント',
+                groups: mdNavGroupItems('共通モックデータ', safeItems),
+                accounts: ['共通モックデータ']
+            }
+        };
+    }
+    function mdNavBuildBellHistory(items) {
+        return {
+            ob: mdNavBuildHistoryForItems('ob', '受注データ', items.ob, { businessTab: '契約先/現場', businessPrefix: '現場' }),
+            sl: mdNavBuildHistoryForItems('sl', '配置データ', items.sl, { businessTab: '現場', businessPrefix: '現場' }),
+            ws: mdNavBuildHistoryForItems('ws', '週間予定データ', items.ws, { businessTab: '現場', businessPrefix: '現場' }),
+            la: mdNavBuildHistoryForItems('la', '休暇申請データ', items.la, { businessTab: '申請者', businessPrefix: '申請者' }),
+            pending: mdNavBuildHistoryForItems('pending', '承認待ち', items.pending, { businessTab: '申請者', businessPrefix: '申請者' }),
+            vehicle: mdNavBuildHistoryForItems('vehicle', '車両データ', items.vehicle, { businessTab: '車両', businessPrefix: '車両' }),
+            master: mdNavBuildHistoryForItems('master', 'マスタデータ', items.master, { businessTab: 'マスタ種別', businessPrefix: '種別' })
+        };
+    }
+    var mdNavCnBellItems = mdNavBuildBellItems();
+    var mdNavCnBellHistory = mdNavBuildBellHistory(mdNavCnBellItems);
 
     // --- GCフィルタモーダル ---
     html += ''

@@ -4392,32 +4392,67 @@ function obCnTodayLabel() {
 function obCnSeedInitialDemo() {
     if (!window.coNotifyPanel || typeof window.coNotifyPanel.setItems !== 'function') return;
     var today = obCnTodayLabel();
-    window.coNotifyPanel.setItems('ob', [
-        {
-            scope: 'row', op: 'add',
-            main: '東央警備 / 渋谷駅前ビル新築工事 行を追加',
-            sub: '田中 太郎 ・ 09:14',
-            date: today,
-            expand: '新規受注: 警備員2名 / 08:00〜17:00 / 契約先=東央警備',
-            affects: ['order-book', 'screen-layout', 'weekly-schedule']
-        },
-        {
-            scope: 'site', op: 'modify',
-            main: 'Nikkei / 大手町オフィスビル(15日) の受注変更',
-            sub: '佐藤 花子 ・ 11:30',
-            date: today,
-            expand: '人数: 1名 → 2名 / 開始時間: 09:00 → 08:00',
-            affects: ['order-book', 'screen-layout', 'weekly-schedule']
-        },
-        {
-            scope: 'site', op: 'delete',
-            main: '全日本警備 / 新宿駅前イベント(20日) の受注削除',
-            sub: '山田 次郎 ・ 昨日 17:45',
-            date: '昨日',
-            expand: 'キャンセル: 顧客都合により受注取消',
-            affects: ['order-book', 'screen-layout', 'weekly-schedule']
+    var hits = [];
+    var currentDay = obGetDemoTodayDate().getDate();
+    function pushEntriesForDay(day) {
+        sampleRows.forEach(function (row, ri) {
+            if (!row || row.hidden || hits.length >= 3) return;
+            getCellEntries(ri, day).forEach(function (entry, si) {
+                if (hits.length >= 3) return;
+                hits.push({ row: row, rowIndex: ri, day: day, entry: entry, subIndex: si });
+            });
+        });
+    }
+    pushEntriesForDay(currentDay);
+    if (hits.length < 3) {
+        Object.keys(cellData || {}).forEach(function (ri) {
+            Object.keys(cellData[ri] || {}).forEach(function (day) {
+                if (hits.length >= 3) return;
+                getCellEntries(+ri, +day).forEach(function (entry, si) {
+                    if (hits.length >= 3) return;
+                    var row = sampleRows[+ri];
+                    if (row && !row.hidden) hits.push({ row: row, rowIndex: +ri, day: +day, entry: entry, subIndex: si });
+                });
+            });
+        });
+    }
+
+    var ops = ['add', 'modify', 'delete'];
+    var items = hits.map(function (hit, idx) {
+        var row = hit.row || {};
+        var entry = hit.entry || {};
+        var op = ops[idx] || 'modify';
+        var taskLabel = entry.dailyTaskName || row.task || '受注';
+        var opLabel = op === 'add' ? '追加' : (op === 'delete' ? '削除' : '変更');
+        return {
+            scope: 'site',
+            op: op,
+            main: (row.company || '契約先') + ' / ' + taskLabel + '(' + hit.day + '日) の受注' + opLabel,
+            sub: obCurrentUser + ' ・ ' + (idx === 2 ? '昨日' : obCnTimeNow()),
+            date: idx === 2 ? '昨日' : today,
+            expand: '人数: ' + (entry.count || 0) + '名 / シフト: ' + (row.shift || '') +
+                (entry.startTime || entry.endTime ? ' / 時間: ' + (entry.startTime || '') + '〜' + (entry.endTime || '') : ''),
+            affects: ['order-book', 'screen-layout', 'weekly-schedule'],
+            target: row._rowId != null ? { axis: 'orderId', value: row._rowId } : null
+        };
+    });
+
+    if (items.length === 0) {
+        var row = sampleRows.find(function (r) { return r && !r.hidden; });
+        if (row) {
+            items.push({
+                scope: 'row',
+                op: 'add',
+                main: (row.company || '契約先') + ' / ' + (row.task || '業務') + ' 行を追加',
+                sub: obCurrentUser + ' ・ ' + obCnTimeNow(),
+                date: today,
+                expand: '共通受注データから生成',
+                affects: ['order-book', 'screen-layout', 'weekly-schedule'],
+                target: row._rowId != null ? { axis: 'orderId', value: row._rowId } : null
+            });
         }
-    ]);
+    }
+    window.coNotifyPanel.setItems('ob', items);
 }
 
 // --- 初期化 ---

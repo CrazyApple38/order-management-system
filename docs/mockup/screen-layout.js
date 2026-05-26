@@ -5095,35 +5095,48 @@
         function slCnSeedInitialDemo() {
             if (!window.coNotifyPanel || typeof window.coNotifyPanel.setItems !== 'function') return;
             var today = slCnTodayLabel();
-            window.coNotifyPanel.setItems('sl', [
-                {
-                    scope: 'site', op: 'add',
-                    main: '東央警備 / 渋谷駅前ビル の受注を追加',
-                    sub: '鈴木（受注担当） ・ 09:42',
+            var rows = Array.prototype.slice.call(document.querySelectorAll('.grid-table tbody tr'))
+                .filter(function (row) {
+                    var info = cnGetRowInfo(row);
+                    return info && info.siteName;
+                });
+            var items = [];
+            rows.slice(0, 2).forEach(function (row, idx) {
+                var info = cnGetRowInfo(row);
+                var countText = (row.querySelector('.count-display') || {}).textContent || '';
+                items.push({
+                    scope: 'site',
+                    op: idx === 0 ? 'add' : 'modify',
+                    main: (info.company ? info.company + ' / ' : '') + info.siteName +
+                        (idx === 0 ? ' の受注を追加' : ' の受注メタ情報を変更'),
+                    sub: '共通モックデータ ・ ' + today,
                     date: today,
-                    expand: '区分: 施設 / シフト: 昼',
+                    expand: '区分: ' + (info.category || '') + ' / シフト: ' + (info.shift || '') +
+                        (countText ? ' / 人数: ' + countText : ''),
                     affects: ['screen-layout', 'weekly-schedule', 'order-book'],
-                    target: { axis: 'siteName', value: '渋谷駅前ビル' }
-                },
-                {
-                    scope: 'site', op: 'modify',
-                    main: '〇〇会館 展示会（昼） の 人数 を変更',
-                    sub: '伊藤（配車担当） ・ 10:08',
+                    target: { axis: 'siteName', value: info.siteName }
+                });
+            });
+
+            var assigned = document.querySelector('.grid-table tbody tr .assignment-zone .assigned-employee');
+            var assignedRow = assigned ? assigned.closest('tr') : rows[0];
+            if (assignedRow) {
+                var assignedInfo = cnGetRowInfo(assignedRow);
+                var assignedNameEl = assigned ? assigned.querySelector('.employee-name-block span') : null;
+                var empName = assignedNameEl ? assignedNameEl.textContent.trim() :
+                    ((typeof employeesData !== 'undefined' && employeesData[0]) ? employeesData[0].name : '社員');
+                items.push({
+                    scope: 'employee',
+                    op: 'place',
+                    color: 'secondary',
+                    main: (assignedInfo.siteName || '現場') + '（' + (assignedInfo.shift || '') + '） に ' + empName + ' を配置',
+                    sub: '共通社員データ ・ ' + today,
                     date: today,
-                    expand: '人数: 1/2 → 3/2',
-                    affects: ['screen-layout', 'order-book'],
-                    target: { axis: 'siteName', value: '〇〇会館 展示会' }
-                },
-                {
-                    scope: 'employee', op: 'place', color: 'secondary',
-                    main: '国道〇号線 舗装工事（昼） に 田中 一郎 を配置',
-                    sub: '山田（現場管理） ・ 10:33',
-                    date: today,
-                    expand: '',
                     affects: ['screen-layout', 'weekly-schedule'],
-                    target: { axis: 'siteName', value: '国道〇号線 舗装工事' }
-                }
-            ]);
+                    target: assignedInfo.siteName ? { axis: 'siteName', value: assignedInfo.siteName } : null
+                });
+            }
+            window.coNotifyPanel.setItems('sl', items);
         }
 
         function cnCreateRow(d) {

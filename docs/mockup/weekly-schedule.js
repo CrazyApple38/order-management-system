@@ -5472,32 +5472,54 @@
     function wsCnSeedInitialDemo() {
         if (!window.coNotifyPanel || typeof window.coNotifyPanel.setItems !== 'function') return;
         var today = wsCnTodayLabel();
-        window.coNotifyPanel.setItems('ws', [
-            {
-                scope: 'schedule', op: 'add',
-                main: '渋谷駅前ビル新築工事(10日) [昼] に 田中 太郎 を配置',
-                sub: '佐藤 花子 ・ 09:30',
+        var items = [];
+        var assignmentHits = [];
+        Object.keys(assignments || {}).forEach(function (empIdx) {
+            Object.keys(assignments[empIdx] || {}).forEach(function (dateKey) {
+                Object.keys(assignments[empIdx][dateKey] || {}).forEach(function (shift) {
+                    (assignments[empIdx][dateKey][shift] || []).forEach(function (siteId) {
+                        if (assignmentHits.length < 2) {
+                            assignmentHits.push({ empIdx: +empIdx, dateKey: dateKey, shift: shift, siteId: siteId });
+                        }
+                    });
+                });
+            });
+        });
+        assignmentHits.forEach(function (hit, idx) {
+            var emp = employeesData[hit.empIdx] || {};
+            var site = findSite(hit.siteId) || {};
+            items.push({
+                scope: 'schedule',
+                op: idx === 0 ? 'add' : 'modify',
+                main: (site.name || hit.siteId) + '(' + wsCnGetDayLabel(hit.dateKey) + ') [' + wsCnShiftLabel(hit.shift) + '] に ' + (emp.name || '社員') + (idx === 0 ? ' を配置' : ' を移動'),
+                sub: '共通週間予定データ ・ ' + today,
                 date: today,
-                expand: '社員配置: 田中 太郎 (touo)',
-                affects: ['weekly-schedule', 'screen-layout']
-            },
-            {
-                scope: 'schedule', op: 'modify',
-                main: '大手町オフィスビル(15日) [昼] → 大手町オフィスビル(15日) [夜] に 佐藤 花子 を移動',
-                sub: '山田 次郎 ・ 11:45',
-                date: today,
-                expand: 'シフト: 昼 → 夜',
-                affects: ['weekly-schedule', 'screen-layout']
-            },
-            {
-                scope: 'reservation', op: 'add',
-                main: 'A社① の 12日 予約を追加(3名)',
-                sub: '田中 太郎 ・ 14:20',
-                date: today,
-                expand: '協力業者 A社① (touo) / フレックス 3名',
-                affects: ['weekly-schedule', 'screen-layout']
-            }
-        ]);
+                expand: '社員: ' + (emp.name || '') + ' / 所属: ' + (emp.company || '') + ' / 現場: ' + (site.company || ''),
+                affects: ['weekly-schedule', 'screen-layout'],
+                target: { axis: 'wsCell', value: hit.siteId, date: hit.dateKey, shift: hit.shift, op: idx === 0 ? 'add' : 'modify' }
+            });
+        });
+
+        var reservationItem = null;
+        Object.keys(supportReservations || {}).some(function (partnerId) {
+            var partner = supportPartners.find(function (p) { return p.id === partnerId; });
+            return Object.keys(supportReservations[partnerId] || {}).some(function (dateKey) {
+                var count = getReservedCount(partnerId, dateKey);
+                if (count <= 0) return false;
+                reservationItem = {
+                    scope: 'reservation',
+                    op: 'add',
+                    main: (partner ? partner.shortName : partnerId) + ' の ' + wsCnGetDayLabel(dateKey) + ' 予約を追加(' + count + '名)',
+                    sub: '共通応援予約データ ・ ' + today,
+                    date: today,
+                    expand: '協力業者: ' + (partner ? (partner.formalName || partner.shortName) : partnerId) + ' / フレックス ' + count + '名',
+                    affects: ['weekly-schedule', 'screen-layout']
+                };
+                return true;
+            });
+        });
+        if (reservationItem) items.push(reservationItem);
+        window.coNotifyPanel.setItems('ws', items);
     }
 
     // セル明滅ハイライト（cn:jump 着地用 / 旧版から流用）
