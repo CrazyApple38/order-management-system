@@ -20,6 +20,7 @@
             activeTab: 'all',
             expandedCompanies: new Set(),
             mainTab: 'employee',
+            sidebarSection: 'employee',
             supportGc: 'all'
         };
 
@@ -159,9 +160,36 @@
         }
 
         function slRowShiftKey(row) {
-            const badge = row ? row.querySelector('.shift-badge') : null;
-            if (!badge) return 'day';
-            return badge.textContent.trim() === '夜' ? 'night' : 'day';
+            return slGetRowShiftLabel(row) === '夜' ? 'night' : 'day';
+        }
+
+        function slGetRowShiftLabel(row) {
+            if (!row) return '';
+            if (row.dataset.shiftLabel) return row.dataset.shiftLabel;
+            const badge = row.querySelector('.shift-badge');
+            if (badge) return badge.textContent.trim();
+            return row.classList.contains('row-night') ? '夜' : '';
+        }
+
+        function slGetRowShiftClass(row) {
+            if (!row) return '';
+            if (row.dataset.shiftClass) return row.dataset.shiftClass;
+            const badge = row.querySelector('.shift-badge');
+            if (badge && badge.classList.contains('shift-night')) return 'shift-night';
+            if (badge && badge.classList.contains('shift-day')) return 'shift-day';
+            return slGetRowShiftLabel(row) === '夜' ? 'shift-night' : 'shift-day';
+        }
+
+        function slSetRowShift(row, shift, shiftClass) {
+            if (!row) return;
+            if (shift) row.dataset.shiftLabel = shift;
+            else delete row.dataset.shiftLabel;
+            if (shiftClass) row.dataset.shiftClass = shiftClass;
+            else delete row.dataset.shiftClass;
+            row.querySelectorAll('.site-info .shift-badge').forEach(function(badge) {
+                badge.remove();
+            });
+            slApplyNightRowClass(row);
         }
 
         function slGetRowKey(row) {
@@ -362,6 +390,23 @@
             };
         }
 
+        function slApplyNightRowClass(row) {
+            if (!row) return;
+            const shift = slGetRowShiftLabel(row);
+            const shiftClass = slGetRowShiftClass(row);
+            if (shift) row.dataset.shiftLabel = shift;
+            if (shiftClass) row.dataset.shiftClass = shiftClass;
+            row.querySelectorAll('.site-info .shift-badge').forEach(function(badge) {
+                badge.remove();
+            });
+            const isNight = shift === '夜' || shiftClass === 'shift-night';
+            row.classList.toggle('row-night', isNight);
+        }
+
+        function slApplyNightRowClasses() {
+            document.querySelectorAll('.grid-table tbody tr').forEach(slApplyNightRowClass);
+        }
+
         function restoreGridState(snapshot) {
             const tbody = document.querySelector('.grid-table tbody');
             if (tbody) tbody.innerHTML = snapshot.tbodyHTML;
@@ -390,6 +435,7 @@
                 Object.assign(slSupportAssignments, JSON.parse(JSON.stringify(snapshot.slSupportAssignments)));
             }
             selectedGridRow = null;
+            slApplyNightRowClasses();
             document.querySelectorAll('.assigned-employee').forEach(makeAssignedEmployeeDraggable);
             document.querySelectorAll('.vehicle-tag').forEach(makeAssignedVehicleDraggable);
             document.querySelectorAll('.etc-tag').forEach(makeAssignedEtcDraggable);
@@ -1233,8 +1279,7 @@
             }
             const categoryBadge = cell.querySelector('.category-badge');
             const categoryName = categoryBadge ? categoryBadge.textContent.trim() : null;
-            const shiftBadge = cell.querySelector('.shift-badge');
-            const shiftName = shiftBadge ? shiftBadge.textContent.trim() : null;
+            const shiftName = row ? slGetRowShiftLabel(row) : null;
 
             smChipSelected = { branch: branchName, category: categoryName, shift: shiftName };
             smRenderChips('smBranchChips', branchList, branchName, 'branch');
@@ -1423,25 +1468,13 @@
                     }
                 }
 
-                // --- 昼夜バッジ ---
-                let shiftEl = badges.querySelector('.shift-badge');
+                // --- 昼夜情報（バッジは表示しない） ---
+                badges.querySelectorAll('.shift-badge').forEach(function(el) { el.remove(); });
                 if (shift) {
-                    if (!shiftEl) {
-                        shiftEl = document.createElement('span');
-                        shiftEl.className = 'shift-badge';
-                        badges.insertBefore(shiftEl, badges.firstChild);
-                    }
-                    shiftEl.textContent = shift;
-                    shiftEl.classList.remove('shift-day', 'shift-night');
                     const shiftCls = smShiftClassMap[shift];
-                    if (shiftCls) shiftEl.classList.add(shiftCls);
-                    // 行背景連動
-                    if (row) {
-                        if (shift === '夜') row.classList.add('row-night');
-                        else row.classList.remove('row-night');
-                    }
-                } else if (shiftEl) {
-                    shiftEl.remove();
+                    slSetRowShift(row, shift, shiftCls || '');
+                } else {
+                    slSetRowShift(row, '', '');
                 }
 
                 // --- 区分バッジ ---
@@ -2566,16 +2599,16 @@
             content.innerHTML = contentHtml;
 
             // ヘッダーのカウント更新
-            const countEl = document.querySelector('.md-sp-employee-count');
-            if (countEl) {
-                const total = employeesData.filter(function(emp) {
-                    if (emp.hidden) return false;
-                    return visibleCompanies.some(function(gc) { return gc.code === emp.company; });
-                }).length;
-                countEl.textContent = spState.activeTab === 'all'
-                    ? '全' + total + '名'
-                    : filtered.length + '/' + total + '名';
-            }
+            const total = employeesData.filter(function(emp) {
+                if (emp.hidden) return false;
+                return visibleCompanies.some(function(gc) { return gc.code === emp.company; });
+            }).length;
+            const countText = spState.activeTab === 'all'
+                ? '全' + total + '名'
+                : filtered.length + '/' + total + '名';
+            document.querySelectorAll('.md-sp-employee-count').forEach(function(countEl) {
+                countEl.textContent = countText;
+            });
 
             // dragendリスナー再登録
             content.querySelectorAll('.employee-tag').forEach(function(tag) {
@@ -2607,6 +2640,35 @@
             renderSidePanel();
         }
 
+        function spApplyAccordionState() {
+            var section = spState.sidebarSection === 'support' ? 'support' : 'employee';
+            [
+                { key: 'employee', rootId: 'spEmployeeAccordion' },
+                { key: 'support', rootId: 'spSupportPanel' }
+            ].forEach(function(item) {
+                var root = document.getElementById(item.rootId);
+                if (!root) return;
+                var expanded = item.key === section;
+                root.classList.toggle('is-expanded', expanded);
+                root.classList.toggle('is-collapsed', !expanded);
+                var toggle = root.querySelector('.md-sp-accordion-toggle');
+                if (toggle) toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            });
+        }
+
+        function spSetAccordion(section) {
+            var requested = section === 'support' ? 'support' : 'employee';
+            spState.sidebarSection = spState.sidebarSection === requested
+                ? (requested === 'support' ? 'employee' : 'support')
+                : requested;
+            spApplyAccordionState();
+            if (spState.sidebarSection === 'support') {
+                renderSupportPanel();
+            } else {
+                renderSidePanel();
+            }
+        }
+
         // ===== メインタブ切替（社員/車両） =====
         function spSwitchMainTab(tab) {
             if (tab !== 'vehicle') tab = 'employee';
@@ -2621,6 +2683,7 @@
             if (tab === 'employee') {
                 empPanel.style.display = '';
                 vehPanel.style.display = 'none';
+                spApplyAccordionState();
                 renderSidePanel();
                 renderSupportPanel();
             } else if (tab === 'vehicle') {
@@ -2854,13 +2917,12 @@
                 content.appendChild(section);
             });
 
-            const countEl = document.querySelector('.md-sp-support-count');
-            if (countEl) {
-                const total = slSupportPartners.filter(function(p) {
-                    return !p.isPreset && p.isActive && slGetReservedCount(p.id, dk) > 0;
-                }).length;
+            const total = slSupportPartners.filter(function(p) {
+                return !p.isPreset && p.isActive && slGetReservedCount(p.id, dk) > 0;
+            }).length;
+            document.querySelectorAll('.md-sp-support-count').forEach(function(countEl) {
                 countEl.textContent = '予約' + total + '件';
-            }
+            });
         }
 
         function slOpenSupportModal(title, body, actions) {
@@ -3538,13 +3600,12 @@
             tbody.querySelectorAll('.assignment-zone .assigned-employee').forEach(function(el) {
                 var tr = el.closest('tr');
                 if (!tr || tr.dataset.fixed === 'true') return;
-                var shiftBadge = tr.querySelector('.shift-badge');
-                if (!shiftBadge) return;
+                var shiftKey = slRowShiftKey(tr);
                 var name = getEmployeeName(el);
                 if (!name) return;
                 if (!empState[name]) empState[name] = { hasDay: false, hasNight: false };
-                if (shiftBadge.classList.contains('shift-day'))   empState[name].hasDay = true;
-                if (shiftBadge.classList.contains('shift-night')) empState[name].hasNight = true;
+                if (shiftKey === 'day') empState[name].hasDay = true;
+                if (shiftKey === 'night') empState[name].hasNight = true;
             });
 
             // Step 2: 各 .assigned-employee の name-block を再構築
@@ -3553,8 +3614,7 @@
                 if (!tr || tr.dataset.fixed === 'true') return;
                 var nameBlock = el.querySelector('.employee-name-block');
                 if (!nameBlock) return;
-                var shiftBadge = tr.querySelector('.shift-badge');
-                if (!shiftBadge) return;
+                var shiftKey = slRowShiftKey(tr);
 
                 var name = getEmployeeName(el);
                 if (!name) return;
@@ -3562,8 +3622,8 @@
                     ? employeesData.find(function(e) { return e.name === name; }) : null;
                 var workedPrevNight = !!(emp && emp.workedPrevNight);
                 var state = empState[name] || { hasDay: false, hasNight: false };
-                var isDay   = shiftBadge.classList.contains('shift-day');
-                var isNight = shiftBadge.classList.contains('shift-night');
+                var isDay = shiftKey === 'day';
+                var isNight = shiftKey === 'night';
 
                 var needsAbove = false, needsBelow = false;
                 if (isDay) {
@@ -3650,8 +3710,7 @@
                 if (row.style.display === 'none') return;
                 if (row.classList.contains('md-row-fixed-off-unapproved')) return;
 
-                var shiftBadge = row.querySelector('.shift-badge');
-                var shift = shiftBadge ? shiftBadge.textContent.trim() : '';
+                var shift = slGetRowShiftLabel(row);
                 var shiftClass = shift === '夜' ? 'shift-night' : 'shift-day';
 
                 var companyEl = row.querySelector('.site-info .company');
@@ -3756,8 +3815,7 @@
         function getRowShift(zone) {
             var row = zone.closest('tr');
             if (!row) return null;
-            var badge = row.querySelector('.shift-badge');
-            return badge ? badge.textContent.trim() : null;
+            return slGetRowShiftLabel(row) || null;
         }
 
         // 同一シフト帯に同名社員が既に配置されているか判定
@@ -4634,14 +4692,13 @@
 
         function extractRowData(row) {
             const categoryBadge = row.querySelector('.category-badge');
-            const shiftBadge = row.querySelector('.shift-badge');
             const company = row.querySelector('.site-info .company');
             const siteName = row.querySelector('.site-info .site-name');
             const siteCell = row.querySelector('[data-gc-name]');
             return {
                 company: siteCell ? (siteCell.getAttribute('data-gc-name') || '') : '',
                 category: categoryBadge ? categoryBadge.textContent.trim() : '',
-                shift: shiftBadge ? shiftBadge.textContent.trim() : '',
+                shift: slGetRowShiftLabel(row),
                 contractor: company ? company.textContent.trim() : '',
                 site: siteName ? siteName.textContent.trim() : ''
             };
@@ -4885,12 +4942,11 @@
             var siteCell = row.querySelector('.col-site-info');
             var sn = row.querySelector('.site-name');
             var catBadge = siteCell ? siteCell.querySelector('.category-badge') : null;
-            var shiftBadge = siteCell ? siteCell.querySelector('.shift-badge') : null;
             var companyEl = siteCell ? siteCell.querySelector('.company') : null;
             return {
                 siteName: sn ? sn.textContent.trim() : '',
                 category: catBadge ? catBadge.textContent.trim() : '',
-                shift: shiftBadge ? shiftBadge.textContent.trim() : '',
+                shift: slGetRowShiftLabel(row),
                 company: companyEl ? companyEl.textContent.trim() : '',
                 gcCode: siteCell ? (siteCell.getAttribute('data-group-company') || '') : '',
                 gcName: siteCell ? (siteCell.getAttribute('data-gc-name') || '') : ''
@@ -5067,14 +5123,17 @@
 
         function cnCreateRow(d) {
             var tr = document.createElement('tr');
-            tr.className = d.gcClass;
+            var isNight = d.shiftLabel === '夜' || String(d.shiftClass || '').indexOf('shift-night') >= 0;
+            tr.className = (d.gcClass || '') + (isNight ? ' row-night' : '');
+            tr.className = tr.className.trim();
+            tr.dataset.shiftLabel = d.shiftLabel || '';
+            tr.dataset.shiftClass = d.shiftClass || '';
             tr.setAttribute('onclick', 'selectRow(this, event)');
             var countClass = d.shortage ? 'count-display count-shortage' : 'count-display count-ok';
             tr.innerHTML =
                 '<td class="col-no">' + d.no + '</td>' +
                 '<td class="col-site-info clickable-cell"' + (d.gcCode ? ' data-group-company="' + d.gcCode + '" data-gc-name="' + (d.gcName || '') + '"' : '') + ' onclick="openSiteModal(this)">' +
                   '<div class="site-info"><div class="site-badges">' +
-                    '<span class="shift-badge ' + d.shiftClass + '">' + d.shiftLabel + '</span>' +
                     '<span class="category-badge ' + d.categoryClass + '">' + d.categoryLabel + '</span>' +
                   '</div><div class="site-details">' +
                     '<div class="company">' + d.company + '</div>' +
@@ -5097,19 +5156,6 @@
                 '<td class="col-vt"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div><div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div></div></td>' +
                 '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"></td>';
             return tr;
-        }
-
-        // --- フッター詳細情報 折りたたみ ---
-        function toggleFooterDetails() {
-            var content = document.getElementById('footerDetailsContent');
-            var icon = document.querySelector('.footer-toggle-icon');
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                icon.classList.add('open');
-            } else {
-                content.style.display = 'none';
-                icon.classList.remove('open');
-            }
         }
 
         // --- カスタム時間ピッカー（10分刻み） ---

@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=10">
     <link rel="stylesheet" href="mockup/co-company-input.css">
-    <link rel="stylesheet" href="mockup/screen-layout.css?v=19">
+    <link rel="stylesheet" href="mockup/screen-layout.css?v=22">
     <link rel="stylesheet" href="mockup/print-touo-nikkei.css?v=8">
 </head>
 <body>
@@ -197,27 +197,40 @@
                 </div>
                 <!-- 社員パネル -->
                 <div class="md-sp-main-panel" id="spEmployeePanel">
-                    <div class="side-panel-search">
-                        <input type="text" class="md-fi-input" id="spSearchInput" placeholder="社員検索...">
-                        <button type="button" class="sp-edit-btn" onclick="openStaffEditModal()" title="社員リスト編集">
-                            <img src="assets/icons/business/im-12032-shimpuru-na-shomei-keiyaku.svg" alt="編集" class="sp-edit-icon">
+                    <div class="md-sp-accordion md-sp-accordion--employee is-expanded" id="spEmployeeAccordion">
+                        <button type="button" class="md-sp-accordion-toggle" onclick="spSetAccordion('employee')" aria-expanded="true" aria-controls="spEmployeeAccordionBody">
+                            <span>社員リスト</span>
+                            <span class="md-sp-employee-count">全17名</span>
                         </button>
-                        <button type="button" class="sp-edit-btn" onclick="toggleColorSettingsPanel()" title="バッジカラー">
-                            <img src="assets/icons/stationery/im-12928-paretto-no-muryou.svg" alt="バッジカラー" class="sp-edit-icon">
-                        </button>
-                    </div>
-                    <div class="side-panel-body">
-                        <div class="md-sp-vtabs" id="spVtabs"><!-- JS動的生成 --></div>
-                        <div class="md-sp-content" id="spContent"><!-- JS動的生成 --></div>
+                        <div class="md-sp-accordion-body" id="spEmployeeAccordionBody">
+                            <div class="side-panel-search">
+                                <input type="text" class="md-fi-input" id="spSearchInput" placeholder="社員検索...">
+                                <button type="button" class="sp-edit-btn" onclick="openStaffEditModal()" title="社員リスト編集">
+                                    <img src="assets/icons/business/im-12032-shimpuru-na-shomei-keiyaku.svg" alt="編集" class="sp-edit-icon">
+                                </button>
+                                <button type="button" class="sp-edit-btn" onclick="toggleColorSettingsPanel()" title="バッジカラー">
+                                    <img src="assets/icons/stationery/im-12928-paretto-no-muryou.svg" alt="バッジカラー" class="sp-edit-icon">
+                                </button>
+                            </div>
+                            <div class="side-panel-body">
+                                <div class="md-sp-vtabs" id="spVtabs"><!-- JS動的生成 --></div>
+                                <div class="md-sp-content" id="spContent"><!-- JS動的生成 --></div>
+                            </div>
+                        </div>
                     </div>
                     <!-- 応援パネル -->
-                    <div class="md-sp-support-embedded" id="spSupportPanel">
-                        <div class="side-panel-search">
-                            <input type="text" class="md-fi-input" id="spSupportSearchInput" placeholder="応援検索...">
+                    <div class="md-sp-accordion md-sp-accordion--support is-collapsed" id="spSupportPanel">
+                        <button type="button" class="md-sp-accordion-toggle" onclick="spSetAccordion('support')" aria-expanded="false" aria-controls="spSupportAccordionBody">
+                            <span>応援予約</span>
                             <span class="md-sp-support-count">予約0件</span>
-                        </div>
-                        <div class="side-panel-body md-sp-support-body">
-                            <div class="md-sp-content" id="spSupportContent"><!-- JS動的生成 --></div>
+                        </button>
+                        <div class="md-sp-accordion-body" id="spSupportAccordionBody">
+                            <div class="side-panel-search">
+                                <input type="text" class="md-fi-input" id="spSupportSearchInput" placeholder="応援検索...">
+                            </div>
+                            <div class="side-panel-body md-sp-support-body">
+                                <div class="md-sp-content" id="spSupportContent"><!-- JS動的生成 --></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -876,176 +889,6 @@
             </div>
         </div>
 
-
-        <!-- フッター詳細情報（折りたたみ） -->
-        <div class="footer-details">
-            <button class="footer-toggle-btn" onclick="toggleFooterDetails()">
-                <span class="footer-toggle-icon">▶</span> 詳細情報（凡例・レイアウト・操作説明）
-            </button>
-            <div class="footer-details-content" id="footerDetailsContent" style="display: none;">
-
-        <!-- 凡例 -->
-        <div class="legend">
-            <h3>凡例</h3>
-            <div class="legend-grid">
-                <div class="legend-section">
-                    <h4>グループ会社（背景色）</h4>
-                    <div class="legend-item">
-                        <span class="md-gc-legend-swatch md-gc-legend-swatch-touo"></span>
-                        <span>東央警備</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="md-gc-legend-swatch md-gc-legend-swatch-nikkei"></span>
-                        <span>Nikkeiホールディングス</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="md-gc-legend-swatch md-gc-legend-swatch-zennihon"></span>
-                        <span>全日本エンタープライズ</span>
-                    </div>
-                </div>
-                <div class="legend-section">
-                    <h4>区分カラー</h4>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--cat-bg-facility);"></div>
-                        <span>施設警備</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--cat-bg-event);"></div>
-                        <span>イベント</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--cat-bg-traffic);"></div>
-                        <span>交通誘導</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--cat-bg-highway);"></div>
-                        <span>高速道路</span>
-                    </div>
-                </div>
-                <div class="legend-section">
-                    <h4>シフト区分</h4>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--shift-bg-day);"></div>
-                        <span>昼勤務</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: var(--shift-bg-night);"></div>
-                        <span>夜勤務</span>
-                    </div>
-                </div>
-                <div class="legend-section">
-                    <h4>社員タグ</h4>
-                    <div class="legend-item">
-                        <span class="employee-tag" style="margin: 0;">未配置</span>
-                        <span>ドラッグ可能</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="employee-tag assigned" style="margin: 0;">配置済</span>
-                        <span>当日配置あり</span>
-                    </div>
-                </div>
-                <div class="legend-section">
-                    <h4>インジケーター</h4>
-                    <div class="legend-item">
-                        <span class="continuous-badge" style="font-size: 0.8rem;">▼</span>
-                        <span>連勤（上=前シフトから、下=次シフトへ）</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="indicator indicator-conflict">⚠</span>
-                        <span>配置制約（相性の警告）</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- レイアウト説明 -->
-        <div class="layout-explanation">
-            <h3>5.1.2 レイアウト詳細</h3>
-            <div class="layout-areas">
-                <div class="layout-area">
-                    <h4>ヘッダー部</h4>
-                    <ul>
-                        <li>日付選択（日付ピッカー）</li>
-                        <li>前日/翌日ボタン</li>
-                        <li>グループ会社フィルタ（ドロップダウン）</li>
-                    </ul>
-                </div>
-                <div class="layout-area">
-                    <h4>ツールバー</h4>
-                    <ul>
-                        <li>新規追加/行削除/消去</li>
-                        <li>行の並べ替え（↑↓）</li>
-                        <li>フィルタ/空行非表示</li>
-                    </ul>
-                </div>
-                <div class="layout-area">
-                    <h4>左側固定列</h4>
-                    <ul>
-                        <li>No.（行番号）</li>
-                        <li>会社/現場名（クリックで編集ポップアップ）</li>
-                        <li>　※区分・昼夜も同じポップアップで編集</li>
-                        <li>集合時間</li>
-                        <li>時間（クリックで開始・終了時間編集モーダル）</li>
-                        <li>人数（必要/配置済み）</li>
-                        <li>配置（車両・送迎は下部に表示）</li>
-                        <li>作業内容（クリックで編集ポップアップ）</li>
-                        <li>地図（クリックでURL入力ポップアップ）</li>
-                    </ul>
-                </div>
-                <div class="layout-area">
-                    <h4>配置ゾーン</h4>
-                    <ul>
-                        <li>ドロップ可能なエリア</li>
-                        <li>配置された社員をタグ表示</li>
-                        <li>×ボタンで配置解除</li>
-                        <li>インジケーター表示</li>
-                    </ul>
-                </div>
-                <div class="layout-area">
-                    <h4>右サイドパネル（社員リスト）</h4>
-                    <ul>
-                        <li>全社員の略称を表示</li>
-                        <li>検索機能</li>
-                        <li>ドラッグ&ドロップで配置</li>
-                        <li>配置済みは緑色タグ</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- アクション説明 -->
-        <div class="actions-explanation">
-            <h3>5.1.6 セル操作</h3>
-            <div class="action-list">
-                <div class="action-item">
-                    <strong>社員タグをドラッグ</strong>
-                    <span>右サイドパネルから社員タグを配置ゾーンへドラッグ&ドロップ</span>
-                </div>
-                <div class="action-item">
-                    <strong>×ボタンクリック</strong>
-                    <span>配置済み社員の×ボタンで配置を解除</span>
-                </div>
-                <div class="action-item">
-                    <strong>現場セルクリック</strong>
-                    <span>時間/会社/現場名/区分/昼夜の入力ポップアップを開く</span>
-                </div>
-                <div class="action-item">
-                    <strong>地図セルクリック</strong>
-                    <span>Google MapsのURL入力ポップアップを開く（MAPで表示）</span>
-                </div>
-                <div class="action-item">
-                    <strong>行ダブルクリック</strong>
-                    <span>配置詳細ダイアログを開く（移動手段、備品等）</span>
-                </div>
-                <div class="action-item">
-                    <strong>右クリック</strong>
-                    <span>コンテキストメニュー（編集、削除、コピー等）</span>
-                </div>
-            </div>
-        </div>
-
-            </div><!-- /.footer-details-content -->
-        </div><!-- /.footer-details -->
     </div>
 
     <!-- カスタム時間ピッカー -->
@@ -1255,7 +1098,7 @@
     <script src="mockup/co-navbar.js?v=9"></script>
     <script src="mockup/co-company-input.js"></script>
     <script src="mockup/co-mock-store.js?v=4"></script>
-    <script src="mockup/screen-layout.js?v=36"></script>
+    <script src="mockup/screen-layout.js?v=41"></script>
     <script src="mockup/print-touo-nikkei.js?v=1"></script>
 </body>
 </html>
