@@ -4228,6 +4228,41 @@ function obCnHighlightCells(ri, day, type, si) {
     }, 5000);
 }
 
+function obCnGlowType(type) {
+    if (type === 'add' || type === 'place') return 'add';
+    if (type === 'delete' || type === 'remove' || type === 'reject') return 'delete';
+    return 'modify';
+}
+
+document.addEventListener('cn:jump', function (e) {
+    var d = e.detail || {};
+    if (d.inContext !== true) return;
+    var target = d.target;
+    if (!target) return;
+    var ri = -1;
+    if (target.axis === 'orderId') {
+        ri = sampleRows.findIndex(function (row) {
+            return row && String(row._rowId) === String(target.value);
+        });
+    } else if (target.axis === 'siteName') {
+        ri = sampleRows.findIndex(function (row) {
+            if (!row) return false;
+            var v = String(target.value || '');
+            return String(row.task || '').indexOf(v) >= 0 || v.indexOf(String(row.task || '')) >= 0;
+        });
+    } else {
+        return;
+    }
+    if (ri < 0) return;
+    var day = target.day != null ? parseInt(target.day, 10) : null;
+    var si = target.subIndex != null ? parseInt(target.subIndex, 10) : null;
+    var first = day != null
+        ? document.querySelector('.tbl-grid__cell[data-ri="' + ri + '"][data-day="' + day + '"]')
+        : document.querySelector('.tbl-grid__cell[data-ri="' + ri + '"]');
+    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    obCnHighlightCells(ri, day, obCnGlowType(target.op || d.op || d.type), si);
+});
+
 // --- 自分の操作による変更通知 ---
 const obCurrentUser = '田中 太郎（自分）';
 

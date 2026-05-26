@@ -5139,6 +5139,50 @@
             window.coNotifyPanel.setItems('sl', items);
         }
 
+        function slCnFlashRow(row) {
+            if (!row) return;
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            row.classList.remove('highlight-flash');
+            void row.offsetWidth;
+            row.classList.add('highlight-flash');
+            setTimeout(function () { row.classList.remove('highlight-flash'); }, 1600);
+        }
+
+        document.addEventListener('cn:jump', function (e) {
+            var d = e.detail || {};
+            if (d.inContext !== true) return;
+            var target = d.target;
+            if (!target) return;
+            var rows = Array.prototype.slice.call(document.querySelectorAll('.grid-table tbody tr'));
+            var row = null;
+            if (target.axis === 'siteName') {
+                var value = String(target.value || '');
+                row = rows.find(function (r) {
+                    var info = cnGetRowInfo(r);
+                    if (!info.siteName) return false;
+                    return info.siteName === value ||
+                        info.siteName.indexOf(value) >= 0 ||
+                        value.indexOf(info.siteName) >= 0;
+                });
+            } else if (target.axis === 'orderId') {
+                row = rows.find(function (r) {
+                    return String(r.dataset.obRowId || '') === String(target.value);
+                });
+            } else if (target.axis === 'wsCell') {
+                var site = (typeof wsSitesData !== 'undefined')
+                    ? wsSitesData.find(function (s) { return s.id === target.value; })
+                    : null;
+                if (site) {
+                    row = rows.find(function (r) {
+                        var info = cnGetRowInfo(r);
+                        if (!info.siteName) return false;
+                        return info.siteName.indexOf(site.name) >= 0 || site.name.indexOf(info.siteName) >= 0;
+                    });
+                }
+            }
+            slCnFlashRow(row);
+        });
+
         function cnCreateRow(d) {
             var tr = document.createElement('tr');
             var isNight = d.shiftLabel === '夜' || String(d.shiftClass || '').indexOf('shift-night') >= 0;

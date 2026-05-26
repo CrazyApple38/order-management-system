@@ -5539,16 +5539,80 @@
         }, 5000);
     }
 
+    function wsCnHighlightHolidayDate(dateKey, type) {
+        document.querySelectorAll('.md-ws-holiday-row-cell[class*="md-cn-cell-glow-"]').forEach(function (c) {
+            c.classList.remove('md-cn-cell-glow-add', 'md-cn-cell-glow-modify', 'md-cn-cell-glow-delete');
+        });
+        var target = document.querySelector('.md-ws-holiday-row-cell[data-date="' + dateKey + '"][data-shift="day"]') ||
+                     document.querySelector('.md-ws-holiday-row-cell[data-date="' + dateKey + '"]');
+        if (!target) return;
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        var cls = 'md-cn-cell-glow-' + (type || 'modify');
+        target.classList.add(cls);
+        setTimeout(function () { target.classList.remove(cls); }, 5000);
+    }
+
+    function wsCnFindSiteByLabel(label) {
+        var value = String(label || '');
+        if (!value) return null;
+        return wsSitesData.find(function (s) {
+            var full = (s.company || '') + ' / ' + (s.name || '');
+            return s.id === value || s.name === value || full === value ||
+                (!!s.name && value.indexOf(s.name) >= 0) || full.indexOf(value) >= 0;
+        }) || null;
+    }
+
+    function wsCnSiteIdFromOrderId(orderId) {
+        if (!window.OmsMockStore || !window.OmsMockStore.getObMonth) return '';
+        var key = window.OmsMockStore.getCurrentDate ? window.OmsMockStore.getCurrentDate() : WS_DEFAULT_DATE_KEY;
+        var parts = window.OmsMockStore.dateToParts ? window.OmsMockStore.dateToParts(key) : null;
+        if (!parts) return '';
+        var monthState = window.OmsMockStore.getObMonth(parts.year, parts.month);
+        if (!monthState || !Array.isArray(monthState.sampleRows)) return '';
+        var row = monthState.sampleRows.find(function (r) { return r && String(r._rowId) === String(orderId); });
+        var site = row ? wsCnFindSiteByLabel(row.task) : null;
+        return site ? site.id : '';
+    }
+
     // cn:jump イベント (新システム / §6.5 仕様準拠) — WS ベル発信通知のクリックで該当セルに着地
     document.addEventListener('cn:jump', function (e) {
         var d = e.detail || {};
-        if (d.source !== 'ws') return;
+        if (d.inContext !== true) return;
         var target = d.target;
-        if (!target || target.axis !== 'wsCell') return;
-        var siteId = target.value;
-        var dateKey = target.date;
+        if (!target) return;
+        if (target.axis === 'leaveId') {
+            var leaves = window.OmsMockStore && window.OmsMockStore.getLeaveApplications
+                ? window.OmsMockStore.getLeaveApplications()
+                : [];
+            var lv = (leaves || []).find(function (x) { return String(x.id) === String(target.value); });
+            if (!lv || !lv.date) return;
+            var leaveDate = parseDate(lv.date);
+            var leaveNeedsRender = false;
+            if (viewMode !== 'site') {
+                switchView('site');
+                leaveNeedsRender = true;
+            }
+            if (leaveDate < viewStartDate || leaveDate >= new Date(viewStartDate.getTime() + visibleWeeks * 7 * 86400000)) {
+                viewStartDate = getWeekStart(leaveDate);
+                renderGrid();
+                renderSidebar();
+                leaveNeedsRender = true;
+            }
+            setTimeout(function () { wsCnHighlightHolidayDate(lv.date, d.op || d.type || 'modify'); }, leaveNeedsRender ? 100 : 0);
+            return;
+        }
+        var siteId = '';
+        if (target.axis === 'wsCell') siteId = target.value;
+        else if (target.axis === 'siteName') {
+            var site = wsCnFindSiteByLabel(target.value);
+            siteId = site ? site.id : '';
+        } else if (target.axis === 'orderId') {
+            siteId = wsCnSiteIdFromOrderId(target.value);
+        }
+        if (!siteId) return;
+        var dateKey = target.date || selectedDate || formatDateKey(wsCurrentStoreDate());
         var shift = target.shift || '';
-        var op = target.op || 'modify';
+        var op = target.op || d.op || d.type || 'modify';
         var needsRender = false;
         if (viewMode !== 'site') {
             switchView('site');

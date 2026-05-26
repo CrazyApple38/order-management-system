@@ -158,29 +158,45 @@
     // - cn-expand 有り: 排他アコーディオン展開（同パネル内の他は閉じる / フラッシュ発火なし）
     // - cn-expand 無し: 即ジャンプ + cn:jump 発火
     // - cn:jump detail は §6.5 仕様に準拠（item, source, affects, inContext, type, slot, target）
-    function fireJump(item) {
+    function parseItemTarget(item) {
+        if (!item || !item.dataset || !item.dataset.target) return null;
+        try { return JSON.parse(item.dataset.target); }
+        catch (err) { return null; }
+    }
+    function resolveTargetForPage(rawTarget, page) {
+        if (!rawTarget) return null;
+        if (rawTarget.axis) return rawTarget;
+        if (page && rawTarget[page]) return rawTarget[page];
+        return null;
+    }
+    function buildJumpDetail(item, pageOverride) {
         var affects = (item.dataset.affects || '').split(',')
             .map(function (s) { return s.trim(); }).filter(Boolean);
-        var current = getCurrentPage();
-        var inContext = !!(current && affects.indexOf(current) !== -1);
+        var page = pageOverride || getCurrentPage();
+        var inContext = !!(page && affects.indexOf(page) !== -1);
         var anchor = item.closest('.cn-anchor[data-bell]');
         var source = anchor ? anchor.dataset.bell : '';
-        var target = null;
-        if (item.dataset.target) {
-            try { target = JSON.parse(item.dataset.target); }
-            catch (err) { target = null; }
-        }
+        var rawTarget = parseItemTarget(item);
+        var target = resolveTargetForPage(rawTarget, page);
+        if (!target && pageOverride) inContext = false;
+        return {
+            item: item,
+            source: source,
+            affects: affects,
+            inContext: inContext,
+            page: page,
+            type: item.dataset.type || '',
+            op: item.dataset.op || '',
+            slot: item.dataset.slot || '',
+            target: target,
+            rawTarget: rawTarget
+        };
+    }
+    function fireJump(item) {
+        var detail = buildJumpDetail(item);
         var ev = new CustomEvent('cn:jump', {
             bubbles: true,
-            detail: {
-                item: item,
-                source: source,
-                affects: affects,
-                inContext: inContext,
-                type: item.dataset.type || '',
-                slot: item.dataset.slot || '',
-                target: target
-            }
+            detail: detail
         });
         item.dispatchEvent(ev);
     }
@@ -220,6 +236,16 @@
             // アコーディオン無し → 即ジャンプ + 既読化 + バッジ更新
             markItemReadAndRefresh(item);
             fireJump(item);
+            return;
+        }
+        var currentDetail = buildJumpDetail(item);
+        if (currentDetail.inContext && currentDetail.target) {
+            markItemReadAndRefresh(item);
+            fireJump(item);
+            var currentAnchor = item.closest('.cn-anchor[data-bell]');
+            if (currentAnchor && window.coNotifyPanel && typeof window.coNotifyPanel.close === 'function') {
+                window.coNotifyPanel.close(currentAnchor);
+            }
             return;
         }
         var willOpen = !item.classList.contains('is-expanded');
@@ -693,8 +719,7 @@
 
     // (N-2.2 にあった「すべて既読」の重複ハンドラは N-2.3 で統合。上の cn-mark-all ハンドラに集約済み)
 
-    // ========== クロス画面ヒント（Phase N-2.2 / 簡易版） ==========
-    // 本格的な画面遷移ロジックは Phase N-5 で実装。本フェーズではヒント表示と alert モック動作。
+    // ========== クロス画面ヒント + ジャンプ（Phase N-5） ==========
     var CN_PAGE_LABELS = {
         'order-book':        'OB（受注簿）',
         'screen-layout':     'SL（業務管理計画書）',
@@ -702,6 +727,13 @@
         'leave-application': 'LA（休暇申請）',
         'quick-access':      'QA（モバイル）',
         'master':            'マスタ管理'
+    };
+    var CN_PAGE_URLS = {
+        'order-book':        'order-book.html',
+        'screen-layout':     'screen-layout.html',
+        'weekly-schedule':   'weekly-schedule.html',
+        'leave-application': 'leave-application.html',
+        'quick-access':      'quick-access.html'
     };
     function getCurrentPage() {
         var p = (typeof location !== 'undefined' ? location.pathname : '') || '';
@@ -755,16 +787,71 @@
             renderCrossHintsIn(item);
         }
     });
-    // 「○○で開く ↗」ボタン: 本フェーズではモック動作（N-5 で本実装）
+    function buildPageUrl(page, detail) {
+        var path = CN_PAGE_URLS[page];
+        if (!path) return '';
+        var base = new URL(path, location.href);
+        base.searchParams.set('cnJump', JSON.stringify({
+            source: detail.source,
+            affects: detail.affects,
+            page: page,
+            inContext: false,
+            type: detail.type,
+            op: detail.op,
+            slot: detail.slot,
+            target: detail.target,
+            rawTarget: detail.rawTarget
+        }));
+        return base.toString();
+    }
+    // 「○○で開く ↗」ボタン: 対象画面を新タブで開き、URL パラメータで target を渡す
     document.addEventListener('click', function (e) {
         var btn = e.target.closest('.cn-cross-jump-btn');
         if (!btn) return;
         e.stopPropagation();
-        var target = btn.dataset.target || '';
-        var label = CN_PAGE_LABELS[target] || target;
-        // 簡易モック: alert で確認だけ。実装は N-5 (クロス画面フラッシュ Phase)
-        alert('クロス画面ジャンプ:\n' + label + ' を新タブで開き、対象セルへフラッシュします。\n（本実装は Phase N-5）');
+        var item = btn.closest('.cn-item');
+        var page = btn.dataset.target || '';
+        if (!item || !page) return;
+        var detail = buildJumpDetail(item, page);
+        var url = buildPageUrl(page, detail);
+        if (!url) return;
+        markItemReadAndRefresh(item);
+        window.open(url, '_blank', 'noopener');
     });
+
+    function dispatchJumpFromUrl() {
+        var raw = '';
+        try { raw = new URLSearchParams(location.search || '').get('cnJump') || ''; }
+        catch (err) { raw = ''; }
+        if (!raw) return;
+        var payload = null;
+        try { payload = JSON.parse(raw); }
+        catch (err2) { payload = null; }
+        if (!payload || !payload.target) return;
+        var current = getCurrentPage();
+        var ev = new CustomEvent('cn:jump', {
+            bubbles: true,
+            detail: {
+                item: null,
+                source: payload.source || '',
+                affects: payload.affects || [],
+                inContext: true,
+                page: current,
+                type: payload.type || '',
+                op: payload.op || '',
+                slot: payload.slot || '',
+                target: payload.target,
+                rawTarget: payload.rawTarget || null,
+                fromUrl: true
+            }
+        });
+        setTimeout(function () { document.dispatchEvent(ev); }, 450);
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', dispatchJumpFromUrl);
+    } else {
+        dispatchJumpFromUrl();
+    }
 
     // ========== 履歴タブ描画 API（Phase N-2.2 / P3 ハイブリッド） ==========
     // setHistory(bellId, config) で履歴タブを構築。
@@ -921,6 +1008,7 @@
         updateBadge: updateBadge,
         renderCrossHintsIn: renderCrossHintsIn,
         getCurrentPage: getCurrentPage,
+        resolveTargetForPage: resolveTargetForPage,
         iconBase: CN_ICON_BASE,
         slotDefault: CN_SLOT_DEFAULT,
         pageLabels: CN_PAGE_LABELS,

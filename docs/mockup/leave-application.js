@@ -1468,7 +1468,7 @@
     // cn:jump → 該当休暇バッジへフラッシュ + ポップオーバー (新システム / §6.5 仕様準拠)
     document.addEventListener('cn:jump', function (e) {
         var d = e.detail || {};
-        if (d.source !== 'la') return;
+        if (d.inContext !== true) return;
         var target = d.target;
         if (!target || target.axis !== 'leaveId') return;
         var leaveId = target.value;
