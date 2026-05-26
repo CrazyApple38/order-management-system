@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=10">
     <link rel="stylesheet" href="mockup/co-company-input.css">
-    <link rel="stylesheet" href="mockup/screen-layout.css?v=22">
+    <link rel="stylesheet" href="mockup/screen-layout.css?v=26">
     <link rel="stylesheet" href="mockup/print-touo-nikkei.css?v=8">
 </head>
 <body>
@@ -49,19 +49,6 @@
     <div class="container">
         <!-- メインレイアウト -->
         <div class="main-layout">
-            <!-- 左サイドパネル（配置状況） -->
-            <div class="side-panel side-panel--left">
-                <div class="minimap">
-                    <div class="minimap-header" onclick="toggleMinimap()">
-                        <span class="minimap-title">配置状況</span>
-                        <span class="minimap-total" id="minimapTotal"></span>
-                    </div>
-                    <div class="minimap-body expanded" id="minimapBody">
-                        <!-- JS動的生成 -->
-                    </div>
-                </div>
-            </div>
-
             <!-- 画面モックアップ -->
             <div class="screen-mockup">
                 <!-- ヘッダー部 -->
@@ -189,6 +176,19 @@
                 </div>
             </div>
 
+            <!-- 右サイドパネル（配置状況） -->
+            <div class="side-panel side-panel--left">
+                <div class="minimap">
+                    <div class="minimap-header" onclick="toggleMinimap()">
+                        <span class="minimap-title">配置状況</span>
+                        <span class="minimap-total" id="minimapTotal"></span>
+                    </div>
+                    <div class="minimap-body expanded" id="minimapBody">
+                        <!-- JS動的生成 -->
+                    </div>
+                </div>
+            </div>
+
             <!-- 右サイドパネル（社員リスト） -->
             <div class="side-panel">
                 <div class="side-panel-header">
@@ -247,6 +247,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
         <!-- GCフィルタモーダルは共通ナビバー(co-navbar.js)に移動 -->
@@ -1098,7 +1099,7 @@
     <script src="mockup/co-navbar.js?v=9"></script>
     <script src="mockup/co-company-input.js"></script>
     <script src="mockup/co-mock-store.js?v=4"></script>
-    <script src="mockup/screen-layout.js?v=41"></script>
+    <script src="mockup/screen-layout.js?v=42"></script>
     <script src="mockup/print-touo-nikkei.js?v=1"></script>
 </body>
 </html>

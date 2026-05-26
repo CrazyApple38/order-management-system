@@ -3749,9 +3749,14 @@
         function toggleMinimap() {
             var minimap = document.querySelector('.minimap');
             var body = document.getElementById('minimapBody');
-            if (!minimap || !body) return;
-            minimap.classList.toggle('collapsed');
-            body.classList.toggle('expanded');
+            var leftPanel = minimap ? minimap.closest('.side-panel--left') : null;
+            var layout = document.querySelector('.main-layout');
+            if (!minimap || !body || !leftPanel) return;
+            var collapsed = !leftPanel.classList.contains('is-collapsed');
+            leftPanel.classList.toggle('is-collapsed', collapsed);
+            if (layout) layout.classList.toggle('minimap-collapsed', collapsed);
+            minimap.classList.toggle('collapsed', collapsed);
+            body.classList.toggle('expanded', !collapsed);
         }
 
         function minimapScrollToRow(idx) {

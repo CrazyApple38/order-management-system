@@ -8,6 +8,9 @@
 /* Phase S-A: co-tokens.css で解決可能な共通トークンは削除し、SL固有のみ残留。
    Dark 側は co-tokens.css が Light のみのため、SL 側で全オーバーライドを維持。 */
 :root {
+    --sl-side-panel-width: 280px;
+    --sl-left-panel-collapsed-width: 36px;
+
     /* SL固有: グループ会社背景色 */
     --md-gc-bg-touo: #FFFFFF;
     --md-gc-bg-nikkei: #F3F9F6;
@@ -182,11 +185,14 @@ h1 {
     border-right: 1px solid var(--divider);
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    transition: flex-basis 0.2s ease;
 }
 
 /* 右サイドパネル（社員リスト） */
 .side-panel {
-    width: 280px;
+    width: var(--sl-side-panel-width);
+    flex: 0 0 var(--sl-side-panel-width);
     background: var(--bg-surface);
     overflow: hidden;
     display: flex;
@@ -195,8 +201,22 @@ h1 {
 }
 
 .side-panel--left {
-    border-left: none;
-    border-right: 1px solid var(--divider);
+    border-left: 1px solid var(--divider);
+    border-right: none;
+    transition: width 0.2s ease, flex-basis 0.2s ease;
+}
+
+.side-panel--left.is-collapsed {
+    width: var(--sl-left-panel-collapsed-width);
+    flex-basis: var(--sl-left-panel-collapsed-width);
+}
+
+.main-layout.minimap-collapsed {
+    justify-content: center;
+}
+
+.main-layout.minimap-collapsed .screen-mockup {
+    flex: 0 1 calc(100% - (var(--sl-side-panel-width) * 2));
 }
 
 .side-panel-header {
@@ -584,6 +604,11 @@ h1 {
     border-bottom: 1px solid var(--divider);
 }
 
+.side-panel--left.is-collapsed .minimap {
+    height: 100%;
+    border-bottom: none;
+}
+
 .minimap-header {
     display: flex;
     justify-content: space-between;
@@ -600,6 +625,17 @@ h1 {
 }
 
 .minimap-header:hover { opacity: 0.9; }
+
+.side-panel--left.is-collapsed .minimap-header {
+    height: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 10px 0;
+    border-bottom: none;
+    border-radius: 0;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+}
 
 .minimap-title::before {
     content: '';
@@ -618,10 +654,19 @@ h1 {
     transform: rotate(-45deg);
 }
 
+.side-panel--left.is-collapsed .minimap-title::before {
+    margin-right: 0;
+    margin-bottom: 6px;
+}
+
 .minimap-total {
     font-size: 11px;
     font-weight: 400;
     color: rgba(255, 255, 255, 0.85);
+}
+
+.side-panel--left.is-collapsed .minimap-total {
+    display: none;
 }
 
 .minimap-body {
@@ -633,6 +678,10 @@ h1 {
 .minimap-body.expanded {
     max-height: calc(100vh / 3);
     overflow-y: auto;
+}
+
+.side-panel--left.is-collapsed .minimap-body {
+    display: none;
 }
 
 .minimap-row {
