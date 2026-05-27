@@ -830,13 +830,11 @@
     }
     function cnFormatTargetDateBadge(parts) {
         if (!parts || !parts.month || !parts.day) return '';
+        var d = new Date(parts.year, parts.month - 1, parts.day);
+        var weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+        var md = parts.month + '/' + parts.day + '（' + weekdays[d.getDay()] + '）';
         var base = cnCurrentDateParts();
-        var diffDays = Math.round((cnDatePartsToTime(parts) - cnDatePartsToTime(base)) / 86400000);
-        var md = parts.month + '/' + parts.day;
-        if (diffDays === 0) return '今日 ' + md;
-        if (diffDays === -1) return '昨日 ' + md;
-        if (parts.year && parts.year !== base.year) return parts.year + '/' + md;
-        return md;
+        return (parts.year && parts.year !== base.year) ? parts.year + '/' + md : md;
     }
     function cnFirstTarget(target) {
         if (!target) return null;
@@ -863,8 +861,13 @@
     }
     function cnTargetDateBadgeHtml(item) {
         var source = item ? (item.sourceBell || '') : '';
-        if (source !== 'ob' || !item || item.scope !== 'site' || item.op !== 'modify') return '';
-        var label = cnFormatTargetDateBadge(cnTargetDateParts(item));
+        var parts = cnTargetDateParts(item);
+        if (!parts) return '';
+        var isObCellModify = source === 'ob' && item && item.scope === 'site' && item.op === 'modify';
+        var dateBasedSources = ['sl', 'ws', 'la', 'pending', 'vehicle', 'assignment', 'approval'];
+        var isDateBasedSource = dateBasedSources.indexOf(source) >= 0;
+        if (!isObCellModify && !isDateBasedSource) return '';
+        var label = cnFormatTargetDateBadge(parts);
         return label ? '<span class="cn-date-badge">' + escapeHtml(label) + '</span>' : '';
     }
     function cnDisplaySub(item) {
