@@ -16,19 +16,25 @@
     else if (path.indexOf('quick-access') !== -1) currentPage = 'quick-access';
     else if (path.indexOf('admin-notify') !== -1) currentPage = 'admin-notify';
 
-    // --- 変更通知ベル定義（Phase N-1 確定 / 2026-05-15）
-    //     業務頻度順（OB→SL→WS→LA │ 承認待ち→車両→マスタ）
-    //     アイコンは notify-icons-selected.json (2026-05-16) 由来 ---
+    // --- 変更通知ベル定義（4分類統合 / 2026-05-27）
+    //     表示は業務意味別4分類に集約し、発信元は通知アイテム内バッジで示す。
     var coNotifyBells = [
-        { id: 'ob',      title: 'OBの変更通知',   tooltip: 'OB — 受注簿',         group: 'screen' },
-        { id: 'sl',      title: 'SLの変更通知',   tooltip: 'SL — 業務管理計画書', group: 'screen' },
-        { id: 'ws',      title: 'WSの変更通知',   tooltip: 'WS — 週間予定表',     group: 'screen' },
-        { id: 'la',      title: 'LAの変更通知',   tooltip: 'LA — 休暇申請管理',   group: 'screen' },
-        { id: 'pending', title: '休暇申請承認待ち', tooltip: '休暇申請 承認待ち',   group: 'cross'  },
-        { id: 'vehicle', title: '車両スケジュール', tooltip: '車両スケジュール',   group: 'cross'  },
-        { id: 'master',  title: 'マスタ更新',     tooltip: 'マスタ更新',           group: 'cross'  }
+        { id: 'order',      title: '受注・業務変更',   tooltip: '受注・業務変更',   group: 'main' },
+        { id: 'assignment', title: '配置・予定変更',   tooltip: '配置・予定変更',   group: 'main' },
+        { id: 'approval',   title: '申請・承認',       tooltip: '申請・承認',       group: 'main' },
+        { id: 'master',     title: 'マスタ・システム', tooltip: 'マスタ・システム', group: 'main' }
     ];
+    var coNotifyBellAliases = {
+        ob: 'order',
+        sl: 'assignment',
+        ws: 'assignment',
+        vehicle: 'assignment',
+        la: 'approval',
+        pending: 'approval',
+        master: 'master'
+    };
     window.coNotifyBells = coNotifyBells;
+    window.coNotifyBellAliases = coNotifyBellAliases;
 
     // --- マスタ管理メニュー項目 ---
     var masterItems = [
@@ -72,7 +78,7 @@
         }).join('');
     }
 
-    // 変更通知ベル群（7ベル + 縦仕切り）
+    // 変更通知ベル群（4分類）
     function buildBellsHtml() {
         var s = '<div class="md-nav-cn-bells" id="mdNavCnBells">';
         var lastGroup = null;
@@ -298,7 +304,7 @@
                 date: idx === 2 ? '昨日' : today,
                 expand: '人数: ' + (entry.count || 0) + '名 / シフト: ' + (row.shift || ''),
                 affects: ['order-book', 'screen-layout', 'weekly-schedule'],
-                target: row._rowId != null ? { 'order-book': { axis: 'orderId', value: row._rowId } } : null
+                target: row._rowId != null ? { 'order-book': { axis: 'orderId', value: row._rowId, day: hit.day, subIndex: hit.subIndex } } : null
             });
         });
 
@@ -454,16 +460,25 @@
     }
     function mdNavBuildBellHistory(items) {
         return {
-            ob: mdNavBuildHistoryForItems('ob', '受注データ', items.ob, { businessTab: '契約先/現場', businessPrefix: '現場' }),
-            sl: mdNavBuildHistoryForItems('sl', '配置データ', items.sl, { businessTab: '現場', businessPrefix: '現場' }),
-            ws: mdNavBuildHistoryForItems('ws', '週間予定データ', items.ws, { businessTab: '現場', businessPrefix: '現場' }),
-            la: mdNavBuildHistoryForItems('la', '休暇申請データ', items.la, { businessTab: '申請者', businessPrefix: '申請者' }),
-            pending: mdNavBuildHistoryForItems('pending', '承認待ち', items.pending, { businessTab: '申請者', businessPrefix: '申請者' }),
-            vehicle: mdNavBuildHistoryForItems('vehicle', '車両データ', items.vehicle, { businessTab: '車両', businessPrefix: '車両' }),
-            master: mdNavBuildHistoryForItems('master', 'マスタデータ', items.master, { businessTab: 'マスタ種別', businessPrefix: '種別' })
+            order: mdNavBuildHistoryForItems('order', '受注・業務変更', items.order, { businessTab: '契約先/現場', businessPrefix: '現場' }),
+            assignment: mdNavBuildHistoryForItems('assignment', '配置・予定変更', items.assignment, { businessTab: '現場/車両', businessPrefix: '対象' }),
+            approval: mdNavBuildHistoryForItems('approval', '申請・承認', items.approval, { businessTab: '申請者', businessPrefix: '申請者' }),
+            master: mdNavBuildHistoryForItems('master', 'マスタ・システム', items.master, { businessTab: 'マスタ種別', businessPrefix: '種別' })
         };
     }
-    var mdNavCnBellItems = mdNavBuildBellItems();
+    function mdNavMergeBellItems(rawItems) {
+        var merged = { order: [], assignment: [], approval: [], master: [] };
+        Object.keys(rawItems || {}).forEach(function (sourceBell) {
+            var groupId = coNotifyBellAliases[sourceBell] || sourceBell;
+            if (!merged[groupId]) merged[groupId] = [];
+            (rawItems[sourceBell] || []).forEach(function (item) {
+                merged[groupId].push(Object.assign({ sourceBell: sourceBell, _commonSeed: true }, item));
+            });
+        });
+        return merged;
+    }
+    var mdNavCnRawBellItems = mdNavBuildBellItems();
+    var mdNavCnBellItems = mdNavMergeBellItems(mdNavCnRawBellItems);
     var mdNavCnBellHistory = mdNavBuildBellHistory(mdNavCnBellItems);
 
     // --- GCフィルタモーダル ---

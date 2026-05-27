@@ -745,7 +745,12 @@
 
     /* notify-icons-selected.json (2026-05-16 確定) 相当の全スロット既定アイコン */
     var SLOT_DEFAULT = {
-        // ベル7個
+        // ベル4分類
+        'bell-order':      'business/si-46623-personal-information.png',
+        'bell-assignment': 'stationery/im-12555-karendaa.svg',
+        'bell-approval':   'sign-mark/si-8681-8681.png',
+        'bell-master':     'sign-mark/im-00001-muryou-no-settei-haguruma.svg',
+        // 旧ベルID（互換用）
         'bell-ob':       'business/si-46623-personal-information.png',
         'bell-sl':       'person/si-13707-13707.png',
         'bell-ws':       'stationery/im-12555-karendaa.svg',
@@ -803,7 +808,8 @@
         var sel = readSelections();
         document.querySelectorAll('#cmpN2BellBar .cmp-bell-item').forEach(function (bell) {
             var slotKey = getBellSlotKey(bell);
-            var path = sel[slotKey] || SLOT_DEFAULT[slotKey];
+            var legacySlot = MTX_LEGACY_BELL_SLOTS[slotKey];
+            var path = sel[slotKey] || (legacySlot ? sel[legacySlot] : null) || SLOT_DEFAULT[slotKey];
             if (!path) return;
             var img = bell.querySelector('.cmp-bell-icon');
             if (!img) return;
@@ -908,16 +914,18 @@
         { key: 'remove',  label: '解除',   sub: 'remove (SL)' }
     ];
 
-    /* 共通メニューバー ベルアイコン (7個) — マトリクス選定モードに統合表示 */
+    /* 共通メニューバー ベルアイコン (4分類) — マトリクス選定モードに統合表示 */
     var MTX_BELLS = [
-        { id: 'bell-ob',      label: 'OB',       sub: '受注簿' },
-        { id: 'bell-sl',      label: 'SL',       sub: '業務管理計画書' },
-        { id: 'bell-ws',      label: 'WS',       sub: '週間予定表' },
-        { id: 'bell-la',      label: 'LA',       sub: '休暇申請管理' },
-        { id: 'bell-pending', label: '承認待ち', sub: '休暇申請承認待ち' },
-        { id: 'bell-vehicle', label: '車両',     sub: '車両スケジュール' },
-        { id: 'bell-master',  label: 'マスタ',   sub: 'マスタ更新' }
+        { id: 'bell-order',      label: '受注・業務', sub: '受注簿' },
+        { id: 'bell-assignment', label: '配置・予定', sub: '配置表 / 週間予定 / 車両予定' },
+        { id: 'bell-approval',   label: '申請・承認', sub: '休暇申請' },
+        { id: 'bell-master',     label: 'マスタ',     sub: 'マスタ・システム' }
     ];
+    var MTX_LEGACY_BELL_SLOTS = {
+        'bell-order': 'bell-ob',
+        'bell-assignment': 'bell-ws',
+        'bell-approval': 'bell-la'
+    };
 
     /* applicableMatrix: scope ごとに有効な op の集合（「—」判定に対応） */
     var MTX_APPLICABLE = {
@@ -1140,7 +1148,8 @@
         if (!container) return;
         var sel = readSelections();
         container.innerHTML = MTX_BELLS.map(function (item) {
-            var iconPath = sel[item.id] || SLOT_DEFAULT[item.id] || null;
+            var legacySlot = MTX_LEGACY_BELL_SLOTS[item.id];
+            var iconPath = sel[item.id] || (legacySlot ? sel[legacySlot] : null) || SLOT_DEFAULT[item.id] || null;
             var customCls = sel[item.id] ? ' is-custom' : '';
             return '<div class="cmp-mtx-primitive-tile' + customCls + '"'
                 + ' data-axis="bell"'

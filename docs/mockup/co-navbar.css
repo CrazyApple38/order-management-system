@@ -221,7 +221,7 @@
     right: 2px;
 }
 
-/* === 変更通知ベル群（Phase N-2.2 / 7ベル横並び） === */
+/* === 変更通知ベル群（4分類統合） === */
 .md-nav-cn-bells {
     display: flex;
     align-items: center;
@@ -263,7 +263,7 @@
 }
 /* バッジ位置は .cn-trigger-badge デフォルト（top:2px / right:2px）でOK */
 
-/* 縦仕切り（画面別ベルと横断系ベルの境界） */
+/* 縦仕切り（将来ベルグループが分かれた場合のみ表示） */
 .md-nav-cn-bells-divider {
     display: inline-block;
     width: 1px;

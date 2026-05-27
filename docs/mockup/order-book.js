@@ -4190,13 +4190,9 @@ function obCnTimeNow() {
         d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
 }
 
-// セル明滅ハイライト（5秒で自動消去）
+// 通知ジャンプ着地用: 対象セルを残し、周辺セルだけ薄暗くして2秒で消す
 // si: サブインデックス（複数エントリセルで特定エントリだけハイライト）
 function obCnHighlightCells(ri, day, type, si) {
-    // 既存のハイライトをクリア
-    document.querySelectorAll('[class*="md-cn-cell-glow-"]').forEach(function(el) {
-        el.classList.remove('md-cn-cell-glow-add', 'md-cn-cell-glow-modify', 'md-cn-cell-glow-delete');
-    });
     var targets;
     if (day != null) {
         // 特定日セル — 複数エントリがある場合はサブエントリだけを対象にする
@@ -4212,20 +4208,11 @@ function obCnHighlightCells(ri, day, type, si) {
         // 行全体（frozen列 + 日付セル + 合計）
         targets = document.querySelectorAll('.tbl-grid__cell[data-ri="' + ri + '"]');
     }
-    var glowClass = 'md-cn-cell-glow-' + (type || 'modify');
-    if (targets.forEach) {
-        targets.forEach(function(el) { el.classList.add(glowClass); });
-    } else {
-        // 単一要素配列の場合
-        for (var i = 0; i < targets.length; i++) targets[i].classList.add(glowClass);
+    if (window.coNotifyFocusOverlay && typeof window.coNotifyFocusOverlay.show === 'function') {
+        window.coNotifyFocusOverlay.show(targets, {
+            candidateSelector: '.tbl-grid__cell'
+        });
     }
-    setTimeout(function() {
-        if (targets.forEach) {
-            targets.forEach(function(el) { el.classList.remove(glowClass); });
-        } else {
-            for (var i = 0; i < targets.length; i++) targets[i].classList.remove(glowClass);
-        }
-    }, 5000);
 }
 
 function obCnGlowType(type) {
@@ -4399,11 +4386,23 @@ function obCnSelfNotify(scope, op, opts) {
         }).join(' / ');
     }
 
+    function obCnTargetNumber(value) {
+        if (value === undefined || value === null || value === '') return null;
+        var n = parseInt(value, 10);
+        return Number.isFinite(n) ? n : null;
+    }
+
     var target = null;
     if (row && row._rowId != null) {
         target = { axis: 'orderId', value: row._rowId };
     } else if (opts.rowId != null) {
         target = { axis: 'orderId', value: opts.rowId };
+    }
+    if (target) {
+        var targetDay = obCnTargetNumber(opts.day);
+        var targetSubIndex = obCnTargetNumber(opts.subIndex);
+        if (targetDay !== null && scope !== 'row') target.day = targetDay;
+        if (targetSubIndex !== null && scope !== 'row') target.subIndex = targetSubIndex;
     }
 
     window.coNotifyPanel.addItem('ob', {
@@ -4471,7 +4470,7 @@ function obCnSeedInitialDemo() {
             expand: '人数: ' + (entry.count || 0) + '名 / シフト: ' + (row.shift || '') +
                 (entry.startTime || entry.endTime ? ' / 時間: ' + (entry.startTime || '') + '〜' + (entry.endTime || '') : ''),
             affects: ['order-book', 'screen-layout', 'weekly-schedule'],
-            target: row._rowId != null ? { axis: 'orderId', value: row._rowId } : null
+            target: row._rowId != null ? { axis: 'orderId', value: row._rowId, day: hit.day, subIndex: hit.subIndex } : null
         };
     });
 

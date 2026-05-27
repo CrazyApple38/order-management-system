@@ -5452,8 +5452,24 @@
 
         var target = null;
         if (opts.siteId && opts.dateKey) {
-            target = { axis: 'wsCell', value: opts.siteId, date: opts.dateKey,
-                       shift: opts.shift || '', op: op };
+            target = {
+                'weekly-schedule': {
+                    axis: 'wsCell',
+                    value: opts.siteId,
+                    date: opts.dateKey,
+                    shift: opts.shift || opts.dstShift || '',
+                    op: op
+                }
+            };
+            var slSiteName = opts.siteName || opts.dstSite || opts.srcSite || '';
+            if (slSiteName) {
+                target['screen-layout'] = {
+                    axis: 'siteName',
+                    value: slSiteName,
+                    date: opts.dateKey,
+                    op: op
+                };
+            }
         }
 
         window.coNotifyPanel.addItem('ws', {
@@ -5527,34 +5543,30 @@
         window.coNotifyPanel.setItems('ws', items);
     }
 
-    // セル明滅ハイライト（cn:jump 着地用 / 旧版から流用）
+    function wsCnShowFocus(targets, candidateSelector) {
+        if (window.coNotifyFocusOverlay && typeof window.coNotifyFocusOverlay.show === 'function') {
+            window.coNotifyFocusOverlay.show(targets, {
+                candidateSelector: candidateSelector
+            });
+        }
+    }
+
+    // 通知ジャンプ着地用: 対象セルを残し、周辺セルだけ薄暗くして2秒で消す
     function wsCnHighlightCell(siteId, dateKey, shift, type) {
-        document.querySelectorAll('.md-ws-cell[class*="md-cn-cell-glow-"]').forEach(function (c) {
-            c.classList.remove('md-cn-cell-glow-add', 'md-cn-cell-glow-modify', 'md-cn-cell-glow-delete');
-        });
         var sel = '.md-ws-cell[data-site-id="' + siteId + '"][data-date="' + dateKey + '"]';
         if (shift) sel += '[data-shift="' + shift + '"]';
         var targets = document.querySelectorAll(sel);
         if (targets.length === 0) return;
-        var cls = 'md-cn-cell-glow-' + (type || 'modify');
-        targets.forEach(function (c) { c.classList.add(cls); });
         targets[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(function () {
-            targets.forEach(function (c) { c.classList.remove(cls); });
-        }, 5000);
+        wsCnShowFocus(targets, '.md-ws-cell');
     }
 
     function wsCnHighlightHolidayDate(dateKey, type) {
-        document.querySelectorAll('.md-ws-holiday-row-cell[class*="md-cn-cell-glow-"]').forEach(function (c) {
-            c.classList.remove('md-cn-cell-glow-add', 'md-cn-cell-glow-modify', 'md-cn-cell-glow-delete');
-        });
         var target = document.querySelector('.md-ws-holiday-row-cell[data-date="' + dateKey + '"][data-shift="day"]') ||
                      document.querySelector('.md-ws-holiday-row-cell[data-date="' + dateKey + '"]');
         if (!target) return;
         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        var cls = 'md-cn-cell-glow-' + (type || 'modify');
-        target.classList.add(cls);
-        setTimeout(function () { target.classList.remove(cls); }, 5000);
+        wsCnShowFocus(target, '.md-ws-holiday-row-cell');
     }
 
     function wsCnFindSiteByLabel(label) {

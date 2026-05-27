@@ -5190,30 +5190,27 @@
         };
 
         // 旧 cn-* dead code から復元 (リファクタ以前のセル差分表示仕様)
-        // op=modify + diffs[] のときはセル単位で「旧→新」表示 + 該当セル glow
-        // それ以外 (add/delete/place/remove 等、または diffs 無) は行全体 glow
+        // op=modify + diffs[] のときはセル単位で「旧→新」表示 + 該当セルを残して周辺を薄暗くする
+        // それ以外 (add/delete/place/remove 等、または diffs 無) は行全体を残して周辺を薄暗くする
+        function slCnShowFocus(targets) {
+            if (window.coNotifyFocusOverlay && typeof window.coNotifyFocusOverlay.show === 'function') {
+                window.coNotifyFocusOverlay.show(targets, {
+                    candidateSelector: '.grid-table tbody tr td'
+                });
+            }
+        }
+
         function slCnFlashRow(row, op, diffs) {
             if (!row) return;
             row.scrollIntoView({ behavior: 'smooth', block: 'center' });
             var hasDiffs = Array.isArray(diffs) && diffs.length > 0;
             if (op !== 'modify' || !hasDiffs) {
-                var glow = (op === 'add' || op === 'place') ? 'add'
-                         : (op === 'delete' || op === 'remove' || op === 'reject') ? 'delete'
-                         : 'modify';
-                var cls = 'md-cn-cell-glow-' + glow;
-                var cells = row.querySelectorAll('td');
-                cells.forEach(function (td) {
-                    td.classList.remove('md-cn-cell-glow-add', 'md-cn-cell-glow-modify', 'md-cn-cell-glow-delete');
-                    void td.offsetWidth;
-                    td.classList.add(cls);
-                });
-                setTimeout(function () {
-                    cells.forEach(function (td) { td.classList.remove(cls); });
-                }, 5000);
+                slCnShowFocus(row.querySelectorAll('td'));
                 return;
             }
             // modify + diffs[] → セル単位差分表示
             var restore = [];
+            var focusTargets = [];
             diffs.forEach(function (d) {
                 if (!d || !d.field) return;
                 var resolveEl = SL_FIELD_TEXT_EL[d.field];
@@ -5225,9 +5222,7 @@
                                  + '<div class="md-cn-cell-new">' + newText + '</div>';
                     var td = el.closest('td');
                     if (td) {
-                        td.classList.remove('md-cn-cell-glow-modify');
-                        void td.offsetWidth;
-                        td.classList.add('md-cn-cell-glow-modify');
+                        focusTargets.push(td);
                     }
                     restore.push({ el: el, td: td, finalText: newText });
                     return;
@@ -5236,19 +5231,21 @@
                 if (sel) {
                     var td2 = row.querySelector(sel);
                     if (td2) {
-                        td2.classList.remove('md-cn-cell-glow-modify');
-                        void td2.offsetWidth;
-                        td2.classList.add('md-cn-cell-glow-modify');
+                        focusTargets.push(td2);
                         restore.push({ el: null, td: td2, finalText: null });
                     }
                 }
             });
+            if (focusTargets.length) {
+                slCnShowFocus(focusTargets);
+            } else {
+                slCnShowFocus(row.querySelectorAll('td'));
+            }
             setTimeout(function () {
                 restore.forEach(function (r) {
-                    if (r.td) r.td.classList.remove('md-cn-cell-glow-modify');
                     if (r.el && r.finalText !== null) r.el.innerHTML = r.finalText;
                 });
-            }, 5000);
+            }, 2000);
         }
 
         document.addEventListener('cn:jump', function (e) {

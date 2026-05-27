@@ -172,6 +172,37 @@
     100% { background: transparent; }
 }
 
+/* 通知ジャンプ先フォーカス: 対象以外を2秒でフェードアウトする薄暗い面で覆う */
+.cn-focus-dim:not(.tbl-grid__cell) {
+    position: relative !important;
+}
+.cn-focus-dim:not(.tbl-grid__cell)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.18);
+    border-radius: inherit;
+    pointer-events: auto;
+    z-index: 40;
+    animation: cn-focus-overlay-fade 2s ease-out forwards;
+}
+.tbl-grid__cell.cn-focus-dim {
+    box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0.18);
+    animation: cn-focus-cell-fade 2s ease-out forwards;
+}
+.cn-focus-target {
+    position: relative;
+    z-index: 41;
+}
+@keyframes cn-focus-overlay-fade {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+@keyframes cn-focus-cell-fade {
+    from { box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0.18); }
+    to   { box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0); }
+}
+
 /* ============================================================
    通知アイテム
    ============================================================ */
@@ -428,6 +459,23 @@
     align-items: center;
     gap: 6px;
     flex-wrap: wrap;
+}
+.cn-source-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 4px;
+    background: var(--bg-surface-2);
+    border: 1px solid var(--divider);
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+.cn-text-main-label {
+    min-width: 0;
 }
 .cn-text-sub {
     color: var(--text-tertiary);

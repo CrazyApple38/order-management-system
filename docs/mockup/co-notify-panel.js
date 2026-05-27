@@ -9,6 +9,84 @@
 (function () {
     'use strict';
 
+    // ========== 通知ジャンプ先フォーカス ==========
+    var focusOverlayState = {
+        timer: null,
+        targets: [],
+        dimmed: [],
+        onDismiss: null
+    };
+
+    function normalizeElements(input) {
+        if (!input) return [];
+        if (input instanceof Element) return [input];
+        return Array.prototype.slice.call(input).filter(function (el) {
+            return el instanceof Element;
+        });
+    }
+
+    function clearFocusOverlay() {
+        if (focusOverlayState.timer) {
+            clearTimeout(focusOverlayState.timer);
+            focusOverlayState.timer = null;
+        }
+        if (focusOverlayState.onDismiss) {
+            document.removeEventListener('click', focusOverlayState.onDismiss, true);
+            focusOverlayState.onDismiss = null;
+        }
+        focusOverlayState.targets.forEach(function (el) {
+            el.classList.remove('cn-focus-target');
+        });
+        focusOverlayState.dimmed.forEach(function (el) {
+            el.classList.remove('cn-focus-dim');
+        });
+        focusOverlayState.targets = [];
+        focusOverlayState.dimmed = [];
+    }
+
+    function isFocusTarget(candidate, targets) {
+        return targets.some(function (target) {
+            return candidate === target || candidate.contains(target) || target.contains(candidate);
+        });
+    }
+
+    function showFocusOverlay(targetsInput, options) {
+        var targets = normalizeElements(targetsInput);
+        if (!targets.length) return;
+        var opts = options || {};
+        var scope = opts.scope instanceof Element ? opts.scope : document;
+        var candidates = opts.candidates
+            ? normalizeElements(opts.candidates)
+            : (opts.candidateSelector ? Array.prototype.slice.call(scope.querySelectorAll(opts.candidateSelector)) : []);
+        if (!candidates.length) return;
+
+        clearFocusOverlay();
+        targets.forEach(function (el) { el.classList.add('cn-focus-target'); });
+        var dimmed = candidates.filter(function (el) { return !isFocusTarget(el, targets); });
+        dimmed.forEach(function (el) { el.classList.add('cn-focus-dim'); });
+        focusOverlayState.targets = targets;
+        focusOverlayState.dimmed = dimmed;
+        focusOverlayState.timer = setTimeout(clearFocusOverlay, opts.duration || 2000);
+        focusOverlayState.onDismiss = function (e) {
+            var hitDim = !!(e && e.target && e.target.closest && e.target.closest('.cn-focus-dim'));
+            clearFocusOverlay();
+            if (hitDim) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        };
+        setTimeout(function () {
+            if (focusOverlayState.onDismiss) {
+                document.addEventListener('click', focusOverlayState.onDismiss, true);
+            }
+        }, 0);
+    }
+
+    window.coNotifyFocusOverlay = {
+        show: showFocusOverlay,
+        clear: clearFocusOverlay
+    };
+
     // ========== パネル開閉 ==========
     function closeAllPanels(except) {
         document.querySelectorAll('.cn-anchor.is-open').forEach(function (a) {
@@ -176,12 +254,35 @@
         };
         return axisPage[rawTarget.axis] || '';
     }
+    var CN_PAGE_TARGET_AXES = {
+        'order-book':        ['orderId', 'siteName'],
+        'screen-layout':     ['siteName', 'orderId', 'wsCell'],
+        'weekly-schedule':   ['wsCell', 'siteName', 'orderId', 'leaveId'],
+        'leave-application': ['leaveId', 'vehicleSchedule']
+    };
+    function currentStoreDateKey() {
+        return (window.OmsMockStore && window.OmsMockStore.getCurrentDate && window.OmsMockStore.getCurrentDate()) || '';
+    }
+    function isTargetDateVisibleOnPage(rawTarget, page) {
+        if (!rawTarget || !rawTarget.date) return true;
+        // SL is a single-day screen. Only flash WS-origin cells on SL when the dates match.
+        if (page === 'screen-layout') {
+            return String(rawTarget.date) === String(currentStoreDateKey());
+        }
+        return true;
+    }
+    function canPageHandleTarget(rawTarget, page) {
+        if (!rawTarget || !rawTarget.axis || !page) return false;
+        var axes = CN_PAGE_TARGET_AXES[page] || [];
+        return axes.indexOf(rawTarget.axis) >= 0 && isTargetDateVisibleOnPage(rawTarget, page);
+    }
     function resolveTargetForPage(rawTarget, page) {
         if (!rawTarget || !page) return null;
         if (rawTarget.axis) {
-            return targetOwnerPage(rawTarget) === page ? rawTarget : null;
+            return (targetOwnerPage(rawTarget) === page || canPageHandleTarget(rawTarget, page)) ? rawTarget : null;
         }
-        return rawTarget[page] || null;
+        var pageTarget = rawTarget[page] || null;
+        return isTargetDateVisibleOnPage(pageTarget, page) ? pageTarget : null;
     }
     function targetPages(rawTarget) {
         if (!rawTarget) return [];
@@ -200,7 +301,10 @@
             ws: 'weekly-schedule',
             la: 'leave-application',
             pending: 'leave-application',
-            vehicle: 'screen-layout'
+            vehicle: 'screen-layout',
+            order: 'order-book',
+            assignment: 'screen-layout',
+            approval: 'leave-application'
         };
         return map[source] || '';
     }
@@ -231,7 +335,7 @@
             .map(function (s) { return s.trim(); }).filter(Boolean);
         var page = pageOverride || getCurrentPage();
         var anchor = item.closest('.cn-anchor[data-bell]');
-        var source = anchor ? anchor.dataset.bell : '';
+        var source = item.dataset.sourceBell || (anchor ? anchor.dataset.bell : '');
         var rawTarget = parseItemTarget(item);
         var target = resolveTargetForPage(rawTarget, page);
         var scope = item.dataset.scope || '';
@@ -268,6 +372,14 @@
             detail: detail
         });
         item.dispatchEvent(ev);
+    }
+    function shouldKeepExpandedAfterJump(detail) {
+        if (!detail || !detail.inContext || !detail.target) return false;
+        if (detail.primaryPage && detail.primaryPage !== detail.page) return true;
+        var sourcePage = sourceToPrimaryPage(detail.source);
+        if (sourcePage && sourcePage !== detail.page) return true;
+        var ownerPage = targetOwnerPage(detail.target);
+        return !!(ownerPage && ownerPage !== detail.page);
     }
     function setItemExpanded(item, expanded) {
         item.classList.toggle('is-expanded', expanded);
@@ -311,6 +423,17 @@
         if (currentDetail.inContext && currentDetail.target) {
             markItemReadAndRefresh(item);
             fireJump(item);
+            if (shouldKeepExpandedAfterJump(currentDetail)) {
+                var currentPanel = item.closest('.cn-panel');
+                if (currentPanel) {
+                    currentPanel.querySelectorAll('.cn-item.is-expanded').forEach(function (other) {
+                        if (other !== item) setItemExpanded(other, false);
+                    });
+                }
+                setItemExpanded(item, true);
+                renderCrossHintsIn(item);
+                return;
+            }
             var currentAnchor = item.closest('.cn-anchor[data-bell]');
             if (currentAnchor && window.coNotifyPanel && typeof window.coNotifyPanel.close === 'function') {
                 window.coNotifyPanel.close(currentAnchor);
@@ -490,7 +613,12 @@
     // 各画面の HTML から見た相対パスは `assets/icons/...`（docs/ 配下に置かれる前提）。
     var CN_ICON_BASE = 'assets/icons/';
     var CN_SLOT_DEFAULT = {
-        // ベル7個
+        // ベル4分類
+        'bell-order':      'business/si-46623-personal-information.png',
+        'bell-assignment': 'stationery/im-12555-karendaa.svg',
+        'bell-approval':   'sign-mark/si-8681-8681.png',
+        'bell-master':     'sign-mark/im-00001-muryou-no-settei-haguruma.svg',
+        // 旧ベルID（API互換用）
         'bell-ob':       'business/si-46623-personal-information.png',
         'bell-sl':       'person/si-13707-13707.png',
         'bell-ws':       'stationery/im-12555-karendaa.svg',
@@ -535,7 +663,13 @@
     function resolveSlot(slotKey) {
         if (!slotKey) return null;
         var sel = readStoredSelections();
-        return sel[slotKey] || CN_SLOT_DEFAULT[slotKey] || null;
+        var legacyBellSlots = {
+            'bell-order': 'bell-ob',
+            'bell-assignment': 'bell-ws',
+            'bell-approval': 'bell-la'
+        };
+        var legacySlot = legacyBellSlots[slotKey];
+        return sel[slotKey] || (legacySlot ? sel[legacySlot] : null) || CN_SLOT_DEFAULT[slotKey] || null;
     }
 
     // ========== プリミティブ (scope×op) 合成 — Phase N-2.4.3 ==========
@@ -626,10 +760,43 @@
     }
 
     // ========== ベル/アイテム 描画 API（Phase N-2.2） ==========
+    var CN_BELL_ALIASES = Object.assign({
+        ob: 'order',
+        sl: 'assignment',
+        ws: 'assignment',
+        vehicle: 'assignment',
+        la: 'approval',
+        pending: 'approval',
+        master: 'master'
+    }, window.coNotifyBellAliases || {});
+    var CN_SOURCE_LABELS = {
+        ob: '受注簿',
+        sl: '配置表',
+        ws: '週間予定',
+        la: '休暇申請',
+        pending: '休暇申請',
+        vehicle: '車両予定',
+        master: 'マスタ',
+        order: '受注簿',
+        assignment: '配置表',
+        approval: '休暇申請'
+    };
+    function normalizeBellId(bellId) {
+        return CN_BELL_ALIASES[bellId] || bellId;
+    }
+    function sourceLabelFor(sourceBell) {
+        return CN_SOURCE_LABELS[sourceBell] || '';
+    }
+    function normalizeItemForBell(sourceBell, item) {
+        var clone = Object.assign({}, item || {});
+        if (!clone.sourceBell) clone.sourceBell = sourceBell;
+        return clone;
+    }
     function getAnchor(bellId) {
-        return document.querySelector('.cn-anchor[data-bell="' + bellId + '"]');
+        return document.querySelector('.cn-anchor[data-bell="' + normalizeBellId(bellId) + '"]');
     }
     function applyBellIcon(bellId) {
+        bellId = normalizeBellId(bellId);
         var path = resolveSlot('bell-' + bellId);
         if (!path) return;
         var img = document.querySelector('[data-bell-icon="' + bellId + '"]');
@@ -680,6 +847,10 @@
             ? ' data-diffs="' + escapeHtml(JSON.stringify(item.diffs)) + '"' : '';
         var domainAttr = item.domain ? ' data-domain="' + escapeHtml(item.domain) + '"' : '';
         var primaryAttr = item.primaryPage ? ' data-primary-page="' + escapeHtml(item.primaryPage) + '"' : '';
+        var sourceBell = item.sourceBell || bellId;
+        var sourceAttr = sourceBell ? ' data-source-bell="' + escapeHtml(sourceBell) + '"' : '';
+        var sourceLabel = sourceLabelFor(sourceBell);
+        var sourceBadgeHtml = sourceLabel ? '<span class="cn-source-badge">' + escapeHtml(sourceLabel) + '</span>' : '';
         var chevronHtml = hasExpand ? '<span class="cn-chevron">▾</span>' : '';
         var expandHtml = '';
         if (hasExpand) {
@@ -706,12 +877,13 @@
             +   affectsAttr
             +   domainAttr
             +   primaryAttr
+            +   sourceAttr
             +   targetAttr
             +   diffsAttr + '>'
             +   '<div class="cn-item-row">'
             +     '<div class="cn-icon type-' + typeClass + iconColorCls + '">' + iconInner + '</div>'
             +     '<div class="cn-text">'
-            +       '<div class="cn-text-main">' + escapeHtml(item.main || '') + '</div>'
+            +       '<div class="cn-text-main">' + sourceBadgeHtml + '<span class="cn-text-main-label">' + escapeHtml(item.main || '') + '</span></div>'
             +       (item.sub ? '<div class="cn-text-sub">' + escapeHtml(item.sub) + '</div>' : '')
             +     '</div>'
             +     chevronHtml
@@ -729,6 +901,7 @@
         return item;
     }
     function renderBellLatest(bellId) {
+        bellId = normalizeBellId(bellId);
         var body = document.querySelector('[data-bell-body="' + bellId + '"]');
         if (!body) return;
         var items = bellItemsStore[bellId] || [];
@@ -763,38 +936,71 @@
         updateBadge(bellId);
     }
     function setItems(bellId, items) {
+        var sourceBell = bellId;
+        var targetBell = normalizeBellId(bellId);
         items = (items || []).map(function (it) {
-            return ensureItemId(bellId, Object.assign({}, it));
+            return ensureItemId(targetBell, normalizeItemForBell(sourceBell, it));
         });
-        bellItemsStore[bellId] = items;
-        renderBellLatest(bellId);
+        if (targetBell !== sourceBell) {
+            var current = bellItemsStore[targetBell] || [];
+            var hasCommonSeedForSource = current.some(function (it) {
+                return (it.sourceBell || targetBell) === sourceBell && it._commonSeed;
+            });
+            if (hasCommonSeedForSource) {
+                renderBellLatest(targetBell);
+                return;
+            }
+            var preserved = current.filter(function (it) {
+                return (it.sourceBell || targetBell) !== sourceBell;
+            });
+            bellItemsStore[targetBell] = items.concat(preserved);
+        } else {
+            bellItemsStore[targetBell] = items;
+        }
+        renderBellLatest(targetBell);
     }
     // 各画面JSが発信時に呼ぶ。先頭に追加（最新順）。id を返す。
     function addItem(bellId, item) {
-        if (!bellItemsStore[bellId]) bellItemsStore[bellId] = [];
-        var clone = ensureItemId(bellId, Object.assign({}, item));
-        bellItemsStore[bellId].unshift(clone);
-        renderBellLatest(bellId);
+        var sourceBell = bellId;
+        var targetBell = normalizeBellId(bellId);
+        if (!bellItemsStore[targetBell]) bellItemsStore[targetBell] = [];
+        var clone = ensureItemId(targetBell, normalizeItemForBell(sourceBell, item));
+        bellItemsStore[targetBell].unshift(clone);
+        renderBellLatest(targetBell);
         return clone.id;
     }
     // 各画面JSが「変更が取り消された」「対応済み」を通知するため
     function removeItem(bellId, itemId) {
-        var arr = bellItemsStore[bellId];
+        var targetBell = normalizeBellId(bellId);
+        var arr = bellItemsStore[targetBell];
         if (!arr || !itemId) return false;
         var before = arr.length;
-        bellItemsStore[bellId] = arr.filter(function (it) { return it.id !== itemId; });
-        if (bellItemsStore[bellId].length === before) return false;
-        renderBellLatest(bellId);
+        bellItemsStore[targetBell] = arr.filter(function (it) { return it.id !== itemId; });
+        if (bellItemsStore[targetBell].length === before) return false;
+        renderBellLatest(targetBell);
         return true;
     }
     function clearItems(bellId) {
-        bellItemsStore[bellId] = [];
-        renderBellLatest(bellId);
+        var targetBell = normalizeBellId(bellId);
+        if (targetBell !== bellId) {
+            bellItemsStore[targetBell] = (bellItemsStore[targetBell] || []).filter(function (it) {
+                return (it.sourceBell || targetBell) !== bellId;
+            });
+        } else {
+            bellItemsStore[targetBell] = [];
+        }
+        renderBellLatest(targetBell);
     }
     function getItems(bellId) {
-        return (bellItemsStore[bellId] || []).slice();
+        var targetBell = normalizeBellId(bellId);
+        var items = (bellItemsStore[targetBell] || []).slice();
+        if (targetBell !== bellId) {
+            return items.filter(function (it) { return (it.sourceBell || targetBell) === bellId; });
+        }
+        return items;
     }
     function updateBadge(bellId, count) {
+        bellId = normalizeBellId(bellId);
         var anchor = getAnchor(bellId);
         if (!anchor) return;
         if (count == null) {

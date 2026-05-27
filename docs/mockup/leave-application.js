@@ -1468,7 +1468,7 @@
         window.coNotifyPanel.setItems('la', items);
     }
 
-    // cn:jump → 該当休暇バッジへフラッシュ + ポップオーバー (新システム / §6.5 仕様準拠)
+    // cn:jump → 該当休暇バッジを残して周辺を薄暗くする + ポップオーバー (新システム / §6.5 仕様準拠)
     document.addEventListener('cn:jump', function (e) {
         var d = e.detail || {};
         if (d.inContext !== true) return;
@@ -1496,10 +1496,11 @@
             var badge = document.querySelector('.md-la-badge[data-leave-id="' + lv.id + '"]');
             if (!badge) return;
             badge.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            badge.classList.remove('md-la-badge-flash');
-            void badge.offsetWidth;
-            badge.classList.add('md-la-badge-flash');
-            setTimeout(function () { badge.classList.remove('md-la-badge-flash'); }, 1800);
+            if (window.coNotifyFocusOverlay && typeof window.coNotifyFocusOverlay.show === 'function') {
+                window.coNotifyFocusOverlay.show(badge, {
+                    candidateSelector: '.md-la-badge'
+                });
+            }
             if (typeof laShowBadgeInfo === 'function') laShowBadgeInfo(lv, badge);
         }, needsRender ? 100 : 0);
     });
