@@ -238,6 +238,11 @@
         var domain = item.dataset.domain || inferDomain(source, scope);
         var primaryPage = item.dataset.primaryPage || inferPrimaryPage(source, scope, rawTarget);
         var inContext = !!(page && target && affects.indexOf(page) !== -1);
+        var diffs = null;
+        if (item.dataset.diffs) {
+            try { diffs = JSON.parse(item.dataset.diffs); }
+            catch (err) { diffs = null; }
+        }
         return {
             item: item,
             source: source,
@@ -252,7 +257,8 @@
             slot: item.dataset.slot || '',
             target: target,
             rawTarget: rawTarget,
-            targetPages: targetPages(rawTarget)
+            targetPages: targetPages(rawTarget),
+            diffs: diffs
         };
     }
     function fireJump(item) {
@@ -670,6 +676,8 @@
         var idAttr = item.id ? ' data-id="' + escapeHtml(item.id) + '"' : '';
         var targetAttr = item.target
             ? ' data-target="' + escapeHtml(JSON.stringify(item.target)) + '"' : '';
+        var diffsAttr = hasDiffs
+            ? ' data-diffs="' + escapeHtml(JSON.stringify(item.diffs)) + '"' : '';
         var domainAttr = item.domain ? ' data-domain="' + escapeHtml(item.domain) + '"' : '';
         var primaryAttr = item.primaryPage ? ' data-primary-page="' + escapeHtml(item.primaryPage) + '"' : '';
         var chevronHtml = hasExpand ? '<span class="cn-chevron">▾</span>' : '';
@@ -698,7 +706,8 @@
             +   affectsAttr
             +   domainAttr
             +   primaryAttr
-            +   targetAttr + '>'
+            +   targetAttr
+            +   diffsAttr + '>'
             +   '<div class="cn-item-row">'
             +     '<div class="cn-icon type-' + typeClass + iconColorCls + '">' + iconInner + '</div>'
             +     '<div class="cn-text">'

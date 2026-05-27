@@ -9,18 +9,21 @@
 
 - **更新者**: Claude Code (Opus 4.7)
 - **日付**: 2026-05-27
-- **コミット**: d6feab8 (Refine N-5 cross-screen flash with domain priority rules)
+- **コミット**: a19abda (Fix N-5 cross-screen jump to use same-tab navigation)
 
 ## 直前にやったこと
 
-- **N-5 クロス画面ジャンプの新タブ問題を修正**: `window.open(url, '_blank')` で新タブが量産される問題を解消し、`window.location.href = url` の同タブ遷移に変更
-- `dispatchJumpFromUrl` に `history.replaceState` を追加 — リロード時の再発火と URL の `cnJump` 汚染を防ぐためのクリーンアップ
-- `co-notify-panel.js?v=15 → ?v=16` バンプ（6 HTML）
-- XAMPP localhost + Playwright で同タブ遷移 + 着地フラッシュ + cnJump URL クリーンを実機確認
+- **SL 「変更」フラッシュをリファクタ以前のセル単位差分表示に完全復元**: `slCnFlashRow(row, op, diffs)` を 2 分岐へ書き換え
+  - **op=modify + diffs[] のとき**: field 名（人数/集合時間/連絡先/開始時間/終了時間/契約先/現場名/区分 等）から対象セルを特定し、`.md-cn-cell-old`（取り消し線・赤）+ `.md-cn-cell-new`（下に表示）の innerHTML に差し替え、その td だけ `md-cn-cell-glow-modify` を 5 秒
+  - **それ以外**: 行全体 td に `md-cn-cell-glow-{add|modify|delete}` を 5 秒（行追加/削除/place/remove 等）
+- diffs を cn:jump detail まで運ぶため、`co-notify-panel.js` の buildItemHtml に `data-diffs` 属性追加 + buildJumpDetail に `detail.diffs` を追加
+- SL シードの modify 通知に diffs サンプル（人数 / 集合時間）を追加
+- `screen-layout.js ?v=46 → ?v=47` / `co-notify-panel.js ?v=16 → ?v=17` バンプ
+- XAMPP + Playwright で実画面検証: glow=2、`.md-cn-cell-old/new` 描画、人数 0/2→3/2 / 集合時間 08:45→08:30 が確認できた
 
 ## 次にやるべきこと
 
-- 上記修正をコミット予定 (`co-notify-panel.js` + 6 HTML / 約 17 行差分)
+- 上記 SL フラッシュ完全復元をコミット予定 (`co-notify-panel.js` + `screen-layout.js` + 6 HTML)
 - **N-6（結合テスト・既存計画との整合性確認）へ進む**
 - 受注変更で SL/WS を現在画面優先にする場合は、OB通知側に画面別 `target.screen-layout` / `target.weekly-schedule` を付与できるだけの可視日付判定を追加する
 - 車両配置と休暇競合は、LA側の `vehicleSchedule` / `leaveId` target を生成できるタイミングで補助フラッシュ対象へ拡張する

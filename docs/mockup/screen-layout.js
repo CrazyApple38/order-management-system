@@ -5125,7 +5125,12 @@
             var items = [];
             rows.slice(0, 2).forEach(function (row, idx) {
                 var info = cnGetRowInfo(row);
-                var countText = (row.querySelector('.count-display') || {}).textContent || '';
+                var countText = ((row.querySelector('.count-display') || {}).textContent || '').trim();
+                var timeText = ((row.querySelector('.time-display') || {}).textContent || '').trim();
+                var demoDiffs = idx === 1 ? [
+                    { field: '人数', oldVal: countText || '0/2', newVal: '3/2' },
+                    { field: '集合時間', oldVal: timeText || '08:45', newVal: '08:30' }
+                ] : null;
                 items.push({
                     scope: 'site',
                     op: idx === 0 ? 'add' : 'modify',
@@ -5135,6 +5140,7 @@
                     date: today,
                     expand: '区分: ' + (info.category || '') + ' / シフト: ' + (info.shift || '') +
                         (countText ? ' / 人数: ' + countText : ''),
+                    diffs: demoDiffs,
                     affects: ['screen-layout', 'weekly-schedule', 'order-book'],
                     target: { axis: 'siteName', value: info.siteName }
                 });
@@ -5161,13 +5167,88 @@
             window.coNotifyPanel.setItems('sl', items);
         }
 
-        function slCnFlashRow(row) {
+        // field 名 → 行内の差分表示対象要素 (.time-display 等)
+        // 単純テキスト系 (span 等) は cnShowCellDiff で旧→新 表示に差し替え
+        var SL_FIELD_TEXT_EL = {
+            '集合時間': function (r) { return r.querySelector('.time-display'); },
+            '連絡先':   function (r) { return r.querySelector('.contact-badge'); },
+            '人数':     function (r) { return r.querySelector('.count-display'); },
+            '開始時間': function (r) { return r.querySelector('.work-time-start'); },
+            '終了時間': function (r) { return r.querySelector('.work-time-end'); },
+            '契約先':   function (r) { return r.querySelector('.col-site-info .company'); },
+            '現場名':   function (r) { return r.querySelector('.col-site-info .site-name'); },
+            '区分':     function (r) { return r.querySelector('.col-site-info .category-badge'); }
+        };
+        // 複雑 HTML 系 (作業内容/地図/備考 等) はセル全体 glow のみで差分表示しない
+        var SL_FIELD_CELL_SEL = {
+            'シフト':     '.col-site-info',
+            '集合場所':   '.col-site-info',
+            '現場監督':   '.col-site-info',
+            '作業内容':   '.col-badge',
+            '地図':       '.col-map',
+            '備考':       '.col-notes'
+        };
+
+        // 旧 cn-* dead code から復元 (リファクタ以前のセル差分表示仕様)
+        // op=modify + diffs[] のときはセル単位で「旧→新」表示 + 該当セル glow
+        // それ以外 (add/delete/place/remove 等、または diffs 無) は行全体 glow
+        function slCnFlashRow(row, op, diffs) {
             if (!row) return;
             row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            row.classList.remove('highlight-flash');
-            void row.offsetWidth;
-            row.classList.add('highlight-flash');
-            setTimeout(function () { row.classList.remove('highlight-flash'); }, 1600);
+            var hasDiffs = Array.isArray(diffs) && diffs.length > 0;
+            if (op !== 'modify' || !hasDiffs) {
+                var glow = (op === 'add' || op === 'place') ? 'add'
+                         : (op === 'delete' || op === 'remove' || op === 'reject') ? 'delete'
+                         : 'modify';
+                var cls = 'md-cn-cell-glow-' + glow;
+                var cells = row.querySelectorAll('td');
+                cells.forEach(function (td) {
+                    td.classList.remove('md-cn-cell-glow-add', 'md-cn-cell-glow-modify', 'md-cn-cell-glow-delete');
+                    void td.offsetWidth;
+                    td.classList.add(cls);
+                });
+                setTimeout(function () {
+                    cells.forEach(function (td) { td.classList.remove(cls); });
+                }, 5000);
+                return;
+            }
+            // modify + diffs[] → セル単位差分表示
+            var restore = [];
+            diffs.forEach(function (d) {
+                if (!d || !d.field) return;
+                var resolveEl = SL_FIELD_TEXT_EL[d.field];
+                var el = resolveEl ? resolveEl(row) : null;
+                if (el) {
+                    var oldText = (d.oldVal == null ? '' : String(d.oldVal)) || '(空)';
+                    var newText = (d.newVal == null ? '' : String(d.newVal)) || '(空)';
+                    el.innerHTML = '<span class="md-cn-cell-old">' + oldText + '</span>'
+                                 + '<div class="md-cn-cell-new">' + newText + '</div>';
+                    var td = el.closest('td');
+                    if (td) {
+                        td.classList.remove('md-cn-cell-glow-modify');
+                        void td.offsetWidth;
+                        td.classList.add('md-cn-cell-glow-modify');
+                    }
+                    restore.push({ el: el, td: td, finalText: newText });
+                    return;
+                }
+                var sel = SL_FIELD_CELL_SEL[d.field];
+                if (sel) {
+                    var td2 = row.querySelector(sel);
+                    if (td2) {
+                        td2.classList.remove('md-cn-cell-glow-modify');
+                        void td2.offsetWidth;
+                        td2.classList.add('md-cn-cell-glow-modify');
+                        restore.push({ el: null, td: td2, finalText: null });
+                    }
+                }
+            });
+            setTimeout(function () {
+                restore.forEach(function (r) {
+                    if (r.td) r.td.classList.remove('md-cn-cell-glow-modify');
+                    if (r.el && r.finalText !== null) r.el.innerHTML = r.finalText;
+                });
+            }, 5000);
         }
 
         document.addEventListener('cn:jump', function (e) {
@@ -5202,7 +5283,7 @@
                     });
                 }
             }
-            slCnFlashRow(row);
+            slCnFlashRow(row, target.op || d.op || d.type, d.diffs);
         });
 
         function cnCreateRow(d) {
