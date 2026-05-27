@@ -5066,8 +5066,8 @@
             }
 
             var target = siteName ? {
-                'screen-layout': { axis: 'siteName', value: siteName },
-                'weekly-schedule': { axis: 'siteName', value: siteName }
+                'screen-layout': { axis: 'siteName', value: siteName, date: slCurrentDateKey() },
+                'weekly-schedule': { axis: 'siteName', value: siteName, date: slCurrentDateKey() }
             } : null;
             var domain = 'order';
             var primaryPage = 'order-book';

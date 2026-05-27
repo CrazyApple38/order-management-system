@@ -4324,6 +4324,23 @@ function obCnSelfNotify(scope, op, opts) {
     var company = opts.company || (row ? row.company : '');
     var dayStr = opts.day != null ? (opts.day + '日') : '';
 
+    function obCnSubject(companyName, taskValue, fallback) {
+        var left = companyName || '';
+        var right = taskValue || fallback || '受注';
+        return (left ? left + ' / ' : '') + right;
+    }
+    function obCnDiffSummary(diffs, fallback) {
+        if (!Array.isArray(diffs) || diffs.length === 0) return fallback || '受注内容を変更';
+        var first = diffs[0] || {};
+        var field = first.field || '変更内容';
+        if (diffs.length === 1) {
+            var oldVal = first.oldVal == null || first.oldVal === '' ? '(空)' : String(first.oldVal);
+            var newVal = first.newVal == null || first.newVal === '' ? '(空)' : String(first.newVal);
+            return field + ' ' + oldVal + ' → ' + newVal;
+        }
+        return field + 'ほか' + (diffs.length - 1) + '項目を変更';
+    }
+
     // N-3.4.2: main 文言テンプレートは notify-compare.html 通知一覧 (N-3.4) 表が SSOT。
     //   row × add:    '{company} / {task} 行を追加'
     //   row × modify: '{company} / {siteName} の {fields} を編集'
@@ -4338,18 +4355,17 @@ function obCnSelfNotify(scope, op, opts) {
         var badgeLabel = opts.badgeLabel || '作業内容';
         var badgeName = opts.badgeName || '';
         var parentSuffix = opts.parentName ? '（' + opts.parentName + '）' : '';
-        mainText = badgeLabel + (badgeName ? '「' + badgeName + '」' : '') + parentSuffix + ' を' + opLabelBadge;
+        mainText = obCnSubject(company, taskName, siteName) + '｜' + badgeLabel + (badgeName ? '「' + badgeName + '」' : '') + parentSuffix + ' を' + opLabelBadge;
     } else if (scope === 'row') {
-        var rowHead = (company ? company + ' / ' : '') + (taskName || siteName || '(業務名未設定)');
+        var rowHead = obCnSubject(company, taskName || siteName, '(業務名未設定)');
         if (op === 'modify') {
-            var fs = (opts.diffs || []).map(function (d) { return d.field; }).join('・');
-            mainText = rowHead + ' の ' + (fs || 'メタ情報') + ' を編集';
+            mainText = rowHead + '｜' + obCnDiffSummary(opts.diffs, '行情報を変更');
         } else if (op === 'add') {
-            mainText = rowHead + ' 行を追加';
+            mainText = rowHead + '｜行を追加';
         } else if (op === 'delete') {
-            mainText = rowHead + ' 行を削除';
+            mainText = rowHead + '｜行を削除';
         } else {
-            mainText = rowHead + ' を' + op;
+            mainText = rowHead + '｜' + op;
         }
     } else {
         // scope === 'site' (受注 / マス内のエントリ)
@@ -4357,19 +4373,18 @@ function obCnSelfNotify(scope, op, opts) {
         if (siteName && siteName !== taskName) {
             prefix = (company ? company + ' / ' : '') + (taskName ? taskName + ' / ' : '') + siteName;
         } else if (taskName) {
-            prefix = (company ? company + ' / ' : '') + taskName;
+            prefix = obCnSubject(company, taskName, '');
         } else {
             prefix = (company || '受注');
         }
-        var siteTail = (dayStr ? '(' + dayStr + ')' : '');
         if (op === 'add') {
-            mainText = prefix + siteTail + ' に受注追加';
+            mainText = prefix + '｜受注を追加';
         } else if (op === 'modify') {
-            mainText = prefix + siteTail + ' の受注変更';
+            mainText = prefix + '｜' + obCnDiffSummary(opts.diffs, '受注内容を変更');
         } else if (op === 'delete') {
-            mainText = prefix + siteTail + ' の受注削除';
+            mainText = prefix + '｜受注を削除';
         } else {
-            mainText = prefix + siteTail + ' の受注を' + op;
+            mainText = prefix + '｜受注を' + op;
         }
     }
 
@@ -4461,11 +4476,14 @@ function obCnSeedInitialDemo() {
         var op = ops[idx] || 'modify';
         var taskLabel = entry.dailyTaskName || row.task || '受注';
         var opLabel = op === 'add' ? '追加' : (op === 'delete' ? '削除' : '変更');
+        var changeLabel = op === 'modify'
+            ? '受注内容を変更'
+            : '受注を' + opLabel;
         return {
             scope: 'site',
             op: op,
-            main: (row.company || '契約先') + ' / ' + taskLabel + '(' + hit.day + '日) の受注' + opLabel,
-            sub: obCurrentUser + ' ・ ' + (idx === 2 ? '昨日' : obCnTimeNow()),
+            main: (row.company || '契約先') + ' / ' + taskLabel + '｜' + changeLabel,
+            sub: obCurrentUser + ' ・ ' + (idx === 2 ? '昨日 ' + obCnTimeNow() : obCnTimeNow()),
             date: idx === 2 ? '昨日' : today,
             expand: '人数: ' + (entry.count || 0) + '名 / シフト: ' + (row.shift || '') +
                 (entry.startTime || entry.endTime ? ' / 時間: ' + (entry.startTime || '') + '〜' + (entry.endTime || '') : ''),

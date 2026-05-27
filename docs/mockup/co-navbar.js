@@ -294,60 +294,66 @@
             var row = hit.row || {};
             var entry = hit.entry || {};
             var op = idx === 0 ? 'add' : (idx === 1 ? 'modify' : 'delete');
+            var actionText = op === 'add'
+                ? '受注を追加'
+                : (op === 'delete' ? '受注を削除' : '人数を変更');
+            var expandText = '人数: ' + (entry.count || 0) + '名 / シフト: ' + (row.shift || '');
             items.ob.push({
                 scope: 'site',
                 op: op,
                 domain: 'order',
                 primaryPage: 'order-book',
-                main: (row.company || '契約先') + ' / ' + (entry.dailyTaskName || row.task || '受注') + '(' + hit.day + '日) の受注' + (op === 'add' ? '追加' : op === 'delete' ? '削除' : '変更'),
-                sub: '共通モックデータ ・ ' + today,
+                main: (row.company || '契約先') + ' / ' + (entry.dailyTaskName || row.task || '受注') + '｜' + actionText,
+                sub: '共通モックデータ ・ ' + (idx === 2 ? '昨日 17:00' : '10:00'),
                 date: idx === 2 ? '昨日' : today,
-                expand: '人数: ' + (entry.count || 0) + '名 / シフト: ' + (row.shift || ''),
+                expand: expandText,
+                diffs: op === 'modify' ? [{ field: '人数', oldVal: '変更前', newVal: (entry.count || 0) + '名' }] : null,
                 affects: ['order-book', 'screen-layout', 'weekly-schedule'],
                 target: row._rowId != null ? { 'order-book': { axis: 'orderId', value: row._rowId, day: hit.day, subIndex: hit.subIndex } } : null
             });
         });
 
         if (firstOb) {
+            var currentDateKey = mdNavCurrentDateKey();
             items.sl.push({
                 scope: 'site', op: 'add',
                 domain: 'order',
                 primaryPage: 'order-book',
-                main: siteLabel + ' の受注を追加',
-                sub: '共通モックデータ ・ ' + today,
+                main: siteLabel + '｜受注を追加',
+                sub: '共通モックデータ ・ 10:00',
                 date: today,
                 expand: 'OB共通データからSL行へ反映',
                 affects: ['screen-layout', 'order-book', 'weekly-schedule'],
                 target: {
-                    'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' },
-                    'weekly-schedule': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' }
+                    'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey },
+                    'weekly-schedule': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey }
                 }
             });
             items.sl.push({
                 scope: 'employee', op: 'place', color: 'secondary',
                 domain: 'person-assignment',
                 primaryPage: 'screen-layout',
-                main: (firstOb.entry.dailyTaskName || firstOb.row.task || '現場') + ' に ' + employee.name + ' を配置',
-                sub: employee.company + ' ・ ' + today,
+                main: (firstOb.entry.dailyTaskName || firstOb.row.task || '現場') + '｜' + employee.name + ' を配置',
+                sub: employee.company + ' ・ 10:15',
                 date: today,
                 affects: ['screen-layout', 'weekly-schedule', 'leave-application'],
                 target: {
-                    'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' },
-                    'weekly-schedule': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' }
+                    'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey },
+                    'weekly-schedule': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey }
                 }
             });
             items.ws.push({
                 scope: 'schedule', op: 'add',
                 domain: 'person-assignment',
                 primaryPage: 'weekly-schedule',
-                main: (firstOb.entry.dailyTaskName || firstOb.row.task || '現場') + '(' + mdNavDayLabel(mdNavCurrentDateKey()) + ') に ' + employee.name + ' を配置',
-                sub: '共通モックデータ ・ ' + today,
+                main: (firstOb.entry.dailyTaskName || firstOb.row.task || '現場') + '｜' + employee.name + ' を配置',
+                sub: '共通モックデータ ・ 10:20',
                 date: today,
                 expand: '受注人数: ' + (firstOb.entry.count || 0) + '名',
                 affects: ['weekly-schedule', 'screen-layout', 'leave-application'],
                 target: {
-                    'weekly-schedule': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' },
-                    'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '' }
+                    'weekly-schedule': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey },
+                    'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey }
                 }
             });
         }
@@ -356,12 +362,12 @@
                 scope: 'vehicle', op: 'place',
                 domain: 'vehicle-assignment',
                 primaryPage: 'screen-layout',
-                main: (secondOb.entry.dailyTaskName || secondOb.row.task || '現場') + ' に ' + (vehicle.plate || vehicle.model || '車両') + ' を配置',
-                sub: (vehicle.model || '車両') + ' ・ ' + today,
+                main: (secondOb.entry.dailyTaskName || secondOb.row.task || '現場') + '｜' + (vehicle.plate || vehicle.model || '車両') + ' を配置',
+                sub: (vehicle.model || '車両') + ' ・ 10:25',
                 date: today,
                 affects: ['screen-layout', 'leave-application'],
                 target: {
-                    'screen-layout': { axis: 'siteName', value: secondOb.entry.dailyTaskName || secondOb.row.task || '' }
+                    'screen-layout': { axis: 'siteName', value: secondOb.entry.dailyTaskName || secondOb.row.task || '', date: mdNavCurrentDateKey() }
                 }
             });
             items.vehicle.push({
@@ -369,7 +375,7 @@
                 domain: 'vehicle-assignment',
                 primaryPage: 'screen-layout',
                 main: (vehicle.plate || vehicle.model || '車両') + ' の車両予定を更新',
-                sub: (vehicle.model || '共通車両データ') + ' ・ ' + today,
+                sub: (vehicle.model || '共通車両データ') + ' ・ 10:30',
                 date: today,
                 expand: '車両マスタ: ' + (vehicle.owner || '') + ' / ' + (vehicle.model || ''),
                 affects: ['screen-layout', 'leave-application']
@@ -378,14 +384,16 @@
 
         [pendingLeaves[0], approvedLeave, rejectedLeave].filter(Boolean).forEach(function (lv) {
             var op = lv.status === 'approved' ? 'approve' : (lv.status === 'rejected' ? 'reject' : 'add');
+            var action = op === 'add' ? '休暇申請を追加' : (op === 'approve' ? '申請を承認' : '申請を却下');
             items.la.push({
                 scope: 'application',
                 op: op,
                 domain: 'leave',
                 primaryPage: 'leave-application',
-                main: mdNavEmployeeNameById(lv.employeeId) + ' の ' + mdNavDayLabel(lv.date) + ' 休暇申請を' + (op === 'add' ? '追加' : op === 'approve' ? '承認' : '却下'),
-                sub: lv.status + ' ・ ' + today,
+                main: mdNavEmployeeNameById(lv.employeeId) + '｜' + action,
+                sub: '共通休暇データ ・ ' + (op === 'add' ? '09:30' : op === 'approve' ? '10:30' : '17:00'),
                 date: today,
+                targetDate: lv.date,
                 expand: lv.reason ? '理由: ' + lv.reason : '',
                 affects: ['leave-application', 'weekly-schedule'],
                 target: { axis: 'leaveId', value: String(lv.id) }
@@ -398,8 +406,9 @@
                 domain: 'leave',
                 primaryPage: 'leave-application',
                 main: 'DCP承認待ち: ' + pendingLeaves.length + '件',
-                sub: mdNavEmployeeNameById(pendingLeaves[0].employeeId) + ' / ' + mdNavDayLabel(pendingLeaves[0].date),
+                sub: mdNavEmployeeNameById(pendingLeaves[0].employeeId) + ' ・ 09:30',
                 date: today,
+                targetDate: pendingLeaves[0].date,
                 expand: '共通休暇申請データの pending 件数',
                 affects: ['leave-application'],
                 target: { axis: 'leaveId', value: String(pendingLeaves[0].id) }
@@ -413,7 +422,7 @@
                 domain: 'master',
                 primaryPage: 'order-book',
                 main: '現場マスタに ' + masterSite + ' を追加',
-                sub: '共通受注データ ・ ' + today,
+                sub: '共通受注データ ・ 09:00',
                 date: today,
                 affects: ['order-book', 'screen-layout', 'weekly-schedule']
             });

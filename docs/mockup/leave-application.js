@@ -1360,6 +1360,8 @@
         var dayStr = opts.day || '';
         var kindStr = opts.kind || '';
         var partStr = opts.partition || '';
+        var leaveRecord = opts.leaveId ? laLeaves.find(function (x) { return String(x.id) === String(opts.leaveId); }) : null;
+        var targetDate = opts.date || (leaveRecord ? leaveRecord.date : '');
 
         // N-3.4.2: main 文言テンプレートは notify-compare.html 通知一覧 (N-3.4) 表が SSOT。
         //   add:     '{empName} が {day} {kind}({partition}) に休暇申請'
@@ -1369,18 +1371,18 @@
         //   reject:  '{empName} の {day} 申請を却下'
         var mainText;
         if (op === 'add') {
-            mainText = empName + ' が ' + dayStr + ' ' + kindStr +
-                       (partStr ? '（' + partStr + '）' : '') + ' に休暇申請';
+            mainText = empName + '｜' + kindStr +
+                       (partStr ? '（' + partStr + '）' : '') + ' を申請';
         } else if (op === 'modify') {
             mainText = opts.fieldLabel
-                ? empName + ' の ' + dayStr + ' ' + opts.fieldLabel + ' 申請を変更'
-                : empName + ' の ' + dayStr + ' 申請を変更';
+                ? empName + '｜' + opts.fieldLabel + 'を変更'
+                : empName + '｜申請内容を変更';
         } else if (op === 'delete') {
-            mainText = empName + ' の ' + dayStr + ' ' + kindStr + ' 申請を削除';
+            mainText = empName + '｜' + kindStr + ' 申請を削除';
         } else if (op === 'approve') {
-            mainText = empName + ' の ' + dayStr + ' 申請を承認';
+            mainText = empName + '｜申請を承認';
         } else if (op === 'reject') {
-            mainText = empName + ' の ' + dayStr + ' 申請を却下';
+            mainText = empName + '｜申請を却下';
         } else {
             mainText = empName + ' / application × ' + op;
         }
@@ -1408,6 +1410,7 @@
             main: mainText,
             sub: subText,
             date: laCnTodayLabel(),
+            targetDate: targetDate,
             expand: expandText,
             diffs: opts.diffs || null,
             affects: ['leave-application', 'weekly-schedule'],

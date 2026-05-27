@@ -5401,7 +5401,6 @@
         if (scope === 'schedule') {
             var subject = opts.empName || opts.vehicleName || opts.subject || '';
             var siteStr = opts.siteName || '';
-            var dayStr = opts.day ? '(' + opts.day + ')' : '';
             var shiftStr = opts.shift ? ' [' + wsCnShiftLabel(opts.shift) + ']' : '';
             if (op === 'modify' && (opts.srcSite || opts.srcDay)) {
                 // セル間移動
@@ -5413,11 +5412,11 @@
                           (opts.dstShift ? ' [' + wsCnShiftLabel(opts.dstShift) + ']' : '');
                 mainText = src + ' → ' + dst + ' に ' + subject + ' を移動';
             } else if (op === 'add') {
-                mainText = siteStr + dayStr + shiftStr + ' に ' + subject + ' を配置';
+                mainText = siteStr + shiftStr + ' に ' + subject + ' を配置';
             } else if (op === 'delete') {
-                mainText = siteStr + dayStr + shiftStr + ' から ' + subject + ' を削除';
+                mainText = siteStr + shiftStr + ' から ' + subject + ' を削除';
             } else {
-                mainText = siteStr + dayStr + shiftStr + ' の ' + subject + ' を編集';
+                mainText = siteStr + shiftStr + ' の ' + subject + ' を編集';
             }
         } else if (scope === 'reservation') {
             if (opts.kind === 'partner') {

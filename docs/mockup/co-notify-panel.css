@@ -257,6 +257,24 @@
 .cn-icon.type-leave    { background: var(--accent-primary); }     /* 休暇申請 */
 .cn-icon.type-pending  { background: var(--accent-secondary); }   /* 承認待ち */
 
+.cn-source-badge,
+.cn-date-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.cn-date-badge {
+    color: var(--accent-primary);
+    background: rgba(68, 166, 181, 0.12);
+    border: 1px solid rgba(68, 166, 181, 0.35);
+}
+
 /* アイテム種別アイコン内の <img>（Phase N-2.2 / notify-icons-selected.json 適用） */
 .cn-icon-img {
     width: 16px;

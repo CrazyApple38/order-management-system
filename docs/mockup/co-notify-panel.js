@@ -806,6 +806,82 @@
         if (value === null || value === undefined || value === '') return '(空)';
         return String(value);
     }
+    function cnParseDateKey(value) {
+        var m = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!m) return null;
+        return {
+            year: parseInt(m[1], 10),
+            month: parseInt(m[2], 10),
+            day: parseInt(m[3], 10)
+        };
+    }
+    function cnCurrentDateParts() {
+        var key = '';
+        if (window.OmsMockStore && typeof window.OmsMockStore.getCurrentDate === 'function') {
+            key = window.OmsMockStore.getCurrentDate();
+        }
+        var parts = cnParseDateKey(key);
+        if (parts) return parts;
+        var now = new Date();
+        return { year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate() };
+    }
+    function cnDatePartsToTime(parts) {
+        return new Date(parts.year, parts.month - 1, parts.day).getTime();
+    }
+    function cnFormatTargetDateBadge(parts) {
+        if (!parts || !parts.month || !parts.day) return '';
+        var base = cnCurrentDateParts();
+        var diffDays = Math.round((cnDatePartsToTime(parts) - cnDatePartsToTime(base)) / 86400000);
+        var md = parts.month + '/' + parts.day;
+        if (diffDays === 0) return '今日 ' + md;
+        if (diffDays === -1) return '昨日 ' + md;
+        if (parts.year && parts.year !== base.year) return parts.year + '/' + md;
+        return md;
+    }
+    function cnFirstTarget(target) {
+        if (!target) return null;
+        if (target.axis) return target;
+        var pages = Object.keys(target);
+        for (var i = 0; i < pages.length; i += 1) {
+            var t = target[pages[i]];
+            if (t && typeof t === 'object') return t;
+        }
+        return null;
+    }
+    function cnTargetDateParts(item) {
+        if (item && item.targetDate) return cnParseDateKey(item.targetDate);
+        var target = cnFirstTarget(item ? item.target : null);
+        if (!target) return null;
+        var fromDate = cnParseDateKey(target.date);
+        if (fromDate) return fromDate;
+        if (target.day != null && target.day !== '') {
+            var base = cnCurrentDateParts();
+            var day = parseInt(target.day, 10);
+            if (Number.isFinite(day)) return { year: base.year, month: base.month, day: day };
+        }
+        return null;
+    }
+    function cnTargetDateBadgeHtml(item) {
+        var source = item ? (item.sourceBell || '') : '';
+        if (source !== 'ob' || !item || item.scope !== 'site' || item.op !== 'modify') return '';
+        var label = cnFormatTargetDateBadge(cnTargetDateParts(item));
+        return label ? '<span class="cn-date-badge">' + escapeHtml(label) + '</span>' : '';
+    }
+    function cnDisplaySub(item) {
+        var sub = String((item && item.sub) || '').trim();
+        if (!sub) return '';
+        var date = String((item && item.date) || '').trim();
+        var parts = sub.split('・').map(function (p) { return p.trim(); }).filter(Boolean);
+        if (parts.length >= 2) {
+            var actor = parts[0];
+            var tail = parts.slice(1).join(' ・ ');
+            if (/(今日|昨日|\d{1,2}\/\d{1,2}|\d{4}\/\d{1,2}\/\d{1,2}|\d{1,2}月\d{1,2}日)/.test(tail)) return actor + ' ・ ' + tail;
+            if (date && /^\d{1,2}:\d{2}$/.test(tail)) return actor + ' ・ ' + date + ' ' + tail;
+            if (date) return actor + ' ・ ' + date + ' ' + tail;
+            return actor + ' ・ ' + tail;
+        }
+        return date ? sub + ' ・ ' + date : sub;
+    }
     function buildDiffHtml(diffs) {
         if (!Array.isArray(diffs) || diffs.length === 0) return '';
         return '<div class="cn-diff-list">' + diffs.map(function (d) {
@@ -851,6 +927,8 @@
         var sourceAttr = sourceBell ? ' data-source-bell="' + escapeHtml(sourceBell) + '"' : '';
         var sourceLabel = sourceLabelFor(sourceBell);
         var sourceBadgeHtml = sourceLabel ? '<span class="cn-source-badge">' + escapeHtml(sourceLabel) + '</span>' : '';
+        var targetDateBadgeHtml = cnTargetDateBadgeHtml(item);
+        var subText = cnDisplaySub(item);
         var chevronHtml = hasExpand ? '<span class="cn-chevron">▾</span>' : '';
         var expandHtml = '';
         if (hasExpand) {
@@ -883,8 +961,8 @@
             +   '<div class="cn-item-row">'
             +     '<div class="cn-icon type-' + typeClass + iconColorCls + '">' + iconInner + '</div>'
             +     '<div class="cn-text">'
-            +       '<div class="cn-text-main">' + sourceBadgeHtml + '<span class="cn-text-main-label">' + escapeHtml(item.main || '') + '</span></div>'
-            +       (item.sub ? '<div class="cn-text-sub">' + escapeHtml(item.sub) + '</div>' : '')
+            +       '<div class="cn-text-main">' + sourceBadgeHtml + targetDateBadgeHtml + '<span class="cn-text-main-label">' + escapeHtml(item.main || '') + '</span></div>'
+            +       (subText ? '<div class="cn-text-sub">' + escapeHtml(subText) + '</div>' : '')
             +     '</div>'
             +     chevronHtml
             +   '</div>'
