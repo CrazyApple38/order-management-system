@@ -594,6 +594,40 @@
     margin-right: 2px;
 }
 
+/* アクションボタン（復旧 / 復旧キャンセル） */
+.cn-action-btn {
+    margin-top: 4px;
+    align-self: flex-start;
+    padding: 5px 12px;
+    background: var(--accent-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms;
+    font-family: inherit;
+}
+.cn-action-btn:hover { background: var(--accent-primary-light); }
+.cn-action-btn--cancel {
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--divider);
+}
+.cn-action-btn--cancel:hover {
+    background: var(--bg-surface-2);
+    color: var(--text-primary);
+}
+
+/* ロック済み通知（取り消し線・展開不可） */
+.cn-item-locked { cursor: default; }
+.cn-item-locked:hover { background: transparent; }
+.cn-item-locked .cn-text-main-label {
+    text-decoration: line-through;
+    color: var(--text-tertiary);
+}
+
 /* ============================================================
    履歴タブ — 共通ツールバー
    ============================================================ */

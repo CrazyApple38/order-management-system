@@ -216,4 +216,25 @@
         generateCellData: generateCellData,
         buildMonthState: buildMonthState,
     };
+
+    // デモ用: 行削除→復旧トグルの対象となる「削除済みダミー行」
+    // 初期グリッドには存在せず、通知の「データを復旧する」で再挿入される。
+    window.OMS_DEMO_DELETED_ROW = {
+        _rowId: 'demo-deleted-1',
+        branch: '東央警備', category: '高速', shift: '昼',
+        company: '西日本高速道路(株)', task: 'PJNo.26-5225', hidden: false
+    };
+    // 復旧済みフラグ（localStorage 永続化。単一の真実源として多重復旧を防止）
+    window.OmsDemoRecover = {
+        KEY: 'oms.demo.deletedRowRecovered.v1',
+        isRecovered: function () {
+            try { return localStorage.getItem(this.KEY) === 'true'; } catch (e) { return false; }
+        },
+        setRecovered: function (v) {
+            try {
+                if (v) localStorage.setItem(this.KEY, 'true');
+                else localStorage.removeItem(this.KEY);
+            } catch (e) {}
+        }
+    };
 })();

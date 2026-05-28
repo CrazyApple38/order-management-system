@@ -409,8 +409,10 @@
         if (!row) return;
         if (e.target.closest('.cn-jump-btn')) return;
         if (e.target.closest('.cn-cross-jump-btn')) return;
+        if (e.target.closest('.cn-action-btn')) return;
         var item = row.parentElement;
         if (!item) return;
+        if (item.dataset.locked) return; // ロック済み: 展開もジャンプもしない（重複操作防止）
 
         var hasExpand = !!item.querySelector(':scope > .cn-expand');
         if (!hasExpand) {
@@ -464,6 +466,20 @@
         e.stopPropagation();
         var item = btn.closest('.cn-item');
         if (item) fireJump(item);
+    });
+
+    // アクションボタン (復旧 / 復旧キャンセル等) — cn:action を発火し、各ページ/ナビバーが処理
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('.cn-action-btn');
+        if (!btn) return;
+        e.stopPropagation();
+        var action = btn.getAttribute('data-cn-action') || '';
+        var item = btn.closest('.cn-item');
+        var ev = new CustomEvent('cn:action', {
+            bubbles: true,
+            detail: { action: action, item: item }
+        });
+        (item || document).dispatchEvent(ev);
     });
 
     // ========== すべて既読 ==========
@@ -863,10 +879,12 @@
         var source = item ? (item.sourceBell || '') : '';
         var parts = cnTargetDateParts(item);
         if (!parts) return '';
-        var isObCellModify = source === 'ob' && item && item.scope === 'site' && item.op === 'modify';
+        // OB はセル単位（scope:site）の受注通知のみ日付バッジを表示（add/modify/delete）。
+        // 行単位（scope:row）・作業内容（scope:badge）は対象外。
+        var isObCell = source === 'ob' && item && item.scope === 'site';
         var dateBasedSources = ['sl', 'ws', 'la', 'pending', 'vehicle', 'assignment', 'approval'];
         var isDateBasedSource = dateBasedSources.indexOf(source) >= 0;
-        if (!isObCellModify && !isDateBasedSource) return '';
+        if (!isObCell && !isDateBasedSource) return '';
         var label = cnFormatTargetDateBadge(parts);
         return label ? '<span class="cn-date-badge">' + escapeHtml(label) + '</span>' : '';
     }
@@ -916,7 +934,10 @@
             : (iconPath ? '<img class="cn-icon-img" src="' + CN_ICON_BASE + iconPath + '" alt="">' : '');
         // expand または affects のいずれかがあればアコーディオン展開可（種別問わず）
         var hasDiffs = Array.isArray(item.diffs) && item.diffs.length > 0;
-        var hasExpand = !!(item.expand || hasDiffs || (item.affects && item.affects.length));
+        var hasActions = Array.isArray(item.actions) && item.actions.length > 0;
+        // locked: 確定/取り消し済み表示。取り消し線・展開不可（重複操作の防止）
+        var isLocked = !!item.locked;
+        var hasExpand = !isLocked && !!(item.expand || hasDiffs || hasActions || (item.affects && item.affects.length));
         var affectsAttr = (item.affects && item.affects.length)
             ? ' data-affects="' + escapeHtml(item.affects.join(',')) + '"' : '';
         var idAttr = item.id ? ' data-id="' + escapeHtml(item.id) + '"' : '';
@@ -940,7 +961,15 @@
             var hint = (item.affects && item.affects.length)
                 ? '<div class="cn-cross-hint" data-affects="' + escapeHtml(item.affects.join(',')) + '"></div>'
                 : '';
-            expandHtml = '<div class="cn-expand">' + summary + diffsHtml + hint + '</div>';
+            var actionsHtml = '';
+            if (hasActions) {
+                actionsHtml = item.actions.map(function (a) {
+                    var cls = 'cn-action-btn' + (a.action === 'cancel-recover-order' ? ' cn-action-btn--cancel' : '');
+                    return '<button type="button" class="' + cls + '" data-cn-action="' + escapeHtml(a.action || '') + '">'
+                        + escapeHtml(a.label || '') + '</button>';
+                }).join('');
+            }
+            expandHtml = '<div class="cn-expand">' + summary + diffsHtml + hint + actionsHtml + '</div>';
         }
         var scopeAttr = item.scope ? ' data-scope="' + escapeHtml(item.scope) + '"' : '';
         var opAttr = item.op ? ' data-op="' + escapeHtml(item.op) + '"' : '';
@@ -948,8 +977,9 @@
         var colorAttr = item.color ? ' data-color="' + escapeHtml(item.color) + '"' : '';
         var iconColorCls = item.color ? (' color-' + item.color) : '';
         return ''
-            + '<div class="cn-item type-' + typeClass + unread + '"'
+            + '<div class="cn-item type-' + typeClass + unread + (isLocked ? ' cn-item-locked' : '') + '"'
             +   idAttr
+            +   (isLocked ? ' data-locked="1"' : '')
             +   ' data-type="' + escapeHtml(item.type || effectiveType || '') + '"'
             +   (slotKey ? ' data-slot="' + escapeHtml(slotKey) + '"' : '')
             +   scopeAttr

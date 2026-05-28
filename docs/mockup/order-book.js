@@ -4250,6 +4250,55 @@ document.addEventListener('cn:jump', function (e) {
     obCnHighlightCells(ri, day, obCnGlowType(target.op || d.op || d.type), si);
 });
 
+// --- デモ: 削除済み行の復旧トグル（行削除→復旧の実挿入 / 復旧キャンセルで再削除） ---
+// 通知側ボタンの cn:action を受けてグリッドを実際に増減する。フラグ更新とベル再描画は co-navbar.js 側。
+function obDemoRowIndex() {
+    var r = window.OMS_DEMO_DELETED_ROW;
+    if (!r) return -1;
+    return sampleRows.findIndex(function (row) { return row && String(row._rowId) === String(r._rowId); });
+}
+// グリッドへ挿入（既に存在すれば何もしない＝冪等。重複挿入を防止）。render は呼び出し側で行う
+function obDemoInsertRow() {
+    var r = window.OMS_DEMO_DELETED_ROW;
+    if (!r) return false;
+    if (obDemoRowIndex() >= 0) return false;
+    sampleRows.push(Object.assign({}, r));
+    sortRows(); // sampleRows と cellData のインデックス整合を取り直す
+    return true;
+}
+// グリッドから削除。cellData はインデックスキーのため、削除位置以降を1つ繰り上げる
+function obDemoRemoveRow() {
+    var ri = obDemoRowIndex();
+    if (ri < 0) return false;
+    sampleRows.splice(ri, 1);
+    if (cellData && typeof cellData === 'object') {
+        var remapped = {};
+        Object.keys(cellData).forEach(function (k) {
+            var idx = parseInt(k, 10);
+            if (idx < ri) remapped[idx] = cellData[idx];
+            else if (idx > ri) remapped[idx - 1] = cellData[idx];
+            // idx === ri（デモ行）はセルデータ無しのため破棄
+        });
+        cellData = remapped;
+    }
+    return true;
+}
+document.addEventListener('cn:action', function (e) {
+    var action = e.detail && e.detail.action;
+    if (action === 'recover-order') {
+        obDemoInsertRow();
+        renderGrid();
+        var ri = obDemoRowIndex();
+        if (ri >= 0) {
+            var cell = document.querySelector('.tbl-grid__cell[data-ri="' + ri + '"]');
+            if (cell) cell.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            obCnHighlightCells(ri, null, 'add', null);
+        }
+    } else if (action === 'cancel-recover-order') {
+        if (obDemoRemoveRow()) renderGrid();
+    }
+});
+
 // --- 自分の操作による変更通知 ---
 const obCurrentUser = '田中 太郎（自分）';
 
@@ -4520,6 +4569,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (todayEl) {
         todayEl.textContent = `本日: ${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}（${dayNames[now.getDay()]}）`;
     }
+    // デモ: 復旧済みフラグが立っていれば、描画前に削除済み行を再挿入して状態を再現
+    if (window.OmsDemoRecover && window.OmsDemoRecover.isRecovered()) obDemoInsertRow();
     renderGrid();
     // 新通知システムに初期デモ通知を投入（co-notify-panel.js / co-navbar.js 読み込み後）
     obCnSeedInitialDemo();

@@ -7,27 +7,21 @@
 
 ## 最終更新
 
-- **更新者**: Codex (GPT-5)
-- **日付**: 2026-05-27
-- **コミット**: 8d8fd32 (Restore SL modify flash to per-cell diff display)
+- **更新者**: Claude Code (Opus 4.7)
+- **日付**: 2026-05-28
+- **コミット**: 73d9ae8 (Revise notification badge labels)（本コミットの直前 HEAD）
 
 ## 直前にやったこと
 
-- 共通メニューバーの通知ベルを 7 種類から 4 分類（受注・業務変更 / 配置・予定変更 / 申請・承認 / マスタ・システム）へ統合
-- 旧ベルID `ob/sl/ws/la/pending/vehicle/master` は API 互換として残し、`co-notify-panel.js` で統合先へ正規化
-- パネル内に発信元バッジを追加（受注簿 / 配置表 / 週間予定 / 休暇申請 / 車両予定 / マスタ）
-- 管理者のベルアイコン選定（`admin-notify.html` → `notify-compare.html#matrix`）も4分類タイルへ更新
-- ページ側初期シードが共通シードを上書きしないようにし、XAMPP + Playwright で配置表/週間予定の `配置・予定変更` 内容一致を確認済み
-- 別発信元通知でも現在画面で対象日・対象行が解決できる場合は、対象以外を薄暗くする通知フォーカスを出しつつ、パネルを展開したまま発信元画面ボタンを表示するように変更
-- 通知ジャンプの点滅アニメーションを廃止し、`coNotifyFocusOverlay` で対象行/セル以外を2秒フェードの薄黒オーバーレイ化。フェード中クリックで即解除
-- OB固定列の通知フォーカス漏れを修正。`.tbl-grid__cell` は疑似要素ではなく inset shadow で暗くし、sticky列の位置指定を維持
-- OBの受注セル通知は `target.day/subIndex` を保持するように修正。日付指定がある通知は行全体ではなく該当セルのみを残してフォーカスする
-- 通知カード文言を整理。OBは受注セルの変更通知のみ対象日バッジを表示し、行追加/削除・契約先名/現場名変更では出さない。SL/WS/LAは対象日が分かる通知に `5/2（土）` 形式の日付バッジを表示。タイトルは `契約先 / 業務名｜変更内容`、サブ情報は `アカウント ・ 日付/時刻` へ寄せた
+- OB のセル単位（`scope:'site'`）受注通知について、日付バッジを add/modify/delete すべてに表示（従来は modify のみ）。判定は `co-notify-panel.js` の `cnTargetDateBadgeHtml` で `source==='ob' && scope==='site'`
+- OB 通知の共通シード（`co-navbar.js` `mdNavBuildBellItems`）に行レベル通知のデモを追加: ①行を追加（既存 rowId 3 へフラッシュ）/ ②現場名の変更（rowId 4, diff 付き）/ ③行を削除（専用デモ削除行）。`scope:'row'` のため日付バッジは付かない（セル単位との対比用）
+- ③ 行削除→復旧トグルを実装。専用デモ削除行 `西日本高速道路(株)/PJNo.26-5225`（`OMS_DEMO_DELETED_ROW`）を新設し初期グリッドには無し。「データを復旧する」で実グリッドへ再挿入＋フラッシュ、削除通知は取り消し線＋展開不可（ロック）、「行を復旧」通知＋「復旧をキャンセル」を表示。状態は localStorage フラグ `oms.demo.deletedRowRecovered.v1`（`OmsDemoRecover`）単一真実源で永続化＝多重復旧で行が重複しない
+- 共通パネルに汎用機構を追加: `item.locked`（取り消し線・展開/ジャンプ不可）、`item.actions`（ボタン→ `cn:action` イベント発火）。`co-navbar.js` がフラグ更新＋`mdNavRefreshBells` で再描画、`order-book.js` が `cn:action` でグリッド増減（cellData 再マップ）＋初期復元を担当
+- Playwright で 復旧 / リロード永続 / 復旧キャンセル / グリッド整合（セルずれ無し）/ 多重復旧防止 を検証済み
 
 ## 次にやるべきこと
 
-- 4ベル統合調整をコミット予定（`co-navbar.js` / `co-notify-panel.js` / `co-notify-panel.css` / 7 HTML / `notify-compare.*` / 計画書）
-- **N-6（結合テスト・既存計画との整合性確認）へ進む**
+- **N-6（結合テスト・既存計画との整合性確認）へ進む**（前回からの継続）
 - N-6 では、統合後ベル単位の既読・履歴・クロス画面ジャンプが既存イベント網羅表と矛盾しないか確認する
 - N-6 では、`週間予定` → SL 同日通知フォーカス / 別日非フォーカス、LA → WS など別発信元の互換ターゲットも結合確認する
 - 受注変更で SL/WS を現在画面優先にする場合は、OB通知側に画面別 `target.screen-layout` / `target.weekly-schedule` を付与できるだけの可視日付判定を追加する
@@ -51,6 +45,7 @@
 | 2026-05-27 | Codex | 通知クリック判定を `affects[]` 依存 → `domain` / `primaryPage` / 画面別 `target` 解決へ変更 | `co-notify-panel.js` / 各画面 SelfNotify / admin-notify 優先度表 |
 | 2026-05-27 | Codex | 通知ベル7種 → 4分類へ統合し、旧ベルIDをエイリアス化 | `co-navbar.js` / `co-notify-panel.js` / 各画面 `addItem/setItems` / 管理者アイコン選定 |
 | 2026-05-27 | Codex | 通知ジャンプ演出を点滅 → 対象外セル/行の2秒フェードオーバーレイへ変更 | `co-notify-panel.js/css` / OB・SL・WS・LA の `cn:jump` 着地処理 |
+| 2026-05-28 | Claude Code | OB行削除→復旧トグルを追加（localStorageフラグ単一真実源 + 汎用 `cn:action` ボタン機構 + `item.locked`/`item.actions` 表示 + デモ削除行 `OMS_DEMO_DELETED_ROW`） | `co-navbar.js`(`mdNavRefreshBells`) / `co-notify-panel.js`/`.css` / `order-book.js`(グリッド増減・cellData再マップ) / `mock-orders-data.js` |
 
 ## アクティブな計画書
 

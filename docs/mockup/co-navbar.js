@@ -313,6 +313,74 @@
             });
         });
 
+        // 行レベル通知のバリエーション（セル単位=日付バッジあり との対比用。scope:'row' は日付バッジなし）
+        // ① 行を追加 — 既存行（rowId 3 △△建設(株)/中央道補修）へフラッシュ
+        items.ob.push({
+            scope: 'row', op: 'add',
+            domain: 'order', primaryPage: 'order-book',
+            main: '△△建設(株) / 中央道補修｜行を追加',
+            sub: '共通モックデータ ・ 09:30',
+            date: today,
+            expand: '新規契約先・現場を追加',
+            affects: ['order-book', 'screen-layout', 'weekly-schedule'],
+            target: { 'order-book': { axis: 'orderId', value: 3 } }
+        });
+        // ② 現場名の変更 — 既存行（rowId 4 (株)丸山建設/〇〇ビル巡回）
+        items.ob.push({
+            scope: 'row', op: 'modify',
+            domain: 'order', primaryPage: 'order-book',
+            main: '(株)丸山建設 / 〇〇ビル巡回｜現場名 〇〇ビル巡回 → 〇〇ビル北館巡回',
+            sub: '共通モックデータ ・ 09:40',
+            date: today,
+            expand: '現場名: 〇〇ビル巡回 → 〇〇ビル北館巡回',
+            diffs: [{ field: '現場名', oldVal: '〇〇ビル巡回', newVal: '〇〇ビル北館巡回' }],
+            affects: ['order-book', 'screen-layout', 'weekly-schedule'],
+            target: { 'order-book': { axis: 'orderId', value: 4 } }
+        });
+        // ③ 行の削除 + 復旧トグル — 専用の削除済みダミー行（西日本高速道路(株)/PJNo.26-5225）
+        //    flag(localStorage) を単一の真実源とし、削除状態↔復旧状態で表示を切替える。
+        var demoDelRow = window.OMS_DEMO_DELETED_ROW || { _rowId: 'demo-deleted-1', company: '西日本高速道路(株)', task: 'PJNo.26-5225' };
+        var demoDelMain = (demoDelRow.company || '') + ' / ' + (demoDelRow.task || '');
+        var demoRecovered = !!(window.OmsDemoRecover && window.OmsDemoRecover.isRecovered());
+        if (demoRecovered) {
+            // 復旧済み: 削除通知はロック（取り消し線・展開不可）→ 復旧ボタンを再押下できず重複挿入を防ぐ
+            items.ob.push({
+                scope: 'row', op: 'delete',
+                domain: 'order', primaryPage: 'order-book',
+                main: demoDelMain + '｜行を削除',
+                sub: '共通モックデータ ・ 09:50',
+                date: today,
+                locked: true,
+                affects: ['order-book'],
+                target: null
+            });
+            // 復旧通知（新規）— 展開すると「復旧をキャンセル」ボタン
+            items.ob.push({
+                scope: 'row', op: 'add',
+                domain: 'order', primaryPage: 'order-book',
+                main: demoDelMain + '｜行を復旧',
+                sub: '共通モックデータ ・ 09:55',
+                date: today,
+                expand: '削除した受注行を元に戻しました',
+                actions: [{ label: '復旧をキャンセル', action: 'cancel-recover-order' }],
+                affects: ['order-book'],
+                target: null
+            });
+        } else {
+            // 未復旧（削除済み）: 展開すると「データを復旧する」ボタン。行は無いためフラッシュしない。
+            items.ob.push({
+                scope: 'row', op: 'delete',
+                domain: 'order', primaryPage: 'order-book',
+                main: demoDelMain + '｜行を削除',
+                sub: '共通モックデータ ・ 09:50',
+                date: today,
+                expand: 'この受注行は削除済みです',
+                actions: [{ label: 'データを復旧する', action: 'recover-order' }],
+                affects: ['order-book'],
+                target: null
+            });
+        }
+
         if (firstOb) {
             var currentDateKey = mdNavCurrentDateKey();
             items.sl.push({
@@ -600,7 +668,7 @@
 
     // --- ベル群の初期化 (アイコン適用 / デモ通知投入 / 履歴タブ構築 / バッジ更新) ---
     //     開閉・タブ切替等のパネル挙動は co-notify-panel.js が処理する。
-    (function initNotifyBells() {
+    function mdNavApplyBells() {
         if (!window.coNotifyPanel || typeof window.coNotifyPanel.setItems !== 'function') return;
         coNotifyBells.forEach(function (bell) {
             window.coNotifyPanel.applyBellIcon(bell.id);
@@ -609,7 +677,29 @@
                 window.coNotifyPanel.setHistory(bell.id, mdNavCnBellHistory[bell.id] || null);
             }
         });
-    })();
+    }
+    // 通知シードを再構築して再適用（デモ復旧トグル等で状態が変わったとき）
+    window.mdNavRefreshBells = function () {
+        mdNavCnRawBellItems = mdNavBuildBellItems();
+        mdNavCnBellItems = mdNavMergeBellItems(mdNavCnRawBellItems);
+        mdNavCnBellHistory = mdNavBuildBellHistory(mdNavCnBellItems);
+        mdNavApplyBells();
+    };
+    mdNavApplyBells();
+
+    // デモ復旧トグル: フラグ(localStorage)を更新してベルを再描画。
+    // グリッドの実挿入/再削除は order-book.js 側が同じ cn:action を受けて行う。
+    document.addEventListener('cn:action', function (e) {
+        var action = e.detail && e.detail.action;
+        if (!window.OmsDemoRecover) return;
+        if (action === 'recover-order') {
+            window.OmsDemoRecover.setRecovered(true);
+            window.mdNavRefreshBells();
+        } else if (action === 'cancel-recover-order') {
+            window.OmsDemoRecover.setRecovered(false);
+            window.mdNavRefreshBells();
+        }
+    });
 
     // window.mdNavCnCloseModal: ESC ハンドラから呼ばれる後方互換シム
     window.mdNavCnCloseModal = function () {
