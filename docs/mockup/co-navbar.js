@@ -383,6 +383,7 @@
 
         if (firstOb) {
             var currentDateKey = mdNavCurrentDateKey();
+            // OB→SL: 受注追加。SL は OB と同サイト名で解決可。WS はモックサイト名が一致しないためジャンプ対象外。
             items.sl.push({
                 scope: 'site', op: 'add',
                 domain: 'order',
@@ -391,12 +392,12 @@
                 sub: '共通モックデータ ・ 10:00',
                 date: today,
                 expand: 'OB共通データからSL行へ反映',
-                affects: ['screen-layout', 'order-book', 'weekly-schedule'],
+                affects: ['screen-layout', 'order-book'],
                 target: {
-                    'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey },
-                    'weekly-schedule': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey }
+                    'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey }
                 }
             });
+            // SL での配置。SL のみフラッシュ対象（WS はサイト名不一致のため対象外、LA は配置直接対象でない）。
             items.sl.push({
                 scope: 'employee', op: 'place', color: 'secondary',
                 domain: 'person-assignment',
@@ -404,24 +405,24 @@
                 main: (firstOb.entry.dailyTaskName || firstOb.row.task || '現場') + '｜' + employee.name + ' を配置',
                 sub: employee.company + ' ・ 10:15',
                 date: today,
-                affects: ['screen-layout', 'weekly-schedule', 'leave-application'],
+                affects: ['screen-layout', 'leave-application'],
                 target: {
-                    'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey },
-                    'weekly-schedule': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey }
+                    'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey }
                 }
             });
+            // WS発信の配置通知 — WS のサンプルサイト（s1: 〇〇株式会社 / 〇〇ビル）を直接指す（axis:'wsCell'）。
+            // OB/SL とサイト名が共有されないモック都合により、WS固有サイトでカード文言と着地先の意味を一致させる。
             items.ws.push({
                 scope: 'schedule', op: 'add',
                 domain: 'person-assignment',
                 primaryPage: 'weekly-schedule',
-                main: (firstOb.entry.dailyTaskName || firstOb.row.task || '現場') + '｜' + employee.name + ' を配置',
+                main: '〇〇株式会社 / 〇〇ビル｜' + employee.name + ' を配置',
                 sub: '共通モックデータ ・ 10:20',
                 date: today,
-                expand: '受注人数: ' + (firstOb.entry.count || 0) + '名',
-                affects: ['weekly-schedule', 'screen-layout', 'leave-application'],
+                expand: 'WS の配置を更新',
+                affects: ['weekly-schedule'],
                 target: {
-                    'weekly-schedule': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey },
-                    'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey }
+                    'weekly-schedule': { axis: 'wsCell', value: 's1', date: currentDateKey }
                 }
             });
         }

@@ -9,19 +9,20 @@
 
 - **更新者**: Claude Code (Opus 4.7)
 - **日付**: 2026-05-28
-- **コミット**: 73d9ae8 (Revise notification badge labels)（本コミットの直前 HEAD）
+- **コミット**: f0a2b7e (Add OB row-deletion recovery toggle and row-level notification demos)（本コミットの直前 HEAD）
 
 ## 直前にやったこと
 
-- OB のセル単位（`scope:'site'`）受注通知について、日付バッジを add/modify/delete すべてに表示（従来は modify のみ）。判定は `co-notify-panel.js` の `cnTargetDateBadgeHtml` で `source==='ob' && scope==='site'`
-- OB 通知の共通シード（`co-navbar.js` `mdNavBuildBellItems`）に行レベル通知のデモを追加: ①行を追加（既存 rowId 3 へフラッシュ）/ ②現場名の変更（rowId 4, diff 付き）/ ③行を削除（専用デモ削除行）。`scope:'row'` のため日付バッジは付かない（セル単位との対比用）
-- ③ 行削除→復旧トグルを実装。専用デモ削除行 `西日本高速道路(株)/PJNo.26-5225`（`OMS_DEMO_DELETED_ROW`）を新設し初期グリッドには無し。「データを復旧する」で実グリッドへ再挿入＋フラッシュ、削除通知は取り消し線＋展開不可（ロック）、「行を復旧」通知＋「復旧をキャンセル」を表示。状態は localStorage フラグ `oms.demo.deletedRowRecovered.v1`（`OmsDemoRecover`）単一真実源で永続化＝多重復旧で行が重複しない
-- 共通パネルに汎用機構を追加: `item.locked`（取り消し線・展開/ジャンプ不可）、`item.actions`（ボタン→ `cn:action` イベント発火）。`co-navbar.js` がフラグ更新＋`mdNavRefreshBells` で再描画、`order-book.js` が `cn:action` でグリッド増減（cellData 再マップ）＋初期復元を担当
-- Playwright で 復旧 / リロード永続 / 復旧キャンセル / グリッド整合（セルずれ無し）/ 多重復旧防止 を検証済み
+- OB/SL から WS の変更通知の「WSで開く ↗」クロスジャンプをクリックすると遷移はするが**フラッシュが発火しない**バグを修正。原因は `co-navbar.js` の seed が `target.weekly-schedule.value` に OB のサイト名（例 `商業施設A > 設備点検`）を入れていたが、WS のサンプルサイト（`〇〇ビル` / `△△マンション` / `国道1号線 舗装工事` 等の s1〜s6）と一致せず、[weekly-schedule.js:5594](docs/mockup/weekly-schedule.js#L5594) `cn:jump` ハンドラ内の `wsCnFindSiteByLabel(target.value)` が null を返して siteId 空で早期 return していたこと
+- 修正方針: WS発信の seed (`items.ws`) を WS サイトに組み替え、SL発信 (`items.sl`) は target.weekly-schedule を削除（OB/WS のモックサイト名が共有されないため WS への正確なジャンプは提供できない）
+  - items.ws: main を `〇〇株式会社 / 〇〇ビル｜<emp> を配置` に、target を `{ 'weekly-schedule': { axis:'wsCell', value:'s1', date: currentDateKey } }` に変更（axis:'wsCell' なら siteId を直接渡せて wsCnFindSiteByLabel を経由せず確実に解決）。affects も `['weekly-schedule']` のみ
+  - items.sl[0] 受注追加 / items.sl[1] employee place: target から `weekly-schedule` キーを削除、affects から `'weekly-schedule'` を削除
+- Playwright で DOMTokenList hook を仕込んで timeline を計測。click→go から T+566ms に `cn-focus-target × 2 + cn-focus-dim × 131` が DOM に付与され、T+2573ms に 2秒タイマーで自動クリアされることを確認
 
 ## 次にやるべきこと
 
 - **N-6（結合テスト・既存計画との整合性確認）へ進む**（前回からの継続）
+- OB/SL/WS のモックサイト名が共有されていない件は根本未解決（命名揺れ）。今回は WS発信の通知だけ WS サイトを直接指す形で回避したが、後で OB sampleRows と WS sites のマッピング表（または共通サイトマスタ）を整備すると、`axis:'siteName'` 経由のクロスジャンプも自然に動くようになる
 - N-6 では、統合後ベル単位の既読・履歴・クロス画面ジャンプが既存イベント網羅表と矛盾しないか確認する
 - N-6 では、`週間予定` → SL 同日通知フォーカス / 別日非フォーカス、LA → WS など別発信元の互換ターゲットも結合確認する
 - 受注変更で SL/WS を現在画面優先にする場合は、OB通知側に画面別 `target.screen-layout` / `target.weekly-schedule` を付与できるだけの可視日付判定を追加する
@@ -46,6 +47,7 @@
 | 2026-05-27 | Codex | 通知ベル7種 → 4分類へ統合し、旧ベルIDをエイリアス化 | `co-navbar.js` / `co-notify-panel.js` / 各画面 `addItem/setItems` / 管理者アイコン選定 |
 | 2026-05-27 | Codex | 通知ジャンプ演出を点滅 → 対象外セル/行の2秒フェードオーバーレイへ変更 | `co-notify-panel.js/css` / OB・SL・WS・LA の `cn:jump` 着地処理 |
 | 2026-05-28 | Claude Code | OB行削除→復旧トグルを追加（localStorageフラグ単一真実源 + 汎用 `cn:action` ボタン機構 + `item.locked`/`item.actions` 表示 + デモ削除行 `OMS_DEMO_DELETED_ROW`） | `co-navbar.js`(`mdNavRefreshBells`) / `co-notify-panel.js`/`.css` / `order-book.js`(グリッド増減・cellData再マップ) / `mock-orders-data.js` |
+| 2026-05-28 | Claude Code | WSクロスジャンプの seed を OBサイト名 → WS実サイト(`axis:'wsCell' / value:'s1'`) へ変更、items.sl の target.weekly-schedule を削除（OB/WSモックサイト名が共有されないため） | `co-navbar.js` `mdNavBuildBellItems` の items.sl / items.ws |
 
 ## アクティブな計画書
 
