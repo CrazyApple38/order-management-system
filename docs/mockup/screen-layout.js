@@ -528,6 +528,14 @@
             const savedVt = savedRow.querySelector('.col-vt');
             if (targetVt && savedVt) targetVt.innerHTML = savedVt.innerHTML;
 
+            slRefreshRowCountDisplay(targetRow);
+        }
+
+        // 行の配置人数表示 (count-display) と不足/過多バッジを現在の
+        // .assigned-employee / .assigned-support 数から再計算する。
+        function slRefreshRowCountDisplay(targetRow) {
+            if (!targetRow) return;
+            const targetZone = targetRow.querySelector('.assignment-zone');
             const assigned = targetZone ? targetZone.querySelectorAll('.assigned-employee, .assigned-support').length : 0;
             const countDisplay = targetRow.querySelector('.count-display');
             if (!countDisplay) return;
@@ -556,6 +564,61 @@
             }
         }
 
+        // ============================================================
+        // Phase 2: 共通ソース (mock-assignments-data.js) の社員配置を
+        //   OB 由来の行へ「初期配置」として充填する。
+        //   保存状態がまだ無い行 (savedRow 未定義) に対してのみ適用し、
+        //   ユーザーの配置編集 (削除含む) が保存された後はそちらを優先する。
+        // ============================================================
+        function slGetDefaultPlacementContext(dateKey) {
+            const src = window.OmsMockAssignmentsData;
+            if (!src || !src.createSiteOrderMap || !src.createEmployeeAssignments) return null;
+            const siteMap = src.createSiteOrderMap();
+            // 逆引き: "会社|業務" -> siteId
+            const siteIdByOrder = {};
+            Object.keys(siteMap).forEach(function(siteId) {
+                const m = siteMap[siteId];
+                if (m && m.company && m.task) siteIdByOrder[m.company + '|' + m.task] = siteId;
+            });
+            // siteId|shift -> [社員名]（指定日のみ抽出）
+            const assignments = src.createEmployeeAssignments(); // empIdx -> dateKey -> shift -> [siteId]
+            const namesBySiteShift = {};
+            Object.keys(assignments).forEach(function(empIdxStr) {
+                const byShift = assignments[empIdxStr] && assignments[empIdxStr][dateKey];
+                if (!byShift) return;
+                const emp = (typeof employeesData !== 'undefined') ? employeesData[parseInt(empIdxStr, 10)] : null;
+                if (!emp || !emp.name) return;
+                Object.keys(byShift).forEach(function(shiftKey) {
+                    (byShift[shiftKey] || []).forEach(function(siteId) {
+                        const key = siteId + '|' + shiftKey;
+                        if (!namesBySiteShift[key]) namesBySiteShift[key] = [];
+                        if (namesBySiteShift[key].indexOf(emp.name) === -1) namesBySiteShift[key].push(emp.name);
+                    });
+                });
+            });
+            return { siteIdByOrder: siteIdByOrder, namesBySiteShift: namesBySiteShift };
+        }
+
+        function slApplyDefaultPlacementToRow(targetRow, orderRow, ctx) {
+            if (!targetRow || !orderRow || !ctx) return;
+            const zone = targetRow.querySelector('.assignment-zone');
+            if (!zone) return;
+            const siteId = ctx.siteIdByOrder[(orderRow.company || '') + '|' + (orderRow.task || '')];
+            if (!siteId) return;
+            const shiftKey = orderRow.shift === '夜' ? 'night' : 'day';
+            const names = ctx.namesBySiteShift[siteId + '|' + shiftKey];
+            if (!names || !names.length) return;
+            names.forEach(function(name) {
+                const mk = slBuildAssignedEmployeeMarkup(name);
+                const tag = document.createElement('span');
+                tag.className = mk.className;
+                if (mk.company) tag.setAttribute('data-company', mk.company);
+                tag.innerHTML = mk.innerHTML;
+                zone.appendChild(tag);
+            });
+            slRefreshRowCountDisplay(targetRow);
+        }
+
         function slBuildStateFromOrderBookDate(dateKey, savedSnapshot) {
             if (!window.OmsMockStore || !window.OmsMockStore.getObMonth) return null;
             const parts = slParseDateKeyParts(dateKey || slCurrentDateKey());
@@ -573,6 +636,10 @@
 
             const tbody = document.createElement('tbody');
             const savedRows = slSavedRowsByOrderBookKey(savedSnapshot);
+            // Phase 2: 共通ソース由来の初期配置コンテキスト（表示日のみ）
+            const pad2 = function(n) { return (n < 10 ? '0' : '') + n; };
+            const ctxDateKey = parts.year + '-' + pad2(parts.month) + '-' + pad2(parts.day);
+            const defaultPlacementCtx = slGetDefaultPlacementContext(ctxDateKey);
 
             monthState.sampleRows.forEach(function(orderRow, ri) {
                 if (!orderRow || orderRow.hidden) return;
@@ -648,7 +715,12 @@
                     }
 
                     const savedKey = tr.dataset.obRowId + '|' + tr.dataset.obDay + '|' + tr.dataset.obSiteIndex;
-                    slApplySavedPlacementToOrderBookRow(tr, savedRows[savedKey]);
+                    if (savedRows[savedKey] !== undefined) {
+                        slApplySavedPlacementToOrderBookRow(tr, savedRows[savedKey]);
+                    } else {
+                        // 保存状態が無い行 = OB 由来の空行。共通ソースの配置を初期充填。
+                        slApplyDefaultPlacementToRow(tr, orderRow, defaultPlacementCtx);
+                    }
                     tbody.appendChild(tr);
                 });
             });

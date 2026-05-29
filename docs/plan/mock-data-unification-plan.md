@@ -146,8 +146,36 @@ window.OmsMockAssignmentsData = {
   5. LA `seedWsAssignments` を共通ソースから派生
   6. 通知 seed の架空人名 ("柊本" 等) を実在社員名に
   7. HTML 6本に `mock-assignments-data.js` script タグ追加
-- **Phase 2 スコープ (別タスク化、今回は着手しない)**:
+- **Phase 2 スコープ (2026-05-29 完了)**:
   - SL 描画時に `OmsMockAssignmentsData.createEmployeeAssignments()` から「デモ今日 (現在表示日) の配置」を読み取り、OB 由来の空行に初期配置を充填するマッピング処理を追加
+
+## 4.6. Phase 2 実装記録 (2026-05-29 完了 / Claude Code Opus 4.8)
+
+### 決定事項
+- **WS現場(s1〜s6) ⇄ SL受注行の対応**: 対応表を新設する方針 (ユーザー承認)。`mock-assignments-data.js` に `createSiteOrderMap()` を追加し、siteId → {会社, 業務} を定義。SL は描画時に「会社+業務+shift」一致で行を解決。
+- **ランダム受注問題の対処**: SL は受注のある行しか描画せず、当日受注の有無は `generateCellData` が `Math.random()` でランダムに決める (OmsMockStore に永続)。対応表6行がデモ今日に必ず描画される保証がないため、`buildMonthState` 後に `ensureDemoTodayPlacementRows()` でデモ今日(5/1)の対応6行へ受注エントリを保証注入する (ユーザー承認のクロス画面修正)。shift は配置データから導出し対応表の二重管理を回避。
+
+### 対応表 (createSiteOrderMap)
+| siteId | 現場 | → OB受注行 (会社 / 業務 / shift) |
+|---|---|---|
+| s1 | ○○ビル | (株)丸山建設 / 〇〇ビル巡回 / 昼 |
+| s2 | △△マンション | (株)丸山建設 / △△マンション / 昼 |
+| s3 | 国道1号線 舗装工事 | □□警備(株) / 国道1号線 / 夜 |
+| s4 | 県道15号 橋梁工事 | □□警備(株) / 県道12号線 / 夜 |
+| s5 | 高速SA補修 | (株)〇〇高速 / 東名SA巡回 / 昼 |
+| s6 | ○○アリーナ | 全日本エンタープライズ / 商業施設A / 昼 |
+
+### 実装ファイル
+- `mock-assignments-data.js`: `createSiteOrderMap()` 新設 + export、samplePlacements にデモ今日(dayOffset 4)配置12件追加 (休暇中3名除外)
+- `mock-orders-data.js`: `buildDemoCellEntry()` / `ensureDemoTodayPlacementRows()` 新設、`buildMonthState` から呼び出し
+- `screen-layout.js`: `slRefreshRowCountDisplay()` 抽出、`slGetDefaultPlacementContext()` / `slApplyDefaultPlacementToRow()` 新設。`slBuildStateFromOrderBookDate` で保存状態の無い行のみ初期充填 (savedRows[savedKey] === undefined のとき)
+
+### 検証 (Playwright, 2026-05-29)
+- SL: 5/1 に全6現場の社員を共通ソースと完全一致で描画 (田中/佐藤, 山本, 高橋/斎藤, 小林/木村, 橋本/渡辺, 吉田/山田/松本)
+- SL ⇄ WS が 5/1 で社員・現場一致
+- OB: 注入により6行すべてに 5/1 受注エントリ
+- SL/WS/OB すべて console エラー0
+- 配置削除が再読込後も維持 (初期充填が保存状態を上書きしない)
 
 ## 5. 完了基準
 

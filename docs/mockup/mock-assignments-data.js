@@ -154,7 +154,23 @@
             { emp: 20, dayOffset: 0, shift: 'day',   site: 's6' },
             { emp: 21, dayOffset: 0, shift: 'day',   site: 's4' },
             // 休日出勤テストケース（emp5=林 は元々 isOnLeave だが当該日に出勤）
-            { emp: 5,  dayOffset: 1, shift: 'day',   site: 's3' }
+            { emp: 5,  dayOffset: 1, shift: 'day',   site: 's3' },
+            // --- デモ今日 (週金曜 = dayOffset 4) の配置 ---
+            //   SL は単日表示のため、デモ今日に配置が無いと画面に何も出ない。
+            //   各 site の shift は createSiteOrderMap の対応 OB 行の shift に合わせる
+            //   (s1/s2/s5/s6=昼、s3/s4=夜)。休暇中3名 (5/14/24) は除外。
+            { emp: 0,  dayOffset: 4, shift: 'day',   site: 's1' },
+            { emp: 1,  dayOffset: 4, shift: 'day',   site: 's1' },
+            { emp: 9,  dayOffset: 4, shift: 'day',   site: 's2' },
+            { emp: 8,  dayOffset: 4, shift: 'day',   site: 's5' },
+            { emp: 12, dayOffset: 4, shift: 'day',   site: 's5' },
+            { emp: 17, dayOffset: 4, shift: 'day',   site: 's6' },
+            { emp: 18, dayOffset: 4, shift: 'day',   site: 's6' },
+            { emp: 19, dayOffset: 4, shift: 'day',   site: 's6' },
+            { emp: 3,  dayOffset: 4, shift: 'night', site: 's3' },
+            { emp: 6,  dayOffset: 4, shift: 'night', site: 's3' },
+            { emp: 11, dayOffset: 4, shift: 'night', site: 's4' },
+            { emp: 21, dayOffset: 4, shift: 'night', site: 's4' }
         ];
         samplePlacements.forEach(function (p) {
             var dk = offsetDateKey(base, p.dayOffset);
@@ -195,6 +211,24 @@
     }
 
     // ============================================================
+    // 現場 (siteId) ⇄ OB受注行 (会社 + 業務) 対応表
+    //   SL の行は OB 受注由来 (会社/業務/区分) で識別され siteId を持たないため、
+    //   共通ソースの配置 (siteId 基準) を SL 行へ橋渡しする対応表をここに定義する。
+    //   company / task は mock-orders-data.js の DEFAULT_ORDER_ROWS と一致させること。
+    //   (shift は対応行の区分メモ: s1/s2/s5/s6=昼, s3/s4=夜 を含む)
+    // ============================================================
+    function createSiteOrderMap() {
+        return {
+            s1: { company: '(株)丸山建設',          task: '〇〇ビル巡回' },
+            s2: { company: '(株)丸山建設',          task: '△△マンション' },
+            s3: { company: '□□警備(株)',           task: '国道1号線' },
+            s4: { company: '□□警備(株)',           task: '県道12号線' },
+            s5: { company: '(株)〇〇高速',          task: '東名SA巡回' },
+            s6: { company: '全日本エンタープライズ', task: '商業施設A' }
+        };
+    }
+
+    // ============================================================
     // LA 用: 配置データから「emp-id|YYYY-MM-DD -> { siteName, shift }」を派生
     //   引数なしで呼べる。社員 id は 'emp-' + (empIdx + 1)、現場名は createSites() から。
     // ============================================================
@@ -232,6 +266,7 @@
         createEmployeeAssignments: function () { return clone(createEmployeeAssignments()); },
         createVehicleAssignments: function () { return clone(createVehicleAssignments()); },
         createVehicleMaintenance: function () { return clone(createVehicleMaintenance()); },
-        createLaWsAssignments: function () { return clone(createLaWsAssignments()); }
+        createLaWsAssignments: function () { return clone(createLaWsAssignments()); },
+        createSiteOrderMap: function () { return clone(createSiteOrderMap()); }
     };
 })();

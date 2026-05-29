@@ -199,11 +199,84 @@
         return data;
     }
 
+    // デモ今日に確実に表示するための受注エントリを1件生成する。
+    function buildDemoCellEntry(row, requiredCount) {
+        var subTasks = buildSubTasks(row);
+        var startH = row.shift === '夜' ? 20 : 8;
+        var endH = row.shift === '夜' ? 5 : 17;
+        return {
+            count: requiredCount || 1,
+            subTasks: subTasks,
+            dailyTaskName: buildDailyTaskName(row.task, subTasks),
+            startTime: String(startH).padStart(2, '0') + ':00',
+            endTime: String(endH).padStart(2, '0') + ':00',
+            supervisor: '',
+            supervisorTel: '',
+            assignment: '',
+            mapUrl: '',
+            badge: buildBadge(row),
+            confidence: 'confirmed',
+            remarks: ''
+        };
+    }
+
+    // 共通ソース (mock-assignments-data.js) の社員配置が指す現場 (siteId) は
+    // createSiteOrderMap で OB受注行 (会社+業務) へ対応付けられている。
+    // SL は受注のある行しか描画しないが、当日受注の有無は generateCellData が
+    // ランダムに決めるため、対応行がデモ今日に必ず描画される保証がない。
+    // ここでデモ今日 (= demoTodayKey の日) の対応行へ受注エントリを保証注入し、
+    // SL / WS / LA が同じ配置を見られるようにする。shift は配置データから導出。
+    function ensureDemoTodayPlacementRows(data, rows, year, month, demoTodayKey) {
+        var src = window.OmsMockAssignmentsData;
+        if (!src || !src.createSiteOrderMap || !src.createEmployeeAssignments) return;
+        var m = String(demoTodayKey || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!m) return;
+        var dy = parseInt(m[1], 10), dmo = parseInt(m[2], 10), dday = parseInt(m[3], 10);
+        if (dy !== year || dmo !== month) return; // 対象月以外は注入しない
+
+        var siteMap = src.createSiteOrderMap();
+        var assignments = src.createEmployeeAssignments(); // empIdx -> dateKey -> shift -> [siteId]
+        var SHIFT_LABEL = { day: '昼', night: '夜' };
+        // siteId -> shiftLabel -> 配置人数（デモ今日のみ）
+        var siteShiftCount = {};
+        Object.keys(assignments).forEach(function (empIdx) {
+            var byShift = assignments[empIdx] && assignments[empIdx][demoTodayKey];
+            if (!byShift) return;
+            Object.keys(byShift).forEach(function (sk) {
+                (byShift[sk] || []).forEach(function (siteId) {
+                    var label = SHIFT_LABEL[sk] || sk;
+                    if (!siteShiftCount[siteId]) siteShiftCount[siteId] = {};
+                    siteShiftCount[siteId][label] = (siteShiftCount[siteId][label] || 0) + 1;
+                });
+            });
+        });
+
+        Object.keys(siteShiftCount).forEach(function (siteId) {
+            var mp = siteMap[siteId];
+            if (!mp) return;
+            Object.keys(siteShiftCount[siteId]).forEach(function (shiftLabel) {
+                for (var ri = 0; ri < rows.length; ri++) {
+                    var r = rows[ri];
+                    if (!r || r.hidden) continue;
+                    if (r.company === mp.company && r.task === mp.task && r.shift === shiftLabel) {
+                        if (!data[ri]) data[ri] = {};
+                        if (!data[ri][dday] || !data[ri][dday].length) {
+                            data[ri][dday] = [buildDemoCellEntry(r, siteShiftCount[siteId][shiftLabel])];
+                        }
+                        break;
+                    }
+                }
+            });
+        });
+    }
+
     function buildMonthState(year, month, demoTodayKey) {
         var rows = createSampleRows();
+        var cellData = generateCellData({ year: year, month: month, rows: rows, demoTodayKey: demoTodayKey });
+        ensureDemoTodayPlacementRows(cellData, rows, year, month, demoTodayKey);
         return {
             sampleRows: rows,
-            cellData: generateCellData({ year: year, month: month, rows: rows, demoTodayKey: demoTodayKey }),
+            cellData: cellData,
             obNextRowId: getNextRowId(rows)
         };
     }
