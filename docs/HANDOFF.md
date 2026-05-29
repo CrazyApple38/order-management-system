@@ -9,9 +9,11 @@
 
 - **更新者**: Claude Code (Opus 4.8)
 - **日付**: 2026-05-29
-- **コミット**: a651793 (Unify SL/WS/LA mock seed via shared mock-assignments-data.js)（本コミットの直前 HEAD）
+- **コミット**: b4591e4 (Render SL employee placements from shared mock source (Phase 2))（本コミットの直前 HEAD）
 
 ## 直前にやったこと
+
+- **通知ジャンプ着地演出をスポットライト方式へ変更**。`co-notify-panel.js` の `showFocusOverlay` を、セル単位の部分オーバーレイ → 透明な穴要素 (`.cn-focus-spotlight`) に外向き `box-shadow: 0 0 0 9999px rgba(0,0,0,0.5)` を掛けて**画面全体を一様に暗転し対象セル（複数なら外接矩形1つ）だけくり抜く**方式に差し替え。穴は `pointer-events:none` で背面操作可、スクロール/リサイズ追従あり。演出秒数 2→3.5秒。各画面は `coNotifyFocusOverlay.show()` 経由のみのため1関数差し替えで全画面に一括適用（`candidateSelector` 引数は後方互換で無視）。`co-notify-panel.css` の `.cn-focus-dim`/`.cn-focus-target` 系を `.cn-focus-spotlight` に置換。キャッシュバスター co-notify-panel.js v37→v38 / .css v16→v17 (HTML 6本)。Playwright 検証: 単一セルは穴がセルと完全一致、複数セルは1つの外接矩形に集約、WS/OB エラー0、clear() で穴削除確認。
 
 - **Phase 2 完了: SL の社員配置を共通ソースから読み取り描画**（mock-data-unification-plan の Phase 2）。
   - `mock-assignments-data.js`: `createSiteOrderMap()` 新設（siteId → OB受注行 会社+業務 の対応表）+ export。samplePlacements にデモ今日(dayOffset 4 = 5/1)の配置12件を追加（休暇中3名 5/14/24 除外、shift は対応OB行に合わせ s1/s2/s5/s6=昼・s3/s4=夜）。
@@ -49,6 +51,7 @@
 | 2026-05-27 | Codex | 通知ジャンプ演出を点滅 → 対象外セル/行の2秒フェードオーバーレイへ変更 | `co-notify-panel.js/css` / OB・SL・WS・LA の `cn:jump` 着地処理 |
 | 2026-05-28 | Claude Code | OB行削除→復旧トグルを追加（localStorageフラグ単一真実源 + 汎用 `cn:action` ボタン機構 + `item.locked`/`item.actions` 表示 + デモ削除行 `OMS_DEMO_DELETED_ROW`） | `co-navbar.js`(`mdNavRefreshBells`) / `co-notify-panel.js`/`.css` / `order-book.js`(グリッド増減・cellData再マップ) / `mock-orders-data.js` |
 | 2026-05-28 | Claude Code | WSクロスジャンプの seed を OBサイト名 → WS実サイト(`axis:'wsCell' / value:'s1'`) へ変更、items.sl の target.weekly-schedule を削除（OB/WSモックサイト名が共有されないため） | `co-navbar.js` `mdNavBuildBellItems` の items.sl / items.ws |
+| 2026-05-29 | Claude Code | 通知ジャンプ着地演出をセル単位部分オーバーレイ → 全画面スポットライト (透明穴 + box-shadow 9999px) へ変更。`showFocusOverlay` 1関数差し替えで全画面共通化、`candidateSelector` 引数は無視に | `co-notify-panel.js` (showFocusOverlay/clearFocusOverlay) / `co-notify-panel.css` (.cn-focus-spotlight) / HTML 6本キャッシュバスター |
 | 2026-05-29 | Claude Code | Phase 2: SL の社員配置を共通ソースから読み取り描画。`createSiteOrderMap` (siteId↔OB受注行) 新設、SL 描画ループで保存状態の無い行に初期充填。OB `buildMonthState` にデモ今日の対応6行への受注エントリ保証注入 (`ensureDemoTodayPlacementRows`) を追加 (クロス画面修正) | `mock-assignments-data.js` (createSiteOrderMap + デモ今日配置) / `mock-orders-data.js` (buildMonthState 注入) / `screen-layout.js` (初期充填) / HTML キャッシュバスター |
 | 2026-05-29 | Claude Code | SL/WS/LA + 通知seed のダミーデータ (配置/応援/休み/車両配置) を `mock-assignments-data.js` に一本化。WS hardcode 28件配置 / 応援 partners 5社 / 予約 / 車両配置 / 整備を共通ソース由来に。LA の empIdx 配列外バグ修正 + デモ今日に isOnLeave 3名 approved 追加。通知seed の架空人名 "DCP-柊本" を実在社員に修正 | 新規 `docs/mockup/mock-assignments-data.js` / `weekly-schedule.js` (seed 2関数 + holidays hardcode 削除) / `screen-layout.js` (slSeedSupportDemoData) / `leave-application.js` (seedDemoLeaves + seedWsAssignments + 通知 seed) / HTML 6本に script タグ + キャッシュバスター |
 

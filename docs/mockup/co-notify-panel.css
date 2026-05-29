@@ -172,35 +172,21 @@
     100% { background: transparent; }
 }
 
-/* 通知ジャンプ先フォーカス: 対象以外を2秒でフェードアウトする薄暗い面で覆う */
-.cn-focus-dim:not(.tbl-grid__cell) {
-    position: relative !important;
+/* 通知ジャンプ先フォーカス: 画面全体を暗転し、対象セル（外接矩形）だけを
+   くり抜くスポットライト。透明な穴要素の外向き box-shadow で周囲を一括暗転する。
+   穴自身は pointer-events: none で背面のセルを素通しさせ、画面操作はそのまま可能。
+   animation-duration は JS から演出秒数に合わせて上書きされる。 */
+.cn-focus-spotlight {
+    position: fixed;
+    z-index: 9000;
+    pointer-events: none;
+    background: transparent;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    animation: cn-focus-spotlight-fade 3.5s ease-out forwards;
 }
-.cn-focus-dim:not(.tbl-grid__cell)::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.18);
-    border-radius: inherit;
-    pointer-events: auto;
-    z-index: 40;
-    animation: cn-focus-overlay-fade 2s ease-out forwards;
-}
-.tbl-grid__cell.cn-focus-dim {
-    box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0.18);
-    animation: cn-focus-cell-fade 2s ease-out forwards;
-}
-.cn-focus-target {
-    position: relative;
-    z-index: 41;
-}
-@keyframes cn-focus-overlay-fade {
+@keyframes cn-focus-spotlight-fade {
     from { opacity: 1; }
     to   { opacity: 0; }
-}
-@keyframes cn-focus-cell-fade {
-    from { box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0.18); }
-    to   { box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0); }
 }
 
 /* ============================================================

@@ -13,7 +13,8 @@
     var focusOverlayState = {
         timer: null,
         targets: [],
-        dimmed: [],
+        hole: null,
+        reposition: null,
         onDismiss: null
     };
 
@@ -34,47 +35,66 @@
             document.removeEventListener('click', focusOverlayState.onDismiss, true);
             focusOverlayState.onDismiss = null;
         }
-        focusOverlayState.targets.forEach(function (el) {
-            el.classList.remove('cn-focus-target');
-        });
-        focusOverlayState.dimmed.forEach(function (el) {
-            el.classList.remove('cn-focus-dim');
-        });
+        if (focusOverlayState.reposition) {
+            window.removeEventListener('scroll', focusOverlayState.reposition, true);
+            window.removeEventListener('resize', focusOverlayState.reposition);
+            focusOverlayState.reposition = null;
+        }
+        if (focusOverlayState.hole && focusOverlayState.hole.parentNode) {
+            focusOverlayState.hole.parentNode.removeChild(focusOverlayState.hole);
+        }
+        focusOverlayState.hole = null;
         focusOverlayState.targets = [];
-        focusOverlayState.dimmed = [];
     }
 
-    function isFocusTarget(candidate, targets) {
-        return targets.some(function (target) {
-            return candidate === target || candidate.contains(target) || target.contains(candidate);
+    // 対象要素群の外接矩形（viewport 座標）を返す
+    function unionTargetRect(els) {
+        var l = Infinity, t = Infinity, r = -Infinity, b = -Infinity;
+        els.forEach(function (el) {
+            var rc = el.getBoundingClientRect();
+            if (rc.width === 0 && rc.height === 0) return;
+            if (rc.left < l) l = rc.left;
+            if (rc.top < t) t = rc.top;
+            if (rc.right > r) r = rc.right;
+            if (rc.bottom > b) b = rc.bottom;
         });
+        if (l === Infinity) return null;
+        return { left: l, top: t, width: r - l, height: b - t };
     }
 
+    // 通知ジャンプ着地演出: 画面全体を暗転し、対象セル（複数なら外接矩形）だけを
+    // くり抜いて明るく残すスポットライト。透明な穴要素に外向き box-shadow を掛けて
+    // 周囲を一括で暗くする方式（候補セル単位ではなく画面全体が一様に暗くなる）。
+    // opts.candidateSelector は後方互換のため受け取るが使用しない。
     function showFocusOverlay(targetsInput, options) {
         var targets = normalizeElements(targetsInput);
         if (!targets.length) return;
         var opts = options || {};
-        var scope = opts.scope instanceof Element ? opts.scope : document;
-        var candidates = opts.candidates
-            ? normalizeElements(opts.candidates)
-            : (opts.candidateSelector ? Array.prototype.slice.call(scope.querySelectorAll(opts.candidateSelector)) : []);
-        if (!candidates.length) return;
+        var duration = opts.duration || 3500;
 
         clearFocusOverlay();
-        targets.forEach(function (el) { el.classList.add('cn-focus-target'); });
-        var dimmed = candidates.filter(function (el) { return !isFocusTarget(el, targets); });
-        dimmed.forEach(function (el) { el.classList.add('cn-focus-dim'); });
+
+        var hole = document.createElement('div');
+        hole.className = 'cn-focus-spotlight';
+        hole.style.animationDuration = duration + 'ms';
+        document.body.appendChild(hole);
+
         focusOverlayState.targets = targets;
-        focusOverlayState.dimmed = dimmed;
-        focusOverlayState.timer = setTimeout(clearFocusOverlay, opts.duration || 2000);
-        focusOverlayState.onDismiss = function (e) {
-            var hitDim = !!(e && e.target && e.target.closest && e.target.closest('.cn-focus-dim'));
-            clearFocusOverlay();
-            if (hitDim) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
+        focusOverlayState.hole = hole;
+        focusOverlayState.reposition = function () {
+            var rect = unionTargetRect(focusOverlayState.targets);
+            if (!rect) return;
+            hole.style.left = rect.left + 'px';
+            hole.style.top = rect.top + 'px';
+            hole.style.width = rect.width + 'px';
+            hole.style.height = rect.height + 'px';
         };
+        focusOverlayState.reposition();
+        window.addEventListener('scroll', focusOverlayState.reposition, true);
+        window.addEventListener('resize', focusOverlayState.reposition);
+
+        focusOverlayState.timer = setTimeout(clearFocusOverlay, duration);
+        focusOverlayState.onDismiss = function () { clearFocusOverlay(); };
         setTimeout(function () {
             if (focusOverlayState.onDismiss) {
                 document.addEventListener('click', focusOverlayState.onDismiss, true);
