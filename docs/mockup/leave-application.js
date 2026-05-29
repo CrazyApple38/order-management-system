@@ -192,25 +192,13 @@
     }
 
     function seedWsAssignments() {
-        // 当月に WS 配置がある想定のデモデータを仕込む
-        // 休暇申請と競合する日を含めることで衝突警告の動作確認ができる
-        var ym = currentDate.getFullYear() + '-' + pad(currentDate.getMonth() + 1) + '-';
-        var seeds = [
-            // 林 (empIdx=5) が 3日, 4日に休暇申請中 → 4日に配置済み (衝突)
-            { empIdx: 5,  day: 4, siteName: '〇〇ビル', shift: '昼' },
-            // 清水 (empIdx=14) が 8日, 9日に休暇申請中 → 9日に配置済み (衝突)
-            { empIdx: 14, day: 9, siteName: '□□イベント', shift: '夜' },
-            // 山田 (empIdx=18) が 15日に休暇申請中 → 15日に配置済み (衝突)
-            { empIdx: 18, day: 15, siteName: '高速SA補修', shift: '昼' },
-            // 衝突しない配置も混ぜる (一覧での通常表示用)
-            { empIdx: 3,  day: 20, siteName: '△△マンション', shift: '昼' },
-            { empIdx: 10, day: 22, siteName: '△△マンション', shift: '昼' }
-        ];
-        seeds.forEach(function (s) {
-            if (!laEmployees[s.empIdx]) return;
-            var key = laEmployees[s.empIdx].id + '|' + ym + pad(s.day);
-            laWsAssignments[key] = { siteName: s.siteName, shift: s.shift };
-        });
+        // 共通ソース (mock-assignments-data.js) から WS 配置を派生
+        var src = window.OmsMockAssignmentsData;
+        if (src) {
+            laWsAssignments = src.createLaWsAssignments();
+        } else {
+            laWsAssignments = {};
+        }
     }
 
     // E6: 権限ロジック
@@ -256,12 +244,16 @@
     function seedDemoLeaves() {
         // 表示月のダミー申請を何件か
         var ym = currentDate.getFullYear() + '-' + pad(currentDate.getMonth() + 1) + '-';
+        // empIdx は mock-employees-data.js の配列順 (0〜24)。
+        // デモ今日 (day = demoTodayDay) に isOnLeave=true の3名 (林=5 / 清水=14 / 前田=24)
+        // を approved にして、社員マスターの isOnLeave フラグと整合させる。
+        var demoTodayDay = laDemoTodayDate().getDate();
         var seeds = [
             { empIdx: 5,  day: 3,  partition: 'full', kind: 'paid',   status: 'approved' },
             { empIdx: 5,  day: 4,  partition: 'full', kind: 'paid',   status: 'approved' },
             { empIdx: 14, day: 8,  partition: 'full', kind: 'paid',   status: 'pending'  },
             { empIdx: 14, day: 9,  partition: 'am',   kind: 'paid',   status: 'pending'  },
-            { empIdx: 26, day: 10, partition: 'full', kind: 'absent', status: 'approved' },
+            { empIdx: 24, day: 10, partition: 'full', kind: 'absent', status: 'approved' },
             { empIdx: 2,  day: 15, partition: 'pm',   kind: 'paid',   status: 'approved' },
             { empIdx: 9,  day: 15, partition: 'full', kind: 'paid',   status: 'approved' },
             { empIdx: 18, day: 15, partition: 'full', kind: 'paid',   status: 'pending'  },
@@ -269,8 +261,12 @@
             { empIdx: 5,  day: 20, partition: 'full', kind: 'paid',   status: 'pending'  },
             { empIdx: 5,  day: 21, partition: 'full', kind: 'paid',   status: 'pending'  },
             { empIdx: 5,  day: 22, partition: 'full', kind: 'paid',   status: 'pending'  },
-            { empIdx: 25, day: 24, partition: 'full', kind: 'paid',   status: 'rejected' },
-            { empIdx: 11, day: 27, partition: 'am',   kind: 'paid',   status: 'approved' }
+            { empIdx: 23, day: 24, partition: 'full', kind: 'paid',   status: 'rejected' },
+            { empIdx: 11, day: 27, partition: 'am',   kind: 'paid',   status: 'approved' },
+            // デモ今日 (demoTodayDay) に isOnLeave 3名を approved
+            { empIdx: 5,  day: demoTodayDay, partition: 'full', kind: 'paid', status: 'approved' },
+            { empIdx: 14, day: demoTodayDay, partition: 'full', kind: 'paid', status: 'approved' },
+            { empIdx: 24, day: demoTodayDay, partition: 'full', kind: 'paid', status: 'approved' }
         ];
         seeds.forEach(function (s) {
             if (!laEmployees[s.empIdx]) return;
@@ -1449,7 +1445,7 @@
             if (emp2) items.push({
                 scope: 'application', op: 'approve',
                 main: emp2.name + ' の ' + laCnDayLabel(approved.date) + ' 申請を承認',
-                sub: 'DCP-柊本 ・ 10:30',
+                sub: 'DCP-田中 ・ 10:30',
                 date: today,
                 expand: '承認日時: ' + (approved.approvedAt || today),
                 affects: ['leave-application', 'weekly-schedule'],
@@ -1461,7 +1457,7 @@
             if (emp3) items.push({
                 scope: 'application', op: 'reject',
                 main: emp3.name + ' の ' + laCnDayLabel(rejected.date) + ' 申請を却下',
-                sub: 'DCP-斎藤 ・ 昨日 17:00',
+                sub: 'DCP-田中 ・ 昨日 17:00',
                 date: '昨日',
                 expand: '却下理由: 当日他申請と重複',
                 affects: ['leave-application', 'weekly-schedule'],

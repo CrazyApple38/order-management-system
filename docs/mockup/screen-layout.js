@@ -338,35 +338,20 @@
             return gc ? gc.shortName : gcCode;
         }
 
-        (function slSeedSupportDemoData() {
-            slSupportPartners.push({
-                id: 'preset-unified',
-                gcCode: null,
-                shortName: '応援',
-                formalName: null,
-                postalCode: null,
-                address: null,
-                representativeTitle: null,
-                representativeName: null,
-                phone: null,
-                email: null,
-                isPreset: true,
-                isMasterComplete: false,
-                isActive: true
-            });
-            const p1 = slAddSupportPartner('A社①', 'touo');
-            const p2 = slAddSupportPartner('B社②', 'touo');
-            const p3 = slAddSupportPartner('C社③', 'nikkei');
-            const p4 = slAddSupportPartner('E社⑤', 'zennihon');
-            const dk = slCurrentDateKey();
-            slSetReservedCount(p1, dk, 3);
-            slSetReservedCount(p2, dk, 1);
-            slSetReservedCount(p3, dk, 2);
-            slSetReservedCount(p4, dk, 2);
-            const p1Obj = slFindSupportPartner(p1);
-            const p3Obj = slFindSupportPartner(p3);
-            if (p1Obj) p1Obj.isMasterComplete = true;
-            if (p3Obj) p3Obj.isMasterComplete = true;
+        (function slSeedSupportDemoDataFromCommon() {
+            const src = window.OmsMockAssignmentsData;
+            if (!src) {
+                slSupportPartners.push({
+                    id: 'preset-unified', gcCode: null, shortName: '応援',
+                    formalName: null, postalCode: null, address: null,
+                    representativeTitle: null, representativeName: null,
+                    phone: null, email: null,
+                    isPreset: true, isMasterComplete: false, isActive: true
+                });
+                return;
+            }
+            src.createSupportPartners().forEach(function (p) { slSupportPartners.push(p); });
+            Object.assign(slSupportReservations, src.createSupportReservations());
         })();
 
         // --- Undo/Redo ---

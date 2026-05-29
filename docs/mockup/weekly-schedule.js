@@ -79,80 +79,27 @@
     var supportAssignments = {};
 
     // プリセット「応援」バッジ（統合・GC無所属）— サイドバー1個・クリックで全GC予約から紐付け
-    (function initPresetSupportBadges() {
-        supportPartners.push({
-            id: 'preset-unified',
-            gcCode: null,
-            shortName: '\u5fdc\u63f4',
-            formalName: null, postalCode: null, address: null,
-            representativeTitle: null, representativeName: null,
-            phone: null, email: null,
-            isPreset: true,
-            isMasterComplete: false,
-            isActive: true
-        });
+    (function initPresetSupportBadges_legacyRemoved() {
+        // \u5171\u901a\u30bd\u30fc\u30b9 (mock-assignments-data.js) \u306b\u79fb\u690d\u6e08\u307f\u3002
+        // preset + 5\u793e + \u4e88\u7d04\u306f seedSupportDemoDataFromCommon() \u5074\u3067 seed \u3055\u308c\u308b\u3002
     })();
 
     // デモデータ投入
-    (function seedSupportDemoData() {
-        function addPartner(p) {
-            var id = 'partner-' + (nextPartnerId++);
+    (function seedSupportDemoDataFromCommon() {
+        var src = window.OmsMockAssignmentsData;
+        if (!src) {
             supportPartners.push({
-                id: id,
-                gcCode: p.gcCode,
-                shortName: p.shortName,
-                formalName: p.formalName || null,
-                postalCode: p.postalCode || null,
-                address: p.address || null,
-                representativeTitle: p.representativeTitle || null,
-                representativeName: p.representativeName || null,
-                phone: p.phone || null,
-                email: p.email || null,
-                isPreset: false,
-                isMasterComplete: !!p.isMasterComplete,
-                isActive: true
+                id: 'preset-unified', gcCode: null, shortName: '応援',
+                formalName: null, postalCode: null, address: null,
+                representativeTitle: null, representativeName: null,
+                phone: null, email: null,
+                isPreset: true, isMasterComplete: false, isActive: true
             });
-            return id;
+            return;
         }
-        function setReservation(partnerId, dateKey, flex) {
-            if (!supportReservations[partnerId]) supportReservations[partnerId] = {};
-            supportReservations[partnerId][dateKey] = { flex: flex || 0 };
-        }
-        var p1 = addPartner({
-            gcCode: 'touo', shortName: 'A\u793e\u2460',
-            formalName: '\u682a\u5f0fA\u30b3\u30fc\u30dd\u30ec\u30fc\u30b7\u30e7\u30f3',
-            address: '\u9ad8\u77e5\u770c\u9ad8\u77e5\u5e02\u2026', representativeTitle: '\u4ee3\u8868\u53d6\u7de0\u5f79',
-            representativeName: '\u5c71\u7530 \u592a\u90ce', phone: '088-000-0001',
-            isMasterComplete: true
-        });
-        var p2 = addPartner({ gcCode: 'touo', shortName: 'B\u793e\u2461', isMasterComplete: false });
-        var p3 = addPartner({
-            gcCode: 'nikkei', shortName: 'C\u793e\u2462',
-            formalName: '\u682a\u5f0fC\u30a8\u30f3\u30bf\u30fc\u30d7\u30e9\u30a4\u30ba',
-            representativeTitle: '\u4ee3\u8868\u53d6\u7de0\u5f79', representativeName: '\u4f50\u85e4 \u4e00\u90ce',
-            isMasterComplete: true
-        });
-        var p4 = addPartner({ gcCode: 'nikkei', shortName: 'D\u793e\u2463', isMasterComplete: false });
-        var p5 = addPartner({
-            gcCode: 'zennihon', shortName: 'E\u793e\u2464',
-            formalName: '\u682a\u5f0fE\u5546\u4e8b', representativeTitle: '\u4ee3\u8868\u53d6\u7de0\u5f79',
-            representativeName: '\u9234\u6728 \u4e09\u90ce',
-            isMasterComplete: true
-        });
-        // 今日前後の予約（viewStartDateは下で定義されるので、ここは直近日付で手動計算）
-        var baseDate = wsDemoTodayDate();
-        function dk(offset) {
-            var d = new Date(baseDate); d.setDate(d.getDate() + offset);
-            var y = d.getFullYear(), m = ('0' + (d.getMonth() + 1)).slice(-2), day = ('0' + d.getDate()).slice(-2);
-            return y + '-' + m + '-' + day;
-        }
-        setReservation(p1, dk(0), 3);
-        setReservation(p1, dk(1), 2);
-        setReservation(p2, dk(0), 2);
-        setReservation(p3, dk(0), 3);
-        setReservation(p3, dk(2), 3);
-        setReservation(p4, dk(1), 1);
-        setReservation(p5, dk(0), 2);
+        src.createSupportPartners().forEach(function (p) { supportPartners.push(p); });
+        nextPartnerId = 6;
+        supportReservations = src.createSupportReservations();
     })();
 
     // 後方互換: 既存コードから wsSupportWorkers/isPresetを参照している箇所のために空配列として残す
@@ -256,78 +203,20 @@
     // デモ初期配置
     // ==========================================================
 
+    // 配置・車両・整備データは mock-assignments-data.js を単一情報源とする。
+    // holidays は wsApplyLeaveApplications() が LA seed (OmsMockStore) から投入する。
     function generateDemoAssignments() {
-        assignments = {};
-        vehicleAssignments = {};
+        var src = window.OmsMockAssignmentsData;
+        if (src) {
+            assignments = src.createEmployeeAssignments();
+            vehicleAssignments = src.createVehicleAssignments();
+            vehicleMaintenance = src.createVehicleMaintenance();
+        } else {
+            assignments = {};
+            vehicleAssignments = {};
+            vehicleMaintenance = {};
+        }
         holidays = {};
-        vehicleMaintenance = {};
-
-        var dates = getVisibleDates();
-        var empCount = employeesData.length;
-
-        holidays[2] = {}; holidays[2][formatDateKey(dates[3])] = true;
-        holidays[5] = {}; holidays[5][formatDateKey(dates[1])] = true;
-        holidays[7] = {}; holidays[7][formatDateKey(dates[5])] = true;
-        holidays[10] = {}; holidays[10][formatDateKey(dates[2])] = true;
-
-        var samplePlacements = [
-            { emp: 0, dayOffset: 0, shift: 'day', site: 's1' },
-            { emp: 0, dayOffset: 1, shift: 'day', site: 's1' },
-            { emp: 0, dayOffset: 2, shift: 'day', site: 's1' },
-            { emp: 1, dayOffset: 0, shift: 'day', site: 's1' },
-            { emp: 1, dayOffset: 0, shift: 'night', site: 's2' },
-            { emp: 1, dayOffset: 1, shift: 'day', site: 's1' },
-            { emp: 3, dayOffset: 0, shift: 'day', site: 's3' },
-            { emp: 3, dayOffset: 1, shift: 'day', site: 's3' },
-            { emp: 4, dayOffset: 0, shift: 'day', site: 's3' },
-            { emp: 4, dayOffset: 2, shift: 'day', site: 's4' },
-            { emp: 6, dayOffset: 0, shift: 'day', site: 's3' },
-            { emp: 6, dayOffset: 0, shift: 'night', site: 's4' },
-            { emp: 8, dayOffset: 1, shift: 'day', site: 's5' },
-            { emp: 8, dayOffset: 2, shift: 'day', site: 's5' },
-            { emp: 9, dayOffset: 0, shift: 'day', site: 's2' },
-            { emp: 9, dayOffset: 1, shift: 'day', site: 's2' },
-            { emp: 11, dayOffset: 0, shift: 'day', site: 's4' },
-            { emp: 11, dayOffset: 1, shift: 'day', site: 's4' },
-            { emp: 11, dayOffset: 1, shift: 'night', site: 's5' },
-            { emp: 12, dayOffset: 0, shift: 'day', site: 's5' },
-            { emp: 12, dayOffset: 1, shift: 'day', site: 's5' },
-            { emp: 14, dayOffset: 2, shift: 'day', site: 's1' },
-            { emp: 17, dayOffset: 0, shift: 'day', site: 's6' },
-            { emp: 18, dayOffset: 0, shift: 'day', site: 's6' },
-            { emp: 19, dayOffset: 0, shift: 'day', site: 's6' },
-            { emp: 20, dayOffset: 0, shift: 'day', site: 's6' },
-            { emp: 21, dayOffset: 0, shift: 'day', site: 's4' },
-            // 休日出勤テストケース（emp5=林 は dayOffset1=4/7に休みだが出勤）
-            { emp: 5, dayOffset: 1, shift: 'day', site: 's3' }
-        ];
-
-        samplePlacements.forEach(function (p) {
-            if (p.emp >= empCount) return;
-            var dk = formatDateKey(dates[p.dayOffset]);
-            if (!assignments[p.emp]) assignments[p.emp] = {};
-            if (!assignments[p.emp][dk]) assignments[p.emp][dk] = {};
-            // 1セル1現場: 最初の1つだけ保持
-            if (assignments[p.emp][dk][p.shift]) return;
-            assignments[p.emp][dk][p.shift] = [p.site];
-        });
-
-        var dk0 = formatDateKey(dates[0]);
-        var dk1 = formatDateKey(dates[1]);
-        vehicleAssignments[dk0] = { day: {}, night: {} };
-        vehicleAssignments[dk0].day['s1'] = 'v1';
-        vehicleAssignments[dk0].day['s3'] = 'v2';
-        vehicleAssignments[dk0].night['s4'] = 'v2';
-        vehicleAssignments[dk1] = { day: {}, night: {} };
-        vehicleAssignments[dk1].day['s5'] = 'v3';
-
-        // 車両修理/点検デモデータ
-        vehicleMaintenance['v4'] = {};
-        vehicleMaintenance['v4'][formatDateKey(dates[0])] = true;
-        vehicleMaintenance['v4'][formatDateKey(dates[1])] = true;
-        vehicleMaintenance['v4'][formatDateKey(dates[2])] = true;
-        vehicleMaintenance['v5'] = {};
-        vehicleMaintenance['v5'][formatDateKey(dates[3])] = true;
     }
 
     function wsEmpIdToIndex(employeeId) {
