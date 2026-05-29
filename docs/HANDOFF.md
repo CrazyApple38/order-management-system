@@ -8,25 +8,24 @@
 ## 最終更新
 
 - **更新者**: Claude Code (Opus 4.8)
-- **日付**: 2026-05-29
-- **コミット**: 4c22de5 (Make notification jump flash a full-screen spotlight)（本コミットの直前 HEAD）
+- **日付**: 2026-05-30
+- **コミット**: ee16701（直前 HEAD。本ドキュメント整合作業は**未コミット**）
 
 ## 直前にやったこと
 
-- **Phase N-6（結合テスト・整合性確認）を実施**（`notification-refactor-plan.md` §17）。静的レビュー中心 + Playwright 実動検証。
-  - **通知網羅マトリクス照合**: 全 `*CnSelfNotify` 呼出 + co-navbar 共通 seed の **2 系統**で §16.3 と照合（当初 1 系統のみ見て OB row×delete を誤検出 → 共通 seed L348/372 で網羅と訂正、OB は対応不要）。
-  - **WS schedule 発火漏れを実装**: WS は D&D ドロップ経由でしか schedule 通知を出しておらず、(1) 8 削除 UI の `schedule×delete`、(2) クリック追加/候補リスト/ロングプレス/busy 移動の `schedule×add` 9 件 + `schedule×modify` 2 件 = **計 19 箇所**に発火追加。
-  - **LA→SL 波及（§17.4-C）実装**: `laCnSelfNotify` / co-navbar la seed の target を画面別マップ化（LA/WS は leaveId 維持、SL は休み社員名 `empName` 軸を追加）+ affects に `screen-layout` 追加。SL cn:jump に `slCnFocusLeaveEmployee`（休み社員チップ/配置済み休バッジへフォーカス）新設。
-  - **既存 3 計画書に本計画への参照リンク追記**（ws-support-partner / leave-application / leave-vehicle-schedule、§10 で予定されていたが未実施だった）。
-  - キャッシュバスター: co-navbar v19→20 / weekly-schedule v16→18 / screen-layout v51→52 / leave-application v27→28。4 JS の node --check OK。
-- **Playwright 検証 (5/1)**: WS schedule×delete「〇〇ビル [昼] から 田中 を削除」/ schedule×add「〇〇ビル [夜] に 田中 を配置」を実 UI で実証、SL `empName` 着地は休み社員「林」でスポットライト出現・未知社員で非発火、console error 0。
+- **要件定義書・DB設計書を現行Mockupへ整合（フィードバック反映）**。Mockup=正・両ドキュメント=非として全画面＋共通データモデルの乖離を6ドメイン並列監査し、一覧承認後に一括反映。対象は `docs/01_要件定義.md` / `docs/03_データベース設計.md` の2本のみ（Mockup側コードは未変更）。
+  - **DB設計**: daily_site_orders から `contact`/`contact_info` 削除・`confidence_manual`/`group_company_id` 追加 / vehicles を車検(`shaken_date`)・点検(`inspection_date`)2本化＋`plate_short`追加・`oil_change_distance`削除 / maintenance_type を6種(+`shaken`,`oil`)＋`start_time`/`end_time` / notification_logs に `domain`/`scope`/`op`/`targets`/`affects`/`diffs` 追加 / `employee_day_off_requests`→**`leave_requests`**改名＋`partition`/`kind`/`status`/`reason`/`memo`列追加 / org_level_types・holidays・color presets・category_badges孫INSERT 等を修正。
+  - **要件定義**: 3.17 を「**休暇申請管理**」へ改称し3ロール(self/dcp/admin)・承認フロー・車両モード等を追記 / 通知ベルを4分類明記 / 契約先とグループ会社の概念混同を是正 / QA非表示・削除の排他 / preset-unified / 社員リストUIの実態化。
+  - **横断決定**: ①コード値はUUID主キー維持＋`code`列でマッピング注記 ②Mockup未実装の機能（資格/employee_conflicts/ペナルティ/LINE・メール通知/transport_relations 等）は削除せず「**Mockup未実装（仕様先行）**」と明記 ③送迎は display_items に一本化 ④確度デフォルト値は据え置き。
+  - 両ドキュメント末尾の「更新履歴」に 2026-05-30 行を追記。更新履歴内の旧用語は歴史的記録として保全。
 
 ## 次にやるべきこと
 
-- **SL画面で `OmsMockStore.getLeaveApplications()` が空 → LA通知 seed が 0件**（approval/la ベル空、§17.8）。このため「SL で実 LA 通知をクリック → 休み社員へフォーカス」のフルフローが再現できない。**SL↔LA データ連携の調査が次の優先**（通知システムとは別系統の既存課題）。
-- WS `schedule×modify`（busy 移動 / 候補リスト移動）は同型実装で構文 OK だが Playwright 実 UI 未実証 → busy 状態を作って確認すると堅い。
-- N-6 の §17.3 要対応はクローズ済み。次は **Phase 2.5（モックアップ検証）への通知システム登録**。
-- mock-data-unification-plan は Phase 1+2 完了（残: WS `wsVehiclesData`/`wsSitesData` の共通ソース統一は将来課題）。
+- **本ドキュメント整合作業は未コミット**。`docs/00_開発手順書.md` のモック状態表とプロジェクトルート `CLAUDE.md` の表に「E 休日申請管理」表記が残存（今回スコープ外＝未変更）。用語統一を全ドキュメントへ広げる場合は別途対応。
+- **SL画面で `OmsMockStore.getLeaveApplications()` が空 → LA通知 seed が 0件**（approval/la ベル空、§17.8）。**SL↔LA データ連携の調査が次の優先**（通知システムとは別系統の既存課題）。
+- WS `schedule×modify`（busy 移動 / 候補リスト移動）は構文 OK だが Playwright 実 UI 未実証。
+- Phase 2.5（モックアップ検証）への通知システム登録。
+- mock-data-unification-plan は Phase 1+2 完了（残: WS `wsVehiclesData`/`wsSitesData` 共通ソース統一は将来課題）。
 
 ## 触らないでほしいもの / 注意事項
 
