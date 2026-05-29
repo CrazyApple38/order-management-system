@@ -3,6 +3,7 @@
 **最終更新**: 2026-04-24
 **ステータス**: 構想フェーズ完了 / モックアップ未着手
 **対象モックアップ**: 未作成（予定: `docs/leave-application.html` + `docs/mockup/leave-application.{js,css}`）
+**関連計画書**: `docs/plan/notification-refactor-plan.md` — LA 画面の通知ベル設計・休暇申請の自領域発信（`laCnSelfNotify`、application×op）は本計画ではなく**通知計画に従う**（notification §3.4 / §16.3.3）。
 
 このドキュメントは「休暇申請管理」画面の設計構想を会話を跨いで継続するためのもの。新会話ではまず本ファイルを読み、未着手の実装フェーズから作業を再開すること。
 

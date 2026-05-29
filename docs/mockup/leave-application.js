@@ -1395,7 +1395,12 @@
 
         var target = null;
         if (opts.leaveId) {
-            target = { axis: 'leaveId', value: String(opts.leaveId) };
+            target = {
+                'leave-application': { axis: 'leaveId', value: String(opts.leaveId) },
+                'weekly-schedule': { axis: 'leaveId', value: String(opts.leaveId) }
+            };
+            // SL は leaveId を直接解決できないため、休み社員名で着地できるよう empName 軸を渡す（§17.4-C / N-6）
+            if (empName) target['screen-layout'] = { axis: 'empName', value: empName, date: targetDate };
         }
 
         window.coNotifyPanel.addItem('la', {
@@ -1409,7 +1414,7 @@
             targetDate: targetDate,
             expand: expandText,
             diffs: opts.diffs || null,
-            affects: ['leave-application', 'weekly-schedule'],
+            affects: ['leave-application', 'weekly-schedule', 'screen-layout'],
             target: target
         });
     }

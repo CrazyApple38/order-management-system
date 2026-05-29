@@ -5310,6 +5310,10 @@
             if (d.inContext !== true) return;
             var target = d.target;
             if (!target) return;
+            if (target.axis === 'empName') {
+                slCnFocusLeaveEmployee(String(target.value || ''));
+                return;
+            }
             var rows = Array.prototype.slice.call(document.querySelectorAll('.grid-table tbody tr'));
             var row = null;
             if (target.axis === 'siteName') {
@@ -5339,6 +5343,25 @@
             }
             slCnFlashRow(row, target.op || d.op || d.type, d.diffs);
         });
+
+        // LA 休暇申請通知 (axis:'empName') の SL 着地: 休み社員チップ / 配置済み社員の休みバッジへフォーカス（§17.4-C / N-6）
+        function slCnFocusLeaveEmployee(empName) {
+            if (!empName) return;
+            var chip = null;
+            document.querySelectorAll('.sl-holiday-chip').forEach(function (c) {
+                if (!chip && c.dataset.empName === empName) chip = c;
+            });
+            if (!chip) {
+                document.querySelectorAll('.assigned-employee.sl-on-leave .employee-name-block span').forEach(function (s) {
+                    if (!chip && s.textContent.trim() === empName) chip = s.closest('.assigned-employee');
+                });
+            }
+            if (!chip) return;
+            chip.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (window.coNotifyFocusOverlay && typeof window.coNotifyFocusOverlay.show === 'function') {
+                window.coNotifyFocusOverlay.show(chip, { candidateSelector: '.sl-holiday-chip, .assigned-employee' });
+            }
+        }
 
         function cnCreateRow(d) {
             var tr = document.createElement('tr');

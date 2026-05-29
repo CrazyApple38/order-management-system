@@ -1,7 +1,7 @@
 # 変更通知システム リファクタリング — 統合計画書
 
 **最終更新**: 2026-05-27
-**ステータス**: Phase N-5（クロス画面通知フォーカス）完了 + 4ベル統合調整・点滅廃止完了 / Phase N-6（結合テスト）未着手
+**ステータス**: Phase N-6（結合テスト・整合性確認）静的検証完了（§17）。要対応 2 件（OB row×delete / WS schedule×delete 未発火）はユーザー判断待ち
 **対象**: 全モックアップ（OB / SL / WS / LA / QA）+ 共通ナビバー
 **起点**: 社内モックアップレビュー（2026-05-14）
 
@@ -538,7 +538,7 @@ WSが先行実装した応援データ構造を **単一情報源（SSOT）** �
 | N-5後調整 4ベル統合 | 完了 | 2026-05-27 | 2026-05-27 | 共通メニューバーの7通知ベルを `order/assignment/approval/master` の4分類へ統合。旧ベルIDはAPI互換として残し、発信元はパネル内バッジで表示。ページ別初期シードが共通シードを上書きしないよう調整。別発信元通知でも現在画面で対象日が合う場合は通知フォーカス + 展開 + 発信元画面ボタン表示 |
 | N-5後調整 点滅廃止 | 完了 | 2026-05-27 | 2026-05-27 | 通知ジャンプ時の点滅アニメーションを廃止し、対象行/セル以外を2秒フェードの薄黒オーバーレイで覆う `coNotifyFocusOverlay` に置換。フェード途中クリックで即解除 |
 | N-5後調整 通知文言整理 | 完了 | 2026-05-28 | 2026-05-28 | OBは受注セル変更のみ対象日バッジを表示し、行追加/削除・契約先名/現場名変更では出さない。SL/WS/LAは対象日が分かる通知に `5/2（土）` 形式の日付バッジを表示。タイトルを `契約先 / 業務名｜変更内容` に寄せ、サブ情報から画面名/データ種別の重複を外して `アカウント ・ 日付/時刻` 中心に整理 |
-| N-6 結合テスト | 未着手 | — | — | — |
+| N-6 結合テスト | 静的検証完了 | 2026-05-29 | 2026-05-29 | §17。網羅マトリクス照合 + target/domain 解決 + 既存計画整合性を静的レビュー。未発火 2 件・LA affects 等を §17.3/17.4 に記録。3 計画書へ参照リンク追記 |
 
 ---
 
@@ -1308,6 +1308,82 @@ OB §16.2 と同パターンで、画面別 scope×op 一覧を確定。実装�
 - 背景 (.cn-composed::before): 24×30px (上下 3px 拡張)、角丸 6px、op 連動 solid 色、z-index: 0
 - box-sizing: border-box 必須
 - .cn-icon コンテナ: 24×24px、`overflow: visible` (op 突出と背景拡張のため)、margin-right: 18px
+
+---
+
+## 17. Phase N-6 結合テスト・整合性確認 結果（2026-05-29）
+
+**検証者**: Claude Code (Opus 4.8) / **手段**: 静的コードレビュー中心（全 `*CnSelfNotify` 呼出箇所の網羅列挙 + 発信関数本体・`co-notify-panel.js` の target/domain 解決ロジックの照合）。
+
+### 17.1 通知網羅マトリクス照合結果（§16.3 ↔ 実装）
+
+**通知は 2 系統で網羅される**（当初検証で①のみを見て②を見落とし、OB row×delete を誤検出した。下表は両系統の和で評価）:
+- ① 各画面のリアルタイム発火 `*CnSelfNotify(scope, op, opts)`（ユーザー操作時に発火）
+- ② `co-navbar.js mdNavBuildBellItems` の共通デモ seed（モック初期表示の見本通知）
+
+| 画面 | 確定 type | 実装で発火を確認 | 状態 |
+|------|-----------|------------------|------|
+| OB | row(add/modify/delete) / site(add/modify/delete) / badge(add/delete) | ①row×add・row×modify / site全 / badge全 ②row×delete（共通 seed L348/372、復旧トグル付き） | ✅ row×delete はOBに行削除UIが無いためリアルタイム発火なし・共通 seed で網羅（設計どおり） |
+| SL | row×modify / site(add/modify/delete) / employee(place/remove/modify) / vehicle(place/remove/modify) / support(place/remove/modify) / reservation(add/modify/delete) | row×modify / site×add(slSaveNewRow)・site×modify・site×delete(deleteRow) / employee×place・remove / vehicle×place・remove / support×place・remove / reservation×add・modify・delete | ✅ 一致（employee/vehicle/support の **modify は §16.3.1 で「将来UI追加時」**のため未実装が想定どおり） |
+| WS | schedule(add/modify/delete) / reservation(add/modify/delete) | schedule×add・schedule×modify(移動) / reservation×add・modify・delete | **schedule×delete 未発火**（§17.3-B） |
+| LA | application(add/modify/delete/approve/reject) | add・modify・delete・approve・reject 全5 op | ✅ 完全一致 |
+
+**SL↔OB scope 共有（N-3.4.1）の実装確認**: SL の行追加=`site×add`(L7753)・行削除=`site×delete`(L4104)・行メタ編集=`row×modify`(L1686) が確定どおり振り分けられている。✅
+
+### 17.2 target / domain / affects 解決ロジックの整合
+
+- **target 2系統の両対応を確認**: OB/LA は単一形式 `{axis, value}`、SL/WS は画面別マップ形式 `{'screen-layout':{...}, 'weekly-schedule':{...}}`。`co-notify-panel.js` の `resolveTargetForPage`(L299) が `rawTarget.axis` の有無で両者を正しく分岐。✅
+- **domain → primaryPage 優先度マップ**（`inferPrimaryPage`/`domainPrimary` L342）の値（order / person-assignment / vehicle-assignment / support-reservation / leave / master）が各発信側の `domain` 明示値と一致。`buildJumpDetail`(L362) は `dataset.domain` を優先するため、発信側明示 domain が常に使われる。✅
+- §6.4.1 主担当画面表との整合: employee→person-assignment(SL主担当)、vehicle→vehicle-assignment(SL主担当/関連LA)、support・reservation→support-reservation(WS主担当)、application→leave(LA主担当)。✅
+
+### 17.3 発見した網羅ギャップと対応
+
+| ID | 画面 | 内容 | 対応 |
+|----|------|------|------|
+| ~~A~~ | OB | （**誤検出・訂正**）当初「row×delete 未発火」と記録したが、OB に通常の行削除 UI は無く（行物理削除は復旧トグルのデモ `obDemoRemoveRow` のみ）、row×delete 通知形は `co-navbar.js` 共通 seed（L348/372、復旧トグル付き）で網羅済み | 対応不要 |
+| B | WS | 社員/車両の配置「削除」（`removeAssignment` L323 / `removeVehicleAssignment` L336）の全 8 削除 UI（現場/社員/車両ビューの×ボタン・サイドバー解除・候補リスト解除 = L1382/1500/1718/1854/2853/2967/3168/3397）が `wsCnSelfNotify('schedule','delete')` を発火していなかった。共通 seed にも schedule×delete は無く真の欠落 | **2026-05-29 実装済み**（8 箇所に発火追加） |
+| C | WS | **§17.3-B 調査中に WS schedule 発火漏れが構造的に判明**: WS は D&D ドロップ経由でしか schedule 通知を発火しておらず、(1) busy 社員/車両の別現場移動（remove+add）の `schedule×modify` 2 件、(2) サイドバー純粋追加・候補リスト追加(3分岐×2)・ロングプレス配置の `schedule×add` 9 件が未発火だった | **2026-05-29 実装済み**（計 11 箇所に発火追加。これで D&D／クリック／候補リスト／ロングプレス／busy 移動の全配置パスで schedule 通知を発信） |
+
+### 17.4 ドメイン/affects 整合性の所見（軽微 / 設計判断含む）
+
+| ID | 内容 | 評価 |
+|----|------|------|
+| C | LA の `affects` が `['leave-application','weekly-schedule']` で **screen-layout を含まなかった**。§3.6（休日申請→SL休み表示へ波及）/ §6.4.1（休暇申請ドメインの関連画面=WS/SL）と乖離 | **2026-05-29 実装済み**: LA target を画面別マップ化（LA/WS は leaveId 維持、SL は休み社員名 `empName` 軸を追加）+ affects に screen-layout 追加。SL cn:jump に empName 着地 `slCnFocusLeaveEmployee` を新設。Playwright で SL 着地（休み社員チップへのフォーカス）実証済み。ただしフルフローは §17.8 / §17.7-5 の既存課題あり |
+| D | `co-notify-panel.js` の `inferDomain`(L333) フォールバックが `support → person-assignment` だが、発信側 `slCnSelfNotify` と §6.4.1 は `support → support-reservation`。発信側が `dataset.domain` を常に明示するため顕在化しないが、フォールバック値が設計と不一致 | 軽微（一貫性） |
+| E | WS の `schedule` scope は車両配置も含むが domain は常に `person-assignment` 固定（L5366）。§6.4.1 の「車の配置=vehicle-assignment」と不一致だが、§16.3.2 の schedule scope 集約思想（社員/車両/現場を 1 scope に集約）では妥当 | 軽微（設計どおり） |
+
+### 17.5 既存計画との整合性確認
+
+- **参照リンク未追記を発見 → 本 N-6 で追記（軽微・即修正済）**: §10 で予定されていた各計画書側の本計画参照リンクが 3 計画書とも未記載だった。`ws-support-partner-plan.md` / `leave-application-plan.md` / `leave-vehicle-schedule-plan.md` の冒頭に関連計画リンクを追記した。
+- **スコープ重複の矛盾なし**: ws-support-partner Phase A5 以降と N-3 の重複は §9 で「本計画優先」と既述。3 計画書に本計画と矛盾する記述は見つからなかった。
+- **QA（quick-access）は旧形式 `qaCnSelfNotify(type, opts)` のまま**: §15.1 で「今回スコープ外」と確定済みのため整合（意図的残置）。
+
+### 17.6 Phase 2.5（モックアップ検証）登録
+
+N-6 の静的検証は完了。§17.3 の要対応 2 件の実装判断後、`project_phase25_verification` の検証対象として通知システムを登録する。
+
+### 17.7 残対応事項
+
+1. ~~§17.3-A（OB row×delete）~~ → 誤検出につき対応不要（§17.3）
+2. §17.3-B（WS schedule×delete）→ **2026-05-29 実装済み**（8 箇所）
+3. §17.4-C（LA affects に screen-layout 追加 + SL 側 leaveId フォーカス）→ ユーザー承認済み・実装中
+4. §17.3-C（WS schedule 発火漏れ: 移動 modify 2 件 + 純粋追加 add 9 件 = 11 箇所）→ **2026-05-29 実装済み**
+5. SL画面で `OmsMockStore.getLeaveApplications()` が空 → LA通知 seed が 0件（§17.8）。SL↔LA データ連携の別課題として要調査
+6. 上記反映後に Phase 2.5 検証対象として正式登録
+
+### 17.8 実動検証結果（Playwright / 2026-05-29）
+
+localhost で WS / SL を実操作（console error 0）。
+
+| 項目 | 結果 |
+|------|------|
+| WS schedule×delete（社員チップ×ボタン） | ✅ 「〇〇ビル [昼] から 田中 を削除」発火 |
+| WS schedule×add（空きセル選択→候補配置） | ✅ 「〇〇ビル [夜] に 田中 を配置」発火 |
+| SL empName 着地（`slCnFocusLeaveEmployee`） | ✅ 休み社員「林」でスポットライト出現／存在しない社員で非発火（false-positive なし） |
+
+WS の add/delete は実 UI で実証（modify は同型実装）。SL 着地ロジックも実証。
+
+**未実証（§17.7-5 の既存課題）**: SL画面で `getLeaveApplications()` が空のため LA通知 seed が 0件で、SL で実 LA 通知カードをクリックするフルフローは再現できず。empName target / affects / SL 着地ロジックは個別検証済みのため、SL に LA 通知 seed が入りさえすれば機能する。原因は SL↔LA データ連携（通知システムとは別系統）。
 
 ---
 

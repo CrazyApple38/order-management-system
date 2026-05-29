@@ -3,7 +3,7 @@
 **最終更新**: 2026-05-13
 **ステータス**: 構想フェーズ完了 / 実装着手
 **対象モックアップ**: `docs/leave-application.html`（既存ファイルを拡張、1ファイル2モード構成）
-**関連計画書**: `docs/plan/leave-application-plan.md`（休暇申請管理 本体）
+**関連計画書**: `docs/plan/leave-application-plan.md`（休暇申請管理 本体） / `docs/plan/notification-refactor-plan.md`（車両スケジュール変更通知は「配置・予定変更」ベルに統合し、発信元バッジ「車両予定」で区別。notification §3.4 / §9）
 
 このドキュメントは「休暇申請管理画面に車両スケジュール管理を統合する」追加開発の設計を会話を跨いで継続するためのもの。新会話ではまず本ファイルと `leave-application-plan.md` を読み、未着手の実装フェーズから作業を再開すること。
 

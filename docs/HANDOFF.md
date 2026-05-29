@@ -9,27 +9,24 @@
 
 - **更新者**: Claude Code (Opus 4.8)
 - **日付**: 2026-05-29
-- **コミット**: b4591e4 (Render SL employee placements from shared mock source (Phase 2))（本コミットの直前 HEAD）
+- **コミット**: 4c22de5 (Make notification jump flash a full-screen spotlight)（本コミットの直前 HEAD）
 
 ## 直前にやったこと
 
-- **通知ジャンプ着地演出をスポットライト方式へ変更**。`co-notify-panel.js` の `showFocusOverlay` を、セル単位の部分オーバーレイ → 透明な穴要素 (`.cn-focus-spotlight`) に外向き `box-shadow: 0 0 0 9999px rgba(0,0,0,0.5)` を掛けて**画面全体を一様に暗転し対象セル（複数なら外接矩形1つ）だけくり抜く**方式に差し替え。穴は `pointer-events:none` で背面操作可、スクロール/リサイズ追従あり。演出秒数 2→3.5秒。各画面は `coNotifyFocusOverlay.show()` 経由のみのため1関数差し替えで全画面に一括適用（`candidateSelector` 引数は後方互換で無視）。`co-notify-panel.css` の `.cn-focus-dim`/`.cn-focus-target` 系を `.cn-focus-spotlight` に置換。キャッシュバスター co-notify-panel.js v37→v38 / .css v16→v17 (HTML 6本)。Playwright 検証: 単一セルは穴がセルと完全一致、複数セルは1つの外接矩形に集約、WS/OB エラー0、clear() で穴削除確認。
-
-- **Phase 2 完了: SL の社員配置を共通ソースから読み取り描画**（mock-data-unification-plan の Phase 2）。
-  - `mock-assignments-data.js`: `createSiteOrderMap()` 新設（siteId → OB受注行 会社+業務 の対応表）+ export。samplePlacements にデモ今日(dayOffset 4 = 5/1)の配置12件を追加（休暇中3名 5/14/24 除外、shift は対応OB行に合わせ s1/s2/s5/s6=昼・s3/s4=夜）。
-  - `mock-orders-data.js`: SL は受注のある行しか描画せず当日受注の有無が `generateCellData` のランダム依存のため、`buildMonthState` 後に `ensureDemoTodayPlacementRows()` でデモ今日の対応6行へ受注エントリを保証注入。shift は配置データから導出（対応表の二重管理回避）。`buildDemoCellEntry()` も新設。
-  - `screen-layout.js`: 行カウント表示を `slRefreshRowCountDisplay()` に抽出。`slGetDefaultPlacementContext()` / `slApplyDefaultPlacementToRow()` 新設。`slBuildStateFromOrderBookDate` の描画ループで「保存状態の無い行 (savedRows[savedKey] === undefined)」のみ共通ソースの配置を初期充填。
-  - キャッシュバスター: mock-assignments-data.js v2→v3 (HTML 6本) / mock-orders-data.js v2→v3 (screen-layout・order-book) / screen-layout.js v50→v51。
-- Playwright 検証 (5/1): SL が全6現場の社員を共通ソースと完全一致で描画、SL ⇄ WS で社員・現場一致、OB に6行の5/1受注注入確認、SL/WS/OB console エラー0、配置削除が再読込後も維持（初期充填が保存状態を上書きしない）。
+- **Phase N-6（結合テスト・整合性確認）を実施**（`notification-refactor-plan.md` §17）。静的レビュー中心 + Playwright 実動検証。
+  - **通知網羅マトリクス照合**: 全 `*CnSelfNotify` 呼出 + co-navbar 共通 seed の **2 系統**で §16.3 と照合（当初 1 系統のみ見て OB row×delete を誤検出 → 共通 seed L348/372 で網羅と訂正、OB は対応不要）。
+  - **WS schedule 発火漏れを実装**: WS は D&D ドロップ経由でしか schedule 通知を出しておらず、(1) 8 削除 UI の `schedule×delete`、(2) クリック追加/候補リスト/ロングプレス/busy 移動の `schedule×add` 9 件 + `schedule×modify` 2 件 = **計 19 箇所**に発火追加。
+  - **LA→SL 波及（§17.4-C）実装**: `laCnSelfNotify` / co-navbar la seed の target を画面別マップ化（LA/WS は leaveId 維持、SL は休み社員名 `empName` 軸を追加）+ affects に `screen-layout` 追加。SL cn:jump に `slCnFocusLeaveEmployee`（休み社員チップ/配置済み休バッジへフォーカス）新設。
+  - **既存 3 計画書に本計画への参照リンク追記**（ws-support-partner / leave-application / leave-vehicle-schedule、§10 で予定されていたが未実施だった）。
+  - キャッシュバスター: co-navbar v19→20 / weekly-schedule v16→18 / screen-layout v51→52 / leave-application v27→28。4 JS の node --check OK。
+- **Playwright 検証 (5/1)**: WS schedule×delete「〇〇ビル [昼] から 田中 を削除」/ schedule×add「〇〇ビル [夜] に 田中 を配置」を実 UI で実証、SL `empName` 着地は休み社員「林」でスポットライト出現・未知社員で非発火、console error 0。
 
 ## 次にやるべきこと
 
-- **mock-data-unification-plan は Phase 1 + Phase 2 とも完了**。残課題は下記の将来統一のみ。
-- WS の `wsVehiclesData` (v1-v5) / `wsSitesData` (s1-s6) はまだ WS ローカル定義のまま。共通ソース `createSites` と内容を一致させてあるが、将来は WS 側も共通ソースから読む形に統一すると整合性チェックが楽になる
-- Phase 2 の制約: SL は受注のある行しか描画しないため、対応表6行以外の siteId 配置や、対応行が hidden の場合は SL に出ない。新たな現場を共通ソースに足す場合は createSiteOrderMap への対応行追加（+ 必要なら DEFAULT_ORDER_ROWS に行追加）が要る
-- N-6（結合テスト・既存計画との整合性確認）への合流: 配置データが共通ソース化したことで、通知 seed が言及する「social context」(誰がどこに居る) が SL/WS で同じになり、N-6 のクロス画面通知テストが現実的になる
-- 受注変更で SL/WS を現在画面優先にする場合は、OB通知側に画面別 `target.screen-layout` / `target.weekly-schedule` を付与できるだけの可視日付判定を追加する
-- 車両配置と休暇競合は、LA側の `vehicleSchedule` / `leaveId` target を生成できるタイミングで補助フラッシュ対象へ拡張する
+- **SL画面で `OmsMockStore.getLeaveApplications()` が空 → LA通知 seed が 0件**（approval/la ベル空、§17.8）。このため「SL で実 LA 通知をクリック → 休み社員へフォーカス」のフルフローが再現できない。**SL↔LA データ連携の調査が次の優先**（通知システムとは別系統の既存課題）。
+- WS `schedule×modify`（busy 移動 / 候補リスト移動）は同型実装で構文 OK だが Playwright 実 UI 未実証 → busy 状態を作って確認すると堅い。
+- N-6 の §17.3 要対応はクローズ済み。次は **Phase 2.5（モックアップ検証）への通知システム登録**。
+- mock-data-unification-plan は Phase 1+2 完了（残: WS `wsVehiclesData`/`wsSitesData` の共通ソース統一は将来課題）。
 
 ## 触らないでほしいもの / 注意事項
 
@@ -54,11 +51,12 @@
 | 2026-05-29 | Claude Code | 通知ジャンプ着地演出をセル単位部分オーバーレイ → 全画面スポットライト (透明穴 + box-shadow 9999px) へ変更。`showFocusOverlay` 1関数差し替えで全画面共通化、`candidateSelector` 引数は無視に | `co-notify-panel.js` (showFocusOverlay/clearFocusOverlay) / `co-notify-panel.css` (.cn-focus-spotlight) / HTML 6本キャッシュバスター |
 | 2026-05-29 | Claude Code | Phase 2: SL の社員配置を共通ソースから読み取り描画。`createSiteOrderMap` (siteId↔OB受注行) 新設、SL 描画ループで保存状態の無い行に初期充填。OB `buildMonthState` にデモ今日の対応6行への受注エントリ保証注入 (`ensureDemoTodayPlacementRows`) を追加 (クロス画面修正) | `mock-assignments-data.js` (createSiteOrderMap + デモ今日配置) / `mock-orders-data.js` (buildMonthState 注入) / `screen-layout.js` (初期充填) / HTML キャッシュバスター |
 | 2026-05-29 | Claude Code | SL/WS/LA + 通知seed のダミーデータ (配置/応援/休み/車両配置) を `mock-assignments-data.js` に一本化。WS hardcode 28件配置 / 応援 partners 5社 / 予約 / 車両配置 / 整備を共通ソース由来に。LA の empIdx 配列外バグ修正 + デモ今日に isOnLeave 3名 approved 追加。通知seed の架空人名 "DCP-柊本" を実在社員に修正 | 新規 `docs/mockup/mock-assignments-data.js` / `weekly-schedule.js` (seed 2関数 + holidays hardcode 削除) / `screen-layout.js` (slSeedSupportDemoData) / `leave-application.js` (seedDemoLeaves + seedWsAssignments + 通知 seed) / HTML 6本に script タグ + キャッシュバスター |
+| 2026-05-29 | Claude Code | N-6: WS schedule 発火を全配置パスに追加 (delete 8 + add 9 + modify 2 = 19箇所)。**LA通知 target を単一 `{axis:'leaveId'}` → 画面別マップ形式へ変更**（SL 用 `empName` 軸追加 + affects に screen-layout）。SL に empName 着地 `slCnFocusLeaveEmployee` 新設 | `weekly-schedule.js` (削除/追加/移動ハンドラ) / `leave-application.js` (`laCnSelfNotify` target) / `co-navbar.js` (la seed target) / `screen-layout.js` (cn:jump リスナー)。WS の leaveId 処理は画面別マップでも `weekly-schedule` キー維持で無影響 |
 
 ## アクティブな計画書
 
 - `docs/plan/mock-data-unification-plan.md` — SL/WS/LA/通知seed ダミーデータ一本化（**Phase 1 完了 / Phase 2 (SL 配置の共通ソース読み取り描画) 未着手**）
-- `docs/plan/notification-refactor-plan.md` — 変更通知システム リファクタリング（**N-5 完了 + 4ベル統合調整完了 / 次は N-6**）
+- `docs/plan/notification-refactor-plan.md` — 変更通知システム リファクタリング（**N-6 静的検証 + 要対応実装 完了（§17）/ 次は SL↔LA データ連携調査 → Phase 2.5 登録**）
 - `docs/plan/ws-support-partner-plan.md` — WS 応援予約・協力業者
 - `docs/plan/ui-components-improvement-plan.md` — UI コンポーネント整備
 - その他: `docs/plan/*.md` 一覧を確認

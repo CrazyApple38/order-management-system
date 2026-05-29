@@ -1380,6 +1380,7 @@
                                 removeBtn.addEventListener('click', function (e) {
                                     e.stopPropagation();
                                     removeAssignment(empIdx, dk, shift, site.id);
+                                    wsCnSelfNotify('schedule', 'delete', { empName: emp.name, siteName: site.name, siteId: site.id, dateKey: dk, shift: shift });
                                     renderGrid();
                                     renderSidebar();
                                 });
@@ -1498,6 +1499,7 @@
                                         vChip.addEventListener('click', function (e) {
                                             e.stopPropagation();
                                             removeVehicleAssignment(dkk, sh, sid);
+                                            wsCnSelfNotify('schedule', 'delete', { vehicleName: wsCnGetVehicleName(vid), siteName: (findSite(sid) || {}).name, siteId: sid, dateKey: dkk, shift: sh });
                                             renderGrid();
                                             renderSidebar();
                                         });
@@ -1716,6 +1718,7 @@
                                         removeBtn.addEventListener('click', function (e) {
                                             e.stopPropagation();
                                             removeAssignment(emp.index, dk, shift, siteId);
+                                            wsCnSelfNotify('schedule', 'delete', { empName: emp.name, siteName: site.name, siteId: siteId, dateKey: dk, shift: shift });
                                             renderGrid();
                                             renderSidebar();
                                         });
@@ -1852,6 +1855,7 @@
                                 removeBtn.addEventListener('click', function (e) {
                                     e.stopPropagation();
                                     removeVehicleAssignment(dk, shift, siteId);
+                                    wsCnSelfNotify('schedule', 'delete', { vehicleName: vehicle.plate, siteName: site.name, siteId: siteId, dateKey: dk, shift: shift });
                                     renderGrid();
                                     renderSidebar();
                                 });
@@ -2189,6 +2193,7 @@
                 var shift = cell.dataset.shift;
                 if (siteId && date && shift) {
                     addAssignment(lmDragData.empIndex, date, shift, siteId);
+                    wsCnSelfNotify('schedule', 'add', { empName: wsCnGetEmpName(lmDragData.empIndex), siteName: (findSite(siteId) || {}).name, shift: shift, siteId: siteId, dateKey: date });
                     dropped = true;
                 }
             }
@@ -2851,6 +2856,7 @@
             tag.title = '\u30af\u30ea\u30c3\u30af\u3067\u914d\u7f6e\u89e3\u9664';
             tag.addEventListener('click', function () {
                 removeAssignment(emp.index, sc.date, sc.shift, sc.siteId);
+                wsCnSelfNotify('schedule', 'delete', { empName: emp.name, siteName: (findSite(sc.siteId) || {}).name, siteId: sc.siteId, dateKey: sc.date, shift: sc.shift });
                 renderGrid();
                 renderSidebar();
             });
@@ -2869,12 +2875,14 @@
                     removeAssignment(emp.index, sc.date, sc.shift, sid);
                 });
                 addAssignment(emp.index, sc.date, sc.shift, sc.siteId);
+                wsCnSelfNotify('schedule', 'modify', { empName: emp.name, siteName: (findSite(sc.siteId) || {}).name, shift: sc.shift, siteId: sc.siteId, dateKey: sc.date, srcSite: busySites.length ? ((findSite(busySites[0]) || {}).name || '') : '', dstSite: (findSite(sc.siteId) || {}).name || '' });
                 renderGrid();
                 renderSidebar();
             });
         } else {
             tag.addEventListener('click', function () {
                 addAssignment(emp.index, sc.date, sc.shift, sc.siteId);
+                wsCnSelfNotify('schedule', 'add', { empName: emp.name, siteName: (findSite(sc.siteId) || {}).name, shift: sc.shift, siteId: sc.siteId, dateKey: sc.date });
                 renderGrid();
                 renderSidebar();
             });
@@ -2965,6 +2973,7 @@
             tag.title = (inMaint ? '\u26a0 \u4fee\u7406/\u70b9\u691c\u4e2d \u2014 ' : '') + '\u30af\u30ea\u30c3\u30af\u3067\u89e3\u9664';
             tag.addEventListener('click', function () {
                 removeVehicleAssignment(sc.date, sc.shift, sc.siteId);
+                wsCnSelfNotify('schedule', 'delete', { vehicleName: v.plate, siteName: (findSite(sc.siteId) || {}).name, siteId: sc.siteId, dateKey: sc.date, shift: sc.shift });
                 renderGrid();
                 renderSidebar();
             });
@@ -2976,6 +2985,7 @@
             tag.addEventListener('click', function () {
                 removeVehicleAssignment(sc.date, sc.shift, busySiteId);
                 addVehicleAssignment(sc.date, sc.shift, sc.siteId, v.id);
+                wsCnSelfNotify('schedule', 'modify', { vehicleName: v.plate, siteName: (findSite(sc.siteId) || {}).name, shift: sc.shift, siteId: sc.siteId, dateKey: sc.date, srcSite: (findSite(busySiteId) || {}).name || '', dstSite: (findSite(sc.siteId) || {}).name || '' });
                 renderGrid();
                 renderSidebar();
             });
@@ -2983,6 +2993,7 @@
             tag.title = inMaint ? '\u26a0 \u4fee\u7406/\u70b9\u691c\u4e2d\uff08\u914d\u7f6e\u53ef\uff09' : '';
             tag.addEventListener('click', function () {
                 addVehicleAssignment(sc.date, sc.shift, sc.siteId, v.id);
+                wsCnSelfNotify('schedule', 'add', { vehicleName: v.plate, siteName: (findSite(sc.siteId) || {}).name, shift: sc.shift, siteId: sc.siteId, dateKey: sc.date });
                 renderGrid();
                 renderSidebar();
             });
@@ -3166,6 +3177,7 @@
                         countChip.textContent = assignedCount + '/' + orders;
                         item.addEventListener('click', function () {
                             removeAssignment(sc.empIndex, sc.date, sc.shift, site.id);
+                            wsCnSelfNotify('schedule', 'delete', { empName: wsCnGetEmpName(sc.empIndex), siteName: site.name, siteId: site.id, dateKey: sc.date, shift: sc.shift });
                             renderGrid();
                             renderSidebar();
                         });
@@ -3176,6 +3188,7 @@
                         countChip.textContent = assignedCount + '/' + orders;
                         item.addEventListener('click', function () {
                             addAssignment(sc.empIndex, sc.date, sc.shift, site.id);
+                            wsCnSelfNotify('schedule', 'add', { empName: wsCnGetEmpName(sc.empIndex), siteName: site.name, shift: sc.shift, siteId: site.id, dateKey: sc.date });
                             renderGrid();
                             renderSidebar();
                         });
@@ -3184,6 +3197,7 @@
                         countChip.textContent = assignedCount + '/' + orders;
                         item.addEventListener('click', function () {
                             addAssignment(sc.empIndex, sc.date, sc.shift, site.id);
+                            wsCnSelfNotify('schedule', 'add', { empName: wsCnGetEmpName(sc.empIndex), siteName: site.name, shift: sc.shift, siteId: site.id, dateKey: sc.date });
                             renderGrid();
                             renderSidebar();
                         });
@@ -3192,6 +3206,7 @@
                         countChip.textContent = assignedCount + '/' + orders;
                         item.addEventListener('click', function () {
                             addAssignment(sc.empIndex, sc.date, sc.shift, site.id);
+                            wsCnSelfNotify('schedule', 'add', { empName: wsCnGetEmpName(sc.empIndex), siteName: site.name, shift: sc.shift, siteId: site.id, dateKey: sc.date });
                             renderGrid();
                             renderSidebar();
                         });
@@ -3395,6 +3410,7 @@
                         countChip.textContent = assignedCount + '/' + orders;
                         item.addEventListener('click', function () {
                             removeVehicleAssignment(sc.date, sc.shift, site.id);
+                            wsCnSelfNotify('schedule', 'delete', { vehicleName: wsCnGetVehicleName(sc.vehicleId), siteName: site.name, siteId: site.id, dateKey: sc.date, shift: sc.shift });
                             renderGrid();
                             renderSidebar();
                         });
@@ -3405,6 +3421,7 @@
                         countChip.textContent = assignedCount + '/' + orders;
                         item.addEventListener('click', function () {
                             addVehicleAssignment(sc.date, sc.shift, site.id, sc.vehicleId);
+                            wsCnSelfNotify('schedule', 'add', { vehicleName: wsCnGetVehicleName(sc.vehicleId), siteName: site.name, shift: sc.shift, siteId: site.id, dateKey: sc.date });
                             renderGrid();
                             renderSidebar();
                         });
@@ -3413,6 +3430,7 @@
                         countChip.textContent = assignedCount + '/' + orders;
                         item.addEventListener('click', function () {
                             addVehicleAssignment(sc.date, sc.shift, site.id, sc.vehicleId);
+                            wsCnSelfNotify('schedule', 'add', { vehicleName: wsCnGetVehicleName(sc.vehicleId), siteName: site.name, shift: sc.shift, siteId: site.id, dateKey: sc.date });
                             renderGrid();
                             renderSidebar();
                         });
@@ -3421,6 +3439,7 @@
                         countChip.textContent = assignedCount + '/' + orders;
                         item.addEventListener('click', function () {
                             addVehicleAssignment(sc.date, sc.shift, site.id, sc.vehicleId);
+                            wsCnSelfNotify('schedule', 'add', { vehicleName: wsCnGetVehicleName(sc.vehicleId), siteName: site.name, shift: sc.shift, siteId: site.id, dateKey: sc.date });
                             renderGrid();
                             renderSidebar();
                         });

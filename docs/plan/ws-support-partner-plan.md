@@ -3,6 +3,7 @@
 **最終更新**: 2026-05-12
 **ステータス**: Phase A1〜A6 完了／A7 スキップ／A8 UI修正反映済／A9 継続中／A10〜A15 完了（応援バッジ統合・行間D&D・全GC紐付け）／要件定義・DB設計反映済
 **対象モックアップ**: `docs/weekly-schedule.html` + `docs/mockup/weekly-schedule.{js,css}`
+**関連計画書**: `docs/plan/notification-refactor-plan.md` — 応援／応援予約の通知発信・SL 応援機能統合は Phase N-3 で本計画に統合済み。Phase A5 以降と通知計画 N-3 はスコープ重複あり、**通知計画を優先**（notification §9）。
 
 このドキュメントは会話をまたいで作業継続できるようにまとめたもの。新会話ではまず本ファイルを読んでから作業に入ること。
 

@@ -454,18 +454,23 @@
         [pendingLeaves[0], approvedLeave, rejectedLeave].filter(Boolean).forEach(function (lv) {
             var op = lv.status === 'approved' ? 'approve' : (lv.status === 'rejected' ? 'reject' : 'add');
             var action = op === 'add' ? '休暇申請を追加' : (op === 'approve' ? '申請を承認' : '申請を却下');
+            var laEmpName = mdNavEmployeeNameById(lv.employeeId);
             items.la.push({
                 scope: 'application',
                 op: op,
                 domain: 'leave',
                 primaryPage: 'leave-application',
-                main: mdNavEmployeeNameById(lv.employeeId) + '｜' + action,
+                main: laEmpName + '｜' + action,
                 sub: '共通休暇データ ・ ' + (op === 'add' ? '09:30' : op === 'approve' ? '10:30' : '17:00'),
                 date: today,
                 targetDate: lv.date,
                 expand: lv.reason ? '理由: ' + lv.reason : '',
-                affects: ['leave-application', 'weekly-schedule'],
-                target: { axis: 'leaveId', value: String(lv.id) }
+                affects: ['leave-application', 'weekly-schedule', 'screen-layout'],
+                target: {
+                    'leave-application': { axis: 'leaveId', value: String(lv.id) },
+                    'weekly-schedule': { axis: 'leaveId', value: String(lv.id) },
+                    'screen-layout': { axis: 'empName', value: laEmpName, date: lv.date }
+                }
             });
         });
         if (pendingLeaves.length > 0) {
