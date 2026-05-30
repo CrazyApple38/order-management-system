@@ -272,16 +272,24 @@ erDiagram
         uuid id PK "主キー"
         string code "グループ会社コード"
         string name "グループ会社名"
-        string short_name "略称"
+        string short_name "表示用略称"
         string badge_color "ボーダー色"
         string badge_text_color "バッジ文字色"
+        string postal_code "郵便番号(甲)"
+        string address "住所(甲)"
+        string representative_title "代表者役職(甲)"
+        string representative_name "代表者名(甲)"
+        string phone "代表電話(甲)"
+        int sort_order "表示順"
         boolean is_active "有効フラグ"
     }
 
     companies {
         uuid id PK "主キー"
         string code "契約先コード"
-        string name "契約先名(元請け先)"
+        string name "契約先名(表示用略称)"
+        string formal_name "正式名称(注文書丙)"
+        string notes "備考"
         boolean is_active "有効フラグ"
     }
 
@@ -289,8 +297,8 @@ erDiagram
         uuid id PK "主キー"
         string code "区分コード"
         string name "区分名"
-        string base_color "ベース色"
         int sort_order "表示順"
+        boolean is_active "有効フラグ"
     }
 
     category_badges {
@@ -300,6 +308,8 @@ erDiagram
         int level "階層レベル(1=子,2=孫)"
         string code "バッジコード"
         string name "バッジ名"
+        string color "背景色"
+        string text_color "文字色"
         int sort_order "表示順"
         boolean is_active "有効フラグ"
     }
@@ -309,19 +319,27 @@ erDiagram
         uuid group_company_id FK "グループ会社ID"
         uuid company_id FK "契約先ID"
         uuid category_id FK "区分ID"
-        string name "現場名"
+        string code "現場コード"
+        string name "現場名(NULL可)"
         string short_name "略称"
         int hierarchy_depth "階層深さ1-3"
-        time default_start_time "開始時間"
+        string default_shift_type "既定シフト区分"
+        time default_start_time "既定開始時間"
+        time default_end_time "既定終了時間"
+        string default_contact "既定連絡"
+        time default_meeting_time "既定集合時間"
+        int sort_order "表示順"
         boolean is_active "有効フラグ"
     }
 
     site_sub_items {
         uuid id PK "主キー"
         uuid site_id FK "現場ID"
-        uuid parent_id FK "親項目ID"
-        string name "項目名"
+        uuid parent_id FK "親項目ID(自己参照)"
+        string label "項目ラベル"
+        string name "項目名(値)"
         int level "階層レベル1-2"
+        int sort_order "表示順"
     }
 
     org_level_types {
@@ -345,9 +363,11 @@ erDiagram
     employees {
         uuid id PK "主キー"
         string employee_code "社員コード"
+        uuid group_company_id FK "グループ会社ID"
+        uuid org_unit_id FK "組織ノードID"
         string name "氏名"
         string short_name "略称"
-        uuid org_unit_id FK "組織ノードID"
+        int sort_order "表示順"
         boolean is_active "有効フラグ"
     }
 
@@ -369,20 +389,21 @@ erDiagram
     vehicles {
         uuid id PK "主キー"
         string vehicle_code "車両コード"
-        string license_plate "ナンバー"
+        uuid group_company_id FK "グループ会社ID"
+        string license_plate "フルナンバープレート"
+        string plate_short "短縮表記"
         string short_name "略称"
         string model "車種名"
-        string owner "所有者"
-        int oil_change_distance "オイル交換距離"
-        date inspection_date "車検満了日"
+        date shaken_date "車検満了日"
+        date inspection_date "点検満了日"
         boolean is_active "使用可能"
     }
 
     etc_cards {
         uuid id PK "主キー"
-        string card_number "カード番号"
-        string name "カード名称"
-        uuid default_vehicle_id FK "既定車両ID"
+        string card_label "カードラベル"
+        uuid group_company_id FK "グループ会社ID"
+        uuid vehicle_id FK "紐付け車両ID"
         boolean is_active "有効フラグ"
     }
 
@@ -395,8 +416,40 @@ erDiagram
 
     holidays {
         uuid id PK "主キー"
-        date holiday_date "祝日日付"
+        date date "祝日日付"
         string name "祝日名"
+        boolean is_active "有効フラグ"
+    }
+
+    support_partners {
+        uuid id PK "主キー"
+        uuid group_company_id FK "依頼元グループ会社ID"
+        string short_name "略称(バッジ表示)"
+        string formal_name "正式名称(注文書用)"
+        string postal_code "郵便番号"
+        string address "住所"
+        string representative_title "代表者役職"
+        string representative_name "代表者名"
+        string phone "電話番号"
+        string email "メールアドレス"
+        boolean is_master_complete "マスタ完備フラグ"
+        boolean is_active "有効フラグ"
+    }
+
+    price_note_templates {
+        uuid id PK "主キー"
+        string body "定型文本文"
+        boolean is_default_selected "既定ON"
+        int sort_order "表示順"
+        boolean is_active "有効フラグ"
+    }
+
+    special_note_templates {
+        uuid id PK "主キー"
+        string body "定型文本文"
+        boolean is_default_selected "既定ON"
+        int sort_order "表示順"
+        boolean is_active "有効フラグ"
     }
 
     %% ==================== 関連テーブル ====================
@@ -405,6 +458,7 @@ erDiagram
         uuid employee_id FK "社員ID"
         uuid license_type_id FK "資格種別ID"
         string license_number "資格番号"
+        date acquired_date "取得日"
         date expiry_date "有効期限"
     }
 
@@ -416,29 +470,54 @@ erDiagram
         string pickup_location "迎え場所"
     }
 
+    user_company_assignments {
+        uuid id PK "主キー"
+        uuid user_id FK "ユーザーID"
+        uuid company_id FK "契約先ID"
+        int sort_order "表示順"
+    }
+
+    qa_user_hidden_companies {
+        uuid id PK "主キー"
+        uuid user_id FK "ユーザーID"
+        uuid company_id FK "契約先ID"
+        timestamp created_at "非表示日時"
+    }
+
+    qa_user_hidden_sites {
+        uuid id PK "主キー"
+        uuid user_id FK "ユーザーID"
+        uuid site_id FK "現場ID"
+        timestamp created_at "非表示日時"
+    }
+
     %% ==================== トランザクションテーブル ====================
     daily_site_orders {
         uuid id PK "主キー"
         date order_date "受注対象日"
         uuid site_id FK "現場ID"
+        uuid group_company_id FK "担当グループ会社ID"
         string shift_type "day/night"
         int placement_seq "配置先連番"
         int required_count "必要人数"
         time start_time "開始時間"
         time end_time "終了時間"
-        string contact "連絡"
         string supervisor_name "現場監督名"
         string supervisor_tel "現場監督TEL"
         string meeting_place "集合場所"
         time meeting_time "集合時間"
         string daily_task_name "計画書業務名"
-        string contact_info "連絡事項"
-        json maps "地図URL(JSONB)"
+        json maps "現場地図(JSONB)"
         string notes "備考"
         uuid_arr badge_child_ids "子バッジID配列"
         json badge_gc_map "孫バッジマップ(JSONB)"
         string confidence "信頼度"
+        boolean confidence_manual "確度手動確定"
         string status "active/cancelled"
+        boolean is_auto_generated "自動生成フラグ"
+        string auto_generation_type "自動生成種別"
+        uuid source_order_id FK "生成元受注ID"
+        uuid source_employee_id FK "生成元配置社員ID"
         int version "楽観的ロック用"
         uuid created_by FK "作成者"
         uuid updated_by FK "最終更新者"
@@ -447,16 +526,17 @@ erDiagram
     daily_order_sub_items {
         uuid id PK "主キー"
         uuid daily_site_order_id FK "日毎受注ID"
+        int sort_order "表示順"
         string label "項目ラベル"
         string value "項目値"
-        int sort_order "表示順"
     }
 
     daily_assignments {
         uuid id PK "主キー"
         uuid daily_site_order_id FK "日毎受注ID"
-        uuid[] vehicle_ids "配置車両ID"
-        json display_items "表示項目(JSONB)"
+        uuid_arr vehicle_ids "配置車両ID"
+        uuid_arr etc_card_ids "配置ETCカードID"
+        json display_items "備考列表示項目(JSONB)"
     }
 
     assignment_details {
@@ -464,8 +544,7 @@ erDiagram
         uuid daily_assignment_id FK "日毎配置ID"
         uuid employee_id FK "社員ID"
         string contact_type "連絡タイプ"
-        string transport_method "移動手段"
-        string equipment "備品装備"
+        int position_order "配置順"
     }
 
     penalty_records {
@@ -480,10 +559,55 @@ erDiagram
     maintenance_schedules {
         uuid id PK "主キー"
         uuid vehicle_id FK "車両ID"
-        string maintenance_type "種別"
+        string maintenance_type "種別(点検/修理/オイル/車検/タイヤ/他)"
         date scheduled_date "予定日"
+        time start_time "開始時刻"
+        time end_time "終了時刻"
+        string shop_name "整備店名"
         string google_calendar_event_id "カレンダーID"
         string status "ステータス"
+    }
+
+    leave_requests {
+        uuid id PK "主キー"
+        uuid employee_id FK "社員ID"
+        date leave_date "休暇希望日"
+        string partition "半休区分(full/am/pm)"
+        string kind "休暇種別(paid/absent/other)"
+        string status "pending/approved/rejected"
+        string reason "申請理由"
+        uuid registered_by FK "登録者"
+        string memo "備考"
+    }
+
+    support_reservations {
+        uuid id PK "主キー"
+        uuid partner_id FK "協力業者ID"
+        date reserved_date "予約対象日"
+        string shift_type "シフト種別(flex)"
+        int reserved_count "予約人数"
+        string notes "備考"
+    }
+
+    support_assignments {
+        uuid id PK "主キー"
+        uuid partner_id FK "協力業者ID"
+        date assigned_date "配置日"
+        string shift_type "配置シフト(day/night)"
+        string source_shift_type "消費元予約シフト"
+        uuid daily_site_order_id FK "配置先日毎受注ID"
+        int assigned_count "配置人数"
+    }
+
+    intergroup_billings {
+        uuid id PK "主キー"
+        date billing_date "請求対象日"
+        uuid order_id FK "日毎受注ID"
+        uuid receiving_company_id FK "受注元グループ会社ID"
+        uuid dispatching_company_id FK "派遣元グループ会社ID"
+        int dispatched_count "派遣人数"
+        string status "unconfirmed/confirmed/billed"
+        uuid confirmed_by FK "確認者"
     }
 
     %% ==================== 受注変更履歴 ====================
@@ -498,27 +622,66 @@ erDiagram
         timestamp changed_at "変更日時"
     }
 
+    %% ==================== 注文書テーブル ====================
+    purchase_orders {
+        uuid id PK "主キー"
+        string order_number "注文書番号"
+        date issue_date "発行日"
+        uuid group_company_id FK "甲:委託者GC"
+        uuid partner_id FK "乙:受託者(協力業者)"
+        uuid client_id FK "丙:発注者(契約先)"
+        uuid site_id FK "対象現場ID"
+        time start_time "配置開始時刻"
+        time end_time "配置終了時刻"
+        int guard_count "配置人数"
+        int daily_unit_price "日額単価(税抜)"
+        uuid_arr price_note_template_ids "料金定型文ID配列"
+        uuid_arr special_note_template_ids "その他特記定型文ID配列"
+        string status "draft/issued/accepted/closed"
+        int total "合計(税込)"
+    }
+
+    purchase_order_certifications {
+        uuid id PK "主キー"
+        uuid purchase_order_id FK "注文書ID"
+        uuid license_type_id FK "検定種別ID"
+        int required_count "必要人数"
+    }
+
+    purchase_order_acceptances {
+        uuid id PK "主キー"
+        uuid purchase_order_id FK "元注文書ID(1:1)"
+        date accepted_date "請書受領日"
+        boolean stamp_placed "印紙貼付済"
+        string document_url "請書PDF/画像URL"
+    }
+
     %% ==================== ログテーブル ====================
     change_history {
         uuid id PK "主キー"
         string table_name "テーブル名"
         uuid record_id "レコードID"
         string action "insert/update/delete"
+        uuid changed_by "変更者"
         json old_values "変更前JSON"
         json new_values "変更後JSON"
-        timestamp changed_at "変更日時"
     }
 
     notification_logs {
         uuid id PK "主キー"
         string notification_type "line/email/screen"
         string trigger_type "トリガー"
+        string domain "通知ベル4分類"
+        string scope "変更対象"
+        string op "操作"
+        json targets "画面別ジャンプ先"
+        json affects "影響画面配列"
+        json diffs "変更差分"
         string message "メッセージ"
         string status "pending/sent/failed"
         json snapshot_before "変更前スナップショット"
         json snapshot_after "変更後スナップショット"
         string revert_status "復元ステータス"
-        timestamp sent_at "送信日時"
     }
 
     %% ==================== ユーザー設定テーブル ====================
@@ -532,16 +695,26 @@ erDiagram
 
     %% ==================== リレーションシップ ====================
     group_companies ||--o{ sites : "所属"
+    group_companies ||--o{ employees : "所属"
+    group_companies ||--o{ vehicles : "所属"
+    group_companies ||--o{ etc_cards : "所属"
+    group_companies ||--o{ daily_site_orders : "担当GC"
+    group_companies ||--o{ support_partners : "依頼元"
     companies ||--o{ sites : "契約先"
     site_categories ||--o{ sites : "分類"
     site_categories ||--o{ category_badges : "区分バッジ"
     category_badges ||--o{ category_badges : "親子(自己参照)"
     sites ||--o{ site_sub_items : "子項目"
+    site_sub_items ||--o{ site_sub_items : "親子(自己参照)"
     sites ||--o{ daily_site_orders : "受注先"
 
     daily_site_orders ||--|| daily_assignments : "配置計画"
     daily_site_orders ||--o{ daily_order_sub_items : "業務詳細"
     daily_site_orders ||--o{ order_change_history : "変更履歴"
+    daily_site_orders ||--o{ daily_site_orders : "自動生成元(自己参照)"
+    daily_site_orders ||--o{ support_assignments : "応援配置先"
+    daily_site_orders ||--o{ intergroup_billings : "請求対象受注"
+    employees ||--o{ daily_site_orders : "生成元配置社員"
     employees ||--o{ order_change_history : "変更者"
     employees ||--o{ daily_site_orders : "作成/更新者"
 
@@ -553,6 +726,7 @@ erDiagram
     employees ||--o{ employee_licenses : "保有資格"
     license_types ||--o{ employee_licenses : "資格種別"
     employees ||--o{ employee_conflicts : "配置制約"
+    employees ||--o{ leave_requests : "休暇申請"
 
     employees ||--o{ assignment_details : "配置される"
     employees ||--o{ transport_relations : "運転者として"
@@ -561,12 +735,29 @@ erDiagram
 
     vehicles ||--o{ daily_assignments : "配置車両"
     vehicles ||--o{ maintenance_schedules : "整備予定"
-    vehicles ||--o{ etc_cards : "既定車両"
+    vehicles ||--o{ etc_cards : "紐付け車両"
 
     daily_assignments ||--o{ assignment_details : "配置詳細"
     daily_assignments ||--o{ penalty_records : "関連配置"
 
     penalty_codes ||--o{ penalty_records : "コード適用"
+
+    companies ||--o{ user_company_assignments : "担当契約先"
+    companies ||--o{ qa_user_hidden_companies : "非表示契約先"
+    sites ||--o{ qa_user_hidden_sites : "非表示現場"
+
+    support_partners ||--o{ support_reservations : "予約"
+    support_partners ||--o{ support_assignments : "配置"
+    group_companies ||--o{ intergroup_billings : "受注元GC"
+    group_companies ||--o{ intergroup_billings : "派遣元GC"
+
+    group_companies ||--o{ purchase_orders : "甲(委託者)"
+    support_partners ||--o{ purchase_orders : "乙(受託者)"
+    companies ||--o{ purchase_orders : "丙(発注者)"
+    sites ||--o{ purchase_orders : "対象現場"
+    purchase_orders ||--o{ purchase_order_certifications : "必要検定"
+    license_types ||--o{ purchase_order_certifications : "検定種別"
+    purchase_orders ||--|| purchase_order_acceptances : "注文請書"
             </div>
         </div>
     </div>
@@ -577,12 +768,12 @@ erDiagram
 
         <div class="annotation-item master">
             <strong>group_companies（グループ会社マスタ）</strong>
-            <p>東央警備、Nikkeiホールディングス等の自社グループ会社。略称・バッジ色を管理</p>
+            <p>東央警備、Nikkeiホールディングス等の自社グループ会社。略称・バッジ色に加え、注文書の甲（委託者）情報（住所・代表者・電話）も保持</p>
         </div>
 
         <div class="annotation-item master">
             <strong>companies（契約先マスタ）</strong>
-            <p>グループ会社が契約している元請け先を管理</p>
+            <p>グループ会社が契約している元請け先。name=表示用略称、formal_name=注文書丙の正式名称</p>
         </div>
 
         <div class="annotation-item master">
@@ -597,12 +788,12 @@ erDiagram
 
         <div class="annotation-item master">
             <strong>sites（現場マスタ）</strong>
-            <p>警備を行う現場の詳細情報</p>
+            <p>警備を行う現場の詳細情報。group_company_idで現場単位にグループ会社と紐付け</p>
         </div>
 
         <div class="annotation-item master">
             <strong>site_sub_items（現場子項目）</strong>
-            <p>工事名・作業内容など現場の階層構造</p>
+            <p>工事名・作業内容など現場の階層構造（自己参照）</p>
         </div>
 
         <div class="annotation-item master">
@@ -617,52 +808,82 @@ erDiagram
 
         <div class="annotation-item master">
             <strong>employees（社員マスタ）</strong>
-            <p>警備員の情報（氏名、略称、所属組織など）</p>
+            <p>警備員の情報（氏名、略称、グループ会社・所属組織など）</p>
         </div>
 
         <div class="annotation-item relation">
             <strong>employee_conflicts（配置制約）</strong>
-            <p>同じ現場に配置すべきでない社員の組み合わせ</p>
+            <p>同じ現場に配置すべきでない社員の組み合わせ（仕様先行）</p>
         </div>
 
         <div class="annotation-item master">
             <strong>license_types（資格種別）</strong>
-            <p>検定・運転免許・スキルの種類を定義</p>
+            <p>検定・運転免許・スキルの種類を定義（仕様先行）</p>
         </div>
 
         <div class="annotation-item master">
             <strong>vehicles（車両マスタ）</strong>
-            <p>社有車の情報と車検期限を管理</p>
+            <p>社有車の情報。車検満了日（shaken_date）と点検満了日（inspection_date）を分離管理。group_companyに所属</p>
         </div>
 
         <div class="annotation-item master">
             <strong>etc_cards（ETCカードマスタ）</strong>
-            <p>ETCカード情報。既定車両との紐付けを管理</p>
+            <p>グループ会社別のETCカード。車両との紐付けはオプション（Nikkei方式）</p>
         </div>
 
         <div class="annotation-item master">
             <strong>penalty_codes（ペナルティコード）</strong>
-            <p>欠勤・遅刻などのペナルティ種別</p>
+            <p>欠勤・遅刻などのペナルティ種別（仕様先行）</p>
         </div>
 
         <div class="annotation-item master">
             <strong>holidays（祝日マスタ）</strong>
-            <p>祝日の日付と名称。カレンダー表示に使用</p>
+            <p>祝日の日付と名称。受注簿・休暇申請のカレンダー表示に使用</p>
+        </div>
+
+        <div class="annotation-item master">
+            <strong>support_partners（協力業者マスタ）</strong>
+            <p>応援を依頼する社外警備会社。略称のみで先行登録可、後付けで注文書用の正式情報を補完</p>
+        </div>
+
+        <div class="annotation-item master">
+            <strong>price_note_templates（料金特記定型文）</strong>
+            <p>注文書「警備料金」欄の定型文マスタ</p>
+        </div>
+
+        <div class="annotation-item master">
+            <strong>special_note_templates（その他特記定型文）</strong>
+            <p>注文書「その他」欄の定型文マスタ（警備業法遵守等）</p>
         </div>
 
         <div class="annotation-item relation">
             <strong>employee_licenses（社員資格）</strong>
-            <p>社員が持っている資格・スキルの一覧</p>
+            <p>社員が持っている資格・スキルの一覧（仕様先行）</p>
         </div>
 
         <div class="annotation-item relation">
             <strong>transport_relations（送迎関係）</strong>
-            <p>誰が誰を迎えに行くかの送迎関係</p>
+            <p>誰が誰を迎えに行くかの送迎関係（仕様先行、現状はdisplay_itemsが正）</p>
+        </div>
+
+        <div class="annotation-item relation">
+            <strong>user_company_assignments（ユーザー契約先紐付）</strong>
+            <p>営業担当者アカウントへの担当契約先紐付け。Quick Accessで使用</p>
+        </div>
+
+        <div class="annotation-item relation">
+            <strong>qa_user_hidden_companies（QA非表示契約先）</strong>
+            <p>Quick Accessでユーザーが非表示にした契約先（QA専用の表示制御）</p>
+        </div>
+
+        <div class="annotation-item relation">
+            <strong>qa_user_hidden_sites（QA非表示現場）</strong>
+            <p>Quick Accessでユーザーが非表示にした現場（QA専用の表示制御）</p>
         </div>
 
         <div class="annotation-item transaction">
             <strong>daily_site_orders（日毎受注）</strong>
-            <p>受注情報（日付・現場・人数・時間・監督・集合・地図・バッジ・信頼度・備考）。placement_seqで複数配置先対応。status/versionで楽観的ロック</p>
+            <p>受注情報（日付・現場・GC・人数・時間・監督・集合・地図・バッジ・信頼度・備考）。placement_seqで複数配置先、status/versionで楽観的ロック。is_auto_generated/source_*でグループ間応援の自動生成行を追跡</p>
         </div>
 
         <div class="annotation-item transaction">
@@ -672,7 +893,7 @@ erDiagram
 
         <div class="annotation-item transaction">
             <strong>daily_assignments（日毎配置）</strong>
-            <p>配置担当者が管理する配置計画（車両配置・表示項目）。日毎受注に1:1で紐づく</p>
+            <p>配置担当者が管理する配置計画（車両・ETC配置・備考列表示項目）。日毎受注に1:1で紐づく</p>
         </div>
 
         <div class="annotation-item log">
@@ -682,17 +903,52 @@ erDiagram
 
         <div class="annotation-item transaction">
             <strong>assignment_details（配置詳細）</strong>
-            <p>配置された各社員の詳細（移動手段、備品など）</p>
+            <p>配置された各社員の詳細（社員ID・連絡タイプ・配置順）</p>
         </div>
 
         <div class="annotation-item transaction">
             <strong>penalty_records（ペナルティ記録）</strong>
-            <p>社員のペナルティ発生履歴を記録</p>
+            <p>社員のペナルティ発生履歴を記録（仕様先行）</p>
         </div>
 
         <div class="annotation-item transaction">
             <strong>maintenance_schedules（メンテナンス）</strong>
-            <p>車検・点検・オイル交換などの予定</p>
+            <p>点検・修理・オイル・車検・タイヤ等の予定。開始/終了時刻も保持</p>
+        </div>
+
+        <div class="annotation-item transaction">
+            <strong>leave_requests（休暇申請）</strong>
+            <p>社員の休暇申請。半休区分・休暇種別・承認ステータス（pending/approved/rejected）を管理。旧 employee_day_off_requests を改名</p>
+        </div>
+
+        <div class="annotation-item transaction">
+            <strong>support_reservations（協力業者予約）</strong>
+            <p>応援予約として事前交渉した協力業者の日別人数。シフトはflex統一</p>
+        </div>
+
+        <div class="annotation-item transaction">
+            <strong>support_assignments（協力業者配置）</strong>
+            <p>応援予約行から現場セルへD&D配置した結果。daily_site_ordersに紐づく</p>
+        </div>
+
+        <div class="annotation-item transaction">
+            <strong>intergroup_billings（グループ間請求）</strong>
+            <p>受注元GCと派遣元GCが異なる場合のグループ間請求。配置から自動検知し経理が確認</p>
+        </div>
+
+        <div class="annotation-item transaction">
+            <strong>purchase_orders（注文書）</strong>
+            <p>協力業者向け警備業務注文書。三者（甲/乙/丙）情報をスナップショット保存</p>
+        </div>
+
+        <div class="annotation-item relation">
+            <strong>purchase_order_certifications（注文書必要検定）</strong>
+            <p>注文書ごとの検定要件（種別×必要人数、複数指定可）</p>
+        </div>
+
+        <div class="annotation-item transaction">
+            <strong>purchase_order_acceptances（注文請書）</strong>
+            <p>発行済み注文書に対する請書受領管理（印紙貼付・PDF URL）。注文書に1:1</p>
         </div>
 
         <div class="annotation-item log">
@@ -702,7 +958,7 @@ erDiagram
 
         <div class="annotation-item log">
             <strong>notification_logs（通知ログ）</strong>
-            <p>LINE通知などの送信履歴。変更前後スナップショットを保持し「元に戻す」「やっぱり反映」に対応</p>
+            <p>変更通知の履歴。domain/scope/op/targets/affects/diffsで多画面ジャンプを表現。変更前後スナップショットで「元に戻す」「やっぱり反映」に対応</p>
         </div>
 
         <div class="annotation-item log">
@@ -714,10 +970,9 @@ erDiagram
             <h4>連続勤務（自動検知機能）</h4>
             <p style="margin-bottom: 8px; font-size: 12px;">テーブル不要。配置データから自動検知：</p>
             <ul>
-                <li>昼→夜：同日の昼勤務後に夜勤務</li>
-                <li>夜→昼：前日夜→翌日昼</li>
-                <li>昼→夜→昼：昼→夜→翌日昼</li>
-                <li>夜→昼→夜：前日夜→昼→夜</li>
+                <li>▼上（前方連結）：前日夜→当日昼 等の直前との繋がり</li>
+                <li>▼下（後方連結）：当日昼→当日夜 等の直後への繋がり</li>
+                <li>判定は assignment_details → daily_assignments → daily_site_orders を結合して導出</li>
             </ul>
         </div>
     </div>

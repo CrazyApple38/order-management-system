@@ -41,7 +41,7 @@
 
         /* 目次 */
         .toc {
-            max-width: 900px;
+            max-width: 980px;
             margin: -24px auto 0;
             background: #fff;
             border-radius: 12px;
@@ -85,9 +85,22 @@
         }
         .toc .toc-section-label:first-child { margin-top: 0; }
 
+        /* イントロ */
+        .intro {
+            max-width: 980px;
+            margin: 24px auto 0;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px 28px;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+        .intro strong { color: #1e293b; }
+
         /* コンテンツ */
         .content {
-            max-width: 900px;
+            max-width: 980px;
             margin: 0 auto;
             padding: 40px 24px 80px;
         }
@@ -95,12 +108,13 @@
         /* セクション */
         .section {
             margin-bottom: 56px;
+            scroll-margin-top: 16px;
         }
         .section-header {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             padding-bottom: 10px;
             border-bottom: 3px solid #2c5282;
         }
@@ -117,6 +131,11 @@
         .section-header h2 {
             font-size: 1.5rem;
             color: #1e293b;
+        }
+        .section-lead {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 20px;
         }
 
         /* スクリーンショットカード */
@@ -156,6 +175,8 @@
         .screenshot-card .card-image img:hover {
             transform: scale(1.01);
         }
+        .screenshot-card .card-image.small img { max-width: 360px; }
+        .screenshot-card .card-image.medium img { max-width: 420px; }
         .screenshot-card .card-body {
             padding: 20px 24px;
         }
@@ -169,6 +190,15 @@
         }
         .screenshot-card .card-body li strong {
             color: #1e293b;
+        }
+        .note {
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #92400e;
         }
 
         /* 拡大表示用オーバーレイ */
@@ -198,7 +228,7 @@
             color: #94a3b8;
             font-size: 0.8rem;
             border-top: 1px solid #e2e8f0;
-            max-width: 900px;
+            max-width: 980px;
             margin: 0 auto;
         }
 
@@ -214,7 +244,7 @@
     <header class="page-header" style="position:relative;">
         <a href="../index.html" class="back-link">&larr; モックアップ一覧に戻る</a>
         <h1>受注管理システム モックアップ説明書</h1>
-        <p class="subtitle">画面A: 業務管理計画書 / 画面B: 受注簿 &mdash; 各画面・ウィンドウの機能説明</p>
+        <p class="subtitle">画面A 業務管理計画書 / 画面B 受注簿 / 週間予定表 / 休暇申請管理 / Quick Access / 変更通知システム / ER図 &mdash; 全画面・全モーダルの機能説明</p>
     </header>
 
     <!-- 目次 -->
@@ -223,24 +253,61 @@
         <div class="toc-grid">
             <div class="toc-section-label">画面A: 業務管理計画書</div>
             <a href="#wp-main">メイン画面（グリッド・ツールバー・サイドパネル）</a>
+            <a href="#wp-add-modal">新規追加モーダル</a>
             <a href="#wp-site-modal">現場詳細入力モーダル</a>
             <a href="#wp-meeting-modal">集合情報モーダル</a>
+            <a href="#wp-time-modal">時間モーダル</a>
             <a href="#wp-work-modal">作業内容モーダル</a>
-            <a href="#wp-notes-modal">備考モーダル</a>
+            <a href="#wp-notes-modal">送迎・備考モーダル</a>
             <a href="#wp-map-modal">地図URL設定モーダル</a>
-            <a href="#wp-vt-modal">車両・送迎設定モーダル</a>
+            <a href="#wp-staff-modal">社員リスト編集モーダル</a>
+            <a href="#wp-vehicle-modal">車両リスト編集モーダル</a>
             <a href="#wp-sort-modal">ソート設定モーダル</a>
-            <a href="#wp-diff-modal">差分確認モーダル</a>
             <a href="#wp-color-panel">カラー設定パネル</a>
+            <a href="#wp-print">印刷プレビュー</a>
 
             <div class="toc-section-label">画面B: 受注簿</div>
             <a href="#ob-main">メイン画面（月間グリッド・ツールバー）</a>
             <a href="#ob-filter">フィルタバー</a>
             <a href="#ob-cell-modal">セル編集モーダル</a>
             <a href="#ob-row-modal">行情報編集モーダル</a>
+            <a href="#ob-calendar-modal">カレンダー入力モーダル</a>
             <a href="#ob-sort-modal">ソート設定モーダル</a>
+
+            <div class="toc-section-label">週間予定表（現場配置表）</div>
+            <a href="#ws-main">メイン画面（現場軸グリッド）</a>
+            <a href="#ws-staff-axis">社員軸ビュー</a>
+            <a href="#ws-res-quick">応援予約（単日）モーダル</a>
+            <a href="#ws-res-week">応援予約（週全体）モーダル</a>
+
+            <div class="toc-section-label">休暇申請管理</div>
+            <a href="#la-main">メイン画面（月間カレンダー）</a>
+            <a href="#la-popover">申請編集ポップオーバー</a>
+            <a href="#la-report">月次集計モーダル</a>
+            <a href="#la-year">年間ビュー</a>
+            <a href="#la-vehicle">車両スケジュールモード</a>
+
+            <div class="toc-section-label">Quick Access（受注クイック入力）</div>
+            <a href="#qa-login">ログイン画面</a>
+            <a href="#qa-home">ホーム（契約先・現場一覧）</a>
+            <a href="#qa-calendar">カレンダー入力画面</a>
+            <a href="#qa-site-modal">現場情報モーダル</a>
+
+            <div class="toc-section-label">変更通知システム（全画面共通）</div>
+            <a href="#cn-bells">通知ベル（4分類）</a>
+            <a href="#cn-panel">通知パネル（最新タブ）</a>
+            <a href="#cn-expanded">アイテム展開・別画面ジャンプ</a>
+            <a href="#cn-history">履歴タブ</a>
+            <a href="#cn-spotlight">ジャンプ着地スポットライト</a>
+
+            <div class="toc-section-label">データモデル</div>
+            <a href="#er-diagram">ER図（テーブル相関図）</a>
         </div>
     </nav>
+
+    <div class="intro">
+        本書は受注管理システムの各モックアップ画面と、画面から開く全モーダル・パネル、および全画面共通の変更通知システムについて、スクリーンショット付きで網羅的に説明します。スクリーンショットはクリックで拡大できます。各セルやボタンをクリックして対応するモーダルを開く操作が基本です。
+    </div>
 
     <main class="content">
 
@@ -250,244 +317,221 @@
                 <span class="badge">画面A</span>
                 <h2>業務管理計画書 - メイン画面</h2>
             </div>
+            <p class="section-lead">日次の現場配置を管理するメイン画面。ナビバー・ツールバー・グリッド・左右サイドパネルで構成されます。</p>
 
             <div class="screenshot-card">
                 <div class="card-header">
                     <h3>メイン画面の全体構成</h3>
-                    <p>日次の配置管理を行うメイン画面。ヘッダー・ツールバー・グリッド・社員リストパネルで構成されます。</p>
+                    <p>選択日の受注行に対し、社員・車両・送迎をドラッグ&ドロップで配置します。</p>
                 </div>
                 <div class="card-image">
-                    <img src="screenshots/wp-viewport.png" alt="業務管理計画書 メイン画面" onclick="openLightbox(this)">
+                    <img src="screenshots/wp-main.png" alt="業務管理計画書 メイン画面" onclick="openLightbox(this)">
                 </div>
                 <div class="card-body">
                     <ul>
-                        <li><strong>ヘッダー部:</strong> 日付選択（前日/翌日ボタン・カレンダー）、グループ会社フィルタ、ダークモード切替</li>
-                        <li><strong>ツールバー:</strong> 受注簿データ取得/転記、Undo/Redo、行操作（挿入/削除/消去）、行移動（上/下）、ソート設定、カラー設定</li>
-                        <li><strong>グリッドテーブル:</strong> No.、時間/会社/現場名、作業内容、地図、集合、人数、配置ゾーン、備考の各列</li>
-                        <li><strong>右サイドパネル（社員リスト）:</strong> 全社員の名前タグを表示。検索機能付き。ドラッグ&ドロップで配置ゾーンに配置。配置済みは緑色で表示</li>
-                        <li><strong>配置ゾーン:</strong> 社員タグの下に車両・送迎情報ボックスを表示。連続勤務マーク(▼)や配置制約警告(⚠)も表示</li>
+                        <li><strong>ナビバー:</strong> 画面切替（受注管理／業務管理計画書／受注簿／スケジュール▼／マスタ管理▼）、グループ会社フィルタ（すべて▼）、モバイル、右端に変更通知ベル4個・ダークモード切替</li>
+                        <li><strong>日付ナビ:</strong> 前日/翌日（◀▶）、日付表示、カレンダーピッカー</li>
+                        <li><strong>ツールバー:</strong> 新規追加 / 戻す（Undo）/ やり直す（Redo）/ 行削除 / 上へ・下へ（行移動）/ ソート設定 / カラー設定 / 印刷 / データリセット</li>
+                        <li><strong>グリッド列:</strong> No.／会社・現場名／集合／時間／人数／配置（D&D）／作業内容／地図／車両／備考。各セルをクリックすると対応するモーダルが開きます</li>
+                        <li><strong>左サイドパネル（配置状況）:</strong> 各行の配置充足状況（配置数/必要数）を一覧。クリックで該当行へスクロール</li>
+                        <li><strong>右サイドパネル:</strong> 「社員リスト」「車両」の2タブ。検索ボックス、編集ボタン、バッジ色ボタン。社員・車両タグをグリッドへドラッグして配置。配置済みは色付き表示</li>
+                        <li><strong>固定行:</strong> 「会社」「休み（申請なし）」「休み（申請あり）」の3固定行。休み行は休暇申請管理（LA）の承認済み休暇から導出表示</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="wp-add-modal">
+            <div class="section-header"><span class="badge">画面A</span><h2>新規追加モーダル</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header">
+                    <h3>受注行を新規作成</h3>
+                    <p>ツールバーの「新規追加」ボタンで開きます。受注情報を一括入力して行を追加します。</p>
+                </div>
+                <div class="card-image"><img src="screenshots/wp-add-modal.png" alt="新規追加モーダル" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>ROW INFORMATION:</strong> 会社・区分・昼夜をチップで選択</li>
+                        <li><strong>過去データから入力:</strong> アコーディオンを開き、契約先・業務名の過去実績から復元</li>
+                        <li><strong>FIELDS:</strong> 契約先名（サジェスト付き）、業務名（空欄なら個別業務）</li>
+                        <li><strong>PLACEMENT / DETAILS:</strong> 人数、信頼度（確定／予定（高）／予定（低））、業務詳細（キー・バリュー追加）</li>
+                        <li><strong>作業内容:</strong> 区分に応じた作業内容バッジを追加・管理</li>
+                        <li><strong>SCHEDULE / NOTES:</strong> 集合時間・集合場所、開始/終了時間、現場監督・連絡先、地図、備考</li>
+                        <li><strong>フッター:</strong> キャンセル／追加</li>
                     </ul>
                 </div>
             </div>
         </div>
 
         <div class="section" id="wp-site-modal">
-            <div class="section-header">
-                <span class="badge">画面A</span>
-                <h2>現場詳細入力モーダル</h2>
-            </div>
+            <div class="section-header"><span class="badge">画面A</span><h2>現場詳細入力モーダル</h2></div>
             <div class="screenshot-card">
                 <div class="card-header">
-                    <h3>現場情報の入力・編集</h3>
-                    <p>グリッドの「時間/会社/現場名」セルをクリックすると開きます。現場に関する全情報を入力できます。</p>
+                    <h3>現場情報の編集</h3>
+                    <p>グリッドの「会社・現場名」セルをクリックすると開きます。新規追加モーダルと同じ構成の編集モードです。</p>
                 </div>
-                <div class="card-image">
-                    <img src="screenshots/wp-site-modal.png" alt="現場詳細入力モーダル" onclick="openLightbox(this)">
-                </div>
+                <div class="card-image"><img src="screenshots/wp-site-modal.png" alt="現場詳細入力モーダル" onclick="openLightbox(this)"></div>
                 <div class="card-body">
                     <ul>
-                        <li><strong>契約先（元請け）:</strong> コンボボックス形式。入力で検索、リストから選択</li>
-                        <li><strong>業務管理計画書 業務名:</strong> 契約先と現場名から自動生成（読み取り専用）</li>
-                        <li><strong>現場名:</strong> コンボボックス形式で入力・選択</li>
-                        <li><strong>業務詳細:</strong> 工事名等をキー・バリュー形式で追加可能</li>
-                        <li><strong>区分・昼夜・会社:</strong> チップ（ボタン）形式で選択。区分は追加も可能</li>
-                        <li><strong>開始/終了時間:</strong> カスタム時間ピッカーで選択</li>
-                        <li><strong>現場監督・連絡先:</strong> テキスト入力。過去の入力履歴から選択も可能（ドラッグで並べ替え、×で削除）</li>
+                        <li><strong>会社・区分・昼夜:</strong> チップで選択。区分はカスタム追加も可能</li>
+                        <li><strong>契約先・業務名:</strong> コンボボックスで入力・選択</li>
+                        <li><strong>業務詳細:</strong> 工事名等をキー・バリューで動的追加</li>
+                        <li><strong>人数・信頼度・作業内容:</strong> 受注の基本属性を編集</li>
+                        <li><strong>フッター:</strong> 削除（行全体を削除）／キャンセル／保存</li>
                     </ul>
                 </div>
             </div>
         </div>
 
         <div class="section" id="wp-meeting-modal">
-            <div class="section-header">
-                <span class="badge">画面A</span>
-                <h2>集合情報モーダル</h2>
-            </div>
+            <div class="section-header"><span class="badge">画面A</span><h2>集合情報モーダル</h2></div>
             <div class="screenshot-card">
-                <div class="card-header">
-                    <h3>集合時間・連絡方法・集合場所の入力</h3>
-                    <p>グリッドの「集合」セルをクリックすると開きます。</p>
-                </div>
-                <div class="card-image">
-                    <img src="screenshots/wp-meeting-modal.png" alt="集合情報モーダル" onclick="openLightbox(this)">
-                </div>
+                <div class="card-header"><h3>集合時間・連絡方法・集合場所</h3><p>グリッドの「集合」セルをクリックすると開きます。</p></div>
+                <div class="card-image medium"><img src="screenshots/wp-meeting-modal.png" alt="集合情報モーダル" onclick="openLightbox(this)"></div>
                 <div class="card-body">
                     <ul>
                         <li><strong>集合時間:</strong> カスタム時間ピッカーで設定</li>
-                        <li><strong>連絡:</strong> チップ形式で連絡方法を選択（会社/直/LINE/迎え/OP）。カスタム追加も可能</li>
+                        <li><strong>連絡:</strong> チップで連絡方法を選択（会社／直／LINE／迎え／OP 等）。カスタム追加可</li>
                         <li><strong>集合場所:</strong> テキスト入力</li>
                     </ul>
                 </div>
             </div>
         </div>
 
-        <div class="section" id="wp-work-modal">
-            <div class="section-header">
-                <span class="badge">画面A</span>
-                <h2>作業内容モーダル</h2>
-            </div>
+        <div class="section" id="wp-time-modal">
+            <div class="section-header"><span class="badge">画面A</span><h2>時間モーダル</h2></div>
             <div class="screenshot-card">
-                <div class="card-header">
-                    <h3>区分に応じた作業内容の設定</h3>
-                    <p>グリッドの「作業内容」セルをクリックすると開きます。</p>
+                <div class="card-header"><h3>開始/終了時間の設定</h3><p>グリッドの「時間」セルをクリックすると開きます。</p></div>
+                <div class="card-image medium"><img src="screenshots/wp-time-modal.png" alt="時間モーダル" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>開始時間 / 終了時間:</strong> それぞれカスタム時間ピッカーで設定</li>
+                    </ul>
                 </div>
-                <div class="card-image">
-                    <img src="screenshots/wp-work-modal.png" alt="作業内容モーダル" onclick="openLightbox(this)">
-                </div>
+            </div>
+        </div>
+
+        <div class="section" id="wp-work-modal">
+            <div class="section-header"><span class="badge">画面A</span><h2>作業内容モーダル</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>区分に応じた作業内容の設定</h3><p>グリッドの「作業内容」セルをクリックすると開きます。</p></div>
+                <div class="card-image medium"><img src="screenshots/wp-work-modal.png" alt="作業内容モーダル" onclick="openLightbox(this)"></div>
                 <div class="card-body">
                     <ul>
                         <li><strong>区分表示:</strong> 現在の区分（交通・高速など）を表示</li>
-                        <li><strong>作業内容:</strong> チップ形式で作業内容を管理。ドラッグで並べ替え、×で削除可能</li>
-                        <li><strong>詳細（孫バッジ）:</strong> 作業内容の中にさらに詳細項目を追加可能（例: 片側交互 > 旗、看板）</li>
-                        <li><strong>作業内容追加:</strong> 「+ 作業内容追加」ボタンで新しい作業を追加</li>
+                        <li><strong>作業内容バッジ:</strong> チップで管理。ドラッグで並べ替え、×で削除、削除直後は「戻す」で復元</li>
+                        <li><strong>詳細（孫バッジ）:</strong> 作業内容の下にさらに詳細項目を追加（例: 片側交互 &gt; 旗・看板）</li>
+                        <li><strong>+ 作業内容追加:</strong> 新しい作業を追加</li>
                     </ul>
                 </div>
             </div>
         </div>
 
         <div class="section" id="wp-notes-modal">
-            <div class="section-header">
-                <span class="badge">画面A</span>
-                <h2>備考モーダル</h2>
-            </div>
+            <div class="section-header"><span class="badge">画面A</span><h2>送迎・備考モーダル</h2></div>
             <div class="screenshot-card">
-                <div class="card-header">
-                    <h3>集合場所・備考の入力</h3>
-                    <p>グリッドの「備考」セルをクリックすると開きます。</p>
-                </div>
-                <div class="card-image">
-                    <img src="screenshots/wp-notes-modal.png" alt="備考モーダル" onclick="openLightbox(this)">
-                </div>
+                <div class="card-header"><h3>送迎・集合場所・備考をまとめて管理</h3><p>グリッドの「車両」または「備考」セルをクリックすると開きます。旧「車両・送迎」「備考」モーダルを統合したものです。</p></div>
+                <div class="card-image medium"><img src="screenshots/wp-notes-modal.png" alt="送迎・備考モーダル" onclick="openLightbox(this)"></div>
                 <div class="card-body">
                     <ul>
-                        <li><strong>集合場所:</strong> テキスト入力で集合場所を設定</li>
-                        <li><strong>備考:</strong> テキストエリアで自由入力</li>
+                        <li><strong>プリセットから追加:</strong> 「+ 送迎」「+ 集合場所」「+ 備考」で定型項目をワンクリック追加</li>
+                        <li><strong>項目編集:</strong> 各項目に項目名・内容のテキスト入力、背景色・文字色のカラー設定</li>
+                        <li><strong>並べ替え:</strong> ドラッグで項目の順序変更</li>
+                        <li><strong>+ 項目を追加:</strong> カスタム項目を自由追加</li>
                     </ul>
+                    <div class="note">車両そのものの配置は、グリッド配置ゾーン下の車両ボックスや右サイドパネル「車両」タブからのドラッグで行います。</div>
                 </div>
             </div>
         </div>
 
         <div class="section" id="wp-map-modal">
-            <div class="section-header">
-                <span class="badge">画面A</span>
-                <h2>地図URL設定モーダル</h2>
-            </div>
+            <div class="section-header"><span class="badge">画面A</span><h2>地図URL設定モーダル</h2></div>
             <div class="screenshot-card">
-                <div class="card-header">
-                    <h3>Google Maps URLの設定とプレビュー</h3>
-                    <p>グリッドの「地図」セルをクリックすると開きます。</p>
-                </div>
-                <div class="card-image">
-                    <img src="screenshots/wp-map-modal.png" alt="地図URL設定モーダル" onclick="openLightbox(this)">
-                </div>
+                <div class="card-header"><h3>Google Maps URLの設定とプレビュー</h3><p>グリッドの「地図」セル（＋）をクリックすると開きます。複数の地図をタブで管理できます。</p></div>
+                <div class="card-image medium"><img src="screenshots/wp-map-modal.png" alt="地図URL設定モーダル" onclick="openLightbox(this)"></div>
                 <div class="card-body">
                     <ul>
-                        <li><strong>Google Maps URL:</strong> URLを貼り付けて地図を設定</li>
-                        <li><strong>表示ボタン:</strong> 入力したURLのプレビューを表示</li>
-                        <li><strong>プレビュー:</strong> iframe内にGoogle Mapsを埋め込みプレビュー表示</li>
-                        <li><strong>削除:</strong> 設定済みの地図URLを削除</li>
+                        <li><strong>タブバー:</strong> 複数地図をタブで切替・追加</li>
+                        <li><strong>タイトル / URL:</strong> 地図の名称とGoogle Maps URLを入力</li>
+                        <li><strong>表示:</strong> 入力URLをiframeでプレビュー</li>
+                        <li><strong>このタブを削除:</strong> 現在の地図タブを削除</li>
                     </ul>
                 </div>
             </div>
         </div>
 
-        <div class="section" id="wp-vt-modal">
-            <div class="section-header">
-                <span class="badge">画面A</span>
-                <h2>車両・送迎設定モーダル</h2>
-            </div>
+        <div class="section" id="wp-staff-modal">
+            <div class="section-header"><span class="badge">画面A</span><h2>社員リスト編集モーダル</h2></div>
             <div class="screenshot-card">
-                <div class="card-header">
-                    <h3>車両と送迎情報の管理</h3>
-                    <p>配置ゾーン下の車両・送迎ボックスまたは「＋ 車両・送迎」ボタンをクリックすると開きます。</p>
-                </div>
-                <div class="card-image">
-                    <img src="screenshots/wp-vt-modal.png" alt="車両・送迎設定モーダル" onclick="openLightbox(this)">
-                </div>
+                <div class="card-header"><h3>社員の表示/非表示・並び順</h3><p>右サイドパネル「社員リスト」タブの編集ボタンで開きます。</p></div>
+                <div class="card-image"><img src="screenshots/wp-staff-edit-modal.png" alt="社員リスト編集モーダル" onclick="openLightbox(this)"></div>
                 <div class="card-body">
                     <ul>
-                        <li><strong>プリセットから追加:</strong> 「＋ 車両」「＋ 送迎」ボタンで定型項目をワンクリック追加</li>
-                        <li><strong>車両項目:</strong> 項目名の編集、ドロップダウンから車両選択（標識A/B、2t車等）、新規車両の追加</li>
-                        <li><strong>送迎項目:</strong> 項目名の編集、送迎内容（例: 鈴木→高橋）をテキスト入力</li>
-                        <li><strong>カラー設定:</strong> 各項目の背景色・文字色をカラーピッカーで設定可能</li>
-                        <li><strong>並べ替え:</strong> ⠿アイコンのドラッグで項目の順序変更可能</li>
-                        <li><strong>＋ 項目を追加:</strong> カスタム項目の自由追加</li>
+                        <li><strong>STAFF VISIBILITY &amp; ORDER:</strong> 会社別・課別に社員チップを表示</li>
+                        <li><strong>表示/非表示・並べ替え:</strong> 各社員チップの表示切替とドラッグでの順序変更</li>
+                        <li><strong>フッター:</strong> キャンセル／保存</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="wp-vehicle-modal">
+            <div class="section-header"><span class="badge">画面A</span><h2>車両リスト編集モーダル</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>車両・ETCの表示/非表示・並び順</h3><p>右サイドパネル「車両」タブの編集ボタンで開きます。</p></div>
+                <div class="card-image"><img src="screenshots/wp-vehicle-edit-modal.png" alt="車両リスト編集モーダル" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>VEHICLE &amp; ETC VISIBILITY:</strong> 会社別に車両・ETCカードのチップを表示</li>
+                        <li><strong>表示/非表示・並べ替え:</strong> 各チップの表示切替とドラッグでの順序変更</li>
+                        <li><strong>フッター:</strong> キャンセル／保存</li>
                     </ul>
                 </div>
             </div>
         </div>
 
         <div class="section" id="wp-sort-modal">
-            <div class="section-header">
-                <span class="badge">画面A</span>
-                <h2>ソート設定モーダル</h2>
-            </div>
+            <div class="section-header"><span class="badge">画面A</span><h2>ソート設定モーダル</h2></div>
             <div class="screenshot-card">
-                <div class="card-header">
-                    <h3>グリッド行の並び順設定</h3>
-                    <p>ツールバーの「ソート設定」ボタンをクリックすると開きます。</p>
-                </div>
-                <div class="card-image">
-                    <img src="screenshots/wp-sort-modal.png" alt="ソート設定モーダル" onclick="openLightbox(this)">
-                </div>
+                <div class="card-header"><h3>グリッド行の並び順設定</h3><p>ツールバーの「ソート設定」ボタンで開きます。</p></div>
+                <div class="card-image"><img src="screenshots/wp-sort-modal.png" alt="ソート設定モーダル" onclick="openLightbox(this)"></div>
                 <div class="card-body">
                     <ul>
-                        <li><strong>4段階ソート:</strong> 区分 → 昼夜 → 契約先 → 現場名 の階層的なソートを設定</li>
-                        <li><strong>ドラッグ&ドロップ:</strong> 各項目内の順序をドラッグで変更（例: 施設を1番、交通を2番にする）</li>
-                        <li><strong>連動絞り込み:</strong> 契約先は区分選択で絞り込み、現場名は契約先選択で絞り込み</li>
-                        <li><strong>昇順/降順:</strong> ▲▼ボタンで並び順を切替</li>
-                        <li><strong>リセット:</strong> 設定をデフォルトに戻すリセットボタン</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="section" id="wp-diff-modal">
-            <div class="section-header">
-                <span class="badge">画面A</span>
-                <h2>差分確認モーダル</h2>
-            </div>
-            <div class="screenshot-card">
-                <div class="card-header">
-                    <h3>受注簿との差分確認・反映</h3>
-                    <p>ツールバーの「受注簿データ取得」または「受注簿へ転記」ボタンをクリックすると開きます。</p>
-                </div>
-                <div class="card-image">
-                    <img src="screenshots/wp-diff-modal.png" alt="差分確認モーダル" onclick="openLightbox(this)">
-                </div>
-                <div class="card-body">
-                    <ul>
-                        <li><strong>ステータスタブ:</strong> 一致・差分あり・受注簿のみ・システムのみ の4カテゴリで分類</li>
-                        <li><strong>左側リスト:</strong> 全件を一覧表示。クリックで詳細を右側に展開</li>
-                        <li><strong>差分詳細:</strong> 項目ごとに業務管理計画書側/システム側の値を比較。ラジオボタンでどちらを採用するか選択</li>
-                        <li><strong>あいまい一致:</strong> 契約先名の表記ゆれ（例: (株)〇〇 vs 株式会社〇〇）を検知し、どちらの表記を採用するか選択</li>
-                        <li><strong>確認済み管理:</strong> 各件を確認済みにマーク。全件確認後に反映実行</li>
-                        <li><strong>一括操作:</strong> 「すべて業務管理計画書側」「すべてシステム側」で一括選択</li>
+                        <li><strong>多段ソート:</strong> 会社 → 区分 → 昼夜 → 契約先 → 現場名 の階層でソート</li>
+                        <li><strong>並べ替え:</strong> 各項目内の値をドラッグ／▲▼で並び替え。手動変更すると「優先適用中」バッジが付く</li>
+                        <li><strong>連動絞り込み:</strong> 契約先は区分選択で、現場名は契約先選択で絞り込み</li>
+                        <li><strong>フッター:</strong> リセット／キャンセル／ソート実行</li>
                     </ul>
                 </div>
             </div>
         </div>
 
         <div class="section" id="wp-color-panel">
-            <div class="section-header">
-                <span class="badge">画面A</span>
-                <h2>カラー設定パネル</h2>
-            </div>
+            <div class="section-header"><span class="badge">画面A</span><h2>カラー設定パネル</h2></div>
             <div class="screenshot-card">
-                <div class="card-header">
-                    <h3>画面のカラーテーマをカスタマイズ</h3>
-                    <p>ツールバーの「カラー設定」ボタンをクリックすると、右側にスライドインで表示されます。</p>
-                </div>
-                <div class="card-image">
-                    <img src="screenshots/wp-color-panel.png" alt="カラー設定パネル" onclick="openLightbox(this)">
-                </div>
+                <div class="card-header"><h3>画面のカラーテーマをカスタマイズ</h3><p>ツールバーの「カラー設定」ボタンで右側にスライドイン表示されます。</p></div>
+                <div class="card-image"><img src="screenshots/wp-color-panel.png" alt="カラー設定パネル" onclick="openLightbox(this)"></div>
                 <div class="card-body">
                     <ul>
-                        <li><strong>カラーパターン:</strong> プリセットの保存・読み込み・削除が可能</li>
-                        <li><strong>グループ会社（左ボーダー）:</strong> 東央警備、Nikkeiホールディングス等のボーダー色を設定</li>
-                        <li><strong>区分カラー:</strong> 施設・イベント・交通・高速の背景色・文字色をそれぞれ設定</li>
-                        <li><strong>シフト区分:</strong> 昼勤務・夜勤務の背景色・文字色を設定</li>
-                        <li><strong>デフォルトに戻す:</strong> 全色設定をデフォルト値にリセット</li>
+                        <li><strong>カラーパターン:</strong> プリセットの保存・読み込み・削除（最大5パターン）</li>
+                        <li><strong>プリセットカラー:</strong> よく使う色をスウォッチから選択</li>
+                        <li><strong>グループ会社背景色:</strong> 東央警備／Nikkei／全日本の背景色を設定</li>
+                        <li><strong>社員バッジ色・区分カラー・シフト区分:</strong> ベース色から背景・文字色を自動生成して設定</li>
+                        <li><strong>デフォルトに戻す:</strong> 全色をリセット</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="wp-print">
+            <div class="section-header"><span class="badge">画面A</span><h2>印刷プレビュー</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>業務管理計画書の印刷・PDF出力</h3><p>ツールバーの「印刷」ボタンで開きます。</p></div>
+                <div class="card-image"><img src="screenshots/wp-print-preview.png" alt="印刷プレビュー" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>プレビュー:</strong> 印刷書式（業務管理計画書）でレイアウトを表示</li>
+                        <li><strong>ツールバー:</strong> PDF出力／印刷、倍率調整、グループ会社別（東央警備／Nikkei）の書式切替</li>
                     </ul>
                 </div>
             </div>
@@ -495,50 +539,35 @@
 
         <!-- ==================== 画面B: 受注簿 ==================== -->
         <div class="section" id="ob-main">
-            <div class="section-header">
-                <span class="badge" style="background:#2a7c6f;">画面B</span>
-                <h2>受注簿 - メイン画面</h2>
-            </div>
+            <div class="section-header"><span class="badge" style="background:#2a7c6f;">画面B</span><h2>受注簿 - メイン画面</h2></div>
+            <p class="section-lead">月単位で全受注データを一覧管理するメイン画面。契約先ごとの行 × 日付の列でマトリクス表示します。</p>
             <div class="screenshot-card">
-                <div class="card-header">
-                    <h3>月間の受注データグリッド</h3>
-                    <p>月単位で全受注データを一覧管理するメイン画面。</p>
-                </div>
-                <div class="card-image">
-                    <img src="screenshots/ob-viewport.png" alt="受注簿 メイン画面" onclick="openLightbox(this)">
-                </div>
+                <div class="card-header"><h3>月間の受注データグリッド</h3><p>受注情報の業務上の起点となる画面です（Quick Accessと並ぶ入力起点）。</p></div>
+                <div class="card-image"><img src="screenshots/ob-main.png" alt="受注簿 メイン画面" onclick="openLightbox(this)"></div>
                 <div class="card-body">
                     <ul>
-                        <li><strong>ヘッダー部:</strong> 本日の日付表示、月選択（前月/次月ボタン）、ダークモード切替</li>
-                        <li><strong>ツールバー:</strong> Undo/Redo、ソート、フィルタ、表示/非表示、土日祝色、行追加ボタン。件数表示</li>
-                        <li><strong>グリッド:</strong> 左側に固定列（会社・区分・昼夜・契約先名・業務名）、中央に日付列（1日〜月末）、右端に合計列</li>
-                        <li><strong>セルの色分け:</strong> 人数に応じた色分け表示。作業内容がある場合はセル内にツールチップ表示</li>
-                        <li><strong>本日列のハイライト:</strong> 当日の列が強調表示される</li>
-                        <li><strong>合計行:</strong> 最下部に全行の日ごとの合計を表示</li>
+                        <li><strong>ヘッダー:</strong> 本日日付、月選択（前月/次月）、ダークモード切替、変更通知ベル</li>
+                        <li><strong>ツールバー:</strong> 新規追加 / 戻る・次へ（Undo/Redo）/ ソート設定 / フィルタ / 表示・非表示 / バッジ表示切替 / データリセット。右端に件数表示（全N件／表示M件）</li>
+                        <li><strong>固定列:</strong> 会社／区分／昼夜／契約先名／（複製＋）／業務名／（昼夜反対＋）／カレンダーボタン</li>
+                        <li><strong>日付列:</strong> 1日〜月末。各日付セルに人数を表示。当日列はハイライト</li>
+                        <li><strong>セルの色分け:</strong> 信頼度・人数に応じた色分け。作業内容バッジはツールチップで確認</li>
+                        <li><strong>行合計列:</strong> 右端に「確定最小〜最大」形式で表示。最下部に日ごとの合計行</li>
                     </ul>
                 </div>
             </div>
         </div>
 
         <div class="section" id="ob-filter">
-            <div class="section-header">
-                <span class="badge" style="background:#2a7c6f;">画面B</span>
-                <h2>フィルタバー</h2>
-            </div>
+            <div class="section-header"><span class="badge" style="background:#2a7c6f;">画面B</span><h2>フィルタバー</h2></div>
             <div class="screenshot-card">
-                <div class="card-header">
-                    <h3>表示データの絞り込み</h3>
-                    <p>ツールバーの「フィルタ」ボタンをクリックするとトグル表示されます。</p>
-                </div>
-                <div class="card-image">
-                    <img src="screenshots/ob-filter.png" alt="フィルタバー" onclick="openLightbox(this)">
-                </div>
+                <div class="card-header"><h3>表示データの絞り込み</h3><p>ツールバーの「フィルタ」ボタンでトグル表示されます。</p></div>
+                <div class="card-image"><img src="screenshots/ob-filter.png" alt="フィルタバー" onclick="openLightbox(this)"></div>
                 <div class="card-body">
                     <ul>
-                        <li><strong>会社:</strong> ドロップダウンでグループ会社を選択（すべて/東央警備/Nikkeiホールディングス）</li>
-                        <li><strong>区分:</strong> ドロップダウンで区分を選択（施設/イベント/高速/交通/応援交通）</li>
-                        <li><strong>昼/夜:</strong> ドロップダウンでシフトを選択</li>
-                        <li><strong>契約先:</strong> テキスト入力で契約先名による絞り込み</li>
+                        <li><strong>会社:</strong> グループ会社をチェックボックスで複数選択</li>
+                        <li><strong>区分:</strong> 施設／イベント／高速／交通／応援交通を複数選択</li>
+                        <li><strong>昼/夜:</strong> シフトを選択</li>
+                        <li><strong>契約先:</strong> テキスト入力で部分一致絞り込み</li>
                         <li><strong>クリア:</strong> 全フィルタを一括解除</li>
                     </ul>
                 </div>
@@ -546,79 +575,387 @@
         </div>
 
         <div class="section" id="ob-cell-modal">
-            <div class="section-header">
-                <span class="badge" style="background:#2a7c6f;">画面B</span>
-                <h2>セル編集モーダル</h2>
-            </div>
+            <div class="section-header"><span class="badge" style="background:#2a7c6f;">画面B</span><h2>セル編集モーダル</h2></div>
             <div class="screenshot-card">
-                <div class="card-header">
-                    <h3>日ごとの受注データの詳細入力</h3>
-                    <p>グリッドの日付セルをクリックすると開きます。その日の受注データを詳細に編集できます。</p>
-                </div>
-                <div class="card-image">
-                    <img src="screenshots/ob-cell-modal.png" alt="セル編集モーダル" onclick="openLightbox(this)">
-                </div>
+                <div class="card-header"><h3>日ごとの受注データの詳細入力</h3><p>グリッドの日付セルをクリックすると開きます。</p></div>
+                <div class="card-image"><img src="screenshots/ob-cell-modal.png" alt="セル編集モーダル" onclick="openLightbox(this)"></div>
                 <div class="card-body">
                     <ul>
-                        <li><strong>ヘッダー情報:</strong> 契約先/業務名、会社/区分/シフト情報を表示</li>
-                        <li><strong>人数・信頼度:</strong> 人数入力と信頼度チップ（確定/予定（高）/予定（低））の選択</li>
-                        <li><strong>業務詳細:</strong> 工事名等の項目名・内容をペアで入力。動的に追加可能</li>
-                        <li><strong>業務管理計画書 業務名:</strong> 業務名と業務詳細から自動生成（例: 東名SA巡回 > 舗装工事 > 本体施工）</li>
-                        <li><strong>区分・作業内容:</strong> 業務管理計画書と同じバッジ管理。親バッジ・子バッジ・孫バッジの3階層</li>
-                        <li><strong>開始/終了時間:</strong> カスタム時間ピッカーで設定</li>
-                        <li><strong>現場監督・連絡先:</strong> テキスト入力。過去の入力履歴からの選択も可能</li>
-                        <li><strong>集合場所・集合時間:</strong> テキスト入力とカスタム時間ピッカー</li>
-                        <li><strong>現場地図:</strong> Google Maps URLの入力・プレビュー</li>
-                        <li><strong>備考:</strong> テキストエリアで自由入力</li>
+                        <li><strong>ヘッダー:</strong> 契約先／業務名・会社・区分・シフトを表示</li>
+                        <li><strong>Placement / Details:</strong> 配置先ナビ、人数、信頼度（確定／予定（高）／予定（低））、自動生成される業務名、業務詳細サブタスク</li>
+                        <li><strong>Category / Tasks:</strong> 区分（読み取り専用）、作業内容バッジ（削除・戻す対応）</li>
+                        <li><strong>Schedule / Notes:</strong> 開始/終了時間（時間ピッカー）、現場監督・連絡先（過去候補から選択・戻す対応）、集合場所・集合時間、地図（複数URL・プレビュー）、備考</li>
+                        <li><strong>フッター:</strong> 削除／キャンセル／保存</li>
                     </ul>
                 </div>
             </div>
         </div>
 
         <div class="section" id="ob-row-modal">
-            <div class="section-header">
-                <span class="badge" style="background:#2a7c6f;">画面B</span>
-                <h2>行情報編集モーダル</h2>
-            </div>
+            <div class="section-header"><span class="badge" style="background:#2a7c6f;">画面B</span><h2>行情報編集モーダル</h2></div>
             <div class="screenshot-card">
-                <div class="card-header">
-                    <h3>行の基本情報を編集</h3>
-                    <p>グリッドの固定列（会社名・区分・昼夜・契約先名・業務名）をクリックすると開きます。</p>
-                </div>
-                <div class="card-image">
-                    <img src="screenshots/ob-row-modal.png" alt="行情報編集モーダル" onclick="openLightbox(this)">
-                </div>
+                <div class="card-header"><h3>行の基本情報を編集</h3><p>固定列（会社・区分・昼夜・契約先名・業務名）をクリックすると開きます。</p></div>
+                <div class="card-image"><img src="screenshots/ob-row-modal.png" alt="行情報編集モーダル" onclick="openLightbox(this)"></div>
                 <div class="card-body">
                     <ul>
-                        <li><strong>会社:</strong> チップ形式でグループ会社を選択</li>
-                        <li><strong>区分:</strong> チップ形式で区分を選択。「+ 追加」でカスタム区分の追加も可能</li>
-                        <li><strong>昼夜:</strong> チップ形式で昼/夜を選択</li>
-                        <li><strong>契約先名:</strong> テキスト入力</li>
-                        <li><strong>業務名:</strong> テキスト入力。空欄の場合は「個別業務」として各セルごとに異なる業務名を持てる</li>
+                        <li><strong>Row Information:</strong> 会社・区分・昼夜をチップで選択（区分はカスタム追加可）。過去データから入力アコーディオン</li>
+                        <li><strong>Fields:</strong> 契約先名（略称↔正式名変換対応）、業務名（空欄なら個別業務）、プリセット開始/終了時間</li>
+                        <li><strong>重複警告:</strong> 同一条件の行が既にある場合に警告表示</li>
+                        <li><strong>フッター:</strong> キャンセル／保存</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="ob-calendar-modal">
+            <div class="section-header"><span class="badge" style="background:#2a7c6f;">画面B</span><h2>カレンダー入力モーダル</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>1行をカレンダー形式でまとめて入力</h3><p>固定列のカレンダーボタンをクリックすると開きます。月全体の配置を俯瞰しながら編集できます。</p></div>
+                <div class="card-image"><img src="screenshots/ob-calendar-modal.png" alt="カレンダー入力モーダル" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>カレンダーグリッド:</strong> 月表示。日をクリックすると下部の編集パネルが展開</li>
+                        <li><strong>編集パネル:</strong> セル編集モーダルと同等の入力フォームをアコーディオンで内蔵</li>
+                        <li><strong>情報バー:</strong> メタ情報、Undo/Redo、バッジ表示切替</li>
                     </ul>
                 </div>
             </div>
         </div>
 
         <div class="section" id="ob-sort-modal">
-            <div class="section-header">
-                <span class="badge" style="background:#2a7c6f;">画面B</span>
-                <h2>ソート設定モーダル</h2>
-            </div>
+            <div class="section-header"><span class="badge" style="background:#2a7c6f;">画面B</span><h2>ソート設定モーダル</h2></div>
             <div class="screenshot-card">
-                <div class="card-header">
-                    <h3>行の並び順設定</h3>
-                    <p>ツールバーの「ソート」ボタンをクリックすると開きます。</p>
-                </div>
-                <div class="card-image">
-                    <img src="screenshots/ob-sort-modal.png" alt="受注簿ソート設定モーダル" onclick="openLightbox(this)">
-                </div>
+                <div class="card-header"><h3>行の並び順設定</h3><p>ツールバーの「ソート設定」ボタンで開きます。</p></div>
+                <div class="card-image"><img src="screenshots/ob-sort-modal.png" alt="受注簿ソート設定モーダル" onclick="openLightbox(this)"></div>
                 <div class="card-body">
                     <ul>
-                        <li><strong>ソートキー:</strong> 会社・区分カテゴリ・契約先名・業務名・昼/夜の5つのソートキー</li>
-                        <li><strong>優先順位:</strong> ドラッグ&ドロップでソートキーの優先順位を変更</li>
-                        <li><strong>昇順/降順:</strong> 各キーの▲ボタンで並び順を切替</li>
+                        <li><strong>ソートキー:</strong> 会社・区分・昼夜・契約先・業務名の5キー</li>
+                        <li><strong>優先順位:</strong> 各カラムの上へ/下へで優先順位を変更。契約先・業務名は「優先適用中」バッジ対応</li>
+                        <li><strong>フッター:</strong> リセット／キャンセル／ソート実行</li>
                     </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 週間予定表 ==================== -->
+        <div class="section" id="ws-main">
+            <div class="section-header"><span class="badge" style="background:#5b54a8;">週間</span><h2>週間予定表（現場配置表） - メイン画面</h2></div>
+            <p class="section-lead">1週間分の「現場 × 昼/夜」セルに社員・車両・協力業者を配置する画面。画面上部のタイトルは「現場配置表」です。</p>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>現場軸グリッド</h3><p>現場を行、日付×昼/夜を列として配置を一覧します。</p></div>
+                <div class="card-image"><img src="screenshots/ws-main.png" alt="週間予定表 メイン画面" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>軸切替:</strong> 「現場軸」「社員軸」で表の向きを切替</li>
+                        <li><strong>週ナビ:</strong> 前週/前日/翌日/翌週、今日ボタン、データリセット</li>
+                        <li><strong>配置セル:</strong> 上部に「配置数/受注数」インジケーター（OK=緑・不足=赤・超過=橙）、社員チップ（連続シフト矢印・×削除）、車両チップ（ナンバー）</li>
+                        <li><strong>固定行:</strong> 「休み」行（休暇申請から導出）、「修理/点検」行（車両整備）、「応援予約」行（グループ会社別の協力業者予約）</li>
+                        <li><strong>応援予約行:</strong> 各GC（東央／Nikkei／AJE）の予約をセルにバッジ表示（例: B社② 残2）。行左/セルの「＋」から予約を追加</li>
+                        <li><strong>右サイドバー:</strong> 「社員」「車両」「現場」タブ。会社別アコーディオンの社員/車両をセルへドラッグして配置</li>
+                        <li><strong>ドラッグ演出:</strong> ドラッグ中は対象列だけが強調表示され、配置可能箇所が分かりやすくなります</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="ws-staff-axis">
+            <div class="section-header"><span class="badge" style="background:#5b54a8;">週間</span><h2>社員軸ビュー</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>社員ごとの週間予定</h3><p>「社員軸」ボタンで切替。社員を行、日付×昼/夜を列として、各社員が入る現場を表示します。</p></div>
+                <div class="card-image"><img src="screenshots/ws-staff-axis.png" alt="週間予定表 社員軸ビュー" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>社員行:</strong> 課ごとにグループ化された社員。各セルに配置先の現場名を表示</li>
+                        <li><strong>連続勤務:</strong> 昼→夜などの連続勤務を矢印で表示</li>
+                        <li><strong>用途:</strong> 一人ひとりの稼働を確認し、偏りや連勤をチェック</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="ws-res-quick">
+            <div class="section-header"><span class="badge" style="background:#5b54a8;">週間</span><h2>応援予約（単日）モーダル</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>その日の協力業者予約を追加</h3><p>応援予約行のセルの「＋」をクリックすると開きます。</p></div>
+                <div class="card-image medium"><img src="screenshots/ws-res-quick-modal.png" alt="応援予約 単日モーダル" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>日付・依頼元:</strong> 対象日とグループ会社を表示</li>
+                        <li><strong>協力業者:</strong> テキスト入力 or 候補バッジから選択。マスタ未登録の業者は警告アイコン付きで新規登録可</li>
+                        <li><strong>人数:</strong> ステッパーで予約人数を設定（配置済み人数を下限とする）</li>
+                        <li><strong>フッター:</strong> キャンセル／保存</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="ws-res-week">
+            <div class="section-header"><span class="badge" style="background:#5b54a8;">週間</span><h2>応援予約（週全体）モーダル</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>1週間分の予約をまとめて編集</h3><p>応援予約行の左端の「＋」をクリックすると開きます。</p></div>
+                <div class="card-image"><img src="screenshots/ws-res-week-modal.png" alt="応援予約 週全体モーダル" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>協力業者 × 日付マトリクス:</strong> 業者ごとに7日分の予約人数をステッパーで編集（変更は即時反映）</li>
+                        <li><strong>業者マスタ警告:</strong> マスタ未完備の業者に警告アイコン</li>
+                        <li><strong>行メニュー（⋮）:</strong> この週の予約をクリア／マスタから削除</li>
+                        <li><strong>+ 業者追加:</strong> オートコンプリートで業者を追加登録</li>
+                        <li><strong>フッター:</strong> 閉じる</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 休暇申請管理 ==================== -->
+        <div class="section" id="la-main">
+            <div class="section-header"><span class="badge" style="background:#2f855a;">休暇</span><h2>休暇申請管理 - メイン画面</h2></div>
+            <p class="section-lead">月間カレンダーに社員の休暇バッジをドラッグ&ドロップで配置し、申請→承認→週間予定表連携までを管理します。</p>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>月間カレンダービュー</h3><p>本人／DCP／管理の3ロールで操作権限が切り替わります。</p></div>
+                <div class="card-image"><img src="screenshots/la-main.png" alt="休暇申請管理 メイン画面" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>モード切替:</strong> 「休暇申請」「車両スケジュール」を左サイドで切替</li>
+                        <li><strong>左サイド:</strong> 新規申請、今日、ミニカレンダー、ビュー切替（月間／年間）、ロール切替（本人／DCP／管理）</li>
+                        <li><strong>ヘッダー:</strong> データリセット、圧縮（イニシャル表示）、集計（月次集計モーダル）</li>
+                        <li><strong>休暇バッジ:</strong> 種別色（有給／休暇／その他）、枠線でステータス表現（破線=申請中・実線=承認済・淡色=却下）、区分チップ（午前休/午後休）。クリックで編集ポップオーバー、ドラッグで日付変更</li>
+                        <li><strong>祝日・土日:</strong> 祝日名・土日色を表示</li>
+                        <li><strong>右サイドバー:</strong> 社員リスト（全員／会社別／要対応タブ）。社員カードに有給残・未承認件数。カードをカレンダーへドラッグで新規申請</li>
+                        <li><strong>要対応タブ:</strong> 未承認の申請、週間予定との衝突（WS衝突）を一覧</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="la-popover">
+            <div class="section-header"><span class="badge" style="background:#2f855a;">休暇</span><h2>申請編集ポップオーバー</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>休暇申請の詳細編集・承認</h3><p>カレンダー上の休暇バッジをクリックすると開きます。</p></div>
+                <div class="card-image medium"><img src="screenshots/la-popover.png" alt="申請編集ポップオーバー" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>区分:</strong> 休み／午前休／午後休</li>
+                        <li><strong>種別:</strong> 有給／休暇／その他</li>
+                        <li><strong>ステータス:</strong> 申請中／承認済／却下（承認権限のあるロールのみ操作可）</li>
+                        <li><strong>理由・メモ:</strong> テキスト入力</li>
+                        <li><strong>繰り返し:</strong> 「毎週〇曜日」+ 終了日で定期申請を一括展開</li>
+                        <li><strong>監査情報:</strong> 承認者／却下者と日時を表示</li>
+                        <li><strong>フッター:</strong> 削除／キャンセル／保存（DCP/管理では承認・却下ボタン）</li>
+                    </ul>
+                    <div class="note">権限ロール: 本人＝自分の未来の申請中のみ編集 / DCP＝自グループ会社の全員を承認 / 管理＝全社・全権限。</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="la-report">
+            <div class="section-header"><span class="badge" style="background:#2f855a;">休暇</span><h2>月次集計モーダル</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>月単位の休暇実績集計・CSV出力</h3><p>ヘッダーの「集計」ボタンで開きます。</p></div>
+                <div class="card-image"><img src="screenshots/la-report-modal.png" alt="月次集計モーダル" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>サマリカード:</strong> 延べ休暇日数／休暇社員数／有給消化／休暇／未承認／却下</li>
+                        <li><strong>集計テーブル:</strong> 社員・GC・有給・休暇・その他・合計・有給残・消化率</li>
+                        <li><strong>前月/翌月:</strong> ナビボタンで対象月を切替</li>
+                        <li><strong>CSV出力:</strong> UTF-8（BOM付き）でダウンロード</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="la-year">
+            <div class="section-header"><span class="badge" style="background:#2f855a;">休暇</span><h2>年間ビュー</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>1年間の休暇傾向をヒートマップ表示</h3><p>左サイドのビュー切替で「年間」を選択します。</p></div>
+                <div class="card-image"><img src="screenshots/la-year.png" alt="年間ビュー" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>12カ月ミニカレンダー:</strong> 各日の休暇人数に応じた濃淡（ヒートマップ）</li>
+                        <li><strong>ツールチップ:</strong> セルホバーで日付・祝日名・休暇者リストを表示</li>
+                        <li><strong>月クリック:</strong> 該当月の月間ビューへ遷移</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="la-vehicle">
+            <div class="section-header"><span class="badge" style="background:#2f855a;">休暇</span><h2>車両スケジュールモード</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>車両の整備予定をカレンダー管理</h3><p>左サイドの「車両スケジュール」で切替。休暇と同じカレンダーUIで車両整備を管理します。</p></div>
+                <div class="card-image"><img src="screenshots/la-vehicle-mode.png" alt="車両スケジュールモード" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>整備バッジ:</strong> 車両ナンバー + 種別（点検／修理／オイル／車検／タイヤ／ETC再設定 等）</li>
+                        <li><strong>右サイドバー:</strong> 車両リスト（全車／会社別／期限近いタブ）、車両追加ボタン。車両をカレンダーへドラッグして種別を選択</li>
+                        <li><strong>期限近いタブ:</strong> 車検・点検期限が30日以内の車両を一覧</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== Quick Access ==================== -->
+        <div class="section" id="qa-login">
+            <div class="section-header"><span class="badge" style="background:#c05621;">QA</span><h2>Quick Access - ログイン画面</h2></div>
+            <p class="section-lead">現場担当者がスマートフォンから受注をすばやく入力するためのモバイル向け画面です。</p>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>ログイン</h3><p>メールアドレス・パスワードで認証します（デモは入力済み）。</p></div>
+                <div class="card-image medium"><img src="screenshots/qa-login.png" alt="Quick Access ログイン画面" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>メールアドレス / パスワード:</strong> 入力してログイン</li>
+                        <li><strong>レイアウト:</strong> スマートフォン画面を想定したモバイルUI</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="qa-home">
+            <div class="section-header"><span class="badge" style="background:#c05621;">QA</span><h2>ホーム（契約先・現場一覧）</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>契約先カードと現場リスト</h3><p>ログイン後のホーム画面。契約先を選んで現場のカレンダーへ進みます。</p></div>
+                <div class="card-image medium"><img src="screenshots/qa-home.png" alt="Quick Access ホーム画面" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>ヘッダー:</strong> 通知ベル、アカウントメニュー（ユーザー情報・ログアウト）</li>
+                        <li><strong>カテゴリタブ:</strong> すべて／施設／イベント／高速／交通／応援交通／非表示</li>
+                        <li><strong>新規契約先を追加:</strong> 契約先名を入力して登録</li>
+                        <li><strong>契約先カード:</strong> 最終受注日・現場件数を表示。展開で現場リスト。⋮メニューから修正・非表示</li>
+                        <li><strong>現場:</strong> クリックでカレンダー入力画面へ。⋮メニューから修正・削除/非表示、行から新規現場追加</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="qa-calendar">
+            <div class="section-header"><span class="badge" style="background:#c05621;">QA</span><h2>カレンダー入力画面</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>日付選択と受注入力パネル</h3><p>現場を選ぶと開きます。日付をタップして下部の編集パネルで入力します。</p></div>
+                <div class="card-image medium"><img src="screenshots/qa-calendar.png" alt="Quick Access カレンダー入力画面" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>ヘッダー:</strong> 戻る、現場名、前週/次週、月表示</li>
+                        <li><strong>カレンダー:</strong> 日付セルに人数を表示。タップで週表示+編集パネル展開</li>
+                        <li><strong>PLACEMENT / DETAILS:</strong> 配置先タブ（+追加）、人数、信頼度、自動生成の業務名、業務詳細</li>
+                        <li><strong>CATEGORY / BADGE:</strong> 区分、作業内容バッジ</li>
+                        <li><strong>SCHEDULE / NOTES:</strong> 時間、現場監督・連絡先、集合、地図、備考</li>
+                        <li><strong>保存/削除:</strong> ヘッダーの保存で確定（トースト表示）、削除で配置削除</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="qa-site-modal">
+            <div class="section-header"><span class="badge" style="background:#c05621;">QA</span><h2>現場情報モーダル</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>現場の新規追加・編集</h3><p>「新規現場を追加」行、または現場⋮メニューの「修正」で開きます。</p></div>
+                <div class="card-image medium"><img src="screenshots/qa-site-modal.png" alt="Quick Access 現場情報モーダル" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>現場名:</strong> 空欄なら「個別業務」</li>
+                        <li><strong>会社・区分・昼夜:</strong> チップで選択。未選択時は警告アイコン表示</li>
+                        <li><strong>プリセット時間:</strong> 開始/終了時間の初期値を設定</li>
+                        <li><strong>フッター:</strong> キャンセル／保存</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 変更通知システム ==================== -->
+        <div class="section" id="cn-bells">
+            <div class="section-header"><span class="badge" style="background:#c53030;">通知</span><h2>変更通知システム - 通知ベル（4分類）</h2></div>
+            <p class="section-lead">全画面共通のナビバー右上に表示される通知ベル群。受注・配置・申請・マスタの各変更がリアルタイムに集約され、未読件数がバッジ表示されます。</p>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>4分類のベル</h3><p>ドメインごとに独立したベルを持ち、それぞれ未読数を表示します。</p></div>
+                <div class="card-image small"><img src="screenshots/cn-bells.png" alt="通知ベル4分類" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>受注・業務変更:</strong> 受注簿（OB）／Quick Access での受注行の追加・変更・削除</li>
+                        <li><strong>配置・予定変更:</strong> 業務管理計画書（SL）／週間予定表（WS）／車両予定での社員・車両・応援・予定の配置変更</li>
+                        <li><strong>申請・承認:</strong> 休暇申請（LA）の新規・承認・却下・修正</li>
+                        <li><strong>マスタ・システム:</strong> 社員・現場・契約先などマスタの変更やシステムイベント</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="cn-panel">
+            <div class="section-header"><span class="badge" style="background:#c53030;">通知</span><h2>通知パネル（最新タブ）</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>ベルをクリックして通知一覧を表示</h3><p>「最新」「履歴」の2タブ構成。最新タブは日付ごとにグループ化されます。</p></div>
+                <div class="card-image medium"><img src="screenshots/cn-panel.png" alt="通知パネル 最新タブ" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>ヘッダー:</strong> 「〇〇の変更通知」タイトルと「すべて既読」ボタン</li>
+                        <li><strong>通知アイテム:</strong> 種別アイコン（追加/変更/削除）、発信元バッジ（受注簿など）、日付バッジ、変更内容、操作者・時刻</li>
+                        <li><strong>未読表示:</strong> 未読は左に水玉マーク。「すべて既読」で一括既読化しバッジを0に</li>
+                        <li><strong>展開:</strong> 差分やクロス画面ヒントがあるアイテムは右端のシェブロン（▾）で展開</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="cn-expanded">
+            <div class="section-header"><span class="badge" style="background:#c53030;">通知</span><h2>アイテム展開・別画面ジャンプ</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>クロス画面ヒントと「〇〇で開く」</h3><p>通知が現在の画面で直接表示できない場合、関連画面へのジャンプボタンが展開されます。</p></div>
+                <div class="card-image medium"><img src="screenshots/cn-item-expanded.png" alt="通知アイテム展開・クロスヒント" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>状態アイコン:</strong> 追加（＋）・承認（✓）・却下（✗）・件数集計など、操作種別ごとにアイコンが変化</li>
+                        <li><strong>クロス画面ヒント:</strong> 「現在画面では直接フラッシュしません」とともに「LA（休暇申請）で開く ↗」「WS（週間予定表）で開く ↗」等のボタンを表示</li>
+                        <li><strong>別画面遷移:</strong> ボタンを押すと同じタブで対象画面に遷移し、着地後に対象箇所をスポットライトで強調</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="cn-history">
+            <div class="section-header"><span class="badge" style="background:#c53030;">通知</span><h2>履歴タブ</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>過去の変更を軸別に検索</h3><p>パネル上部の「履歴」タブで表示します。</p></div>
+                <div class="card-image medium"><img src="screenshots/cn-history.png" alt="通知パネル 履歴タブ" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>軸切替:</strong> 「契約先/現場」軸と「アカウント（操作者）」軸でグループ化を切替</li>
+                        <li><strong>検索:</strong> キーワード検索ボックスと一覧ピッカー</li>
+                        <li><strong>フィルタチップ:</strong> すべて／追加／変更／削除で絞り込み</li>
+                        <li><strong>グループ:</strong> 軸ごとのアコーディオンで過去の変更を整理表示</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="cn-spotlight">
+            <div class="section-header"><span class="badge" style="background:#c53030;">通知</span><h2>ジャンプ着地スポットライト</h2></div>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>通知クリックで対象箇所を強調</h3><p>通知アイテムをクリックすると、画面全体を暗転させ対象の行/セルだけを明るく残すスポットライト演出が表示されます（約2秒でフェード）。</p></div>
+                <div class="card-image"><img src="screenshots/cn-spotlight.png" alt="ジャンプ着地スポットライト演出" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>全画面スポットライト:</strong> 透明な穴 + 外向きの影で周囲を暗くし、変更対象を一目で把握</li>
+                        <li><strong>同一画面:</strong> 対象がその画面にあればその場でスポットライト表示</li>
+                        <li><strong>別画面:</strong> 対象が別画面なら同タブで遷移し、着地後に自動でスポットライト表示</li>
+                        <li><strong>即解除:</strong> フェード途中で画面をクリックすると即座に解除</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ER図 ==================== -->
+        <div class="section" id="er-diagram">
+            <div class="section-header"><span class="badge" style="background:#475569;">データ</span><h2>ER図（テーブル相関図）</h2></div>
+            <p class="section-lead">システムのデータベース構造を表すER図。<a href="../er-diagram.html" target="_blank" rel="noopener">er-diagram.html</a> で拡大・パン操作ができます（DB設計書 03_データベース設計.md と同期）。</p>
+            <div class="screenshot-card">
+                <div class="card-header"><h3>33テーブルの相関</h3><p>マスタ／トランザクション／関連／ログの4分類で色分け表示。各テーブルの列・主キー(PK)・外部キー(FK)を示します。</p></div>
+                <div class="card-image"><img src="screenshots/er-diagram.png" alt="ER図 テーブル相関図" onclick="openLightbox(this)"></div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>マスタ:</strong> group_companies（グループ会社）、companies（契約先）、site_categories／category_badges（区分・作業内容）、sites／site_sub_items（現場）、organization_units／org_level_types（組織）、employees（社員）、vehicles／etc_cards（車両・ETC）、holidays（祝日）、support_partners（協力業者）ほか</li>
+                        <li><strong>トランザクション:</strong> daily_site_orders（日毎受注）、daily_assignments／assignment_details（配置）、maintenance_schedules（整備）、leave_requests（休暇申請）、support_reservations／support_assignments（応援予約・配置）、intergroup_billings（グループ間請求）、purchase_orders ほか</li>
+                        <li><strong>ログ:</strong> order_change_history／change_history（変更履歴）、notification_logs（通知ログ。domain/scope/op/targets/affects/diffs を保持）</li>
+                        <li><strong>操作:</strong> 右上の「+拡大／-縮小／リセット」、マウスホイールでズーム、ドラッグでパン。右側「テーブル説明」パネルで各テーブルの役割を確認</li>
+                    </ul>
+                    <div class="note">主な更新点: 旧 employee_day_off_requests を leave_requests に改名・拡張、vehicles を車検(shaken_date)・点検(inspection_date)に対応、各マスタへ group_company_id を追加、協力業者・グループ間請求・注文書（甲乙丙）系テーブルを追加。</div>
                 </div>
             </div>
         </div>

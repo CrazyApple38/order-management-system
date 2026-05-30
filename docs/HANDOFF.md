@@ -9,19 +9,18 @@
 
 - **更新者**: Claude Code (Opus 4.8)
 - **日付**: 2026-05-30
-- **コミット**: ee16701（直前 HEAD。本ドキュメント整合作業は**未コミット**）
+- **コミット**: 9465630（直前 HEAD。本「説明書・ER図 刷新」作業は**未コミット**）
 
 ## 直前にやったこと
 
-- **要件定義書・DB設計書を現行Mockupへ整合（フィードバック反映）**。Mockup=正・両ドキュメント=非として全画面＋共通データモデルの乖離を6ドメイン並列監査し、一覧承認後に一括反映。対象は `docs/01_要件定義.md` / `docs/03_データベース設計.md` の2本のみ（Mockup側コードは未変更）。
-  - **DB設計**: daily_site_orders から `contact`/`contact_info` 削除・`confidence_manual`/`group_company_id` 追加 / vehicles を車検(`shaken_date`)・点検(`inspection_date`)2本化＋`plate_short`追加・`oil_change_distance`削除 / maintenance_type を6種(+`shaken`,`oil`)＋`start_time`/`end_time` / notification_logs に `domain`/`scope`/`op`/`targets`/`affects`/`diffs` 追加 / `employee_day_off_requests`→**`leave_requests`**改名＋`partition`/`kind`/`status`/`reason`/`memo`列追加 / org_level_types・holidays・color presets・category_badges孫INSERT 等を修正。
-  - **要件定義**: 3.17 を「**休暇申請管理**」へ改称し3ロール(self/dcp/admin)・承認フロー・車両モード等を追記 / 通知ベルを4分類明記 / 契約先とグループ会社の概念混同を是正 / QA非表示・削除の排他 / preset-unified / 社員リストUIの実態化。
-  - **横断決定**: ①コード値はUUID主キー維持＋`code`列でマッピング注記 ②Mockup未実装の機能（資格/employee_conflicts/ペナルティ/LINE・メール通知/transport_relations 等）は削除せず「**Mockup未実装（仕様先行）**」と明記 ③送迎は display_items に一本化 ④確度デフォルト値は据え置き。
-  - 両ドキュメント末尾の「更新履歴」に 2026-05-30 行を追記。更新履歴内の旧用語は歴史的記録として保全。
+- **モックアップ説明書（`docs/guide/index.html`）を全面刷新**。全画面・全モーダルを網羅し、スクリーンショットを全38枚撮り直し（ライトモード統一、`docs/guide/screenshots/`）。対象セクション: 画面A 業務管理計画書（13枚）/ 画面B 受注簿（6枚）/ 週間予定表（4枚）/ 休暇申請管理（5枚）/ Quick Access（4枚）/ 変更通知システム（5枚: ベル4分類・パネル・展開クロスヒント・履歴・スポットライト）/ ER図（1枚）。旧スクショ wp-viewport / ob-viewport / wp-vt-modal / wp-diff-modal を削除。
+- **`docs/er-diagram.html` を DB設計書（03）へ全面同期**（15→33テーブル）。`leave_requests`改名、vehicles 車検/点検対応、各マスタへ `group_company_id`、notification_logs 新列、協力業者・グループ間請求・注文書(甲乙丙)系テーブル追加。Mermaid 構文エラーなし・レンダリング確認済み。`<style>`/JS/legend は不変更。
+- 撮影は XAMPP配信（http://localhost/order-management-system/docs/...）＋ Playwright。モーダルは `browser_evaluate` で開閉関数を直接呼び出し、リロード方式で1モーダルずつ撮影。
 
 ## 次にやるべきこと
 
-- **本ドキュメント整合作業は未コミット**。`docs/00_開発手順書.md` のモック状態表とプロジェクトルート `CLAUDE.md` の表に「E 休日申請管理」表記が残存（今回スコープ外＝未変更）。用語統一を全ドキュメントへ広げる場合は別途対応。
+- **本作業は未コミット**。コミット時は `docs/guide/index.html` + `docs/guide/screenshots/*` + `docs/er-diagram.html` をまとめて。
+- `docs/00_開発手順書.md` のモック状態表とプロジェクトルート `CLAUDE.md` の表に「E 休日申請管理」表記が残存（今回スコープ外）。用語統一を広げる場合は別途。
 - **SL画面で `OmsMockStore.getLeaveApplications()` が空 → LA通知 seed が 0件**（approval/la ベル空、§17.8）。**SL↔LA データ連携の調査が次の優先**（通知システムとは別系統の既存課題）。
 - WS `schedule×modify`（busy 移動 / 候補リスト移動）は構文 OK だが Playwright 実 UI 未実証。
 - Phase 2.5（モックアップ検証）への通知システム登録。
