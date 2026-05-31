@@ -44,6 +44,12 @@
         return formatDateKey(d);
     }
 
+    function dateFromKey(dateKey, fallback) {
+        var m = String(dateKey || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!m) return fallback ? new Date(fallback) : getDemoTodayDate();
+        return new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10));
+    }
+
     // ============================================================
     // WS 現場マスター (s1〜s6)
     //   WS の wsSitesData と内容を一致させる。LA はここから現場名を引く。
@@ -259,6 +265,54 @@
         return out;
     }
 
+    // ============================================================
+    // LA 用: デモ休暇申請 seed
+    //   LA 画面を開く前でも SL/WS/共通ナビが同じ休暇データを参照できるよう、
+    //   休暇 seed も共通ソース側で生成する。
+    // ============================================================
+    function createLeaveApplications(currentDateKey, demoTodayKey) {
+        var current = dateFromKey(currentDateKey, getDemoTodayDate());
+        var demoToday = dateFromKey(demoTodayKey, getDemoTodayDate());
+        var ym = current.getFullYear() + '-' + String(current.getMonth() + 1).padStart(2, '0') + '-';
+        var demoTodayDay = demoToday.getDate();
+        var employeeCount = Array.isArray(window.employeesData) ? window.employeesData.length : 25;
+        var nextId = 1;
+        var out = [];
+        var seeds = [
+            { empIdx: 5,  day: 3,            partition: 'full', kind: 'paid',   status: 'approved' },
+            { empIdx: 5,  day: 4,            partition: 'full', kind: 'paid',   status: 'approved' },
+            { empIdx: 14, day: 8,            partition: 'full', kind: 'paid',   status: 'pending'  },
+            { empIdx: 14, day: 9,            partition: 'am',   kind: 'paid',   status: 'pending'  },
+            { empIdx: 24, day: 10,           partition: 'full', kind: 'absent', status: 'approved' },
+            { empIdx: 2,  day: 15,           partition: 'pm',   kind: 'paid',   status: 'approved' },
+            { empIdx: 9,  day: 15,           partition: 'full', kind: 'paid',   status: 'approved' },
+            { empIdx: 18, day: 15,           partition: 'full', kind: 'paid',   status: 'pending'  },
+            { empIdx: 21, day: 15,           partition: 'full', kind: 'other',  status: 'approved' },
+            { empIdx: 5,  day: 20,           partition: 'full', kind: 'paid',   status: 'pending'  },
+            { empIdx: 5,  day: 21,           partition: 'full', kind: 'paid',   status: 'pending'  },
+            { empIdx: 5,  day: 22,           partition: 'full', kind: 'paid',   status: 'pending'  },
+            { empIdx: 23, day: 24,           partition: 'full', kind: 'paid',   status: 'rejected' },
+            { empIdx: 11, day: 27,           partition: 'am',   kind: 'paid',   status: 'approved' },
+            { empIdx: 5,  day: demoTodayDay, partition: 'full', kind: 'paid',   status: 'approved' },
+            { empIdx: 14, day: demoTodayDay, partition: 'full', kind: 'paid',   status: 'approved' },
+            { empIdx: 24, day: demoTodayDay, partition: 'full', kind: 'paid',   status: 'approved' }
+        ];
+        seeds.forEach(function (s) {
+            if (s.empIdx < 0 || s.empIdx >= employeeCount) return;
+            out.push({
+                id: 'lv-' + (nextId++),
+                employeeId: 'emp-' + (s.empIdx + 1),
+                date: ym + String(s.day).padStart(2, '0'),
+                partition: s.partition,
+                kind: s.kind,
+                status: s.status,
+                reason: '',
+                memo: ''
+            });
+        });
+        return out;
+    }
+
     window.OmsMockAssignmentsData = {
         createSites: function () { return clone(createSites()); },
         createSupportPartners: function () { return clone(createSupportPartners()); },
@@ -267,6 +321,9 @@
         createVehicleAssignments: function () { return clone(createVehicleAssignments()); },
         createVehicleMaintenance: function () { return clone(createVehicleMaintenance()); },
         createLaWsAssignments: function () { return clone(createLaWsAssignments()); },
-        createSiteOrderMap: function () { return clone(createSiteOrderMap()); }
+        createSiteOrderMap: function () { return clone(createSiteOrderMap()); },
+        createLeaveApplications: function (currentDateKey, demoTodayKey) {
+            return clone(createLeaveApplications(currentDateKey, demoTodayKey));
+        }
     };
 })();

@@ -102,6 +102,16 @@
         }
     }
 
+    function defaultLeaveApplications(state) {
+        if (window.OmsMockAssignmentsData && typeof window.OmsMockAssignmentsData.createLeaveApplications === 'function') {
+            return window.OmsMockAssignmentsData.createLeaveApplications(
+                state && state.currentDate ? state.currentDate : DEFAULT_DATE,
+                state && state.demoToday ? state.demoToday : DEFAULT_DATE
+            );
+        }
+        return [];
+    }
+
     window.OmsMockStore = {
         key: STORE_KEY,
         legacySlStateKey: LEGACY_SL_STATE_KEY,
@@ -169,7 +179,10 @@
             write(state);
         },
         getLeaveApplications: function () {
-            return clone(read().leaveApplications);
+            var state = read();
+            return clone(Array.isArray(state.leaveApplications)
+                ? state.leaveApplications
+                : defaultLeaveApplications(state));
         },
         setLeaveApplications: function (applications, meta) {
             var state = read();

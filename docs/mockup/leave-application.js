@@ -242,6 +242,14 @@
     }
 
     function seedDemoLeaves() {
+        if (window.OmsMockAssignmentsData && typeof window.OmsMockAssignmentsData.createLeaveApplications === 'function') {
+            laLeaves = window.OmsMockAssignmentsData.createLeaveApplications(fmtDate(currentDate), fmtDate(laDemoTodayDate()));
+            nextLeaveId = laLeaves.reduce(function(maxId, lv) {
+                var m = String(lv.id || '').match(/(\d+)$/);
+                return m ? Math.max(maxId, parseInt(m[1], 10) + 1) : maxId;
+            }, 1);
+            return;
+        }
         // 表示月のダミー申請を何件か
         var ym = currentDate.getFullYear() + '-' + pad(currentDate.getMonth() + 1) + '-';
         // empIdx は mock-employees-data.js の配列順 (0〜24)。

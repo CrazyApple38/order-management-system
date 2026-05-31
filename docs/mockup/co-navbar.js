@@ -267,6 +267,10 @@
             : null;
         return Array.isArray(leaves) ? leaves : [];
     }
+    function mdNavFindLeaveByStatus(leaves, status, preferredDate) {
+        var filtered = (leaves || []).filter(function (lv) { return lv && lv.status === status; });
+        return filtered.find(function (lv) { return String(lv.date || '') === String(preferredDate || ''); }) || filtered[0] || null;
+    }
     function mdNavEmployeeNameById(id) {
         var m = String(id || '').match(/^emp-(\d+)$/);
         var employees = mdNavGetEmployees();
@@ -279,9 +283,10 @@
         var employees = mdNavGetEmployees();
         var vehicles = mdNavGetVehicles();
         var leaves = mdNavGetLeaveApplications();
+        var currentDateKey = mdNavCurrentDateKey();
         var pendingLeaves = leaves.filter(function (lv) { return lv && lv.status === 'pending'; });
-        var approvedLeave = leaves.find(function (lv) { return lv && lv.status === 'approved'; });
-        var rejectedLeave = leaves.find(function (lv) { return lv && lv.status === 'rejected'; });
+        var approvedLeave = mdNavFindLeaveByStatus(leaves, 'approved', currentDateKey);
+        var rejectedLeave = mdNavFindLeaveByStatus(leaves, 'rejected', currentDateKey);
         var firstOb = obEntries[0];
         var secondOb = obEntries[1] || firstOb;
         var siteLabel = firstOb && firstOb.row ? ((firstOb.row.company || '') + ' / ' + (firstOb.entry.dailyTaskName || firstOb.row.task || '')).replace(/^ \/ /, '') : '';
@@ -382,7 +387,6 @@
         }
 
         if (firstOb) {
-            var currentDateKey = mdNavCurrentDateKey();
             // OB→SL: 受注追加。SL は OB と同サイト名で解決可。WS はモックサイト名が一致しないためジャンプ対象外。
             items.sl.push({
                 scope: 'site', op: 'add',

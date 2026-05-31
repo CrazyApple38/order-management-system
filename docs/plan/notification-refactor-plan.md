@@ -1348,7 +1348,7 @@ OB §16.2 と同パターンで、画面別 scope×op 一覧を確定。実装�
 
 | ID | 内容 | 評価 |
 |----|------|------|
-| C | LA の `affects` が `['leave-application','weekly-schedule']` で **screen-layout を含まなかった**。§3.6（休日申請→SL休み表示へ波及）/ §6.4.1（休暇申請ドメインの関連画面=WS/SL）と乖離 | **2026-05-29 実装済み**: LA target を画面別マップ化（LA/WS は leaveId 維持、SL は休み社員名 `empName` 軸を追加）+ affects に screen-layout 追加。SL cn:jump に empName 着地 `slCnFocusLeaveEmployee` を新設。Playwright で SL 着地（休み社員チップへのフォーカス）実証済み。ただしフルフローは §17.8 / §17.7-5 の既存課題あり |
+| C | LA の `affects` が `['leave-application','weekly-schedule']` で **screen-layout を含まなかった**。§3.6（休日申請→SL休み表示へ波及）/ §6.4.1（休暇申請ドメインの関連画面=WS/SL）と乖離 | **2026-05-29 実装済み**: LA target を画面別マップ化（LA/WS は leaveId 維持、SL は休み社員名 `empName` 軸を追加）+ affects に screen-layout 追加。SL cn:jump に empName 着地 `slCnFocusLeaveEmployee` を新設。Playwright で SL 着地（休み社員チップへのフォーカス）実証済み。**2026-06-01 追補**: 未初期化ストアでも共通 LA seed を返すよう修正し、SL 上の実 LA 通知カードクリック → 休み社員スポットライトまで実証済み |
 | D | `co-notify-panel.js` の `inferDomain`(L333) フォールバックが `support → person-assignment` だが、発信側 `slCnSelfNotify` と §6.4.1 は `support → support-reservation`。発信側が `dataset.domain` を常に明示するため顕在化しないが、フォールバック値が設計と不一致 | 軽微（一貫性） |
 | E | WS の `schedule` scope は車両配置も含むが domain は常に `person-assignment` 固定（L5366）。§6.4.1 の「車の配置=vehicle-assignment」と不一致だが、§16.3.2 の schedule scope 集約思想（社員/車両/現場を 1 scope に集約）では妥当 | 軽微（設計どおり） |
 
@@ -1366,10 +1366,10 @@ N-6 の静的検証は完了。§17.3 の要対応 2 件の実装判断後、`pr
 
 1. ~~§17.3-A（OB row×delete）~~ → 誤検出につき対応不要（§17.3）
 2. §17.3-B（WS schedule×delete）→ **2026-05-29 実装済み**（8 箇所）
-3. §17.4-C（LA affects に screen-layout 追加 + SL 側 leaveId フォーカス）→ ユーザー承認済み・実装中
+3. §17.4-C（LA affects に screen-layout 追加 + SL 側 empName フォーカス）→ **2026-05-29 実装済み / 2026-06-01 フルフロー実証済み**
 4. §17.3-C（WS schedule 発火漏れ: 移動 modify 2 件 + 純粋追加 add 9 件 = 11 箇所）→ **2026-05-29 実装済み**
-5. SL画面で `OmsMockStore.getLeaveApplications()` が空 → LA通知 seed が 0件（§17.8）。SL↔LA データ連携の別課題として要調査
-6. 上記反映後に Phase 2.5 検証対象として正式登録
+5. ~~SL画面で `OmsMockStore.getLeaveApplications()` が空 → LA通知 seed が 0件（§17.8）~~ → **2026-06-01 修正済み**。LA seed を `mock-assignments-data.js` の共通生成に移し、未初期化 `mock.oms.state.v1` でも `co-mock-store.js` が同 seed を返す
+6. Phase 2.5 検証対象として正式登録
 
 ### 17.8 実動検証結果（Playwright / 2026-05-29）
 
@@ -1383,7 +1383,7 @@ localhost で WS / SL を実操作（console error 0）。
 
 WS の add/delete は実 UI で実証（modify は同型実装）。SL 着地ロジックも実証。
 
-**未実証（§17.7-5 の既存課題）**: SL画面で `getLeaveApplications()` が空のため LA通知 seed が 0件で、SL で実 LA 通知カードをクリックするフルフローは再現できず。empName target / affects / SL 着地ロジックは個別検証済みのため、SL に LA 通知 seed が入りさえすれば機能する。原因は SL↔LA データ連携（通知システムとは別系統）。
+**2026-06-01 追補（§17.7-5 解消）**: 原因は `leaveApplications` 未初期化時の seed 生成が LA 画面 `seedDemoLeaves()` に閉じており、SL/WS/共通ナビだけを開いた場合に `OmsMockStore.getLeaveApplications()` が `null` を返すことだった。LA seed 生成を `mock-assignments-data.js` に移し、`co-mock-store.js` が未初期化時も共通 seed を返すよう修正。Playwright MCP で空ストア直後の SL を確認し、`getLeaveApplications()` 17件、申請・承認ベル表示、5/1 林の LA 通知カードクリックによる SL スポットライト表示（console error 0）まで実証済み。
 
 ---
 
