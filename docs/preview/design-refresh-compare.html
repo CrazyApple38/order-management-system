@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>デザイン刷新 3案比較</title>
+    <style>
+        :root {
+            --ink: #0f2430;
+            --muted: #647887;
+            --line: #d8e2e8;
+            --panel: #ffffff;
+            --canvas: #f5f8fb;
+            --teal: #006a78;
+            --teal-2: #0c8795;
+            --blue: #2563eb;
+            --pink: #d94876;
+            --green: #2f8f5b;
+            --amber: #b7791f;
+            --radius: 8px;
+            font-family: "Inter", "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: #eef4f7;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .page {
+            max-width: 1560px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+            gap: 18px;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+            letter-spacing: 0;
+        }
+        h2 {
+            margin: 0 0 10px;
+            font-size: 16px;
+        }
+        h3 {
+            margin: 0 0 8px;
+            font-size: 14px;
+        }
+        p { margin: 0 0 10px; color: var(--muted); }
+        .note,
+        .score-card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .score {
+            padding: 10px;
+            border-radius: 6px;
+            background: #f7fafc;
+            border: 1px solid #e5edf2;
+        }
+        .score strong {
+            display: block;
+            font-size: 18px;
+            line-height: 1.2;
+            color: var(--teal);
+        }
+        .shot-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 16px 0 22px;
+        }
+        .shot {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .shot img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            object-position: top left;
+            border-bottom: 1px solid var(--line);
+        }
+        .shot div { padding: 10px 12px; }
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        .concept {
+            display: grid;
+            grid-template-columns: 280px minmax(0, 1fr) 260px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .concept-head {
+            padding: 14px 16px;
+            border-right: 1px solid var(--line);
+            background: #fff;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            height: 22px;
+            padding: 0 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .badge.a { color: #00606d; background: #dff3f5; }
+        .badge.b { color: #264a7a; background: #e6efff; }
+        .badge.c { color: #314155; background: #edf2f7; }
+        .mock {
+            margin: 14px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+            min-height: 470px;
+        }
+        .mock-nav {
+            height: 38px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 10px;
+            color: #fff;
+            font-weight: 700;
+        }
+        .mock-nav span {
+            padding: 5px 9px;
+            border-radius: 5px;
+            opacity: 0.92;
+        }
+        .mock-shell {
+            display: grid;
+            grid-template-columns: 150px minmax(0, 1fr) 170px;
+            min-height: 430px;
+        }
+        .side,
+        .right {
+            padding: 10px;
+            border-right: 1px solid var(--line);
+        }
+        .right {
+            border-right: 0;
+            border-left: 1px solid var(--line);
+        }
+        .work {
+            min-width: 0;
+        }
+        .work-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 12px;
+            border-bottom: 1px solid var(--line);
+        }
+        .date-title {
+            font-size: 18px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .toolbar {
+            display: flex;
+            gap: 6px;
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--line);
+            flex-wrap: wrap;
+        }
+        .btn {
+            height: 28px;
+            padding: 0 10px;
+            border-radius: 6px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--ink);
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .btn.primary {
+            border: 0;
+            background: var(--teal-2);
+            color: #fff;
+        }
+        .table {
+            display: grid;
+            grid-template-columns: 34px 1.4fr 54px 54px 64px 1.6fr;
+        }
+        .th,
+        .td {
+            min-height: 48px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--line);
+            border-right: 1px solid var(--line);
+        }
+        .th {
+            min-height: 34px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .cat {
+            display: inline-flex;
+            padding: 2px 7px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-right: 8px;
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 26px;
+            padding: 0 8px;
+            border-radius: 6px;
+            margin-right: 4px;
+            font-weight: 700;
+        }
+        .zone {
+            width: 100%;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            border-radius: 6px;
+        }
+        .mini-title {
+            font-weight: 800;
+            margin: 2px 0 8px;
+        }
+        .mini-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid #edf2f5;
+            font-size: 12px;
+        }
+        .mini-chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+        .mini-chip {
+            border-radius: 6px;
+            padding: 4px 7px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .concept-foot {
+            padding: 16px;
+            border-left: 1px solid var(--line);
+            background: #fbfdfe;
+        }
+        .concept-foot ul {
+            padding-left: 18px;
+            margin: 8px 0 0;
+            color: var(--muted);
+        }
+        .concept-foot li { margin: 4px 0; }
+
+        /* A: Ops Clear */
+        .concept-a .mock { background: #f7fafc; }
+        .concept-a .mock-nav { background: #004b58; }
+        .concept-a .mock-nav span.active { background: rgba(255,255,255,0.16); }
+        .concept-a .work-head { background: #ffffff; }
+        .concept-a .toolbar { background: #fbfdfe; }
+        .concept-a .th { background: #eef6f8; color: #0b5360; }
+        .concept-a .td { background: #fff; border-right-color: #edf3f6; }
+        .concept-a .cat { color: #0b5964; background: #e4f4f2; }
+        .concept-a .chip { color: #21475c; background: #eef6fb; border: 1px solid #cddfea; }
+        .concept-a .chip.warn { color: #c03364; background: #fff0f5; border-color: #f5bfd1; }
+        .concept-a .zone { border: 1px dashed #d6e6ed; background: #fbfdfe; }
+        .concept-a .side,
+        .concept-a .right { background: #f8fbfd; }
+        .concept-a .mini-chip { color: #21475c; background: #edf6fb; border: 1px solid #d2e2eb; }
+
+        /* B: Calm Dashboard */
+        .concept-b .mock {
+            background: #f3f6fb;
+            border-color: #dbe6f0;
+        }
+        .concept-b .mock-nav {
+            background: #123b5d;
+            height: 44px;
+        }
+        .concept-b .mock-nav span.active { background: rgba(255,255,255,0.18); }
+        .concept-b .mock-shell {
+            grid-template-columns: 140px minmax(0, 1fr) 160px;
+            gap: 10px;
+            padding: 10px;
+        }
+        .concept-b .side,
+        .concept-b .right,
+        .concept-b .work {
+            border: 1px solid #dce7f0;
+            border-radius: 8px;
+            background: #fff;
+            overflow: hidden;
+        }
+        .concept-b .side,
+        .concept-b .right {
+            padding: 12px;
+        }
+        .concept-b .work-head {
+            background: linear-gradient(180deg, #ffffff, #f7faff);
+            padding: 14px;
+        }
+        .concept-b .toolbar {
+            background: #fff;
+            padding: 10px 14px;
+        }
+        .concept-b .btn.primary { background: var(--blue); }
+        .concept-b .table {
+            margin: 10px;
+            border: 1px solid #e0e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .concept-b .th {
+            background: #f4f8fc;
+            border-right-color: transparent;
+        }
+        .concept-b .td {
+            min-height: 56px;
+            border-right-color: transparent;
+            background: #fff;
+        }
+        .concept-b .cat { color: #22577a; background: #e9f2ff; }
+        .concept-b .chip { color: #1e3a5f; background: #eef4ff; border: 1px solid #d2def5; }
+        .concept-b .chip.warn { color: #b8325f; background: #fff1f6; border-color: #f5bfd1; }
+        .concept-b .zone { background: #f7faff; }
+        .concept-b .mini-chip { color: #1e3a5f; background: #edf4ff; }
+
+        /* C: Sharp Grid */
+        .concept-c .mock { background: #fff; }
+        .concept-c .mock-nav {
+            background: #263646;
+            height: 36px;
+        }
+        .concept-c .mock-nav span.active { background: #3c536a; }
+        .concept-c .work-head {
+            background: #ffffff;
+            border-bottom: 2px solid #2f8f9b;
+        }
+        .concept-c .toolbar { background: #f6f8fa; }
+        .concept-c .btn {
+            height: 26px;
+            border-radius: 4px;
+            background: #fff;
+        }
+        .concept-c .btn.primary { background: #2f8f9b; }
+        .concept-c .table { font-size: 12px; }
+        .concept-c .th {
+            min-height: 30px;
+            background: #eef1f4;
+            border-right-color: #d5dde3;
+        }
+        .concept-c .td {
+            min-height: 42px;
+            background: #fff;
+            border-right-color: #e4e9ed;
+            padding: 6px;
+        }
+        .concept-c .cat {
+            border-radius: 3px;
+            color: #334155;
+            background: #edf2f7;
+        }
+        .concept-c .chip {
+            min-height: 22px;
+            border-radius: 4px;
+            color: #334155;
+            background: #f3f7fa;
+            border: 1px solid #cfd8df;
+        }
+        .concept-c .chip.warn {
+            color: #d94876;
+            background: #fff;
+            border-color: #e89ab3;
+        }
+        .concept-c .zone { border-bottom: 1px dotted #c9d6df; }
+        .concept-c .side,
+        .concept-c .right { background: #fbfcfd; }
+        .concept-c .mini-chip {
+            color: #334155;
+            background: #f5f7f9;
+            border: 1px solid #d5dde3;
+            border-radius: 4px;
+        }
+
+        .criteria {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .criteria .note { padding: 14px; }
+        .criteria strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+        .delta-section {
+            margin-top: 22px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .delta-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 18px;
+            border-bottom: 1px solid var(--line);
+            background: linear-gradient(180deg, #ffffff, #f8fbfd);
+        }
+        .delta-head h2 { margin-bottom: 4px; }
+        .delta-pill {
+            display: inline-flex;
+            align-items: center;
+            height: 28px;
+            padding: 0 10px;
+            border-radius: 999px;
+            background: #e8f2ff;
+            color: #21558b;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .delta-grid {
+            display: grid;
+            grid-template-columns: 0.88fr 1.12fr;
+            gap: 0;
+        }
+        .delta-card {
+            padding: 16px;
+            border-right: 1px solid var(--line);
+        }
+        .delta-card:last-child { border-right: 0; }
+        .delta-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+        .delta-label {
+            display: inline-flex;
+            align-items: center;
+            height: 22px;
+            padding: 0 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .delta-label.before {
+            color: #8a314f;
+            background: #fff0f5;
+        }
+        .delta-label.after {
+            color: #22577a;
+            background: #e6f1ff;
+        }
+        .sl-delta {
+            position: relative;
+            height: 430px;
+            border: 1px solid #dce6ee;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f3f6fb;
+        }
+        .sl-top {
+            height: 38px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 14px;
+            color: #fff;
+            background: #123b5d;
+            font-weight: 800;
+        }
+        .sl-body {
+            display: grid;
+            grid-template-columns: 130px minmax(0, 1fr) 176px;
+            height: 392px;
+        }
+        .sl-left,
+        .sl-right-panel {
+            background: #fff;
+            border-right: 1px solid #dce6ee;
+            padding: 10px;
+        }
+        .sl-right-panel {
+            border-right: 0;
+            border-left: 1px solid #dce6ee;
+        }
+        .sl-main {
+            background: #fff;
+            min-width: 0;
+            overflow: hidden;
+        }
+        .sl-mainbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 9px;
+            border-bottom: 1px solid #dce6ee;
+        }
+        .placement-search {
+            flex: 1;
+            min-width: 150px;
+            height: 28px;
+            border: 1px solid #cfdbe6;
+            border-radius: 999px;
+            padding: 0 10px;
+            color: #5d7080;
+            background: #f7faff;
+            font-size: 12px;
+        }
+        .sl-mini-table {
+            display: grid;
+            grid-template-columns: 34px 1.3fr 54px 54px 58px 1.2fr;
+            font-size: 12px;
+        }
+        .sl-mini-table > div {
+            min-height: 42px;
+            padding: 6px;
+            border-right: 1px solid #e5edf3;
+            border-bottom: 1px solid #e5edf3;
+            display: flex;
+            align-items: center;
+        }
+        .sl-mini-table .head {
+            min-height: 30px;
+            background: #f1f6fa;
+            color: #1b5667;
+            font-weight: 800;
+        }
+        .sl-row-hit > div,
+        .sl-mini-table .hit {
+            background: #fff8e7;
+        }
+        .sl-chip {
+            display: inline-flex;
+            align-items: center;
+            min-height: 23px;
+            padding: 0 7px;
+            border-radius: 6px;
+            background: #edf5ff;
+            border: 1px solid #cfdded;
+            font-weight: 800;
+            margin-right: 4px;
+        }
+        .sl-chip.warn {
+            color: #c03364;
+            background: #fff0f5;
+            border-color: #f3bed0;
+        }
+        .modal-scrim {
+            position: absolute;
+            inset: 38px 0 0;
+            background: rgba(15, 28, 36, 0.58);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .legacy-modal {
+            width: 340px;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+            padding: 18px;
+        }
+        .field {
+            margin-top: 10px;
+        }
+        .field span {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .field div {
+            min-height: 30px;
+            border: 1px solid #d6e1ea;
+            border-radius: 6px;
+            padding: 6px 8px;
+            background: #f8fbfd;
+        }
+        .mode-rail {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .mode-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #d5e0e8;
+            background: #fff;
+            font-weight: 900;
+            color: #456474;
+        }
+        .mode-btn.active {
+            color: #fff;
+            background: var(--blue);
+            border-color: var(--blue);
+        }
+        .prop-panel {
+            border: 1px solid #dce6ee;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fbfdff;
+        }
+        .prop-title {
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+        .right-search {
+            height: 30px;
+            border: 1px solid #d5e0e8;
+            border-radius: 7px;
+            padding: 0 8px;
+            color: #6a7d8a;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            background: #fff;
+        }
+        .diff-list {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 16px;
+            border-top: 1px solid var(--line);
+            background: #fbfdfe;
+        }
+        .diff-item {
+            border: 1px solid #dce6ee;
+            border-radius: 8px;
+            padding: 12px;
+            background: #fff;
+        }
+        .diff-item strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+        .delta-section {
+            border: 0;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #f8fbff 0%, #edf4fb 100%);
+            box-shadow: 0 18px 46px rgba(33, 85, 139, 0.12);
+        }
+        .delta-head {
+            padding: 22px 24px;
+            background:
+                radial-gradient(circle at 94% 12%, rgba(91, 141, 239, 0.24), transparent 28%),
+                linear-gradient(135deg, #ffffff 0%, #eef5ff 100%);
+        }
+        .delta-card {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.72);
+        }
+        .delta-card:last-child {
+            background: linear-gradient(180deg, rgba(246, 250, 255, 0.96), rgba(238, 246, 255, 0.9));
+        }
+        .delta-card:last-child .sl-delta {
+            height: 456px;
+            padding: 12px;
+            border: 0;
+            border-radius: 16px;
+            background:
+                radial-gradient(circle at 18% 12%, rgba(88, 166, 255, 0.22), transparent 28%),
+                linear-gradient(135deg, #eaf2ff 0%, #f8fbff 56%, #eef7ff 100%);
+            box-shadow: inset 0 0 0 1px rgba(117, 146, 176, 0.16);
+        }
+        .delta-card:last-child .sl-top {
+            height: 46px;
+            margin-bottom: 12px;
+            border-radius: 14px;
+            padding: 0 16px;
+            background: linear-gradient(135deg, #163c67 0%, #2563eb 100%);
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+        }
+        .delta-card:last-child .sl-body {
+            height: 374px;
+            grid-template-columns: 98px minmax(0, 1fr) 166px;
+            gap: 10px;
+        }
+        .delta-card:last-child .sl-left,
+        .delta-card:last-child .sl-main,
+        .delta-card:last-child .sl-right-panel {
+            border: 1px solid rgba(202, 216, 229, 0.82);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow: 0 14px 32px rgba(31, 68, 103, 0.08);
+            overflow: hidden;
+        }
+        .delta-card:last-child .sl-left,
+        .delta-card:last-child .sl-right-panel {
+            padding: 12px;
+        }
+        .delta-card:last-child .sl-mainbar {
+            padding: 12px;
+            border-bottom: 1px solid #e5eef6;
+            background: rgba(255, 255, 255, 0.7);
+        }
+        .delta-card:last-child .placement-search {
+            height: 34px;
+            border: 0;
+            background: #fff;
+            box-shadow: inset 0 0 0 1px #d6e2ee, 0 4px 12px rgba(31, 68, 103, 0.06);
+        }
+        .delta-card:last-child .btn.primary {
+            height: 34px;
+            border-radius: 10px;
+            background: #2563eb;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
+        }
+        .delta-card:last-child .sl-mini-table {
+            margin: 10px;
+            grid-template-columns: 28px minmax(96px, 1.45fr) 38px 48px 38px minmax(72px, 1fr);
+            border: 1px solid #e3edf5;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            font-size: 11px;
+        }
+        .delta-card:last-child .sl-mini-table > div {
+            min-height: 43px;
+            border-right-color: #eef3f8;
+            border-bottom-color: #eef3f8;
+        }
+        .delta-card:last-child .sl-mini-table .head {
+            background: #f6f9fd;
+            color: #23526c;
+        }
+        .delta-card:last-child .sl-mini-table .hit {
+            background: linear-gradient(180deg, #fff8e6, #fffdf7);
+        }
+        .delta-card:last-child .mode-rail {
+            padding: 4px;
+            border-radius: 14px;
+            background: #edf4ff;
+        }
+        .delta-card:last-child .mode-btn {
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+        }
+        .delta-card:last-child .mode-btn.active {
+            background: #2563eb;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
+        }
+        .delta-card:last-child .prop-panel {
+            border: 0;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: inset 0 0 0 1px #e0e9f2;
+        }
+        .delta-card:last-child .field div {
+            border: 0;
+            background: #f6f9fd;
+            box-shadow: inset 0 0 0 1px #e2ebf3;
+        }
+        .theme-lab {
+            margin-top: 18px;
+            border-top: 1px solid rgba(216, 226, 232, 0.9);
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.7);
+        }
+        .theme-lab-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .theme-card {
+            min-height: 132px;
+            border-radius: 14px;
+            padding: 14px;
+            color: #173042;
+        }
+        .theme-card strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .theme-card span {
+            display: block;
+            color: #65798a;
+            font-size: 12px;
+        }
+        .theme-card.material {
+            background: #fff;
+            border: 1px solid #dfe7ef;
+            box-shadow: 0 12px 28px rgba(15, 35, 55, 0.12);
+        }
+        .theme-card.neumo {
+            background: #e9f0f6;
+            box-shadow: 10px 10px 22px #cbd4dc, -10px -10px 22px #ffffff;
+        }
+        .theme-card.glass {
+            color: #fff;
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.34), rgba(255,255,255,0.12)),
+                linear-gradient(135deg, #3b82f6, #06b6d4);
+            border: 1px solid rgba(255,255,255,0.55);
+            box-shadow: 0 18px 36px rgba(14, 116, 144, 0.22);
+        }
+        .theme-card.glass span { color: rgba(255,255,255,0.82); }
+        .theme-card.dense {
+            background: #f8fafc;
+            border: 1px solid #cfd8e3;
+            box-shadow: inset 0 0 0 1px #ffffff;
+        }
+        .desktop-lab {
+            margin-top: 14px;
+            padding: 16px;
+            border-radius: 14px;
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.84), rgba(236,246,255,0.78)),
+                #eef5fb;
+            border: 1px solid #c9d9e8;
+            box-shadow: 0 18px 42px rgba(31, 73, 114, 0.15);
+        }
+        .desktop-lab-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+        .desktop-lab-head p { max-width: 920px; }
+        .desktop-shell {
+            overflow: hidden;
+            border-radius: 10px;
+            background: #dce8f2;
+            border: 1px solid #b8c9da;
+            box-shadow: 0 12px 28px rgba(32, 70, 103, 0.18);
+        }
+        .desktop-menu {
+            height: 30px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 0 12px;
+            background: #1d3f63;
+            color: #eef7ff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .desktop-toolbar {
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 7px 10px;
+            background: linear-gradient(180deg, #f8fbff, #e5edf5);
+            border-bottom: 1px solid #b9c7d6;
+        }
+        .desktop-toolgroup {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+        }
+        .desktop-tool {
+            height: 26px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0 8px;
+            border-radius: 6px;
+            border: 1px solid #c4d0db;
+            background: #fff;
+            color: #193753;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .desktop-tool.primary {
+            border-color: #2563eb;
+            background: #2563eb;
+            color: #fff;
+        }
+        .desktop-workspace {
+            display: grid;
+            grid-template-columns: 50px minmax(0, 1fr) 50px 268px;
+            min-height: 500px;
+            background: #cfdde9;
+        }
+        .icon-rail {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 6px;
+            background: #243b53;
+            border-right: 1px solid rgba(255,255,255,0.18);
+        }
+        .icon-rail.right-rail {
+            background: #e6eef6;
+            border-right: 1px solid #c2ceda;
+            border-left: 1px solid #c2ceda;
+        }
+        .icon-tab {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.08);
+            cursor: pointer;
+            position: relative;
+        }
+        .icon-tab img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            opacity: 0.9;
+        }
+        .icon-tab.active {
+            background: #ffffff;
+            border-color: #ffffff;
+            box-shadow: 0 8px 18px rgba(3, 18, 33, 0.26);
+        }
+        .icon-tab.active img {
+            filter: none;
+            opacity: 1;
+        }
+        .right-rail .icon-tab {
+            background: #f7fbff;
+            border-color: #cbd9e5;
+        }
+        .right-rail .icon-tab img { filter: none; }
+        .right-rail .icon-tab.active {
+            outline: 2px solid #2563eb;
+            outline-offset: -2px;
+        }
+        .desktop-main {
+            min-width: 0;
+            padding: 12px;
+            background: linear-gradient(180deg, #f8fbff, #edf5fb);
+        }
+        .desktop-main-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid #c8d6e3;
+            box-shadow: 0 12px 26px rgba(31, 74, 112, 0.12);
+        }
+        .desktop-main-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, #2563eb, #0891b2);
+            color: #fff;
+        }
+        .desktop-main-head strong {
+            display: block;
+            font-size: 15px;
+            line-height: 1.2;
+        }
+        .desktop-main-head span {
+            display: block;
+            color: rgba(255,255,255,0.78);
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .placement-search {
+            min-width: 260px;
+            height: 28px;
+            padding: 0 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.17);
+            border: 1px solid rgba(255,255,255,0.34);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .dense-table-wrap {
+            overflow: auto;
+            padding: 10px;
+            background: #f6f9fc;
+            flex: 1;
+        }
+        .dense-sl-table {
+            min-width: 900px;
+            display: grid;
+            grid-template-columns: 46px 78px minmax(170px, 1.35fr) 88px 42px minmax(130px, 1fr) 92px 96px 120px;
+            border: 1px solid #cfdae5;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+            font-size: 11.5px;
+            line-height: 1.25;
+        }
+        .dense-sl-table .cell {
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 7px;
+            border-right: 1px solid #dbe4ec;
+            border-bottom: 1px solid #dbe4ec;
+            min-width: 0;
+        }
+        .dense-sl-table .head {
+            min-height: 30px;
+            color: #31506b;
+            background: #eaf1f8;
+            font-weight: 800;
+        }
+        .dense-sl-table .cell:nth-child(9n) { border-right: 0; }
+        .dense-sl-table .row-focus {
+            background: #fff7df;
+            font-weight: 800;
+        }
+        .dense-sl-table .muted {
+            color: #6c7f8f;
+            font-size: 10.5px;
+        }
+        .desktop-prop {
+            padding: 10px;
+            background: #eef5fb;
+            border-left: 1px solid #c2ceda;
+        }
+        .desktop-prop-card {
+            display: grid;
+            gap: 8px;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.86);
+            border: 1px solid #cbd9e5;
+            box-shadow: 0 10px 24px rgba(35, 77, 112, 0.13);
+        }
+        .desktop-prop-card h3 {
+            margin: 0;
+            font-size: 13px;
+        }
+        .prop-mini-search {
+            height: 28px;
+            display: flex;
+            align-items: center;
+            padding: 0 9px;
+            border-radius: 7px;
+            border: 1px solid #c8d6e3;
+            background: #f8fbff;
+            color: #5f7385;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .prop-record {
+            padding: 8px;
+            border-radius: 8px;
+            background: #f5f9fc;
+            border: 1px solid #d7e2ec;
+            font-size: 11.5px;
+        }
+        .prop-record strong {
+            display: block;
+            color: #1d3f63;
+            margin-bottom: 3px;
+        }
+        .screen-gallery {
+            margin-top: 14px;
+            padding: 16px;
+            border-radius: 14px;
+            background: #f7fbff;
+            border: 1px solid #c9d9e8;
+        }
+        .screen-gallery-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+        .screen-gallery-head p { max-width: 900px; }
+        .screen-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+        .screen-example {
+            overflow: hidden;
+            border-radius: 10px;
+            background: #dfeaf4;
+            border: 1px solid #c5d4e3;
+            box-shadow: 0 10px 26px rgba(31, 73, 114, 0.10);
+        }
+        .screen-example.wide { grid-column: 1 / -1; }
+        .mini-menu {
+            height: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 10px;
+            color: #eef7ff;
+            background: #1d3f63;
+            font-size: 10.5px;
+            font-weight: 800;
+        }
+        .mini-toolbar {
+            min-height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 6px 8px;
+            background: linear-gradient(180deg, #f8fbff, #e7eff7);
+            border-bottom: 1px solid #becddd;
+        }
+        .mini-tools {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .mini-tool {
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            padding: 0 7px;
+            border-radius: 6px;
+            border: 1px solid #c6d4e0;
+            background: #fff;
+            color: #254760;
+            font-size: 10.5px;
+            font-weight: 800;
+        }
+        .mini-tool.primary {
+            border-color: #2563eb;
+            background: #2563eb;
+            color: #fff;
+        }
+        .mini-workspace {
+            display: grid;
+            grid-template-columns: 42px minmax(0, 1fr) 190px;
+            min-height: 292px;
+            background: #edf5fb;
+        }
+        .mini-rail {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: center;
+            padding: 8px 5px;
+            background: #243b53;
+        }
+        .mini-rail span {
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 7px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .mini-rail span.active {
+            background: #fff;
+            border-color: #fff;
+        }
+        .mini-rail img {
+            width: 17px;
+            height: 17px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+        }
+        .mini-rail .active img { filter: none; }
+        .mini-main {
+            min-width: 0;
+            padding: 10px;
+        }
+        .mini-main-card {
+            height: 100%;
+            overflow: hidden;
+            border-radius: 9px;
+            background: #fff;
+            border: 1px solid #cbd9e5;
+            box-shadow: 0 8px 18px rgba(31, 74, 112, 0.10);
+        }
+        .mini-main-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 10px;
+            color: #fff;
+            background: linear-gradient(135deg, #2563eb, #0891b2);
+            font-size: 12px;
+            font-weight: 900;
+        }
+        .mini-main-title span {
+            font-size: 10px;
+            color: rgba(255,255,255,0.82);
+        }
+        .mini-prop {
+            padding: 10px;
+            border-left: 1px solid #c4d2df;
+            background: #eef5fb;
+        }
+        .mini-prop-card {
+            display: grid;
+            gap: 7px;
+            padding: 10px;
+            border-radius: 9px;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid #cbd9e5;
+            font-size: 11px;
+        }
+        .mini-prop-card strong {
+            display: block;
+            color: #1d3f63;
+            margin-bottom: 2px;
+        }
+        .mini-field {
+            padding: 7px;
+            border-radius: 7px;
+            background: #f7fbff;
+            border: 1px solid #d8e3ec;
+        }
+        .mini-table {
+            display: grid;
+            grid-template-columns: 52px 1.2fr 70px 80px 82px;
+            margin: 9px;
+            border: 1px solid #d4e0ea;
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 10.5px;
+        }
+        .mini-table.six { grid-template-columns: 58px 1.2fr 70px 66px 76px 76px; }
+        .mini-table .cell {
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            padding: 5px 6px;
+            border-right: 1px solid #dce6ef;
+            border-bottom: 1px solid #dce6ef;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .mini-table .head {
+            min-height: 26px;
+            color: #31506b;
+            background: #eaf1f8;
+            font-weight: 900;
+        }
+        .mini-table .focus {
+            background: #fff7df;
+            font-weight: 800;
+        }
+        .quick-lanes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 9px;
+        }
+        .quick-card,
+        .metric-card,
+        .leave-cell {
+            border-radius: 8px;
+            border: 1px solid #d5e1eb;
+            background: #f7fbff;
+            padding: 8px;
+            font-size: 11px;
+        }
+        .quick-card strong,
+        .metric-card strong,
+        .leave-cell strong {
+            display: block;
+            color: #1d3f63;
+            margin-bottom: 4px;
+        }
+        .ws-board {
+            display: grid;
+            grid-template-columns: 86px repeat(5, 1fr);
+            margin: 9px;
+            border: 1px solid #d4e0ea;
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 10px;
+        }
+        .ws-board div {
+            min-height: 34px;
+            padding: 5px;
+            border-right: 1px solid #dce6ef;
+            border-bottom: 1px solid #dce6ef;
+            background: #fff;
+        }
+        .ws-board .head {
+            background: #eaf1f8;
+            font-weight: 900;
+            color: #31506b;
+        }
+        .ws-board .busy {
+            background: #e6f7fb;
+            font-weight: 800;
+        }
+        .account-flow {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 9px;
+        }
+        .metric-card .num {
+            font-size: 18px;
+            font-weight: 900;
+            color: #2563eb;
+        }
+        .leave-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            padding: 9px;
+        }
+        .leave-cell {
+            min-height: 48px;
+            padding: 6px;
+        }
+        .leave-cell.approved { background: #e9f7ef; }
+        .leave-cell.pending { background: #fff7df; }
+        .leave-cell.alert { background: #ffeef3; }
+        @media (max-width: 1100px) {
+            .hero,
+            .shot-row,
+            .criteria { grid-template-columns: 1fr; }
+            .delta-grid,
+            .diff-list,
+            .theme-grid,
+            .desktop-workspace,
+            .screen-grid,
+            .mini-workspace { grid-template-columns: 1fr; }
+            .screen-example.wide { grid-column: auto; }
+            .delta-card { border-right: 0; border-bottom: 1px solid var(--line); }
+            .concept { grid-template-columns: 1fr; }
+            .concept-head,
+            .concept-foot {
+                border-left: 0;
+                border-right: 0;
+                border-bottom: 1px solid var(--line);
+            }
+            .icon-rail,
+            .icon-rail.right-rail {
+                flex-direction: row;
+                justify-content: flex-start;
+                border-right: 0;
+                overflow-x: auto;
+            }
+            .desktop-prop { border-left: 0; }
+            .mini-prop { border-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <section class="hero">
+            <div class="note">
+                <h1>デザイン刷新 3案比較</h1>
+                <p>現行 UI の「古臭い」「モッサリ」の原因を、罫線密度・濃色バー・色の意味・部品の主従に分解し、代表画面の方向性を 3 案で比較します。</p>
+                <p>採用候補は <strong>案B改: Calm Operations</strong> です。現場の高密度操作を残しながら、デスクトップアプリのような作業面とプロパティ編集へ寄せます。</p>
+            </div>
+            <div class="score-card">
+                <h2>現行診断サマリー</h2>
+                <p>1440x920 表示での簡易集計。数値は「どこが重く感じるか」を見る補助指標です。</p>
+                <div class="score-grid">
+                    <div class="score"><strong>790</strong>受注簿の罫線あり要素</div>
+                    <div class="score"><strong>433</strong>週間予定表の12px以下テキスト</div>
+                    <div class="score"><strong>4</strong>ほぼ同じ強さの主要領域</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="shot-row">
+            <article class="shot">
+                <img src="../../screenshots/design-audit-screen-layout.png" alt="現行 業務管理計画書">
+                <div><strong>業務管理計画書</strong><br>左右パネル・表・チップが同じ強さで競合。</div>
+            </article>
+            <article class="shot">
+                <img src="../../screenshots/design-audit-order-book.png" alt="現行 受注簿">
+                <div><strong>受注簿</strong><br>罫線と淡色セルが多く、Excel感が前面に出る。</div>
+            </article>
+            <article class="shot">
+                <img src="../../screenshots/design-audit-weekly-schedule.png" alt="現行 週間予定表">
+                <div><strong>週間予定表</strong><br>行グループ・セル・右パネルの密度が高い。</div>
+            </article>
+        </section>
+
+        <section class="compare-grid">
+            <article class="concept concept-a">
+                <div class="concept-head">
+                    <span class="badge a">案A / 推奨</span>
+                    <h2>Ops Clear</h2>
+                    <p>業務密度を残し、罫線・色面・ボタン主張を整理する安全な現代化。</p>
+                </div>
+                <div class="mock">
+                    <div class="mock-nav"><span>受注管理</span><span class="active">業務管理計画書</span><span>受注簿</span><span>スケジュール</span></div>
+                    <div class="mock-shell">
+                        <aside class="side">
+                            <div class="mini-title">配置状況</div>
+                            <div class="mini-item"><span>高速巡回</span><strong>2/3</strong></div>
+                            <div class="mini-item"><span>安全確認</span><strong>2/2</strong></div>
+                            <div class="mini-item"><span>交通誘導</span><strong style="color:var(--pink)">0/4</strong></div>
+                        </aside>
+                        <section class="work">
+                            <div class="work-head"><div class="date-title">2026年5月1日 金曜日</div><button class="btn">日付変更</button></div>
+                            <div class="toolbar"><button class="btn primary">新規追加</button><button class="btn">ソート</button><button class="btn">印刷</button><button class="btn">表示設定</button></div>
+                            <div class="table">
+                                <div class="th">No.</div><div class="th">会社 / 現場名</div><div class="th">集合</div><div class="th">時間</div><div class="th">人数</div><div class="th">配置</div>
+                                <div class="td">1</div><div class="td"><span class="cat">高速</span>東名SA巡回 / 本体施工</div><div class="td"></div><div class="td">08:00<br>17:00</div><div class="td">2/3</div><div class="td"><div class="zone"><span class="chip">橋本</span><span class="chip">渡辺</span></div></div>
+                                <div class="td">2</div><div class="td"><span class="cat">交通</span>国道1号線 / 安全確認</div><div class="td"></div><div class="td">20:00<br>05:00</div><div class="td"><span style="color:var(--pink)">0/4</span></div><div class="td"><div class="zone"></div></div>
+                                <div class="td">3</div><div class="td"><span class="cat">施設</span>商業施設A / 巡回警備</div><div class="td"></div><div class="td">07:00<br>16:00</div><div class="td">3/5</div><div class="td"><div class="zone"><span class="chip warn">林</span><span class="chip">山田</span></div></div>
+                            </div>
+                        </section>
+                        <aside class="right">
+                            <div class="mini-title">社員リスト</div>
+                            <div class="mini-chip-row"><span class="mini-chip">田中</span><span class="mini-chip">佐藤</span><span class="mini-chip">鈴木</span><span class="mini-chip">林</span><span class="mini-chip">清水</span></div>
+                            <div class="mini-title">応援予約</div>
+                            <div class="mini-item"><span>A社</span><strong>3名</strong></div>
+                        </aside>
+                    </div>
+                </div>
+                <div class="concept-foot">
+                    <h3>効くポイント</h3>
+                    <ul>
+                        <li>濃色バーを上部1段に抑える</li>
+                        <li>主ボタンだけ塗り、他は補助化</li>
+                        <li>ドロップ枠を弱め、配置済みチップを主役にする</li>
+                    </ul>
+                </div>
+            </article>
+
+            <article class="concept concept-b">
+                <div class="concept-head">
+                    <span class="badge b">案B</span>
+                    <h2>Calm Dashboard</h2>
+                    <p>余白とカード感を増やし、見た目の印象を大きく変える案。</p>
+                </div>
+                <div class="mock">
+                    <div class="mock-nav"><span>受注管理</span><span class="active">業務管理計画書</span><span>受注簿</span><span>スケジュール</span></div>
+                    <div class="mock-shell">
+                        <aside class="side">
+                            <div class="mini-title">配置状況</div>
+                            <div class="mini-item"><span>高速巡回</span><strong>2/3</strong></div>
+                            <div class="mini-item"><span>安全確認</span><strong>2/2</strong></div>
+                            <div class="mini-item"><span>交通誘導</span><strong style="color:var(--pink)">0/4</strong></div>
+                        </aside>
+                        <section class="work">
+                            <div class="work-head"><div class="date-title">2026年5月1日 金曜日</div><button class="btn">日付変更</button></div>
+                            <div class="toolbar"><button class="btn primary">新規追加</button><button class="btn">ソート</button><button class="btn">印刷</button><button class="btn">表示設定</button></div>
+                            <div class="table">
+                                <div class="th">No.</div><div class="th">会社 / 現場名</div><div class="th">集合</div><div class="th">時間</div><div class="th">人数</div><div class="th">配置</div>
+                                <div class="td">1</div><div class="td"><span class="cat">高速</span>東名SA巡回 / 本体施工</div><div class="td"></div><div class="td">08:00<br>17:00</div><div class="td">2/3</div><div class="td"><div class="zone"><span class="chip">橋本</span><span class="chip">渡辺</span></div></div>
+                                <div class="td">2</div><div class="td"><span class="cat">交通</span>国道1号線 / 安全確認</div><div class="td"></div><div class="td">20:00<br>05:00</div><div class="td"><span style="color:var(--pink)">0/4</span></div><div class="td"><div class="zone"></div></div>
+                                <div class="td">3</div><div class="td"><span class="cat">施設</span>商業施設A / 巡回警備</div><div class="td"></div><div class="td">07:00<br>16:00</div><div class="td">3/5</div><div class="td"><div class="zone"><span class="chip warn">林</span><span class="chip">山田</span></div></div>
+                            </div>
+                        </section>
+                        <aside class="right">
+                            <div class="mini-title">社員リスト</div>
+                            <div class="mini-chip-row"><span class="mini-chip">田中</span><span class="mini-chip">佐藤</span><span class="mini-chip">鈴木</span><span class="mini-chip">林</span><span class="mini-chip">清水</span></div>
+                            <div class="mini-title">応援予約</div>
+                            <div class="mini-item"><span>A社</span><strong>3名</strong></div>
+                        </aside>
+                    </div>
+                </div>
+                <div class="concept-foot">
+                    <h3>効くポイント</h3>
+                    <ul>
+                        <li>見た目の刷新感が最も強い</li>
+                        <li>管理者・社外説明で印象が良い</li>
+                        <li>一方で表示密度は少し下がる</li>
+                    </ul>
+                </div>
+            </article>
+
+            <article class="concept concept-c">
+                <div class="concept-head">
+                    <span class="badge c">案C</span>
+                    <h2>Sharp Grid</h2>
+                    <p>Excel 的な一覧性を残し、線を細く数字を読みやすくする案。</p>
+                </div>
+                <div class="mock">
+                    <div class="mock-nav"><span>受注管理</span><span class="active">業務管理計画書</span><span>受注簿</span><span>スケジュール</span></div>
+                    <div class="mock-shell">
+                        <aside class="side">
+                            <div class="mini-title">配置状況</div>
+                            <div class="mini-item"><span>高速巡回</span><strong>2/3</strong></div>
+                            <div class="mini-item"><span>安全確認</span><strong>2/2</strong></div>
+                            <div class="mini-item"><span>交通誘導</span><strong style="color:var(--pink)">0/4</strong></div>
+                        </aside>
+                        <section class="work">
+                            <div class="work-head"><div class="date-title">2026年5月1日 金曜日</div><button class="btn">日付変更</button></div>
+                            <div class="toolbar"><button class="btn primary">新規追加</button><button class="btn">ソート</button><button class="btn">印刷</button><button class="btn">表示設定</button></div>
+                            <div class="table">
+                                <div class="th">No.</div><div class="th">会社 / 現場名</div><div class="th">集合</div><div class="th">時間</div><div class="th">人数</div><div class="th">配置</div>
+                                <div class="td">1</div><div class="td"><span class="cat">高速</span>東名SA巡回 / 本体施工</div><div class="td"></div><div class="td">08:00<br>17:00</div><div class="td">2/3</div><div class="td"><div class="zone"><span class="chip">橋本</span><span class="chip">渡辺</span></div></div>
+                                <div class="td">2</div><div class="td"><span class="cat">交通</span>国道1号線 / 安全確認</div><div class="td"></div><div class="td">20:00<br>05:00</div><div class="td"><span style="color:var(--pink)">0/4</span></div><div class="td"><div class="zone"></div></div>
+                                <div class="td">3</div><div class="td"><span class="cat">施設</span>商業施設A / 巡回警備</div><div class="td"></div><div class="td">07:00<br>16:00</div><div class="td">3/5</div><div class="td"><div class="zone"><span class="chip warn">林</span><span class="chip">山田</span></div></div>
+                            </div>
+                        </section>
+                        <aside class="right">
+                            <div class="mini-title">社員リスト</div>
+                            <div class="mini-chip-row"><span class="mini-chip">田中</span><span class="mini-chip">佐藤</span><span class="mini-chip">鈴木</span><span class="mini-chip">林</span><span class="mini-chip">清水</span></div>
+                            <div class="mini-title">応援予約</div>
+                            <div class="mini-item"><span>A社</span><strong>3名</strong></div>
+                        </aside>
+                    </div>
+                </div>
+                <div class="concept-foot">
+                    <h3>効くポイント</h3>
+                    <ul>
+                        <li>一覧性と印刷表感を残しやすい</li>
+                        <li>導入時の違和感が少ない</li>
+                        <li>刷新感はA/Bより弱め</li>
+                    </ul>
+                </div>
+            </article>
+        </section>
+
+        <section class="criteria">
+            <div class="note"><strong>現場操作優先</strong>案AまたはC。密度を維持しやすい。</div>
+            <div class="note"><strong>見栄え優先</strong>案B。刷新感は強いが調整範囲も広い。</div>
+            <div class="note"><strong>段階導入優先</strong>案A。共通部品から安全に適用しやすい。</div>
+            <div class="note"><strong>表の互換優先</strong>案C。受注簿への展開がしやすい。</div>
+        </section>
+
+        <section class="delta-section">
+            <div class="delta-head">
+                <div>
+                    <h2>案B改: Calm Operations 差分の見える化</h2>
+                    <p>案Bの見た目を採用しつつ、SLの中央一覧性を維持します。黒オーバーレイ編集を右プロパティ編集へ移し、右パネルはリスト/編集をアイコンで切り替える想定です。</p>
+                </div>
+                <span class="delta-pill">採用方針</span>
+            </div>
+            <div class="delta-grid">
+                <article class="delta-card">
+                    <h3><span class="delta-label before">Before</span> 中央モーダル編集</h3>
+                    <p>セルクリックで黒オーバーレイが開き、中央表・右社員リストの文脈が一時的に隠れる。</p>
+                    <div class="sl-delta">
+                        <div class="sl-top"><span>受注管理</span><span>業務管理計画書</span><span>受注簿</span></div>
+                        <div class="sl-body">
+                            <aside class="sl-left">
+                                <div class="mini-title">配置状況</div>
+                                <div class="mini-item"><span>高速巡回</span><strong>2/3</strong></div>
+                                <div class="mini-item"><span>安全確認</span><strong>2/2</strong></div>
+                                <div class="mini-item"><span>交通誘導</span><strong style="color:var(--pink)">0/4</strong></div>
+                            </aside>
+                            <section class="sl-main">
+                                <div class="sl-mainbar">
+                                    <strong>2026年5月1日 金曜日</strong>
+                                    <button class="btn primary">新規追加</button>
+                                </div>
+                                <div class="sl-mini-table">
+                                    <div class="head">No.</div><div class="head">会社/現場名</div><div class="head">集合</div><div class="head">時間</div><div class="head">人数</div><div class="head">配置</div>
+                                    <div>1</div><div>東名SA巡回 / 本体施工</div><div></div><div>08:00<br>17:00</div><div>2/3</div><div><span class="sl-chip">橋本</span><span class="sl-chip">渡辺</span></div>
+                                    <div>2</div><div>国道1号線 / 安全確認</div><div></div><div>20:00<br>05:00</div><div style="color:var(--pink)">0/4</div><div></div>
+                                    <div>3</div><div>商業施設A / 巡回警備</div><div></div><div>07:00<br>16:00</div><div>3/5</div><div><span class="sl-chip warn">林</span><span class="sl-chip">山田</span></div>
+                                </div>
+                            </section>
+                            <aside class="sl-right-panel">
+                                <div class="mini-title">社員リスト</div>
+                                <div class="right-search">社員検索...</div>
+                                <span class="sl-chip">田中</span><span class="sl-chip">佐藤</span><span class="sl-chip">鈴木</span>
+                            </aside>
+                        </div>
+                        <div class="modal-scrim">
+                            <div class="legacy-modal">
+                                <div class="prop-title">現場情報を編集</div>
+                                <div class="field"><span>集合時間</span><div>08:00</div></div>
+                                <div class="field"><span>勤務時間</span><div>08:00 - 17:00</div></div>
+                                <div class="field"><span>必要人数</span><div>3名</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="delta-card">
+                    <h3><span class="delta-label after">After</span> 右プロパティ編集</h3>
+                    <p>中央表は表示したまま、右パネルだけが「選択セルのプロパティ」に切り替わる。社員検索と配置検索は用途別に分ける。</p>
+                    <div class="sl-delta">
+                        <div class="sl-top"><span>受注管理</span><span>業務管理計画書</span><span>受注簿</span></div>
+                        <div class="sl-body">
+                            <aside class="sl-left">
+                                <div class="mini-title">配置状況</div>
+                                <div class="mini-item"><span>高速巡回</span><strong>2/3</strong></div>
+                                <div class="mini-item"><span>安全確認</span><strong>2/2</strong></div>
+                                <div class="mini-item"><span>交通誘導</span><strong style="color:var(--pink)">0/4</strong></div>
+                            </aside>
+                            <section class="sl-main">
+                                <div class="sl-mainbar">
+                                    <input class="placement-search" value="林 を配置検索: 商業施設A 7:00-16:00" aria-label="配置検索">
+                                    <button class="btn primary">新規追加</button>
+                                </div>
+                                <div class="sl-mini-table">
+                                    <div class="head">No.</div><div class="head">会社/現場名</div><div class="head">集合</div><div class="head">時間</div><div class="head">人数</div><div class="head">配置</div>
+                                    <div>1</div><div>東名SA巡回 / 本体施工</div><div></div><div>08:00<br>17:00</div><div>2/3</div><div><span class="sl-chip">橋本</span><span class="sl-chip">渡辺</span></div>
+                                    <div>2</div><div>国道1号線 / 安全確認</div><div></div><div>20:00<br>05:00</div><div style="color:var(--pink)">0/4</div><div></div>
+                                    <div class="hit">3</div><div class="hit">商業施設A / 巡回警備</div><div class="hit"></div><div class="hit">07:00<br>16:00</div><div class="hit">3/5</div><div class="hit"><span class="sl-chip warn">林</span><span class="sl-chip">山田</span></div>
+                                </div>
+                            </section>
+                            <aside class="sl-right-panel">
+                                <div class="mode-rail" aria-label="右パネル切替">
+                                    <span class="mode-btn">人</span>
+                                    <span class="mode-btn">車</span>
+                                    <span class="mode-btn">応</span>
+                                    <span class="mode-btn">予</span>
+                                    <span class="mode-btn active">編</span>
+                                </div>
+                                <div class="prop-panel">
+                                    <div class="prop-title">選択セルのプロパティ</div>
+                                    <div class="field"><span>現場</span><div>商業施設A / 巡回警備</div></div>
+                                    <div class="field"><span>時間</span><div>07:00 - 16:00</div></div>
+                                    <div class="field"><span>配置</span><div>林 / 山田</div></div>
+                                    <div class="field"><span>メモ</span><div>休暇注意あり</div></div>
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            <div class="diff-list">
+                <div class="diff-item"><strong>1. 一覧性維持</strong>中央表の表示項目は削らず、線と色面だけ整理する。</div>
+                <div class="diff-item"><strong>2. 右プロパティ編集</strong>セル編集時も表の文脈を隠さない。</div>
+                <div class="diff-item"><strong>3. アイコン切替</strong>社員/車両/応援/予約/編集を右パネル内で即切替。</div>
+                <div class="diff-item"><strong>4. 二層検索</strong>右は候補検索、中央は配置済み所在検索。</div>
+            </div>
+            <div class="desktop-lab">
+                <div class="desktop-lab-head">
+                    <div>
+                        <h2>B案v2: Photoshop型デスクトップワークスペース</h2>
+                        <p>上側はメニュー/ツールバーを横並びに固定し、それより下は縦アイコンで作業面と右パネルを切り替える構成です。中央のSLは項目を省略せず、文字サイズと列幅を詰めた場合の見え方を確認できるようにしています。</p>
+                    </div>
+                    <span class="delta-pill">Icon rail + Dense SL</span>
+                </div>
+                <div class="desktop-shell">
+                    <div class="desktop-menu">
+                        <span>ファイル</span>
+                        <span>編集</span>
+                        <span>表示</span>
+                        <span>配置</span>
+                        <span>通知</span>
+                        <span>ヘルプ</span>
+                    </div>
+                    <div class="desktop-toolbar">
+                        <div class="desktop-toolgroup">
+                            <span class="desktop-tool primary">保存</span>
+                            <span class="desktop-tool">日付 2026/05/01</span>
+                            <span class="desktop-tool">社員配置</span>
+                            <span class="desktop-tool">自動整列</span>
+                            <span class="desktop-tool">休暇反映</span>
+                        </div>
+                        <div class="desktop-toolgroup">
+                            <span class="desktop-tool">100%</span>
+                            <span class="desktop-tool">高密度</span>
+                        </div>
+                    </div>
+                    <div class="desktop-workspace">
+                        <nav class="icon-rail" aria-label="作業面切替">
+                            <button class="icon-tab active" title="業務管理計画書" aria-label="業務管理計画書">
+                                <img src="../assets/icons/stationery/im-00009-memo-chou-shorui-no-aikon-sozai-sono-3.svg" alt="">
+                            </button>
+                            <button class="icon-tab" title="社員配置" aria-label="社員配置">
+                                <img src="../assets/icons/person/im-15003-jimbutsu-botan.svg" alt="">
+                            </button>
+                            <button class="icon-tab" title="現場" aria-label="現場">
+                                <img src="../assets/icons/transport/im-00020-mappu-no-pin.svg" alt="">
+                            </button>
+                            <button class="icon-tab" title="車両" aria-label="車両">
+                                <img src="../assets/icons/transport/im-00237-jidousha-no-aikon-sozai-sono-2.svg" alt="">
+                            </button>
+                            <button class="icon-tab" title="注意" aria-label="注意">
+                                <img src="../assets/icons/sign-mark/im-11925-infomeeshon.svg" alt="">
+                            </button>
+                        </nav>
+                        <section class="desktop-main">
+                            <div class="desktop-main-card">
+                                <div class="desktop-main-head">
+                                    <div>
+                                        <strong>SL 業務管理計画書</strong>
+                                        <span>中央検索: 社員・車両・現場・応援先の配置済み位置を検索</span>
+                                    </div>
+                                    <div class="placement-search">
+                                        <span>林を検索中</span>
+                                        <span>3件</span>
+                                    </div>
+                                </div>
+                                <div class="dense-table-wrap">
+                                    <div class="dense-sl-table" aria-label="SL中央メイン情報の高密度表示例">
+                                        <div class="cell head">No</div>
+                                        <div class="cell head">時間</div>
+                                        <div class="cell head">現場/業務</div>
+                                        <div class="cell head">集合</div>
+                                        <div class="cell head">人</div>
+                                        <div class="cell head">社員</div>
+                                        <div class="cell head">車両</div>
+                                        <div class="cell head">応援/予約</div>
+                                        <div class="cell head">備考</div>
+
+                                        <div class="cell row-focus">01</div>
+                                        <div class="cell row-focus">07:00-16:00</div>
+                                        <div class="cell row-focus">商業施設A<br><span class="muted">巡回警備 / 受注#OB-105</span></div>
+                                        <div class="cell row-focus">本社 06:30</div>
+                                        <div class="cell row-focus">2</div>
+                                        <div class="cell row-focus">林 / 山田</div>
+                                        <div class="cell row-focus">2号車<br><span class="muted">ETC有</span></div>
+                                        <div class="cell row-focus">予約済</div>
+                                        <div class="cell row-focus">休暇注意</div>
+
+                                        <div class="cell">02</div>
+                                        <div class="cell">08:00-17:00</div>
+                                        <div class="cell">物流センターB<br><span class="muted">入退場管理</span></div>
+                                        <div class="cell">直行</div>
+                                        <div class="cell">3</div>
+                                        <div class="cell">佐藤 / 鈴木 / 林</div>
+                                        <div class="cell">4号車</div>
+                                        <div class="cell">応援1</div>
+                                        <div class="cell">要ヘルメット</div>
+
+                                        <div class="cell">03</div>
+                                        <div class="cell">09:00-18:00</div>
+                                        <div class="cell">駅前再開発C<br><span class="muted">交通誘導</span></div>
+                                        <div class="cell">現地 08:45</div>
+                                        <div class="cell">4</div>
+                                        <div class="cell">田中 / 加藤 / 森 / 林</div>
+                                        <div class="cell">1号車</div>
+                                        <div class="cell">未予約</div>
+                                        <div class="cell">雨天確認</div>
+
+                                        <div class="cell">04</div>
+                                        <div class="cell">21:00-06:00</div>
+                                        <div class="cell">病院D<br><span class="muted">夜間常駐</span></div>
+                                        <div class="cell">本社 20:20</div>
+                                        <div class="cell">2</div>
+                                        <div class="cell">高橋 / 伊藤</div>
+                                        <div class="cell">社用車なし</div>
+                                        <div class="cell">確定</div>
+                                        <div class="cell">夜勤</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <nav class="icon-rail right-rail" aria-label="右パネル切替">
+                            <button class="icon-tab active" title="プロパティ編集" aria-label="プロパティ編集">
+                                <img src="../assets/icons/pc-tech/im-15620-settingu.svg" alt="">
+                            </button>
+                            <button class="icon-tab" title="社員検索" aria-label="社員検索">
+                                <img src="../assets/icons/person/im-15004-tomodachi-kensaku.svg" alt="">
+                            </button>
+                            <button class="icon-tab" title="車両候補" aria-label="車両候補">
+                                <img src="../assets/icons/transport/im-10868-muryou-de-tsukaeru-jidousha.svg" alt="">
+                            </button>
+                            <button class="icon-tab" title="メモ" aria-label="メモ">
+                                <img src="../assets/icons/stationery/im-15669-memo.svg" alt="">
+                            </button>
+                        </nav>
+                        <aside class="desktop-prop">
+                            <div class="desktop-prop-card">
+                                <h3>選択行のプロパティ</h3>
+                                <div class="prop-mini-search">右パネル検索: 社員候補「林」</div>
+                                <div class="prop-record">
+                                    <strong>編集対象</strong>
+                                    商業施設A / 07:00-16:00 / 2名
+                                </div>
+                                <div class="prop-record">
+                                    <strong>配置社員</strong>
+                                    林、山田。休暇注意あり。交代候補: 佐藤
+                                </div>
+                                <div class="prop-record">
+                                    <strong>車両/予約</strong>
+                                    2号車 / ETC有 / 予約済。右アイコンで車両候補へ切替
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-gallery">
+                <div class="screen-gallery-head">
+                    <div>
+                        <h2>他モックアップ画面への展開例</h2>
+                        <p>同じデザイン骨格を保ちつつ、中央メインだけを各画面の主役に合わせて変える例です。上部横ツールバー、左の作業面アイコン、右プロパティ編集は共通化します。</p>
+                    </div>
+                    <span class="delta-pill">Screen Examples</span>
+                </div>
+                <div class="screen-grid">
+                    <article class="screen-example">
+                        <div class="mini-menu"><span>ファイル</span><span>編集</span><span>受注</span><span>表示</span><span>通知</span></div>
+                        <div class="mini-toolbar">
+                            <div class="mini-tools"><span class="mini-tool primary">新規受注</span><span class="mini-tool">2026年5月</span><span class="mini-tool">未請求のみ</span></div>
+                            <div class="mini-tools"><span class="mini-tool">Excel出力</span></div>
+                        </div>
+                        <div class="mini-workspace">
+                            <div class="mini-rail">
+                                <span class="active"><img src="../assets/icons/business/im-15284-memo-chou.svg" alt=""></span>
+                                <span><img src="../assets/icons/transport/im-00020-mappu-no-pin.svg" alt=""></span>
+                                <span><img src="../assets/icons/sign-mark/im-11925-infomeeshon.svg" alt=""></span>
+                            </div>
+                            <div class="mini-main">
+                                <div class="mini-main-card">
+                                    <div class="mini-main-title">OB 受注簿 <span>受注行を選ぶと右に請求/現場プロパティ</span></div>
+                                    <div class="mini-table six">
+                                        <div class="cell head">日付</div><div class="cell head">得意先/現場</div><div class="cell head">区分</div><div class="cell head">人数</div><div class="cell head">金額</div><div class="cell head">状態</div>
+                                        <div class="cell focus">5/1</div><div class="cell focus">商業施設A</div><div class="cell focus">巡回</div><div class="cell focus">2</div><div class="cell focus">88,000</div><div class="cell focus">未請求</div>
+                                        <div class="cell">5/2</div><div class="cell">物流センターB</div><div class="cell">常駐</div><div class="cell">3</div><div class="cell">126,000</div><div class="cell">確認中</div>
+                                        <div class="cell">5/3</div><div class="cell">駅前再開発C</div><div class="cell">誘導</div><div class="cell">4</div><div class="cell">144,000</div><div class="cell">確定</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <aside class="mini-prop">
+                                <div class="mini-prop-card">
+                                    <div><strong>受注プロパティ</strong>商業施設A / 5月1日</div>
+                                    <div class="mini-field">請求先、現場住所、地図URLを編集</div>
+                                    <div class="mini-field">SL/WS連携: 配置済み 2名</div>
+                                </div>
+                            </aside>
+                        </div>
+                    </article>
+
+                    <article class="screen-example">
+                        <div class="mini-menu"><span>ファイル</span><span>編集</span><span>クイック登録</span><span>履歴</span><span>通知</span></div>
+                        <div class="mini-toolbar">
+                            <div class="mini-tools"><span class="mini-tool primary">受注作成</span><span class="mini-tool">得意先検索</span><span class="mini-tool">テンプレート</span></div>
+                            <div class="mini-tools"><span class="mini-tool">最近</span></div>
+                        </div>
+                        <div class="mini-workspace">
+                            <div class="mini-rail">
+                                <span class="active"><img src="../assets/icons/person/im-15004-tomodachi-kensaku.svg" alt=""></span>
+                                <span><img src="../assets/icons/stationery/im-15669-memo.svg" alt=""></span>
+                                <span><img src="../assets/icons/transport/im-00020-mappu-no-pin.svg" alt=""></span>
+                            </div>
+                            <div class="mini-main">
+                                <div class="mini-main-card">
+                                    <div class="mini-main-title">Quick Access <span>検索から登録まで1画面</span></div>
+                                    <div class="quick-lanes">
+                                        <div class="quick-card"><strong>得意先</strong>三都ビル管理<br>前回: 5/20 商業施設A</div>
+                                        <div class="quick-card"><strong>現場</strong>商業施設A<br>巡回警備 / 2名</div>
+                                        <div class="quick-card"><strong>日付</strong>2026/05/01<br>07:00-16:00</div>
+                                        <div class="quick-card"><strong>登録先</strong>OBへ作成<br>SLへ配置候補を送る</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <aside class="mini-prop">
+                                <div class="mini-prop-card">
+                                    <div><strong>入力プロパティ</strong>候補を選ぶだけで受注化</div>
+                                    <div class="mini-field">地図、単価、前回人数を右で確認</div>
+                                    <div class="mini-field">不足項目だけ警告表示</div>
+                                </div>
+                            </aside>
+                        </div>
+                    </article>
+
+                    <article class="screen-example">
+                        <div class="mini-menu"><span>ファイル</span><span>編集</span><span>週間予定</span><span>配置</span><span>通知</span></div>
+                        <div class="mini-toolbar">
+                            <div class="mini-tools"><span class="mini-tool primary">週を更新</span><span class="mini-tool">5/1週</span><span class="mini-tool">応援表示</span></div>
+                            <div class="mini-tools"><span class="mini-tool">密度: 高</span></div>
+                        </div>
+                        <div class="mini-workspace">
+                            <div class="mini-rail">
+                                <span class="active"><img src="../assets/icons/stationery/im-00008-memo-chou-shorui-no-aikon-sozai-sono-2.svg" alt=""></span>
+                                <span><img src="../assets/icons/person/im-11186-jimbutsu-aikon-chiimu.svg" alt=""></span>
+                                <span><img src="../assets/icons/transport/im-00203-sankaku-koun.svg" alt=""></span>
+                            </div>
+                            <div class="mini-main">
+                                <div class="mini-main-card">
+                                    <div class="mini-main-title">WS 週間予定表 <span>週単位の配置変更を右プロパティで確認</span></div>
+                                    <div class="ws-board">
+                                        <div class="head">現場</div><div class="head">月</div><div class="head">火</div><div class="head">水</div><div class="head">木</div><div class="head">金</div>
+                                        <div>商業施設A</div><div class="busy">林/山田</div><div>佐藤</div><div></div><div class="busy">林</div><div>鈴木</div>
+                                        <div>物流B</div><div>3名</div><div class="busy">応援1</div><div>2名</div><div></div><div>3名</div>
+                                        <div>病院D</div><div>夜勤</div><div>夜勤</div><div class="busy">交代</div><div>夜勤</div><div>夜勤</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <aside class="mini-prop">
+                                <div class="mini-prop-card">
+                                    <div><strong>週セル詳細</strong>商業施設A / 月曜</div>
+                                    <div class="mini-field">社員・車両・応援予約をまとめて編集</div>
+                                    <div class="mini-field">SL反映前の差分を表示</div>
+                                </div>
+                            </aside>
+                        </div>
+                    </article>
+
+                    <article class="screen-example">
+                        <div class="mini-menu"><span>ファイル</span><span>編集</span><span>経理</span><span>確認</span><span>通知</span></div>
+                        <div class="mini-toolbar">
+                            <div class="mini-tools"><span class="mini-tool primary">請求確認</span><span class="mini-tool">5月締め</span><span class="mini-tool">差分あり</span></div>
+                            <div class="mini-tools"><span class="mini-tool">CSV</span></div>
+                        </div>
+                        <div class="mini-workspace">
+                            <div class="mini-rail">
+                                <span class="active"><img src="../assets/icons/business/im-15283-memo-chou.svg" alt=""></span>
+                                <span><img src="../assets/icons/sign-mark/im-13301-infomeeshon.svg" alt=""></span>
+                                <span><img src="../assets/icons/pc-tech/im-15620-settingu.svg" alt=""></span>
+                            </div>
+                            <div class="mini-main">
+                                <div class="mini-main-card">
+                                    <div class="mini-main-title">経理画面 <span>グループ間請求の確認フロー</span></div>
+                                    <div class="account-flow">
+                                        <div class="metric-card"><strong>未確認</strong><span class="num">12</span><br>請求行</div>
+                                        <div class="metric-card"><strong>差分</strong><span class="num">3</span><br>単価/人数</div>
+                                        <div class="metric-card"><strong>確定</strong><span class="num">48</span><br>今月分</div>
+                                    </div>
+                                    <div class="mini-table">
+                                        <div class="cell head">請求先</div><div class="cell head">現場</div><div class="cell head">金額</div><div class="cell head">差分</div><div class="cell head">状態</div>
+                                        <div class="cell focus">本社</div><div class="cell focus">商業施設A</div><div class="cell focus">88,000</div><div class="cell focus">人数</div><div class="cell focus">要確認</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <aside class="mini-prop">
+                                <div class="mini-prop-card">
+                                    <div><strong>請求差分</strong>OB 2名 / 実績 3名</div>
+                                    <div class="mini-field">根拠行を右で確認して承認</div>
+                                    <div class="mini-field">差戻し理由を通知へ連携</div>
+                                </div>
+                            </aside>
+                        </div>
+                    </article>
+
+                    <article class="screen-example wide">
+                        <div class="mini-menu"><span>ファイル</span><span>編集</span><span>休暇申請</span><span>承認</span><span>通知</span></div>
+                        <div class="mini-toolbar">
+                            <div class="mini-tools"><span class="mini-tool primary">承認</span><span class="mini-tool">2026年5月</span><span class="mini-tool">未承認 4</span><span class="mini-tool">SL影響あり</span></div>
+                            <div class="mini-tools"><span class="mini-tool">月表示</span></div>
+                        </div>
+                        <div class="mini-workspace">
+                            <div class="mini-rail">
+                                <span class="active"><img src="../assets/icons/person/im-15003-jimbutsu-botan.svg" alt=""></span>
+                                <span><img src="../assets/icons/sign-mark/im-11925-infomeeshon.svg" alt=""></span>
+                                <span><img src="../assets/icons/stationery/im-15669-memo.svg" alt=""></span>
+                            </div>
+                            <div class="mini-main">
+                                <div class="mini-main-card">
+                                    <div class="mini-main-title">LA 休暇申請管理 <span>カレンダーの文脈を隠さず右で詳細編集</span></div>
+                                    <div class="leave-grid">
+                                        <div class="leave-cell"><strong>1</strong>林 休暇</div>
+                                        <div class="leave-cell approved"><strong>2</strong>承認済</div>
+                                        <div class="leave-cell"><strong>3</strong></div>
+                                        <div class="leave-cell pending"><strong>4</strong>未承認2</div>
+                                        <div class="leave-cell"><strong>5</strong></div>
+                                        <div class="leave-cell alert"><strong>6</strong>SL影響</div>
+                                        <div class="leave-cell"><strong>7</strong></div>
+                                        <div class="leave-cell"><strong>8</strong></div>
+                                        <div class="leave-cell pending"><strong>9</strong>申請</div>
+                                        <div class="leave-cell approved"><strong>10</strong>承認</div>
+                                        <div class="leave-cell"><strong>11</strong></div>
+                                        <div class="leave-cell"><strong>12</strong></div>
+                                        <div class="leave-cell"><strong>13</strong></div>
+                                        <div class="leave-cell"><strong>14</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <aside class="mini-prop">
+                                <div class="mini-prop-card">
+                                    <div><strong>申請プロパティ</strong>林 / 5月1日 / 有休</div>
+                                    <div class="mini-field">承認・差戻し・SL配置影響を同時確認</div>
+                                    <div class="mini-field">黒オーバーレイではなく右で編集</div>
+                                </div>
+                            </aside>
+                        </div>
+                    </article>
+                </div>
+            </div>
+            <div class="theme-lab">
+                <div class="theme-lab-head">
+                    <div>
+                        <h2>将来構想: デザインシステム + 着せ替え</h2>
+                        <p>画面構造は共通化し、色・角丸・影・面の質感をテーマトークンで切り替える想定です。</p>
+                    </div>
+                    <span class="delta-pill">Theme Tokens</span>
+                </div>
+                <div class="theme-grid">
+                    <div class="theme-card material">
+                        <strong>Material</strong>
+                        <span>明確な階層、標準的な影、操作部品の一貫性を重視。</span>
+                    </div>
+                    <div class="theme-card neumo">
+                        <strong>Neumorphism</strong>
+                        <span>柔らかい押し出し感。情報密度の高い表では局所利用が安全。</span>
+                    </div>
+                    <div class="theme-card glass">
+                        <strong>Glassmorphism</strong>
+                        <span>透明感と奥行き。ダッシュボードや右プロパティで相性が良い。</span>
+                    </div>
+                    <div class="theme-card dense">
+                        <strong>Dense Ops</strong>
+                        <span>現場向け高密度テーマ。表の一覧性と印刷互換を優先。</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

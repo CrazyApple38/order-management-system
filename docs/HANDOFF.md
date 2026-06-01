@@ -9,19 +9,23 @@
 
 - **更新者**: Codex (GPT-5)
 - **日付**: 2026-06-01
-- **コミット**: 0e99dde（直前 HEAD。本「SL↔LA seed 修正」作業は**未コミット**）
+- **コミット**: 9228ba8（直前 HEAD。本「デザイン刷新プレビュー」作業は**未コミット**）
 
 ## 直前にやったこと
 
-- `SL画面で OmsMockStore.getLeaveApplications()` が空になり LA通知 seed が 0件になる原因を調査。原因は休暇 seed 生成が LA 画面 `seedDemoLeaves()` に閉じ、SL/WS/共通ナビのみでは `leaveApplications` が未初期化 `null` のままだったこと。
-- `mock-assignments-data.js` に `createLeaveApplications()` を追加し、LA seed を共通ソース化。`co-mock-store.js` は未初期化時も同 seed を返すよう修正。`leave-application.js` も同生成関数を利用。
-- `co-navbar.js` の LA seed 表示で、承認済み通知は現在表示日を優先するよう修正。SL の 5/1 表示で「林｜申請を承認」が `screen-layout` target `{axis:'empName', date:'2026-05-01'}` を持つ。
-- XAMPP配信 + Playwright MCP で空ストア直後の SL を検証。`getLeaveApplications()` 17件、申請・承認ベル表示、LA通知カードクリック → SL休み社員スポットライト表示、console error 0 を確認。
+- `SL画面で OmsMockStore.getLeaveApplications()` が空になり LA通知 seed が 0件になる原因を調査・修正。LA seed を `mock-assignments-data.js` の共通生成へ移し、未初期化ストアでも `co-mock-store.js` が同 seed を返すようにした。
+- `co-navbar.js` の LA seed 表示で、承認済み通知は現在表示日を優先するよう修正。空ストア直後の SL で `getLeaveApplications()` 17件、申請・承認ベル表示、LA通知カードクリック → SL休み社員スポットライト表示、console error 0 を確認。
+- デザイン不評の原因調査として、業務管理計画書・受注簿・週間予定表の監査スクショを `screenshots/design-audit-*.png` に保存し、簡易メトリクス（罫線/小文字/色面）を取得。
+- `docs/plan/design-refresh-plan.md` を新規作成し、現行診断・不評要因・段階実装フェーズを整理。ユーザー判断で案Bを採用しつつ、SL中央一覧性維持・右プロパティ編集・右パネルアイコン切替・二層検索を含む **案B改: Calm Operations** へ更新。
+- `docs/preview/design-refresh-compare.html` に A/B/C の3案比較に加え、案B改の Before/After 差分（黒オーバーレイ中央モーダル → 右プロパティ編集、中央配置検索 + 右候補検索）を追加。ユーザー指摘を受け、B案寄りのカード型ワークスペース・青系グラデーション・柔らかい影へ再調整。Material / Neumorphism / Glassmorphism / Dense Ops の着せ替え構想カードも追加。
+- さらに Photoshop 型の上部横メニュー/ツールバー + 下部縦アイコンレール + 右プロパティ編集の B案v2 モックを追加。SL中央メインは列を省略しない高密度表示サンプルにし、`docs/assets/icons/` 配下 SVG をアイコンとして使用。
+- 同じ B案v2 骨格を OB / Quick Access / WS / 経理 / LA へ展開した画面例を追加。各画面とも上部横ツールバー、左縦アイコンレール、中央メイン、右プロパティの構成で比較可能にした。
 
 ## 次にやるべきこと
 
-- **本作業は未コミット**。コミット時は `mock-assignments-data.js` / `co-mock-store.js` / `co-navbar.js` / `leave-application.js` / 関連 HTML キャッシュバスター / `notification-refactor-plan.md` / `HANDOFF.md` をまとめて。
+- **現在の未コミット差分**は `docs/plan/design-refresh-plan.md` / `docs/preview/design-refresh-compare.html` / `docs/HANDOFF.md`。監査/比較スクショ `screenshots/design-audit-*.png`、`screenshots/design-refresh-compare.png`、`screenshots/design-refresh-calm-ops-diff.png`、`screenshots/design-refresh-photoshop-workspace.png`、`screenshots/design-refresh-screen-examples.png` は保存済みだが `screenshots/` 配下のため通常 `git status` では ignored（必要なら force add）。
 - `docs/00_開発手順書.md` のモック状態表とプロジェクトルート `CLAUDE.md` の表に「E 休日申請管理」表記が残存（今回スコープ外）。用語統一を広げる場合は別途。
+- デザイン刷新は **案B改: Calm Operations / B案v2 デスクトップワークスペース方向で継続**。次は SL 実画面へ適用する前に、右パネル切替の対象範囲（社員/車両/応援/予約/編集）と、中央配置検索の検索対象（社員・車両・現場・応援）を確定する。
 - WS `schedule×modify`（busy 移動 / 候補リスト移動）は構文 OK だが Playwright 実 UI 未実証。
 - Phase 2.5（モックアップ検証）への通知システム登録。
 - mock-data-unification-plan は Phase 1+2 完了（残: WS `wsVehiclesData`/`wsSitesData` 共通ソース統一は将来課題）。
@@ -56,6 +60,7 @@
 
 - `docs/plan/mock-data-unification-plan.md` — SL/WS/LA/通知seed ダミーデータ一本化（**Phase 1+2 完了 / 残: WS `wsVehiclesData`/`wsSitesData` 共通ソース統一は将来課題**）
 - `docs/plan/notification-refactor-plan.md` — 変更通知システム リファクタリング（**N-6 静的検証 + 要対応実装 + SL↔LA seed フルフロー実証 完了（§17）/ 次は Phase 2.5 登録**）
+- `docs/plan/design-refresh-plan.md` — デザイン刷新 診断・比較計画（**案B改: Calm Operations 採用方針 / 差分モック作成済み / 次は SL 適用範囲確定**）
 - `docs/plan/ws-support-partner-plan.md` — WS 応援予約・協力業者
 - `docs/plan/ui-components-improvement-plan.md` — UI コンポーネント整備
 - その他: `docs/plan/*.md` 一覧を確認
