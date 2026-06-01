@@ -860,6 +860,7 @@
                 #eef5fb;
             border: 1px solid #c9d9e8;
             box-shadow: 0 18px 42px rgba(31, 73, 114, 0.15);
+            overflow-x: auto;
         }
         .desktop-lab-head {
             display: flex;
@@ -875,6 +876,7 @@
             background: #dce8f2;
             border: 1px solid #b8c9da;
             box-shadow: 0 12px 28px rgba(32, 70, 103, 0.18);
+            min-width: 1180px;
         }
         .desktop-menu {
             height: 30px;
@@ -1380,9 +1382,7 @@
             .delta-grid,
             .diff-list,
             .theme-grid,
-            .desktop-workspace,
-            .screen-grid,
-            .mini-workspace { grid-template-columns: 1fr; }
+            .screen-grid { grid-template-columns: 1fr; }
             .screen-example.wide { grid-column: auto; }
             .delta-card { border-right: 0; border-bottom: 1px solid var(--line); }
             .concept { grid-template-columns: 1fr; }
@@ -1392,15 +1392,72 @@
                 border-right: 0;
                 border-bottom: 1px solid var(--line);
             }
-            .icon-rail,
-            .icon-rail.right-rail {
-                flex-direction: row;
-                justify-content: flex-start;
-                border-right: 0;
-                overflow-x: auto;
+            .screen-example { overflow-x: auto; }
+            .screen-example > .mini-menu,
+            .screen-example > .mini-toolbar,
+            .screen-example > .mini-workspace {
+                min-width: 640px;
             }
-            .desktop-prop { border-left: 0; }
-            .mini-prop { border-left: 0; }
+            .screen-example.wide > .mini-menu,
+            .screen-example.wide > .mini-toolbar,
+            .screen-example.wide > .mini-workspace {
+                min-width: 960px;
+            }
+        }
+        @media (max-width: 640px) {
+            .page { padding: 12px; }
+            h1 { font-size: 21px; }
+            .note,
+            .score-card,
+            .delta-section,
+            .desktop-lab,
+            .screen-gallery {
+                padding: 12px;
+                border-radius: 10px;
+            }
+            .desktop-lab-head,
+            .screen-gallery-head,
+            .theme-lab-head {
+                display: block;
+            }
+            .desktop-lab-head .delta-pill,
+            .screen-gallery-head .delta-pill,
+            .theme-lab-head .delta-pill {
+                margin-top: 6px;
+            }
+            .desktop-lab::after,
+            .mock::after,
+            .screen-example::after {
+                content: "横にスクロールできます";
+                display: block;
+                padding: 6px 2px 0;
+                color: #647887;
+                font-size: 11px;
+                font-weight: 700;
+            }
+            .mock {
+                overflow-x: auto;
+                min-height: 0;
+            }
+            .mock-nav,
+            .mock-shell {
+                min-width: 720px;
+            }
+            .mock-shell {
+                min-height: 430px;
+            }
+            .desktop-shell { min-width: 1080px; }
+            .screen-example > .mini-menu,
+            .screen-example > .mini-toolbar,
+            .screen-example > .mini-workspace {
+                min-width: 620px;
+            }
+            .screen-example.wide > .mini-menu,
+            .screen-example.wide > .mini-toolbar,
+            .screen-example.wide > .mini-workspace {
+                min-width: 860px;
+            }
+            .theme-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>

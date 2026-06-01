@@ -9,7 +9,7 @@
 
 - **更新者**: Codex (GPT-5)
 - **日付**: 2026-06-01
-- **コミット**: 9228ba8（直前 HEAD。本「デザイン刷新プレビュー」作業は**未コミット**）
+- **コミット**: 73fd349（直前 HEAD。本「design-refresh スマホ表示修正」作業は**未コミット**）
 
 ## 直前にやったこと
 
@@ -20,10 +20,11 @@
 - `docs/preview/design-refresh-compare.html` に A/B/C の3案比較に加え、案B改の Before/After 差分（黒オーバーレイ中央モーダル → 右プロパティ編集、中央配置検索 + 右候補検索）を追加。ユーザー指摘を受け、B案寄りのカード型ワークスペース・青系グラデーション・柔らかい影へ再調整。Material / Neumorphism / Glassmorphism / Dense Ops の着せ替え構想カードも追加。
 - さらに Photoshop 型の上部横メニュー/ツールバー + 下部縦アイコンレール + 右プロパティ編集の B案v2 モックを追加。SL中央メインは列を省略しない高密度表示サンプルにし、`docs/assets/icons/` 配下 SVG をアイコンとして使用。
 - 同じ B案v2 骨格を OB / Quick Access / WS / 経理 / LA へ展開した画面例を追加。各画面とも上部横ツールバー、左縦アイコンレール、中央メイン、右プロパティの構成で比較可能にした。
+- `design-refresh-compare.html` のスマホ表示を修正。A/B/C案モック、B案v2、他画面展開例はスマホ幅で内部レイアウトを崩さず、各モック枠内で横スクロールして確認できるようにした。
 
 ## 次にやるべきこと
 
-- **現在の未コミット差分**は `docs/plan/design-refresh-plan.md` / `docs/preview/design-refresh-compare.html` / `docs/HANDOFF.md`。監査/比較スクショ `screenshots/design-audit-*.png`、`screenshots/design-refresh-compare.png`、`screenshots/design-refresh-calm-ops-diff.png`、`screenshots/design-refresh-photoshop-workspace.png`、`screenshots/design-refresh-screen-examples.png` は保存済みだが `screenshots/` 配下のため通常 `git status` では ignored（必要なら force add）。
+- **現在の未コミット差分**は `docs/preview/design-refresh-compare.html` / `docs/HANDOFF.md`。スマホ確認スクショ `screenshots/design-refresh-mobile-layout.png` は保存済みだが `screenshots/` 配下のため通常 `git status` では ignored（必要なら force add）。
 - `docs/00_開発手順書.md` のモック状態表とプロジェクトルート `CLAUDE.md` の表に「E 休日申請管理」表記が残存（今回スコープ外）。用語統一を広げる場合は別途。
 - デザイン刷新は **案B改: Calm Operations / B案v2 デスクトップワークスペース方向で継続**。次は SL 実画面へ適用する前に、右パネル切替の対象範囲（社員/車両/応援/予約/編集）と、中央配置検索の検索対象（社員・車両・現場・応援）を確定する。
 - WS `schedule×modify`（busy 移動 / 候補リスト移動）は構文 OK だが Playwright 実 UI 未実証。
