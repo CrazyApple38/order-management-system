@@ -7,12 +7,18 @@
 
 ## 最終更新
 
-- **更新者**: Claude Code (Opus 4.8)
-- **日付**: 2026-06-03
-- **コミット**: 11eb9c8（直前 HEAD。本「情報バッジ整理＋配置中央寄せ」作業は本コミットで反映）
+- **更新者**: Codex (GPT-5)
+- **日付**: 2026-06-04
+- **コミット**: 738b8d9（直前 HEAD。本「バッジフラット化＋配色候補表追加」作業は未コミット）
 
 ## 直前にやったこと
 
+- (Codex) ユーザー判断により、SL モック（`docs/preview/design-refresh-sl-layer-mockup.html`）の社員バッジ・車両/ETCバッジから、所属GC色フレア、白リム、下辺中央の点光源、チップ影を撤去。フラットデザインに合わせ、淡い所属色の面 + 細枠 + 左側所属色ラインへ戻した。`.flare-source` マークアップも本体から削除。
+- (Codex) 撤去した光と影の表現は再利用候補の判例として `docs/preview/reference/sl-badge-flare-shadow-reference.css` に独立保存。現行モックからは読み込まない保存用CSS。
+- (Codex) ユーザー添付画像を参考に、モノトーンベース + 最小量のサイバーアクセント方向の配色候補 `Mono Cyber Operations` を追加。上部にあった `SL 情報レイヤー モックアップ` 説明、凡例、所属カラーUIをページ下部へ移動し、下部にベース/意味色/所属会社10色のカラー一覧表を追加。所属カラーUIは5色固定から10社/10色候補へ拡張。
+- (Codex) `Mono Cyber Operations` の高彩度ライム/シアンは子供っぽさが強いというフィードバックを受け、下部の配色検討を添付画像風のテーマカード群へ置換。`Matcha Fog` / `Slate Mono` / `Icy Indigo` / `Warm Sandstone` / `Modern Mauve` / `Deep Mint` と、画像外補完の `Cool Graphite` / `Crimson Ledger` / `Olive Steel` / `Soft Azure` を追加。所属会社の選択カラーは後工程として、選択UIを下部から外した。
+- (Codex) 下部の `SL 情報レイヤー モックアップ` カード右側から旧凡例（昼夜は橙文字/警告はアイコン/GC/区分/所属色）を削除し、夜間文字と警告アイコンの決定色カードへ置換。夜間文字は茶色っぽく見えない赤寄りの `Night Red #C43D3F`、警告アイコン/バッジはピンポイントで目立たせる `Signal Orange #F15E2A` + 背景 `#FFF0E8` + 枠 `#F5A17C`。`.person-warn` も警告色へ統一。
+- (Codex) 所属会社カラー選択UI（`#bcList`）を下部に復活。A〜J社の10社分を対象に、低〜中彩度の寒色〜紫灰系10色（`Slate Blue #4F6F9F` / `Steel Cyan #2F7E9A` / `Blue Gray #637A8E` / `Indigo #5967B1` / `Soft Violet #7A6BAE` / `Plum Slate #8A638E` / `Deep Azure #3D73B7` / `Teal Slate #2C7C78` / `Periwinkle #7185C6` / `Graphite #6F7784`）へ再コーディネート。重複選択時はスワップして常に10社10色を維持し、`--belong-*` を更新して社員/車両/ETCバッジとGC行色へ即反映。UIは会社名 + 小型10スウォッチのみを常時表示し、色名/コードは `title` / `aria-label` に残す。横1段に詰め込まず、2〜3段で余裕を持たせる。
 - (Claude Code) SL モック（`docs/preview/design-refresh-sl-layer-mockup.html`）の**情報バッジ配置を整理**。不要情報（時間列「未定」/ 車両ETC列「未配・ETC未」）を削除。**資格者不足を配置列 → 該当現場(港湾道路 夜間片交/Nikkei)の `.site-icons` 下へ移動**（契約先/現場名の下）。配置列の info-pill/alert-row を全廃（残 alert-row は右プロパティのみ）。これに伴い配置セルのストレッチ/最下部ピン留めCSSを撤去し**社員バッジを上下中央(`align-items:center`)に復帰**。`.assign-people`(横並び)構造は維持。
 - (Claude Code) **区分の円（`.category-badge`）を行ごとのGC色ベタ塗りに**（前コミット11eb9c8）。GC色は**上部の所属カラー(belong)参照に確定**: `--gc-touo: var(--belong-1)`(A社青) / `--gc-nikkei: var(--belong-2)`(B社シアン) / `--gc-zennihon: var(--belong-3)`(C社緑)。スウォッチUI(#bcList)変更に追従。※DBブランド色(group_companies.badge_color)/emp-badge色とは割当が異なる不整合あり（採用せず所属カラーに統一）。
 - (Claude Code) SL モックバッジ内に**社員個人警告アイコンを導入**（前コミット705dab0）。線画注意三角 `im-11907` を SVG スプライト（`#ic-caution-line`、body直後 symbol）化し `.person-warn`（`--accent-orange`・13px・名前左）で表示。佐藤=「連勤12日」/ 高橋=「NG 伊藤」/ 伊藤=「NG 高橋」。CSS mask は file:// で読めず非表示になったため**インライン/スプライト方式**に。
@@ -30,7 +36,7 @@
 
 ## 次にやるべきこと
 
-- 上記4ファイル（plan / 要件定義 / HANDOFF / sl-layer-mockup）は本コミットで反映済み。SL モックの配色は **青〜ティール基調＋オレンジ1アクセントで確定**（左メニュー濃紺・ベース淡青・タイトルバー紺→青→ティール・アクセント `#f15e2a`）。所属GC表現はドットではなく、下辺フレア + 内側ソリッド面 + 下辺中央の白い点光源方式で継続する。今後の SL 系モック/実装はこのパレットに準拠する。
+- SL モックの次の配色判断は、下部の `Color Themes` カード群と復活済みの `Belonging Company Colors` を見て進める。高彩度のサイバーライム/シアンは現時点では不採用寄りで、低彩度の `Slate Mono` / `Cool Graphite` / `Icy Indigo`、赤系の `Crimson Ledger` あたりを比較する。夜間文字と警告アイコン/バッジは先に分離済み（夜間 `#C43D3F` / 警告 `#F15E2A`）。社員・車両/ETCバッジの所属GC表現は、下辺フレア + 白リム + 点光源方式を現行採用せず、フラットな淡色面 + 細枠 + 左側ラインへ戻す。フレア方式は `docs/preview/reference/sl-badge-flare-shadow-reference.css` を判例として参照する。
 - `docs/00_開発手順書.md` のモック状態表とプロジェクトルート `CLAUDE.md` の表に「E 休日申請管理」表記が残存（今回スコープ外）。用語統一を広げる場合は別途。
 - デザイン刷新は **案B改: Calm Operations / B案v2 デスクトップワークスペース方向で継続**。ツールバーはフラット維持、左メニュー、中央業務管理計画書パネル、中央右の縦型アイコンメニュー、右プロパティカードは同じマテリアル表現で統一済み。影は高さレイヤーとして扱い、縦型アイコンメニューが最上位。
 - まだ議論すべき課題: 車両/ETCの中央表示優先度、固定行の見せ方、社員連絡の最終出力仕様（LINE等）、印刷帳票との情報差、右プロパティ内の情報密度。

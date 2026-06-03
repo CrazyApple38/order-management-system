@@ -1,0 +1,226 @@
+/*
+ * SL badge flare/shadow reference
+ * Archived on 2026-06-04 after deciding the active SL mockup should stay flat.
+ *
+ * This is not loaded by design-refresh-sl-layer-mockup.html.
+ * It preserves the employee / vehicle / ETC badge treatment that used:
+ * - an outer belonging-GC color flare
+ * - a white inner rim and solid surface
+ * - a small bottom-center light source
+ *
+ * Expected markup:
+ *   <div class="person belong-1">
+ *     <span class="person-name">林</span>
+ *     <span class="flare-source" aria-hidden="true"></span>
+ *   </div>
+ *
+ *   <span class="vehicle-tag belong-1">
+ *     <span class="vehicle-label">わ 12-34</span>
+ *     <span class="flare-source" aria-hidden="true"></span>
+ *   </span>
+ */
+
+.person {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 26px;
+    min-width: 46px;
+    padding: 3px 8px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    box-shadow: var(--shadow-chip);
+    color: var(--ink);
+    cursor: grab;
+    isolation: isolate;
+    transition: box-shadow 120ms ease, transform 120ms ease, border-color 120ms ease;
+}
+
+.person::before {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 3px;
+    right: 3px;
+    bottom: -6px;
+    height: 6px;
+    border-radius: 999px;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(255, 246, 178, 0.98) 0%,
+        color-mix(in srgb, #fff6b2 74%, var(--belong-color, transparent) 26%) 30%,
+        color-mix(in srgb, var(--belong-color, transparent) 92%, #fff6b2 8%) 45%,
+        color-mix(in srgb, var(--belong-color, transparent) 90%, #8798a5 10%) 55%,
+        color-mix(in srgb, var(--belong-color, transparent) 68%, #8798a5 32%) 64%,
+        transparent 73%
+    );
+    box-shadow:
+        0 0 6px color-mix(in srgb, var(--belong-color, transparent) 64%, #fff6b2 36%),
+        0 0 10px color-mix(in srgb, var(--belong-color, transparent) 64%, #8798a5 36%);
+    filter: blur(4px);
+    opacity: 0.72;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.person::after {
+    content: "";
+    position: absolute;
+    display: none;
+    inset: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.98);
+    border-radius: 4px;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(248, 252, 255, 0.98) 100%);
+    box-shadow:
+        0 0 0 1px rgba(160, 184, 200, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        inset 0 -2px 5px color-mix(in srgb, var(--belong-color, transparent) 18%, transparent);
+    opacity: 1;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.person.belong-1::before,
+.person.belong-2::before,
+.person.belong-3::before,
+.person.belong-4::before,
+.person.belong-5::before,
+.person.belong-1::after,
+.person.belong-2::after,
+.person.belong-3::after,
+.person.belong-4::after,
+.person.belong-5::after {
+    display: block;
+}
+
+.person > *,
+.vehicle-tag > * {
+    position: relative;
+    z-index: 3;
+}
+
+.person-name,
+.contact,
+.vehicle-label {
+    position: relative;
+    z-index: 4;
+}
+
+.flare-source {
+    position: absolute;
+    left: 50%;
+    bottom: -4px;
+    display: block;
+    width: 15px;
+    height: 9px;
+    border-radius: 999px;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 1) 5%,
+        rgba(255, 252, 232, 0.58) 60%,
+        rgba(255, 235, 150, 0) 100%
+    );
+    filter: blur(2px);
+    opacity: 0.96;
+    pointer-events: none;
+    transform: translateX(-50%);
+    z-index: 3;
+}
+
+.vehicle-tag .flare-source {
+    position: absolute;
+    bottom: -3px;
+    width: 13px;
+    height: 8px;
+    opacity: 0.92;
+}
+
+.person:hover,
+.vehicle-tag:hover {
+    box-shadow: var(--shadow-chip-hover);
+    transform: translateY(-1px);
+}
+
+.vehicle-tag {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 23px;
+    min-width: 54px;
+    gap: 5px;
+    padding: 0 7px;
+    border-radius: 5px;
+    background: transparent;
+    border: 0;
+    font-size: var(--table-font);
+    font-weight: var(--table-data-weight);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    box-shadow: var(--shadow-chip);
+    color: var(--ink);
+    cursor: grab;
+    isolation: isolate;
+    transition: box-shadow 120ms ease, transform 120ms ease, border-color 120ms ease;
+}
+
+.vehicle-tag::before {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 3px;
+    right: 3px;
+    bottom: -5px;
+    height: 6px;
+    border-radius: 999px;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(255, 246, 178, 0.96) 0%,
+        color-mix(in srgb, #fff6b2 72%, var(--belong-color, transparent) 28%) 30%,
+        color-mix(in srgb, var(--belong-color, transparent) 90%, #fff6b2 10%) 45%,
+        color-mix(in srgb, var(--belong-color, transparent) 88%, #8798a5 12%) 55%,
+        color-mix(in srgb, var(--belong-color, transparent) 66%, #8798a5 34%) 64%,
+        transparent 73%
+    );
+    box-shadow:
+        0 0 5px color-mix(in srgb, var(--belong-color, transparent) 62%, #fff6b2 38%),
+        0 0 9px color-mix(in srgb, var(--belong-color, transparent) 62%, #8798a5 38%);
+    filter: blur(4px);
+    opacity: 0.70;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.vehicle-tag::after {
+    content: "";
+    position: absolute;
+    display: none;
+    inset: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.98);
+    border-radius: 4px;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(248, 252, 255, 0.98) 100%);
+    box-shadow:
+        0 0 0 1px rgba(160, 184, 200, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        inset 0 -2px 5px color-mix(in srgb, var(--belong-color, transparent) 16%, transparent);
+    opacity: 1;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.vehicle-tag.belong-1::before,
+.vehicle-tag.belong-2::before,
+.vehicle-tag.belong-3::before,
+.vehicle-tag.belong-4::before,
+.vehicle-tag.belong-5::before,
+.vehicle-tag.belong-1::after,
+.vehicle-tag.belong-2::after,
+.vehicle-tag.belong-3::after,
+.vehicle-tag.belong-4::after,
+.vehicle-tag.belong-5::after {
+    display: block;
+}

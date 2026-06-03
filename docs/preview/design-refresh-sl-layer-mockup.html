@@ -22,14 +22,13 @@
             --title-teal: #149aa6;
             --blue-soft: #eaf3ff;
             --accent-orange: #f15e2a;
-            --accent-orange-deep: #d94b0f;
-            --accent-orange-soft: #fff2eb;
-            --accent-orange-border: #ffb18a;
-            --accent-text-warn: #cf4626;
-            --night-text: var(--accent-text-warn);
-            --alert-text: var(--accent-text-warn);
-            --alert-bg: var(--accent-orange-soft);
-            --alert-border: var(--accent-orange-border);
+            --accent-orange-deep: #b6401d;
+            --accent-orange-soft: #fff0e8;
+            --accent-orange-border: #f5a17c;
+            --night-text: #c43d3f;
+            --alert-text: #f15e2a;
+            --alert-bg: #fff0e8;
+            --alert-border: #f5a17c;
             --info-text: #1f5fae;
             --info-bg: #edf6ff;
             --info-border: #bfd7f4;
@@ -37,27 +36,42 @@
             --neutral-chip-bg: #eef4f8;
             --gc-line: #2c6fa3;
             --gc-line-soft: #7f9bae;
-            /* GC会社色 = 上部の所属カラー(belong)を使用。東央=A社=belong-1 / Nikkei=B社=belong-2 / 全日本=C社=belong-3 */
+            /* GC会社色 = 下部の所属カラー(belong)を使用。東央=A社=belong-1 / Nikkei=B社=belong-2 / 全日本=C社=belong-3 */
             --gc-touo: var(--belong-1);
             --gc-nikkei: var(--belong-2);
             --gc-zennihon: var(--belong-3);
             --gc-row-a: #f7fbff;
             --gc-row-b: #f5f8fa;
-            --belong-1: #3a72b4;
-            --belong-1-bg: #f7fbff;
-            --belong-1-border: #d8e5f0;
-            --belong-2: #1f8fa0;
-            --belong-2-bg: #f7fbff;
-            --belong-2-border: #d8e5f0;
-            --belong-3: #2f9579;
-            --belong-3-bg: #f7fbff;
-            --belong-3-border: #d8e5f0;
-            --belong-4: #5562ad;
-            --belong-4-bg: #f7fbff;
-            --belong-4-border: #d8e5f0;
-            --belong-5: #7a5ba6;
-            --belong-5-bg: #f7fbff;
-            --belong-5-border: #d8e5f0;
+            --belong-1: #4f6f9f;
+            --belong-1-bg: #f3f7fc;
+            --belong-1-border: #cad7ea;
+            --belong-2: #2f7e9a;
+            --belong-2-bg: #f1f8fa;
+            --belong-2-border: #c4dce5;
+            --belong-3: #637a8e;
+            --belong-3-bg: #f4f7f9;
+            --belong-3-border: #ced8e0;
+            --belong-4: #5967b1;
+            --belong-4-bg: #f5f6fc;
+            --belong-4-border: #ccd1eb;
+            --belong-5: #7a6bae;
+            --belong-5-bg: #f7f5fb;
+            --belong-5-border: #d6cee9;
+            --belong-6: #8a638e;
+            --belong-6-bg: #f9f5fa;
+            --belong-6-border: #ddcedf;
+            --belong-7: #3d73b7;
+            --belong-7-bg: #f2f6fc;
+            --belong-7-border: #c8d7ed;
+            --belong-8: #2c7c78;
+            --belong-8-bg: #f1f8f7;
+            --belong-8-border: #c4ddd9;
+            --belong-9: #7185c6;
+            --belong-9-bg: #f6f7fd;
+            --belong-9-border: #d2daf0;
+            --belong-10: #6f7784;
+            --belong-10-bg: #f5f7f8;
+            --belong-10-border: #d4dae0;
             --elevation-0: none;
             --elevation-1: 0 2px 6px rgba(38, 73, 99, 0.045), 0 1px 2px rgba(38, 73, 99, 0.030);
             --elevation-2: 0 4px 10px rgba(38, 73, 99, 0.060), 0 2px 4px rgba(38, 73, 99, 0.035);
@@ -69,8 +83,6 @@
             --shadow-material-soft: var(--elevation-1);
             --inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.88);
             --inset-edge: inset 0 -1px 0 rgba(75, 105, 126, 0.08);
-            --shadow-chip: var(--elevation-2), 0 1px 0 rgba(255, 255, 255, 0.86) inset;
-            --shadow-chip-hover: var(--elevation-3), 0 1px 0 rgba(255, 255, 255, 0.88) inset;
             --radius: 8px;
             --table-font: 13px;
             --table-main: 15px;
@@ -147,6 +159,71 @@
             white-space: nowrap;
         }
 
+        .signal-picks {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 8px;
+            max-width: 560px;
+        }
+
+        .signal-card {
+            min-width: 220px;
+            display: grid;
+            grid-template-columns: 34px 1fr;
+            gap: 9px;
+            align-items: center;
+            padding: 9px 11px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.84);
+            box-shadow: var(--elevation-1);
+        }
+
+        .signal-swatch {
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: 1px solid rgba(18, 22, 26, 0.14);
+            background: #fff;
+        }
+
+        .signal-swatch.night {
+            color: var(--night-text);
+            font-weight: 900;
+        }
+
+        .signal-swatch.warning {
+            color: var(--alert-text);
+            background: var(--alert-bg);
+            border-color: var(--alert-border);
+        }
+
+        .signal-swatch.warning svg {
+            width: 17px;
+            height: 17px;
+            fill: currentColor;
+        }
+
+        .signal-name {
+            display: block;
+            color: var(--ink);
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .signal-code {
+            display: block;
+            margin-top: 2px;
+            color: var(--muted);
+            font-family: "Inter", "Consolas", monospace;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
         .dot {
             width: 10px;
             height: 10px;
@@ -163,6 +240,11 @@
         .dot.belong-3 { background: var(--belong-3); }
         .dot.belong-4 { background: var(--belong-4); }
         .dot.belong-5 { background: var(--belong-5); }
+        .dot.belong-6 { background: var(--belong-6); }
+        .dot.belong-7 { background: var(--belong-7); }
+        .dot.belong-8 { background: var(--belong-8); }
+        .dot.belong-9 { background: var(--belong-9); }
+        .dot.belong-10 { background: var(--belong-10); }
 
         .belong-palette {
             display: inline-flex;
@@ -666,77 +748,14 @@
             min-height: 26px;
             min-width: 46px;
             padding: 3px 8px;
-            border: 0;
+            border: 1px solid var(--belong-border);
+            border-left: 3px solid var(--belong-color);
             border-radius: 5px;
-            background: transparent;
-            box-shadow:
-                var(--shadow-chip);
+            background: var(--belong-bg);
+            box-shadow: none;
             color: var(--ink);
             cursor: grab;
-            isolation: isolate;
-            transition: box-shadow 120ms ease, transform 120ms ease, border-color 120ms ease;
-        }
-
-        .person::before {
-            content: "";
-            position: absolute;
-            display: none;
-            left: 3px;
-            right: 3px;
-            bottom: -6px;
-            height: 6px;
-            border-radius: 999px;
-            background: radial-gradient(
-                ellipse at center,
-                rgba(255, 246, 178, 0.98) 0%,
-                color-mix(in srgb, #fff6b2 74%, var(--belong-color, transparent) 26%) 30%,
-                color-mix(in srgb, var(--belong-color, transparent) 92%, #fff6b2 8%) 45%,
-                color-mix(in srgb, var(--belong-color, transparent) 90%, #8798a5 10%) 55%,
-                color-mix(in srgb, var(--belong-color, transparent) 68%, #8798a5 32%) 64%,
-                transparent 73%
-            );
-            box-shadow:
-                0 0 6px color-mix(in srgb, var(--belong-color, transparent) 64%, #fff6b2 36%),
-                0 0 10px color-mix(in srgb, var(--belong-color, transparent) 64%, #8798a5 36%);
-            filter: blur(4px);
-            opacity: 0.72;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .person::after {
-            content: "";
-            position: absolute;
-            display: none;
-            inset: 2px;
-            border: 1px solid rgba(255, 255, 255, 0.98);
-            border-radius: 4px;
-            background: linear-gradient(180deg, #ffffff 0%, rgba(248, 252, 255, 0.98) 100%);
-            box-shadow:
-                0 0 0 1px rgba(160, 184, 200, 0.30),
-                inset 0 1px 0 rgba(255, 255, 255, 1),
-                inset 0 -2px 5px color-mix(in srgb, var(--belong-color, transparent) 18%, transparent);
-            opacity: 1;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        .person.belong-1::before,
-        .person.belong-2::before,
-        .person.belong-3::before,
-        .person.belong-4::before,
-        .person.belong-5::before,
-        .person.belong-1::after,
-        .person.belong-2::after,
-        .person.belong-3::after,
-        .person.belong-4::after,
-        .person.belong-5::after {
-            display: block;
-        }
-
-        .person > * {
-            position: relative;
-            z-index: 3;
+            transition: background-color 120ms ease, border-color 120ms ease;
         }
 
         .person-name,
@@ -746,40 +765,9 @@
             z-index: 4;
         }
 
-        .flare-source {
-            position: absolute;
-            left: 50%;
-            bottom: -4px;
-            display: block;
-            width: 15px;
-            height: 9px;
-            border-radius: 999px;
-            background: radial-gradient(
-                ellipse at center,
-                rgba(255, 255, 255, 1) 0%,
-                rgba(255, 255, 255, 1) 5%,
-                rgba(255, 252, 232, 0.58) 60%,
-                rgba(255, 235, 150, 0) 100%
-            );
-            filter: blur(2px);
-            opacity: 0.96;
-            pointer-events: none;
-            transform: translateX(-50%);
-            z-index: 3;
-        }
-
-        .vehicle-tag .flare-source {
-            position: absolute;
-            bottom: -3px;
-            width: 13px;
-            height: 8px;
-            opacity: 0.92;
-        }
-
         .person:hover {
-            box-shadow:
-                var(--shadow-chip-hover);
-            transform: translateY(-1px);
+            background: #fff;
+            border-color: color-mix(in srgb, var(--belong-color) 55%, var(--belong-border) 45%);
         }
 
         .belong-1 { --belong-color: var(--belong-1); --belong-bg: var(--belong-1-bg); --belong-border: var(--belong-1-border); }
@@ -787,6 +775,11 @@
         .belong-3 { --belong-color: var(--belong-3); --belong-bg: var(--belong-3-bg); --belong-border: var(--belong-3-border); }
         .belong-4 { --belong-color: var(--belong-4); --belong-bg: var(--belong-4-bg); --belong-border: var(--belong-4-border); }
         .belong-5 { --belong-color: var(--belong-5); --belong-bg: var(--belong-5-bg); --belong-border: var(--belong-5-border); }
+        .belong-6 { --belong-color: var(--belong-6); --belong-bg: var(--belong-6-bg); --belong-border: var(--belong-6-border); }
+        .belong-7 { --belong-color: var(--belong-7); --belong-bg: var(--belong-7-bg); --belong-border: var(--belong-7-border); }
+        .belong-8 { --belong-color: var(--belong-8); --belong-bg: var(--belong-8-bg); --belong-border: var(--belong-8-border); }
+        .belong-9 { --belong-color: var(--belong-9); --belong-bg: var(--belong-9-bg); --belong-border: var(--belong-9-border); }
+        .belong-10 { --belong-color: var(--belong-10); --belong-bg: var(--belong-10-bg); --belong-border: var(--belong-10-border); }
 
         .person-name {
             display: inline-block;
@@ -903,7 +896,7 @@
             width: 14px;
             height: 14px;
             flex: 0 0 auto;
-            color: var(--accent-orange);
+            color: var(--alert-text);
             cursor: help;
         }
 
@@ -963,86 +956,22 @@
             gap: 5px;
             padding: 0 7px;
             border-radius: 5px;
-            background: transparent;
-            border: 0;
+            background: var(--belong-bg);
+            border: 1px solid var(--belong-border);
+            border-left: 3px solid var(--belong-color);
             font-size: var(--table-font);
             font-weight: var(--table-data-weight);
             font-variant-numeric: tabular-nums;
             white-space: nowrap;
-            box-shadow:
-                var(--shadow-chip);
+            box-shadow: none;
             color: var(--ink);
             cursor: grab;
-            isolation: isolate;
-            transition: box-shadow 120ms ease, transform 120ms ease, border-color 120ms ease;
-        }
-
-        .vehicle-tag::before {
-            content: "";
-            position: absolute;
-            display: none;
-            left: 3px;
-            right: 3px;
-            bottom: -5px;
-            height: 6px;
-            border-radius: 999px;
-            background: radial-gradient(
-                ellipse at center,
-                rgba(255, 246, 178, 0.96) 0%,
-                color-mix(in srgb, #fff6b2 72%, var(--belong-color, transparent) 28%) 30%,
-                color-mix(in srgb, var(--belong-color, transparent) 90%, #fff6b2 10%) 45%,
-                color-mix(in srgb, var(--belong-color, transparent) 88%, #8798a5 12%) 55%,
-                color-mix(in srgb, var(--belong-color, transparent) 66%, #8798a5 34%) 64%,
-                transparent 73%
-            );
-            box-shadow:
-                0 0 5px color-mix(in srgb, var(--belong-color, transparent) 62%, #fff6b2 38%),
-                0 0 9px color-mix(in srgb, var(--belong-color, transparent) 62%, #8798a5 38%);
-            filter: blur(4px);
-            opacity: 0.70;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .vehicle-tag::after {
-            content: "";
-            position: absolute;
-            display: none;
-            inset: 2px;
-            border: 1px solid rgba(255, 255, 255, 0.98);
-            border-radius: 4px;
-            background: linear-gradient(180deg, #ffffff 0%, rgba(248, 252, 255, 0.98) 100%);
-            box-shadow:
-                0 0 0 1px rgba(160, 184, 200, 0.30),
-                inset 0 1px 0 rgba(255, 255, 255, 1),
-                inset 0 -2px 5px color-mix(in srgb, var(--belong-color, transparent) 16%, transparent);
-            opacity: 1;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        .vehicle-tag.belong-1::before,
-        .vehicle-tag.belong-2::before,
-        .vehicle-tag.belong-3::before,
-        .vehicle-tag.belong-4::before,
-        .vehicle-tag.belong-5::before,
-        .vehicle-tag.belong-1::after,
-        .vehicle-tag.belong-2::after,
-        .vehicle-tag.belong-3::after,
-        .vehicle-tag.belong-4::after,
-        .vehicle-tag.belong-5::after {
-            display: block;
-        }
-
-        .vehicle-tag > * {
-            position: relative;
-            z-index: 3;
+            transition: background-color 120ms ease, border-color 120ms ease;
         }
 
         .vehicle-tag:hover {
-            box-shadow:
-                var(--shadow-chip-hover);
-            transform: translateY(-1px);
+            background: #fff;
+            border-color: color-mix(in srgb, var(--belong-color) 55%, var(--belong-border) 45%);
         }
 
         .vehicle-note {
@@ -1323,66 +1252,175 @@
             }
         }
 
-        .belong-config {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin: 0 0 10px;
-            padding: 10px 14px;
-            background: var(--panel);
-            border: 1px solid var(--line);
-            border-radius: var(--radius);
+        .design-notes {
+            margin-top: 16px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .design-note-card {
+            border: 1px solid rgba(204, 220, 232, 0.95);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.84);
             box-shadow: var(--elevation-1);
+            padding: 14px;
         }
 
-        .bc-title {
-            font-weight: 800;
-            font-size: 12px;
-            color: var(--muted);
+        .design-note-card .top-note {
+            margin-bottom: 0;
         }
 
-        .bc-list {
+        .color-guide-title {
             display: flex;
-            gap: 18px;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: baseline;
+            margin-bottom: 10px;
         }
 
-        .bc-row {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
+        .color-guide-title h2 {
+            margin: 0;
+            font-size: 16px;
         }
 
-        .bc-label {
+        .color-guide-title p {
             font-size: 12px;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+
+        .theme-card {
+            border: 1px solid #d7d9dc;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(20, 24, 28, 0.08);
+            padding: 14px;
+        }
+
+        .theme-card h3 {
+            margin: 0;
+            color: #181b20;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .theme-divider {
+            height: 1px;
+            margin: 11px 0 10px;
+            background-image: linear-gradient(90deg, #d6d7d9 33%, transparent 0);
+            background-position: bottom;
+            background-size: 6px 1px;
+            background-repeat: repeat-x;
+        }
+
+        .theme-section {
+            margin-top: 10px;
+        }
+
+        .theme-label {
+            margin-bottom: 7px;
+            color: #5d626a;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+        }
+
+        .theme-swatches {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .theme-swatch {
+            width: 30px;
+            height: 30px;
+            border: 1px solid rgba(18, 22, 26, 0.14);
+            border-radius: 6px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.52);
+        }
+
+        .theme-note {
+            margin-top: 11px;
+            color: #636b74;
+            font-size: 11px;
             font-weight: 700;
-            color: var(--ink);
+            line-height: 1.45;
         }
 
-        .bc-swatches {
-            display: inline-flex;
-            gap: 4px;
+        .belong-config {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 8px;
         }
 
-        .bc-swatch {
-            width: 18px;
-            height: 18px;
-            border-radius: 999px;
-            border: 2px solid transparent;
-            padding: 0;
+        .belong-row {
+            display: grid;
+            grid-template-columns: 38px max-content;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            min-width: 0;
+            padding: 6px 7px;
+            border: 1px solid var(--row-border);
+            border-left: 4px solid var(--row-color);
+            border-radius: 8px;
+            background: var(--row-bg);
+        }
+
+        .belong-company {
+            min-width: 0;
+        }
+
+        .belong-company strong {
+            color: #1c2530;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .belong-company span {
+            display: none;
+        }
+
+        .belong-options {
+            display: grid;
+            grid-template-columns: repeat(10, 13px);
+            gap: 3px;
+            justify-content: end;
+            min-width: 157px;
+        }
+
+        .belong-option {
+            width: 13px;
+            height: 13px;
+            border: 1px solid rgba(18, 22, 26, 0.16);
+            border-radius: 4px;
+            background: var(--swatch);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38);
             cursor: pointer;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
-            transition: transform 110ms ease, box-shadow 110ms ease;
         }
 
-        .bc-swatch:hover {
-            transform: translateY(-1px);
+        .belong-option:hover,
+        .belong-option:focus-visible {
+            outline: 2px solid color-mix(in srgb, var(--swatch) 72%, #ffffff 28%);
+            outline-offset: 2px;
         }
 
-        .bc-swatch.selected {
-            border-color: var(--ink);
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 1px 3px rgba(0, 0, 0, 0.22);
+        .belong-option.is-selected {
+            border-color: #101820;
+            box-shadow: 0 0 0 1px #fff, 0 0 0 3px var(--swatch);
+        }
+
+        @media (max-width: 900px) {
+            .color-guide-title {
+                display: block;
+            }
+
+            .theme-grid { grid-template-columns: 1fr; }
+            .belong-config { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
         }
     </style>
 </head>
@@ -1395,34 +1433,6 @@
         </symbol>
     </svg>
     <main class="page">
-        <section class="top-note">
-            <div>
-                <h1>SL 情報レイヤー モックアップ</h1>
-                <p>中央表の主情報、色/バッジの競合、昼夜橙文字、右プロパティ分担を確認するための試作です。</p>
-            </div>
-            <div class="legend" aria-label="色の用途凡例">
-                <span class="legend-item"><span class="dot night"></span>昼夜は橙文字</span>
-                <span class="legend-item"><span class="dot alert"></span>警告はアイコン</span>
-                <span class="legend-item"><span class="dot gc"></span>GCは行背景+ホバー</span>
-                <span class="legend-item"><span class="dot category"></span>区分はバッジ</span>
-                <span class="legend-item">
-                    <span class="belong-palette" aria-hidden="true">
-                        <span class="dot belong-1"></span>
-                        <span class="dot belong-2"></span>
-                        <span class="dot belong-3"></span>
-                        <span class="dot belong-4"></span>
-                        <span class="dot belong-5"></span>
-                    </span>
-                    所属色
-                </span>
-            </div>
-        </section>
-
-        <section class="belong-config" aria-label="所属カラー設定">
-            <span class="bc-title">所属カラー（各社 5色から選択）</span>
-            <div class="bc-list" id="bcList"></div>
-        </section>
-
         <section class="app">
             <nav class="menubar" aria-label="メニュー">
                 <span>ファイル</span>
@@ -1524,22 +1534,20 @@
                                         <span class="contact done" tabindex="0" data-tip="連絡済み" aria-label="連絡済み">
                                             <img class="contact-icon" src="../assets/icons/pc-tech/si-26526-telephone-call.png" alt="">
                                         </span>
-                                        <span class="flare-source" aria-hidden="true"></span>
                                     </div>
                                     <div class="person belong-2" draggable="true">
                                         <span class="person-name">山田</span>
                                         <span class="contact none" tabindex="0" data-tip="未連絡（要連絡）" aria-label="未連絡（要連絡）">
                                             <img class="contact-icon" src="../assets/icons/pc-tech/im-00027-denwa-no-juwaki.svg" alt="">
                                         </span>
-                                        <span class="flare-source" aria-hidden="true"></span>
                                     </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="cell">
                                 <div class="vehicle">
-                                    <span class="vehicle-tag belong-1" draggable="true"><span class="vehicle-label">わ 12-34</span><span class="flare-source" aria-hidden="true"></span></span>
-                                    <span class="vehicle-tag belong-1" draggable="true"><span class="vehicle-label">ETC-A</span><span class="flare-source" aria-hidden="true"></span></span>
+                                    <span class="vehicle-tag belong-1" draggable="true"><span class="vehicle-label">わ 12-34</span></span>
+                                    <span class="vehicle-tag belong-1" draggable="true"><span class="vehicle-label">ETC-A</span></span>
                                 </div>
                             </div>
 
@@ -1581,7 +1589,6 @@
                                         <span class="contact recall" tabindex="0" data-tip="再連絡必要" aria-label="再連絡必要">
                                             <img class="contact-icon" src="../assets/icons/pc-tech/si-36957-tel-orikaeshi.png" alt="">
                                         </span>
-                                        <span class="flare-source" aria-hidden="true"></span>
                                     </div>
                                     </div>
                                 </div>
@@ -1629,7 +1636,6 @@
                                         <span class="contact done" tabindex="0" data-tip="連絡済み" aria-label="連絡済み">
                                             <img class="contact-icon" src="../assets/icons/pc-tech/si-26526-telephone-call.png" alt="">
                                         </span>
-                                        <span class="flare-source" aria-hidden="true"></span>
                                     </div>
                                     <div class="person belong-5" draggable="true">
                                         <span class="person-warn" tabindex="0" role="img" aria-label="NG 高橋" data-tip="NG 高橋"><svg aria-hidden="true"><use href="#ic-caution-line"/></svg></span>
@@ -1637,15 +1643,14 @@
                                         <span class="contact none" tabindex="0" data-tip="未連絡（要連絡）" aria-label="未連絡（要連絡）">
                                             <img class="contact-icon" src="../assets/icons/pc-tech/im-00027-denwa-no-juwaki.svg" alt="">
                                         </span>
-                                        <span class="flare-source" aria-hidden="true"></span>
                                     </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="cell">
                                 <div class="vehicle">
-                                    <span class="vehicle-tag belong-4" draggable="true"><span class="vehicle-label">に 45-67</span><span class="flare-source" aria-hidden="true"></span></span>
-                                    <span class="vehicle-tag belong-4" draggable="true"><span class="vehicle-label">ETC-C</span><span class="flare-source" aria-hidden="true"></span></span>
+                                    <span class="vehicle-tag belong-4" draggable="true"><span class="vehicle-label">に 45-67</span></span>
+                                    <span class="vehicle-tag belong-4" draggable="true"><span class="vehicle-label">ETC-C</span></span>
                                 </div>
                             </div>
                         </div>
@@ -1749,71 +1754,362 @@
                 </aside>
             </div>
         </section>
+        <section class="design-notes" aria-label="配色検討メモ">
+            <div class="design-note-card">
+                <section class="top-note">
+                    <div>
+                        <h1>SL 情報レイヤー モックアップ</h1>
+                        <p>中央表の主情報、色/バッジの競合、夜間文字、右プロパティ分担を確認するための試作です。</p>
+                    </div>
+                    <div class="signal-picks" aria-label="夜間と警告アイコンの決定色">
+                        <div class="signal-card">
+                            <span class="signal-swatch night" aria-hidden="true">夜</span>
+                            <span>
+                                <span class="signal-name">夜間文字: Night Red</span>
+                                <span class="signal-code">#C43D3F</span>
+                            </span>
+                        </div>
+                        <div class="signal-card">
+                            <span class="signal-swatch warning" aria-hidden="true"><svg><use href="#ic-caution-line"/></svg></span>
+                            <span>
+                                <span class="signal-name">警告アイコン: Signal Orange</span>
+                                <span class="signal-code">#F15E2A / bg #FFF0E8</span>
+                            </span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="design-note-card" aria-label="カラーパレット候補">
+                <div class="color-guide-title">
+                    <h2>Belonging Company Colors</h2>
+                    <p>A〜J社の識別色を最小表示で調整します。</p>
+                </div>
+                <div class="belong-config" id="bcList" aria-label="所属会社カラー選択"></div>
+            </section>
+
+            <section class="design-note-card" aria-label="カラーパレット候補">
+                <div class="color-guide-title">
+                    <h2>Color Themes</h2>
+                    <p>所属会社色とは別に、画面全体の色味をテーマ単位で比較します。</p>
+                </div>
+                <div class="theme-grid">
+                    <article class="theme-card">
+                        <h3>Matcha Fog</h3>
+                        <div class="theme-divider"></div>
+                        <div class="theme-section">
+                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#FCFCFA" style="background:#FCFCFA"></span>
+                                <span class="theme-swatch" title="#F4F5F1" style="background:#F4F5F1"></span>
+                                <span class="theme-swatch" title="#2E372F" style="background:#2E372F"></span>
+                                <span class="theme-swatch" title="#3D483E" style="background:#3D483E"></span>
+                                <span class="theme-swatch" title="#828A7E" style="background:#828A7E"></span>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <div class="theme-label">BRAND &amp; BUTTONS</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#A8C49A" style="background:#A8C49A"></span>
+                                <span class="theme-swatch" title="#5C7E50" style="background:#5C7E50"></span>
+                                <span class="theme-swatch" title="#E3EEDB" style="background:#E3EEDB"></span>
+                            </div>
+                        </div>
+                        <p class="theme-note">霧がかった緑。落ち着いた管理画面向け。</p>
+                    </article>
+
+                    <article class="theme-card">
+                        <h3>Slate Mono</h3>
+                        <div class="theme-divider"></div>
+                        <div class="theme-section">
+                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#FFFFFF" style="background:#FFFFFF"></span>
+                                <span class="theme-swatch" title="#F3F4F6" style="background:#F3F4F6"></span>
+                                <span class="theme-swatch" title="#202838" style="background:#202838"></span>
+                                <span class="theme-swatch" title="#344156" style="background:#344156"></span>
+                                <span class="theme-swatch" title="#7B8492" style="background:#7B8492"></span>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <div class="theme-label">BRAND &amp; BUTTONS</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#536171" style="background:#536171"></span>
+                                <span class="theme-swatch" title="#111827" style="background:#111827"></span>
+                                <span class="theme-swatch" title="#E4E6EA" style="background:#E4E6EA"></span>
+                            </div>
+                        </div>
+                        <p class="theme-note">最も業務寄り。サイバー感は黒と余白で出す。</p>
+                    </article>
+
+                    <article class="theme-card">
+                        <h3>Icy Indigo</h3>
+                        <div class="theme-divider"></div>
+                        <div class="theme-section">
+                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#FFFFFF" style="background:#FFFFFF"></span>
+                                <span class="theme-swatch" title="#F7F8FB" style="background:#F7F8FB"></span>
+                                <span class="theme-swatch" title="#151B34" style="background:#151B34"></span>
+                                <span class="theme-swatch" title="#26374D" style="background:#26374D"></span>
+                                <span class="theme-swatch" title="#6F7D90" style="background:#6F7D90"></span>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <div class="theme-label">BRAND &amp; BUTTONS</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#5D8FEF" style="background:#5D8FEF"></span>
+                                <span class="theme-swatch" title="#244D93" style="background:#244D93"></span>
+                                <span class="theme-swatch" title="#D8E2F5" style="background:#D8E2F5"></span>
+                            </div>
+                        </div>
+                        <p class="theme-note">冷たい青。通知や選択状態が読みやすい。</p>
+                    </article>
+
+                    <article class="theme-card">
+                        <h3>Warm Sandstone</h3>
+                        <div class="theme-divider"></div>
+                        <div class="theme-section">
+                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#FFFEFC" style="background:#FFFEFC"></span>
+                                <span class="theme-swatch" title="#F7F4F1" style="background:#F7F4F1"></span>
+                                <span class="theme-swatch" title="#3B2E28" style="background:#3B2E28"></span>
+                                <span class="theme-swatch" title="#6A5042" style="background:#6A5042"></span>
+                                <span class="theme-swatch" title="#9B8C84" style="background:#9B8C84"></span>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <div class="theme-label">BRAND &amp; BUTTONS</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#E99A70" style="background:#E99A70"></span>
+                                <span class="theme-swatch" title="#B7573F" style="background:#B7573F"></span>
+                                <span class="theme-swatch" title="#F0D7CE" style="background:#F0D7CE"></span>
+                            </div>
+                        </div>
+                        <p class="theme-note">暖色系。夜間オレンジとの競合に注意。</p>
+                    </article>
+
+                    <article class="theme-card">
+                        <h3>Modern Mauve</h3>
+                        <div class="theme-divider"></div>
+                        <div class="theme-section">
+                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#FFFFFF" style="background:#FFFFFF"></span>
+                                <span class="theme-swatch" title="#F6F3F6" style="background:#F6F3F6"></span>
+                                <span class="theme-swatch" title="#302830" style="background:#302830"></span>
+                                <span class="theme-swatch" title="#5C4B5D" style="background:#5C4B5D"></span>
+                                <span class="theme-swatch" title="#948493" style="background:#948493"></span>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <div class="theme-label">BRAND &amp; BUTTONS</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#B88AA8" style="background:#B88AA8"></span>
+                                <span class="theme-swatch" title="#7D5576" style="background:#7D5576"></span>
+                                <span class="theme-swatch" title="#ECDDE8" style="background:#ECDDE8"></span>
+                            </div>
+                        </div>
+                        <p class="theme-note">柔らかい紫灰。強い業務感を抑える。</p>
+                    </article>
+
+                    <article class="theme-card">
+                        <h3>Deep Mint</h3>
+                        <div class="theme-divider"></div>
+                        <div class="theme-section">
+                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#FBFDFC" style="background:#FBFDFC"></span>
+                                <span class="theme-swatch" title="#F2F6F4" style="background:#F2F6F4"></span>
+                                <span class="theme-swatch" title="#203530" style="background:#203530"></span>
+                                <span class="theme-swatch" title="#33534B" style="background:#33534B"></span>
+                                <span class="theme-swatch" title="#778880" style="background:#778880"></span>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <div class="theme-label">BRAND &amp; BUTTONS</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#75A995" style="background:#75A995"></span>
+                                <span class="theme-swatch" title="#407866" style="background:#407866"></span>
+                                <span class="theme-swatch" title="#DDECE5" style="background:#DDECE5"></span>
+                            </div>
+                        </div>
+                        <p class="theme-note">緑を抑えたミント。完了色とは分離が必要。</p>
+                    </article>
+
+                    <article class="theme-card">
+                        <h3>Cool Graphite</h3>
+                        <div class="theme-divider"></div>
+                        <div class="theme-section">
+                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#FBFBFA" style="background:#FBFBFA"></span>
+                                <span class="theme-swatch" title="#F1F2F2" style="background:#F1F2F2"></span>
+                                <span class="theme-swatch" title="#191A1C" style="background:#191A1C"></span>
+                                <span class="theme-swatch" title="#2F3338" style="background:#2F3338"></span>
+                                <span class="theme-swatch" title="#7B8086" style="background:#7B8086"></span>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <div class="theme-label">BRAND &amp; BUTTONS</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#8B929A" style="background:#8B929A"></span>
+                                <span class="theme-swatch" title="#22262B" style="background:#22262B"></span>
+                                <span class="theme-swatch" title="#E3E5E7" style="background:#E3E5E7"></span>
+                            </div>
+                        </div>
+                        <p class="theme-note">補完案。最もモノトーンで、色の競合が少ない。</p>
+                    </article>
+
+                    <article class="theme-card">
+                        <h3>Crimson Ledger</h3>
+                        <div class="theme-divider"></div>
+                        <div class="theme-section">
+                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#FFFDFD" style="background:#FFFDFD"></span>
+                                <span class="theme-swatch" title="#F7F1F1" style="background:#F7F1F1"></span>
+                                <span class="theme-swatch" title="#321D20" style="background:#321D20"></span>
+                                <span class="theme-swatch" title="#5B2C31" style="background:#5B2C31"></span>
+                                <span class="theme-swatch" title="#8B6F73" style="background:#8B6F73"></span>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <div class="theme-label">BRAND &amp; BUTTONS</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#B5525B" style="background:#B5525B"></span>
+                                <span class="theme-swatch" title="#7F2F38" style="background:#7F2F38"></span>
+                                <span class="theme-swatch" title="#F0D8DB" style="background:#F0D8DB"></span>
+                            </div>
+                        </div>
+                        <p class="theme-note">補完案。Warm Sandstoneと分離した落ち着いた赤系。</p>
+                    </article>
+
+                    <article class="theme-card">
+                        <h3>Olive Steel</h3>
+                        <div class="theme-divider"></div>
+                        <div class="theme-section">
+                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#FCFCF9" style="background:#FCFCF9"></span>
+                                <span class="theme-swatch" title="#F2F4EF" style="background:#F2F4EF"></span>
+                                <span class="theme-swatch" title="#2B3328" style="background:#2B3328"></span>
+                                <span class="theme-swatch" title="#485443" style="background:#485443"></span>
+                                <span class="theme-swatch" title="#818A77" style="background:#818A77"></span>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <div class="theme-label">BRAND &amp; BUTTONS</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#8EA16E" style="background:#8EA16E"></span>
+                                <span class="theme-swatch" title="#566B45" style="background:#566B45"></span>
+                                <span class="theme-swatch" title="#E5EAD9" style="background:#E5EAD9"></span>
+                            </div>
+                        </div>
+                        <p class="theme-note">補完案。Matcha Fogより硬く業務寄り。</p>
+                    </article>
+
+                    <article class="theme-card">
+                        <h3>Soft Azure</h3>
+                        <div class="theme-divider"></div>
+                        <div class="theme-section">
+                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#FFFFFF" style="background:#FFFFFF"></span>
+                                <span class="theme-swatch" title="#F4F7FA" style="background:#F4F7FA"></span>
+                                <span class="theme-swatch" title="#1E2B3A" style="background:#1E2B3A"></span>
+                                <span class="theme-swatch" title="#34475C" style="background:#34475C"></span>
+                                <span class="theme-swatch" title="#738197" style="background:#738197"></span>
+                            </div>
+                        </div>
+                        <div class="theme-section">
+                            <div class="theme-label">BRAND &amp; BUTTONS</div>
+                            <div class="theme-swatches">
+                                <span class="theme-swatch" title="#7EA7C7" style="background:#7EA7C7"></span>
+                                <span class="theme-swatch" title="#406A8A" style="background:#406A8A"></span>
+                                <span class="theme-swatch" title="#DCEAF2" style="background:#DCEAF2"></span>
+                            </div>
+                        </div>
+                        <p class="theme-note">補完案。青系でも子供っぽくならない低彩度。</p>
+                    </article>
+                </div>
+            </section>
+        </section>
     </main>
     <script>
-        (function () {
-            // 確定した寒色アナログ5色パレット（調和を崩さない範囲で判別可能な色のみ）
-            var PALETTE = ['#3a72b4', '#1f8fa0', '#2f9579', '#5562ad', '#7a5ba6'];
-            var PALETTE_NAMES = ['ブルー', 'シアン', 'ティールグリーン', 'インディゴ', 'バイオレット'];
-            // 5社（belong-1〜5）。初期は5色を1対1で割り当て
-            var COMPANIES = [
-                { id: 1, label: 'A社' },
-                { id: 2, label: 'B社' },
-                { id: 3, label: 'C社' },
-                { id: 4, label: 'D社' },
-                { id: 5, label: 'E社' }
-            ];
-            var assigned = [0, 1, 2, 3, 4];
-            var root = document.documentElement;
-            var list = document.getElementById('bcList');
+        const belongPalette = [
+            { id: 1, name: "Slate Blue", hex: "#4F6F9F", bg: "#F3F7FC", border: "#CAD7EA" },
+            { id: 2, name: "Steel Cyan", hex: "#2F7E9A", bg: "#F1F8FA", border: "#C4DCE5" },
+            { id: 3, name: "Blue Gray", hex: "#637A8E", bg: "#F4F7F9", border: "#CED8E0" },
+            { id: 4, name: "Indigo", hex: "#5967B1", bg: "#F5F6FC", border: "#CCD1EB" },
+            { id: 5, name: "Soft Violet", hex: "#7A6BAE", bg: "#F7F5FB", border: "#D6CEE9" },
+            { id: 6, name: "Plum Slate", hex: "#8A638E", bg: "#F9F5FA", border: "#DDCEDF" },
+            { id: 7, name: "Deep Azure", hex: "#3D73B7", bg: "#F2F6FC", border: "#C8D7ED" },
+            { id: 8, name: "Teal Slate", hex: "#2C7C78", bg: "#F1F8F7", border: "#C4DDD9" },
+            { id: 9, name: "Periwinkle", hex: "#7185C6", bg: "#F6F7FD", border: "#D2DAF0" },
+            { id: 10, name: "Graphite", hex: "#6F7784", bg: "#F5F7F8", border: "#D4DAE0" }
+        ];
+
+        const belongCompanies = ["A社", "B社", "C社", "D社", "E社", "F社", "G社", "H社", "I社", "J社"];
+        const belongAssignments = belongPalette.map((color) => color.id);
+
+        function applyBelongVariables() {
+            const root = document.documentElement;
+            belongAssignments.forEach((colorId, index) => {
+                const color = belongPalette.find((item) => item.id === colorId);
+                root.style.setProperty(`--belong-${index + 1}`, color.hex);
+                root.style.setProperty(`--belong-${index + 1}-bg`, color.bg);
+                root.style.setProperty(`--belong-${index + 1}-border`, color.border);
+            });
+        }
+
+        function renderBelongConfig() {
+            const list = document.getElementById("bcList");
             if (!list) return;
 
-            function applyColor(companyIdx) {
-                root.style.setProperty('--belong-' + COMPANIES[companyIdx].id, PALETTE[assigned[companyIdx]]);
-            }
+            list.innerHTML = belongCompanies.map((company, index) => {
+                const current = belongPalette.find((color) => color.id === belongAssignments[index]);
+                const options = belongPalette.map((color) => {
+                    const selected = color.id === current.id ? " is-selected" : "";
+                    return `<button class="belong-option${selected}" type="button" style="--swatch:${color.hex}" data-company="${index + 1}" data-color="${color.id}" title="${company}: ${color.name} ${color.hex}" aria-label="${company}: ${color.name} ${color.hex}"></button>`;
+                }).join("");
+                return `
+                    <div class="belong-row" style="--row-color:${current.hex};--row-bg:${current.bg};--row-border:${current.border}" title="${company}: ${current.name} ${current.hex}">
+                        <div class="belong-company">
+                            <strong>${company}</strong>
+                            <span>belong-${index + 1}</span>
+                        </div>
+                        <div class="belong-options" role="group" aria-label="${company}の所属会社色">
+                            ${options}
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
 
-            // 各社が必ず異なる色を持つよう、色が衝突したら旧色とスワップ
-            function select(companyIdx, paletteIdx) {
-                var prev = assigned[companyIdx];
-                if (prev === paletteIdx) return;
-                var holder = assigned.indexOf(paletteIdx);
-                assigned[companyIdx] = paletteIdx;
-                if (holder !== -1 && holder !== companyIdx) {
-                    assigned[holder] = prev;
-                    applyColor(holder);
-                }
-                applyColor(companyIdx);
-                render();
-            }
+        function selectBelongColor(companyNumber, colorId) {
+            const companyIndex = companyNumber - 1;
+            const currentColor = belongAssignments[companyIndex];
+            if (currentColor === colorId) return;
 
-            function render() {
-                list.innerHTML = '';
-                COMPANIES.forEach(function (co, ci) {
-                    var row = document.createElement('div');
-                    row.className = 'bc-row';
-                    var label = document.createElement('span');
-                    label.className = 'bc-label';
-                    label.textContent = co.label;
-                    row.appendChild(label);
-                    var sw = document.createElement('div');
-                    sw.className = 'bc-swatches';
-                    PALETTE.forEach(function (color, pi) {
-                        var b = document.createElement('button');
-                        b.type = 'button';
-                        b.className = 'bc-swatch' + (assigned[ci] === pi ? ' selected' : '');
-                        b.style.background = color;
-                        b.title = PALETTE_NAMES[pi];
-                        b.setAttribute('aria-label', co.label + ' を ' + PALETTE_NAMES[pi] + ' に');
-                        b.addEventListener('click', function () { select(ci, pi); });
-                        sw.appendChild(b);
-                    });
-                    row.appendChild(sw);
-                    list.appendChild(row);
-                });
+            const otherIndex = belongAssignments.findIndex((assigned, index) => assigned === colorId && index !== companyIndex);
+            if (otherIndex >= 0) {
+                belongAssignments[otherIndex] = currentColor;
             }
+            belongAssignments[companyIndex] = colorId;
+            applyBelongVariables();
+            renderBelongConfig();
+        }
 
-            render();
-        })();
+        document.addEventListener("click", (event) => {
+            const button = event.target.closest(".belong-option");
+            if (!button) return;
+            selectBelongColor(Number(button.dataset.company), Number(button.dataset.color));
+        });
+
+        applyBelongVariables();
+        renderBelongConfig();
     </script>
 </body>
 </html>
