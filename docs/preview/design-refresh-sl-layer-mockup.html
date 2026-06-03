@@ -39,19 +39,19 @@
             --gc-line-soft: #7f9bae;
             --gc-row-a: #f7fbff;
             --gc-row-b: #f5f8fa;
-            --belong-1: #34546b;
+            --belong-1: #3a72b4;
             --belong-1-bg: #f7fbff;
             --belong-1-border: #d8e5f0;
-            --belong-2: #3f6684;
+            --belong-2: #1f8fa0;
             --belong-2-bg: #f7fbff;
             --belong-2-border: #d8e5f0;
-            --belong-3: #2f747d;
+            --belong-3: #2f9579;
             --belong-3-bg: #f7fbff;
             --belong-3-border: #d8e5f0;
-            --belong-4: #4b5d7b;
+            --belong-4: #5562ad;
             --belong-4-bg: #f7fbff;
             --belong-4-border: #d8e5f0;
-            --belong-5: #4f6d7a;
+            --belong-5: #7a5ba6;
             --belong-5-bg: #f7fbff;
             --belong-5-border: #d8e5f0;
             --elevation-0: none;
@@ -744,18 +744,6 @@
             transform: translate(-50%, 0);
         }
 
-        .contact.none .contact-icon {
-            filter: invert(57%) sepia(18%) saturate(463%) hue-rotate(162deg) brightness(93%) contrast(88%);
-        }
-
-        .contact.done .contact-icon {
-            filter: invert(30%) sepia(77%) saturate(1168%) hue-rotate(185deg) brightness(88%) contrast(93%);
-        }
-
-        .contact.recall .contact-icon {
-            filter: invert(42%) sepia(98%) saturate(2358%) hue-rotate(354deg) brightness(101%) contrast(103%);
-        }
-
         .alert-row {
             display: flex;
             gap: 6px;
@@ -849,7 +837,7 @@
             background: linear-gradient(180deg, #ffffff 0%, var(--belong-bg, #f7fbff) 100%);
             border: 1px solid var(--belong-border, #d5e2ec);
             font-size: var(--table-font);
-            font-weight: var(--table-strong);
+            font-weight: var(--table-data-weight);
             font-variant-numeric: tabular-nums;
             white-space: nowrap;
             box-shadow: var(--shadow-chip);
@@ -1160,6 +1148,68 @@
                 width: 1388px;
             }
         }
+
+        .belong-config {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 0 0 10px;
+            padding: 10px 14px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--elevation-1);
+        }
+
+        .bc-title {
+            font-weight: 800;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .bc-list {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .bc-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .bc-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .bc-swatches {
+            display: inline-flex;
+            gap: 4px;
+        }
+
+        .bc-swatch {
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            border: 2px solid transparent;
+            padding: 0;
+            cursor: pointer;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+            transition: transform 110ms ease, box-shadow 110ms ease;
+        }
+
+        .bc-swatch:hover {
+            transform: translateY(-1px);
+        }
+
+        .bc-swatch.selected {
+            border-color: var(--ink);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 1px 3px rgba(0, 0, 0, 0.22);
+        }
     </style>
 </head>
 <body>
@@ -1185,6 +1235,11 @@
                     所属色
                 </span>
             </div>
+        </section>
+
+        <section class="belong-config" aria-label="所属カラー設定">
+            <span class="bc-title">所属カラー（各社 5色から選択）</span>
+            <div class="bc-list" id="bcList"></div>
         </section>
 
         <section class="app">
@@ -1285,13 +1340,13 @@
                                     <div class="person belong-1" draggable="true">
                                         <span class="person-name">林</span>
                                         <span class="contact done" tabindex="0" data-tip="連絡済み" aria-label="連絡済み">
-                                            <img class="contact-icon" src="../assets/icons/pc-tech/im-11709-denwa-hasshin-chuu.svg" alt="">
+                                            <img class="contact-icon" src="../assets/icons/pc-tech/si-26526-telephone-call.png" alt="">
                                         </span>
                                     </div>
                                     <div class="person belong-2" draggable="true">
                                         <span class="person-name">山田</span>
                                         <span class="contact none" tabindex="0" data-tip="未連絡（要連絡）" aria-label="未連絡（要連絡）">
-                                            <img class="contact-icon" src="../assets/icons/pc-tech/im-11709-denwa-hasshin-chuu.svg" alt="">
+                                            <img class="contact-icon" src="../assets/icons/pc-tech/im-00027-denwa-no-juwaki.svg" alt="">
                                         </span>
                                     </div>
                                 </div>
@@ -1334,7 +1389,7 @@
                                     <div class="person belong-3" draggable="true">
                                         <span class="person-name">佐藤</span>
                                         <span class="contact recall" tabindex="0" data-tip="再連絡必要" aria-label="再連絡必要">
-                                            <img class="contact-icon" src="../assets/icons/pc-tech/im-11709-denwa-hasshin-chuu.svg" alt="">
+                                            <img class="contact-icon" src="../assets/icons/pc-tech/si-36957-tel-orikaeshi.png" alt="">
                                         </span>
                                     </div>
                                     <div class="alert-row">
@@ -1385,13 +1440,13 @@
                                     <div class="person belong-4" draggable="true">
                                         <span class="person-name">高橋</span>
                                         <span class="contact done" tabindex="0" data-tip="連絡済み" aria-label="連絡済み">
-                                            <img class="contact-icon" src="../assets/icons/pc-tech/im-11709-denwa-hasshin-chuu.svg" alt="">
+                                            <img class="contact-icon" src="../assets/icons/pc-tech/si-26526-telephone-call.png" alt="">
                                         </span>
                                     </div>
                                     <div class="person belong-5" draggable="true">
                                         <span class="person-name">伊藤</span>
                                         <span class="contact none" tabindex="0" data-tip="未連絡（要連絡）" aria-label="未連絡（要連絡）">
-                                            <img class="contact-icon" src="../assets/icons/pc-tech/im-11709-denwa-hasshin-chuu.svg" alt="">
+                                            <img class="contact-icon" src="../assets/icons/pc-tech/im-00027-denwa-no-juwaki.svg" alt="">
                                         </span>
                                     </div>
                                     <div class="alert-row">
@@ -1508,5 +1563,70 @@
             </div>
         </section>
     </main>
+    <script>
+        (function () {
+            // 確定した寒色アナログ5色パレット（調和を崩さない範囲で判別可能な色のみ）
+            var PALETTE = ['#3a72b4', '#1f8fa0', '#2f9579', '#5562ad', '#7a5ba6'];
+            var PALETTE_NAMES = ['ブルー', 'シアン', 'ティールグリーン', 'インディゴ', 'バイオレット'];
+            // 5社（belong-1〜5）。初期は5色を1対1で割り当て
+            var COMPANIES = [
+                { id: 1, label: 'A社' },
+                { id: 2, label: 'B社' },
+                { id: 3, label: 'C社' },
+                { id: 4, label: 'D社' },
+                { id: 5, label: 'E社' }
+            ];
+            var assigned = [0, 1, 2, 3, 4];
+            var root = document.documentElement;
+            var list = document.getElementById('bcList');
+            if (!list) return;
+
+            function applyColor(companyIdx) {
+                root.style.setProperty('--belong-' + COMPANIES[companyIdx].id, PALETTE[assigned[companyIdx]]);
+            }
+
+            // 各社が必ず異なる色を持つよう、色が衝突したら旧色とスワップ
+            function select(companyIdx, paletteIdx) {
+                var prev = assigned[companyIdx];
+                if (prev === paletteIdx) return;
+                var holder = assigned.indexOf(paletteIdx);
+                assigned[companyIdx] = paletteIdx;
+                if (holder !== -1 && holder !== companyIdx) {
+                    assigned[holder] = prev;
+                    applyColor(holder);
+                }
+                applyColor(companyIdx);
+                render();
+            }
+
+            function render() {
+                list.innerHTML = '';
+                COMPANIES.forEach(function (co, ci) {
+                    var row = document.createElement('div');
+                    row.className = 'bc-row';
+                    var label = document.createElement('span');
+                    label.className = 'bc-label';
+                    label.textContent = co.label;
+                    row.appendChild(label);
+                    var sw = document.createElement('div');
+                    sw.className = 'bc-swatches';
+                    PALETTE.forEach(function (color, pi) {
+                        var b = document.createElement('button');
+                        b.type = 'button';
+                        b.className = 'bc-swatch' + (assigned[ci] === pi ? ' selected' : '');
+                        b.style.background = color;
+                        b.title = PALETTE_NAMES[pi];
+                        b.setAttribute('aria-label', co.label + ' を ' + PALETTE_NAMES[pi] + ' に');
+                        b.addEventListener('click', function () { select(ci, pi); });
+                        sw.appendChild(b);
+                    });
+                    row.appendChild(sw);
+                    list.appendChild(row);
+                });
+            }
+
+            render();
+        })();
+    </script>
 </body>
 </html>
