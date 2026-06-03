@@ -398,10 +398,6 @@
             align-items: center;
         }
 
-        /* 配置リストを含むセルは縦ストレッチし、alert-row を最下部へ押し下げる */
-        .cell:not(.site-cell):not(.head):has(.assign-list) {
-            align-items: stretch;
-        }
 
         .cell.head {
             min-height: 32px;
@@ -660,11 +656,6 @@
             width: 100%;
         }
 
-        /* 情報系バッジ(alert-row)はバッジ横に並べず、配置セルの最下部に表示 */
-        .assign-list .alert-row {
-            margin-top: auto;
-            width: 100%;
-        }
 
         .person {
             position: relative;
@@ -1558,6 +1549,9 @@
                             <div class="cell site-cell nikkei night-text" data-gc="Nikkeiホールディングス">
                                 <div class="client">港湾開発</div>
                                 <div class="site-name">港湾道路 夜間片交</div>
+                                <div class="site-icons">
+                                    <span class="info-pill missing">資格者不足</span>
+                                </div>
                             </div>
                             <div class="cell center-cell night-text">
                                 <div class="time-block">
@@ -1590,15 +1584,10 @@
                                         <span class="flare-source" aria-hidden="true"></span>
                                     </div>
                                     </div>
-                                    <div class="alert-row">
-                                        <span class="info-pill missing">資格者不足</span>
-                                    </div>
                                 </div>
                             </div>
                             <div class="cell">
                                 <div class="vehicle">
-                                    <span class="vehicle-tag" draggable="true">未配</span>
-                                    <span class="vehicle-tag" draggable="true">ETC未</span>
                                 </div>
                             </div>
 
@@ -1620,9 +1609,8 @@
                             </div>
                             <div class="cell center-cell">
                                 <div class="time-block">
-                                    <span class="time-stack" aria-label="08:30 から 未定">
+                                    <span class="time-stack" aria-label="08:30">
                                         <span class="time-line">08:30</span>
-                                        <span class="time-line">未定</span>
                                     </span>
                                 </div>
                             </div>
@@ -1651,9 +1639,6 @@
                                         </span>
                                         <span class="flare-source" aria-hidden="true"></span>
                                     </div>
-                                    </div>
-                                    <div class="alert-row">
-                                        <span class="info-pill missing">OB確認待ち</span>
                                     </div>
                                 </div>
                             </div>
