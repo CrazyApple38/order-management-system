@@ -7,26 +7,23 @@
 
 ## 最終更新
 
-- **更新者**: Codex (GPT-5)
-- **日付**: 2026-06-01
-- **コミット**: 73fd349（直前 HEAD。本「design-refresh スマホ表示修正」作業は**未コミット**）
+- **更新者**: Claude Code (Opus 4.8)
+- **日付**: 2026-06-03
+- **コミット**: 1601496（直前 HEAD。本コミットで SL 情報レイヤー計画反映＋モック配色調整を反映）
 
 ## 直前にやったこと
 
-- `SL画面で OmsMockStore.getLeaveApplications()` が空になり LA通知 seed が 0件になる原因を調査・修正。LA seed を `mock-assignments-data.js` の共通生成へ移し、未初期化ストアでも `co-mock-store.js` が同 seed を返すようにした。
-- `co-navbar.js` の LA seed 表示で、承認済み通知は現在表示日を優先するよう修正。空ストア直後の SL で `getLeaveApplications()` 17件、申請・承認ベル表示、LA通知カードクリック → SL休み社員スポットライト表示、console error 0 を確認。
-- デザイン不評の原因調査として、業務管理計画書・受注簿・週間予定表の監査スクショを `screenshots/design-audit-*.png` に保存し、簡易メトリクス（罫線/小文字/色面）を取得。
-- `docs/plan/design-refresh-plan.md` を新規作成し、現行診断・不評要因・段階実装フェーズを整理。ユーザー判断で案Bを採用しつつ、SL中央一覧性維持・右プロパティ編集・右パネルアイコン切替・二層検索を含む **案B改: Calm Operations** へ更新。
-- `docs/preview/design-refresh-compare.html` に A/B/C の3案比較に加え、案B改の Before/After 差分（黒オーバーレイ中央モーダル → 右プロパティ編集、中央配置検索 + 右候補検索）を追加。ユーザー指摘を受け、B案寄りのカード型ワークスペース・青系グラデーション・柔らかい影へ再調整。Material / Neumorphism / Glassmorphism / Dense Ops の着せ替え構想カードも追加。
-- さらに Photoshop 型の上部横メニュー/ツールバー + 下部縦アイコンレール + 右プロパティ編集の B案v2 モックを追加。SL中央メインは列を省略しない高密度表示サンプルにし、`docs/assets/icons/` 配下 SVG をアイコンとして使用。
-- 同じ B案v2 骨格を OB / Quick Access / WS / 経理 / LA へ展開した画面例を追加。各画面とも上部横ツールバー、左縦アイコンレール、中央メイン、右プロパティの構成で比較可能にした。
-- `design-refresh-compare.html` のスマホ表示を修正。A/B/C案モック、B案v2、他画面展開例はスマホ幅で内部レイアウトを崩さず、各モック枠内で横スクロールして確認できるようにした。
+- (Codex) SL を「OB受注情報を配置担当者が翌日以降の実行可能な社員指示へ確定していく画面」として整理。`docs/01_要件定義.md` 3.2/5.1.3 と `docs/plan/design-refresh-plan.md` に SL 情報レイヤー方針（共通コア/配置判断/社員連絡/差分・権限/区分制約/中央グリッド・右プロパティ分担）を追記。`docs/preview/design-refresh-sl-layer-mockup.html` を新規作成（中央7列表＋縦型アイコンメニュー＋右プロパティ、左メニュー濃紺＋マテリアル表現、Inter/Noto Sans JP）。
+- (Claude Code) 上記モックの配色をカラーコーディネート観点で調整。夜間/警告文字を赤寄せ・トーンダウン（`--accent-text-warn: #cf4626`）、`不足` バッジをオレンジ塗り＋白文字、中央表データ文字（時間/人数/現場名/社員名）をセミボールド `600`（`--table-data-weight`）に。
+- (Claude Code) タイトルバーを紺→青→ティールのアナロガス2色グラデ＋ガラスエッジに（変数 `--title-navy`/`--title-blue-mid`/`--title-teal`）。左メニュー濃紺・ベース淡青を基準に画面全体を青〜ティール基調へ統一。
+- (Claude Code) アクセントオレンジの彩度を抑え（`--accent-orange: #f15e2a`）、所属ドット `belong-5` を緑グレー→青グレー（`#4f6d7a`）へ。`belong-3` のティールはタイトルバーと呼応するため温存。
 
 ## 次にやるべきこと
 
-- **現在の未コミット差分**は `docs/preview/design-refresh-compare.html` / `docs/HANDOFF.md`。スマホ確認スクショ `screenshots/design-refresh-mobile-layout.png` は保存済みだが `screenshots/` 配下のため通常 `git status` では ignored（必要なら force add）。
+- 上記4ファイル（plan / 要件定義 / HANDOFF / sl-layer-mockup）は本コミットで反映済み。SL モックの配色は **青〜ティール基調＋オレンジ1アクセントで確定**（左メニュー濃紺・ベース淡青・タイトルバー紺→青→ティール・アクセント `#f15e2a`）。今後の SL 系モック/実装はこのパレットに準拠する。
 - `docs/00_開発手順書.md` のモック状態表とプロジェクトルート `CLAUDE.md` の表に「E 休日申請管理」表記が残存（今回スコープ外）。用語統一を広げる場合は別途。
-- デザイン刷新は **案B改: Calm Operations / B案v2 デスクトップワークスペース方向で継続**。次は SL 実画面へ適用する前に、右パネル切替の対象範囲（社員/車両/応援/予約/編集）と、中央配置検索の検索対象（社員・車両・現場・応援）を確定する。
+- デザイン刷新は **案B改: Calm Operations / B案v2 デスクトップワークスペース方向で継続**。ツールバーはフラット維持、左メニュー、中央業務管理計画書パネル、中央右の縦型アイコンメニュー、右プロパティカードは同じマテリアル表現で統一済み。影は高さレイヤーとして扱い、縦型アイコンメニューが最上位。
+- まだ議論すべき課題: 車両/ETCの中央表示優先度、固定行の見せ方、社員連絡の最終出力仕様（LINE等）、印刷帳票との情報差、右プロパティ内の情報密度。
 - WS `schedule×modify`（busy 移動 / 候補リスト移動）は構文 OK だが Playwright 実 UI 未実証。
 - Phase 2.5（モックアップ検証）への通知システム登録。
 - mock-data-unification-plan は Phase 1+2 完了（残: WS `wsVehiclesData`/`wsSitesData` 共通ソース統一は将来課題）。

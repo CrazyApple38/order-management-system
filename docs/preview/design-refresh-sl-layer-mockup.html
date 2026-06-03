@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SL 情報レイヤー モックアップ</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap");
+
+        :root {
+            --font-sans: "Inter", "Noto Sans JP", "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+            --bg: #eef4f8;
+            --panel: #ffffff;
+            --ink: #172b3a;
+            --muted: #667786;
+            --line: #dbe5ec;
+            --soft-line: #e8eef3;
+            --blue: #1f5fae;
+            --blue-dark: #123b5d;
+            --title-navy: #17446e;
+            --title-blue-mid: #1d5d8c;
+            --title-teal: #149aa6;
+            --blue-soft: #eaf3ff;
+            --accent-orange: #f15e2a;
+            --accent-orange-deep: #d94b0f;
+            --accent-orange-soft: #fff2eb;
+            --accent-orange-border: #ffb18a;
+            --accent-text-warn: #cf4626;
+            --night-text: var(--accent-text-warn);
+            --alert-text: var(--accent-text-warn);
+            --alert-bg: var(--accent-orange-soft);
+            --alert-border: var(--accent-orange-border);
+            --info-text: #1f5fae;
+            --info-bg: #edf6ff;
+            --info-border: #bfd7f4;
+            --neutral-chip-text: #385569;
+            --neutral-chip-bg: #eef4f8;
+            --gc-line: #2c6fa3;
+            --gc-line-soft: #7f9bae;
+            --gc-row-a: #f7fbff;
+            --gc-row-b: #f5f8fa;
+            --belong-1: #34546b;
+            --belong-1-bg: #f7fbff;
+            --belong-1-border: #d8e5f0;
+            --belong-2: #3f6684;
+            --belong-2-bg: #f7fbff;
+            --belong-2-border: #d8e5f0;
+            --belong-3: #2f747d;
+            --belong-3-bg: #f7fbff;
+            --belong-3-border: #d8e5f0;
+            --belong-4: #4b5d7b;
+            --belong-4-bg: #f7fbff;
+            --belong-4-border: #d8e5f0;
+            --belong-5: #4f6d7a;
+            --belong-5-bg: #f7fbff;
+            --belong-5-border: #d8e5f0;
+            --elevation-0: none;
+            --elevation-1: 0 2px 6px rgba(38, 73, 99, 0.045), 0 1px 2px rgba(38, 73, 99, 0.030);
+            --elevation-2: 0 4px 10px rgba(38, 73, 99, 0.060), 0 2px 4px rgba(38, 73, 99, 0.035);
+            --elevation-3: 0 6px 14px rgba(38, 73, 99, 0.070), 0 2px 5px rgba(38, 73, 99, 0.040);
+            --elevation-4: 0 8px 18px rgba(38, 73, 99, 0.080), 0 3px 7px rgba(38, 73, 99, 0.045);
+            --elevation-5: 0 14px 30px rgba(24, 55, 78, 0.115), 0 5px 12px rgba(24, 55, 78, 0.070);
+            --shadow-table: var(--elevation-3);
+            --shadow-material: var(--elevation-3);
+            --shadow-material-soft: var(--elevation-1);
+            --inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.88);
+            --inset-edge: inset 0 -1px 0 rgba(75, 105, 126, 0.08);
+            --shadow-chip: var(--elevation-2), 0 1px 0 rgba(255, 255, 255, 0.86) inset;
+            --shadow-chip-hover: var(--elevation-3), 0 1px 0 rgba(255, 255, 255, 0.88) inset;
+            --radius: 8px;
+            --table-font: 13px;
+            --table-main: 15px;
+            --table-strong: 800;
+            --table-data-weight: 600;
+            --table-leading: 1.28;
+            --icon-warning: url("../assets/icons/sign-mark/im-11908-chuui-maaku.svg");
+            --icon-doc: url("../assets/icons/business/im-16148-shorui.svg");
+            --icon-person: url("../assets/icons/person/im-00142-jimbutsu-no-aikon-sozai-sono-2.svg");
+            --icon-car: url("../assets/icons/transport/im-00237-jidousha-no-aikon-sozai-sono-2.svg");
+            --icon-bell: url("../assets/icons/sign-mark/im-00155-beru-no-aikon-sozai-sono-5.svg");
+            --icon-settings: url("../assets/icons/sign-mark/im-00001-muryou-no-settei-haguruma.svg");
+            --icon-phone: url("../assets/icons/pc-tech/im-11709-denwa-hasshin-chuu.svg");
+            --icon-task: url("../assets/icons/business/im-16152-tasuku-torei.svg");
+            --icon-contact: url("../assets/icons/business/im-11139-adoresu-chou.svg");
+            --icon-history: url("../assets/icons/sign-mark/im-11972-riroudo.svg");
+            --icon-support: url("../assets/icons/business/im-11435-akushu.svg");
+            font-family: var(--font-sans);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            font-family: var(--font-sans);
+            background:
+                radial-gradient(circle at 16% -10%, rgba(31, 95, 174, 0.13), transparent 26%),
+                linear-gradient(180deg, #f7fbff 0%, var(--bg) 58%, #e8f0f6 100%);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .page {
+            width: min(1500px, calc(100vw - 32px));
+            margin: 0 auto;
+            padding: 20px 0 28px;
+        }
+
+        .top-note {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        h1 {
+            margin: 0 0 4px;
+            font-size: 22px;
+            letter-spacing: 0;
+        }
+
+        p { margin: 0; color: var(--muted); }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 28px;
+            padding: 0 10px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.82);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            display: inline-block;
+        }
+
+        .dot.night { background: var(--night-text); }
+        .dot.alert { background: var(--alert-bg); border: 1px solid var(--alert-border); }
+        .dot.gc { background: var(--gc-line); }
+        .dot.category { background: var(--blue); }
+        .dot.belong-1 { background: var(--belong-1); }
+        .dot.belong-2 { background: var(--belong-2); }
+        .dot.belong-3 { background: var(--belong-3); }
+        .dot.belong-4 { background: var(--belong-4); }
+        .dot.belong-5 { background: var(--belong-5); }
+
+        .belong-palette {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .app {
+            border: 1px solid #cddde9;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #f6f9fc;
+            box-shadow: var(--elevation-2);
+        }
+
+        .menubar {
+            height: 34px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 0 16px;
+            color: #dfeeff;
+            background: var(--blue-dark);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .toolbar {
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--line);
+            background: #f2f7fb;
+            box-shadow: var(--elevation-0);
+        }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn,
+        .filter-btn {
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 10px;
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            background: #fff;
+            color: var(--ink);
+            font-weight: 800;
+            box-shadow: var(--elevation-0);
+        }
+
+        .tool-btn.primary {
+            color: #fff;
+            background: var(--blue);
+            border-color: var(--blue);
+            box-shadow: var(--elevation-0);
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 72px minmax(918px, 1fr) 72px 288px;
+            min-height: 690px;
+            background:
+                linear-gradient(90deg, #e8f0f6 0, #f6f9fc 72px, transparent 72px),
+                #f6f9fc;
+        }
+
+        .rail {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            margin: 8px;
+            padding: 10px 9px;
+            border: 1px solid rgba(255, 255, 255, 0.82);
+            border-right-color: rgba(190, 207, 220, 0.78);
+            border-bottom-color: rgba(173, 194, 209, 0.68);
+            border-radius: 13px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(226, 236, 244, 0.62));
+            box-shadow:
+                var(--elevation-5),
+                inset 1px 0 0 rgba(255, 255, 255, 0.92),
+                inset -1px 0 0 rgba(53, 83, 104, 0.10);
+            overflow: hidden;
+        }
+
+        .rail::before {
+            content: "";
+            position: absolute;
+            inset: 1px;
+            border-radius: 11px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 16%),
+                linear-gradient(180deg, #133a5a, #0c2b45 64%, #09263d);
+            box-shadow:
+                inset 1px 0 0 rgba(255, 255, 255, 0.16),
+                inset -1px 0 0 rgba(0, 0, 0, 0.38),
+                3px 0 10px rgba(11, 31, 48, 0.22);
+        }
+
+        .rail button {
+            position: relative;
+            z-index: 1;
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .rail button.active {
+            color: #fff;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.10)),
+                rgba(255, 255, 255, 0.10);
+            border-color: rgba(255, 255, 255, 0.36);
+            box-shadow:
+                0 10px 22px rgba(0, 0, 0, 0.24),
+                inset 0 1px 0 rgba(255, 255, 255, 0.28),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.22);
+        }
+
+        .main {
+            min-width: 0;
+            padding: 14px 14px 18px;
+            overflow: auto;
+        }
+
+        .main-card {
+            min-width: 920px;
+            border: 1px solid rgba(204, 220, 232, 0.95);
+            border-radius: 14px;
+            overflow: hidden;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 249, 253, 0.86)),
+                var(--panel);
+            box-shadow:
+                var(--elevation-2),
+                var(--inset-highlight);
+        }
+
+        .main-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            padding: 13px 14px;
+            border-bottom: 1px solid rgba(10, 40, 64, 0.6);
+            background: linear-gradient(115deg, var(--title-navy) 0%, var(--title-blue-mid) 55%, var(--title-teal) 100%);
+            color: #fff;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.40),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+                inset 0 -1px 0 rgba(8, 40, 64, 0.5);
+        }
+
+        .main-title {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            font-weight: 900;
+            font-size: 18px;
+        }
+
+        .main-title span {
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .search {
+            width: 310px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            border: 1px solid rgba(255, 255, 255, 0.48);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .grid-frame {
+            margin: 10px;
+            padding: 6px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(240, 246, 251, 0.68)),
+                #f8fbfe;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.92),
+                inset 0 -1px 0 rgba(54, 86, 110, 0.06);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 58px 198px 82px 124px 88px 266px 162px;
+            color: var(--ink);
+            font-size: var(--table-font);
+            line-height: var(--table-leading);
+            overflow: hidden;
+            border-radius: 6px;
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+        }
+
+        .cell {
+            min-height: 72px;
+            padding: 8px 13px;
+            border-bottom: 1px solid var(--soft-line);
+            background: #fff;
+        }
+
+        .cell:not(.site-cell):not(.head) {
+            display: flex;
+            align-items: center;
+        }
+
+        .cell.head {
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            color: #31576f;
+            background: #f1f6fb;
+            font-size: 11px;
+            font-weight: var(--table-strong);
+            letter-spacing: 0.01em;
+        }
+
+        .grid .cell:nth-last-child(-n+7) { border-bottom: 0; }
+
+        .grid .cell:nth-child(n+8):nth-child(-n+14),
+        .grid .cell:nth-child(n+22):nth-child(-n+28) {
+            background: var(--gc-row-a);
+        }
+
+        .grid .cell:nth-child(n+15):nth-child(-n+21) {
+            background: var(--gc-row-b);
+        }
+
+        .center-cell {
+            justify-content: center;
+            text-align: center;
+        }
+
+        .category-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-inline: 8px;
+        }
+
+        .category-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background: var(--blue);
+            box-shadow: 0 2px 0 rgba(18, 59, 93, 0.12);
+            font-size: 12px;
+            font-weight: 900;
+            line-height: 1.08;
+            text-align: center;
+            word-break: keep-all;
+        }
+
+        .category-badge.long {
+            font-size: 10px;
+        }
+
+        .site-cell {
+            position: relative;
+        }
+
+        .site-cell[data-gc]::after {
+            content: attr(data-gc);
+            position: absolute;
+            left: 12px;
+            top: 10px;
+            z-index: 2;
+            display: none;
+            padding: 5px 8px;
+            border-radius: 7px;
+            color: #fff;
+            background: rgba(20, 38, 53, 0.92);
+            box-shadow: 0 10px 24px rgba(20, 38, 53, 0.18);
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .site-cell[data-gc]:hover::after {
+            display: block;
+        }
+
+        .meta-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 5px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            min-height: 20px;
+            padding: 0 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: var(--table-strong);
+            white-space: nowrap;
+        }
+
+        .cat-facility,
+        .cat-traffic,
+        .cat-highway,
+        .cat-event {
+            color: #fff;
+            background: var(--blue);
+        }
+
+        .client {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .site-name {
+            font-size: var(--table-main);
+            font-weight: var(--table-data-weight);
+            line-height: 1.32;
+        }
+
+        .night-text,
+        .night-text .client,
+        .night-text .site-name,
+        .night-text .time-main,
+        .night-text .time-sub,
+        .night-text .time-line,
+        .night-text .count-main,
+        .night-text .person-name {
+            color: var(--night-text);
+        }
+
+        .site-icons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-top: 7px;
+        }
+
+        .info-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 20px;
+            padding: 0 6px;
+            border-radius: 5px;
+            background: #f1f6fa;
+            color: #506575;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .info-pill.req {
+            color: var(--blue);
+            background: var(--blue-soft);
+        }
+
+        .info-pill.missing {
+            color: var(--info-text);
+            background: var(--info-bg);
+            border: 1px solid var(--info-border);
+        }
+
+        .time-block {
+            display: grid;
+            align-items: center;
+            justify-items: center;
+            gap: 0;
+            font-weight: var(--table-data-weight);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .time-main {
+            font-size: var(--table-main);
+            font-weight: var(--table-data-weight);
+            white-space: nowrap;
+        }
+
+        .time-sub {
+            color: var(--ink);
+            font-size: var(--table-main);
+            font-weight: var(--table-data-weight);
+        }
+
+        .time-stack {
+            display: grid;
+            justify-items: center;
+            gap: 0;
+            line-height: 1.12;
+        }
+
+        .time-line {
+            font-size: var(--table-main);
+            font-weight: var(--table-data-weight);
+            white-space: nowrap;
+        }
+
+        .count-main {
+            font-size: 16px;
+            font-weight: var(--table-data-weight);
+            font-variant-numeric: tabular-nums;
+            line-height: 1.1;
+            white-space: nowrap;
+        }
+
+        .count-line {
+            display: grid;
+            justify-items: center;
+            gap: 5px;
+        }
+
+        .count-state {
+            display: inline-flex;
+            align-items: center;
+            min-height: 20px;
+            padding: 0 6px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .count-state.ok {
+            color: var(--neutral-chip-text);
+            background: var(--neutral-chip-bg);
+        }
+
+        .count-state.short {
+            color: #fff;
+            background: var(--accent-orange);
+            border: 1px solid var(--accent-orange);
+        }
+
+        .count-state.over {
+            color: var(--info-text);
+            background: var(--info-bg);
+            border: 1px solid var(--info-border);
+        }
+
+        .assign-list {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px 7px;
+        }
+
+        .person {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            min-height: 26px;
+            min-width: 46px;
+            padding: 3px 8px;
+            border: 1px solid var(--belong-border, #d7e3ec);
+            border-radius: 5px;
+            background: linear-gradient(180deg, #ffffff 0%, var(--belong-bg, #f7fbff) 100%);
+            box-shadow: var(--shadow-chip);
+            color: var(--ink);
+            cursor: grab;
+            transition: box-shadow 120ms ease, transform 120ms ease, border-color 120ms ease;
+        }
+
+        .person::before {
+            content: "";
+            display: none;
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: var(--belong-color, transparent);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.86), 0 0 0 3px rgba(52, 84, 107, 0.14);
+            flex: 0 0 auto;
+        }
+
+        .person.belong-1::before,
+        .person.belong-2::before,
+        .person.belong-3::before,
+        .person.belong-4::before,
+        .person.belong-5::before {
+            display: block;
+        }
+
+        .person:hover {
+            border-color: var(--belong-color, #c5d7e5);
+            box-shadow: var(--shadow-chip-hover);
+            transform: translateY(-1px);
+        }
+
+        .belong-1 { --belong-color: var(--belong-1); --belong-bg: var(--belong-1-bg); --belong-border: var(--belong-1-border); }
+        .belong-2 { --belong-color: var(--belong-2); --belong-bg: var(--belong-2-bg); --belong-border: var(--belong-2-border); }
+        .belong-3 { --belong-color: var(--belong-3); --belong-bg: var(--belong-3-bg); --belong-border: var(--belong-3-border); }
+        .belong-4 { --belong-color: var(--belong-4); --belong-bg: var(--belong-4-bg); --belong-border: var(--belong-4-border); }
+        .belong-5 { --belong-color: var(--belong-5); --belong-bg: var(--belong-5-bg); --belong-border: var(--belong-5-border); }
+
+        .person-name {
+            display: inline-block;
+            max-width: 42px;
+            font-size: var(--table-font);
+            font-weight: var(--table-data-weight);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .contact {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 15px;
+            height: 15px;
+            border: 0;
+            background: transparent;
+            flex: 0 0 auto;
+            cursor: help;
+        }
+
+        .contact-icon {
+            display: block;
+            width: 14px;
+            height: 14px;
+            object-fit: contain;
+            opacity: 1;
+        }
+
+        .contact::after {
+            content: attr(data-tip);
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 8px);
+            z-index: 5;
+            min-width: 96px;
+            padding: 6px 8px;
+            border-radius: 7px;
+            color: #fff;
+            background: rgba(20, 38, 53, 0.94);
+            box-shadow: 0 10px 24px rgba(20, 38, 53, 0.2);
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1.35;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, 4px);
+            transition: opacity 120ms ease, transform 120ms ease;
+        }
+
+        .contact:hover::after,
+        .contact:focus-visible::after {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        .contact.none .contact-icon {
+            filter: invert(57%) sepia(18%) saturate(463%) hue-rotate(162deg) brightness(93%) contrast(88%);
+        }
+
+        .contact.done .contact-icon {
+            filter: invert(30%) sepia(77%) saturate(1168%) hue-rotate(185deg) brightness(88%) contrast(93%);
+        }
+
+        .contact.recall .contact-icon {
+            filter: invert(42%) sepia(98%) saturate(2358%) hue-rotate(354deg) brightness(101%) contrast(103%);
+        }
+
+        .alert-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 2px;
+        }
+
+        .alert-chip,
+        .warn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--alert-text);
+            background: var(--alert-bg);
+            border: 1px solid var(--alert-border);
+        }
+
+        .alert-chip {
+            gap: 4px;
+            min-height: 21px;
+            padding: 0 7px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: var(--table-strong);
+        }
+
+        .warn-icon {
+            position: relative;
+            width: 22px;
+            height: 22px;
+            flex: 0 0 auto;
+            border-radius: 7px;
+            cursor: help;
+        }
+
+        .warn-icon::before {
+            content: "";
+            width: 13px;
+            height: 13px;
+            background: currentColor;
+            -webkit-mask: var(--icon-warning) center / contain no-repeat;
+            mask: var(--icon-warning) center / contain no-repeat;
+        }
+
+        .warn-icon::after {
+            content: attr(data-tip);
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 8px);
+            z-index: 5;
+            min-width: 148px;
+            max-width: 220px;
+            padding: 7px 9px;
+            border-radius: 7px;
+            color: #fff;
+            background: rgba(20, 38, 53, 0.94);
+            box-shadow: 0 10px 24px rgba(20, 38, 53, 0.2);
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1.45;
+            white-space: normal;
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, 4px);
+            transition: opacity 120ms ease, transform 120ms ease;
+        }
+
+        .warn-icon:hover::after,
+        .warn-icon:focus-visible::after {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        .vehicle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px 6px;
+            width: 100%;
+        }
+
+        .vehicle-tag {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 23px;
+            min-width: 54px;
+            gap: 5px;
+            padding: 0 7px;
+            border-radius: 5px;
+            background: linear-gradient(180deg, #ffffff 0%, var(--belong-bg, #f7fbff) 100%);
+            border: 1px solid var(--belong-border, #d5e2ec);
+            font-size: var(--table-font);
+            font-weight: var(--table-strong);
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+            box-shadow: var(--shadow-chip);
+            color: var(--ink);
+            cursor: grab;
+            transition: box-shadow 120ms ease, transform 120ms ease, border-color 120ms ease;
+        }
+
+        .vehicle-tag::before {
+            content: "";
+            display: none;
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: var(--belong-color, transparent);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.86), 0 0 0 3px rgba(52, 84, 107, 0.14);
+            flex: 0 0 auto;
+        }
+
+        .vehicle-tag.belong-1::before,
+        .vehicle-tag.belong-2::before,
+        .vehicle-tag.belong-3::before,
+        .vehicle-tag.belong-4::before,
+        .vehicle-tag.belong-5::before {
+            display: block;
+        }
+
+        .vehicle-tag:hover {
+            border-color: var(--belong-color, #c2d4e2);
+            box-shadow: var(--shadow-chip-hover);
+            transform: translateY(-1px);
+        }
+
+        .vehicle-note {
+            display: block;
+            width: 100%;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .panel-rail {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 9px;
+            margin: 8px;
+            padding: 9px;
+            border: 1px solid rgba(205, 221, 233, 0.94);
+            border-radius: 13px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(229, 239, 247, 0.78)),
+                #edf5fc;
+            box-shadow:
+                var(--elevation-5),
+                var(--inset-highlight),
+                var(--inset-edge);
+        }
+
+        .panel-rail button {
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #c9dae8;
+            border-radius: 9px;
+            background: linear-gradient(180deg, #ffffff, #f4f9fe);
+            color: #143a56;
+            font-weight: 900;
+            box-shadow: var(--elevation-1), var(--inset-highlight);
+        }
+
+        .panel-rail button.active {
+            color: var(--blue);
+            background: #fff;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 2px rgba(34, 103, 203, 0.12), var(--elevation-2), var(--inset-highlight);
+        }
+
+        .icon {
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+            background-image: var(--icon-url);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+
+        .rail button:not(.active) .icon {
+            filter: invert(1);
+        }
+
+        .rail button.active .icon {
+            filter: invert(1);
+        }
+
+        .panel-rail .icon {
+            filter: invert(17%) sepia(41%) saturate(1170%) hue-rotate(166deg) brightness(91%) contrast(92%);
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .i-doc { --icon-url: var(--icon-doc); }
+        .i-person { --icon-url: var(--icon-person); }
+        .i-car { --icon-url: var(--icon-car); }
+        .i-bell { --icon-url: var(--icon-bell); }
+        .i-settings { --icon-url: var(--icon-settings); }
+        .i-task { --icon-url: var(--icon-task); }
+        .i-contact { --icon-url: var(--icon-contact); }
+        .i-history { --icon-url: var(--icon-history); }
+        .i-support { --icon-url: var(--icon-support); }
+
+        .prop {
+            padding: 12px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.56), rgba(232, 242, 249, 0.56)),
+                #f8fbfe;
+        }
+
+        .prop-card {
+            border: 1px solid rgba(204, 220, 232, 0.95);
+            border-radius: 14px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 250, 253, 0.88)),
+                #fff;
+            overflow: hidden;
+            box-shadow:
+                var(--elevation-2),
+                var(--inset-highlight);
+        }
+
+        .prop-head {
+            padding: 12px;
+            border-bottom: 1px solid var(--line);
+            background: linear-gradient(180deg, #ffffff, #f6faff);
+            box-shadow: var(--inset-highlight);
+        }
+
+        .prop-head strong {
+            display: block;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            padding: 10px;
+            border-bottom: 1px solid var(--line);
+            background: rgba(244, 249, 253, 0.72);
+        }
+
+        .tab {
+            height: 30px;
+            border: 1px solid #d4e2ed;
+            border-radius: 7px;
+            background: linear-gradient(180deg, #ffffff, #f6faff);
+            font-size: 12px;
+            font-weight: 900;
+            color: #456474;
+            box-shadow: var(--elevation-1), var(--inset-highlight);
+        }
+
+        .tab.active {
+            color: #fff;
+            background: linear-gradient(180deg, #2b72cb, var(--blue));
+            border-color: var(--blue);
+            box-shadow: var(--elevation-2), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+        }
+
+        .prop-body {
+            padding: 12px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .section {
+            border: 1px solid rgba(219, 229, 236, 0.96);
+            border-radius: 10px;
+            padding: 10px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 251, 255, 0.90)),
+                #fbfdff;
+            box-shadow:
+                var(--elevation-1),
+                var(--inset-highlight);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 7px;
+            font-weight: 900;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            height: 27px;
+            font-size: 11px;
+        }
+
+        .filter-btn.active {
+            color: #1f4f94;
+            background: var(--blue-soft);
+            border-color: #bad2ff;
+        }
+
+        .candidate {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 8px;
+            align-items: center;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--soft-line);
+        }
+
+        .candidate:last-child { border-bottom: 0; }
+
+        .candidate strong {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .candidate small {
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .mini-badge {
+            display: inline-flex;
+            align-items: center;
+            height: 20px;
+            padding: 0 6px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .mini-badge.ok {
+            color: var(--neutral-chip-text);
+            background: var(--neutral-chip-bg);
+        }
+
+        .mini-badge.warn {
+            color: var(--alert-text);
+            background: var(--alert-bg);
+        }
+
+        .mini-badge.alert {
+            color: var(--alert-text);
+            background: var(--alert-bg);
+            border: 1px solid var(--alert-border);
+        }
+
+        .rule-list {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--muted);
+        }
+
+        .rule-list li { margin: 4px 0; }
+
+        @media (max-width: 900px) {
+            .page {
+                width: 100%;
+                padding: 12px;
+            }
+
+            .top-note {
+                display: block;
+            }
+
+            .legend {
+                justify-content: flex-start;
+                margin-top: 10px;
+            }
+
+            .app {
+                overflow-x: auto;
+            }
+
+            .workspace {
+                width: 1388px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <section class="top-note">
+            <div>
+                <h1>SL 情報レイヤー モックアップ</h1>
+                <p>中央表の主情報、色/バッジの競合、昼夜橙文字、右プロパティ分担を確認するための試作です。</p>
+            </div>
+            <div class="legend" aria-label="色の用途凡例">
+                <span class="legend-item"><span class="dot night"></span>昼夜は橙文字</span>
+                <span class="legend-item"><span class="dot alert"></span>警告はアイコン</span>
+                <span class="legend-item"><span class="dot gc"></span>GCは行背景+ホバー</span>
+                <span class="legend-item"><span class="dot category"></span>区分はバッジ</span>
+                <span class="legend-item">
+                    <span class="belong-palette" aria-hidden="true">
+                        <span class="dot belong-1"></span>
+                        <span class="dot belong-2"></span>
+                        <span class="dot belong-3"></span>
+                        <span class="dot belong-4"></span>
+                        <span class="dot belong-5"></span>
+                    </span>
+                    所属色
+                </span>
+            </div>
+        </section>
+
+        <section class="app">
+            <nav class="menubar" aria-label="メニュー">
+                <span>ファイル</span>
+                <span>編集</span>
+                <span>配置</span>
+                <span>表示</span>
+                <span>通知</span>
+                <span>ヘルプ</span>
+            </nav>
+
+            <div class="toolbar">
+                <div class="tool-group">
+                    <button class="tool-btn primary">新規行</button>
+                    <button class="tool-btn">2026/05/01（金）</button>
+                    <button class="tool-btn">GC: すべて</button>
+                    <button class="tool-btn">昼夜: すべて</button>
+                </div>
+                <div class="tool-group">
+                    <button class="tool-btn">配置検索</button>
+                    <button class="tool-btn">未連絡 3</button>
+                    <button class="tool-btn">OB更新 1</button>
+                </div>
+            </div>
+
+            <div class="workspace">
+                <aside class="rail" aria-label="作業面切替">
+                    <button class="active" title="SL" aria-label="SL">
+                        <span class="icon i-doc" aria-hidden="true"></span>
+                        <span class="sr-only">SL</span>
+                    </button>
+                    <button title="社員" aria-label="社員">
+                        <span class="icon i-person" aria-hidden="true"></span>
+                        <span class="sr-only">社員</span>
+                    </button>
+                    <button title="車両" aria-label="車両">
+                        <span class="icon i-car" aria-hidden="true"></span>
+                        <span class="sr-only">車両</span>
+                    </button>
+                    <button title="通知" aria-label="通知">
+                        <span class="icon i-bell" aria-hidden="true"></span>
+                        <span class="sr-only">通知</span>
+                    </button>
+                    <button title="設定" aria-label="設定">
+                        <span class="icon i-settings" aria-hidden="true"></span>
+                        <span class="sr-only">設定</span>
+                    </button>
+                </aside>
+
+                <section class="main">
+                    <div class="main-card">
+                        <div class="main-head">
+                            <div class="main-title">
+                                業務管理計画書
+                                <span>中央表 = 共通コア + 状態。詳細は右プロパティへ。</span>
+                            </div>
+                            <div class="search">配置検索: 林 / 商業施設 / 交通2級</div>
+                        </div>
+
+                        <div class="grid-frame">
+                        <div class="grid" role="table" aria-label="SL中央表">
+                            <div class="cell head center-cell">区分</div>
+                            <div class="cell head">契約先 / 現場名</div>
+                            <div class="cell head center-cell">集合</div>
+                            <div class="cell head center-cell">時間</div>
+                            <div class="cell head center-cell">人数</div>
+                            <div class="cell head">配置（状態は社員に紐づけ）</div>
+                            <div class="cell head">車両 / ETC</div>
+
+                            <div class="cell category-cell">
+                                <span class="category-badge">施設</span>
+                            </div>
+                            <div class="cell site-cell" data-gc="東央警備">
+                                <div class="client">三都ビル管理</div>
+                                <div class="site-name">商業施設A 巡回警備</div>
+                            </div>
+                            <div class="cell center-cell">
+                                <div class="time-block">
+                                    <span class="time-sub">06:40</span>
+                                </div>
+                            </div>
+                            <div class="cell center-cell">
+                                <div class="time-block">
+                                    <span class="time-stack" aria-label="07:00 から 16:00">
+                                        <span class="time-line">07:00</span>
+                                        <span class="time-line">16:00</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="cell center-cell">
+                                <div class="count-line">
+                                    <div class="count-main">2 / 2</div>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="assign-list">
+                                    <div class="person belong-1" draggable="true">
+                                        <span class="person-name">林</span>
+                                        <span class="contact done" tabindex="0" data-tip="連絡済み" aria-label="連絡済み">
+                                            <img class="contact-icon" src="../assets/icons/pc-tech/im-11709-denwa-hasshin-chuu.svg" alt="">
+                                        </span>
+                                    </div>
+                                    <div class="person belong-2" draggable="true">
+                                        <span class="person-name">山田</span>
+                                        <span class="contact none" tabindex="0" data-tip="未連絡（要連絡）" aria-label="未連絡（要連絡）">
+                                            <img class="contact-icon" src="../assets/icons/pc-tech/im-11709-denwa-hasshin-chuu.svg" alt="">
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="vehicle">
+                                    <span class="vehicle-tag belong-1" draggable="true">わ 12-34</span>
+                                    <span class="vehicle-tag belong-1" draggable="true">ETC-A</span>
+                                </div>
+                            </div>
+
+                            <div class="cell category-cell night-text">
+                                <span class="category-badge">交通</span>
+                            </div>
+                            <div class="cell site-cell nikkei night-text" data-gc="Nikkeiホールディングス">
+                                <div class="client">港湾開発</div>
+                                <div class="site-name">港湾道路 夜間片交</div>
+                            </div>
+                            <div class="cell center-cell night-text">
+                                <div class="time-block">
+                                    <span class="time-sub">20:30</span>
+                                </div>
+                            </div>
+                            <div class="cell center-cell night-text">
+                                <div class="time-block">
+                                    <span class="time-stack" aria-label="21:00 から 05:00">
+                                        <span class="time-line">21:00</span>
+                                        <span class="time-line">05:00</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="cell center-cell night-text">
+                                <div class="count-line">
+                                    <span class="count-main">1 / 2</span>
+                                    <span class="count-state short">不足</span>
+                                </div>
+                            </div>
+                            <div class="cell night-text">
+                                <div class="assign-list">
+                                    <div class="person belong-3" draggable="true">
+                                        <span class="person-name">佐藤</span>
+                                        <span class="contact recall" tabindex="0" data-tip="再連絡必要" aria-label="再連絡必要">
+                                            <img class="contact-icon" src="../assets/icons/pc-tech/im-11709-denwa-hasshin-chuu.svg" alt="">
+                                        </span>
+                                    </div>
+                                    <div class="alert-row">
+                                        <span class="warn-icon" tabindex="0" role="img" aria-label="資格者不足: 交通誘導2級の配置が未充足" data-tip="資格者不足: 交通誘導2級の配置が未充足"></span>
+                                        <span class="warn-icon" tabindex="0" role="img" aria-label="連勤12日: 上限に注意" data-tip="連勤12日: 上限に注意"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="vehicle">
+                                    <span class="vehicle-tag" draggable="true">未配</span>
+                                    <span class="vehicle-tag" draggable="true">ETC未</span>
+                                </div>
+                            </div>
+
+                            <div class="cell category-cell">
+                                <span class="category-badge long">イベント</span>
+                            </div>
+                            <div class="cell site-cell" data-gc="東央警備">
+                                <div class="client">市民文化財団</div>
+                                <div class="site-name">駅前イベント会場</div>
+                                <div class="site-icons">
+                                    <span class="info-pill missing">地図未設定</span>
+                                    <span class="info-pill missing">OB更新あり</span>
+                                </div>
+                            </div>
+                            <div class="cell center-cell">
+                                <div class="time-block">
+                                    <span class="time-sub">08:10</span>
+                                </div>
+                            </div>
+                            <div class="cell center-cell">
+                                <div class="time-block">
+                                    <span class="time-stack" aria-label="08:30 から 未定">
+                                        <span class="time-line">08:30</span>
+                                        <span class="time-line">未定</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="cell center-cell">
+                                <div class="count-line">
+                                    <span class="count-main">4 / 3</span>
+                                    <span class="count-state over">過多</span>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="assign-list">
+                                    <div class="person belong-4" draggable="true">
+                                        <span class="person-name">高橋</span>
+                                        <span class="contact done" tabindex="0" data-tip="連絡済み" aria-label="連絡済み">
+                                            <img class="contact-icon" src="../assets/icons/pc-tech/im-11709-denwa-hasshin-chuu.svg" alt="">
+                                        </span>
+                                    </div>
+                                    <div class="person belong-5" draggable="true">
+                                        <span class="person-name">伊藤</span>
+                                        <span class="contact none" tabindex="0" data-tip="未連絡（要連絡）" aria-label="未連絡（要連絡）">
+                                            <img class="contact-icon" src="../assets/icons/pc-tech/im-11709-denwa-hasshin-chuu.svg" alt="">
+                                        </span>
+                                    </div>
+                                    <div class="alert-row">
+                                        <span class="warn-icon" tabindex="0" role="img" aria-label="NG関係: 同一現場の組み合わせ注意" data-tip="NG関係: 同一現場の組み合わせ注意"></span>
+                                        <span class="info-pill missing">OB確認待ち</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cell">
+                                <div class="vehicle">
+                                    <span class="vehicle-tag belong-4" draggable="true">に 45-67</span>
+                                    <span class="vehicle-tag belong-4" draggable="true">ETC-C</span>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </section>
+
+                <aside class="panel-rail" aria-label="右パネル切替">
+                    <button class="active" title="配置判断" aria-label="配置判断">
+                        <span class="icon i-task" aria-hidden="true"></span>
+                        <span class="sr-only">配置判断</span>
+                    </button>
+                    <button title="社員連絡" aria-label="社員連絡">
+                        <span class="icon i-contact" aria-hidden="true"></span>
+                        <span class="sr-only">社員連絡</span>
+                    </button>
+                    <button title="履歴差分" aria-label="履歴差分">
+                        <span class="icon i-history" aria-hidden="true"></span>
+                        <span class="sr-only">履歴差分</span>
+                    </button>
+                    <button title="車両" aria-label="車両">
+                        <span class="icon i-car" aria-hidden="true"></span>
+                        <span class="sr-only">車両</span>
+                    </button>
+                    <button title="応援予約" aria-label="応援予約">
+                        <span class="icon i-support" aria-hidden="true"></span>
+                        <span class="sr-only">応援予約</span>
+                    </button>
+                </aside>
+
+                <aside class="prop">
+                    <div class="prop-card">
+                        <div class="prop-head">
+                            <strong>選択行: 港湾道路 夜間片交</strong>
+                            <p>右プロパティ = 詳細確認と出力準備。中央表は隠さない。</p>
+                        </div>
+                        <div class="tabs">
+                            <button class="tab active">配置判断</button>
+                            <button class="tab">社員連絡</button>
+                            <button class="tab">履歴差分</button>
+                        </div>
+                        <div class="prop-body">
+                            <div class="section">
+                                <div class="section-title">社員候補</div>
+                                <div class="filter-row">
+                                    <button class="filter-btn active">資格者</button>
+                                    <button class="filter-btn">過去配置</button>
+                                    <button class="filter-btn">交通課</button>
+                                </div>
+                                <div class="candidate">
+                                    <div>
+                                        <strong>中村 大地</strong>
+                                        <small>Nikkei / 交通課 / 入社 2017</small>
+                                    </div>
+                                    <span class="mini-badge ok">交通2級</span>
+                                </div>
+                                <div class="candidate">
+                                    <div>
+                                        <strong>小林 直人</strong>
+                                        <small>東央 / 交通課 / 入社 2019</small>
+                                    </div>
+                                    <span class="mini-badge warn">過去配置</span>
+                                </div>
+                                <div class="candidate">
+                                    <div>
+                                        <strong>佐藤 誠</strong>
+                                        <small>Nikkei / 交通課 / 入社 2020</small>
+                                    </div>
+                                    <span class="warn-icon" tabindex="0" role="img" aria-label="連勤12日: 上限に注意" data-tip="連勤12日: 上限に注意"></span>
+                                </div>
+                            </div>
+
+                            <div class="section">
+                                <div class="section-title">配置制約</div>
+                                <ul class="rule-list">
+                                    <li>制約違反はブロックせず、理由付き警告で許可。</li>
+                                    <li>必要資格は人数ではなく「交通2級 必須」を主表示。</li>
+                                    <li>夜間の橙文字は慣習表示。警告はアイコンとホバーで分離。</li>
+                                </ul>
+                            </div>
+
+                            <div class="section">
+                                <div class="section-title">現場プロパティ</div>
+                                <ul class="rule-list">
+                                    <li>必要資格: 交通誘導2級。未充足時だけ中央表へ警告。</li>
+                                    <li>作業内容: 夜間片側交互通行。規制材設置あり。</li>
+                                    <li>地図/備考: 地図URLあり。集合場所は港湾東ゲート。</li>
+                                </ul>
+                            </div>
+
+                            <div class="section">
+                                <div class="section-title">社員連絡の準備状態</div>
+                                <div class="alert-row">
+                                    <span class="mini-badge warn">再連絡必要</span>
+                                    <span class="mini-badge ok">地図あり</span>
+                                    <span class="warn-icon" tabindex="0" role="img" aria-label="資格者不足: 交通誘導2級の配置が未充足" data-tip="資格者不足: 交通誘導2級の配置が未充足"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
