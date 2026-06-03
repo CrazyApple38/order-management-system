@@ -7,12 +7,14 @@
 
 ## 最終更新
 
-- **更新者**: Codex (GPT-5)
+- **更新者**: Claude Code (Opus 4.8)
 - **日付**: 2026-06-03
-- **コミット**: fbace7d（直前 HEAD。本「所属GC下辺フレア表現」作業は未コミット）
+- **コミット**: 1c75ec2（直前 HEAD。本「フレア透明化・縮小＋車両flare中央ずれ修正」作業は本コミットで反映）
 
 ## 直前にやったこと
 
+- (Claude Code) SL モック（`docs/preview/design-refresh-sl-layer-mockup.html`）の所属GC色フレア（`.person::before` / `.vehicle-tag::before`）をユーザー指示で2段階「より透明＋小型化」。最終 opacity 社員0.72/車両0.70、height 社員10px/車両9px、横幅余白 9px、にじみ box-shadow 縮小。白点光源 `.flare-source` の白い芯を 1%→5% に拡大。
+- (Claude Code) **車両/ETCタグの白点光源が中心から右へ +48〜64px ずれるバグを修正**。原因は cascade 順 — `.vehicle-tag > *`（`position: relative`, 989行）が `.flare-source`（`position: absolute`, 728行）より後ろで上書きし、flare-source が flex フロー内に残ってラベル右隣に押し出されていた（社員側は `.person > *` が flare-source より前のため absolute が勝ち正常）。`.vehicle-tag .flare-source` 上書きブロックに `position: absolute;` を明示して解決。Playwright 実測で全車両タグ中心オフセット 0px 確認済み。
 - (Codex) SL を「OB受注情報を配置担当者が翌日以降の実行可能な社員指示へ確定していく画面」として整理。`docs/01_要件定義.md` 3.2/5.1.3 と `docs/plan/design-refresh-plan.md` に SL 情報レイヤー方針（共通コア/配置判断/社員連絡/差分・権限/区分制約/中央グリッド・右プロパティ分担）を追記。`docs/preview/design-refresh-sl-layer-mockup.html` を新規作成（中央7列表＋縦型アイコンメニュー＋右プロパティ、左メニュー濃紺＋マテリアル表現、Inter/Noto Sans JP）。
 - (Claude Code) 上記モックの配色をカラーコーディネート観点で調整。夜間/警告文字を赤寄せ・トーンダウン（`--accent-text-warn: #cf4626`）、`不足` バッジをオレンジ塗り＋白文字、中央表データ文字（時間/人数/現場名/社員名）をセミボールド `600`（`--table-data-weight`）に。
 - (Claude Code) タイトルバーを紺→青→ティールのアナロガス2色グラデ＋ガラスエッジに（変数 `--title-navy`/`--title-blue-mid`/`--title-teal`）。左メニュー濃紺・ベース淡青を基準に画面全体を青〜ティール基調へ統一。
