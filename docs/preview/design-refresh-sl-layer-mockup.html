@@ -74,6 +74,7 @@
             --table-data-weight: 600;
             --table-leading: 1.28;
             --icon-warning: url("../assets/icons/sign-mark/im-11908-chuui-maaku.svg");
+            --icon-caution-line: url("../assets/icons/sign-mark/im-11907-chuui-maaku-no-senga.svg");
             --icon-doc: url("../assets/icons/business/im-16148-shorui.svg");
             --icon-person: url("../assets/icons/person/im-00142-jimbutsu-no-aikon-sozai-sono-2.svg");
             --icon-car: url("../assets/icons/transport/im-00237-jidousha-no-aikon-sozai-sono-2.svg");
@@ -393,6 +394,11 @@
             align-items: center;
         }
 
+        /* 配置リストを含むセルは縦ストレッチし、alert-row を最下部へ押し下げる */
+        .cell:not(.site-cell):not(.head):has(.assign-list) {
+            align-items: stretch;
+        }
+
         .cell.head {
             min-height: 32px;
             display: flex;
@@ -631,9 +637,25 @@
 
         .assign-list {
             display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px 7px;
+            width: 100%;
+        }
+
+        /* 社員バッジ群は横並び(行ラップ)可能 */
+        .assign-people {
+            display: flex;
             flex-wrap: wrap;
             align-items: center;
             gap: 6px 7px;
+            width: 100%;
+        }
+
+        /* 情報系バッジ(alert-row)はバッジ横に並べず、配置セルの最下部に表示 */
+        .assign-list .alert-row {
+            margin-top: auto;
+            width: 100%;
         }
 
         .person {
@@ -660,23 +682,23 @@
             content: "";
             position: absolute;
             display: none;
-            left: 9px;
-            right: 9px;
-            bottom: -7px;
-            height: 10px;
+            left: 3px;
+            right: 3px;
+            bottom: -6px;
+            height: 6px;
             border-radius: 999px;
             background: radial-gradient(
                 ellipse at center,
                 rgba(255, 246, 178, 0.98) 0%,
                 color-mix(in srgb, #fff6b2 74%, var(--belong-color, transparent) 26%) 30%,
-                color-mix(in srgb, var(--belong-color, transparent) 92%, #fff6b2 8%) 52%,
-                color-mix(in srgb, var(--belong-color, transparent) 90%, #8798a5 10%) 65%,
-                color-mix(in srgb, var(--belong-color, transparent) 68%, #8798a5 32%) 78%,
-                transparent 92%
+                color-mix(in srgb, var(--belong-color, transparent) 92%, #fff6b2 8%) 45%,
+                color-mix(in srgb, var(--belong-color, transparent) 90%, #8798a5 10%) 55%,
+                color-mix(in srgb, var(--belong-color, transparent) 68%, #8798a5 32%) 64%,
+                transparent 73%
             );
             box-shadow:
-                0 0 8px color-mix(in srgb, var(--belong-color, transparent) 64%, #fff6b2 36%),
-                0 0 14px color-mix(in srgb, var(--belong-color, transparent) 64%, #8798a5 36%);
+                0 0 6px color-mix(in srgb, var(--belong-color, transparent) 64%, #fff6b2 36%),
+                0 0 10px color-mix(in srgb, var(--belong-color, transparent) 64%, #8798a5 36%);
             filter: blur(4px);
             opacity: 0.72;
             pointer-events: none;
@@ -777,6 +799,9 @@
             white-space: nowrap;
         }
 
+        /* 連絡確認機能は一旦無効化（アイコン非表示）。再開時はこの1行を削除 */
+        .contact { display: none !important; }
+
         .contact {
             position: relative;
             display: inline-flex;
@@ -870,7 +895,28 @@
             mask: var(--icon-warning) center / contain no-repeat;
         }
 
-        .warn-icon::after {
+        /* 社員個人に紐づく警告（連勤日数など）— 社員バッジ内・名前左に表示 */
+        .person-warn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            flex: 0 0 auto;
+            color: var(--accent-orange);
+            cursor: help;
+        }
+
+        .person-warn svg {
+            display: block;
+            width: 13px;
+            height: 13px;
+            fill: currentColor;
+        }
+
+        .warn-icon::after,
+        .person-warn::after {
             content: attr(data-tip);
             position: absolute;
             left: 50%;
@@ -894,7 +940,9 @@
         }
 
         .warn-icon:hover::after,
-        .warn-icon:focus-visible::after {
+        .warn-icon:focus-visible::after,
+        .person-warn:hover::after,
+        .person-warn:focus-visible::after {
             opacity: 1;
             transform: translate(-50%, 0);
         }
@@ -934,23 +982,23 @@
             content: "";
             position: absolute;
             display: none;
-            left: 9px;
-            right: 9px;
-            bottom: -6px;
-            height: 9px;
+            left: 3px;
+            right: 3px;
+            bottom: -5px;
+            height: 6px;
             border-radius: 999px;
             background: radial-gradient(
                 ellipse at center,
                 rgba(255, 246, 178, 0.96) 0%,
                 color-mix(in srgb, #fff6b2 72%, var(--belong-color, transparent) 28%) 30%,
-                color-mix(in srgb, var(--belong-color, transparent) 90%, #fff6b2 10%) 52%,
-                color-mix(in srgb, var(--belong-color, transparent) 88%, #8798a5 12%) 65%,
-                color-mix(in srgb, var(--belong-color, transparent) 66%, #8798a5 34%) 78%,
-                transparent 92%
+                color-mix(in srgb, var(--belong-color, transparent) 90%, #fff6b2 10%) 45%,
+                color-mix(in srgb, var(--belong-color, transparent) 88%, #8798a5 12%) 55%,
+                color-mix(in srgb, var(--belong-color, transparent) 66%, #8798a5 34%) 64%,
+                transparent 73%
             );
             box-shadow:
-                0 0 7px color-mix(in srgb, var(--belong-color, transparent) 62%, #fff6b2 38%),
-                0 0 13px color-mix(in srgb, var(--belong-color, transparent) 62%, #8798a5 38%);
+                0 0 5px color-mix(in srgb, var(--belong-color, transparent) 62%, #fff6b2 38%),
+                0 0 9px color-mix(in srgb, var(--belong-color, transparent) 62%, #8798a5 38%);
             filter: blur(4px);
             opacity: 0.70;
             pointer-events: none;
@@ -1340,6 +1388,13 @@
     </style>
 </head>
 <body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="ic-caution-line" viewBox="0 0 512 512">
+            <path d="M256.007,357.113c-16.784,0-30.411,13.613-30.411,30.397c0,16.791,13.627,30.405,30.411,30.405s30.397-13.614,30.397-30.405C286.405,370.726,272.792,357.113,256.007,357.113z"/>
+            <path d="M505.097,407.119L300.769,53.209c-9.203-15.944-26.356-25.847-44.777-25.847c-18.407,0-35.544,9.904-44.747,25.847L6.902,407.104c-9.203,15.943-9.203,35.751,0,51.694c9.204,15.943,26.356,25.84,44.763,25.84h408.67c18.406,0,35.559-9.897,44.762-25.84C514.301,442.855,514.301,423.047,505.097,407.119z M464.465,432.405c-2.95,5.103-8.444,8.266-14.35,8.266H61.878c-5.892,0-11.394-3.163-14.329-8.281c-2.964-5.11-2.979-11.445-0.014-16.548l194.122-336.24c2.943-5.103,8.436-8.274,14.35-8.274c5.9,0,11.386,3.171,14.336,8.282l194.122,336.226C467.415,420.945,467.415,427.295,464.465,432.405z"/>
+            <path d="M256.007,152.719c-16.784,0-30.411,13.613-30.411,30.405l11.68,137.487c0,10.346,8.378,18.724,18.731,18.724c10.338,0,18.731-8.378,18.731-18.724l11.666-137.487C286.405,166.331,272.792,152.719,256.007,152.719z"/>
+        </symbol>
+    </svg>
     <main class="page">
         <section class="top-note">
             <div>
@@ -1464,6 +1519,7 @@
                             </div>
                             <div class="cell">
                                 <div class="assign-list">
+                                    <div class="assign-people">
                                     <div class="person belong-1" draggable="true">
                                         <span class="person-name">林</span>
                                         <span class="contact done" tabindex="0" data-tip="連絡済み" aria-label="連絡済み">
@@ -1477,6 +1533,7 @@
                                             <img class="contact-icon" src="../assets/icons/pc-tech/im-00027-denwa-no-juwaki.svg" alt="">
                                         </span>
                                         <span class="flare-source" aria-hidden="true"></span>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -1515,16 +1572,18 @@
                             </div>
                             <div class="cell night-text">
                                 <div class="assign-list">
+                                    <div class="assign-people">
                                     <div class="person belong-3" draggable="true">
+                                        <span class="person-warn" tabindex="0" role="img" aria-label="連勤12日: 上限に注意" data-tip="連勤12日: 上限に注意"><svg aria-hidden="true"><use href="#ic-caution-line"/></svg></span>
                                         <span class="person-name">佐藤</span>
                                         <span class="contact recall" tabindex="0" data-tip="再連絡必要" aria-label="再連絡必要">
                                             <img class="contact-icon" src="../assets/icons/pc-tech/si-36957-tel-orikaeshi.png" alt="">
                                         </span>
                                         <span class="flare-source" aria-hidden="true"></span>
                                     </div>
+                                    </div>
                                     <div class="alert-row">
-                                        <span class="warn-icon" tabindex="0" role="img" aria-label="資格者不足: 交通誘導2級の配置が未充足" data-tip="資格者不足: 交通誘導2級の配置が未充足"></span>
-                                        <span class="warn-icon" tabindex="0" role="img" aria-label="連勤12日: 上限に注意" data-tip="連勤12日: 上限に注意"></span>
+                                        <span class="info-pill missing">資格者不足</span>
                                     </div>
                                 </div>
                             </div>
@@ -1567,7 +1626,9 @@
                             </div>
                             <div class="cell">
                                 <div class="assign-list">
+                                    <div class="assign-people">
                                     <div class="person belong-4" draggable="true">
+                                        <span class="person-warn" tabindex="0" role="img" aria-label="NG 伊藤" data-tip="NG 伊藤"><svg aria-hidden="true"><use href="#ic-caution-line"/></svg></span>
                                         <span class="person-name">高橋</span>
                                         <span class="contact done" tabindex="0" data-tip="連絡済み" aria-label="連絡済み">
                                             <img class="contact-icon" src="../assets/icons/pc-tech/si-26526-telephone-call.png" alt="">
@@ -1575,14 +1636,15 @@
                                         <span class="flare-source" aria-hidden="true"></span>
                                     </div>
                                     <div class="person belong-5" draggable="true">
+                                        <span class="person-warn" tabindex="0" role="img" aria-label="NG 高橋" data-tip="NG 高橋"><svg aria-hidden="true"><use href="#ic-caution-line"/></svg></span>
                                         <span class="person-name">伊藤</span>
                                         <span class="contact none" tabindex="0" data-tip="未連絡（要連絡）" aria-label="未連絡（要連絡）">
                                             <img class="contact-icon" src="../assets/icons/pc-tech/im-00027-denwa-no-juwaki.svg" alt="">
                                         </span>
                                         <span class="flare-source" aria-hidden="true"></span>
                                     </div>
+                                    </div>
                                     <div class="alert-row">
-                                        <span class="warn-icon" tabindex="0" role="img" aria-label="NG関係: 同一現場の組み合わせ注意" data-tip="NG関係: 同一現場の組み合わせ注意"></span>
                                         <span class="info-pill missing">OB確認待ち</span>
                                     </div>
                                 </div>

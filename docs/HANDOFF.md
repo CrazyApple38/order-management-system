@@ -9,12 +9,14 @@
 
 - **更新者**: Claude Code (Opus 4.8)
 - **日付**: 2026-06-03
-- **コミット**: 1c75ec2（直前 HEAD。本「フレア透明化・縮小＋車両flare中央ずれ修正」作業は本コミットで反映）
+- **コミット**: 38ee7b8（直前 HEAD。本「警告アイコン/info-pill/配置セル再構成＋連絡アイコン非表示」作業は本コミットで反映）
 
 ## 直前にやったこと
 
-- (Claude Code) SL モック（`docs/preview/design-refresh-sl-layer-mockup.html`）の所属GC色フレア（`.person::before` / `.vehicle-tag::before`）をユーザー指示で2段階「より透明＋小型化」。最終 opacity 社員0.72/車両0.70、height 社員10px/車両9px、横幅余白 9px、にじみ box-shadow 縮小。白点光源 `.flare-source` の白い芯を 1%→5% に拡大。
-- (Claude Code) **車両/ETCタグの白点光源が中心から右へ +48〜64px ずれるバグを修正**。原因は cascade 順 — `.vehicle-tag > *`（`position: relative`, 989行）が `.flare-source`（`position: absolute`, 728行）より後ろで上書きし、flare-source が flex フロー内に残ってラベル右隣に押し出されていた（社員側は `.person > *` が flare-source より前のため absolute が勝ち正常）。`.vehicle-tag .flare-source` 上書きブロックに `position: absolute;` を明示して解決。Playwright 実測で全車両タグ中心オフセット 0px 確認済み。
+- (Claude Code) SL モック（`docs/preview/design-refresh-sl-layer-mockup.html`）バッジ内に**社員個人警告アイコンを導入**。線画注意三角 `im-11907` を SVG スプライト（`#ic-caution-line`、body直後 symbol）化し `.person-warn`（`--accent-orange`・13px・名前左）で表示。佐藤=「連勤12日」/ 高橋=「NG 伊藤」/ 伊藤=「NG 高橋」。旧 alert-row の warn-icon は移設して削除。CSS mask は file:// で読めずユーザー環境で非表示だったため**インライン/スプライト方式へ変更**（外部ファイル依存ゼロ）。
+- (Claude Code) `資格者不足` を warn-icon → `info-pill missing` バッジ化。**情報系 info-pill を配置セル最下部へ再配置**: `.assign-list` を column 化し社員バッジ群を `.assign-people`（flex 行ラップ＝横並び可）で包む2段構成、`.cell…:has(.assign-list)` で縦ストレッチ＋ `.alert-row{margin-top:auto;width:100%}` で最下部ピン留め。
+- (Claude Code) **連絡確認機能を一旦無効化**: `.contact{display:none!important}`（コメント付き、1行削除で復帰可）。マークアップは残置。
+- (Claude Code) フレア調整: 所属GC色フレアを2段階「透明＋小型化」、外側フェードを約30%手前へ引き込み（gradient stops 45/55/64/73）、横長・薄型化。`.flare-source` の白い芯 1%→5%。**車両flare中央ずれバグ修正**（`.vehicle-tag .flare-source` に `position:absolute` 明示、Playwright で中心0px確認）。
 - (Codex) SL を「OB受注情報を配置担当者が翌日以降の実行可能な社員指示へ確定していく画面」として整理。`docs/01_要件定義.md` 3.2/5.1.3 と `docs/plan/design-refresh-plan.md` に SL 情報レイヤー方針（共通コア/配置判断/社員連絡/差分・権限/区分制約/中央グリッド・右プロパティ分担）を追記。`docs/preview/design-refresh-sl-layer-mockup.html` を新規作成（中央7列表＋縦型アイコンメニュー＋右プロパティ、左メニュー濃紺＋マテリアル表現、Inter/Noto Sans JP）。
 - (Claude Code) 上記モックの配色をカラーコーディネート観点で調整。夜間/警告文字を赤寄せ・トーンダウン（`--accent-text-warn: #cf4626`）、`不足` バッジをオレンジ塗り＋白文字、中央表データ文字（時間/人数/現場名/社員名）をセミボールド `600`（`--table-data-weight`）に。
 - (Claude Code) タイトルバーを紺→青→ティールのアナロガス2色グラデ＋ガラスエッジに（変数 `--title-navy`/`--title-blue-mid`/`--title-teal`）。左メニュー濃紺・ベース淡青を基準に画面全体を青〜ティール基調へ統一。
