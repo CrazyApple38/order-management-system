@@ -37,6 +37,10 @@
             --neutral-chip-bg: #eef4f8;
             --gc-line: #2c6fa3;
             --gc-line-soft: #7f9bae;
+            /* GC会社色 = 上部の所属カラー(belong)を使用。東央=A社=belong-1 / Nikkei=B社=belong-2 / 全日本=C社=belong-3 */
+            --gc-touo: var(--belong-1);
+            --gc-nikkei: var(--belong-2);
+            --gc-zennihon: var(--belong-3);
             --gc-row-a: #f7fbff;
             --gc-row-b: #f5f8fa;
             --belong-1: #3a72b4;
@@ -441,7 +445,8 @@
             align-items: center;
             justify-content: center;
             color: #fff;
-            background: var(--blue);
+            /* GC色ベタ塗り（GCクラス未指定時は紺） */
+            background: var(--cat-gc-color, var(--blue));
             box-shadow: 0 2px 0 rgba(18, 59, 93, 0.12);
             font-size: 12px;
             font-weight: 900;
@@ -450,6 +455,9 @@
             word-break: keep-all;
         }
 
+        .category-badge.gc-touo     { --cat-gc-color: var(--gc-touo); }
+        .category-badge.gc-nikkei   { --cat-gc-color: var(--gc-nikkei); }
+        .category-badge.gc-zennihon { --cat-gc-color: var(--gc-zennihon); }
         .category-badge.long {
             font-size: 10px;
         }
@@ -1493,7 +1501,7 @@
                             <div class="cell head">車両 / ETC</div>
 
                             <div class="cell category-cell">
-                                <span class="category-badge">施設</span>
+                                <span class="category-badge gc-touo">施設</span>
                             </div>
                             <div class="cell site-cell" data-gc="東央警備">
                                 <div class="client">三都ビル管理</div>
@@ -1545,7 +1553,7 @@
                             </div>
 
                             <div class="cell category-cell night-text">
-                                <span class="category-badge">交通</span>
+                                <span class="category-badge gc-nikkei">交通</span>
                             </div>
                             <div class="cell site-cell nikkei night-text" data-gc="Nikkeiホールディングス">
                                 <div class="client">港湾開発</div>
@@ -1595,7 +1603,7 @@
                             </div>
 
                             <div class="cell category-cell">
-                                <span class="category-badge long">イベント</span>
+                                <span class="category-badge long gc-touo">イベント</span>
                             </div>
                             <div class="cell site-cell" data-gc="東央警備">
                                 <div class="client">市民文化財団</div>

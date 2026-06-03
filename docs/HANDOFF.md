@@ -9,11 +9,12 @@
 
 - **更新者**: Claude Code (Opus 4.8)
 - **日付**: 2026-06-03
-- **コミット**: 38ee7b8（直前 HEAD。本「警告アイコン/info-pill/配置セル再構成＋連絡アイコン非表示」作業は本コミットで反映）
+- **コミット**: 705dab0（直前 HEAD。本「区分円のGC色＝所属カラー化」作業は本コミットで反映）
 
 ## 直前にやったこと
 
-- (Claude Code) SL モック（`docs/preview/design-refresh-sl-layer-mockup.html`）バッジ内に**社員個人警告アイコンを導入**。線画注意三角 `im-11907` を SVG スプライト（`#ic-caution-line`、body直後 symbol）化し `.person-warn`（`--accent-orange`・13px・名前左）で表示。佐藤=「連勤12日」/ 高橋=「NG 伊藤」/ 伊藤=「NG 高橋」。旧 alert-row の warn-icon は移設して削除。CSS mask は file:// で読めずユーザー環境で非表示だったため**インライン/スプライト方式へ変更**（外部ファイル依存ゼロ）。
+- (Claude Code) **区分の円（`.category-badge`）を紺一色 → 行ごとのGC色ベタ塗りに**。GC色は迷走（DBブランド色淡色→内側グロー→inset影→内側円オーバーレイ）を経て、最終的に**上部の所属カラー(belong)参照に確定**: `--gc-touo: var(--belong-1)`（A社青#3a72b4）/ `--gc-nikkei: var(--belong-2)`（B社シアン#1f8fa0）/ `--gc-zennihon: var(--belong-3)`（C社緑#2f9579）。`.category-badge.gc-touo/nikkei/zennihon` で `--cat-gc-color` 切替、`background: var(--cat-gc-color, var(--blue))`。各行に GC クラス付与（施設/イベント=東央、交通=Nikkei）。**スウォッチUI(#bcList)で各社色を変えると区分円も追従**。※DBブランド色(group_companies.badge_color: 東央青/Nikkei赤/全日本緑)と社員バッジ色(emp-badge)は割当が異なる不整合あり（採用せず所属カラーに統一）。
+- (Claude Code) SL モックバッジ内に**社員個人警告アイコンを導入**（前コミット705dab0）。線画注意三角 `im-11907` を SVG スプライト（`#ic-caution-line`、body直後 symbol）化し `.person-warn`（`--accent-orange`・13px・名前左）で表示。佐藤=「連勤12日」/ 高橋=「NG 伊藤」/ 伊藤=「NG 高橋」。CSS mask は file:// で読めず非表示になったため**インライン/スプライト方式**に。
 - (Claude Code) `資格者不足` を warn-icon → `info-pill missing` バッジ化。**情報系 info-pill を配置セル最下部へ再配置**: `.assign-list` を column 化し社員バッジ群を `.assign-people`（flex 行ラップ＝横並び可）で包む2段構成、`.cell…:has(.assign-list)` で縦ストレッチ＋ `.alert-row{margin-top:auto;width:100%}` で最下部ピン留め。
 - (Claude Code) **連絡確認機能を一旦無効化**: `.contact{display:none!important}`（コメント付き、1行削除で復帰可）。マークアップは残置。
 - (Claude Code) フレア調整: 所属GC色フレアを2段階「透明＋小型化」、外側フェードを約30%手前へ引き込み（gradient stops 45/55/64/73）、横長・薄型化。`.flare-source` の白い芯 1%→5%。**車両flare中央ずれバグ修正**（`.vehicle-tag .flare-source` に `position:absolute` 明示、Playwright で中心0px確認）。
