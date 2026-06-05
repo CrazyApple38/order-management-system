@@ -118,7 +118,7 @@
         }
 
         .page {
-            width: min(1500px, calc(100vw - 32px));
+            width: min(1710px, calc(100vw - 32px));
             margin: 0 auto;
             padding: 20px 0 28px;
         }
@@ -315,7 +315,7 @@
 
         .workspace {
             display: grid;
-            grid-template-columns: 72px minmax(918px, 1fr) 72px 288px;
+            grid-template-columns: 72px minmax(1128px, 1fr) 72px 288px;
             min-height: 690px;
             background:
                 linear-gradient(90deg, #e8f0f6 0, #f6f9fc 72px, transparent 72px),
@@ -428,7 +428,6 @@
             align-items: center;
             gap: 14px;
             padding: 13px 14px;
-            border-bottom: 1px solid rgba(210, 221, 230, 0.9);
             background: transparent;
             color: var(--ink);
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.96);
@@ -493,7 +492,7 @@
 
         .grid {
             display: grid;
-            grid-template-columns: 58px 198px 82px 124px 88px 266px 162px;
+            grid-template-columns: 58px 198px 82px 124px 88px 266px 162px 210px;
             color: var(--ink);
             font-size: var(--table-font);
             line-height: var(--table-leading);
@@ -508,6 +507,44 @@
             padding: 8px 13px;
             border-bottom: 1px solid var(--soft-line);
             background: transparent;
+        }
+
+        /* 変更履歴セル: 項目ラベル＋旧→新を縦並び */
+        .change-cell {
+            align-items: flex-start !important;
+        }
+        .change-log {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+        .change-log li {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .cl-label {
+            min-width: 30px;
+            color: #6b7d8c;
+            font-weight: 700;
+        }
+        .cl-from {
+            color: #9aa7b2;
+        }
+        .cl-arrow {
+            color: #b0bcc6;
+            font-weight: 700;
+        }
+        .cl-to {
+            color: var(--ink);
+            font-weight: 700;
         }
 
         .cell:not(.site-cell):not(.head) {
@@ -784,49 +821,24 @@
             min-height: 28px;
             min-width: 52px;
             padding: 4px 9px;
-            border: 1px solid rgba(198, 211, 222, 0.95);
+            /* rail 風白縁: border 方向別色（上左明・右下暗）でベベル化 */
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-right-color: rgba(192, 208, 220, 0.72);
+            border-bottom-color: rgba(180, 198, 212, 0.66);
             border-radius: 999px;
+            /* 青灰の斜めグラデ: 左上(濃)→60%白→右下端(薄) ごく薄く */
             background:
-                linear-gradient(to bottom right, #f4f7fa 0%, #fafbfd 45%, #ffffff 100%);
+                linear-gradient(to bottom right, rgba(200, 213, 226, 0.38) 0%, #ffffff 60%, rgba(206, 219, 230, 0.22) 100%);
             box-shadow:
-                0 2px 5px rgba(38, 73, 99, 0.10),
-                inset 0 1px 0 rgba(255, 255, 255, 0.92);
+                0 3px 7px rgba(24, 55, 78, 0.11),
+                0 1px 2px rgba(24, 55, 78, 0.07),
+                inset 1px 0 0 rgba(255, 255, 255, 0.92),
+                inset -1px 0 0 rgba(53, 83, 104, 0.08);
             color: var(--ink);
             cursor: grab;
             isolation: isolate;
             overflow: hidden;
             transition: box-shadow 120ms ease, transform 120ms ease, border-color 120ms ease;
-        }
-
-        .person::before,
-        .vehicle-tag::before {
-            content: "";
-            position: absolute;
-            inset: 3px;
-            z-index: 1;
-            border: 1px solid var(--belong-border);
-            border-radius: 999px;
-            background:
-                linear-gradient(to bottom right, var(--belong-bg) 0%, rgba(255, 255, 255, 0.98) 100%);
-            box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, 0.95),
-                inset 0 -1px 0 rgba(38, 73, 99, 0.035);
-            pointer-events: none;
-        }
-
-        .person::after,
-        .vehicle-tag::after {
-            content: "";
-            position: absolute;
-            left: 6px;
-            top: 7px;
-            bottom: 7px;
-            z-index: 2;
-            width: 3px;
-            border-radius: 999px;
-            background: var(--belong-color);
-            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.72);
-            pointer-events: none;
         }
 
         .person-name,
@@ -837,10 +849,12 @@
         }
 
         .person:hover {
-            border-color: color-mix(in srgb, var(--belong-color) 55%, var(--belong-border) 45%);
+            border-color: rgba(160, 182, 200, 0.92);
             box-shadow:
-                0 3px 7px rgba(38, 73, 99, 0.13),
-                inset 0 1px 0 rgba(255, 255, 255, 0.96);
+                0 4px 9px rgba(24, 55, 78, 0.14),
+                0 1px 2px rgba(24, 55, 78, 0.08),
+                inset 1px 0 0 rgba(255, 255, 255, 0.94),
+                inset -1px 0 0 rgba(53, 83, 104, 0.10);
         }
 
         .belong-1 { --belong-color: var(--belong-1); --belong-bg: var(--belong-1-bg); --belong-border: var(--belong-1-border); }
@@ -1030,16 +1044,22 @@
             gap: 5px;
             padding: 3px 10px;
             border-radius: 999px;
+            /* 青灰の斜めグラデ: 左上(濃)→60%白→右下端(薄) ごく薄く */
             background:
-                linear-gradient(to bottom right, #f4f7fa 0%, #fafbfd 45%, #ffffff 100%);
-            border: 1px solid rgba(198, 211, 222, 0.95);
+                linear-gradient(to bottom right, rgba(200, 213, 226, 0.38) 0%, #ffffff 60%, rgba(206, 219, 230, 0.22) 100%);
+            /* rail 風白縁: border 方向別色（上左明・右下暗）でベベル化 */
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-right-color: rgba(192, 208, 220, 0.72);
+            border-bottom-color: rgba(180, 198, 212, 0.66);
             font-size: var(--table-font);
             font-weight: var(--table-data-weight);
             font-variant-numeric: tabular-nums;
             white-space: nowrap;
             box-shadow:
-                0 2px 5px rgba(38, 73, 99, 0.10),
-                inset 0 1px 0 rgba(255, 255, 255, 0.92);
+                0 3px 7px rgba(24, 55, 78, 0.11),
+                0 1px 2px rgba(24, 55, 78, 0.07),
+                inset 1px 0 0 rgba(255, 255, 255, 0.92),
+                inset -1px 0 0 rgba(53, 83, 104, 0.08);
             color: var(--ink);
             cursor: grab;
             isolation: isolate;
@@ -1048,10 +1068,12 @@
         }
 
         .vehicle-tag:hover {
-            border-color: color-mix(in srgb, var(--belong-color) 55%, var(--belong-border) 45%);
+            border-color: rgba(160, 182, 200, 0.92);
             box-shadow:
-                0 3px 7px rgba(38, 73, 99, 0.13),
-                inset 0 1px 0 rgba(255, 255, 255, 0.96);
+                0 4px 9px rgba(24, 55, 78, 0.14),
+                0 1px 2px rgba(24, 55, 78, 0.08),
+                inset 1px 0 0 rgba(255, 255, 255, 0.94),
+                inset -1px 0 0 rgba(53, 83, 104, 0.10);
         }
 
         .vehicle-label {
@@ -1332,7 +1354,7 @@
             }
 
             .workspace {
-                width: 1388px;
+                width: 1598px;
             }
         }
 
@@ -1584,6 +1606,7 @@
                             <div class="cell head center-cell">人数</div>
                             <div class="cell head">配置（状態は社員に紐づけ）</div>
                             <div class="cell head">車両 / ETC</div>
+                            <div class="cell head">変更履歴</div>
 
                             <div class="cell category-cell">
                                 <span class="category-badge gc-touo">施設</span>
@@ -1634,6 +1657,12 @@
                                     <span class="vehicle-tag belong-1" draggable="true"><span class="vehicle-label">ETC-A</span></span>
                                 </div>
                             </div>
+                            <div class="cell change-cell">
+                                <ul class="change-log">
+                                    <li><span class="cl-label">集合</span><span class="cl-from">07:00</span><span class="cl-arrow">→</span><span class="cl-to">06:40</span></li>
+                                    <li><span class="cl-label">配置</span><span class="cl-from">田中</span><span class="cl-arrow">→</span><span class="cl-to">林</span></li>
+                                </ul>
+                            </div>
 
                             <div class="cell category-cell night-text">
                                 <span class="category-badge gc-nikkei">交通</span>
@@ -1680,6 +1709,12 @@
                             <div class="cell">
                                 <div class="vehicle">
                                 </div>
+                            </div>
+                            <div class="cell change-cell">
+                                <ul class="change-log">
+                                    <li><span class="cl-label">人数</span><span class="cl-from">2</span><span class="cl-arrow">→</span><span class="cl-to">1</span></li>
+                                    <li><span class="cl-label">配置</span><span class="cl-from">山本</span><span class="cl-arrow">→</span><span class="cl-to">佐藤</span></li>
+                                </ul>
                             </div>
 
                             <div class="cell category-cell">
@@ -1736,6 +1771,12 @@
                                     <span class="vehicle-tag belong-4" draggable="true"><span class="vehicle-label">に 45-67</span></span>
                                     <span class="vehicle-tag belong-4" draggable="true"><span class="vehicle-label">ETC-C</span></span>
                                 </div>
+                            </div>
+                            <div class="cell change-cell">
+                                <ul class="change-log">
+                                    <li><span class="cl-label">人数</span><span class="cl-from">3</span><span class="cl-arrow">→</span><span class="cl-to">4</span></li>
+                                    <li><span class="cl-label">配置</span><span class="cl-from">—</span><span class="cl-arrow">→</span><span class="cl-to">伊藤</span></li>
+                                </ul>
                             </div>
                         </div>
                         </div>
