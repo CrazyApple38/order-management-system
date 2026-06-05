@@ -9,10 +9,12 @@
 
 - **更新者**: Claude Code (Opus 4.8)
 - **日付**: 2026-06-05
-- **コミット**: 0180501（直前 HEAD。本「変更履歴列追加＋バッジ刷新」作業は未コミット）
+- **コミット**: 1c569b5（直前 HEAD。本「人物アイコン＋Flexoki 所属色」作業は未コミット）
 
 ## 直前にやったこと
 
+- (Claude Code) **所属会社カラーを Flexoki パレットへ刷新**。従来の寒色アナログ10色は色相が狭く小アイコンで識別困難だったため、`--belong-1〜5` を Flexoki 600 の離散5色相（Blue/Cyan/Green/Purple/Magenta、警告の赤橙は回避）に変更。下部 `Belonging Company Colors`(#bcList) の `belongPalette` を **Flexoki 16色**（8色相×明400/濃600）へ差し替え、選択ターゲットを **A〜E の5社**に縮小（初期割当 `[12,10,8,14,16]`）。bg/border は `color-mix` で hex から動的生成。**選択色は区分円(`--gc-*`→belong-1〜3)・配置の人物アイコン(`--belong-color`)へ即反映**（Playwright で実証: A社→Orange で施設/イベント区分円＋林アイコンが連動）。
+- (Claude Code) 社員バッジの名前左に**人物アイコン**を追加。`person/im-15537-jimbutsu.svg` をスプライト(`#ic-person`)化し、`.person-icon`（`color: var(--belong-color)` で所属色）で5名に表示。**所属色の識別はこのアイコンで担う**（バッジ面の所属色は前段で廃止済み）。社員バッジを拡大（min-height 28→32/min-width 52→58/padding 5px 11px）、アイコン 13→16px。車両/ETC バッジはユーザー判断で現状サイズ維持。
 - (Claude Code) SL モックの社員/車両/ETC バッジを**二重カプセル → 1枚バッジに刷新**。`.person::before`/`.vehicle-tag::before`（内側カプセル）と `::after`（所属色左リブ）を削除し、外バッジ背景を**青灰の斜めグラデ**（`rgba(200,213,226,0.38) 0% → #fff 60% → rgba(206,219,230,0.22) 100%`、左上濃→中央白→右下端薄、ごく薄く）に。`.rail`（左縦メニュー）の白縁の作り（border 方向別色のベベル＋inset 左白/右暗＋落ち影）を参考に、rail 風白縁ベベルは維持。**所属色（belong）の面表現は廃止**（ユーザー判断で所属色なし）、hover の color-mix(belong) も青灰固定へ。※belong-* クラス/トークンは DOM・:root に残置（未使用）。
 - (Claude Code) SL 中央表に**8列目「変更履歴」列を追加**（車両/ETC の右）。各行に「項目ラベル＋旧→新」を縦並び表示（例: 集合 07:00→06:40 / 配置 田中→林）。**ダミー固定**（co-mock-store 等の共通ストアには未連動）。列追加に伴い全体幅を拡張: `.page` 1500→1710px / `.workspace` 中央 minmax 918→1128px / レスポンシブ `.workspace` 1388→1598px / `.grid` に 210px 列追加。CSS は `.change-log`/`.cl-*` 系を新設。右プロパティ(288px)は維持。
 - (Claude Code) 「業務管理計画書」ヘッダー（`.main-head`）の `border-bottom`（下区切り線）を削除。
