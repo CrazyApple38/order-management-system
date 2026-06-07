@@ -8,11 +8,14 @@
 ## 最終更新
 
 - **更新者**: Claude Code (Opus 4.8)
-- **日付**: 2026-06-05
-- **コミット**: 1c569b5（直前 HEAD。本「人物アイコン＋Flexoki 所属色」作業は未コミット）
+- **日付**: 2026-06-08
+- **コミット**: bf24081（直前 HEAD。本「変更履歴/備考タブ＋カード調整」作業は未コミット）
 
 ## 直前にやったこと
 
+- (Claude Code) SL 変更履歴列を**「変更履歴／備考」タブ切替式**に。ヘッダの「変更履歴」を `.log-tab` 2ボタン（角丸四角・border 方向別色のエッジ＋薄グラデ・アクティブは inset 押し込み）に変更し、各行に `.note-content`（現場メモのダミー）を追加。末尾 script でタブクリック→ `.change-log`/`.note-content` の `hidden` を切替（`[hidden]{display:none!important}` で flex を上書き）。**変更履歴カード＝濃紺（rail 風黒カード）／備考カード＝白寄りグレーのグラデ**（`#edf1f5→#f9fbfc`・文字 `#3d505f`）で切替時に区別しやすく。
+- (Claude Code) 変更履歴カードを整形: `.change-cell` を `align-items:stretch`＋左右 padding 0 で**カードを行高100%・列幅100%**に。ダミーを各行 **3項目（3行）**に拡張。**契約先/現場名（`.site-cell`）を flex 縦中央**に。
+- (Claude Code) 配置の**人物アイコンを 16→20px** に拡大（社員バッジも min-height 28→32 等で拡大、車両/ETC は据え置き）。※所属色の角丸四角バッジ化を一度試したがユーザー判断で却下し、所属色アイコンのみへ復帰。
 - (Claude Code) **所属会社カラーを Flexoki パレットへ刷新**。従来の寒色アナログ10色は色相が狭く小アイコンで識別困難だったため、`--belong-1〜5` を Flexoki 600 の離散5色相（Blue/Cyan/Green/Purple/Magenta、警告の赤橙は回避）に変更。下部 `Belonging Company Colors`(#bcList) の `belongPalette` を **Flexoki 16色**（8色相×明400/濃600）へ差し替え、選択ターゲットを **A〜E の5社**に縮小（初期割当 `[12,10,8,14,16]`）。bg/border は `color-mix` で hex から動的生成。**選択色は区分円(`--gc-*`→belong-1〜3)・配置の人物アイコン(`--belong-color`)へ即反映**（Playwright で実証: A社→Orange で施設/イベント区分円＋林アイコンが連動）。
 - (Claude Code) 社員バッジの名前左に**人物アイコン**を追加。`person/im-15537-jimbutsu.svg` をスプライト(`#ic-person`)化し、`.person-icon`（`color: var(--belong-color)` で所属色）で5名に表示。**所属色の識別はこのアイコンで担う**（バッジ面の所属色は前段で廃止済み）。社員バッジを拡大（min-height 28→32/min-width 52→58/padding 5px 11px）、アイコン 13→16px。車両/ETC バッジはユーザー判断で現状サイズ維持。
 - (Claude Code) SL モックの社員/車両/ETC バッジを**二重カプセル → 1枚バッジに刷新**。`.person::before`/`.vehicle-tag::before`（内側カプセル）と `::after`（所属色左リブ）を削除し、外バッジ背景を**青灰の斜めグラデ**（`rgba(200,213,226,0.38) 0% → #fff 60% → rgba(206,219,230,0.22) 100%`、左上濃→中央白→右下端薄、ごく薄く）に。`.rail`（左縦メニュー）の白縁の作り（border 方向別色のベベル＋inset 左白/右暗＋落ち影）を参考に、rail 風白縁ベベルは維持。**所属色（belong）の面表現は廃止**（ユーザー判断で所属色なし）、hover の color-mix(belong) も青灰固定へ。※belong-* クラス/トークンは DOM・:root に残置（未使用）。
