@@ -315,7 +315,7 @@
 
         .workspace {
             display: grid;
-            grid-template-columns: 72px minmax(1128px, 1fr) 72px 288px;
+            grid-template-columns: 72px minmax(1128px, 1fr) 288px 58px;
             min-height: 690px;
             background:
                 linear-gradient(90deg, #e8f0f6 0, #f6f9fc 72px, transparent 72px),
@@ -1173,18 +1173,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 9px;
-            margin: 8px;
-            padding: 9px;
-            border: 1px solid rgba(205, 221, 233, 0.94);
-            border-radius: 13px;
-            background:
-                linear-gradient(to bottom right, rgba(229, 239, 247, 0.78), rgba(255, 255, 255, 0.88)),
-                #edf5fc;
-            box-shadow:
-                var(--elevation-5),
-                var(--inset-highlight),
-                var(--inset-edge);
+            gap: 8px;
+            margin: 8px 6px 8px 2px;
+            padding: 7px 6px;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
         }
 
         .panel-rail button {
@@ -1206,6 +1201,11 @@
             background: #fff;
             border-color: var(--blue);
             box-shadow: 0 0 0 2px rgba(34, 103, 203, 0.12), var(--elevation-2), var(--inset-highlight);
+        }
+
+        .panel-rail button:not(.active):hover {
+            border-color: #9cbce2;
+            box-shadow: var(--elevation-2), var(--inset-highlight);
         }
 
         .icon {
@@ -1253,7 +1253,7 @@
         .i-support { --icon-url: var(--icon-support); }
 
         .prop {
-            padding: 12px;
+            padding: 12px 4px 12px 12px;
             background:
                 linear-gradient(to bottom right, rgba(232, 242, 249, 0.56), rgba(255, 255, 255, 0.56)),
                 #f8fbfe;
@@ -1282,6 +1282,21 @@
             display: block;
             font-size: 15px;
             margin-bottom: 4px;
+        }
+
+        .prop-mode {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 24px;
+            margin-bottom: 8px;
+            padding: 4px 8px;
+            border: 1px solid #cfe0ef;
+            border-radius: 7px;
+            background: rgba(239, 247, 253, 0.72);
+            color: #245777;
+            font-size: 11px;
+            font-weight: 900;
         }
 
         .tabs {
@@ -1317,6 +1332,21 @@
             gap: 10px;
         }
 
+        .clickable-cell {
+            cursor: pointer;
+            transition: background-color 120ms ease, box-shadow 120ms ease, outline-color 120ms ease;
+        }
+
+        .clickable-cell:hover {
+            background-color: rgba(235, 244, 252, 0.46);
+        }
+
+        .clickable-cell.is-selected {
+            outline: 2px solid rgba(34, 103, 203, 0.34);
+            outline-offset: -3px;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.70);
+        }
+
         .section {
             border: 1px solid rgba(219, 229, 236, 0.96);
             border-radius: 10px;
@@ -1337,6 +1367,77 @@
             margin-bottom: 7px;
             font-weight: 900;
         }
+
+        .detail-list {
+            display: grid;
+            gap: 7px;
+            margin: 0;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 72px minmax(0, 1fr);
+            gap: 8px;
+            align-items: start;
+            font-size: 12px;
+        }
+
+        .detail-row dt {
+            color: var(--muted);
+            font-weight: 800;
+        }
+
+        .detail-row dd {
+            margin: 0;
+            color: var(--ink);
+            font-weight: 800;
+        }
+
+        .drop-zone {
+            min-height: 82px;
+            display: flex;
+            align-items: flex-start;
+            align-content: flex-start;
+            gap: 7px;
+            flex-wrap: wrap;
+            padding: 10px;
+            border: 1px dashed #a8bed0;
+            border-radius: 10px;
+            background: rgba(241, 247, 252, 0.72);
+        }
+
+        .drop-zone.empty::before {
+            content: "ここへドラッグ";
+            color: #8297a7;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .drag-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .history-list {
+            display: grid;
+            gap: 7px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .history-list li {
+            display: grid;
+            grid-template-columns: 48px minmax(0, 1fr);
+            gap: 8px;
+            align-items: center;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--soft-line);
+            font-size: 12px;
+        }
+
+        .history-list li:last-child { border-bottom: 0; }
 
         .filter-row {
             display: flex;
@@ -1880,99 +1981,34 @@
                     </div>
                 </section>
 
-                <aside class="panel-rail" aria-label="右パネル切替">
-                    <button class="active" title="配置判断" aria-label="配置判断">
-                        <span class="icon i-task" aria-hidden="true"></span>
-                        <span class="sr-only">配置判断</span>
-                    </button>
-                    <button title="社員連絡" aria-label="社員連絡">
-                        <span class="icon i-contact" aria-hidden="true"></span>
-                        <span class="sr-only">社員連絡</span>
-                    </button>
-                    <button title="履歴差分" aria-label="履歴差分">
-                        <span class="icon i-history" aria-hidden="true"></span>
-                        <span class="sr-only">履歴差分</span>
-                    </button>
-                    <button title="車両" aria-label="車両">
-                        <span class="icon i-car" aria-hidden="true"></span>
-                        <span class="sr-only">車両</span>
-                    </button>
-                    <button title="応援予約" aria-label="応援予約">
-                        <span class="icon i-support" aria-hidden="true"></span>
-                        <span class="sr-only">応援予約</span>
-                    </button>
-                </aside>
-
                 <aside class="prop">
                     <div class="prop-card">
                         <div class="prop-head">
-                            <strong>選択行: 港湾道路 夜間片交</strong>
-                            <p>右プロパティ = 詳細確認と出力準備。中央表は隠さない。</p>
+                            <div class="prop-mode" id="propModeLabel">現場詳細</div>
+                            <strong id="propTitle">選択行: 港湾道路 夜間片交</strong>
+                            <p id="propLead">区分・契約先・現場名・集合時間・人数の列から開く現場プロパティ。</p>
                         </div>
-                        <div class="tabs">
-                            <button class="tab active">配置判断</button>
-                            <button class="tab">社員連絡</button>
-                            <button class="tab">履歴差分</button>
-                        </div>
-                        <div class="prop-body">
-                            <div class="section">
-                                <div class="section-title">社員候補</div>
-                                <div class="filter-row">
-                                    <button class="filter-btn active">資格者</button>
-                                    <button class="filter-btn">過去配置</button>
-                                    <button class="filter-btn">交通課</button>
-                                </div>
-                                <div class="candidate">
-                                    <div>
-                                        <strong>中村 大地</strong>
-                                        <small>Nikkei / 交通課 / 入社 2017</small>
-                                    </div>
-                                    <span class="mini-badge ok">交通2級</span>
-                                </div>
-                                <div class="candidate">
-                                    <div>
-                                        <strong>小林 直人</strong>
-                                        <small>東央 / 交通課 / 入社 2019</small>
-                                    </div>
-                                    <span class="mini-badge warn">過去配置</span>
-                                </div>
-                                <div class="candidate">
-                                    <div>
-                                        <strong>佐藤 誠</strong>
-                                        <small>Nikkei / 交通課 / 入社 2020</small>
-                                    </div>
-                                    <span class="warn-icon" tabindex="0" role="img" aria-label="連勤12日: 上限に注意" data-tip="連勤12日: 上限に注意"></span>
-                                </div>
-                            </div>
-
-                            <div class="section">
-                                <div class="section-title">配置制約</div>
-                                <ul class="rule-list">
-                                    <li>制約違反はブロックせず、理由付き警告で許可。</li>
-                                    <li>必要資格は人数ではなく「交通2級 必須」を主表示。</li>
-                                    <li>夜間の橙文字は慣習表示。警告はアイコンとホバーで分離。</li>
-                                </ul>
-                            </div>
-
-                            <div class="section">
-                                <div class="section-title">現場プロパティ</div>
-                                <ul class="rule-list">
-                                    <li>必要資格: 交通誘導2級。未充足時だけ中央表へ警告。</li>
-                                    <li>作業内容: 夜間片側交互通行。規制材設置あり。</li>
-                                    <li>地図/備考: 地図URLあり。集合場所は港湾東ゲート。</li>
-                                </ul>
-                            </div>
-
-                            <div class="section">
-                                <div class="section-title">社員連絡の準備状態</div>
-                                <div class="alert-row">
-                                    <span class="mini-badge warn">再連絡必要</span>
-                                    <span class="mini-badge ok">地図あり</span>
-                                    <span class="warn-icon" tabindex="0" role="img" aria-label="資格者不足: 交通誘導2級の配置が未充足" data-tip="資格者不足: 交通誘導2級の配置が未充足"></span>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="prop-body" id="propBody"></div>
                     </div>
+                </aside>
+
+                <aside class="panel-rail" aria-label="右パネル切替">
+                    <button class="active" type="button" data-panel="site" title="現場詳細" aria-label="現場詳細">
+                        <span class="icon i-doc" aria-hidden="true"></span>
+                        <span class="sr-only">現場詳細</span>
+                    </button>
+                    <button type="button" data-panel="assignment" title="社員配置" aria-label="社員配置">
+                        <span class="icon i-person" aria-hidden="true"></span>
+                        <span class="sr-only">社員配置</span>
+                    </button>
+                    <button type="button" data-panel="vehicle" title="車両 / ETC" aria-label="車両 / ETC">
+                        <span class="icon i-car" aria-hidden="true"></span>
+                        <span class="sr-only">車両 / ETC</span>
+                    </button>
+                    <button type="button" data-panel="history" title="変更履歴" aria-label="変更履歴">
+                        <span class="icon i-history" aria-hidden="true"></span>
+                        <span class="sr-only">変更履歴</span>
+                    </button>
                 </aside>
             </div>
         </section>
@@ -2350,6 +2386,293 @@
                 document.querySelectorAll(".note-content").forEach((el) => { el.hidden = mode !== "note"; });
             });
         });
+
+        // 右プロパティ: 中央表クリックと縦型アイコンメニューを同期
+        const slGrid = document.querySelector(".grid");
+        const propBody = document.getElementById("propBody");
+        const propTitle = document.getElementById("propTitle");
+        const propLead = document.getElementById("propLead");
+        const propModeLabel = document.getElementById("propModeLabel");
+        const gridColumnCount = 8;
+        const panelByColumn = ["site", "site", "site", "site", "site", "assignment", "vehicle", "history"];
+        const representativeColumnByPanel = { site: 1, assignment: 5, vehicle: 6, history: 7 };
+        const panelLabels = {
+            site: "現場詳細",
+            assignment: "社員配置",
+            vehicle: "車両 / ETC",
+            history: "変更履歴"
+        };
+        const panelLeads = {
+            site: "区分・契約先・現場名・集合時間・人数の列から開く現場プロパティ。",
+            assignment: "配置列から開く社員バッジのドラッグ&ドロップ領域。",
+            vehicle: "車両/ETC列から開く車両・ETCバッジのドラッグ&ドロップ領域。",
+            history: "変更履歴カードから開く変更履歴一覧。"
+        };
+        let selectedRowIndex = 1;
+        let selectedPanel = "site";
+        let selectedCell = null;
+
+        function escapeHtml(value) {
+            return String(value || "").replace(/[&<>"']/g, (char) => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            }[char]));
+        }
+
+        function cleanText(value) {
+            return String(value || "").replace(/\s+/g, " ").trim();
+        }
+
+        function allGridCells() {
+            return Array.from(slGrid.children).filter((el) => el.classList.contains("cell"));
+        }
+
+        function rowCells(rowIndex) {
+            return allGridCells().slice(gridColumnCount + (rowIndex * gridColumnCount), gridColumnCount + ((rowIndex + 1) * gridColumnCount));
+        }
+
+        function getRepresentativeCell(panel, rowIndex) {
+            return rowCells(rowIndex)[representativeColumnByPanel[panel] || 1] || rowCells(rowIndex)[0];
+        }
+
+        function chipClass(el, fallback) {
+            return Array.from(el.classList).find((name) => name.startsWith("belong-")) || fallback;
+        }
+
+        function extractRowData(rowIndex) {
+            const cells = rowCells(rowIndex);
+            const categoryCell = cells[0];
+            const siteCell = cells[1];
+            const meetCell = cells[2];
+            const timeCell = cells[3];
+            const countCell = cells[4];
+            const assignCell = cells[5];
+            const vehicleCell = cells[6];
+            const changeCell = cells[7];
+            const assignees = Array.from(assignCell.querySelectorAll(".person")).map((person, index) => ({
+                name: cleanText(person.querySelector(".person-name")?.textContent),
+                belong: chipClass(person, `belong-${index + 1}`),
+                warn: cleanText(person.querySelector(".person-warn")?.getAttribute("aria-label") || "")
+            })).filter((person) => person.name);
+            const vehicles = Array.from(vehicleCell.querySelectorAll(".vehicle-tag")).map((vehicle, index) => ({
+                label: cleanText(vehicle.querySelector(".vehicle-label")?.textContent),
+                belong: chipClass(vehicle, `belong-${index + 1}`)
+            })).filter((vehicle) => vehicle.label);
+            const changes = Array.from(changeCell.querySelectorAll(".change-log li")).map((item) => ({
+                label: cleanText(item.querySelector(".cl-label")?.textContent),
+                from: cleanText(item.querySelector(".cl-from")?.textContent),
+                to: cleanText(item.querySelector(".cl-to")?.textContent)
+            })).filter((item) => item.label);
+
+            return {
+                category: cleanText(categoryCell.querySelector(".category-badge")?.textContent),
+                client: cleanText(siteCell.querySelector(".client")?.textContent),
+                site: cleanText(siteCell.querySelector(".site-name")?.textContent),
+                gc: cleanText(siteCell.dataset.gc),
+                meet: cleanText(meetCell.textContent),
+                time: Array.from(timeCell.querySelectorAll(".time-line")).map((el) => cleanText(el.textContent)).join(" - "),
+                count: cleanText(countCell.textContent),
+                warnings: Array.from(siteCell.querySelectorAll(".info-pill")).map((el) => cleanText(el.textContent)),
+                note: cleanText(changeCell.querySelector(".note-content")?.textContent),
+                assignees,
+                vehicles,
+                changes
+            };
+        }
+
+        function renderPersonChip(person) {
+            return `
+                <div class="person ${escapeHtml(person.belong)}" draggable="true">
+                    <span class="person-icon" aria-hidden="true"><svg><use href="#ic-person"/></svg></span>
+                    <span class="person-name">${escapeHtml(person.name)}</span>
+                </div>
+            `;
+        }
+
+        function renderVehicleChip(vehicle) {
+            return `<span class="vehicle-tag ${escapeHtml(vehicle.belong)}" draggable="true"><span class="vehicle-label">${escapeHtml(vehicle.label)}</span></span>`;
+        }
+
+        function detailRow(label, value) {
+            return `
+                <div class="detail-row">
+                    <dt>${escapeHtml(label)}</dt>
+                    <dd>${escapeHtml(value || "未設定")}</dd>
+                </div>
+            `;
+        }
+
+        function renderSitePanel(row) {
+            const warnings = row.warnings.length
+                ? row.warnings.map((warning) => `<span class="mini-badge warn">${escapeHtml(warning)}</span>`).join("")
+                : '<span class="mini-badge ok">通常</span>';
+            return `
+                <div class="section">
+                    <div class="section-title">現場プロパティ</div>
+                    <dl class="detail-list">
+                        ${detailRow("区分", row.category)}
+                        ${detailRow("契約先", row.client)}
+                        ${detailRow("現場名", row.site)}
+                        ${detailRow("GC", row.gc)}
+                        ${detailRow("集合", row.meet)}
+                        ${detailRow("時間", row.time)}
+                        ${detailRow("人数", row.count)}
+                    </dl>
+                </div>
+                <div class="section">
+                    <div class="section-title">確認状態</div>
+                    <div class="alert-row">${warnings}</div>
+                </div>
+                <div class="section">
+                    <div class="section-title">備考</div>
+                    <ul class="rule-list">
+                        <li>${escapeHtml(row.note || "現場メモは未入力。")}</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function renderAssignmentPanel(row) {
+            const current = row.assignees.map(renderPersonChip).join("");
+            return `
+                <div class="section">
+                    <div class="section-title">配置済み社員</div>
+                    <div class="drop-zone ${current ? "" : "empty"}">${current}</div>
+                </div>
+                <div class="section">
+                    <div class="section-title">社員候補</div>
+                    <div class="filter-row">
+                        <button class="filter-btn active" type="button">資格者</button>
+                        <button class="filter-btn" type="button">過去配置</button>
+                        <button class="filter-btn" type="button">${escapeHtml(row.category)}</button>
+                    </div>
+                    <div class="drag-pool">
+                        ${renderPersonChip({ name: "中村", belong: "belong-2" })}
+                        ${renderPersonChip({ name: "小林", belong: "belong-1" })}
+                        ${renderPersonChip({ name: "鈴木", belong: "belong-5" })}
+                    </div>
+                </div>
+                <div class="section">
+                    <div class="section-title">配置制約</div>
+                    <ul class="rule-list">
+                        <li>制約違反はブロックせず、理由付き警告で許可。</li>
+                        <li>選択中現場の区分と必要資格を候補絞り込みに反映。</li>
+                        <li>社員バッジは中央表と同じ所属色アイコンで表示。</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function renderVehiclePanel(row) {
+            const current = row.vehicles.map(renderVehicleChip).join("");
+            return `
+                <div class="section">
+                    <div class="section-title">配置済み 車両 / ETC</div>
+                    <div class="drop-zone ${current ? "" : "empty"}">${current}</div>
+                </div>
+                <div class="section">
+                    <div class="section-title">車両 / ETC候補</div>
+                    <div class="drag-pool">
+                        ${renderVehicleChip({ label: "わ 98-76", belong: "belong-2" })}
+                        ${renderVehicleChip({ label: "に 23-45", belong: "belong-3" })}
+                        ${renderVehicleChip({ label: "ETC-B", belong: "belong-2" })}
+                        ${renderVehicleChip({ label: "ETC-D", belong: "belong-3" })}
+                    </div>
+                </div>
+                <div class="section">
+                    <div class="section-title">割当メモ</div>
+                    <ul class="rule-list">
+                        <li>車両とETCは同じ列・同じ右プロパティ内で扱う。</li>
+                        <li>未配置の場合も中央表の空欄と右側ドロップ領域を対応させる。</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function renderHistoryPanel(row) {
+            const changes = row.changes.length
+                ? row.changes.map((change) => `
+                    <li>
+                        <span class="mini-badge warn">${escapeHtml(change.label)}</span>
+                        <span>${escapeHtml(change.from)} → ${escapeHtml(change.to)}</span>
+                    </li>
+                `).join("")
+                : "<li><span></span><span>変更履歴はありません。</span></li>";
+            return `
+                <div class="section">
+                    <div class="section-title">変更履歴一覧</div>
+                    <ul class="history-list">${changes}</ul>
+                </div>
+                <div class="section">
+                    <div class="section-title">備考</div>
+                    <ul class="rule-list">
+                        <li>${escapeHtml(row.note || "備考は未入力。")}</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function renderPanel(panel, rowIndex) {
+            const row = extractRowData(rowIndex);
+            selectedPanel = panel;
+            selectedRowIndex = rowIndex;
+            propModeLabel.textContent = panelLabels[panel];
+            propTitle.textContent = `選択行: ${row.site}`;
+            propLead.textContent = panelLeads[panel];
+            propBody.innerHTML = {
+                site: renderSitePanel,
+                assignment: renderAssignmentPanel,
+                vehicle: renderVehiclePanel,
+                history: renderHistoryPanel
+            }[panel](row);
+            document.querySelectorAll(".panel-rail [data-panel]").forEach((button) => {
+                button.classList.toggle("active", button.dataset.panel === panel);
+            });
+        }
+
+        function selectCell(cell, panel = cell.dataset.panel) {
+            if (selectedCell) selectedCell.classList.remove("is-selected");
+            selectedCell = cell;
+            selectedCell.classList.add("is-selected");
+            renderPanel(panel, Number(cell.dataset.rowIndex));
+        }
+
+        allGridCells().slice(gridColumnCount).forEach((cell, index) => {
+            const columnIndex = index % gridColumnCount;
+            const panel = panelByColumn[columnIndex];
+            cell.classList.add("clickable-cell");
+            cell.dataset.panel = panel;
+            cell.dataset.rowIndex = String(Math.floor(index / gridColumnCount));
+            cell.tabIndex = 0;
+            cell.setAttribute("role", "button");
+            cell.setAttribute("aria-label", `${panelLabels[panel]}を表示`);
+        });
+
+        slGrid.addEventListener("click", (event) => {
+            const cell = event.target.closest(".clickable-cell");
+            if (!cell) return;
+            selectCell(cell);
+        });
+
+        slGrid.addEventListener("keydown", (event) => {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            const cell = event.target.closest(".clickable-cell");
+            if (!cell) return;
+            event.preventDefault();
+            selectCell(cell);
+        });
+
+        document.querySelector(".panel-rail").addEventListener("click", (event) => {
+            const button = event.target.closest("[data-panel]");
+            if (!button) return;
+            const panel = button.dataset.panel;
+            selectCell(getRepresentativeCell(panel, selectedRowIndex), panel);
+        });
+
+        selectCell(getRepresentativeCell(selectedPanel, selectedRowIndex), selectedPanel);
     </script>
 </body>
 </html>
