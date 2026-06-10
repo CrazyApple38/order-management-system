@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>変更確認スレッド UI モックアップ</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap");
+
+        :root {
+            --font-sans: "Inter", "Noto Sans JP", "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+            --bg: #eef4f8;
+            --surface: #ffffff;
+            --surface-soft: #f7fafc;
+            --ink: #172b3a;
+            --muted: #647684;
+            --faint: #8b9ba7;
+            --line: #dbe5ec;
+            --soft-line: #e8eef3;
+            --blue: #1f5fae;
+            --blue-deep: #17446e;
+            --blue-soft: #edf6ff;
+            --info: #1f5fae;
+            --info-bg: #edf6ff;
+            --info-border: #bfd7f4;
+            --warn: #f15e2a;
+            --warn-deep: #b6401d;
+            --warn-bg: #fff0e8;
+            --warn-border: #f5a17c;
+            --green: #2d7c62;
+            --green-bg: #edf8f3;
+            --green-border: #b7d9ca;
+            --slate: #385569;
+            --nav: #17384f;
+            --nav-deep: #0e293c;
+            --shadow-1: 0 2px 6px rgba(38, 73, 99, 0.045), 0 1px 2px rgba(38, 73, 99, 0.030);
+            --shadow-2: 0 4px 10px rgba(38, 73, 99, 0.060), 0 2px 4px rgba(38, 73, 99, 0.035);
+            --shadow-3: 0 8px 18px rgba(38, 73, 99, 0.080), 0 3px 7px rgba(38, 73, 99, 0.045);
+            --shadow-5: 0 14px 30px rgba(24, 55, 78, 0.115), 0 5px 12px rgba(24, 55, 78, 0.070);
+            --radius: 8px;
+            --icon-doc: url("../assets/icons/business/im-16148-shorui.svg");
+            --icon-bell: url("../assets/icons/sign-mark/im-00155-beru-no-aikon-sozai-sono-5.svg");
+            --icon-person: url("../assets/icons/person/im-00142-jimbutsu-no-aikon-sozai-sono-2.svg");
+            --icon-task: url("../assets/icons/business/im-16152-tasuku-torei.svg");
+            --icon-history: url("../assets/icons/sign-mark/im-11972-riroudo.svg");
+            --icon-car: url("../assets/icons/transport/im-00237-jidousha-no-aikon-sozai-sono-2.svg");
+            --icon-settings: url("../assets/icons/sign-mark/im-00001-muryou-no-settei-haguruma.svg");
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            font-family: var(--font-sans);
+            background:
+                radial-gradient(circle at 94% 105%, rgba(255, 255, 255, 0.78), transparent 29%),
+                linear-gradient(to bottom right, #e7eff5 0%, var(--bg) 54%, #f8fbfd 100%);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .app {
+            min-width: 1360px;
+            min-height: 100vh;
+            display: grid;
+            grid-template-rows: 50px 1fr;
+        }
+
+        .global-bar {
+            display: grid;
+            grid-template-columns: 260px minmax(320px, 1fr) auto;
+            align-items: center;
+            gap: 18px;
+            padding: 0 18px;
+            color: #eaf4fb;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.10), transparent 28%),
+                linear-gradient(90deg, var(--nav-deep), var(--nav) 44%, #1d5d74);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.22) inset, 0 2px 8px rgba(18, 48, 70, 0.16);
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+
+        .brand-mark {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.36)),
+                linear-gradient(135deg, #3194bf, #1f5fae);
+            box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.85), inset -1px -1px 0 rgba(10, 36, 56, 0.18);
+        }
+
+        .global-search {
+            width: 100%;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 12px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 999px;
+            color: rgba(255, 255, 255, 0.82);
+            background: rgba(255, 255, 255, 0.10);
+        }
+
+        .global-search input {
+            width: 100%;
+            min-width: 0;
+            border: 0;
+            outline: 0;
+            color: #fff;
+            background: transparent;
+        }
+
+        .global-search input::placeholder {
+            color: rgba(255, 255, 255, 0.68);
+        }
+
+        .global-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .global-chip,
+        .user-chip {
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 0 10px;
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            border-radius: 999px;
+            color: #f7fbff;
+            background: rgba(255, 255, 255, 0.10);
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .global-chip.urgent {
+            color: #fff5ef;
+            border-color: rgba(245, 161, 124, 0.60);
+            background: rgba(241, 94, 42, 0.20);
+        }
+
+        .avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.92);
+            color: var(--blue-deep);
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .shell {
+            display: grid;
+            grid-template-columns: 58px minmax(0, 1fr);
+            gap: 14px;
+            width: min(1680px, calc(100vw - 28px));
+            margin: 0 auto;
+            padding: 14px 0 24px;
+        }
+
+        .left-rail {
+            position: sticky;
+            top: 64px;
+            align-self: start;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 8px;
+            border: 1px solid rgba(255, 255, 255, 0.74);
+            border-radius: 14px;
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.12), transparent 22%),
+                linear-gradient(180deg, #12364f, #0d283d);
+            box-shadow: var(--shadow-5);
+        }
+
+        .rail-btn {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #d7e8f4;
+        }
+
+        .rail-btn.active {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.38);
+            box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.18), 0 3px 8px rgba(0, 0, 0, 0.18);
+        }
+
+        .rail-btn[data-count]::after {
+            content: attr(data-count);
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: 17px;
+            height: 17px;
+            padding: 0 5px;
+            border-radius: 999px;
+            color: #fff;
+            background: var(--warn);
+            font-size: 10px;
+            font-weight: 900;
+            line-height: 17px;
+            box-shadow: 0 0 0 2px #12364f;
+        }
+
+        .icon {
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+            background: currentColor;
+            mask: var(--icon-doc) center / contain no-repeat;
+            -webkit-mask: var(--icon-doc) center / contain no-repeat;
+        }
+
+        .icon.bell { mask-image: var(--icon-bell); -webkit-mask-image: var(--icon-bell); }
+        .icon.person { mask-image: var(--icon-person); -webkit-mask-image: var(--icon-person); }
+        .icon.task { mask-image: var(--icon-task); -webkit-mask-image: var(--icon-task); }
+        .icon.history { mask-image: var(--icon-history); -webkit-mask-image: var(--icon-history); }
+        .icon.car { mask-image: var(--icon-car); -webkit-mask-image: var(--icon-car); }
+        .icon.settings { mask-image: var(--icon-settings); -webkit-mask-image: var(--icon-settings); }
+
+        .rail-btn .icon {
+            position: absolute;
+            inset: 0;
+            margin: auto;
+        }
+
+        .content {
+            display: grid;
+            grid-template-rows: auto auto minmax(0, 1fr);
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .screen-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            min-height: 42px;
+        }
+
+        .title-block {
+            min-width: 0;
+        }
+
+        .screen-title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+
+        .screen-meta {
+            margin-top: 2px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-strip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .metric {
+            min-width: 104px;
+            height: 38px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 8px;
+            padding: 0 10px;
+            border: 1px solid rgba(219, 229, 236, 0.95);
+            border-radius: 8px;
+            background:
+                linear-gradient(to bottom right, rgba(238, 244, 248, 0.78), #fff 70%);
+            box-shadow: var(--shadow-1);
+        }
+
+        .metric span {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .metric strong {
+            font-size: 18px;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .metric.warn strong { color: var(--warn); }
+        .metric.info strong { color: var(--blue); }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.86);
+            border-radius: 14px;
+            background:
+                linear-gradient(to bottom right, rgba(238, 244, 248, 0.86), #fff 72%);
+            box-shadow: var(--shadow-2);
+        }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .select,
+        .tool-btn,
+        .seg-btn {
+            height: 34px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background:
+                linear-gradient(to bottom right, #f4f8fb, #fff 68%);
+            color: var(--slate);
+            box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.85), inset -1px -1px 0 rgba(111, 137, 154, 0.08);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .select {
+            padding: 0 30px 0 10px;
+        }
+
+        .tool-btn,
+        .seg-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 0 10px;
+            white-space: nowrap;
+        }
+
+        .tool-btn.primary {
+            color: #fff;
+            border-color: #174f8e;
+            background: linear-gradient(135deg, #1f6fbd, #174f8e);
+            box-shadow: var(--shadow-1), inset 1px 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .tool-btn.warn {
+            color: var(--warn-deep);
+            border-color: var(--warn-border);
+            background: linear-gradient(to bottom right, var(--warn-bg), #fff 82%);
+        }
+
+        .segmented {
+            display: inline-flex;
+            padding: 3px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #eef4f8;
+        }
+
+        .seg-btn {
+            height: 28px;
+            border: 0;
+            border-radius: 7px;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .seg-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, #1f6fbd, #174f8e);
+            box-shadow: var(--shadow-1);
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(780px, 1fr) 370px;
+            gap: 12px;
+            align-items: start;
+            min-height: 690px;
+        }
+
+        .main-card,
+        .thread-card {
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-radius: 14px;
+            background:
+                linear-gradient(to bottom right, rgba(238, 244, 248, 0.78), #fff 70%);
+            box-shadow: var(--shadow-3);
+            overflow: hidden;
+        }
+
+        .main-card {
+            min-width: 0;
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(219, 229, 236, 0.70);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .head-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-box {
+            width: 240px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .search-box input {
+            width: 100%;
+            border: 0;
+            outline: 0;
+            color: var(--ink);
+            background: transparent;
+            font-size: 12px;
+        }
+
+        .change-layout {
+            display: grid;
+            grid-template-columns: 282px minmax(0, 1fr);
+            min-height: 612px;
+        }
+
+        .queue {
+            border-right: 1px solid rgba(219, 229, 236, 0.82);
+            background:
+                linear-gradient(to bottom right, #f3f7fa, #fbfdff 72%);
+        }
+
+        .queue-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            padding: 10px;
+            border-bottom: 1px solid rgba(219, 229, 236, 0.82);
+        }
+
+        .queue-tab {
+            height: 30px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            color: var(--muted);
+            background: transparent;
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .queue-tab.active {
+            color: var(--blue);
+            border-color: var(--info-border);
+            background: var(--info-bg);
+        }
+
+        .change-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px;
+        }
+
+        .change-item {
+            width: 100%;
+            display: grid;
+            gap: 8px;
+            padding: 11px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background:
+                linear-gradient(to bottom right, rgba(255, 255, 255, 0.72), #fff 68%);
+            box-shadow: var(--shadow-1);
+            color: var(--ink);
+            text-align: left;
+        }
+
+        .change-item.active {
+            border-color: #8db9e8;
+            background:
+                linear-gradient(to bottom right, #edf6ff, #fff 70%);
+            box-shadow: 0 0 0 2px rgba(31, 95, 174, 0.10), var(--shadow-2);
+        }
+
+        .change-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .change-kind {
+            color: var(--blue);
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .change-time {
+            color: var(--faint);
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .change-name {
+            font-size: 13px;
+            font-weight: 900;
+            line-height: 1.35;
+        }
+
+        .change-diff {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .badge {
+            min-height: 22px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0 7px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: var(--slate);
+            background: #fff;
+            font-size: 11px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .badge.warn {
+            color: var(--warn-deep);
+            border-color: var(--warn-border);
+            background: var(--warn-bg);
+        }
+
+        .badge.info {
+            color: var(--info);
+            border-color: var(--info-border);
+            background: var(--info-bg);
+        }
+
+        .badge.green {
+            color: var(--green);
+            border-color: var(--green-border);
+            background: var(--green-bg);
+        }
+
+        .badge.dark {
+            color: #fff;
+            border-color: #294f68;
+            background: #274b63;
+        }
+
+        .table-area {
+            min-width: 0;
+            padding: 12px;
+        }
+
+        .sl-table {
+            display: grid;
+            border: 1px solid rgba(216, 225, 232, 0.95);
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .sl-row {
+            display: grid;
+            grid-template-columns: 52px minmax(170px, 1.25fr) 80px 90px 70px minmax(160px, 1.1fr) 112px;
+            min-height: 68px;
+            border-bottom: 1px solid var(--soft-line);
+        }
+
+        .sl-row:last-child {
+            border-bottom: 0;
+        }
+
+        .sl-row.header {
+            min-height: 38px;
+            color: var(--muted);
+            background:
+                linear-gradient(to bottom right, #eef4f8, #fff 78%);
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .sl-row.selected {
+            background:
+                linear-gradient(to bottom right, rgba(237, 246, 255, 0.88), #fff 74%);
+            box-shadow: inset 3px 0 0 var(--blue);
+        }
+
+        .sl-cell {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px 10px;
+            border-right: 1px solid rgba(232, 238, 243, 0.74);
+        }
+
+        .sl-cell:last-child {
+            border-right: 0;
+        }
+
+        .sl-row.header .sl-cell {
+            justify-content: center;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .category {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            align-self: center;
+            border-radius: 50%;
+            color: #fff;
+            background: #205ea6;
+            font-size: 11px;
+            font-weight: 900;
+            line-height: 1.1;
+            text-align: center;
+        }
+
+        .site-main {
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .site-sub,
+        .cell-sub {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .time-main {
+            font-size: 17px;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .count-main {
+            font-size: 17px;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .person-list,
+        .vehicle-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .person-chip,
+        .vehicle-chip {
+            min-height: 25px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0 9px;
+            border: 1px solid #cbd9e4;
+            border-left: 3px solid #4f6f9f;
+            border-radius: 999px;
+            background:
+                linear-gradient(to bottom right, #eef4f8, #fff 70%);
+            color: var(--slate);
+            box-shadow: var(--shadow-1);
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .thread-card {
+            min-height: 690px;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr) auto;
+        }
+
+        .thread-head {
+            padding: 14px 14px 12px;
+            border-bottom: 1px solid rgba(219, 229, 236, 0.78);
+        }
+
+        .thread-title-line {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .thread-title {
+            font-size: 15px;
+            font-weight: 900;
+            line-height: 1.35;
+        }
+
+        .thread-id {
+            color: var(--faint);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .thread-body {
+            min-height: 0;
+            overflow: auto;
+            padding: 12px 14px;
+        }
+
+        .section {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            color: var(--slate);
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .diff-card,
+        .reason-card,
+        .comment,
+        .request-card {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background:
+                linear-gradient(to bottom right, rgba(247, 250, 252, 0.84), #fff 72%);
+            box-shadow: var(--shadow-1);
+        }
+
+        .diff-card {
+            display: grid;
+            grid-template-columns: 1fr 34px 1fr;
+            gap: 8px;
+            align-items: stretch;
+            padding: 10px;
+        }
+
+        .diff-side {
+            min-width: 0;
+            padding: 8px;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .diff-label {
+            display: block;
+            color: var(--faint);
+            font-size: 10px;
+            font-weight: 900;
+            margin-bottom: 4px;
+        }
+
+        .diff-value {
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .diff-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-weight: 900;
+        }
+
+        .reason-card {
+            padding: 10px;
+        }
+
+        .reason-grid {
+            display: grid;
+            grid-template-columns: 86px 1fr;
+            gap: 6px 10px;
+            align-items: start;
+        }
+
+        .reason-label {
+            color: var(--faint);
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .reason-value {
+            color: var(--ink);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .timeline {
+            display: grid;
+            gap: 9px;
+        }
+
+        .comment {
+            padding: 10px;
+        }
+
+        .comment.mine {
+            border-color: var(--info-border);
+            background:
+                linear-gradient(to bottom right, var(--info-bg), #fff 82%);
+        }
+
+        .comment-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .comment-user {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .mini-avatar {
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: #fff;
+            background: #4f6f9f;
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        .comment-time {
+            color: var(--faint);
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .comment-text {
+            color: var(--slate);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .request-card {
+            padding: 10px;
+            border-color: var(--warn-border);
+            background:
+                linear-gradient(to bottom right, var(--warn-bg), #fff 82%);
+        }
+
+        .request-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 7px;
+            margin-top: 9px;
+        }
+
+        .thread-foot {
+            display: grid;
+            gap: 9px;
+            padding: 12px 14px 14px;
+            border-top: 1px solid rgba(219, 229, 236, 0.78);
+            background:
+                linear-gradient(to bottom right, #f5f9fb, #fff 74%);
+        }
+
+        .reply-box {
+            min-height: 70px;
+            width: 100%;
+            resize: none;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            outline: 0;
+            padding: 9px 10px;
+            color: var(--ink);
+            background: #fff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .foot-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .status-menu {
+            display: flex;
+            gap: 6px;
+        }
+
+        .mini-btn {
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 0 9px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            color: var(--slate);
+            background: #fff;
+            box-shadow: var(--shadow-1);
+            font-size: 11px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .mini-btn.primary {
+            color: #fff;
+            border-color: #174f8e;
+            background: linear-gradient(135deg, #1f6fbd, #174f8e);
+        }
+
+        .mini-btn.warn {
+            color: var(--warn-deep);
+            border-color: var(--warn-border);
+            background: var(--warn-bg);
+        }
+
+        .mini-btn.green {
+            color: var(--green);
+            border-color: var(--green-border);
+            background: var(--green-bg);
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        @media (max-width: 1500px) {
+            .workspace {
+                grid-template-columns: minmax(760px, 1fr) 340px;
+            }
+
+            .change-layout {
+                grid-template-columns: 248px minmax(0, 1fr);
+            }
+
+            .sl-row {
+                grid-template-columns: 44px minmax(130px, 1.1fr) 68px 74px 58px minmax(110px, 1fr) 84px;
+            }
+
+            .sl-cell {
+                padding-left: 7px;
+                padding-right: 7px;
+            }
+
+            .category {
+                width: 34px;
+                height: 34px;
+                font-size: 10px;
+            }
+
+            .site-main {
+                font-size: 13px;
+            }
+
+            .time-main,
+            .count-main {
+                font-size: 16px;
+            }
+
+            .person-chip,
+            .vehicle-chip {
+                min-height: 23px;
+                padding-left: 7px;
+                padding-right: 7px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="global-bar">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span>Order Management System</span>
+            </div>
+            <label class="global-search">
+                <span aria-hidden="true">検索</span>
+                <input type="search" placeholder="現場・社員・変更理由・コメントを検索">
+            </label>
+            <div class="global-actions">
+                <button class="global-chip urgent" type="button"><span class="icon bell"></span>要返信 3</button>
+                <button class="global-chip" type="button"><span class="icon history"></span>変更通知 18</button>
+                <button class="user-chip" type="button"><span class="avatar">配</span>配置担当</button>
+            </div>
+        </header>
+
+        <div class="shell">
+            <nav class="left-rail" aria-label="画面切替">
+                <button class="rail-btn" type="button" title="受注簿"><span class="icon"></span><span class="sr-only">受注簿</span></button>
+                <button class="rail-btn active" type="button" title="業務管理計画書"><span class="icon task"></span><span class="sr-only">業務管理計画書</span></button>
+                <button class="rail-btn" type="button" title="社員"><span class="icon person"></span><span class="sr-only">社員</span></button>
+                <button class="rail-btn" type="button" title="車両"><span class="icon car"></span><span class="sr-only">車両</span></button>
+                <button class="rail-btn" type="button" title="変更確認" data-count="3"><span class="icon bell"></span><span class="sr-only">変更確認</span></button>
+                <button class="rail-btn" type="button" title="履歴検索"><span class="icon history"></span><span class="sr-only">履歴検索</span></button>
+                <button class="rail-btn" type="button" title="設定"><span class="icon settings"></span><span class="sr-only">設定</span></button>
+            </nav>
+
+            <main class="content">
+                <section class="screen-head">
+                    <div class="title-block">
+                        <h1 class="screen-title">業務管理計画書</h1>
+                        <div class="screen-meta">2026年6月9日 火曜日 / 変更確認スレッド統合案</div>
+                    </div>
+                    <div class="status-strip">
+                        <div class="metric warn"><span>要返信</span><strong>3</strong></div>
+                        <div class="metric info"><span>確認中</span><strong>7</strong></div>
+                        <div class="metric"><span>本日変更</span><strong>18</strong></div>
+                    </div>
+                </section>
+
+                <section class="toolbar" aria-label="業務管理計画書ツールバー">
+                    <div class="tool-group">
+                        <select class="select" aria-label="対象日">
+                            <option>2026/06/09 火</option>
+                        </select>
+                        <select class="select" aria-label="グループ会社">
+                            <option>全社</option>
+                            <option>東央警備</option>
+                            <option>Nikkei</option>
+                        </select>
+                        <div class="segmented" aria-label="変更確認フィルタ">
+                            <button class="seg-btn active" type="button">全件</button>
+                            <button class="seg-btn" type="button">未確認</button>
+                            <button class="seg-btn" type="button">要返信</button>
+                            <button class="seg-btn" type="button">解決済</button>
+                        </div>
+                    </div>
+                    <div class="tool-group">
+                        <button class="tool-btn warn" type="button"><span class="icon bell"></span>確認依頼</button>
+                        <button class="tool-btn" type="button">履歴検索</button>
+                        <button class="tool-btn" type="button">連絡出力</button>
+                        <button class="tool-btn primary" type="button">配置確定</button>
+                    </div>
+                </section>
+
+                <section class="workspace">
+                    <article class="main-card">
+                        <div class="card-head">
+                            <div class="card-title"><span class="icon bell"></span>変更確認キュー</div>
+                            <div class="head-actions">
+                                <label class="search-box">
+                                    <input type="search" placeholder="理由・担当者・現場で絞り込み">
+                                </label>
+                                <span class="badge info">選択行と同期</span>
+                            </div>
+                        </div>
+
+                        <div class="change-layout">
+                            <aside class="queue">
+                                <div class="queue-tabs">
+                                    <button class="queue-tab active" type="button">要対応</button>
+                                    <button class="queue-tab" type="button">自分宛</button>
+                                    <button class="queue-tab" type="button">全履歴</button>
+                                </div>
+                                <div class="change-list">
+                                    <button class="change-item active" type="button" data-change="0">
+                                        <span class="change-top">
+                                            <span class="change-kind">集合時間</span>
+                                            <span class="change-time">09:18</span>
+                                        </span>
+                                        <span class="change-name">港湾道路 夜間片交</span>
+                                        <span class="change-diff">07:00 から 06:40 へ変更</span>
+                                        <span class="badge-row">
+                                            <span class="badge warn">理由未記載</span>
+                                            <span class="badge info">@営業待ち</span>
+                                        </span>
+                                    </button>
+                                    <button class="change-item" type="button" data-change="1">
+                                        <span class="change-top">
+                                            <span class="change-kind">配置社員</span>
+                                            <span class="change-time">08:42</span>
+                                        </span>
+                                        <span class="change-name">駅前再開発 2工区</span>
+                                        <span class="change-diff">田中 から 林 へ差替</span>
+                                        <span class="badge-row">
+                                            <span class="badge info">確認中</span>
+                                            <span class="badge">社員都合</span>
+                                        </span>
+                                    </button>
+                                    <button class="change-item" type="button" data-change="2">
+                                        <span class="change-top">
+                                            <span class="change-kind">車両</span>
+                                            <span class="change-time">昨日</span>
+                                        </span>
+                                        <span class="change-name">市民会館 誘導</span>
+                                        <span class="change-diff">わ 12-34 から わ 23-45</span>
+                                        <span class="badge-row">
+                                            <span class="badge green">確認済み</span>
+                                            <span class="badge">車両都合</span>
+                                        </span>
+                                    </button>
+                                    <button class="change-item" type="button" data-change="3">
+                                        <span class="change-top">
+                                            <span class="change-kind">必要人数</span>
+                                            <span class="change-time">昨日</span>
+                                        </span>
+                                        <span class="change-name">物流倉庫 搬入口</span>
+                                        <span class="change-diff">4名 から 5名</span>
+                                        <span class="badge-row">
+                                            <span class="badge warn">要返信</span>
+                                            <span class="badge info">現場都合</span>
+                                        </span>
+                                    </button>
+                                </div>
+                            </aside>
+
+                            <div class="table-area">
+                                <div class="sl-table" aria-label="業務管理計画書">
+                                    <div class="sl-row header">
+                                        <div class="sl-cell">区分</div>
+                                        <div class="sl-cell">契約先 / 現場名</div>
+                                        <div class="sl-cell">集合</div>
+                                        <div class="sl-cell">時間</div>
+                                        <div class="sl-cell">人数</div>
+                                        <div class="sl-cell">配置</div>
+                                        <div class="sl-cell">車両 / ETC</div>
+                                    </div>
+                                    <div class="sl-row selected">
+                                        <div class="sl-cell"><span class="category">交通</span></div>
+                                        <div class="sl-cell">
+                                            <span class="site-main">港湾道路 夜間片交</span>
+                                            <span class="site-sub">Nikkei / OB更新あり</span>
+                                            <span class="badge-row"><span class="badge warn">理由未記載</span><span class="badge info">スレッド 4件</span></span>
+                                        </div>
+                                        <div class="sl-cell"><span class="time-main">06:40</span><span class="cell-sub">旧 07:00</span></div>
+                                        <div class="sl-cell"><span class="time-main">21:00</span><span class="cell-sub">翌 05:00</span></div>
+                                        <div class="sl-cell"><span class="count-main">3/3</span><span class="cell-sub">確定前</span></div>
+                                        <div class="sl-cell">
+                                            <span class="person-list"><span class="person-chip">林</span><span class="person-chip">佐藤</span><span class="person-chip">高橋</span></span>
+                                        </div>
+                                        <div class="sl-cell">
+                                            <span class="vehicle-list"><span class="vehicle-chip">わ 12-34</span><span class="vehicle-chip">ETC-B</span></span>
+                                        </div>
+                                    </div>
+                                    <div class="sl-row">
+                                        <div class="sl-cell"><span class="category">施設</span></div>
+                                        <div class="sl-cell">
+                                            <span class="site-main">駅前再開発 2工区</span>
+                                            <span class="site-sub">東央警備 / 配置差替</span>
+                                        </div>
+                                        <div class="sl-cell"><span class="time-main">07:30</span><span class="cell-sub">変更なし</span></div>
+                                        <div class="sl-cell"><span class="time-main">08:30</span><span class="cell-sub">17:30</span></div>
+                                        <div class="sl-cell"><span class="count-main">2/2</span><span class="cell-sub">確認中</span></div>
+                                        <div class="sl-cell">
+                                            <span class="person-list"><span class="person-chip">林</span><span class="person-chip">伊藤</span></span>
+                                        </div>
+                                        <div class="sl-cell">
+                                            <span class="vehicle-list"><span class="vehicle-chip">なし</span></span>
+                                        </div>
+                                    </div>
+                                    <div class="sl-row">
+                                        <div class="sl-cell"><span class="category">イベント</span></div>
+                                        <div class="sl-cell">
+                                            <span class="site-main">市民会館 誘導</span>
+                                            <span class="site-sub">全日本 / 車両変更済</span>
+                                        </div>
+                                        <div class="sl-cell"><span class="time-main">08:00</span><span class="cell-sub">変更なし</span></div>
+                                        <div class="sl-cell"><span class="time-main">09:00</span><span class="cell-sub">18:00</span></div>
+                                        <div class="sl-cell"><span class="count-main">4/4</span><span class="cell-sub">確認済</span></div>
+                                        <div class="sl-cell">
+                                            <span class="person-list"><span class="person-chip">田中</span><span class="person-chip">加藤</span><span class="person-chip">鈴木</span></span>
+                                        </div>
+                                        <div class="sl-cell">
+                                            <span class="vehicle-list"><span class="vehicle-chip">わ 23-45</span><span class="vehicle-chip">ETC-D</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <aside class="thread-card" aria-label="変更確認スレッド">
+                        <div class="thread-head">
+                            <div class="thread-title-line">
+                                <div>
+                                    <div class="thread-title" id="threadTitle">港湾道路 夜間片交</div>
+                                    <div class="thread-id" id="threadId">CHG-20260609-018</div>
+                                </div>
+                                <span class="badge warn" id="threadStatus">要返信</span>
+                            </div>
+                            <div class="badge-row" id="threadBadges">
+                                <span class="badge">集合時間</span>
+                                <span class="badge warn">理由未記載</span>
+                                <span class="badge info">@営業待ち</span>
+                            </div>
+                        </div>
+
+                        <div class="thread-body">
+                            <section class="section">
+                                <div class="section-title">変更内容</div>
+                                <div class="diff-card">
+                                    <div class="diff-side">
+                                        <span class="diff-label">変更前</span>
+                                        <span class="diff-value" id="beforeValue">07:00 集合</span>
+                                    </div>
+                                    <div class="diff-arrow">→</div>
+                                    <div class="diff-side">
+                                        <span class="diff-label">変更後</span>
+                                        <span class="diff-value" id="afterValue">06:40 集合</span>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="section">
+                                <div class="section-title">理由と根拠</div>
+                                <div class="reason-card">
+                                    <div class="reason-grid">
+                                        <span class="reason-label">変更者</span>
+                                        <span class="reason-value" id="editorValue">営業 山田 / 09:18</span>
+                                        <span class="reason-label">理由区分</span>
+                                        <span class="reason-value" id="reasonValue">未記載</span>
+                                        <span class="reason-label">根拠</span>
+                                        <span class="reason-value" id="sourceValue">OB受注簿から更新。現場担当者確認は未入力。</span>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="section">
+                                <div class="section-title">
+                                    <span>確認スレッド</span>
+                                    <span class="badge info" id="commentCount">4件</span>
+                                </div>
+                                <div class="timeline" id="timeline">
+                                    <article class="comment">
+                                        <div class="comment-head">
+                                            <span class="comment-user"><span class="mini-avatar">配</span>配置担当</span>
+                                            <span class="comment-time">09:21</span>
+                                        </div>
+                                        <div class="comment-text">集合時間が20分早まっています。現場からの直接連絡か、営業側の入力修正か確認お願いします。</div>
+                                    </article>
+                                    <article class="comment mine">
+                                        <div class="comment-head">
+                                            <span class="comment-user"><span class="mini-avatar">山</span>営業 山田</span>
+                                            <span class="comment-time">09:24</span>
+                                        </div>
+                                        <div class="comment-text">現場代理人から電話で連絡ありです。搬入車両が早着するため06:40集合へ変更です。</div>
+                                    </article>
+                                    <article class="comment">
+                                        <div class="comment-head">
+                                            <span class="comment-user"><span class="mini-avatar">配</span>配置担当</span>
+                                            <span class="comment-time">09:26</span>
+                                        </div>
+                                        <div class="comment-text">了解です。社員連絡は再送対象にします。</div>
+                                    </article>
+                                </div>
+                            </section>
+
+                            <section class="section">
+                                <div class="section-title">確認依頼</div>
+                                <div class="request-card">
+                                    <div class="comment-text">理由が未記載の変更は、変更者へ確認依頼を送信してスレッドに回答を残します。</div>
+                                    <div class="request-actions">
+                                        <button class="mini-btn warn" type="button">@変更者に依頼</button>
+                                        <button class="mini-btn" type="button">電話済みを記録</button>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <div class="thread-foot">
+                            <textarea class="reply-box" id="replyBox" placeholder="確認内容・判断理由・連絡結果を入力"></textarea>
+                            <div class="foot-actions">
+                                <div class="status-menu">
+                                    <button class="mini-btn" type="button">保留</button>
+                                    <button class="mini-btn green" type="button">確認済み</button>
+                                </div>
+                                <button class="mini-btn primary" type="button" id="sendReply">返信を残す</button>
+                            </div>
+                        </div>
+                    </aside>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const changes = [
+            {
+                title: "港湾道路 夜間片交",
+                id: "CHG-20260609-018",
+                status: "要返信",
+                statusClass: "warn",
+                badges: ["集合時間", "理由未記載", "@営業待ち"],
+                before: "07:00 集合",
+                after: "06:40 集合",
+                editor: "営業 山田 / 09:18",
+                reason: "未記載",
+                source: "OB受注簿から更新。現場担当者確認は未入力。",
+                comments: [
+                    ["配", "配置担当", "09:21", "集合時間が20分早まっています。現場からの直接連絡か、営業側の入力修正か確認お願いします。"],
+                    ["山", "営業 山田", "09:24", "現場代理人から電話で連絡ありです。搬入車両が早着するため06:40集合へ変更です。", true],
+                    ["配", "配置担当", "09:26", "了解です。社員連絡は再送対象にします。"]
+                ]
+            },
+            {
+                title: "駅前再開発 2工区",
+                id: "CHG-20260609-011",
+                status: "確認中",
+                statusClass: "info",
+                badges: ["配置社員", "社員都合", "回答待ち"],
+                before: "田中",
+                after: "林",
+                editor: "配置 佐々木 / 08:42",
+                reason: "社員都合",
+                source: "田中から体調不良の連絡。林は同現場の過去配置あり。",
+                comments: [
+                    ["配", "配置 佐々木", "08:45", "田中が午後に通院予定のため、林へ差し替えています。"],
+                    ["営", "営業 田口", "08:51", "現場側へ社員変更を伝えます。", true]
+                ]
+            },
+            {
+                title: "市民会館 誘導",
+                id: "CHG-20260608-027",
+                status: "確認済み",
+                statusClass: "green",
+                badges: ["車両", "車両都合", "確認済み"],
+                before: "わ 12-34",
+                after: "わ 23-45",
+                editor: "車両担当 木村 / 昨日 16:10",
+                reason: "車両都合",
+                source: "わ 12-34 は整備予約あり。代替車両を割当済み。",
+                comments: [
+                    ["木", "車両担当 木村", "16:12", "整備のため代替車へ変更しました。ETC-Dはそのまま使えます。"],
+                    ["配", "配置担当", "16:18", "確認済み。社員連絡へ反映しました。", true]
+                ]
+            },
+            {
+                title: "物流倉庫 搬入口",
+                id: "CHG-20260608-019",
+                status: "要返信",
+                statusClass: "warn",
+                badges: ["必要人数", "現場都合", "営業確認中"],
+                before: "4名",
+                after: "5名",
+                editor: "営業 山田 / 昨日 14:36",
+                reason: "現場都合",
+                source: "搬入口が2か所に分かれるため増員。追加1名の資格要件は未確認。",
+                comments: [
+                    ["営", "営業 山田", "14:37", "現場都合で5名に増えています。資格要件は確認中です。"],
+                    ["配", "配置担当", "14:45", "資格要件が分かり次第、候補を絞り込みます。", true]
+                ]
+            }
+        ];
+
+        const statusClassMap = {
+            warn: "badge warn",
+            info: "badge info",
+            green: "badge green"
+        };
+
+        const els = {
+            title: document.getElementById("threadTitle"),
+            id: document.getElementById("threadId"),
+            status: document.getElementById("threadStatus"),
+            badges: document.getElementById("threadBadges"),
+            before: document.getElementById("beforeValue"),
+            after: document.getElementById("afterValue"),
+            editor: document.getElementById("editorValue"),
+            reason: document.getElementById("reasonValue"),
+            source: document.getElementById("sourceValue"),
+            count: document.getElementById("commentCount"),
+            timeline: document.getElementById("timeline"),
+            reply: document.getElementById("replyBox")
+        };
+
+        function renderThread(index) {
+            const change = changes[index];
+            els.title.textContent = change.title;
+            els.id.textContent = change.id;
+            els.status.textContent = change.status;
+            els.status.className = statusClassMap[change.statusClass] || "badge";
+            els.before.textContent = change.before;
+            els.after.textContent = change.after;
+            els.editor.textContent = change.editor;
+            els.reason.textContent = change.reason;
+            els.source.textContent = change.source;
+            els.count.textContent = `${change.comments.length + 1}件`;
+            els.badges.innerHTML = change.badges.map((badge) => {
+                const type = badge.includes("未記載") || badge.includes("待ち") || badge.includes("要") ? " warn" : badge.includes("確認") || badge.includes("@") ? " info" : "";
+                return `<span class="badge${type}">${badge}</span>`;
+            }).join("");
+            els.timeline.innerHTML = change.comments.map(([avatar, user, time, text, mine]) => `
+                <article class="comment${mine ? " mine" : ""}">
+                    <div class="comment-head">
+                        <span class="comment-user"><span class="mini-avatar">${avatar}</span>${user}</span>
+                        <span class="comment-time">${time}</span>
+                    </div>
+                    <div class="comment-text">${text}</div>
+                </article>
+            `).join("");
+        }
+
+        document.querySelectorAll(".change-item").forEach((button) => {
+            button.addEventListener("click", () => {
+                document.querySelectorAll(".change-item").forEach((item) => item.classList.remove("active"));
+                button.classList.add("active");
+                renderThread(Number(button.dataset.change));
+            });
+        });
+
+        document.querySelectorAll(".seg-btn, .queue-tab").forEach((button) => {
+            button.addEventListener("click", () => {
+                const group = button.classList.contains("seg-btn") ? ".seg-btn" : ".queue-tab";
+                document.querySelectorAll(group).forEach((item) => item.classList.remove("active"));
+                button.classList.add("active");
+            });
+        });
+
+        document.getElementById("sendReply").addEventListener("click", () => {
+            const text = els.reply.value.trim();
+            if (!text) return;
+            const entry = document.createElement("article");
+            entry.className = "comment";
+            entry.innerHTML = `
+                <div class="comment-head">
+                    <span class="comment-user"><span class="mini-avatar">配</span>配置担当</span>
+                    <span class="comment-time">今</span>
+                </div>
+                <div class="comment-text"></div>
+            `;
+            entry.querySelector(".comment-text").textContent = text;
+            els.timeline.appendChild(entry);
+            els.reply.value = "";
+            const current = Number(document.querySelector(".change-item.active").dataset.change);
+            changes[current].comments.push(["配", "配置担当", "今", text]);
+            els.count.textContent = `${changes[current].comments.length + 1}件`;
+        });
+    </script>
+</body>
+</html>
