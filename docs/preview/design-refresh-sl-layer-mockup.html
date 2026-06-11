@@ -551,9 +551,10 @@
             font-size: 11px;
             line-height: 1.3;
             border-radius: var(--radius-sm);
-            /* 状態駆動: 未確認の変更がある行のみ濃紺（要注意シグナル）。確認済は .confirmed で淡色 */
+            /* 淡色カード統一（ユーザー判断 2026-06-11: 濃紺の未確認シグナルは廃止、備考カードと同系） */
+            border: 1px solid var(--soft-line);
             background:
-                linear-gradient(to bottom right, #133a5a, #0c2b45 56%, #09263d);
+                linear-gradient(to bottom right, #f9fbfc, #f3f6f9 60%, #edf1f5);
         }
         .change-log li {
             display: flex;
@@ -563,43 +564,27 @@
         }
         .cl-label {
             min-width: 30px;
-            color: #7e97aa;
-            font-weight: 700;
+            color: #7a8d9c;
+            font-weight: 600;
         }
         .cl-from {
-            color: #aab8c4;
+            color: #8fa0ad;
         }
         .cl-arrow {
-            color: #5f7689;
-            font-weight: 700;
+            color: #9aabb8;
+            font-weight: 600;
         }
         .cl-to {
-            color: #ffffff;
-            font-weight: 700;
-        }
-
-        /* 確認済みの変更履歴: 淡色カード（濃紺は未確認シグナル専用） */
-        .change-log.confirmed {
-            border: 1px solid var(--soft-line);
-            background:
-                linear-gradient(to bottom right, #f9fbfc, #f3f6f9 60%, #edf1f5);
-        }
-        .change-log.confirmed .cl-label { color: #7a8d9c; font-weight: 600; }
-        .change-log.confirmed .cl-from { color: #8fa0ad; }
-        .change-log.confirmed .cl-arrow { color: #9aabb8; }
-        .change-log.confirmed .cl-to { color: #2c4356; font-weight: 600; }
-        .change-log .cl-status {
-            justify-content: flex-end;
-            color: #7a8d9c;
-            font-size: 10px;
+            color: #2c4356;
             font-weight: 600;
         }
 
-        /* 備考カード: 白に近いグレー（変更履歴の濃紺と切替時に区別しやすく） */
+        /* 備考カード: 変更履歴カードと同じ淡色面+ヘアライン縁 */
         .note-content {
             width: 100%;
             padding: 8px 12px;
             border-radius: var(--radius-sm);
+            border: 1px solid var(--soft-line);
             background:
                 linear-gradient(to bottom right, #f9fbfc, #f3f6f9 60%, #edf1f5);
             font-size: 11px;
@@ -935,9 +920,10 @@
                左上明・右下暗への統一対象から除外すること */
             background:
                 linear-gradient(to bottom right, rgba(200, 213, 226, 0.38) 0%, #ffffff 60%, rgba(206, 219, 230, 0.22) 100%);
-            /* 静止時は外影1層（浮きはhover/dragで付与 → D&Dアフォーダンス） */
+            /* チップの浮き: 2層影でつまめる立体感（hover/drag でさらに浮く） */
             box-shadow:
-                0 1px 2px rgba(24, 55, 78, 0.10),
+                0 4px 8px rgba(24, 55, 78, 0.13),
+                0 2px 3px rgba(24, 55, 78, 0.09),
                 inset 1px 0 0 rgba(255, 255, 255, 0.92),
                 inset -1px 0 0 rgba(53, 83, 104, 0.08);
             color: var(--ink);
@@ -957,8 +943,8 @@
         .person:hover {
             border-color: rgba(160, 182, 200, 0.92);
             box-shadow:
-                0 4px 9px rgba(24, 55, 78, 0.14),
-                0 1px 2px rgba(24, 55, 78, 0.08),
+                0 6px 12px rgba(24, 55, 78, 0.16),
+                0 2px 4px rgba(24, 55, 78, 0.10),
                 inset 1px 0 0 rgba(255, 255, 255, 0.94),
                 inset -1px 0 0 rgba(53, 83, 104, 0.10);
         }
@@ -1181,9 +1167,10 @@
             font-weight: var(--table-data-weight);
             font-variant-numeric: tabular-nums;
             white-space: nowrap;
-            /* 静止時は外影1層（浮きはhover/dragで付与 → D&Dアフォーダンス） */
+            /* チップの浮き: 2層影でつまめる立体感（hover/drag でさらに浮く） */
             box-shadow:
-                0 1px 2px rgba(24, 55, 78, 0.10),
+                0 4px 8px rgba(24, 55, 78, 0.13),
+                0 2px 3px rgba(24, 55, 78, 0.09),
                 inset 1px 0 0 rgba(255, 255, 255, 0.92),
                 inset -1px 0 0 rgba(53, 83, 104, 0.08);
             color: var(--ink);
@@ -1196,8 +1183,8 @@
         .vehicle-tag:hover {
             border-color: rgba(160, 182, 200, 0.92);
             box-shadow:
-                0 4px 9px rgba(24, 55, 78, 0.14),
-                0 1px 2px rgba(24, 55, 78, 0.08),
+                0 6px 12px rgba(24, 55, 78, 0.16),
+                0 2px 4px rgba(24, 55, 78, 0.10),
                 inset 1px 0 0 rgba(255, 255, 255, 0.94),
                 inset -1px 0 0 rgba(53, 83, 104, 0.10);
         }
@@ -1891,12 +1878,10 @@
                                 </div>
                             </div>
                             <div class="cell change-cell">
-                                <!-- 状態駆動デモ: この行の変更は全件確認済み → 淡色カード（未確認行のみ濃紺） -->
-                                <ul class="change-log confirmed">
+                                <ul class="change-log">
                                     <li><span class="cl-label">集合</span><span class="cl-from">07:00</span><span class="cl-arrow">→</span><span class="cl-to">06:40</span></li>
                                     <li><span class="cl-label">配置</span><span class="cl-from">田中</span><span class="cl-arrow">→</span><span class="cl-to">林</span></li>
                                     <li><span class="cl-label">時間</span><span class="cl-from">16:00</span><span class="cl-arrow">→</span><span class="cl-to">17:30</span></li>
-                                    <li class="cl-status">確認済</li>
                                 </ul>
                                 <div class="note-content" hidden>正面入口の鍵は警備室で受取。閉館後は裏口の施錠確認を徹底すること。</div>
                             </div>
