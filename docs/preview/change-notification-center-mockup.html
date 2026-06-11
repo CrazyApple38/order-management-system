@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>変更通知センター モックアップ</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap");
+
+        /*
+         * ============================================================
+         * DS 第一条: 光源は左上固定。
+         *  - 面グラデ: 左上=明 → 右下=やや暗（to bottom right で明→暗）
+         *  - ベベル: 上・左borderが白(受光) / 右・下borderが暗(陰)
+         *  - ドロップシャドウ: 下方向（0 Npx ...）
+         *  - 例外: 社員/車両等のチップ表面は「青灰→白(60%)→青灰」の中央凹みグラデ（特徴部位）
+         * ============================================================
+         */
+        :root {
+            --font-sans: "Inter", "Noto Sans JP", "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+            --bg: #eef4f8;
+            --panel: #ffffff;
+            --ink: #172b3a;
+            --muted: #5a6b7a;
+            --line: #dbe5ec;
+            --soft-line: #e8eef3;
+            --blue: #1f5fae;
+            --blue-dark: #123b5d;
+            --blue-soft: #eaf3ff;
+            --accent-orange: #f15e2a;
+            --alert-text: #f15e2a;
+            --alert-bg: #fff0e8;
+            --alert-border: #f5a17c;
+            --info-text: #1f5fae;
+            --info-bg: #edf6ff;
+            --info-border: #bfd7f4;
+            --neutral-chip-text: #385569;
+            --neutral-chip-bg: #eef4f8;
+            --belong-1: #205ea6;
+            --belong-2: #24837b;
+            --belong-3: #66800b;
+            --belong-4: #5e409d;
+            --belong-5: #a02f6f;
+            --elevation-1: 0 2px 6px rgba(38, 73, 99, 0.045), 0 1px 2px rgba(38, 73, 99, 0.030);
+            --elevation-2: 0 4px 10px rgba(38, 73, 99, 0.060), 0 2px 4px rgba(38, 73, 99, 0.035);
+            --elevation-5: 0 14px 30px rgba(24, 55, 78, 0.115), 0 5px 12px rgba(24, 55, 78, 0.070);
+            --inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.88);
+            /* 角丸スケール: xs=チップ内要素 / sm=ボタン・小カード / md=大カード / lg=トレイ / pill */
+            --radius-xs: 4px;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-pill: 999px;
+            /* カード共通: 外影3層 + 左上明/右下暗ベベル */
+            --shadow-card-outer:
+                0 0 0 1px rgba(18, 38, 54, 0.040),
+                0 4px 9px rgba(18, 38, 54, 0.075),
+                0 1px 3px rgba(18, 38, 54, 0.045);
+            --bevel-card:
+                inset 1px 1px 0 rgba(255, 255, 255, 0.96),
+                inset -1px -1px 0 rgba(182, 198, 211, 0.20);
+            --icon-task: url("../assets/icons/business/im-16152-tasuku-torei.svg");
+            --icon-calendar: url("../assets/icons/business/im-00188-sukejuuru-karendaa.svg");
+            --icon-building: url("../assets/icons/building/im-00084-muryou-no-biru.svg");
+            --icon-pin: url("../assets/icons/transport/im-00020-mappu-no-pin.svg");
+            --icon-tag: url("../assets/icons/other/im-14540-tagu.svg");
+            --icon-person: url("../assets/icons/person/im-00142-jimbutsu-no-aikon-sozai-sono-2.svg");
+            font-family: var(--font-sans);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            font-family: var(--font-sans);
+            background:
+                radial-gradient(circle at 8% -8%, rgba(255, 255, 255, 0.72), transparent 28%),
+                linear-gradient(to bottom right, #f7fbff 0%, var(--bg) 54%, #e8f0f6 100%);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .page {
+            width: min(1360px, calc(100vw - 32px));
+            margin: 0 auto;
+            padding: 20px 0 28px;
+        }
+
+        .top-note {
+            margin-bottom: 16px;
+        }
+
+        h1 { margin: 0 0 4px; font-size: 22px; }
+        p { margin: 0; color: var(--muted); }
+
+        .app {
+            border: 1px solid #cddde9;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: #f6f9fc;
+            box-shadow: var(--elevation-2);
+        }
+
+        .menubar {
+            height: 34px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 0 16px;
+            color: #dfeeff;
+            background: var(--blue-dark);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .toolbar {
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--line);
+            background: #f2f7fb;
+        }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-title {
+            font-size: 15px;
+            font-weight: 700;
+            padding-left: 4px;
+        }
+
+        .tool-btn {
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 12px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-sm);
+            background: #fff;
+            color: var(--ink);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .search {
+            width: 280px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            border: 1px solid rgba(204, 220, 232, 0.95);
+            border-radius: var(--radius-pill);
+            background:
+                linear-gradient(to bottom right, #ffffff 0%, #f8fafc 52%, #f4f7fa 100%);
+            color: #31576f;
+            font-weight: 600;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.94),
+                inset 0 -1px 0 rgba(177, 190, 204, 0.12);
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 84px 416px minmax(0, 1fr);
+            min-height: 720px;
+            background: #f6f9fc;
+        }
+
+        /* ===== 左: 縦型軸タブレール（SL 左レールと同じダークガラス意匠） ===== */
+        .rail {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            margin: 8px;
+            padding: 12px 6px;
+            border: 1px solid rgba(255, 255, 255, 0.82);
+            border-right-color: rgba(190, 207, 220, 0.78);
+            border-bottom-color: rgba(173, 194, 209, 0.68);
+            border-radius: var(--radius-md);
+            background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.86), rgba(226, 236, 244, 0.62));
+            box-shadow:
+                var(--elevation-5),
+                inset 1px 0 0 rgba(255, 255, 255, 0.92),
+                inset -1px 0 0 rgba(53, 83, 104, 0.10);
+            overflow: hidden;
+        }
+
+        .rail::before {
+            content: "";
+            position: absolute;
+            inset: 1px;
+            /* 同心円: rail(14px) − inset(1px) = 13px */
+            border-radius: 13px;
+            background:
+                linear-gradient(to bottom right, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.12) 86%),
+                linear-gradient(to bottom right, #133a5a, #0c2b45 56%, #09263d);
+            box-shadow:
+                inset 1px 0 0 rgba(255, 255, 255, 0.16),
+                inset -1px 0 0 rgba(0, 0, 0, 0.38),
+                3px 0 10px rgba(11, 31, 48, 0.22);
+        }
+
+        .rail button {
+            position: relative;
+            z-index: 1;
+            width: 58px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 7px 0 6px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .rail button.active {
+            background:
+                linear-gradient(to bottom right, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.10)),
+                rgba(255, 255, 255, 0.10);
+            border-color: rgba(255, 255, 255, 0.36);
+            box-shadow:
+                0 10px 22px rgba(0, 0, 0, 0.24),
+                inset 0 1px 0 rgba(255, 255, 255, 0.28),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.22);
+        }
+
+        .rail .icon {
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+            background-image: var(--icon-url);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+            filter: invert(1);
+        }
+
+        .i-task { --icon-url: var(--icon-task); }
+        .i-calendar { --icon-url: var(--icon-calendar); }
+        .i-building { --icon-url: var(--icon-building); }
+        .i-pin { --icon-url: var(--icon-pin); }
+        .i-tag { --icon-url: var(--icon-tag); }
+        .i-person { --icon-url: var(--icon-person); }
+
+        .rail .rail-count {
+            min-width: 16px;
+            padding: 0 4px;
+            border-radius: var(--radius-pill);
+            background: var(--accent-orange);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 16px;
+        }
+
+        .rail-divider {
+            position: relative;
+            z-index: 1;
+            width: 42px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.18);
+            margin: 2px 0;
+        }
+
+        /* ===== 中: グループ化リスト ===== */
+        .list-pane {
+            min-width: 0;
+            padding: 16px 8px 20px 16px;
+            overflow: auto;
+        }
+
+        .list-card {
+            position: relative;
+            border: 1px solid rgba(202, 214, 224, 0.58);
+            border-radius: var(--radius-md);
+            isolation: isolate;
+            background:
+                linear-gradient(to bottom right, #ffffff 0%, #fafbfd 55%, #f4f7f9 100%);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.94),
+                inset 0 -1px 0 rgba(175, 188, 202, 0.16),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.48);
+        }
+
+        .list-card::before {
+            content: "";
+            position: absolute;
+            inset: -6px;
+            z-index: -1;
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-radius: var(--radius-lg);
+            background:
+                linear-gradient(to bottom right, rgba(255, 255, 255, 0.96), rgba(241, 246, 250, 0.92));
+            box-shadow:
+                var(--shadow-card-outer),
+                var(--bevel-card);
+            pointer-events: none;
+        }
+
+        .list-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 8px;
+            padding: 12px 16px 8px;
+        }
+
+        .list-head strong { font-size: 14px; }
+        .list-head span { color: var(--muted); font-size: 11px; font-weight: 500; }
+
+        .group-block {
+            padding: 0 10px 10px;
+        }
+
+        .group-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 6px 6px;
+            color: #31576f;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+
+        .group-title .count {
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .group-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--soft-line);
+        }
+
+        .notif-card {
+            display: grid;
+            gap: 4px;
+            margin: 0 0 8px;
+            padding: 10px 12px;
+            border: 1px solid var(--soft-line);
+            border-radius: var(--radius-sm);
+            background: linear-gradient(to bottom right, #fdfeff, #f6f9fb);
+            cursor: pointer;
+            transition: border-color 120ms ease, box-shadow 120ms ease;
+        }
+
+        .notif-card:hover {
+            border-color: rgba(160, 182, 200, 0.85);
+            box-shadow: var(--elevation-1);
+        }
+
+        .notif-card.is-selected {
+            border-color: rgba(34, 103, 203, 0.45);
+            box-shadow: 0 0 0 2px rgba(34, 103, 203, 0.14), var(--elevation-1);
+        }
+
+        .nc-row1 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nc-site {
+            flex: 1;
+            min-width: 0;
+            font-size: 13px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .nc-diff {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            font-size: 12px;
+        }
+
+        .nc-diff .d-label { color: #7a8d9c; font-weight: 600; min-width: 28px; }
+        .nc-diff .d-from { color: #8fa0ad; }
+        .nc-diff .d-arrow { color: #9aabb8; font-weight: 600; }
+        .nc-diff .d-to { color: #2c4356; font-weight: 600; }
+        .nc-diff .d-more { color: var(--muted); font-size: 11px; }
+
+        .nc-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 18px;
+            padding: 0 7px;
+            border-radius: var(--radius-xs);
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .chip.route { color: #506575; background: #f1f6fa; border: 1px solid var(--soft-line); }
+        .chip.kind { color: var(--neutral-chip-text); background: var(--neutral-chip-bg); }
+        .chip.state-open { color: var(--info-text); background: var(--info-bg); border: 1px solid var(--info-border); }
+        .chip.state-done { color: var(--neutral-chip-text); background: var(--neutral-chip-bg); border: 1px solid var(--soft-line); }
+        .chip.mismatch { color: var(--alert-text); background: var(--alert-bg); border: 1px solid var(--alert-border); }
+
+        .empty-note {
+            padding: 24px 12px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 12px;
+        }
+
+        /* ===== 右: 詳細 + スレッド ===== */
+        .detail-pane {
+            min-width: 0;
+            padding: 16px 16px 20px 16px;
+            overflow: auto;
+        }
+
+        .prop-card {
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-radius: var(--radius-md);
+            background:
+                linear-gradient(to bottom right, rgba(255, 255, 255, 0.96), rgba(246, 250, 253, 0.88)),
+                #fff;
+            overflow: hidden;
+            box-shadow:
+                var(--shadow-card-outer),
+                var(--bevel-card);
+        }
+
+        .prop-head {
+            padding: 14px 16px 4px;
+        }
+
+        .prop-head .d-kind-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .prop-head strong {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .prop-head .d-client {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .prop-body {
+            padding: 12px 16px 16px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .section {
+            border: 1px solid var(--soft-line);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            background: rgba(244, 249, 253, 0.60);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .diff-card {
+            list-style: none;
+            margin: 0;
+            padding: 8px 12px;
+            display: grid;
+            gap: 4px;
+            border: 1px solid var(--soft-line);
+            border-radius: var(--radius-sm);
+            background: linear-gradient(to bottom right, #f9fbfc, #f3f6f9 60%, #edf1f5);
+            font-size: 12px;
+        }
+
+        .diff-card li { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .diff-card .d-label { min-width: 32px; color: #7a8d9c; font-weight: 600; }
+        .diff-card .d-from { color: #8fa0ad; }
+        .diff-card .d-arrow { color: #9aabb8; font-weight: 600; }
+        .diff-card .d-to { color: #2c4356; font-weight: 600; }
+
+        .route-people {
+            display: flex;
+            align-items: center;
+            gap: 6px 8px;
+            flex-wrap: wrap;
+        }
+
+        /* 人物チップ: SLの社員バッジと同じ署名スタイル（中央凹みグラデ=DS公式例外） */
+        .person {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 28px;
+            padding: 3px 11px;
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-right-color: rgba(192, 208, 220, 0.72);
+            border-bottom-color: rgba(180, 198, 212, 0.66);
+            border-radius: var(--radius-pill);
+            background:
+                linear-gradient(to bottom right, rgba(200, 213, 226, 0.38) 0%, #ffffff 60%, rgba(206, 219, 230, 0.22) 100%);
+            box-shadow:
+                0 4px 8px rgba(24, 55, 78, 0.13),
+                0 2px 3px rgba(24, 55, 78, 0.09),
+                inset 1px 0 0 rgba(255, 255, 255, 0.92),
+                inset -1px 0 0 rgba(53, 83, 104, 0.08);
+            color: var(--ink);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .person .person-icon {
+            display: inline-flex;
+            width: 15px;
+            height: 15px;
+            color: var(--belong-color, var(--belong-1));
+        }
+
+        .person .person-icon svg { width: 15px; height: 15px; fill: currentColor; }
+        .person small { color: var(--muted); font-weight: 500; }
+
+        .belong-1 { --belong-color: var(--belong-1); }
+        .belong-2 { --belong-color: var(--belong-2); }
+        .belong-3 { --belong-color: var(--belong-3); }
+        .belong-4 { --belong-color: var(--belong-4); }
+        .belong-5 { --belong-color: var(--belong-5); }
+
+        .route-note {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .thread-list {
+            list-style: none;
+            margin: 0 0 10px;
+            padding: 0;
+            display: grid;
+            gap: 8px;
+        }
+
+        .thread-list li {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: 8px;
+            align-items: start;
+        }
+
+        .t-avatar {
+            width: 26px;
+            height: 26px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--soft-line);
+            border-radius: var(--radius-pill);
+            background: linear-gradient(to bottom right, #ffffff, #f1f6fa);
+            color: var(--belong-color, var(--belong-1));
+        }
+
+        .t-avatar svg { width: 14px; height: 14px; fill: currentColor; }
+
+        .t-body {
+            padding: 8px 10px;
+            border: 1px solid var(--soft-line);
+            border-radius: var(--radius-sm);
+            background: linear-gradient(to bottom right, #fdfeff, #f5f8fa);
+            font-size: 12px;
+        }
+
+        .t-body .t-meta {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 3px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .t-body .t-meta strong { color: var(--ink); font-weight: 600; }
+
+        .t-body.t-system {
+            background: var(--blue-soft);
+            border-color: var(--info-border);
+            color: #245777;
+        }
+
+        .thread-empty {
+            margin: 0 0 10px;
+            padding: 12px;
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center;
+            border: 1px dashed #c4d4e0;
+            border-radius: var(--radius-sm);
+        }
+
+        .reply-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 8px;
+        }
+
+        .reply-input {
+            height: 32px;
+            padding: 0 12px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-sm);
+            background: #fff;
+            color: var(--ink);
+            font-family: var(--font-sans);
+            font-size: 12px;
+        }
+
+        .reply-input::placeholder { color: #95a6b3; }
+
+        .thread-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .act-btn {
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0 12px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-sm);
+            background: linear-gradient(to bottom right, #ffffff, #f6faff);
+            color: #245777;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--elevation-1), var(--inset-highlight);
+        }
+
+        .act-btn.primary {
+            color: #fff;
+            background: linear-gradient(to bottom right, #2b72cb, var(--blue));
+            border-color: var(--blue);
+        }
+
+        .detail-foot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 0 16px 16px;
+        }
+
+        .jump-note { color: var(--muted); font-size: 11px; }
+
+        .detail-empty {
+            padding: 48px 16px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .design-note-card {
+            margin-top: 16px;
+            border: 1px solid rgba(204, 220, 232, 0.95);
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.84);
+            box-shadow: var(--elevation-1);
+            padding: 16px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .design-note-card strong { color: var(--ink); }
+
+        @media (max-width: 1100px) {
+            .page { width: 100%; padding: 12px; }
+            .app { overflow-x: auto; }
+            .workspace { width: 1280px; }
+        }
+    </style>
+</head>
+<body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="ic-person" viewBox="0 0 512 512">
+            <path d="M458.159,404.216c-18.93-33.65-49.934-71.764-100.409-93.431c-28.868,20.196-63.938,32.087-101.745,32.087c-37.828,0-72.898-11.89-101.767-32.087c-50.474,21.667-81.479,59.782-100.398,93.431C28.731,448.848,48.417,512,91.842,512c43.426,0,164.164,0,164.164,0s120.726,0,164.153,0C463.583,512,483.269,448.848,458.159,404.216z"/>
+            <path d="M256.005,300.641c74.144,0,134.231-60.108,134.231-134.242v-32.158C390.236,60.108,330.149,0,256.005,0c-74.155,0-134.252,60.108-134.252,134.242V166.4C121.753,240.533,181.851,300.641,256.005,300.641z"/>
+        </symbol>
+    </svg>
+    <main class="page">
+        <section class="top-note">
+            <h1>変更通知センター モックアップ</h1>
+            <p>3層構造の第2層「調べる・照合する」専用ページ。左=縦型軸タブ（グループ化切替）/ 中=グループ化リスト / 右=詳細+情報照合スレッド。業務作業面（中央表）は持たず、現場文脈は cn:jump で実画面へ飛ぶ。</p>
+        </section>
+        <section class="app">
+            <nav class="menubar" aria-label="メニュー">
+                <span>ファイル</span>
+                <span>表示</span>
+                <span>通知</span>
+                <span>ヘルプ</span>
+            </nav>
+
+            <div class="toolbar">
+                <div class="tool-group">
+                    <span class="toolbar-title">変更通知センター</span>
+                </div>
+                <div class="tool-group">
+                    <div class="search">検索: 現場名 / 契約先 / 変更者 / 値</div>
+                    <button class="tool-btn" type="button">期間: 直近7日</button>
+                    <button class="tool-btn" type="button">状態: すべて</button>
+                    <button class="tool-btn" type="button">連絡出力</button>
+                </div>
+            </div>
+
+            <div class="workspace">
+                <aside class="rail" aria-label="グループ化軸の切替" id="axisRail">
+                    <button type="button" data-axis="inbox" title="要対応: 自分宛の確認依頼がある確認中スレッド">
+                        <span class="icon i-task" aria-hidden="true"></span>
+                        要対応
+                        <span class="rail-count" id="inboxCount" hidden>0</span>
+                    </button>
+                    <div class="rail-divider" aria-hidden="true"></div>
+                    <button type="button" data-axis="date" class="active" title="日別に表示">
+                        <span class="icon i-calendar" aria-hidden="true"></span>
+                        日別
+                    </button>
+                    <button type="button" data-axis="client" title="契約先別に表示">
+                        <span class="icon i-building" aria-hidden="true"></span>
+                        契約先
+                    </button>
+                    <button type="button" data-axis="site" title="現場別に表示">
+                        <span class="icon i-pin" aria-hidden="true"></span>
+                        現場
+                    </button>
+                    <button type="button" data-axis="kind" title="種別（受注/配置/車両/休暇）に表示">
+                        <span class="icon i-tag" aria-hidden="true"></span>
+                        種別
+                    </button>
+                    <button type="button" data-axis="account" title="アカウント別に表示">
+                        <span class="icon i-person" aria-hidden="true"></span>
+                        担当者
+                    </button>
+                </aside>
+
+                <section class="list-pane">
+                    <div class="list-card">
+                        <div class="list-head">
+                            <strong id="listTitle">日別</strong>
+                            <span id="listSummary"></span>
+                        </div>
+                        <div id="listBody"></div>
+                    </div>
+                </section>
+
+                <aside class="detail-pane">
+                    <div class="prop-card" id="detailCard"></div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="design-note-card">
+            <strong>設計メモ:</strong>
+            通知パネル（第1層）は新着+要返信のトリアージ専用で検索を持たない。検索・期間・状態・連絡出力は本センターに集約。
+            照合状態は opt-in（スレッドが開かれた通知のみ 確認中→解消済み、「食い違い」はタグ）。
+            要対応バッジ = 自分宛の確認依頼がある確認中スレッド数のみ。現在のログインユーザーは <strong>佐藤</strong> としてモック。
+        </section>
+    </main>
+    <script>
+        // 【モックアップ専用】ダミーデータ。実装時は change_notifications + threads テーブル相当
+        const CURRENT_USER = "佐藤";
+
+        const ROUTE_LABELS = {
+            genba: "現場受注",
+            eigyo: "営業連絡",
+            keiyaku: "契約先連絡"
+        };
+
+        const ROUTE_NOTES = {
+            genba: "現場作業員等 → 自社社員 → OB入力者。現場監督の意向との相違や聞き違いの可能性に注意。",
+            eigyo: "契約先 → 営業担当者 → OB入力者。また聞きによる伝達間違いの可能性に注意。",
+            keiyaku: "契約先 → 営業担当者によるOB直接入力。伝達段数が少なく比較的誤りが少ない。"
+        };
+
+        const notifications = [
+            {
+                id: "n1", date: "6/11", time: "08:47", client: "港湾開発", site: "港湾道路 夜間片交",
+                kind: "受注変更", inputType: "受領記録型", route: "eigyo", author: "田中", belong: "belong-2",
+                people: [{ name: "港湾開発", role: "契約先", belong: "belong-5" }, { name: "田中", role: "営業担当", belong: "belong-2" }],
+                changes: [{ label: "集合", from: "20:00", to: "20:30" }],
+                thread: {
+                    state: "確認中", mismatch: true, requestedTo: "佐藤",
+                    comments: [
+                        { who: "鈴木", belong: "belong-3", time: "6/11 09:02", text: "現場の班長からは「集合20:00のまま」と聞いています。営業経由の20:30と食い違いがあります。" },
+                        { who: "田中", belong: "belong-2", time: "6/11 09:15", text: "契約先の窓口に確認します。先方の発注書は20:30になっていました。", system: false },
+                        { who: "システム", belong: "belong-1", time: "6/11 09:15", text: "田中 さんが 佐藤 さんへ確認を依頼しました。", system: true }
+                    ]
+                }
+            },
+            {
+                id: "n2", date: "6/11", time: "09:12", client: "三都ビル管理", site: "商業施設A 巡回警備",
+                kind: "受注変更", inputType: "受領記録型", route: "genba", author: "佐藤", belong: "belong-3",
+                people: [{ name: "商業施設A", role: "現場", belong: "belong-4" }, { name: "林", role: "社員", belong: "belong-1" }],
+                changes: [{ label: "集合", from: "07:00", to: "06:40" }],
+                thread: null
+            },
+            {
+                id: "n3", date: "6/11", time: "10:05", client: "市民文化財団", site: "駅前イベント会場",
+                kind: "配置変更", inputType: "業務判断型", route: null, author: "高橋", belong: "belong-4",
+                people: [],
+                changes: [{ label: "配置", from: "—", to: "伊藤" }, { label: "人数", from: "3", to: "4" }],
+                thread: null
+            },
+            {
+                id: "n4", date: "6/10", time: "14:20", client: "港湾開発", site: "港湾道路 夜間片交",
+                kind: "受注変更", inputType: "受領記録型", route: "keiyaku", author: "田中", belong: "belong-2",
+                people: [{ name: "港湾開発", role: "契約先", belong: "belong-5" }, { name: "田中", role: "営業担当", belong: "belong-2" }],
+                changes: [{ label: "人数", from: "2", to: "1" }],
+                thread: {
+                    state: "解消済み", mismatch: true, requestedTo: null,
+                    comments: [
+                        { who: "佐藤", belong: "belong-3", time: "6/10 15:01", text: "現場受注では2名のままと聞いていたため確認依頼します。" },
+                        { who: "田中", belong: "belong-2", time: "6/10 16:30", text: "【電話確認】契約先 港湾開発・発注担当へ電話確認。資格者1名のみで足りるとのこと。", system: false },
+                        { who: "システム", belong: "belong-1", time: "6/10 16:32", text: "解消として記録: 採用値=1名 / 根拠=契約先への電話確認 / 確認先=港湾開発 発注担当 / 方法=電話", system: true }
+                    ]
+                }
+            },
+            {
+                id: "n5", date: "6/10", time: "11:08", client: "丸越物流", site: "物流倉庫B 夜間警備",
+                kind: "車両変更", inputType: "業務判断型", route: null, author: "山本", belong: "belong-5",
+                people: [],
+                changes: [{ label: "車両", from: "わ 12-34", to: "に 45-67" }],
+                thread: null
+            },
+            {
+                id: "n6", date: "6/10", time: "09:40", client: "—", site: "休暇申請（伊藤 6/15 有給）",
+                kind: "休暇申請", inputType: "受領記録型", route: null, author: "伊藤", belong: "belong-5",
+                people: [],
+                changes: [{ label: "休暇", from: "—", to: "6/15 有給" }],
+                thread: null
+            },
+            {
+                id: "n7", date: "6/10", time: "17:55", client: "三都ビル管理", site: "商業施設A 巡回警備",
+                kind: "受注変更", inputType: "受領記録型", route: "eigyo", author: "林", belong: "belong-1",
+                people: [{ name: "三都ビル管理", role: "契約先", belong: "belong-4" }, { name: "林", role: "営業担当", belong: "belong-1" }],
+                changes: [{ label: "時間", from: "16:00", to: "17:30" }],
+                thread: {
+                    state: "確認中", mismatch: false, requestedTo: "佐藤",
+                    comments: [
+                        { who: "林", belong: "belong-1", time: "6/10 17:58", text: "延長の理由が発注書に無かったため、配置側で問題ないか確認お願いします。" },
+                        { who: "システム", belong: "belong-1", time: "6/10 17:58", text: "林 さんが 佐藤 さんへ確認を依頼しました。", system: true }
+                    ]
+                }
+            },
+            {
+                id: "n8", date: "6/9", time: "08:15", client: "市民文化財団", site: "駅前イベント会場",
+                kind: "受注変更", inputType: "受領記録型", route: "genba", author: "佐藤", belong: "belong-3",
+                people: [{ name: "駅前イベント会場", role: "現場", belong: "belong-4" }, { name: "高橋", role: "社員", belong: "belong-4" }],
+                changes: [{ label: "集合", from: "08:00", to: "08:10" }],
+                thread: null
+            },
+            {
+                id: "n9", date: "6/9", time: "13:30", client: "道路公社", site: "高速道路N線 規制",
+                kind: "配置変更", inputType: "業務判断型", route: null, author: "高橋", belong: "belong-4",
+                people: [],
+                changes: [{ label: "配置", from: "佐藤", to: "山本" }],
+                thread: null
+            },
+            {
+                id: "n10", date: "6/9", time: "18:02", client: "丸越物流", site: "物流倉庫B 夜間警備",
+                kind: "受注変更", inputType: "受領記録型", route: "keiyaku", author: "田中", belong: "belong-2",
+                people: [{ name: "丸越物流", role: "契約先", belong: "belong-5" }, { name: "田中", role: "営業担当", belong: "belong-2" }],
+                changes: [{ label: "時間", from: "22:00", to: "21:30" }],
+                thread: {
+                    state: "解消済み", mismatch: false, requestedTo: null,
+                    comments: [
+                        { who: "山本", belong: "belong-5", time: "6/9 18:20", text: "前倒しの背景を確認しました。施設側の閉門時刻変更とのことです。" },
+                        { who: "システム", belong: "belong-1", time: "6/9 18:21", text: "解消として記録: 採用値=21:30 / 根拠=契約先連絡 / 確認先=丸越物流 / 方法=LINE", system: true }
+                    ]
+                }
+            }
+        ];
+
+        const AXES = {
+            inbox: { title: "要対応", group: null },
+            date: { title: "日別", group: (n) => `${n.date}（${({ "6/11": "木", "6/10": "水", "6/9": "火" })[n.date] || ""}）` },
+            client: { title: "契約先別", group: (n) => n.client },
+            site: { title: "現場別", group: (n) => n.site },
+            kind: { title: "種別", group: (n) => n.kind },
+            account: { title: "アカウント別", group: (n) => n.author }
+        };
+
+        let currentAxis = "date";
+        let selectedId = "n1";
+
+        function escapeHtml(value) {
+            return String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+            }[ch]));
+        }
+
+        function isActionRequired(n) {
+            return !!(n.thread && n.thread.state === "確認中" && n.thread.requestedTo === CURRENT_USER);
+        }
+
+        function stateChips(n, compact) {
+            if (!n.thread) return "";
+            const chips = [];
+            if (n.thread.state === "確認中") chips.push('<span class="chip state-open">確認中</span>');
+            if (n.thread.state === "解消済み") chips.push('<span class="chip state-done">解消済み</span>');
+            if (n.thread.mismatch) chips.push('<span class="chip mismatch">食い違い</span>');
+            return chips.join("");
+        }
+
+        function diffSummary(n) {
+            const first = n.changes[0];
+            const more = n.changes.length > 1 ? `<span class="d-more">他${n.changes.length - 1}件</span>` : "";
+            return `
+                <span class="d-label">${escapeHtml(first.label)}</span>
+                <span class="d-from">${escapeHtml(first.from)}</span>
+                <span class="d-arrow">→</span>
+                <span class="d-to">${escapeHtml(first.to)}</span>
+                ${more}
+            `;
+        }
+
+        function renderList() {
+            const axis = AXES[currentAxis];
+            const listTitle = document.getElementById("listTitle");
+            const listSummary = document.getElementById("listSummary");
+            const listBody = document.getElementById("listBody");
+
+            let items = notifications.slice();
+            if (currentAxis === "inbox") items = items.filter(isActionRequired);
+
+            listTitle.textContent = axis.title;
+            listSummary.textContent = `${items.length}件`;
+
+            if (!items.length) {
+                listBody.innerHTML = '<div class="empty-note">該当する通知はありません。</div>';
+                return;
+            }
+
+            const groups = new Map();
+            items.forEach((n) => {
+                const key = axis.group ? axis.group(n) : "自分宛の確認依頼";
+                if (!groups.has(key)) groups.set(key, []);
+                groups.get(key).push(n);
+            });
+
+            listBody.innerHTML = Array.from(groups.entries()).map(([key, group]) => `
+                <div class="group-block">
+                    <div class="group-title">${escapeHtml(key)} <span class="count">${group.length}件</span></div>
+                    ${group.map((n) => `
+                        <div class="notif-card ${n.id === selectedId ? "is-selected" : ""}" data-id="${n.id}" tabindex="0" role="button" aria-label="${escapeHtml(n.site)} の詳細を表示">
+                            <div class="nc-row1">
+                                <span class="nc-site">${escapeHtml(n.site)}</span>
+                                ${stateChips(n)}
+                            </div>
+                            <div class="nc-diff">${diffSummary(n)}</div>
+                            <div class="nc-meta">
+                                <span class="chip kind">${escapeHtml(n.kind)}</span>
+                                ${n.route ? `<span class="chip route">${escapeHtml(ROUTE_LABELS[n.route])}</span>` : ""}
+                                <span>${escapeHtml(n.author)} ・ ${escapeHtml(n.date)} ${escapeHtml(n.time)}</span>
+                            </div>
+                        </div>
+                    `).join("")}
+                </div>
+            `).join("");
+        }
+
+        function personChip(name, role, belong) {
+            return `
+                <span class="person ${escapeHtml(belong || "belong-1")}">
+                    <span class="person-icon" aria-hidden="true"><svg><use href="#ic-person"/></svg></span>
+                    ${escapeHtml(name)}${role ? ` <small>${escapeHtml(role)}</small>` : ""}
+                </span>
+            `;
+        }
+
+        function renderThreadSection(n) {
+            const t = n.thread;
+            const comments = t ? t.comments.map((c) => `
+                <li>
+                    <span class="t-avatar ${escapeHtml(c.belong || "belong-1")}" aria-hidden="true"><svg><use href="#ic-person"/></svg></span>
+                    <div class="t-body ${c.system ? "t-system" : ""}">
+                        <div class="t-meta"><strong>${escapeHtml(c.who)}</strong><span>${escapeHtml(c.time)}</span></div>
+                        ${escapeHtml(c.text)}
+                    </div>
+                </li>
+            `).join("") : "";
+
+            const stateRow = t
+                ? `<span>${stateChips(n)}</span>`
+                : '<span class="chip kind">スレッド未開始</span>';
+
+            const actions = [];
+            actions.push('<button class="act-btn primary" type="button" data-act="reply">返信</button>');
+            if (!t) {
+                actions.push('<button class="act-btn" type="button" data-act="request">確認依頼</button>');
+                actions.push('<button class="act-btn" type="button" data-act="mismatch">食い違いを報告</button>');
+            } else if (t.state === "確認中") {
+                actions.push('<button class="act-btn" type="button" data-act="request">確認依頼</button>');
+                actions.push('<button class="act-btn" type="button" data-act="phone">電話で確認済みを記録</button>');
+                actions.push('<button class="act-btn" type="button" data-act="resolve">解消として記録</button>');
+            } else {
+                actions.push('<button class="act-btn" type="button" data-act="reopen">照合を再開</button>');
+            }
+
+            return `
+                <div class="section">
+                    <div class="section-title">情報照合スレッド ${stateRow}</div>
+                    ${t ? `<ul class="thread-list">${comments}</ul>` : '<div class="thread-empty">スレッドはまだありません。確認依頼または食い違いの報告で開始します。</div>'}
+                    <div class="reply-row">
+                        <input class="reply-input" id="replyInput" type="text" placeholder="根拠・確認結果・補足を記録…">
+                    </div>
+                    <div class="thread-actions">${actions.join("")}</div>
+                </div>
+            `;
+        }
+
+        function renderDetail() {
+            const card = document.getElementById("detailCard");
+            const n = notifications.find((item) => item.id === selectedId);
+            if (!n) {
+                card.innerHTML = '<div class="detail-empty">左のリストから通知を選択してください。</div>';
+                return;
+            }
+
+            const routeSection = n.route ? `
+                <div class="section">
+                    <div class="section-title">情報経路（${escapeHtml(ROUTE_LABELS[n.route])}）</div>
+                    <div class="route-people">
+                        ${n.people.map((p) => personChip(p.name, p.role, p.belong)).join("")}
+                        ${personChip(n.author, "入力者", n.belong)}
+                    </div>
+                    <div class="route-note">${escapeHtml(ROUTE_NOTES[n.route])}</div>
+                </div>
+            ` : `
+                <div class="section">
+                    <div class="section-title">操作情報（業務判断型）</div>
+                    <div class="route-people">${personChip(n.author, "操作者", n.belong)}</div>
+                    <div class="route-note">担当者自身の業務判断による操作。判断理由は警告踏み越え時のみ必須、それ以外は任意。</div>
+                </div>
+            `;
+
+            card.innerHTML = `
+                <div class="prop-head">
+                    <div class="d-kind-row">
+                        <span class="chip kind">${escapeHtml(n.kind)}</span>
+                        ${n.route ? `<span class="chip route">${escapeHtml(ROUTE_LABELS[n.route])}</span>` : ""}
+                        ${stateChips(n)}
+                    </div>
+                    <strong>${escapeHtml(n.site)}</strong>
+                    <span class="d-client">${escapeHtml(n.client)} ・ ${escapeHtml(n.author)} ・ ${escapeHtml(n.date)} ${escapeHtml(n.time)}（システム入力日時）</span>
+                </div>
+                <div class="prop-body">
+                    <div class="section">
+                        <div class="section-title">変更内容</div>
+                        <ul class="diff-card">
+                            ${n.changes.map((c) => `
+                                <li>
+                                    <span class="d-label">${escapeHtml(c.label)}</span>
+                                    <span class="d-from">${escapeHtml(c.from)}</span>
+                                    <span class="d-arrow">→</span>
+                                    <span class="d-to">${escapeHtml(c.to)}</span>
+                                </li>
+                            `).join("")}
+                        </ul>
+                    </div>
+                    ${routeSection}
+                    ${renderThreadSection(n)}
+                </div>
+                <div class="detail-foot">
+                    <span class="jump-note">現場の文脈が必要なときは実画面へ（cn:jump スポットライト着地）</span>
+                    <button class="act-btn" type="button">現場画面で開く →</button>
+                </div>
+            `;
+        }
+
+        function updateInboxCount() {
+            const count = notifications.filter(isActionRequired).length;
+            const badge = document.getElementById("inboxCount");
+            badge.hidden = count === 0;
+            badge.textContent = String(count);
+        }
+
+        function nowLabel() {
+            return "6/11 10:30";
+        }
+
+        function addComment(n, text, system) {
+            if (!n.thread) {
+                n.thread = { state: "確認中", mismatch: false, requestedTo: null, comments: [] };
+            }
+            n.thread.comments.push({
+                who: system ? "システム" : CURRENT_USER,
+                belong: system ? "belong-1" : "belong-3",
+                time: nowLabel(),
+                text,
+                system: !!system
+            });
+        }
+
+        document.getElementById("axisRail").addEventListener("click", (event) => {
+            const button = event.target.closest("[data-axis]");
+            if (!button) return;
+            currentAxis = button.dataset.axis;
+            document.querySelectorAll("#axisRail [data-axis]").forEach((b) => {
+                b.classList.toggle("active", b.dataset.axis === currentAxis);
+            });
+            renderList();
+        });
+
+        document.getElementById("listBody").addEventListener("click", (event) => {
+            const cardEl = event.target.closest(".notif-card");
+            if (!cardEl) return;
+            selectedId = cardEl.dataset.id;
+            renderList();
+            renderDetail();
+        });
+
+        document.getElementById("detailCard").addEventListener("click", (event) => {
+            const button = event.target.closest("[data-act]");
+            if (!button) return;
+            const n = notifications.find((item) => item.id === selectedId);
+            if (!n) return;
+            const input = document.getElementById("replyInput");
+            const text = (input?.value || "").trim();
+
+            switch (button.dataset.act) {
+                case "reply":
+                    if (!text) return;
+                    addComment(n, text, false);
+                    break;
+                case "request":
+                    addComment(n, `${CURRENT_USER} さんが 田中 さんへ確認を依頼しました。${text ? `（${text}）` : ""}`, true);
+                    n.thread.state = "確認中";
+                    n.thread.requestedTo = "田中";
+                    break;
+                case "mismatch":
+                    addComment(n, text || "情報ソース間の食い違いを報告します。", false);
+                    n.thread.mismatch = true;
+                    n.thread.state = "確認中";
+                    break;
+                case "phone":
+                    addComment(n, `【電話確認】${text || "確認結果をここに記録"}`, false);
+                    break;
+                case "resolve":
+                    addComment(n, `解消として記録: 採用値=${n.changes[0].to} / 根拠=${text || "確認結果"} / 確認先=関係者 / 方法=電話`, true);
+                    n.thread.state = "解消済み";
+                    n.thread.requestedTo = null;
+                    break;
+                case "reopen":
+                    n.thread.state = "確認中";
+                    addComment(n, "照合を再開しました。", true);
+                    break;
+                default:
+                    return;
+            }
+            updateInboxCount();
+            renderList();
+            renderDetail();
+        });
+
+        document.getElementById("detailCard").addEventListener("keydown", (event) => {
+            if (event.key !== "Enter") return;
+            if (!event.target.classList.contains("reply-input")) return;
+            const replyBtn = document.querySelector('[data-act="reply"]');
+            if (replyBtn) replyBtn.click();
+        });
+
+        document.getElementById("listBody").addEventListener("keydown", (event) => {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            const cardEl = event.target.closest(".notif-card");
+            if (!cardEl) return;
+            event.preventDefault();
+            selectedId = cardEl.dataset.id;
+            renderList();
+            renderDetail();
+        });
+
+        updateInboxCount();
+        renderList();
+        renderDetail();
+    </script>
+</body>
+</html>
