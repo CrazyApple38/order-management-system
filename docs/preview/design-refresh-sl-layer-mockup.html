@@ -51,22 +51,22 @@
             --gc-zennihon: var(--belong-3);
             --gc-row-a: #f7fbff;
             --gc-row-b: #f5f8fa;
-            /* 初期値は JS (applyBelongVariables) が上書きする。下記は参考画像4色基調パレットの初期割当と同値 */
-            --belong-1: #23262b;
-            --belong-1-bg: #f2f2f3;
-            --belong-1-border: #cdcecf;
-            --belong-2: #2fae9c;
-            --belong-2-bg: #f0faf8;
-            --belong-2-border: #c3e7e1;
-            --belong-3: #7d6ce8;
-            --belong-3-bg: #f5f4fd;
-            --belong-3-border: #d4cdf7;
-            --belong-4: #f0b440;
-            --belong-4-bg: #fefaf0;
-            --belong-4-border: #fae6bd;
-            --belong-5: #1f8276;
-            --belong-5-bg: #eef7f6;
-            --belong-5-border: #bcdad6;
+            /* 初期値は JS (applyBelongVariables) が上書きする。下記は灰パステル8色パレットの初期割当と同値 */
+            --belong-1: #7e96b8;
+            --belong-1-bg: #f2f5f8;
+            --belong-1-border: #d6dfe9;
+            --belong-2: #94b8a4;
+            --belong-2-bg: #f4f8f6;
+            --belong-2-border: #dceae2;
+            --belong-3: #a89bc0;
+            --belong-3-bg: #f6f5f9;
+            --belong-3-border: #e3deec;
+            --belong-4: #d4c68c;
+            --belong-4-bg: #fbf9f4;
+            --belong-4-border: #f0e9d5;
+            --belong-5: #c58e8e;
+            --belong-5-bg: #f9f4f4;
+            --belong-5-border: #eed9d9;
             --belong-6: #8a638e;
             --belong-6-bg: #f9f5fa;
             --belong-6-border: #ddcedf;
@@ -2008,10 +2008,10 @@
 
         .belong-options {
             display: grid;
-            grid-template-columns: repeat(12, 13px);
+            grid-template-columns: repeat(8, 13px);
             gap: 4px;
             justify-content: end;
-            min-width: 200px;
+            min-width: 132px;
         }
 
         .belong-option {
@@ -2661,26 +2661,21 @@
         </section>
     </main>
     <script>
-        // 【採用 2026-06-12】参考画像（配送ダッシュボード）中央下側の四角アイコン背景色 4色を基調に、
-        // 明/基準/濃 の3トーンでバリエーション化した12色（旧: Flexoki 16色から置換）
+        // 【採用 2026-06-12】灰色がかった薄いパステル 8色（紫1 / 青系3 / 緑1 / 黄寄りの黄緑1 / 黄1 / 赤1）
         const belongPalette = [
-            { id: 1,  name: "Graphite Light", hex: "#4A4F57" },
-            { id: 2,  name: "Graphite",       hex: "#23262B" },
-            { id: 3,  name: "Graphite Dark",  hex: "#121417" },
-            { id: 4,  name: "Teal Light",     hex: "#5CC6B8" },
-            { id: 5,  name: "Teal",           hex: "#2FAE9C" },
-            { id: 6,  name: "Teal Dark",      hex: "#1F8276" },
-            { id: 7,  name: "Violet Light",   hex: "#9D90EE" },
-            { id: 8,  name: "Violet",         hex: "#7D6CE8" },
-            { id: 9,  name: "Violet Dark",    hex: "#5A48C0" },
-            { id: 10, name: "Amber Light",    hex: "#F6C96E" },
-            { id: 11, name: "Amber",          hex: "#F0B440" },
-            { id: 12, name: "Amber Dark",     hex: "#D29420" }
+            { id: 1, name: "Mauve Gray",    hex: "#A89BC0" },
+            { id: 2, name: "Slate Blue",    hex: "#7E96B8" },
+            { id: 3, name: "Powder Blue",   hex: "#9CB9D8" },
+            { id: 4, name: "Steel Blue",    hex: "#87A4B8" },
+            { id: 5, name: "Sage Green",    hex: "#94B8A4" },
+            { id: 6, name: "Citron",        hex: "#C2C489" },
+            { id: 7, name: "Mellow Yellow", hex: "#D4C68C" },
+            { id: 8, name: "Dusty Rose",    hex: "#C58E8E" }
         ];
 
         const belongCompanies = ["A社", "B社", "C社", "D社", "E社"];
-        // 初期割当: A=Graphite / B=Teal / C=Violet / D=Amber / E=Teal Dark
-        const belongAssignments = [2, 5, 8, 11, 6];
+        // 初期割当: A=Slate Blue / B=Sage Green / C=Mauve Gray / D=Mellow Yellow / E=Dusty Rose
+        const belongAssignments = [2, 5, 1, 7, 8];
 
         function applyBelongVariables() {
             const root = document.documentElement;
