@@ -51,22 +51,22 @@
             --gc-zennihon: var(--belong-3);
             --gc-row-a: #f7fbff;
             --gc-row-b: #f5f8fa;
-            /* 初期値は JS (applyBelongVariables) が上書きする。下記は灰パステル8色パレットの初期割当と同値 */
-            --belong-1: #7e96b8;
-            --belong-1-bg: #f2f5f8;
-            --belong-1-border: #d6dfe9;
-            --belong-2: #94b8a4;
-            --belong-2-bg: #f4f8f6;
-            --belong-2-border: #dceae2;
-            --belong-3: #a89bc0;
-            --belong-3-bg: #f6f5f9;
-            --belong-3-border: #e3deec;
-            --belong-4: #d4c68c;
-            --belong-4-bg: #fbf9f4;
-            --belong-4-border: #f0e9d5;
-            --belong-5: #c58e8e;
-            --belong-5-bg: #f9f4f4;
-            --belong-5-border: #eed9d9;
+            /* 初期値は JS (applyBelongVariables) が上書きする。下記は明るめパステル8色パレットの初期割当と同値 */
+            --belong-1: #6e96d1;
+            --belong-1-bg: #f1f5fb;
+            --belong-1-border: #d3dff1;
+            --belong-2: #76c295;
+            --belong-2-bg: #f1f9f4;
+            --belong-2-border: #d2ecdd;
+            --belong-3: #a48bd8;
+            --belong-3-bg: #f6f3fb;
+            --belong-3-border: #e3daf3;
+            --belong-4: #e0c155;
+            --belong-4-bg: #fcf9ee;
+            --belong-4-border: #f5e8c4;
+            --belong-5: #de8585;
+            --belong-5-bg: #fcf3f3;
+            --belong-5-border: #f5d6d6;
             --belong-6: #8a638e;
             --belong-6-bg: #f9f5fa;
             --belong-6-border: #ddcedf;
@@ -2661,16 +2661,17 @@
         </section>
     </main>
     <script>
-        // 【採用 2026-06-12】灰色がかった薄いパステル 8色（紫1 / 青系3 / 緑1 / 黄寄りの黄緑1 / 黄1 / 赤1）
+        // 【採用 2026-06-12】明るめパステル 8色（紫1 / 青系3 / 緑1 / 黄寄りの黄緑1 / 黄1 / 赤1）
+        // 灰パステル初版から彩度+明度を一段上げ、白地・白文字とのコントラストを強化
         const belongPalette = [
-            { id: 1, name: "Mauve Gray",    hex: "#A89BC0" },
-            { id: 2, name: "Slate Blue",    hex: "#7E96B8" },
-            { id: 3, name: "Powder Blue",   hex: "#9CB9D8" },
-            { id: 4, name: "Steel Blue",    hex: "#87A4B8" },
-            { id: 5, name: "Sage Green",    hex: "#94B8A4" },
-            { id: 6, name: "Citron",        hex: "#C2C489" },
-            { id: 7, name: "Mellow Yellow", hex: "#D4C68C" },
-            { id: 8, name: "Dusty Rose",    hex: "#C58E8E" }
+            { id: 1, name: "Bright Mauve",  hex: "#A48BD8" },
+            { id: 2, name: "Slate Blue",    hex: "#6E96D1" },
+            { id: 3, name: "Sky Blue",      hex: "#7FB8E8" },
+            { id: 4, name: "Steel Cyan",    hex: "#67AECC" },
+            { id: 5, name: "Fresh Green",   hex: "#76C295" },
+            { id: 6, name: "Citron",        hex: "#B5C75B" },
+            { id: 7, name: "Soft Yellow",   hex: "#E0C155" },
+            { id: 8, name: "Coral Rose",    hex: "#DE8585" }
         ];
 
         const belongCompanies = ["A社", "B社", "C社", "D社", "E社"];
