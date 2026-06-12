@@ -965,24 +965,22 @@
         .belong-9 { --belong-color: var(--belong-9); --belong-bg: var(--belong-9-bg); --belong-border: var(--belong-9-border); }
         .belong-10 { --belong-color: var(--belong-10); --belong-bg: var(--belong-10-bg); --belong-border: var(--belong-10-border); }
 
-        /* 【採用 2026-06-12】名前左の人物アイコン: 所属色の角丸四角バッジ + ピル表面色で抜いた人物
-           参考画像準拠: 余白広め（アイコン=辺の約55%）。この内側パディングが要件のため width/height を変える際は比率を維持すること */
+        /* 名前左の人物アイコン: 色は所属会社カラー(--belong-color)
+           ※角丸四角バッジ+打ち抜き表現（参考画像案）は 2026-06-12 に試作後ユーザー判断で差し戻し（イメージ不一致） */
         .person-icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 27px;
-            height: 27px;
+            width: 20px;
+            height: 20px;
             flex: 0 0 auto;
-            border-radius: var(--radius-xs);
-            background: var(--belong-color, var(--belong-1));
+            color: var(--belong-color);
         }
         .person-icon svg {
             display: block;
-            width: 15px;
-            height: 15px;
-            /* 白でなくピル表面（左側の青灰トーン）に合わせた抜き色 = 打ち抜き表現 */
-            fill: #eff3f7;
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
         }
 
         .person-name {
