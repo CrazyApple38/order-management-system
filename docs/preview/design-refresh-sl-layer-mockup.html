@@ -51,21 +51,22 @@
             --gc-zennihon: var(--belong-3);
             --gc-row-a: #f7fbff;
             --gc-row-b: #f5f8fa;
-            --belong-1: #205ea6;
-            --belong-1-bg: #f3f7fc;
-            --belong-1-border: #cad7ea;
-            --belong-2: #24837b;
-            --belong-2-bg: #f1f8fa;
-            --belong-2-border: #c4dce5;
-            --belong-3: #66800b;
-            --belong-3-bg: #f4f7f9;
-            --belong-3-border: #ced8e0;
-            --belong-4: #5e409d;
-            --belong-4-bg: #f5f6fc;
-            --belong-4-border: #ccd1eb;
-            --belong-5: #a02f6f;
-            --belong-5-bg: #f7f5fb;
-            --belong-5-border: #d6cee9;
+            /* 初期値は JS (applyBelongVariables) が上書きする。下記は参考画像4色基調パレットの初期割当と同値 */
+            --belong-1: #23262b;
+            --belong-1-bg: #f2f2f3;
+            --belong-1-border: #cdcecf;
+            --belong-2: #2fae9c;
+            --belong-2-bg: #f0faf8;
+            --belong-2-border: #c3e7e1;
+            --belong-3: #7d6ce8;
+            --belong-3-bg: #f5f4fd;
+            --belong-3-border: #d4cdf7;
+            --belong-4: #f0b440;
+            --belong-4-bg: #fefaf0;
+            --belong-4-border: #fae6bd;
+            --belong-5: #1f8276;
+            --belong-5-bg: #eef7f6;
+            --belong-5-border: #bcdad6;
             --belong-6: #8a638e;
             --belong-6-bg: #f9f5fa;
             --belong-6-border: #ddcedf;
@@ -2007,10 +2008,10 @@
 
         .belong-options {
             display: grid;
-            grid-template-columns: repeat(10, 13px);
+            grid-template-columns: repeat(12, 13px);
             gap: 4px;
             justify-content: end;
-            min-width: 166px;
+            min-width: 200px;
         }
 
         .belong-option {
@@ -2660,29 +2661,26 @@
         </section>
     </main>
     <script>
-        // Flexoki カラー (https://stephango.com/flexoki) 8色相 × 明(400)/濃(600)
+        // 【採用 2026-06-12】参考画像（配送ダッシュボード）中央下側の四角アイコン背景色 4色を基調に、
+        // 明/基準/濃 の3トーンでバリエーション化した12色（旧: Flexoki 16色から置換）
         const belongPalette = [
-            { id: 1,  name: "Red 400",     hex: "#D14D41" },
-            { id: 2,  name: "Red 600",     hex: "#AF3029" },
-            { id: 3,  name: "Orange 400",  hex: "#DA702C" },
-            { id: 4,  name: "Orange 600",  hex: "#BC5215" },
-            { id: 5,  name: "Yellow 400",  hex: "#D0A215" },
-            { id: 6,  name: "Yellow 600",  hex: "#AD8301" },
-            { id: 7,  name: "Green 400",   hex: "#879A39" },
-            { id: 8,  name: "Green 600",   hex: "#66800B" },
-            { id: 9,  name: "Cyan 400",    hex: "#3AA99F" },
-            { id: 10, name: "Cyan 600",    hex: "#24837B" },
-            { id: 11, name: "Blue 400",    hex: "#4385BE" },
-            { id: 12, name: "Blue 600",    hex: "#205EA6" },
-            { id: 13, name: "Purple 400",  hex: "#8B7EC8" },
-            { id: 14, name: "Purple 600",  hex: "#5E409D" },
-            { id: 15, name: "Magenta 400", hex: "#CE5D97" },
-            { id: 16, name: "Magenta 600", hex: "#A02F6F" }
+            { id: 1,  name: "Graphite Light", hex: "#4A4F57" },
+            { id: 2,  name: "Graphite",       hex: "#23262B" },
+            { id: 3,  name: "Graphite Dark",  hex: "#121417" },
+            { id: 4,  name: "Teal Light",     hex: "#5CC6B8" },
+            { id: 5,  name: "Teal",           hex: "#2FAE9C" },
+            { id: 6,  name: "Teal Dark",      hex: "#1F8276" },
+            { id: 7,  name: "Violet Light",   hex: "#9D90EE" },
+            { id: 8,  name: "Violet",         hex: "#7D6CE8" },
+            { id: 9,  name: "Violet Dark",    hex: "#5A48C0" },
+            { id: 10, name: "Amber Light",    hex: "#F6C96E" },
+            { id: 11, name: "Amber",          hex: "#F0B440" },
+            { id: 12, name: "Amber Dark",     hex: "#D29420" }
         ];
 
         const belongCompanies = ["A社", "B社", "C社", "D社", "E社"];
-        // 初期割当: A=Blue600 / B=Cyan600 / C=Green600 / D=Purple600 / E=Magenta600（現状アイコン色を維持）
-        const belongAssignments = [12, 10, 8, 14, 16];
+        // 初期割当: A=Graphite / B=Teal / C=Violet / D=Amber / E=Teal Dark
+        const belongAssignments = [2, 5, 8, 11, 6];
 
         function applyBelongVariables() {
             const root = document.documentElement;
