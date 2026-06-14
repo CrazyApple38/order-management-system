@@ -705,6 +705,34 @@
             font-size: 10px;
         }
 
+        /* 区分円内の会社アイコン（区分名の上・黒） */
+        .category-badge { flex-direction: column; gap: 2px; }
+        .cat-ic { width: 16px; height: 16px; display: block; }
+        .cat-ic img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .cat-name { display: block; }
+
+        /* アイコンピッカーは1社1行・横いっぱい（15個が1〜2行に収まる） */
+        #biList { grid-template-columns: 1fr; }
+        #biList .belong-row { grid-template-columns: 56px 1fr; }
+
+        /* 所属会社アイコン選択ピッカー */
+        .belong-icon-options { display: flex; flex-wrap: wrap; gap: 6px; }
+        .belong-icon-option {
+            width: 32px; height: 32px; padding: 4px;
+            border-radius: var(--radius-sm, 8px);
+            border: 1px solid var(--soft-line, rgba(58,84,104,0.16));
+            background: #fff; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
+            transition: border-color .12s, box-shadow .12s, background .12s;
+        }
+        .belong-icon-option img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .belong-icon-option:hover { background: #f1f6fb; }
+        .belong-icon-option.is-selected {
+            border-color: var(--row-color, #2c4356);
+            box-shadow: 0 0 0 1px var(--row-color, #2c4356);
+            background: #f1f6fb;
+        }
+
         .site-cell {
             position: relative;
             display: flex;
@@ -2411,252 +2439,12 @@
                 <div class="belong-config" id="bcList" aria-label="所属会社カラー選択"></div>
             </section>
 
-            <section class="design-note-card" aria-label="カラーパレット候補">
+            <section class="design-note-card" aria-label="所属会社アイコン">
                 <div class="color-guide-title">
-                    <h2>Color Themes</h2>
-                    <p>所属会社色とは別に、画面全体の色味をテーマ単位で比較します。</p>
+                    <h2>Belonging Company Icons</h2>
+                    <p>各社の簡易アイコンを選びます。選んだアイコンは区分円の中（区分名の上）に黒で表示されます。</p>
                 </div>
-                <div class="theme-grid">
-                    <article class="theme-card">
-                        <h3>Matcha Fog</h3>
-                        <div class="theme-divider"></div>
-                        <div class="theme-section">
-                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#FCFCFA" style="background:#FCFCFA"></span>
-                                <span class="theme-swatch" title="#F4F5F1" style="background:#F4F5F1"></span>
-                                <span class="theme-swatch" title="#2E372F" style="background:#2E372F"></span>
-                                <span class="theme-swatch" title="#3D483E" style="background:#3D483E"></span>
-                                <span class="theme-swatch" title="#828A7E" style="background:#828A7E"></span>
-                            </div>
-                        </div>
-                        <div class="theme-section">
-                            <div class="theme-label">BRAND &amp; BUTTONS</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#A8C49A" style="background:#A8C49A"></span>
-                                <span class="theme-swatch" title="#5C7E50" style="background:#5C7E50"></span>
-                                <span class="theme-swatch" title="#E3EEDB" style="background:#E3EEDB"></span>
-                            </div>
-                        </div>
-                        <p class="theme-note">霧がかった緑。落ち着いた管理画面向け。</p>
-                    </article>
-
-                    <article class="theme-card">
-                        <h3>Slate Mono</h3>
-                        <div class="theme-divider"></div>
-                        <div class="theme-section">
-                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#FFFFFF" style="background:#FFFFFF"></span>
-                                <span class="theme-swatch" title="#F3F4F6" style="background:#F3F4F6"></span>
-                                <span class="theme-swatch" title="#202838" style="background:#202838"></span>
-                                <span class="theme-swatch" title="#344156" style="background:#344156"></span>
-                                <span class="theme-swatch" title="#7B8492" style="background:#7B8492"></span>
-                            </div>
-                        </div>
-                        <div class="theme-section">
-                            <div class="theme-label">BRAND &amp; BUTTONS</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#536171" style="background:#536171"></span>
-                                <span class="theme-swatch" title="#111827" style="background:#111827"></span>
-                                <span class="theme-swatch" title="#E4E6EA" style="background:#E4E6EA"></span>
-                            </div>
-                        </div>
-                        <p class="theme-note">最も業務寄り。サイバー感は黒と余白で出す。</p>
-                    </article>
-
-                    <article class="theme-card">
-                        <h3>Icy Indigo</h3>
-                        <div class="theme-divider"></div>
-                        <div class="theme-section">
-                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#FFFFFF" style="background:#FFFFFF"></span>
-                                <span class="theme-swatch" title="#F7F8FB" style="background:#F7F8FB"></span>
-                                <span class="theme-swatch" title="#151B34" style="background:#151B34"></span>
-                                <span class="theme-swatch" title="#26374D" style="background:#26374D"></span>
-                                <span class="theme-swatch" title="#6F7D90" style="background:#6F7D90"></span>
-                            </div>
-                        </div>
-                        <div class="theme-section">
-                            <div class="theme-label">BRAND &amp; BUTTONS</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#5D8FEF" style="background:#5D8FEF"></span>
-                                <span class="theme-swatch" title="#244D93" style="background:#244D93"></span>
-                                <span class="theme-swatch" title="#D8E2F5" style="background:#D8E2F5"></span>
-                            </div>
-                        </div>
-                        <p class="theme-note">冷たい青。通知や選択状態が読みやすい。</p>
-                    </article>
-
-                    <article class="theme-card">
-                        <h3>Warm Sandstone</h3>
-                        <div class="theme-divider"></div>
-                        <div class="theme-section">
-                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#FFFEFC" style="background:#FFFEFC"></span>
-                                <span class="theme-swatch" title="#F7F4F1" style="background:#F7F4F1"></span>
-                                <span class="theme-swatch" title="#3B2E28" style="background:#3B2E28"></span>
-                                <span class="theme-swatch" title="#6A5042" style="background:#6A5042"></span>
-                                <span class="theme-swatch" title="#9B8C84" style="background:#9B8C84"></span>
-                            </div>
-                        </div>
-                        <div class="theme-section">
-                            <div class="theme-label">BRAND &amp; BUTTONS</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#E99A70" style="background:#E99A70"></span>
-                                <span class="theme-swatch" title="#B7573F" style="background:#B7573F"></span>
-                                <span class="theme-swatch" title="#F0D7CE" style="background:#F0D7CE"></span>
-                            </div>
-                        </div>
-                        <p class="theme-note">暖色系。夜間オレンジとの競合に注意。</p>
-                    </article>
-
-                    <article class="theme-card">
-                        <h3>Modern Mauve</h3>
-                        <div class="theme-divider"></div>
-                        <div class="theme-section">
-                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#FFFFFF" style="background:#FFFFFF"></span>
-                                <span class="theme-swatch" title="#F6F3F6" style="background:#F6F3F6"></span>
-                                <span class="theme-swatch" title="#302830" style="background:#302830"></span>
-                                <span class="theme-swatch" title="#5C4B5D" style="background:#5C4B5D"></span>
-                                <span class="theme-swatch" title="#948493" style="background:#948493"></span>
-                            </div>
-                        </div>
-                        <div class="theme-section">
-                            <div class="theme-label">BRAND &amp; BUTTONS</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#B88AA8" style="background:#B88AA8"></span>
-                                <span class="theme-swatch" title="#7D5576" style="background:#7D5576"></span>
-                                <span class="theme-swatch" title="#ECDDE8" style="background:#ECDDE8"></span>
-                            </div>
-                        </div>
-                        <p class="theme-note">柔らかい紫灰。強い業務感を抑える。</p>
-                    </article>
-
-                    <article class="theme-card">
-                        <h3>Deep Mint</h3>
-                        <div class="theme-divider"></div>
-                        <div class="theme-section">
-                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#FBFDFC" style="background:#FBFDFC"></span>
-                                <span class="theme-swatch" title="#F2F6F4" style="background:#F2F6F4"></span>
-                                <span class="theme-swatch" title="#203530" style="background:#203530"></span>
-                                <span class="theme-swatch" title="#33534B" style="background:#33534B"></span>
-                                <span class="theme-swatch" title="#778880" style="background:#778880"></span>
-                            </div>
-                        </div>
-                        <div class="theme-section">
-                            <div class="theme-label">BRAND &amp; BUTTONS</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#75A995" style="background:#75A995"></span>
-                                <span class="theme-swatch" title="#407866" style="background:#407866"></span>
-                                <span class="theme-swatch" title="#DDECE5" style="background:#DDECE5"></span>
-                            </div>
-                        </div>
-                        <p class="theme-note">緑を抑えたミント。完了色とは分離が必要。</p>
-                    </article>
-
-                    <article class="theme-card">
-                        <h3>Cool Graphite</h3>
-                        <div class="theme-divider"></div>
-                        <div class="theme-section">
-                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#FBFBFA" style="background:#FBFBFA"></span>
-                                <span class="theme-swatch" title="#F1F2F2" style="background:#F1F2F2"></span>
-                                <span class="theme-swatch" title="#191A1C" style="background:#191A1C"></span>
-                                <span class="theme-swatch" title="#2F3338" style="background:#2F3338"></span>
-                                <span class="theme-swatch" title="#7B8086" style="background:#7B8086"></span>
-                            </div>
-                        </div>
-                        <div class="theme-section">
-                            <div class="theme-label">BRAND &amp; BUTTONS</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#8B929A" style="background:#8B929A"></span>
-                                <span class="theme-swatch" title="#22262B" style="background:#22262B"></span>
-                                <span class="theme-swatch" title="#E3E5E7" style="background:#E3E5E7"></span>
-                            </div>
-                        </div>
-                        <p class="theme-note">補完案。最もモノトーンで、色の競合が少ない。</p>
-                    </article>
-
-                    <article class="theme-card">
-                        <h3>Crimson Ledger</h3>
-                        <div class="theme-divider"></div>
-                        <div class="theme-section">
-                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#FFFDFD" style="background:#FFFDFD"></span>
-                                <span class="theme-swatch" title="#F7F1F1" style="background:#F7F1F1"></span>
-                                <span class="theme-swatch" title="#321D20" style="background:#321D20"></span>
-                                <span class="theme-swatch" title="#5B2C31" style="background:#5B2C31"></span>
-                                <span class="theme-swatch" title="#8B6F73" style="background:#8B6F73"></span>
-                            </div>
-                        </div>
-                        <div class="theme-section">
-                            <div class="theme-label">BRAND &amp; BUTTONS</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#B5525B" style="background:#B5525B"></span>
-                                <span class="theme-swatch" title="#7F2F38" style="background:#7F2F38"></span>
-                                <span class="theme-swatch" title="#F0D8DB" style="background:#F0D8DB"></span>
-                            </div>
-                        </div>
-                        <p class="theme-note">補完案。Warm Sandstoneと分離した落ち着いた赤系。</p>
-                    </article>
-
-                    <article class="theme-card">
-                        <h3>Olive Steel</h3>
-                        <div class="theme-divider"></div>
-                        <div class="theme-section">
-                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#FCFCF9" style="background:#FCFCF9"></span>
-                                <span class="theme-swatch" title="#F2F4EF" style="background:#F2F4EF"></span>
-                                <span class="theme-swatch" title="#2B3328" style="background:#2B3328"></span>
-                                <span class="theme-swatch" title="#485443" style="background:#485443"></span>
-                                <span class="theme-swatch" title="#818A77" style="background:#818A77"></span>
-                            </div>
-                        </div>
-                        <div class="theme-section">
-                            <div class="theme-label">BRAND &amp; BUTTONS</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#8EA16E" style="background:#8EA16E"></span>
-                                <span class="theme-swatch" title="#566B45" style="background:#566B45"></span>
-                                <span class="theme-swatch" title="#E5EAD9" style="background:#E5EAD9"></span>
-                            </div>
-                        </div>
-                        <p class="theme-note">補完案。Matcha Fogより硬く業務寄り。</p>
-                    </article>
-
-                    <article class="theme-card">
-                        <h3>Soft Azure</h3>
-                        <div class="theme-divider"></div>
-                        <div class="theme-section">
-                            <div class="theme-label">BACKGROUND &amp; TEXT</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#FFFFFF" style="background:#FFFFFF"></span>
-                                <span class="theme-swatch" title="#F4F7FA" style="background:#F4F7FA"></span>
-                                <span class="theme-swatch" title="#1E2B3A" style="background:#1E2B3A"></span>
-                                <span class="theme-swatch" title="#34475C" style="background:#34475C"></span>
-                                <span class="theme-swatch" title="#738197" style="background:#738197"></span>
-                            </div>
-                        </div>
-                        <div class="theme-section">
-                            <div class="theme-label">BRAND &amp; BUTTONS</div>
-                            <div class="theme-swatches">
-                                <span class="theme-swatch" title="#7EA7C7" style="background:#7EA7C7"></span>
-                                <span class="theme-swatch" title="#406A8A" style="background:#406A8A"></span>
-                                <span class="theme-swatch" title="#DCEAF2" style="background:#DCEAF2"></span>
-                            </div>
-                        </div>
-                        <p class="theme-note">補完案。青系でも子供っぽくならない低彩度。</p>
-                    </article>
-                </div>
+                <div class="belong-config" id="biList" aria-label="所属会社アイコン選択"></div>
             </section>
         </section>
     </main>
@@ -2732,8 +2520,70 @@
             selectBelongColor(Number(button.dataset.company), Number(button.dataset.color));
         });
 
+        // ===== 所属会社の簡易アイコン（メタボール）=====
+        const metaballIconCount = 15;
+        const metaballIconSrc = (id) => `../assets/icons/metaball/metaball-${String(id).padStart(2, "0")}.svg`;
+        // 初期割当: A=1 / B=2 / C=3 / D=4 / E=5
+        const belongIconAssignments = [1, 2, 3, 4, 5];
+        // 区分円のGCクラス → 会社index（belong-1/2/3 = A/B/C社）
+        const gcToCompanyIndex = { "gc-touo": 0, "gc-nikkei": 1, "gc-zennihon": 2 };
+
+        function renderBelongIconConfig() {
+            const list = document.getElementById("biList");
+            if (!list) return;
+            list.innerHTML = belongCompanies.map((company, index) => {
+                const currentIcon = belongIconAssignments[index];
+                const color = belongPalette.find((c) => c.id === belongAssignments[index]);
+                const options = Array.from({ length: metaballIconCount }, (_, i) => {
+                    const id = i + 1;
+                    const selected = id === currentIcon ? " is-selected" : "";
+                    const label = `metaball-${String(id).padStart(2, "0")}`;
+                    return `<button class="belong-icon-option${selected}" type="button" data-company="${index + 1}" data-icon="${id}" title="${company}: ${label}" aria-label="${company}: ${label}"><img src="${metaballIconSrc(id)}" alt=""></button>`;
+                }).join("");
+                return `\n                    <div class="belong-row" style="--row-color:${color.hex};--row-bg:color-mix(in srgb, ${color.hex} 10%, #fff);--row-border:color-mix(in srgb, ${color.hex} 32%, #fff)" title="${company}: metaball-${String(currentIcon).padStart(2, '0')}">\n                        <div class="belong-company">\n                            <strong>${company}</strong>\n                            <span>belong-${index + 1}</span>\n                        </div>\n                        <div class="belong-icon-options" role="group" aria-label="${company}の所属会社アイコン">\n                            ${options}\n                        </div>\n                    </div>\n                `;
+            }).join("");
+        }
+
+        function selectBelongIcon(companyNumber, iconId) {
+            belongIconAssignments[companyNumber - 1] = iconId;
+            renderBelongIconConfig();
+            applyCategoryIcons();
+        }
+
+        function applyCategoryIcons() {
+            document.querySelectorAll(".category-badge").forEach((badge) => {
+                if (!badge.querySelector(".cat-name")) {
+                    const name = badge.textContent.trim();
+                    badge.textContent = "";
+                    const ic = document.createElement("span");
+                    ic.className = "cat-ic";
+                    const nm = document.createElement("span");
+                    nm.className = "cat-name";
+                    nm.textContent = name;
+                    badge.appendChild(ic);
+                    badge.appendChild(nm);
+                }
+                const gcClass = Array.from(badge.classList).find((c) => c in gcToCompanyIndex);
+                const ic = badge.querySelector(".cat-ic");
+                if (gcClass !== undefined) {
+                    const iconId = belongIconAssignments[gcToCompanyIndex[gcClass]];
+                    ic.innerHTML = `<img src="${metaballIconSrc(iconId)}" alt="">`;
+                } else {
+                    ic.innerHTML = "";
+                }
+            });
+        }
+
+        document.addEventListener("click", (event) => {
+            const button = event.target.closest(".belong-icon-option");
+            if (!button) return;
+            selectBelongIcon(Number(button.dataset.company), Number(button.dataset.icon));
+        });
+
         applyBelongVariables();
         renderBelongConfig();
+        renderBelongIconConfig();
+        applyCategoryIcons();
 
         // 変更履歴 / 備考 列タブ切替
         document.querySelectorAll(".log-tab").forEach((btn) => {

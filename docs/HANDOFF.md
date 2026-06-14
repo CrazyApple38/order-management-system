@@ -9,10 +9,11 @@
 
 - **更新者**: Claude Code (Opus 4.8)
 - **日付**: 2026-06-14
-- **コミット**: c539275（作業開始時 HEAD。以下は未コミット）
+- **コミット**: 1b550cf（直前 HEAD。最新エントリは本作業でコミット）
 
 ## 直前にやったこと
 
+- (Claude Code) **所属会社の簡易アイコン（メタボール）機能を SL モックに追加（2026-06-14）**。ユーザー提供の15個メタボールSVGを `docs/assets/icons/metaball/metaball-01〜15.svg` に保存（黒・各自viewBox・**gitignore対象=git非追跡**）。**Color Themes セクション（テーマカード10枚）を削除**。Belonging Company Colors の下に **「Belonging Company Icons」ピッカー**（`#biList`、各社A〜E×15アイコン、ニュートラル黒、1社1行・横いっぱい）を新設。**区分円（`.category-badge`）の中・区分名の上に、その行のGC=所属会社アイコンを黒で表示**（`gc-touo`=A社/`gc-nikkei`=B社/`gc-zennihon`=C社、初期割当 A=01〜E=05）。ピッカー選択で区分円へ即連動。JS: `belongIconAssignments`/`renderBelongIconConfig`/`selectBelongIcon`/`applyCategoryIcons`、`gcToCompanyIndex` マップ。`.category-badge` は `textContent` に区分名を保持（プロパティパネルJS無影響）。旧 `.theme-*` CSS は未使用のまま残置。Playwright 検証済み（console error 0 / A社→#10 で gc-touo 区分円が更新）。
 - (Claude Code) **相性問題アイコンの「吹き出し」アイデアをユーザー判断で破棄（2026-06-14）。元の警告アイコン型（`.person-warn` + `#ic-caution-line` 線画注意三角、佐藤の連勤警告と同型）を正とする**。高橋=「NG 伊藤」/ 伊藤=「NG 高橋」。HTML(`design-refresh-sl-layer-mockup.html`)から吹き出し関連を全削除（`compatibility-icon` img / `.compatibility-icon` CSS / `.person.has-compatibility` / `.person-icon` の `position:relative`）。**⚠️ 直下の Codex『gizagiza→compatibility-alert.svg 採用』(吹き出し)は破棄対象。再適用しないこと**。孤立SVG（`docs/preview/assets/si-4675-4675.svg` / `docs/assets/icons/fukidashi/si-4675-4675.svg` / `compatibility-alert.svg`）はユーザー判断で削除せず残置（コード未参照）。元PNG `si-4675-4675.png` はライブラリ資産で存置。Playwright で高橋/伊藤/佐藤の注意三角表示・吹き出しimg無しを確認。
 - (Codex) SL層モックの相性問題アイコンを、ユーザー提供 `C:/Users/Owner/Downloads/gizagiza.svg` の形状へ差し替え、`docs/assets/icons/fukidashi/compatibility-alert.svg` として保存。警告色は `#F15E2A`。
 - (Codex) 吹き出しを幅18px・高さ22pxのやや縦長へ調整し、各人物アイコン左上へ重ねて社員バッジ外へ大きくはみ出す配置にした。佐藤の連勤警告は変更なし。
@@ -88,6 +89,7 @@
 ## 次にやるべきこと
 
 - **相性問題アイコンは警告アイコン型（`.person-warn` + `#ic-caution-line` 注意三角）で確定。吹き出し（si-4675 / compatibility-alert.svg）はユーザー判断で破棄済み — 再実装しないこと**。表示対象を追加する場合は佐藤と同じ `.person-warn` span を対象社員の `.person-icon` 前へ追加する。
+- **所属会社の簡易アイコン（メタボール15種）はモック実装済み**。区分円表示は GC→会社マッピング（A/B/C = gc-touo/nikkei/zennihon）依存。割当の永続化・他画面/他社(D・E等)への展開・初期割当の確定は今後の判断。metaball SVG は gitignore 対象のため git では追跡されない点に注意。
 - ~~変更通知の情報照合 論点(1)〜(5)~~ → **2026-06-11 全決定済み**（計画書 §3.7.6）。スレッドUIも3層構造で決定済み（§3.7.7、3カラム案は不採用判例）。
 - **`docs/plan/mockup-refactor-plan.md` に従って R-1（DS基盤統合）から着手**。通知センター改修（R-4）・DB追補（R-5）・各画面の通知カード/カテゴリ適用（R-3）はすべて本計画に統合済み — 個別先行実装は凍結。
 - R-3a（SL）の前提: SL 配色テーマの確定（Color Themes 比較）と SL 右プロパティ4モードの情報粒度確認。
