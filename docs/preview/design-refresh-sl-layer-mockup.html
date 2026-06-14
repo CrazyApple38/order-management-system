@@ -38,9 +38,9 @@
             --alert-text: #f15e2a;
             --alert-bg: #fff0e8;
             --alert-border: #f5a17c;
-            --info-text: #1f5fae;
-            --info-bg: #edf6ff;
-            --info-border: #bfd7f4;
+            --info-text: #50616f;
+            --info-bg: #eef2f6;
+            --info-border: #c9d5de;
             --neutral-chip-text: #385569;
             --neutral-chip-bg: #eef4f8;
             --gc-line: #2c6fa3;
@@ -51,22 +51,22 @@
             --gc-zennihon: var(--belong-3);
             --gc-row-a: #f7fbff;
             --gc-row-b: #f5f8fa;
-            /* 初期値は JS (applyBelongVariables) が上書きする。下記は明るめパステル8色パレットの初期割当と同値 */
-            --belong-1: #6e96d1;
-            --belong-1-bg: #f1f5fb;
-            --belong-1-border: #d3dff1;
-            --belong-2: #76c295;
-            --belong-2-bg: #f1f9f4;
-            --belong-2-border: #d2ecdd;
-            --belong-3: #a48bd8;
-            --belong-3-bg: #f6f3fb;
-            --belong-3-border: #e3daf3;
-            --belong-4: #e0c155;
-            --belong-4-bg: #fcf9ee;
-            --belong-4-border: #f5e8c4;
-            --belong-5: #de8585;
-            --belong-5-bg: #fcf3f3;
-            --belong-5-border: #f5d6d6;
+            /* 初期値は JS (applyBelongVariables) が上書きする。下記は淡いパステル8色パレットの初期割当と同値 */
+            --belong-1: #afc5e6;
+            --belong-1-bg: #f7f9fd;
+            --belong-1-border: #e5ecf7;
+            --belong-2: #b4ddc5;
+            --belong-2-bg: #f8fcf9;
+            --belong-2-border: #e7f4ec;
+            --belong-3: #cdbfea;
+            --belong-3-bg: #faf9fd;
+            --belong-3-border: #efebf8;
+            --belong-4: #eedda2;
+            --belong-4-bg: #fdfcf6;
+            --belong-4-border: #faf4e1;
+            --belong-5: #edbcbc;
+            --belong-5-bg: #fdf8f8;
+            --belong-5-border: #f9eaea;
             --belong-6: #8a638e;
             --belong-6-bg: #f9f5fa;
             --belong-6-border: #ddcedf;
@@ -687,7 +687,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #fff;
+            color: #3d4a57;
             /* GC色ベタ塗り（GCクラス未指定時は紺） */
             background: var(--cat-gc-color, var(--blue));
             box-shadow: 0 2px 4px rgba(18, 59, 93, 0.18);
@@ -740,12 +740,14 @@
             justify-content: center;
         }
 
-        .site-cell[data-gc]::after {
+        /* 会社名(GC)ポップアップは区分セルのホバーで表示し、区分円の上方へ出して契約先/現場名に被らせない */
+        .category-cell { position: relative; }
+        .category-cell[data-gc]::after {
             content: attr(data-gc);
             position: absolute;
-            left: 12px;
-            top: 10px;
-            z-index: 2;
+            left: 2px;
+            bottom: calc(100% + 2px);
+            z-index: 6;
             display: none;
             padding: 4px 8px;
             border-radius: var(--radius-sm);
@@ -755,9 +757,10 @@
             font-size: 11px;
             font-weight: 600;
             white-space: nowrap;
+            pointer-events: none;
         }
 
-        .site-cell[data-gc]:hover::after {
+        .category-cell[data-gc]:hover::after {
             display: block;
         }
 
@@ -2188,7 +2191,7 @@
                                 </div>
                             </div>
 
-                            <div class="cell category-cell">
+                            <div class="cell category-cell" data-gc="東央警備">
                                 <span class="category-badge gc-touo">施設</span>
                             </div>
                             <div class="cell site-cell" data-gc="東央警備">
@@ -2248,7 +2251,7 @@
                                 <div class="note-content" hidden>正面入口の鍵は警備室で受取。閉館後は裏口の施錠確認を徹底すること。</div>
                             </div>
 
-                            <div class="cell category-cell night-text">
+                            <div class="cell category-cell night-text" data-gc="Nikkeiホールディングス">
                                 <span class="category-badge gc-nikkei">交通</span>
                             </div>
                             <div class="cell site-cell nikkei night-text" data-gc="Nikkeiホールディングス">
@@ -2304,7 +2307,7 @@
                                 <div class="note-content" hidden>雨天時は中止連絡あり。資格者の到着を待ってから配置を開始する。</div>
                             </div>
 
-                            <div class="cell category-cell">
+                            <div class="cell category-cell" data-gc="東央警備">
                                 <span class="category-badge long gc-touo">イベント</span>
                             </div>
                             <div class="cell site-cell" data-gc="東央警備">
@@ -2449,17 +2452,17 @@
         </section>
     </main>
     <script>
-        // 【採用 2026-06-12】明るめパステル 8色（紫1 / 青系3 / 緑1 / 黄寄りの黄緑1 / 黄1 / 赤1）
-        // 灰パステル初版から彩度+明度を一段上げ、白地・白文字とのコントラストを強化
+        // 【採用 2026-06-14】淡いパステル 8色（紫1 / 青系3 / 緑1 / 黄寄りの黄緑1 / 黄1 / 赤1）
+        // 旧「明るめパステル」を白45%混でさらに淡く・明るく調整（ユーザー指示）
         const belongPalette = [
-            { id: 1, name: "Bright Mauve",  hex: "#A48BD8" },
-            { id: 2, name: "Slate Blue",    hex: "#6E96D1" },
-            { id: 3, name: "Sky Blue",      hex: "#7FB8E8" },
-            { id: 4, name: "Steel Cyan",    hex: "#67AECC" },
-            { id: 5, name: "Fresh Green",   hex: "#76C295" },
-            { id: 6, name: "Citron",        hex: "#B5C75B" },
-            { id: 7, name: "Soft Yellow",   hex: "#E0C155" },
-            { id: 8, name: "Coral Rose",    hex: "#DE8585" }
+            { id: 1, name: "Bright Mauve",  hex: "#CDBFEA" },
+            { id: 2, name: "Slate Blue",    hex: "#AFC5E6" },
+            { id: 3, name: "Sky Blue",      hex: "#B9D8F2" },
+            { id: 4, name: "Steel Cyan",    hex: "#ABD2E3" },
+            { id: 5, name: "Fresh Green",   hex: "#B4DDC5" },
+            { id: 6, name: "Citron",        hex: "#D6E0A5" },
+            { id: 7, name: "Soft Yellow",   hex: "#EEDDA2" },
+            { id: 8, name: "Coral Rose",    hex: "#EDBCBC" }
         ];
 
         const belongCompanies = ["A社", "B社", "C社", "D社", "E社"];
