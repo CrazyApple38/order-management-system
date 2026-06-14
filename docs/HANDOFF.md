@@ -7,12 +7,16 @@
 
 ## 最終更新
 
-- **更新者**: Claude Code (Fable 5)
-- **日付**: 2026-06-11
-- **コミット**: 355150f（Codex の変更通知情報照合 + スレッドUIモックを独立コミット化した直後）
+- **更新者**: Claude Code (Opus 4.8)
+- **日付**: 2026-06-14
+- **コミット**: c539275（作業開始時 HEAD。以下は未コミット）
 
 ## 直前にやったこと
 
+- (Claude Code) **相性問題アイコンの「吹き出し」アイデアをユーザー判断で破棄（2026-06-14）。元の警告アイコン型（`.person-warn` + `#ic-caution-line` 線画注意三角、佐藤の連勤警告と同型）を正とする**。高橋=「NG 伊藤」/ 伊藤=「NG 高橋」。HTML(`design-refresh-sl-layer-mockup.html`)から吹き出し関連を全削除（`compatibility-icon` img / `.compatibility-icon` CSS / `.person.has-compatibility` / `.person-icon` の `position:relative`）。**⚠️ 直下の Codex『gizagiza→compatibility-alert.svg 採用』(吹き出し)は破棄対象。再適用しないこと**。孤立SVG（`docs/preview/assets/si-4675-4675.svg` / `docs/assets/icons/fukidashi/si-4675-4675.svg` / `compatibility-alert.svg`）はユーザー判断で削除せず残置（コード未参照）。元PNG `si-4675-4675.png` はライブラリ資産で存置。Playwright で高橋/伊藤/佐藤の注意三角表示・吹き出しimg無しを確認。
+- (Codex) SL層モックの相性問題アイコンを、ユーザー提供 `C:/Users/Owner/Downloads/gizagiza.svg` の形状へ差し替え、`docs/assets/icons/fukidashi/compatibility-alert.svg` として保存。警告色は `#F15E2A`。
+- (Codex) 吹き出しを幅18px・高さ22pxのやや縦長へ調整し、各人物アイコン左上へ重ねて社員バッジ外へ大きくはみ出す配置にした。佐藤の連勤警告は変更なし。
+- (Codex) Apache 経由でSVG読込・色・配置を確認。高橋・伊藤ともSVG 200応答、console/page error なし。確認画像は `screenshots/sl-compatibility-icon-check.png`。
 - (Claude Code) **所属会社カラー: パステル8色構成で確定方向（2026-06-12・同日3段階で調整）**: 構成は 紫1 / 青系3 / 緑1 / 黄寄り黄緑1 / 黄1 / 赤1（ユーザー指定）。初版の灰パステルから「コントラスト強く・明るく」の指示で彩度+明度を一段上げた現行: Bright Mauve `#A48BD8` / Slate Blue `#6E96D1` / Sky Blue `#7FB8E8` / Steel Cyan `#67AECC` / Fresh Green `#76C295` / Citron `#B5C75B` / Soft Yellow `#E0C155` / Coral Rose `#DE8585`。初期割当 A=Slate Blue / B=Fresh Green / C=Bright Mauve / D=Soft Yellow / E=Coral Rose。スウォッチUI 8列。経緯: Flexoki 16色 → 参考画像4色×3トーン（7713f36）→ 灰パステル（5a49700）→ 現行。
 - (Claude Code) **配置バッジの人物アイコン: 角丸四角バッジ化を試作 → ユーザー判断で差し戻し（2026-06-12）**: 「所属色の角丸四角 + ピル表面色 `#eff3f7` で抜いた人物」を 20px / 27px(1.35倍) の2段階で試作したが、実物がイメージと不一致。**所属色の人物シルエットのみ（20px・fill=belong-color）へ復元済み**。却下判例として mockup-refactor-plan §2.1 に記録（同型の再提案はしない）。
 - (Claude Code) **参考画像（screenshots/plan_pic/ 11枚）から新デザイン要素を抽出 → 仮実装 → ユーザー個別判断で確定（2026-06-12）**。判断記録は `mockup-refactor-plan.md` §2.1。**採用7点**: ①セグメントコントロール（凹トラック+浮き白ピル、`data-multi` で GC 複数選択対応）②濃紺選択ピル（**濃色面の使用権に「選択状態」を追加**、見本=SL社員配置の絞り込みチップ。昼夜フィルタは機能不要で撤去）③統計サマリ行（未連絡/OB更新/不足の縦罫数値ブロック）④件数付きナビ（センターをライトリストナビ化、軸ごとのグループ数表示）⑤白カウンター影（`--shadow-card-outer` に上方向白光1行）⑥ユーザーチップ+在席ドット（メニューバー右端「● 佐藤」）⑦要対応バッジの極小グロー（橙ハロー、**「意味のある光」の公式例外=要対応・警告系バッジ限定**）。**却下1点**: ⑧ラベル付きインフォタイル（dl行へ復元済み）。実装は SL層モック + センターモックの2ファイル、Playwright 検証済み。
@@ -83,6 +87,7 @@
 
 ## 次にやるべきこと
 
+- **相性問題アイコンは警告アイコン型（`.person-warn` + `#ic-caution-line` 注意三角）で確定。吹き出し（si-4675 / compatibility-alert.svg）はユーザー判断で破棄済み — 再実装しないこと**。表示対象を追加する場合は佐藤と同じ `.person-warn` span を対象社員の `.person-icon` 前へ追加する。
 - ~~変更通知の情報照合 論点(1)〜(5)~~ → **2026-06-11 全決定済み**（計画書 §3.7.6）。スレッドUIも3層構造で決定済み（§3.7.7、3カラム案は不採用判例）。
 - **`docs/plan/mockup-refactor-plan.md` に従って R-1（DS基盤統合）から着手**。通知センター改修（R-4）・DB追補（R-5）・各画面の通知カード/カテゴリ適用（R-3）はすべて本計画に統合済み — 個別先行実装は凍結。
 - R-3a（SL）の前提: SL 配色テーマの確定（Color Themes 比較）と SL 右プロパティ4モードの情報粒度確認。
