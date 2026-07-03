@@ -1,0 +1,136 @@
+/* ============================================================================
+   ds-tokens.css — Calm Operations デザイントークン（新DSの単一情報源 / SSOT）
+   ----------------------------------------------------------------------------
+   正本の由来: docs/preview/design-refresh-sl-layer-mockup.html の :root を抽出。
+   仕様書: docs/design-system/ （原則・使用権・禁止事項は 01_principles-and-tokens.md）
+   注意:
+   - 旧 co-tokens.css（Plaster UI）とはトークン名が同名・別値のものがあるため、
+     同一ページに両方読み込まないこと。R-3 で画面ごとに co-tokens.css から差し替える。
+   - 値の変更はユーザー承認が必要。AI の自己判断で色・影・角丸を追加/変更しない。
+   ============================================================================ */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap");
+
+/*
+ * ============================================================
+ * DS 第一条: 光源は左上固定。
+ *  - 面グラデ: 左上=明 → 右下=やや暗（to bottom right で明→暗）
+ *  - ベベル: 上・左borderが白(受光) / 右・下borderが暗(陰)
+ *  - ドロップシャドウ: 下方向（0 Npx ...）
+ *  - 押し込み面(インセット)のみ例外: 左上が壁の影で暗く、右下が明るい
+ * ============================================================
+ */
+:root {
+    --font-sans: "Inter", "Noto Sans JP", "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+    --bg: #eef4f8;
+    --panel: #ffffff;
+    --ink: #172b3a;
+    --muted: #5a6b7a;
+    --line: #dbe5ec;
+    --soft-line: #e8eef3;
+    --blue: #1f5fae;
+    --blue-dark: #123b5d;
+    --title-navy: #17446e;
+    --title-blue-mid: #1d5d8c;
+    --title-teal: #149aa6;
+    --blue-soft: #eaf3ff;
+    --accent-orange: #f15e2a;
+    --accent-orange-deep: #b6401d;
+    --accent-orange-soft: #fff0e8;
+    --accent-orange-border: #f5a17c;
+    --night-text: #d14d41;
+    --alert-text: #f15e2a;
+    --alert-bg: #fff0e8;
+    --alert-border: #f5a17c;
+    --info-text: #50616f;
+    --info-bg: #eef2f6;
+    --info-border: #c9d5de;
+    --neutral-chip-text: #385569;
+    --neutral-chip-bg: #eef4f8;
+    --gc-line: #2c6fa3;
+    --gc-line-soft: #7f9bae;
+    /* GC会社色 = 下部の所属カラー(belong)を使用。東央=A社=belong-1 / Nikkei=B社=belong-2 / 全日本=C社=belong-3 */
+    --gc-touo: var(--belong-1);
+    --gc-nikkei: var(--belong-2);
+    --gc-zennihon: var(--belong-3);
+    --gc-row-a: #f7fbff;
+    --gc-row-b: #f5f8fa;
+    /* 初期値は JS (applyBelongVariables) が上書きする。下記は淡いパステル8色パレットの初期割当と同値 */
+    --belong-1: #afc5e6;
+    --belong-1-bg: #f7f9fd;
+    --belong-1-border: #e5ecf7;
+    --belong-2: #b4ddc5;
+    --belong-2-bg: #f8fcf9;
+    --belong-2-border: #e7f4ec;
+    --belong-3: #cdbfea;
+    --belong-3-bg: #faf9fd;
+    --belong-3-border: #efebf8;
+    --belong-4: #eedda2;
+    --belong-4-bg: #fdfcf6;
+    --belong-4-border: #faf4e1;
+    --belong-5: #edbcbc;
+    --belong-5-bg: #fdf8f8;
+    --belong-5-border: #f9eaea;
+    --belong-6: #8a638e;
+    --belong-6-bg: #f9f5fa;
+    --belong-6-border: #ddcedf;
+    --belong-7: #3d73b7;
+    --belong-7-bg: #f2f6fc;
+    --belong-7-border: #c8d7ed;
+    --belong-8: #2c7c78;
+    --belong-8-bg: #f1f8f7;
+    --belong-8-border: #c4ddd9;
+    --belong-9: #7185c6;
+    --belong-9-bg: #f6f7fd;
+    --belong-9-border: #d2daf0;
+    --belong-10: #6f7784;
+    --belong-10-bg: #f5f7f8;
+    --belong-10-border: #d4dae0;
+    --elevation-0: none;
+    --elevation-1: 0 2px 6px rgba(38, 73, 99, 0.045), 0 1px 2px rgba(38, 73, 99, 0.030);
+    --elevation-2: 0 4px 10px rgba(38, 73, 99, 0.060), 0 2px 4px rgba(38, 73, 99, 0.035);
+    --elevation-3: 0 6px 14px rgba(38, 73, 99, 0.070), 0 2px 5px rgba(38, 73, 99, 0.040);
+    --elevation-4: 0 8px 18px rgba(38, 73, 99, 0.080), 0 3px 7px rgba(38, 73, 99, 0.045);
+    --elevation-5: 0 14px 30px rgba(24, 55, 78, 0.115), 0 5px 12px rgba(24, 55, 78, 0.070);
+    --shadow-table: var(--elevation-3);
+    --shadow-material: var(--elevation-3);
+    --shadow-material-soft: var(--elevation-1);
+    --inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.88);
+    --inset-edge: inset 0 -1px 0 rgba(75, 105, 126, 0.08);
+    /* 角丸スケール: xs=チップ内要素 / sm=ボタン・小カード / md=大カード / lg=トレイ / pill */
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-pill: 999px;
+    --radius: var(--radius-sm);
+    /* カード共通: 外影3層 + 左上明/右下暗ベベル（main-cardトレイ と prop-card で共用） */
+    /* 【採用 2026-06-12】白カウンター影: 暗影と対になる上方向の淡い白光（ニューモーフィズムの部分採用） */
+    --shadow-card-outer:
+        0 -2px 6px rgba(255, 255, 255, 0.55),
+        0 0 0 1px rgba(18, 38, 54, 0.040),
+        0 4px 9px rgba(18, 38, 54, 0.075),
+        0 1px 3px rgba(18, 38, 54, 0.045);
+    --bevel-card:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.96),
+        inset -1px -1px 0 rgba(182, 198, 211, 0.20);
+    --table-font: 13px;
+    --table-main: 14px;
+    --table-num: 18px;
+    --table-strong: 600;
+    --table-data-weight: 600;
+    --table-leading: 1.28;
+    --icon-warning: url("../assets/icons/sign-mark/im-11908-chuui-maaku.svg");
+    --icon-caution-line: url("../assets/icons/sign-mark/im-11907-chuui-maaku-no-senga.svg");
+    --icon-doc: url("../assets/icons/business/im-16148-shorui.svg");
+    --icon-person: url("../assets/icons/person/im-00142-jimbutsu-no-aikon-sozai-sono-2.svg");
+    --icon-car: url("../assets/icons/transport/im-00237-jidousha-no-aikon-sozai-sono-2.svg");
+    --icon-bell: url("../assets/icons/sign-mark/im-00155-beru-no-aikon-sozai-sono-5.svg");
+    --icon-close: url("../assets/icons/sign-mark/im-11911-hosoi-batsu.svg");
+    --icon-settings: url("../assets/icons/sign-mark/im-00001-muryou-no-settei-haguruma.svg");
+    --icon-phone: url("../assets/icons/pc-tech/im-11709-denwa-hasshin-chuu.svg");
+    --icon-task: url("../assets/icons/business/im-16152-tasuku-torei.svg");
+    --icon-contact: url("../assets/icons/business/im-11139-adoresu-chou.svg");
+    --icon-history: url("../assets/icons/sign-mark/im-11972-riroudo.svg");
+    --icon-support: url("../assets/icons/business/im-11435-akushu.svg");
+    font-family: var(--font-sans);
+}

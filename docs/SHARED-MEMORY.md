@@ -19,6 +19,7 @@
 ## プロジェクト決定（SSOT ポインタ）
 
 - **リファクタ統合計画** `docs/plan/mockup-refactor-plan.md` がプロジェクトの SSOT。新DS適用 × 通知簡素化 × カテゴリ再定義を画面ごとに一括適用。**本計画外での個別先行実装は凍結**（ユーザー指示）。
+- **新DSの正本（2026-07-03 / R-1 完了）**: `docs/design-system/`（仕様5冊）+ `docs/mockup/ds-tokens.css` / `ds-components.css`（プレビュー2本から機械抽出）。コンポーネントカタログ **37件は全件採用確定**（ユーザー宣言）。**旧 `co-tokens.css` と同名・別値トークンがあるため同一ページ併載禁止**（R-3 で画面ごと差し替え → 全画面移行後に旧ファイル廃止）。ds-*.css 新設方式（co-tokens 統合からの変更）は Claude Code 暫定判断・要ユーザー追認。
 - **デザイン刷新** は **案B改: Calm Operations** 方向で継続（ツールバーはフラット維持、左メニュー／中央パネル／縦型アイコンメニュー／右プロパティを同一マテリアル表現で統一。影＝高さレイヤー、縦型アイコンメニューが最上位）。
 - **通知** はエンティティ別カテゴリ（受注/配置/申請/マスタ）＋対象日ファセット。責務は「知らせる＋該当箇所を示す」に限定し確認は系外（電話・チャット）。詳細は `docs/plan/notification-refactor-plan.md` §3.7.8/3.7.9。
 
@@ -34,6 +35,7 @@
 
 ## 触らないでほしいもの / 注意事項
 
+- `docs/mockup/ds-tokens.css` / `ds-components.css` は新DS正本（プレビューモックから機械抽出）。**値の変更・追加はユーザー承認必須**。`docs/preview/design-refresh-components.html` / `design-refresh-sl-layer-mockup.html` は参照専用（改変禁止）。
 - 共通ダミーデータ `mock.oms.state.v1`（localStorage キー / `co-mock-store.js`）周辺は **Codex 側が大幅構造変更を行っている**。シードや SelfNotify の `target` を扱う際は固定文字列を書かず、実画面 DOM か `co-mock-store.js` の実値から動的取得する設計にすること。
 - `co-navbar.js` は `co-mock-store.js` が先に読み込まれる前提になったため、4画面の script 順序を戻さないこと。
 - N-5 の別画面遷移は URL パラメータ `cnJump` に JSON を載せる。**同タブ遷移** で着地し `history.replaceState` で cnJump を除去する設計（2026-05-27 Claude Code 修正）。`window.open(_blank)` には戻さないこと。
@@ -60,7 +62,8 @@
 
 ## アクティブな計画書
 
-- `docs/plan/mockup-refactor-plan.md` — **リファクタ統合計画（SSOT。R-0 完了 / 次は R-1）**
+- `docs/plan/mockup-refactor-plan.md` — **リファクタ統合計画（SSOT。R-1 完了 2026-07-03 / 次は R-2）**
+- `docs/design-system/` — 新DS仕様の正本（README + 01〜04。実施順序は mockup-refactor-plan が正）
 - `docs/plan/mock-data-unification-plan.md` — SL/WS/LA/通知seed ダミーデータ一本化（**Phase 1+2 完了 / 残: WS `wsVehiclesData`/`wsSitesData` 共通ソース統一は将来課題**）
 - `docs/plan/notification-refactor-plan.md` — 変更通知システム リファクタリング（**N-6 完了（§17）/ 次は Phase 2.5 登録**）
 - `docs/plan/design-refresh-plan.md` — デザイン刷新 診断・比較計画（**案B改: Calm Operations 採用 / 次は SL 適用範囲確定**）
