@@ -1,0 +1,2982 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>デザインコンポーネント提案カタログ — Calm Operations</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap");
+
+        /*
+         * ============================================================
+         * 基準: docs/preview/design-refresh-sl-layer-mockup.html
+         * DS 第一条: 光源は左上固定。
+         *  - 面グラデ: 左上=明 → 右下=やや暗（to bottom right で明→暗）
+         *  - ベベル: 上・左borderが白(受光) / 右・下borderが暗(陰)
+         *  - ドロップシャドウ: 下方向（0 Npx ...）
+         *  - 押し込み面(インセット)のみ例外: 左上が壁の影で暗く、右下が明るい
+         * ============================================================
+         */
+        :root {
+            --font-sans: "Inter", "Noto Sans JP", "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+            --bg: #eef4f8;
+            --panel: #ffffff;
+            --ink: #172b3a;
+            --muted: #5a6b7a;
+            --line: #dbe5ec;
+            --soft-line: #e8eef3;
+            --blue: #1f5fae;
+            --blue-dark: #123b5d;
+            --blue-soft: #eaf3ff;
+            --accent-orange: #f15e2a;
+            --accent-orange-deep: #b6401d;
+            --night-text: #d14d41;
+            --alert-text: #f15e2a;
+            --alert-bg: #fff0e8;
+            --alert-border: #f5a17c;
+            --info-text: #50616f;
+            --info-bg: #eef2f6;
+            --info-border: #c9d5de;
+            --neutral-chip-text: #385569;
+            --neutral-chip-bg: #eef4f8;
+            --belong-1: #afc5e6;
+            --belong-2: #b4ddc5;
+            --belong-3: #cdbfea;
+            --belong-4: #eedda2;
+            --belong-5: #edbcbc;
+            --elevation-0: none;
+            --elevation-1: 0 2px 6px rgba(38, 73, 99, 0.045), 0 1px 2px rgba(38, 73, 99, 0.030);
+            --elevation-2: 0 4px 10px rgba(38, 73, 99, 0.060), 0 2px 4px rgba(38, 73, 99, 0.035);
+            --elevation-3: 0 6px 14px rgba(38, 73, 99, 0.070), 0 2px 5px rgba(38, 73, 99, 0.040);
+            --elevation-4: 0 8px 18px rgba(38, 73, 99, 0.080), 0 3px 7px rgba(38, 73, 99, 0.045);
+            --elevation-5: 0 14px 30px rgba(24, 55, 78, 0.115), 0 5px 12px rgba(24, 55, 78, 0.070);
+            --inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.88);
+            --radius-xs: 4px;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-pill: 999px;
+            /* カード共通: 白カウンター影 + 外影3層 + 左上明/右下暗ベベル（SLモック採用 2026-06-12） */
+            --shadow-card-outer:
+                0 -2px 6px rgba(255, 255, 255, 0.55),
+                0 0 0 1px rgba(18, 38, 54, 0.040),
+                0 4px 9px rgba(18, 38, 54, 0.075),
+                0 1px 3px rgba(18, 38, 54, 0.045);
+            --bevel-card:
+                inset 1px 1px 0 rgba(255, 255, 255, 0.96),
+                inset -1px -1px 0 rgba(182, 198, 211, 0.20);
+            --table-font: 13px;
+            --table-num: 18px;
+            --table-data-weight: 600;
+            --icon-warning: url("../assets/icons/sign-mark/im-11908-chuui-maaku.svg");
+            --icon-doc: url("../assets/icons/business/im-16148-shorui.svg");
+            --icon-person: url("../assets/icons/person/im-00142-jimbutsu-no-aikon-sozai-sono-2.svg");
+            --icon-car: url("../assets/icons/transport/im-00237-jidousha-no-aikon-sozai-sono-2.svg");
+            --icon-bell: url("../assets/icons/sign-mark/im-00155-beru-no-aikon-sozai-sono-5.svg");
+            --icon-close: url("../assets/icons/sign-mark/im-11911-hosoi-batsu.svg");
+            --icon-settings: url("../assets/icons/sign-mark/im-00001-muryou-no-settei-haguruma.svg");
+            --icon-task: url("../assets/icons/business/im-16152-tasuku-torei.svg");
+            --icon-contact: url("../assets/icons/business/im-11139-adoresu-chou.svg");
+            --icon-history: url("../assets/icons/sign-mark/im-11972-riroudo.svg");
+            font-family: var(--font-sans);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            font-family: var(--font-sans);
+            background:
+                radial-gradient(circle at 8% -8%, rgba(255, 255, 255, 0.72), transparent 28%),
+                linear-gradient(to bottom right, #f7fbff 0%, var(--bg) 54%, #e8f0f6 100%);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .page {
+            width: min(1240px, calc(100vw - 32px));
+            margin: 0 auto;
+            padding: 20px 0 60px;
+        }
+
+        h1 { margin: 0 0 4px; font-size: 20px; }
+        .lead { margin: 0; color: var(--muted); font-size: 12px; }
+
+        /* ===== 【検証用】カタログ骨格・判定UI（本番には持ち込まない） ===== */
+        .cat-bar {
+            position: sticky;
+            top: 8px;
+            z-index: 80;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 14px 0 20px;
+            padding: 10px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-radius: var(--radius-md);
+            background:
+                linear-gradient(to bottom right, rgba(255, 255, 255, 0.97), rgba(246, 250, 253, 0.92)),
+                #fff;
+            box-shadow: var(--elevation-3), var(--bevel-card);
+        }
+
+        .cat-jump { display: inline-flex; gap: 6px; }
+
+        .cat-jump a {
+            display: inline-flex;
+            align-items: center;
+            height: 26px;
+            padding: 0 10px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-pill);
+            background: #fff;
+            color: #31576f;
+            font-size: 11px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .cat-jump a:hover { border-color: #9cbce2; }
+
+        .cat-counts {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .cat-counts span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 22px;
+            padding: 0 8px;
+            border-radius: var(--radius-pill);
+            background: var(--neutral-chip-bg);
+            color: var(--neutral-chip-text);
+        }
+
+        .cat-counts span.c-adopt { color: #fff; background: linear-gradient(to bottom right, #2b72cb, var(--blue)); }
+        .cat-counts span.c-reject { color: var(--alert-text); background: var(--alert-bg); border: 1px solid var(--alert-border); }
+
+        .cat-copy {
+            height: 28px;
+            padding: 0 14px;
+            border: 1px solid var(--blue);
+            border-radius: var(--radius-sm);
+            background: linear-gradient(to bottom right, #2b72cb, var(--blue));
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: var(--elevation-1), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+        }
+
+        .cat-copy-out {
+            width: 100%;
+            margin-top: 8px;
+            padding: 8px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-sm);
+            background: #fff;
+            font-family: "Consolas", monospace;
+            font-size: 11px;
+            color: var(--ink);
+        }
+
+        .cat-h2 {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin: 36px 0 12px;
+            font-size: 16px;
+        }
+
+        .cat-h2 small { color: var(--muted); font-size: 11px; font-weight: 600; }
+
+        .comp {
+            margin-bottom: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-radius: var(--radius-md);
+            background:
+                linear-gradient(to bottom right, rgba(255, 255, 255, 0.96), rgba(246, 250, 253, 0.88)),
+                #fff;
+            box-shadow: var(--shadow-card-outer), var(--bevel-card);
+            overflow: hidden;
+        }
+
+        .comp-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--soft-line);
+        }
+
+        .comp-id {
+            display: inline-flex;
+            align-items: center;
+            height: 20px;
+            padding: 0 7px;
+            border-radius: var(--radius-xs);
+            background: var(--neutral-chip-bg);
+            color: var(--neutral-chip-text);
+            font-family: "Inter", "Consolas", monospace;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .comp-name { font-size: 14px; font-weight: 700; }
+
+        .comp-tag {
+            display: inline-flex;
+            align-items: center;
+            height: 20px;
+            padding: 0 8px;
+            border-radius: var(--radius-pill);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .comp-tag.est { color: var(--blue); background: var(--blue-soft); }
+        .comp-tag.new { color: var(--neutral-chip-text); background: var(--neutral-chip-bg); }
+
+        .comp-judge { margin-left: auto; display: inline-flex; gap: 4px; }
+
+        .comp-judge button {
+            height: 24px;
+            padding: 0 10px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-pill);
+            background: #fff;
+            color: #44627a;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .comp-judge button:hover { border-color: #9cbce2; }
+
+        .comp[data-verdict="adopt"] .comp-judge [data-verdict="adopt"] {
+            color: #fff;
+            background: linear-gradient(to bottom right, #2b72cb, var(--blue));
+            border-color: var(--blue);
+        }
+
+        .comp[data-verdict="hold"] .comp-judge [data-verdict="hold"] {
+            color: #16364f;
+            background: #e3ebf1;
+            border-color: #c9d5de;
+        }
+
+        .comp[data-verdict="reject"] .comp-judge [data-verdict="reject"] {
+            color: var(--alert-text);
+            background: var(--alert-bg);
+            border-color: var(--alert-border);
+        }
+
+        .comp-note {
+            margin: 0;
+            padding: 8px 14px;
+            color: var(--muted);
+            font-size: 11px;
+            border-bottom: 1px solid var(--soft-line);
+        }
+
+        .comp-demo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding: 20px;
+            background: linear-gradient(to bottom right, #f7fbff, #eef4f8);
+        }
+
+        .comp-demo.block { display: block; }
+
+        .demo-caption {
+            width: 100%;
+            margin: 0;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* 白カード面上のデモ用サーフェス（prop-card レシピ） */
+        .surface {
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-radius: var(--radius-md);
+            background:
+                linear-gradient(to bottom right, rgba(255, 255, 255, 0.96), rgba(246, 250, 253, 0.88)),
+                #fff;
+            box-shadow: var(--shadow-card-outer), var(--bevel-card);
+            padding: 14px;
+        }
+
+        /* ===== 共通アイコン ===== */
+        .icon {
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+            background-image: var(--icon-url);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+
+        .icon-ink { filter: invert(17%) sepia(41%) saturate(1170%) hue-rotate(166deg) brightness(91%) contrast(92%); }
+        .icon-white { filter: invert(1); }
+
+        .i-doc { --icon-url: var(--icon-doc); }
+        .i-close { --icon-url: var(--icon-close); }
+        .i-person { --icon-url: var(--icon-person); }
+        .i-car { --icon-url: var(--icon-car); }
+        .i-bell { --icon-url: var(--icon-bell); }
+        .i-settings { --icon-url: var(--icon-settings); }
+        .i-task { --icon-url: var(--icon-task); }
+        .i-contact { --icon-url: var(--icon-contact); }
+        .i-history { --icon-url: var(--icon-history); }
+
+        /* CSS描画の山括弧（アイコンライブラリ対象外の方向記号はCSSシェイプで描く） */
+        .chev {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-right: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            flex: 0 0 auto;
+        }
+
+        .chev.down { transform: rotate(45deg); margin-top: -3px; }
+        .chev.right { transform: rotate(-45deg); }
+        .chev.left { transform: rotate(135deg); }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* ============================================================
+         * A. ボタン・入力系
+         * ============================================================ */
+
+        .btn {
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 0 16px;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: box-shadow 120ms ease, background 120ms ease, border-color 120ms ease;
+        }
+
+        /* 主操作: 青系塗り（1画面1〜2個まで） */
+        .btn-primary {
+            color: #fff;
+            border: 1px solid var(--blue);
+            background: linear-gradient(to bottom right, #2b72cb, var(--blue));
+            box-shadow: 0 2px 5px rgba(18, 59, 93, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 9px rgba(18, 59, 93, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.26);
+        }
+
+        /* 標準（浮き）: log-tab と同じ白ベベル+薄影レシピ */
+        .btn-secondary {
+            color: #2c4356;
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-right-color: rgba(192, 208, 220, 0.72);
+            border-bottom-color: rgba(180, 198, 212, 0.66);
+            background: linear-gradient(to bottom right, #ffffff 0%, #fafbfd 50%, #f4f7fa 100%);
+            box-shadow:
+                0 2px 4px rgba(24, 55, 78, 0.10),
+                inset 1px 0 0 rgba(255, 255, 255, 0.92),
+                inset -1px 0 0 rgba(53, 83, 104, 0.07);
+        }
+
+        .btn-secondary:hover { border-color: rgba(160, 182, 200, 0.85); }
+
+        /* フラット: ツールバー用（高さ0の面） */
+        .btn-flat {
+            color: var(--ink);
+            border: 1px solid var(--line);
+            background: #fff;
+            box-shadow: var(--elevation-0);
+        }
+
+        .btn-flat:hover { border-color: #9cbce2; }
+
+        /* ゴースト: 枠なし文字ボタン */
+        .btn-ghost {
+            color: var(--blue);
+            border: 1px solid transparent;
+            background: transparent;
+        }
+
+        .btn-ghost:hover { background: rgba(235, 244, 252, 0.72); }
+
+        /* 危険操作: 薄い背景+オレンジ文字（強い塗りにしない = DSルール6.4） */
+        .btn-danger {
+            color: var(--alert-text);
+            border: 1px solid var(--alert-border);
+            background: var(--alert-bg);
+        }
+
+        .btn-danger:hover { box-shadow: 0 2px 4px rgba(241, 94, 42, 0.14); }
+
+        .btn:disabled,
+        .btn.is-disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-sm { height: 26px; padding: 0 12px; font-size: 11px; }
+        .btn-lg { height: 38px; padding: 0 20px; font-size: 13px; }
+
+        /* A-02 アイコンボタン（panel-rail レシピ） */
+        .icon-btn {
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #c9dae8;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(to bottom right, #ffffff, #f4f9fe);
+            cursor: pointer;
+            box-shadow: var(--elevation-1), var(--inset-highlight);
+            transition: box-shadow 120ms ease, border-color 120ms ease;
+        }
+
+        .icon-btn:hover { border-color: #9cbce2; box-shadow: var(--elevation-2), var(--inset-highlight); }
+
+        .icon-btn.active {
+            border-color: var(--blue);
+            background: #fff;
+            box-shadow: 0 0 0 2px rgba(34, 103, 203, 0.12), var(--elevation-2), var(--inset-highlight);
+        }
+
+        .icon-btn.sm { width: 26px; height: 26px; }
+        .icon-btn.sm .icon { width: 14px; height: 14px; }
+
+        /* A-03 分割ボタン */
+        .split { display: inline-flex; }
+
+        .split .btn { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+
+        .split .split-caret {
+            width: 28px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--blue);
+            border-left: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            background: linear-gradient(to bottom right, #2765b8, #1a5297);
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(18, 59, 93, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .split.split-soft .btn { border-right-color: rgba(192, 208, 220, 0.72); }
+
+        .split.split-soft .split-caret {
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-left: 1px solid rgba(192, 208, 220, 0.55);
+            border-right-color: rgba(192, 208, 220, 0.72);
+            border-bottom-color: rgba(180, 198, 212, 0.66);
+            background: linear-gradient(to bottom right, #ffffff 0%, #f4f7fa 100%);
+            color: #44627a;
+            box-shadow:
+                0 2px 4px rgba(24, 55, 78, 0.10),
+                inset -1px 0 0 rgba(53, 83, 104, 0.07);
+        }
+
+        /* A-04 ボタングループ（結合型） */
+        .btn-group { display: inline-flex; }
+
+        .btn-group .btn {
+            border-radius: 0;
+            border-right-width: 0;
+        }
+
+        .btn-group .btn:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+        .btn-group .btn:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-right-width: 1px; }
+
+        .btn-group .btn.active {
+            color: #16364f;
+            background: linear-gradient(to bottom right, #dde8f1 0%, #e8f0f7 60%, #f2f8fc 100%);
+            box-shadow:
+                inset 0 1px 3px rgba(40, 60, 80, 0.14),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.65);
+        }
+
+        /* A-05〜A-07 入力欄: 押し込み面（インセット例外: 左上暗→右下明） */
+        .field { display: grid; gap: 4px; min-width: 200px; }
+
+        .field-label { font-size: 11px; font-weight: 700; color: #31576f; }
+
+        .field-help { font-size: 10px; font-weight: 600; color: var(--muted); }
+
+        .field-help.error { color: var(--alert-text); }
+
+        .input {
+            height: 32px;
+            padding: 0 10px;
+            border: 1px solid rgba(196, 212, 224, 0.9);
+            border-radius: var(--radius-sm);
+            background: linear-gradient(to bottom right, #f4f7fa 0%, #fdfeff 62%, #ffffff 100%);
+            box-shadow:
+                inset 0 1px 2px rgba(40, 60, 80, 0.07),
+                inset 1px 0 1px rgba(40, 60, 80, 0.04),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.6);
+            color: var(--ink);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            transition: border-color 120ms ease, box-shadow 120ms ease;
+        }
+
+        .input::placeholder { color: #8297a7; font-weight: 500; }
+
+        .input:focus {
+            outline: none;
+            border-color: rgba(34, 103, 203, 0.55);
+            box-shadow:
+                0 0 0 2px rgba(34, 103, 203, 0.12),
+                inset 0 1px 2px rgba(40, 60, 80, 0.06);
+        }
+
+        .input.error {
+            border-color: var(--alert-border);
+            box-shadow:
+                0 0 0 2px rgba(241, 94, 42, 0.12),
+                inset 0 1px 2px rgba(40, 60, 80, 0.06);
+        }
+
+        .input:disabled {
+            background: var(--info-bg);
+            color: var(--muted);
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        textarea.input {
+            height: auto;
+            min-height: 72px;
+            padding: 8px 10px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        /* A-06 セレクト */
+        .select-wrap { position: relative; display: inline-block; }
+
+        .select-wrap select {
+            appearance: none;
+            -webkit-appearance: none;
+            padding-right: 30px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .select-wrap::after {
+            content: "";
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            width: 7px;
+            height: 7px;
+            border-right: 2px solid #44627a;
+            border-bottom: 2px solid #44627a;
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+
+        /* A-08 チェックボックス */
+        .check {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .check input {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+        }
+
+        .check .box {
+            position: relative;
+            width: 18px;
+            height: 18px;
+            flex: 0 0 auto;
+            border: 1px solid rgba(176, 194, 209, 0.9);
+            border-radius: var(--radius-xs);
+            background: linear-gradient(to bottom right, #f4f7fa, #ffffff);
+            box-shadow: inset 0 1px 2px rgba(40, 60, 80, 0.08);
+            transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+        }
+
+        .check input:checked + .box {
+            border-color: var(--blue);
+            background: linear-gradient(to bottom right, #2b72cb, var(--blue));
+            box-shadow: 0 1px 3px rgba(18, 59, 93, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+
+        .check input:checked + .box::after {
+            content: "";
+            position: absolute;
+            left: 5px;
+            top: 2px;
+            width: 5px;
+            height: 9px;
+            border-right: 2px solid #fff;
+            border-bottom: 2px solid #fff;
+            transform: rotate(45deg);
+        }
+
+        .check input:focus-visible + .box { box-shadow: 0 0 0 2px rgba(34, 103, 203, 0.2); }
+
+        .check.is-disabled { opacity: 0.45; cursor: not-allowed; }
+
+        /* A-09 ラジオ */
+        .radio { composes: none; }
+
+        .radio .box { border-radius: var(--radius-pill); }
+
+        .radio input:checked + .box::after {
+            left: 5px;
+            top: 5px;
+            width: 6px;
+            height: 6px;
+            border: 0;
+            border-radius: var(--radius-pill);
+            background: #fff;
+            transform: none;
+        }
+
+        /* A-10 トグルスイッチ（凹トラック + 浮き白ノブ = seg の語彙） */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 42px;
+            height: 24px;
+            flex: 0 0 auto;
+        }
+
+        .switch input {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+        }
+
+        .switch .track {
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius-pill);
+            background: linear-gradient(to bottom right, #e3ebf1, #eef3f7);
+            box-shadow:
+                inset 0 1px 2px rgba(40, 60, 80, 0.10),
+                inset 0 0 0 1px rgba(58, 84, 104, 0.06),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.55);
+            transition: background 140ms ease, box-shadow 140ms ease;
+        }
+
+        .switch .knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: var(--radius-pill);
+            background: linear-gradient(to bottom right, #ffffff, #f6f9fb);
+            box-shadow:
+                0 1px 3px rgba(24, 55, 78, 0.22),
+                0 1px 1px rgba(24, 55, 78, 0.10),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+            transition: left 140ms ease;
+        }
+
+        .switch input:checked ~ .track {
+            background: linear-gradient(to bottom right, #2b72cb, var(--blue));
+            box-shadow:
+                inset 0 1px 2px rgba(13, 47, 77, 0.35),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .switch input:checked ~ .knob { left: 21px; }
+
+        .switch input:focus-visible ~ .track { box-shadow: 0 0 0 2px rgba(34, 103, 203, 0.2); }
+
+        .switch-row { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; }
+
+        /* A-11 数値ステッパー */
+        .stepper { display: inline-flex; align-items: stretch; }
+
+        .stepper .btn { width: 32px; padding: 0; font-size: 15px; font-weight: 700; }
+        .stepper .btn:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); border-right-width: 0; }
+        .stepper .btn:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-left-width: 0; }
+
+        .stepper .input {
+            width: 56px;
+            border-radius: 0;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+            font-size: 14px;
+        }
+
+        /* A-12 検索カプセル（SLモック確立分） */
+        .search {
+            width: 310px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 12px;
+            border: 1px solid rgba(204, 220, 232, 0.95);
+            border-radius: var(--radius-pill);
+            background: linear-gradient(to bottom right, #ffffff 0%, #f8fafc 52%, #f4f7fa 100%);
+            color: #31576f;
+            font-weight: 600;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.94),
+                inset 0 -1px 0 rgba(177, 190, 204, 0.12);
+        }
+
+        .search input {
+            flex: 1;
+            border: 0;
+            background: transparent;
+            font: inherit;
+            font-size: 12px;
+            color: var(--ink);
+            outline: none;
+        }
+
+        /* ============================================================
+         * B. テーブル・データ表示系
+         * ============================================================ */
+
+        /* 彫り込みフレーム（grid-frame レシピ: 内側段差リングで少しへこんだ境界） */
+        .tbl-frame {
+            padding: 6px;
+            border: 1px solid rgba(216, 225, 232, 0.95);
+            border-top-color: rgba(226, 234, 241, 0.95);
+            border-left-color: rgba(226, 234, 241, 0.95);
+            border-right-color: rgba(232, 238, 243, 0.95);
+            border-bottom-color: rgba(232, 238, 243, 0.95);
+            border-radius: var(--radius-md);
+            background: transparent;
+            box-shadow:
+                inset 0 2px 3px rgba(40, 60, 80, 0.055),
+                inset 0 1px 0 rgba(40, 60, 80, 0.04),
+                inset 2px 0 3px rgba(40, 60, 80, 0.055),
+                inset 1px 0 0 rgba(40, 60, 80, 0.04),
+                inset 0 -1px 2px rgba(255, 255, 255, 0.45),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.55),
+                inset -1px 0 2px rgba(255, 255, 255, 0.45),
+                inset -1px 0 0 rgba(255, 255, 255, 0.55),
+                inset 0 0 0 1px rgba(58, 84, 104, 0.08);
+        }
+
+        .dtable {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            font-size: var(--table-font);
+        }
+
+        .dtable th {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--line);
+            color: #31576f;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            text-align: left;
+        }
+
+        .dtable td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--soft-line);
+            font-weight: var(--table-data-weight);
+        }
+
+        .dtable tbody tr:last-child td { border-bottom: 0; }
+
+        .dtable tbody tr { transition: background-color 120ms ease; }
+
+        .dtable tbody tr:hover td { background-color: rgba(235, 244, 252, 0.46); }
+
+        .dtable tr.is-selected td { background-color: rgba(234, 243, 255, 0.65); }
+        .dtable tr.is-selected td:first-child { box-shadow: inset 3px 0 0 var(--blue); }
+
+        .dtable .num {
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+            font-size: 14px;
+        }
+
+        .dtable .sub { color: var(--muted); font-size: 11px; font-weight: 600; }
+
+        .dtable th.num { font-size: 11px; text-align: center; }
+
+        .dtable.dense td { padding: 5px 10px; font-size: 12px; }
+        .dtable.dense th { padding: 5px 10px; }
+        .dtable.dense .num { font-size: 13px; }
+
+        /* ソートヘッダ */
+        th.sortable { cursor: pointer; user-select: none; }
+        th.sortable:hover { color: var(--blue); }
+        th.sorted { color: var(--blue); }
+
+        .sort-arrow {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            margin-left: 5px;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-bottom: 5px solid currentColor;
+            vertical-align: middle;
+        }
+
+        .sort-arrow.desc { border-bottom: 0; border-top: 5px solid currentColor; }
+
+        .tbl-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 6px 2px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* B-04 ライトカード（cn-item レシピ: 一覧の中の項目カード） */
+        .lite-card {
+            padding: 10px 12px;
+            border: 1px solid var(--soft-line);
+            border-radius: var(--radius-sm);
+            background: linear-gradient(to bottom right, #fdfeff, #f5f8fa);
+            transition: border-color 120ms ease, box-shadow 120ms ease;
+        }
+
+        .lite-card.clickable { cursor: pointer; }
+
+        .lite-card.clickable:hover {
+            border-color: rgba(160, 182, 200, 0.85);
+            box-shadow: var(--elevation-1);
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .card-foot {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid var(--soft-line);
+        }
+
+        /* B-05 統計サマリ行（確立分） */
+        .stat-strip { display: inline-flex; align-items: stretch; }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1px;
+            min-width: 64px;
+            padding: 2px 14px;
+        }
+
+        .stat + .stat { border-left: 1px solid var(--line); }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .stat-num {
+            color: var(--ink);
+            font-size: var(--table-num);
+            font-weight: var(--table-data-weight);
+            font-variant-numeric: tabular-nums;
+            line-height: 1.1;
+        }
+
+        /* B-06 KPIカード */
+        .kpi {
+            min-width: 148px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-radius: var(--radius-md);
+            background:
+                linear-gradient(to bottom right, rgba(255, 255, 255, 0.96), rgba(246, 250, 253, 0.88)),
+                #fff;
+            box-shadow: var(--shadow-card-outer), var(--bevel-card);
+        }
+
+        .kpi-label { color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: 0.02em; }
+
+        .kpi-row { display: flex; align-items: baseline; gap: 8px; margin-top: 2px; }
+
+        .kpi-num {
+            font-size: 24px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.1;
+        }
+
+        .kpi-unit { color: var(--muted); font-size: 11px; font-weight: 600; }
+
+        /* B-07 リスト */
+        .list-plain {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .list-plain li {
+            display: grid;
+            grid-template-columns: 48px minmax(0, 1fr) auto;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 4px;
+            border-bottom: 1px solid var(--soft-line);
+            font-size: 12px;
+        }
+
+        .list-plain li:last-child { border-bottom: 0; }
+
+        .list-plain .t { color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+        .list-select {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 4px;
+        }
+
+        .list-select li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border: 1px solid transparent;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 120ms ease, border-color 120ms ease;
+        }
+
+        .list-select li:hover { background: rgba(235, 244, 252, 0.72); }
+
+        .list-select li.is-selected {
+            border-color: rgba(34, 103, 203, 0.34);
+            background: rgba(234, 243, 255, 0.75);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+        }
+
+        .list-select .l-sub { margin-left: auto; color: var(--muted); font-size: 11px; }
+
+        /* B-08 バッジ群（確立分の一覧） */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            min-height: 20px;
+            padding: 0 8px;
+            border-radius: var(--radius-pill);
+            color: #fff;
+            background: var(--blue);
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .info-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 20px;
+            padding: 0 6px;
+            border-radius: var(--radius-xs);
+            background: #f1f6fa;
+            color: #506575;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .info-pill.req { color: var(--blue); background: var(--blue-soft); }
+
+        .info-pill.missing {
+            color: var(--info-text);
+            background: var(--info-bg);
+            border: 1px solid var(--info-border);
+        }
+
+        .mini-badge {
+            display: inline-flex;
+            align-items: center;
+            height: 20px;
+            padding: 0 6px;
+            border-radius: var(--radius-pill);
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .mini-badge.ok { color: var(--neutral-chip-text); background: var(--neutral-chip-bg); }
+        .mini-badge.warn { color: var(--alert-text); background: var(--alert-bg); }
+        .mini-badge.alert {
+            color: var(--alert-text);
+            background: var(--alert-bg);
+            border: 1px solid var(--alert-border);
+        }
+
+        .count-state {
+            display: inline-flex;
+            align-items: center;
+            min-height: 20px;
+            padding: 0 6px;
+            border-radius: var(--radius-xs);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .count-state.ok { color: var(--neutral-chip-text); background: var(--neutral-chip-bg); }
+        .count-state.short { color: #fff; background: var(--accent-orange); border: 1px solid var(--accent-orange); }
+        .count-state.over { color: var(--info-text); background: var(--info-bg); border: 1px solid var(--info-border); }
+
+        .bell-count {
+            position: relative;
+            min-width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            border-radius: var(--radius-pill);
+            background: var(--accent-orange);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1;
+            /* 「意味のある光」の公式例外: 要対応・警告系バッジ限定の極小グロー */
+            box-shadow:
+                0 1px 3px rgba(24, 55, 78, 0.25),
+                0 0 12px 3px rgba(241, 94, 42, 0.75);
+        }
+
+        .night-sample { color: var(--night-text); font-weight: 600; }
+
+        /* B-09 アバター / ユーザーチップ */
+        .avatar {
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-pill);
+            background: linear-gradient(to bottom right, #ffffff, #eef3f7);
+            color: #31576f;
+            font-size: 11px;
+            font-weight: 700;
+            box-shadow: var(--elevation-1), var(--inset-highlight);
+        }
+
+        .avatar.lg { width: 38px; height: 38px; font-size: 13px; }
+        .avatar.sm { width: 22px; height: 22px; font-size: 9px; }
+
+        .avatar-group { display: inline-flex; }
+
+        .avatar-group .avatar {
+            margin-left: -8px;
+            box-shadow: 0 0 0 2px #f2f7fb, var(--elevation-1);
+        }
+
+        .avatar-group .avatar:first-child { margin-left: 0; }
+
+        .presence-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: var(--radius-pill);
+            background: #39c26d;
+            box-shadow: 0 0 4px rgba(57, 194, 109, 0.8);
+            flex: 0 0 auto;
+        }
+
+        .menubar-demo {
+            width: 100%;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 0 16px;
+            border-radius: var(--radius-sm);
+            color: #dfeeff;
+            background: var(--blue-dark);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .menu-user {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 11px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: var(--radius-pill);
+            background: rgba(255, 255, 255, 0.10);
+            color: #eaf4ff;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* ユーザーチップ（明るい面用・カプセルバッジ語彙）
+           ★中央凹みグラデ = 光源ルールの公式例外（SLモック確定 2026-06-11） */
+        .user-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 32px;
+            padding: 4px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-right-color: rgba(192, 208, 220, 0.72);
+            border-bottom-color: rgba(180, 198, 212, 0.66);
+            border-radius: var(--radius-pill);
+            background:
+                linear-gradient(to bottom right, rgba(200, 213, 226, 0.38) 0%, #ffffff 60%, rgba(206, 219, 230, 0.22) 100%);
+            box-shadow:
+                0 4px 8px rgba(24, 55, 78, 0.13),
+                0 2px 3px rgba(24, 55, 78, 0.09),
+                inset 1px 0 0 rgba(255, 255, 255, 0.92),
+                inset -1px 0 0 rgba(53, 83, 104, 0.08);
+            font-size: 14px;
+            font-weight: var(--table-data-weight);
+        }
+
+        .user-chip .person-icon { color: var(--belong-1); }
+
+        .person-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            flex: 0 0 auto;
+        }
+
+        .person-icon svg { display: block; width: 20px; height: 20px; fill: currentColor; }
+
+        /* ============================================================
+         * C. ナビゲーション系
+         * ============================================================ */
+
+        /* C-01 タブ: カードタブ（確立分） */
+        .tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            padding: 8px;
+            border-bottom: 1px solid var(--line);
+            background: rgba(244, 249, 253, 0.72);
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+        }
+
+        .tab {
+            height: 30px;
+            border: 1px solid #d4e2ed;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(to bottom right, #ffffff, #f6faff);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            color: #456474;
+            cursor: pointer;
+            box-shadow: var(--elevation-1), var(--inset-highlight);
+        }
+
+        .tab.active {
+            color: #fff;
+            background: linear-gradient(to bottom right, #2b72cb, var(--blue));
+            border-color: var(--blue);
+            box-shadow: var(--elevation-2), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+        }
+
+        /* C-01 セグメントコントロール（確立分: 凹トラック + 浮き白ピル） */
+        .seg {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            padding: 3px;
+            border-radius: var(--radius-pill);
+            background: linear-gradient(to bottom right, #e3ebf1, #eef3f7);
+            box-shadow:
+                inset 0 1px 2px rgba(40, 60, 80, 0.10),
+                inset 0 0 0 1px rgba(58, 84, 104, 0.06),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.55);
+        }
+
+        .seg button {
+            height: 24px;
+            padding: 0 12px;
+            border: 0;
+            border-radius: var(--radius-pill);
+            background: transparent;
+            color: #44627a;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .seg button.active {
+            color: #16364f;
+            background: linear-gradient(to bottom right, #ffffff, #f6f9fb);
+            box-shadow:
+                0 1px 3px rgba(24, 55, 78, 0.18),
+                0 1px 1px rgba(24, 55, 78, 0.10),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+        }
+
+        /* C-01 アンダーラインタブ（新規提案） */
+        .utabs {
+            display: flex;
+            gap: 4px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .utab {
+            position: relative;
+            padding: 8px 14px;
+            border: 0;
+            background: transparent;
+            color: #44627a;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .utab:hover { color: #16364f; }
+
+        .utab.active { color: #16364f; }
+
+        .utab.active::after {
+            content: "";
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            bottom: -1px;
+            height: 2px;
+            border-radius: 2px;
+            background: var(--blue);
+        }
+
+        /* C-02 パンくず */
+        .crumbs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .crumbs a { color: var(--muted); text-decoration: none; }
+        .crumbs a:hover { color: var(--blue); }
+        .crumbs .chev { width: 5px; height: 5px; color: #9aabb8; }
+        .crumbs .current { color: var(--ink); font-weight: 700; }
+
+        /* C-03 ページネーション（現在ページ = 濃紺選択ピルの適用） */
+        .pager { display: inline-flex; align-items: center; gap: 4px; }
+
+        .pg-btn {
+            min-width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 6px;
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-right-color: rgba(192, 208, 220, 0.72);
+            border-bottom-color: rgba(180, 198, 212, 0.66);
+            border-radius: var(--radius-sm);
+            background: linear-gradient(to bottom right, #ffffff 0%, #fafbfd 50%, #f4f7fa 100%);
+            color: #44627a;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            cursor: pointer;
+            box-shadow:
+                0 2px 4px rgba(24, 55, 78, 0.10),
+                inset 1px 0 0 rgba(255, 255, 255, 0.92),
+                inset -1px 0 0 rgba(53, 83, 104, 0.07);
+        }
+
+        .pg-btn:hover { border-color: rgba(160, 182, 200, 0.85); }
+
+        .pg-btn.current {
+            color: #f2f8fd;
+            background: linear-gradient(to bottom right, #16456b, #0d2f4d);
+            border-color: rgba(13, 47, 77, 0.9);
+            box-shadow:
+                0 2px 5px rgba(13, 47, 77, 0.28),
+                inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+        .pg-ellipsis { color: #9aabb8; font-weight: 600; padding: 0 2px; }
+
+        /* C-04 ステッパー */
+        .steps { display: flex; align-items: flex-start; }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            min-width: 96px;
+        }
+
+        .step-dot {
+            position: relative;
+            width: 26px;
+            height: 26px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-pill);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .step.done .step-dot {
+            color: #fff;
+            background: linear-gradient(to bottom right, #2b72cb, var(--blue));
+            box-shadow: 0 1px 3px rgba(18, 59, 93, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+
+        .step.done .step-dot::after {
+            content: "";
+            width: 6px;
+            height: 10px;
+            margin-top: -2px;
+            border-right: 2px solid #fff;
+            border-bottom: 2px solid #fff;
+            transform: rotate(45deg);
+        }
+
+        .step.current .step-dot {
+            color: var(--blue);
+            border: 1px solid var(--blue);
+            background: linear-gradient(to bottom right, #ffffff, #f6faff);
+            box-shadow: 0 0 0 2px rgba(34, 103, 203, 0.12), var(--elevation-1), var(--inset-highlight);
+        }
+
+        .step.todo .step-dot {
+            color: var(--muted);
+            background: var(--info-bg);
+            border: 1px solid var(--info-border);
+        }
+
+        .step-label { font-size: 11px; font-weight: 600; color: var(--muted); }
+        .step.current .step-label { color: var(--ink); font-weight: 700; }
+
+        .step-line {
+            flex: 1;
+            height: 1px;
+            min-width: 32px;
+            margin-top: 13px;
+            background: var(--line);
+        }
+
+        .step-line.done { background: rgba(31, 95, 174, 0.45); }
+
+        /* C-05 アコーディオン */
+        .accordion { width: 100%; display: grid; gap: 4px; }
+
+        .acc-item {
+            border: 1px solid var(--soft-line);
+            border-radius: var(--radius-sm);
+            background: linear-gradient(to bottom right, #fdfeff, #f5f8fa);
+            overflow: hidden;
+        }
+
+        .acc-head {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border: 0;
+            background: transparent;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ink);
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .acc-head .chev {
+            margin-left: auto;
+            color: #9aabb8;
+            transform: rotate(45deg);
+            transition: transform 140ms ease;
+        }
+
+        .acc-item.open .acc-head .chev { transform: rotate(-135deg); }
+
+        .acc-body {
+            display: none;
+            margin: 0 8px 8px;
+            padding: 10px 12px;
+            border: 1px solid var(--soft-line);
+            border-radius: var(--radius-xs);
+            background: rgba(244, 249, 253, 0.60);
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .acc-item.open .acc-body { display: block; }
+
+        /* C-06 サイドメニュー（件数付きナビ: センターモック確立分） */
+        .side-nav {
+            width: 220px;
+            padding: 8px;
+            display: grid;
+            gap: 2px;
+        }
+
+        .side-nav-heading {
+            padding: 8px 10px 4px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .side-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 10px;
+            border: 0;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            color: var(--ink);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .side-nav-item:hover { background: rgba(235, 244, 252, 0.72); }
+
+        .side-nav-item.active { background: #eef2f6; }
+
+        .side-nav-item .nav-count {
+            margin-left: auto;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .side-nav-item .icon { width: 15px; height: 15px; }
+
+        /* C-07 ドロップダウンメニュー */
+        .menu-pop {
+            width: 210px;
+            padding: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: var(--radius-sm);
+            background:
+                linear-gradient(to bottom right, rgba(255, 255, 255, 0.97), rgba(246, 250, 253, 0.92)),
+                #fff;
+            box-shadow: var(--elevation-4), var(--bevel-card);
+        }
+
+        .menu-item {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border: 0;
+            border-radius: var(--radius-xs);
+            background: transparent;
+            color: var(--ink);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .menu-item:hover { background: rgba(235, 244, 252, 0.72); }
+
+        .menu-item .icon { width: 14px; height: 14px; }
+
+        .menu-item.danger { color: var(--alert-text); }
+        .menu-item.danger:hover { background: var(--alert-bg); }
+
+        .menu-item .shortcut { margin-left: auto; color: #9aabb8; font-size: 10px; font-weight: 600; }
+
+        .menu-divider { height: 1px; margin: 4px 6px; background: var(--soft-line); }
+
+        /* ============================================================
+         * D. フィードバック・オーバーレイ系
+         * ============================================================ */
+
+        /* D-01/D-02 モーダル（カード型: #E9F1F6 ボディ + 白カード = ui-rules 準拠） */
+        .modal-stage {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            padding: 28px;
+            border-radius: var(--radius-md);
+            background: rgba(23, 43, 58, 0.38);
+        }
+
+        .modal {
+            width: min(440px, 100%);
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: #fff;
+            box-shadow: var(--elevation-5), var(--shadow-card-outer);
+        }
+
+        .modal-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--soft-line);
+            background: #fff;
+        }
+
+        .modal-title { font-size: 14px; font-weight: 700; }
+
+        .modal-close {
+            margin-left: auto;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--soft-line);
+            border-radius: var(--radius-sm);
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .modal-close .icon { width: 11px; height: 11px; }
+
+        .modal-body {
+            display: grid;
+            gap: 10px;
+            padding: 14px 16px;
+            background: #E9F1F6;
+        }
+
+        .modal-body-card {
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: var(--radius-sm);
+            background: #fff;
+            box-shadow: var(--elevation-1);
+        }
+
+        .modal-body-card .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .modal-foot {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 12px 16px;
+            border-top: 1px solid var(--soft-line);
+            background: #fff;
+        }
+
+        .detail-list { display: grid; gap: 8px; margin: 0; }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 72px minmax(0, 1fr);
+            gap: 8px;
+            align-items: start;
+            font-size: 12px;
+        }
+
+        .detail-row dt { color: var(--muted); font-weight: 600; }
+        .detail-row dd { margin: 0; color: var(--ink); font-weight: 600; }
+
+        .confirm-msg {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .warn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            flex: 0 0 auto;
+            border-radius: var(--radius-sm);
+            color: var(--alert-text);
+            background: var(--alert-bg);
+            border: 1px solid var(--alert-border);
+        }
+
+        .warn-icon svg { width: 13px; height: 13px; fill: currentColor; }
+
+        /* D-03 トースト */
+        .toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            width: 320px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-radius: var(--radius-md);
+            background:
+                linear-gradient(to bottom right, rgba(255, 255, 255, 0.97), rgba(246, 250, 253, 0.92)),
+                #fff;
+            box-shadow: var(--elevation-5), var(--bevel-card);
+        }
+
+        .toast-icon {
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            border-radius: var(--radius-sm);
+        }
+
+        .toast-icon.info { color: var(--blue); background: var(--blue-soft); border: 1px solid #cfe0ef; }
+        .toast-icon.info .icon { width: 13px; height: 13px; }
+
+        .toast-body { flex: 1; min-width: 0; }
+        .toast-title { font-size: 12px; font-weight: 700; }
+        .toast-msg { margin-top: 2px; color: var(--muted); font-size: 11px; font-weight: 600; }
+
+        .toast .modal-close { margin-left: 4px; flex: 0 0 auto; }
+
+        /* D-04 アラートバナー */
+        .banner {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .banner.info {
+            color: #245777;
+            background: var(--blue-soft);
+            border: 1px solid #cfe0ef;
+        }
+
+        .banner.warn {
+            color: var(--alert-text);
+            background: var(--alert-bg);
+            border: 1px solid var(--alert-border);
+        }
+
+        .banner.danger {
+            color: var(--accent-orange-deep);
+            background: var(--alert-bg);
+            border: 1px solid var(--accent-orange);
+        }
+
+        .banner .banner-action { margin-left: auto; flex: 0 0 auto; }
+
+        /* D-05 プログレスバー（凹トラック + 青系フィル） */
+        .progress-row { width: 100%; max-width: 380px; display: grid; gap: 4px; }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .progress-meta .pct { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+        .progress {
+            height: 8px;
+            border-radius: var(--radius-pill);
+            background: linear-gradient(to bottom right, #e3ebf1, #eef3f7);
+            box-shadow:
+                inset 0 1px 2px rgba(40, 60, 80, 0.10),
+                inset 0 0 0 1px rgba(58, 84, 104, 0.06),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.55);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: var(--radius-pill);
+            background: linear-gradient(to bottom right, #2b72cb, var(--blue));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+        }
+
+        .progress.thin { height: 4px; }
+
+        /* D-06 スピナー */
+        .spinner {
+            width: 22px;
+            height: 22px;
+            border-radius: var(--radius-pill);
+            border: 3px solid rgba(31, 95, 174, 0.16);
+            border-top-color: var(--blue);
+            animation: spin 0.8s linear infinite;
+        }
+
+        .spinner.sm { width: 15px; height: 15px; border-width: 2px; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* D-07 スケルトン */
+        .skel {
+            border-radius: var(--radius-xs);
+            background: linear-gradient(90deg, #e4ebf1 25%, #f2f7fb 45%, #e4ebf1 65%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s ease infinite;
+        }
+
+        @keyframes shimmer {
+            from { background-position: 120% 0; }
+            to { background-position: -80% 0; }
+        }
+
+        .skel.line { height: 10px; width: 100%; }
+        .skel.line.w60 { width: 60%; }
+        .skel.line.w40 { width: 40%; }
+        .skel.title { height: 14px; width: 45%; border-radius: var(--radius-xs); }
+        .skel.circle { width: 28px; height: 28px; border-radius: var(--radius-pill); }
+
+        .skel-card { display: grid; gap: 8px; width: 100%; max-width: 340px; }
+        .skel-row { display: flex; align-items: center; gap: 10px; }
+        .skel-col { flex: 1; display: grid; gap: 6px; }
+
+        /* D-08 空状態 */
+        .empty-state {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 28px 16px;
+            border: 1px solid var(--soft-line);
+            border-radius: var(--radius-sm);
+            background: rgba(244, 249, 253, 0.60);
+            text-align: center;
+        }
+
+        .empty-state .icon { width: 28px; height: 28px; opacity: 0.45; }
+        .empty-title { font-size: 13px; font-weight: 700; color: #44627a; }
+        .empty-sub { color: var(--muted); font-size: 11px; font-weight: 600; }
+
+        /* D-09 ツールチップ（確立分: 濃紺ポップ） */
+        .tip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tip::after {
+            content: attr(data-tip);
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 8px);
+            z-index: 5;
+            min-width: 96px;
+            padding: 6px 8px;
+            border-radius: var(--radius-sm);
+            color: #fff;
+            background: rgba(20, 38, 53, 0.94);
+            box-shadow: 0 10px 24px rgba(20, 38, 53, 0.2);
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1.35;
+            white-space: nowrap;
+            text-align: left;
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, 4px);
+            transition: opacity 120ms ease, transform 120ms ease;
+        }
+
+        .tip:hover::after,
+        .tip:focus-visible::after {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        @media (max-width: 900px) {
+            .page { width: 100%; padding: 12px; }
+            .cat-bar { position: static; }
+        }
+    </style>
+</head>
+<body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="ic-caution-line" viewBox="0 0 512 512">
+            <path d="M256.007,357.113c-16.784,0-30.411,13.613-30.411,30.397c0,16.791,13.627,30.405,30.411,30.405s30.397-13.614,30.397-30.405C286.405,370.726,272.792,357.113,256.007,357.113z"/>
+            <path d="M505.097,407.119L300.769,53.209c-9.203-15.944-26.356-25.847-44.777-25.847c-18.407,0-35.544,9.904-44.747,25.847L6.902,407.104c-9.203,15.943-9.203,35.751,0,51.694c9.204,15.943,26.356,25.84,44.763,25.84h408.67c18.406,0,35.559-9.897,44.762-25.84C514.301,442.855,514.301,423.047,505.097,407.119z M464.465,432.405c-2.95,5.103-8.444,8.266-14.35,8.266H61.878c-5.892,0-11.394-3.163-14.329-8.281c-2.964-5.11-2.979-11.445-0.014-16.548l194.122-336.24c2.943-5.103,8.436-8.274,14.35-8.274c5.9,0,11.386,3.171,14.336,8.282l194.122,336.226C467.415,420.945,467.415,427.295,464.465,432.405z"/>
+            <path d="M256.007,152.719c-16.784,0-30.411,13.613-30.411,30.405l11.68,137.487c0,10.346,8.378,18.724,18.731,18.724c10.338,0,18.731-8.378,18.731-18.724l11.666-137.487C286.405,166.331,272.792,152.719,256.007,152.719z"/>
+        </symbol>
+        <symbol id="ic-person" viewBox="0 0 512 512">
+            <path d="M458.159,404.216c-18.93-33.65-49.934-71.764-100.409-93.431c-28.868,20.196-63.938,32.087-101.745,32.087c-37.828,0-72.898-11.89-101.767-32.087c-50.474,21.667-81.479,59.782-100.398,93.431C28.731,448.848,48.417,512,91.842,512c43.426,0,164.164,0,164.164,0s120.726,0,164.153,0C463.583,512,483.269,448.848,458.159,404.216z"/>
+            <path d="M256.005,300.641c74.144,0,134.231-60.108,134.231-134.242v-32.158C390.236,60.108,330.149,0,256.005,0c-74.155,0-134.252,60.108-134.252,134.242V166.4C121.753,240.533,181.851,300.641,256.005,300.641z"/>
+        </symbol>
+    </svg>
+
+    <main class="page">
+        <h1>デザインコンポーネント提案カタログ</h1>
+        <p class="lead">
+            基準デザイン: <strong>docs/preview/design-refresh-sl-layer-mockup.html</strong>（Calm Operations / DS第一条: 光源左上固定）。
+            タグ「確立済み」= SLモック等で採用確定済みの再掲、「新規提案」= 本カタログでの新提案。
+            各カードの右上で採用 / 保留 / 不採用を判定できます（ブラウザに保存・【検証用】）。
+        </p>
+
+        <div class="cat-bar">
+            <nav class="cat-jump" aria-label="セクションジャンプ">
+                <a href="#sec-a">A ボタン・入力</a>
+                <a href="#sec-b">B テーブル・データ</a>
+                <a href="#sec-c">C ナビゲーション</a>
+                <a href="#sec-d">D フィードバック</a>
+            </nav>
+            <div class="cat-counts" id="catCounts"></div>
+            <button class="cat-copy" id="catCopy" type="button">判定結果をコピー</button>
+            <textarea class="cat-copy-out" id="catCopyOut" rows="8" hidden readonly aria-label="判定結果テキスト"></textarea>
+        </div>
+
+        <!-- ============================================================ -->
+        <section id="sec-a">
+            <h2 class="cat-h2">A. ボタン・入力系 <small>12件</small></h2>
+
+            <article class="comp" data-comp="A-01" data-name="ボタン階層">
+                <header class="comp-head">
+                    <span class="comp-id">A-01</span>
+                    <span class="comp-name">ボタン階層</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">主操作=青塗り（1画面1〜2個）/ 標準=白ベベル浮き / フラット=ツールバー用（高さ0）/ ゴースト=文字のみ / 危険=薄背景+オレンジ文字（強い塗りにしない: DSルール6.4）。下段はサイズ3種と無効状態。</p>
+                <div class="comp-demo">
+                    <button class="btn btn-primary" type="button">保存する</button>
+                    <button class="btn btn-secondary" type="button">編集</button>
+                    <button class="btn btn-flat" type="button">表示切替</button>
+                    <button class="btn btn-ghost" type="button">キャンセル</button>
+                    <button class="btn btn-danger" type="button">行を削除</button>
+                    <p class="demo-caption">サイズと無効状態</p>
+                    <button class="btn btn-secondary btn-sm" type="button">小 26px</button>
+                    <button class="btn btn-secondary" type="button">中 32px（既定）</button>
+                    <button class="btn btn-secondary btn-lg" type="button">大 38px</button>
+                    <button class="btn btn-primary" type="button" disabled>保存する</button>
+                    <button class="btn btn-secondary" type="button" disabled>編集</button>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="A-02" data-name="アイコンボタン">
+                <header class="comp-head">
+                    <span class="comp-id">A-02</span>
+                    <span class="comp-name">アイコンボタン</span>
+                    <span class="comp-tag est">確立済み</span>
+                </header>
+                <p class="comp-note">SLモックの右パネル切替（panel-rail）レシピ。白ベベル+elevation-1、active は青リング。アイコンだけの操作には必ず tooltip / aria-label を付ける（design-refresh-plan §4.6）。</p>
+                <div class="comp-demo">
+                    <button class="icon-btn" type="button" title="現場詳細" aria-label="現場詳細"><span class="icon i-doc icon-ink" aria-hidden="true"></span></button>
+                    <button class="icon-btn active" type="button" title="社員配置" aria-label="社員配置"><span class="icon i-person icon-ink" aria-hidden="true"></span></button>
+                    <button class="icon-btn" type="button" title="車両 / ETC" aria-label="車両 / ETC"><span class="icon i-car icon-ink" aria-hidden="true"></span></button>
+                    <button class="icon-btn" type="button" title="変更履歴" aria-label="変更履歴"><span class="icon i-history icon-ink" aria-hidden="true"></span></button>
+                    <p class="demo-caption">小サイズ（26px・行内操作用）</p>
+                    <button class="icon-btn sm" type="button" title="設定" aria-label="設定"><span class="icon i-settings icon-ink" aria-hidden="true"></span></button>
+                    <button class="icon-btn sm" type="button" title="閉じる" aria-label="閉じる"><span class="icon i-close icon-ink" aria-hidden="true"></span></button>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="A-03" data-name="分割ボタン">
+                <header class="comp-head">
+                    <span class="comp-id">A-03</span>
+                    <span class="comp-name">分割ボタン</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">主動作+選択肢の複合ボタン。「保存して次へ / 保存のみ / 下書き保存」のような既定動作+派生動作に使う。青塗り版と白ベベル版。</p>
+                <div class="comp-demo">
+                    <span class="split">
+                        <button class="btn btn-primary" type="button">保存して次へ</button>
+                        <button class="split-caret" type="button" aria-label="保存方法を選択"><span class="chev down" aria-hidden="true"></span></button>
+                    </span>
+                    <span class="split split-soft">
+                        <button class="btn btn-secondary" type="button">エクスポート</button>
+                        <button class="split-caret" type="button" aria-label="形式を選択"><span class="chev down" aria-hidden="true"></span></button>
+                    </span>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="A-04" data-name="ボタングループ（結合型）">
+                <header class="comp-head">
+                    <span class="comp-id">A-04</span>
+                    <span class="comp-name">ボタングループ（結合型）</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">角を共有する結合ボタン列。選択状態は log-tab の押し込み表現（インセット影）。丸型 seg（C-01）と役割が重なるため、採用するなら「表示切替=グループ / フィルタ=seg」のような使い分けを決めたい。</p>
+                <div class="comp-demo">
+                    <span class="btn-group" role="group" aria-label="表示切替">
+                        <button class="btn btn-flat active" type="button">日</button>
+                        <button class="btn btn-flat" type="button">週</button>
+                        <button class="btn btn-flat" type="button">月</button>
+                    </span>
+                    <span class="btn-group" role="group" aria-label="配置表示">
+                        <button class="btn btn-flat" type="button">一覧</button>
+                        <button class="btn btn-flat active" type="button">ボード</button>
+                    </span>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="A-05" data-name="テキスト入力">
+                <header class="comp-head">
+                    <span class="comp-id">A-05</span>
+                    <span class="comp-name">テキスト入力</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">入力欄=押し込み面（インセット例外: 左上暗→右下明）。フォーカスは青リング（panel-rail active と同じ 2px リング）、エラーはオレンジ枠+ヘルプ文字。クリックしてフォーカス状態を確認できます。</p>
+                <div class="comp-demo">
+                    <label class="field">
+                        <span class="field-label">現場名</span>
+                        <input class="input" type="text" placeholder="例: 商業施設A 巡回警備">
+                    </label>
+                    <label class="field">
+                        <span class="field-label">集合時間（エラー）</span>
+                        <input class="input error" type="text" value="26:00">
+                        <span class="field-help error">時刻の形式が正しくありません</span>
+                    </label>
+                    <label class="field">
+                        <span class="field-label">契約先（無効）</span>
+                        <input class="input" type="text" value="三都ビル管理" disabled>
+                        <span class="field-help">OBから連携されるため編集不可</span>
+                    </label>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="A-06" data-name="セレクト">
+                <header class="comp-head">
+                    <span class="comp-id">A-06</span>
+                    <span class="comp-name">セレクト</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">入力欄と同じ押し込み面+CSS山括弧。ネイティブ select のスタイル統一版（候補一覧のリッチ化はドロップダウンメニュー C-07 を使う）。</p>
+                <div class="comp-demo">
+                    <label class="field">
+                        <span class="field-label">区分</span>
+                        <span class="select-wrap">
+                            <select class="input">
+                                <option>施設</option>
+                                <option>交通</option>
+                                <option>高速</option>
+                                <option>イベント</option>
+                                <option>応援交通</option>
+                            </select>
+                        </span>
+                    </label>
+                    <label class="field">
+                        <span class="field-label">グループ会社</span>
+                        <span class="select-wrap">
+                            <select class="input">
+                                <option>すべて</option>
+                                <option>東央警備</option>
+                                <option>Nikkeiホールディングス</option>
+                                <option>全日本イベント警備</option>
+                            </select>
+                        </span>
+                    </label>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="A-07" data-name="テキストエリア">
+                <header class="comp-head">
+                    <span class="comp-id">A-07</span>
+                    <span class="comp-name">テキストエリア</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">備考・作業内容など複数行入力用。テキスト入力と同じインセット面。</p>
+                <div class="comp-demo">
+                    <label class="field" style="width: 380px; max-width: 100%;">
+                        <span class="field-label">備考</span>
+                        <textarea class="input" rows="3" placeholder="正面入口の鍵は警備室で受取。閉館後は裏口の施錠確認を徹底すること。"></textarea>
+                    </label>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="A-08" data-name="チェックボックス">
+                <header class="comp-head">
+                    <span class="comp-id">A-08</span>
+                    <span class="comp-name">チェックボックス</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">未選択=インセットの受け皿、選択=青塗り+白チェック（CSS描画）。クリックで切替できます。</p>
+                <div class="comp-demo">
+                    <label class="check"><input type="checkbox" checked><span class="box"></span>資格者のみ表示</label>
+                    <label class="check"><input type="checkbox"><span class="box"></span>過去配置ありを優先</label>
+                    <label class="check is-disabled"><input type="checkbox" disabled><span class="box"></span>無効状態</label>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="A-09" data-name="ラジオボタン">
+                <header class="comp-head">
+                    <span class="comp-id">A-09</span>
+                    <span class="comp-name">ラジオボタン</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">チェックボックスと同じ語彙の円形版。選択=青塗り+白ドット。排他選択が3〜5個ならseg（C-01）でも代替可。</p>
+                <div class="comp-demo">
+                    <label class="check radio"><input type="radio" name="demo-radio" checked><span class="box"></span>翌日分のみ</label>
+                    <label class="check radio"><input type="radio" name="demo-radio"><span class="box"></span>土日月まとめて</label>
+                    <label class="check radio"><input type="radio" name="demo-radio"><span class="box"></span>期間指定</label>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="A-10" data-name="トグルスイッチ">
+                <header class="comp-head">
+                    <span class="comp-id">A-10</span>
+                    <span class="comp-name">トグルスイッチ</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">seg と同じ「凹トラック+浮き白ノブ」語彙。ON=青塗りトラック。設定画面の即時反映スイッチ向け（フォーム送信前提の項目はチェックボックス）。</p>
+                <div class="comp-demo">
+                    <span class="switch-row">
+                        <span class="switch"><input type="checkbox" checked><span class="track"></span><span class="knob"></span></span>
+                        変更通知を受け取る
+                    </span>
+                    <span class="switch-row">
+                        <span class="switch"><input type="checkbox"><span class="track"></span><span class="knob"></span></span>
+                        夜間現場を強調表示
+                    </span>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="A-11" data-name="数値ステッパー">
+                <header class="comp-head">
+                    <span class="comp-id">A-11</span>
+                    <span class="comp-name">数値ステッパー</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">人数などの小さい整数入力用。中央はインセット入力欄（tabular-nums）、左右はフラットボタン。クリックで増減します。</p>
+                <div class="comp-demo">
+                    <label class="field">
+                        <span class="field-label">必要人数</span>
+                        <span class="stepper" data-stepper>
+                            <button class="btn btn-flat" type="button" data-step="-1" aria-label="減らす">−</button>
+                            <input class="input" type="text" value="2" inputmode="numeric" aria-label="必要人数">
+                            <button class="btn btn-flat" type="button" data-step="1" aria-label="増やす">＋</button>
+                        </span>
+                    </label>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="A-12" data-name="検索カプセル">
+                <header class="comp-head">
+                    <span class="comp-id">A-12</span>
+                    <span class="comp-name">検索カプセル</span>
+                    <span class="comp-tag est">確立済み</span>
+                </header>
+                <p class="comp-note">SLモックの配置検索カプセルの再掲（ピル型・浅い面内グラデ）。入力可能な形にしたもの。</p>
+                <div class="comp-demo">
+                    <span class="search">
+                        <span class="icon i-contact icon-ink" style="width:14px;height:14px;" aria-hidden="true"></span>
+                        <input type="text" placeholder="配置検索: 林 / 商業施設 / 交通2級">
+                    </span>
+                </div>
+            </article>
+        </section>
+
+        <!-- ============================================================ -->
+        <section id="sec-b">
+            <h2 class="cat-h2">B. テーブル・データ表示系 <small>9件</small></h2>
+
+            <article class="comp" data-comp="B-01" data-name="標準データテーブル">
+                <header class="comp-head">
+                    <span class="comp-id">B-01</span>
+                    <span class="comp-name">標準データテーブル</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">SL中央表の語彙を汎用テーブル化: 彫り込みフレーム（grid-frame）+ 横罫線のみ（縦罫線なし・余白で区切る）+ 行ホバー淡青 + 選択行=左青バー。数値は中央揃え tabular-nums。</p>
+                <div class="comp-demo block">
+                    <div class="surface">
+                        <div class="tbl-frame">
+                            <table class="dtable">
+                                <thead>
+                                    <tr><th>契約先 / 現場名</th><th class="num">集合</th><th class="num">時間</th><th class="num">人数</th><th>状態</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>三都ビル管理<br><span class="sub">商業施設A 巡回警備</span></td>
+                                        <td class="num">06:40</td><td class="num">07:00</td><td class="num">2 / 2</td>
+                                        <td><span class="count-state ok">充足</span></td>
+                                    </tr>
+                                    <tr class="is-selected">
+                                        <td><span class="night-sample">港湾開発<br>港湾道路 夜間片交</span></td>
+                                        <td class="num night-sample">20:30</td><td class="num night-sample">21:00</td><td class="num night-sample">1 / 2</td>
+                                        <td><span class="count-state short">不足</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>市民文化財団<br><span class="sub">駅前イベント会場</span></td>
+                                        <td class="num">08:10</td><td class="num">08:30</td><td class="num">4 / 3</td>
+                                        <td><span class="count-state over">過多</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="B-02" data-name="高密度テーブル">
+                <header class="comp-head">
+                    <span class="comp-id">B-02</span>
+                    <span class="comp-name">高密度テーブル</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">B-01 の詰め版（行高約28px・本文12px）。受注簿のような Excel 的一覧向け。罫線は増やさず余白だけを詰める。</p>
+                <div class="comp-demo block">
+                    <div class="surface">
+                        <div class="tbl-frame">
+                            <table class="dtable dense">
+                                <thead>
+                                    <tr><th class="num">日付</th><th>現場名</th><th>区分</th><th class="num">人数</th><th class="num">単価</th><th class="num">金額</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="num">05/01</td><td>商業施設A 巡回警備</td><td>施設</td><td class="num">2</td><td class="num">18,000</td><td class="num">36,000</td></tr>
+                                    <tr><td class="num">05/01</td><td><span class="night-sample">港湾道路 夜間片交</span></td><td>交通</td><td class="num">2</td><td class="num">22,000</td><td class="num">44,000</td></tr>
+                                    <tr><td class="num">05/02</td><td>駅前イベント会場</td><td>イベント</td><td class="num">3</td><td class="num">17,000</td><td class="num">51,000</td></tr>
+                                    <tr><td class="num">05/02</td><td>高速道路 規制</td><td>高速</td><td class="num">4</td><td class="num">24,000</td><td class="num">96,000</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="B-03" data-name="ソート＋ページネーション付きテーブル">
+                <header class="comp-head">
+                    <span class="comp-id">B-03</span>
+                    <span class="comp-name">ソート＋ページネーション付きテーブル</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">ソート中の列見出し=青文字+CSS三角（クリックで昇順/降順切替）。フッターは件数表示+ページネーション（C-03）。</p>
+                <div class="comp-demo block">
+                    <div class="surface">
+                        <div class="tbl-frame">
+                            <table class="dtable">
+                                <thead>
+                                    <tr>
+                                        <th class="sortable sorted" data-sort>社員名<span class="sort-arrow" aria-hidden="true"></span></th>
+                                        <th class="sortable" data-sort>所属</th>
+                                        <th class="sortable num" data-sort>今月配置</th>
+                                        <th>資格</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>伊藤</td><td>交通課</td><td class="num">14</td><td><span class="info-pill req">交通2級</span></td></tr>
+                                    <tr><td>佐藤</td><td>施設課</td><td class="num">12</td><td><span class="info-pill req">施設2級</span></td></tr>
+                                    <tr><td>高橋</td><td>交通課</td><td class="num">11</td><td><span class="info-pill">なし</span></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tbl-foot">
+                            <span>1–3 / 42件</span>
+                            <span class="pager">
+                                <button class="pg-btn" type="button" disabled aria-label="前へ"><span class="chev left" aria-hidden="true"></span></button>
+                                <button class="pg-btn current" type="button">1</button>
+                                <button class="pg-btn" type="button">2</button>
+                                <button class="pg-btn" type="button">3</button>
+                                <span class="pg-ellipsis">…</span>
+                                <button class="pg-btn" type="button">14</button>
+                                <button class="pg-btn" type="button" aria-label="次へ"><span class="chev right" aria-hidden="true"></span></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="B-04" data-name="カード2種（浮きカード / ライトカード）">
+                <header class="comp-head">
+                    <span class="comp-id">B-04</span>
+                    <span class="comp-name">カード2種（浮きカード / ライトカード）</span>
+                    <span class="comp-tag est">確立済み</span>
+                </header>
+                <p class="comp-note">浮きカード=prop-card レシピ（白カウンター影+3層影+ベベル。1画面の主役カード用）/ ライトカード=cn-item レシピ（一覧内の項目。ホバーで浮く）。ヘッダ+フッタ付きの型を追加提案。</p>
+                <div class="comp-demo" style="align-items: stretch;">
+                    <div class="surface" style="width: 300px;">
+                        <div class="card-head">現場詳細<button class="icon-btn sm" type="button" title="閉じる" aria-label="閉じる"><span class="icon i-close icon-ink" aria-hidden="true"></span></button></div>
+                        <dl class="detail-list">
+                            <div class="detail-row"><dt>契約先</dt><dd>三都ビル管理</dd></div>
+                            <div class="detail-row"><dt>現場名</dt><dd>商業施設A 巡回警備</dd></div>
+                            <div class="detail-row"><dt>集合</dt><dd>06:40</dd></div>
+                        </dl>
+                        <div class="card-foot">
+                            <button class="btn btn-ghost btn-sm" type="button">閉じる</button>
+                            <button class="btn btn-primary btn-sm" type="button">編集</button>
+                        </div>
+                    </div>
+                    <div style="width: 300px; display: grid; gap: 8px; align-content: start;">
+                        <div class="lite-card clickable">
+                            <strong style="font-size:12px;">港湾道路 夜間片交</strong>
+                            <div style="color: var(--muted); font-size: 11px; margin-top: 2px;">集合 20:00 → 20:30（田中 ・ 09:15）</div>
+                        </div>
+                        <div class="lite-card clickable">
+                            <strong style="font-size:12px;">駅前イベント会場</strong>
+                            <div style="color: var(--muted); font-size: 11px; margin-top: 2px;">人数 3 → 4（高橋 ・ 08:10）</div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="B-05" data-name="統計サマリ行">
+                <header class="comp-head">
+                    <span class="comp-id">B-05</span>
+                    <span class="comp-name">統計サマリ行</span>
+                    <span class="comp-tag est">確立済み</span>
+                </header>
+                <p class="comp-note">縦罫線区切りの数値ブロック（ラベル10px+数値18px）。SLツールバー右で採用済み。ツールバー・カードヘッダ・センターヘッダへの展開用。</p>
+                <div class="comp-demo">
+                    <div class="surface" style="width: auto; padding: 8px 10px;">
+                        <div class="stat-strip" role="group" aria-label="状態サマリ">
+                            <div class="stat"><span class="stat-label">未連絡</span><span class="stat-num">3</span></div>
+                            <div class="stat"><span class="stat-label">OB更新</span><span class="stat-num">1</span></div>
+                            <div class="stat"><span class="stat-label">不足</span><span class="stat-num">1</span></div>
+                            <div class="stat"><span class="stat-label">本日現場</span><span class="stat-num">12</span></div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="B-06" data-name="KPIカード">
+                <header class="comp-head">
+                    <span class="comp-id">B-06</span>
+                    <span class="comp-name">KPIカード</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">ダッシュボード/経理画面D向けの独立数値カード（浮きカード+24px数値+状態バッジ）。※現場詳細パネル内の3連インフォタイルは却下判例（dl行形式を維持）— これは画面トップの集計用途に限る提案。</p>
+                <div class="comp-demo">
+                    <div class="kpi">
+                        <div class="kpi-label">本日の配置現場</div>
+                        <div class="kpi-row"><span class="kpi-num">12</span><span class="kpi-unit">件</span><span class="mini-badge ok">前日 +2</span></div>
+                    </div>
+                    <div class="kpi">
+                        <div class="kpi-label">人員不足</div>
+                        <div class="kpi-row"><span class="kpi-num">1</span><span class="kpi-unit">現場</span><span class="mini-badge alert">要対応</span></div>
+                    </div>
+                    <div class="kpi">
+                        <div class="kpi-label">未確認のOB更新</div>
+                        <div class="kpi-row"><span class="kpi-num">4</span><span class="kpi-unit">件</span><span class="mini-badge warn">確認待ち</span></div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="B-07" data-name="リスト3種">
+                <header class="comp-head">
+                    <span class="comp-id">B-07</span>
+                    <span class="comp-name">リスト3種</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">左=タイムライン型（時刻+内容: 変更履歴の語彙）/ 右=選択可能リスト（クリックで選択。選択=淡青面+白インセットリング）。</p>
+                <div class="comp-demo" style="align-items: stretch;">
+                    <div class="surface" style="width: 320px;">
+                        <ul class="list-plain">
+                            <li><span class="t">09:15</span><span>集合 20:00 → 20:30</span><span class="mini-badge warn">集合</span></li>
+                            <li><span class="t">08:47</span><span>配置 田中 → 林</span><span class="mini-badge ok">配置</span></li>
+                            <li><span class="t">08:10</span><span>人数 3 → 4</span><span class="mini-badge ok">人数</span></li>
+                        </ul>
+                    </div>
+                    <div class="surface" style="width: 280px;">
+                        <ul class="list-select" data-select-list>
+                            <li class="is-selected"><span>商業施設A 巡回警備</span><span class="l-sub">施設</span></li>
+                            <li><span class="night-sample">港湾道路 夜間片交</span><span class="l-sub">交通</span></li>
+                            <li><span>駅前イベント会場</span><span class="l-sub">イベント</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="B-08" data-name="セマンティックバッジ一覧">
+                <header class="comp-head">
+                    <span class="comp-id">B-08</span>
+                    <span class="comp-name">セマンティックバッジ一覧</span>
+                    <span class="comp-tag est">確立済み</span>
+                </header>
+                <p class="comp-note">SLモックの意味色バッジ体系の再掲: 区分=青ピル / 情報差分=青灰 / 状態=ニュートラル・オレンジ / 要対応ベル=橙グロー（意味のある光の公式例外）/ 夜間=赤文字。</p>
+                <div class="comp-demo">
+                    <span class="tag">施設</span>
+                    <span class="tag">交通</span>
+                    <span class="info-pill req">交通2級</span>
+                    <span class="info-pill missing">地図未設定</span>
+                    <span class="info-pill missing">OB更新あり</span>
+                    <span class="mini-badge ok">通常</span>
+                    <span class="mini-badge warn">確認待ち</span>
+                    <span class="mini-badge alert">資格者不足</span>
+                    <span class="count-state short">不足</span>
+                    <span class="count-state over">過多</span>
+                    <span class="bell-count">4</span>
+                    <span class="night-sample">夜間現場の慣習表示（Flexoki Red）</span>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="B-09" data-name="アバター / ユーザーチップ">
+                <header class="comp-head">
+                    <span class="comp-id">B-09</span>
+                    <span class="comp-name">アバター / ユーザーチップ</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">上段=メニューバーのユーザーチップ+在席ドット（確立済みの再掲）。下段=新規提案: イニシャルアバター3サイズ / 重ねグループ / 明るい面用ユーザーカプセル（カプセルバッジ語彙・人物シルエット=所属色）。</p>
+                <div class="comp-demo block">
+                    <div class="menubar-demo">
+                        <span>ファイル</span><span>編集</span><span>表示</span>
+                        <span class="menu-user"><span class="presence-dot" aria-hidden="true"></span>佐藤</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 16px;">
+                        <span class="avatar sm">林</span>
+                        <span class="avatar">佐藤</span>
+                        <span class="avatar lg">高橋</span>
+                        <span class="avatar-group">
+                            <span class="avatar">林</span>
+                            <span class="avatar">山田</span>
+                            <span class="avatar">伊藤</span>
+                            <span class="avatar">+2</span>
+                        </span>
+                        <span class="user-chip">
+                            <span class="person-icon" aria-hidden="true"><svg><use href="#ic-person"/></svg></span>
+                            佐藤
+                            <span class="presence-dot" aria-hidden="true"></span>
+                        </span>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <!-- ============================================================ -->
+        <section id="sec-c">
+            <h2 class="cat-h2">C. ナビゲーション系 <small>7件</small></h2>
+
+            <article class="comp" data-comp="C-01" data-name="タブ3種">
+                <header class="comp-head">
+                    <span class="comp-id">C-01</span>
+                    <span class="comp-name">タブ3種</span>
+                    <span class="comp-tag est">確立済み + 新規1種</span>
+                </header>
+                <p class="comp-note">上=カードタブ（確立: 右プロパティ用・active=青塗り）/ 中=セグメント（確立: フィルタ・小型タブ用の凹トラック+浮き白ピル）/ 下=アンダーラインタブ（新規提案: ページ級の大きな切替用。面を増やさず罫線1本+青バー）。すべてクリックで切替できます。</p>
+                <div class="comp-demo block">
+                    <div class="surface" style="max-width: 380px; padding: 0; overflow: hidden;">
+                        <div class="tabs" data-tabs>
+                            <button class="tab active" type="button">配置判断</button>
+                            <button class="tab" type="button">社員連絡</button>
+                            <button class="tab" type="button">履歴 / 差分</button>
+                        </div>
+                        <div style="padding: 12px; color: var(--muted); font-size: 11px;">カードタブ: 右プロパティの機能切替</div>
+                    </div>
+                    <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 16px;">
+                        <div class="seg" data-seg role="group" aria-label="GCフィルタ">
+                            <button type="button" class="active">すべて</button>
+                            <button type="button">東央</button>
+                            <button type="button">Nikkei</button>
+                            <button type="button">全日本</button>
+                        </div>
+                    </div>
+                    <div style="margin-top: 16px; max-width: 380px;">
+                        <div class="utabs" data-tabs>
+                            <button class="utab active" type="button">受注一覧</button>
+                            <button class="utab" type="button">配置状況</button>
+                            <button class="utab" type="button">請求</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="C-02" data-name="パンくずリスト">
+                <header class="comp-head">
+                    <span class="comp-id">C-02</span>
+                    <span class="comp-name">パンくずリスト</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">階層ページ用（設定・管理画面・センター詳細など）。muted文字+CSS山括弧、現在地のみ ink 太字。メイン4画面はレール切替なので使用箇所は限定的。</p>
+                <div class="comp-demo">
+                    <nav class="crumbs" aria-label="パンくず">
+                        <a href="#sec-c">設定</a>
+                        <span class="chev right" aria-hidden="true"></span>
+                        <a href="#sec-c">通知</a>
+                        <span class="chev right" aria-hidden="true"></span>
+                        <span class="current">アイコン管理</span>
+                    </nav>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="C-03" data-name="ページネーション">
+                <header class="comp-head">
+                    <span class="comp-id">C-03</span>
+                    <span class="comp-name">ページネーション</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">白ベベル角丸ボタン+現在ページ=濃紺ベタ（「選択状態=濃紺」の採用パターンを適用）。クリックで切替できます。</p>
+                <div class="comp-demo">
+                    <span class="pager" data-pager>
+                        <button class="pg-btn" type="button" aria-label="前へ"><span class="chev left" aria-hidden="true"></span></button>
+                        <button class="pg-btn current" type="button">1</button>
+                        <button class="pg-btn" type="button">2</button>
+                        <button class="pg-btn" type="button">3</button>
+                        <button class="pg-btn" type="button">4</button>
+                        <span class="pg-ellipsis">…</span>
+                        <button class="pg-btn" type="button">14</button>
+                        <button class="pg-btn" type="button" aria-label="次へ"><span class="chev right" aria-hidden="true"></span></button>
+                    </span>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="C-04" data-name="ステッパー（進行段階）">
+                <header class="comp-head">
+                    <span class="comp-id">C-04</span>
+                    <span class="comp-name">ステッパー（進行段階）</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">完了=青塗り+白チェック / 現在=白ベベル+青リング / 未到達=フラット青灰。受注→配置→連絡→確定のような段階表示用。接続線は完了区間だけ青。</p>
+                <div class="comp-demo">
+                    <div class="steps" aria-label="進行状況">
+                        <div class="step done"><span class="step-dot" aria-hidden="true"></span><span class="step-label">受注</span></div>
+                        <span class="step-line done" aria-hidden="true"></span>
+                        <div class="step done"><span class="step-dot" aria-hidden="true"></span><span class="step-label">配置</span></div>
+                        <span class="step-line" aria-hidden="true"></span>
+                        <div class="step current"><span class="step-dot">3</span><span class="step-label">社員連絡</span></div>
+                        <span class="step-line" aria-hidden="true"></span>
+                        <div class="step todo"><span class="step-dot">4</span><span class="step-label">確定</span></div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="C-05" data-name="アコーディオン">
+                <header class="comp-head">
+                    <span class="comp-id">C-05</span>
+                    <span class="comp-name">アコーディオン</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">ライトカード+開閉山括弧。開いた本文は淡色フラット面（section の語彙）。設定画面・ヘルプ・通知アコーディオン向け。クリックで開閉できます。</p>
+                <div class="comp-demo block">
+                    <div class="accordion" style="max-width: 420px;">
+                        <div class="acc-item open">
+                            <button class="acc-head" type="button">配置制約の考え方<span class="chev" aria-hidden="true"></span></button>
+                            <div class="acc-body">制約違反はブロックせず、理由付き警告で許可する。資格不足・NG関係・連勤上限は中央表に警告アイコンで集約する。</div>
+                        </div>
+                        <div class="acc-item">
+                            <button class="acc-head" type="button">候補リストの並び順<span class="chev" aria-hidden="true"></span></button>
+                            <div class="acc-body">所属GC → 区分/所属課 → 入社日の古い順。資格・過去配置は絞り込みボタンで切り替える。</div>
+                        </div>
+                        <div class="acc-item">
+                            <button class="acc-head" type="button">連絡状態の3種類<span class="chev" aria-hidden="true"></span></button>
+                            <div class="acc-body">未連絡 / 連絡済み / 再連絡必要。配置社員バッジ内の電話アイコン色で示す。</div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="C-06" data-name="サイドメニュー（件数付きナビ）">
+                <header class="comp-head">
+                    <span class="comp-id">C-06</span>
+                    <span class="comp-name">サイドメニュー（件数付きナビ）</span>
+                    <span class="comp-tag est">確立済み</span>
+                </header>
+                <p class="comp-note">変更通知センターで採用済みのライトリストナビ再掲: アイコン+ラベル+右端件数、セクション見出し、アクティブ=淡グレー面。クリックで切替できます。</p>
+                <div class="comp-demo">
+                    <div class="surface" style="width: 236px; padding: 4px;">
+                        <nav class="side-nav" data-nav aria-label="通知カテゴリ">
+                            <div class="side-nav-heading">エンティティ</div>
+                            <button class="side-nav-item active" type="button"><span class="icon i-doc icon-ink" aria-hidden="true"></span>受注<span class="nav-count">12</span></button>
+                            <button class="side-nav-item" type="button"><span class="icon i-person icon-ink" aria-hidden="true"></span>配置<span class="nav-count">8</span></button>
+                            <button class="side-nav-item" type="button"><span class="icon i-task icon-ink" aria-hidden="true"></span>申請<span class="nav-count">3</span></button>
+                            <button class="side-nav-item" type="button"><span class="icon i-settings icon-ink" aria-hidden="true"></span>マスタ<span class="nav-count">1</span></button>
+                        </nav>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="C-07" data-name="ドロップダウンメニュー">
+                <header class="comp-head">
+                    <span class="comp-id">C-07</span>
+                    <span class="comp-name">ドロップダウンメニュー</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">浮きカード（elevation-4）のメニューポップ。項目ホバー=淡青、危険項目=オレンジ文字+薄橙ホバー、区切りはヘアライン。右はショートカット表記例。開いた状態を静的表示。</p>
+                <div class="comp-demo" style="align-items: flex-start;">
+                    <div>
+                        <button class="btn btn-secondary" type="button">行の操作<span class="chev down" aria-hidden="true" style="margin-left: 4px;"></span></button>
+                    </div>
+                    <div class="menu-pop" role="menu">
+                        <button class="menu-item" type="button" role="menuitem"><span class="icon i-doc icon-ink" aria-hidden="true"></span>行を複製<span class="shortcut">Ctrl+D</span></button>
+                        <button class="menu-item" type="button" role="menuitem"><span class="icon i-history icon-ink" aria-hidden="true"></span>変更履歴を表示</button>
+                        <button class="menu-item" type="button" role="menuitem"><span class="icon i-contact icon-ink" aria-hidden="true"></span>連絡先を開く</button>
+                        <div class="menu-divider" role="separator"></div>
+                        <button class="menu-item danger" type="button" role="menuitem"><span class="icon i-close" aria-hidden="true" style="filter: invert(46%) sepia(60%) saturate(2900%) hue-rotate(348deg) brightness(97%) contrast(93%);"></span>行を削除</button>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <!-- ============================================================ -->
+        <section id="sec-d">
+            <h2 class="cat-h2">D. フィードバック・オーバーレイ系 <small>9件</small></h2>
+
+            <article class="comp" data-comp="D-01" data-name="モーダル（カード型）">
+                <header class="comp-head">
+                    <span class="comp-id">D-01</span>
+                    <span class="comp-name">モーダル（カード型）</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">ui-rules 準拠: ボディ=#E9F1F6 + 白カード（.modal-body-card）。フッターは右寄せでゴースト+主操作。中央モーダルの用途は印刷プレビュー/ソート設定/一括操作/削除確認等に限定（通常編集は右プロパティ）。背景の暗幕ごと静的表示。</p>
+                <div class="comp-demo block">
+                    <div class="modal-stage">
+                        <div class="modal" role="dialog" aria-label="ソート設定">
+                            <div class="modal-head">
+                                <span class="modal-title">ソート設定</span>
+                                <button class="modal-close" type="button" aria-label="閉じる"><span class="icon i-close icon-ink" aria-hidden="true"></span></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="modal-body-card">
+                                    <div class="section-title">並び順</div>
+                                    <dl class="detail-list">
+                                        <div class="detail-row"><dt>第1キー</dt><dd>集合時間（昇順）</dd></div>
+                                        <div class="detail-row"><dt>第2キー</dt><dd>契約先（昇順）</dd></div>
+                                    </dl>
+                                </div>
+                                <div class="modal-body-card">
+                                    <div class="section-title">適用範囲</div>
+                                    <label class="check"><input type="checkbox" checked><span class="box"></span>表示中のGCのみに適用</label>
+                                </div>
+                            </div>
+                            <div class="modal-foot">
+                                <button class="btn btn-ghost" type="button">キャンセル</button>
+                                <button class="btn btn-primary" type="button">適用</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="D-02" data-name="確認ダイアログ（危険操作）">
+                <header class="comp-head">
+                    <span class="comp-id">D-02</span>
+                    <span class="comp-name">確認ダイアログ（危険操作）</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">削除確認用の小型モーダル。警告アイコン（Signal Orange）+ 影響説明。実行ボタンも「薄背景+オレンジ文字」を維持し、キャンセルを標準ボタンにして安全側を優先。</p>
+                <div class="comp-demo block">
+                    <div class="modal-stage">
+                        <div class="modal" style="width: min(380px, 100%);" role="alertdialog" aria-label="行の削除">
+                            <div class="modal-head">
+                                <span class="modal-title">行を削除しますか？</span>
+                                <button class="modal-close" type="button" aria-label="閉じる"><span class="icon i-close icon-ink" aria-hidden="true"></span></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="modal-body-card">
+                                    <div class="confirm-msg">
+                                        <span class="warn-icon" aria-hidden="true"><svg><use href="#ic-caution-line"/></svg></span>
+                                        <span>「港湾道路 夜間片交」の受注行を削除します。配置済みの社員 1名・車両 0台への割当も解除されます。</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-foot">
+                                <button class="btn btn-secondary" type="button">キャンセル</button>
+                                <button class="btn btn-danger" type="button">削除する</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="D-03" data-name="トースト通知">
+                <header class="comp-head">
+                    <span class="comp-id">D-03</span>
+                    <span class="comp-name">トースト通知</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">画面隅に一時表示する軽量通知（浮きカード elevation-5）。情報=青 / 警告=橙。完了系は「正常状態は緑で主張しない」ルールに従いニュートラル+青アイコンで表現。変更通知そのものはレール通知カード（確立済み）を使い、トーストは保存完了などの操作フィードバック用。</p>
+                <div class="comp-demo">
+                    <div class="toast" role="status">
+                        <span class="toast-icon info"><span class="icon i-doc icon-ink" aria-hidden="true"></span></span>
+                        <span class="toast-body">
+                            <span class="toast-title">保存しました</span>
+                            <span class="toast-msg">商業施設A 巡回警備の配置を更新（2/2）</span>
+                        </span>
+                        <button class="modal-close" type="button" aria-label="閉じる"><span class="icon i-close icon-ink" aria-hidden="true"></span></button>
+                    </div>
+                    <div class="toast" role="alert">
+                        <span class="warn-icon" aria-hidden="true"><svg><use href="#ic-caution-line"/></svg></span>
+                        <span class="toast-body">
+                            <span class="toast-title">資格者が不足しています</span>
+                            <span class="toast-msg">港湾道路 夜間片交: 交通2級の配置が0名です</span>
+                        </span>
+                        <button class="modal-close" type="button" aria-label="閉じる"><span class="icon i-close icon-ink" aria-hidden="true"></span></button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="D-04" data-name="アラートバナー">
+                <header class="comp-head">
+                    <span class="comp-id">D-04</span>
+                    <span class="comp-name">アラートバナー</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">画面・カード上部に常駐する帯。情報=青系（情報差分の語彙）/ 警告=薄橙 / 重要=濃いオレンジ文字。右端にアクションを置ける。</p>
+                <div class="comp-demo block" style="display: grid; gap: 8px;">
+                    <div class="banner info" role="status">
+                        OBが更新されました。3件の変更が自動反映されています。
+                        <button class="btn btn-ghost btn-sm banner-action" type="button">差分を確認</button>
+                    </div>
+                    <div class="banner warn" role="alert">
+                        明日分の配置に人員不足が1現場あります。
+                        <button class="btn btn-danger btn-sm banner-action" type="button">該当行へ</button>
+                    </div>
+                    <div class="banner danger" role="alert">
+                        この操作は取り消せません。削除前にバックアップの確認を推奨します。
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="D-05" data-name="プログレスバー">
+                <header class="comp-head">
+                    <span class="comp-id">D-05</span>
+                    <span class="comp-name">プログレスバー</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">凹トラック（seg の語彙）+ 青系フィル。ラベル+数値付きと細型（thin）。配置充足率のような常時表示にも、処理進行の一時表示にも使える。</p>
+                <div class="comp-demo block" style="display: grid; gap: 14px;">
+                    <div class="progress-row">
+                        <div class="progress-meta"><span>本日の配置充足</span><span class="pct">75%（9 / 12現場）</span></div>
+                        <div class="progress"><div class="progress-fill" style="width: 75%;"></div></div>
+                    </div>
+                    <div class="progress-row">
+                        <div class="progress-meta"><span>PDF出力中…</span><span class="pct">40%</span></div>
+                        <div class="progress thin"><div class="progress-fill" style="width: 40%;"></div></div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="D-06" data-name="スピナー">
+                <header class="comp-head">
+                    <span class="comp-id">D-06</span>
+                    <span class="comp-name">スピナー</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">短時間の読み込み表示。青リング回転のみ（装飾光なし）。ボタン内用の小サイズ付き。</p>
+                <div class="comp-demo">
+                    <span class="spinner" role="status" aria-label="読み込み中"></span>
+                    <button class="btn btn-primary" type="button" disabled><span class="spinner sm" style="border-color: rgba(255,255,255,0.35); border-top-color: #fff;" aria-hidden="true"></span>保存中…</button>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="D-07" data-name="スケルトン">
+                <header class="comp-head">
+                    <span class="comp-id">D-07</span>
+                    <span class="comp-name">スケルトン</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">読み込み中のプレースホルダ。青灰のシマー（左→右、光源方向と整合）。行型とカード型。</p>
+                <div class="comp-demo">
+                    <div class="surface" style="width: 340px;">
+                        <div class="skel-card">
+                            <div class="skel title"></div>
+                            <div class="skel-row">
+                                <div class="skel circle"></div>
+                                <div class="skel-col">
+                                    <div class="skel line"></div>
+                                    <div class="skel line w60"></div>
+                                </div>
+                            </div>
+                            <div class="skel line"></div>
+                            <div class="skel line w40"></div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="D-08" data-name="空状態">
+                <header class="comp-head">
+                    <span class="comp-id">D-08</span>
+                    <span class="comp-name">空状態</span>
+                    <span class="comp-tag new">新規提案</span>
+                </header>
+                <p class="comp-note">データ0件時の案内。淡色フラット面+薄いアイコン+次の行動を示す標準ボタン。空欄のまま放置しない。</p>
+                <div class="comp-demo block">
+                    <div class="empty-state" style="max-width: 420px;">
+                        <span class="icon i-task icon-ink" aria-hidden="true"></span>
+                        <span class="empty-title">この日の受注はまだありません</span>
+                        <span class="empty-sub">OBで受注を登録すると、ここに配置対象として表示されます。</span>
+                        <button class="btn btn-secondary btn-sm" type="button">受注簿を開く</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="comp" data-comp="D-09" data-name="ツールチップ">
+                <header class="comp-head">
+                    <span class="comp-id">D-09</span>
+                    <span class="comp-name">ツールチップ</span>
+                    <span class="comp-tag est">確立済み</span>
+                </header>
+                <p class="comp-note">濃紺ポップ（rgba(20,38,53,0.94)・上方向 8px オフセット・ホバー/フォーカスで表示）。SLモックの連絡状態・警告アイコンで採用済み。以下にホバーしてください。</p>
+                <div class="comp-demo">
+                    <span class="tip mini-badge alert" tabindex="0" data-tip="連勤12日: 上限に注意">連勤警告</span>
+                    <span class="tip info-pill missing" tabindex="0" data-tip="地図URLが未設定です">地図未設定</span>
+                    <button class="tip icon-btn" type="button" data-tip="変更履歴を表示"><span class="icon i-history icon-ink" aria-hidden="true"></span></button>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <script>
+        // ===== 【検証用】採用/保留/不採用 判定UI（本番には持ち込まない） =====
+        const VERDICT_KEY = "drComponentVerdicts.v1";
+        const verdictLabels = { adopt: "採用", hold: "保留", reject: "不採用" };
+
+        function loadVerdicts() {
+            try { return JSON.parse(localStorage.getItem(VERDICT_KEY)) || {}; }
+            catch (err) { return {}; }
+        }
+
+        function saveVerdicts(map) {
+            try { localStorage.setItem(VERDICT_KEY, JSON.stringify(map)); }
+            catch (err) { /* file:// などで保存不可でも判定操作自体は継続 */ }
+        }
+
+        const verdicts = loadVerdicts();
+
+        document.querySelectorAll(".comp").forEach((comp) => {
+            const id = comp.dataset.comp;
+            const judge = document.createElement("div");
+            judge.className = "comp-judge";
+            judge.setAttribute("role", "group");
+            judge.setAttribute("aria-label", id + " の判定");
+            ["adopt", "hold", "reject"].forEach((key) => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.dataset.verdict = key;
+                btn.textContent = verdictLabels[key];
+                judge.appendChild(btn);
+            });
+            comp.querySelector(".comp-head").appendChild(judge);
+            if (verdicts[id]) comp.dataset.verdict = verdicts[id];
+        });
+
+        function renderCounts() {
+            const all = document.querySelectorAll(".comp");
+            const counts = { adopt: 0, hold: 0, reject: 0 };
+            all.forEach((comp) => {
+                if (counts[comp.dataset.verdict] !== undefined) counts[comp.dataset.verdict] += 1;
+            });
+            const undecided = all.length - counts.adopt - counts.hold - counts.reject;
+            document.getElementById("catCounts").innerHTML =
+                '<span class="c-adopt">採用 ' + counts.adopt + '</span>' +
+                '<span>保留 ' + counts.hold + '</span>' +
+                '<span class="c-reject">不採用 ' + counts.reject + '</span>' +
+                '<span>未判定 ' + undecided + '</span>';
+        }
+
+        document.addEventListener("click", (event) => {
+            const btn = event.target.closest(".comp-judge button");
+            if (!btn) return;
+            const comp = btn.closest(".comp");
+            const id = comp.dataset.comp;
+            const value = btn.dataset.verdict;
+            if (comp.dataset.verdict === value) {
+                delete comp.dataset.verdict;
+                delete verdicts[id];
+            } else {
+                comp.dataset.verdict = value;
+                verdicts[id] = value;
+            }
+            saveVerdicts(verdicts);
+            renderCounts();
+        });
+
+        renderCounts();
+
+        // 判定結果のテキスト化 + コピー（file:// では clipboard 不可のため表示 + 全選択でフォールバック）
+        document.getElementById("catCopy").addEventListener("click", () => {
+            const groups = { adopt: [], hold: [], reject: [], none: [] };
+            document.querySelectorAll(".comp").forEach((comp) => {
+                const key = groups[comp.dataset.verdict] ? comp.dataset.verdict : "none";
+                groups[key].push(comp.dataset.comp + " " + comp.dataset.name);
+            });
+            const lines = ["デザインコンポーネント判定（" + new Date().toLocaleString("ja-JP") + "）"];
+            [["adopt", "採用"], ["hold", "保留"], ["reject", "不採用"], ["none", "未判定"]].forEach(([key, label]) => {
+                if (!groups[key].length) return;
+                lines.push("");
+                lines.push("【" + label + "】");
+                groups[key].forEach((entry) => lines.push("- " + entry));
+            });
+            const text = lines.join("\n");
+            const out = document.getElementById("catCopyOut");
+            out.value = text;
+            out.hidden = false;
+            const copyBtn = document.getElementById("catCopy");
+            const done = () => {
+                copyBtn.textContent = "コピーしました";
+                setTimeout(() => { copyBtn.textContent = "判定結果をコピー"; }, 1600);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(done).catch(() => { out.focus(); out.select(); });
+            } else {
+                out.focus();
+                out.select();
+            }
+        });
+
+        // ===== デモ用の軽量インタラクション =====
+
+        // タブ / セグ / サイドナビ: クリックで active を移動
+        document.querySelectorAll("[data-tabs], [data-seg], [data-nav]").forEach((group) => {
+            group.addEventListener("click", (event) => {
+                const btn = event.target.closest("button");
+                if (!btn || !group.contains(btn)) return;
+                group.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b === btn));
+            });
+        });
+
+        // ページネーション: 数字ボタンだけ current を移動
+        document.querySelectorAll("[data-pager]").forEach((pager) => {
+            pager.addEventListener("click", (event) => {
+                const btn = event.target.closest("button");
+                if (!btn || btn.disabled) return;
+                if (!/^[0-9]+$/.test(btn.textContent.trim())) return;
+                pager.querySelectorAll(".pg-btn").forEach((b) => b.classList.toggle("current", b === btn));
+            });
+        });
+
+        // 選択可能リスト
+        document.querySelectorAll("[data-select-list]").forEach((list) => {
+            list.addEventListener("click", (event) => {
+                const item = event.target.closest("li");
+                if (!item) return;
+                list.querySelectorAll("li").forEach((el) => el.classList.toggle("is-selected", el === item));
+            });
+        });
+
+        // アコーディオン
+        document.querySelectorAll(".acc-head").forEach((head) => {
+            head.addEventListener("click", () => head.closest(".acc-item").classList.toggle("open"));
+        });
+
+        // 数値ステッパー
+        document.querySelectorAll("[data-stepper]").forEach((stepper) => {
+            const input = stepper.querySelector("input");
+            stepper.addEventListener("click", (event) => {
+                const btn = event.target.closest("[data-step]");
+                if (!btn) return;
+                const next = (parseInt(input.value, 10) || 0) + Number(btn.dataset.step);
+                input.value = String(Math.max(0, next));
+            });
+        });
+
+        // ソートヘッダ（デモ: 列切替 + 昇順/降順トグル）
+        document.querySelectorAll("th.sortable").forEach((th) => {
+            th.addEventListener("click", () => {
+                const table = th.closest("table");
+                table.querySelectorAll("th.sortable").forEach((el) => {
+                    if (el === th) return;
+                    el.classList.remove("sorted");
+                    const arrow = el.querySelector(".sort-arrow");
+                    if (arrow) arrow.remove();
+                });
+                let arrow = th.querySelector(".sort-arrow");
+                if (th.classList.contains("sorted") && arrow) {
+                    arrow.classList.toggle("desc");
+                } else {
+                    th.classList.add("sorted");
+                    if (!arrow) {
+                        arrow = document.createElement("span");
+                        arrow.className = "sort-arrow";
+                        arrow.setAttribute("aria-hidden", "true");
+                        th.appendChild(arrow);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
