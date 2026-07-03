@@ -85,6 +85,15 @@
 
 **D&D 対象（カプセルバッジ）は通常カードよりわずかに高い影**（2層影 `0 4px 8px` + `0 2px 3px`、hover で増強）。
 
+### 4.2.1 モーション・z 層・モーダル幅（2026-07-03 旧 DS から正式移設・値は不変）
+
+| トークン | 用途 |
+| --- | --- |
+| `--duration-instant/fast/base/slow/slower` | 0/120/200/320/480ms。UI transition の基準は 120〜160ms（`--duration-fast` 帯。02 §7） |
+| `--ease-out/in/in-out/spring` | イージング。通常は `ease` か `--ease-out` |
+| `--z-dropdown/sticky/overlay/modal/popover/tooltip/toast` | 重なり順 100/200/900/1000/1100/1200/2000 |
+| `--modal-w-sm/md/lg/xl` | モーダル幅 380/480/600/800px |
+
 ### 4.3 タイポグラフィ
 
 - フォント: `--font-sans`＝Inter + Noto Sans JP（Google Fonts、weight **400〜700 のみ**読込）

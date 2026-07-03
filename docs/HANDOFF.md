@@ -9,23 +9,24 @@
 
 - **更新者**: Claude Code (Fable 5)
 - **日付**: 2026-07-03
-- **コミット**: 0efa357（直前 HEAD・本作業は未コミット）
+- **コミット**: 16d7687（直前 HEAD・本作業は本コミットに含む）
 
 ## 直前にやったこと（最新のみ）
 
-- **R-1（DS基盤統合）完了**: カタログ37件を全採用確定（ユーザー宣言）として、新DS正本一式を作成。
-  - `docs/mockup/ds-tokens.css` / `ds-components.css`（プレビュー2本から sed 機械抽出・2853行・波括弧バランス検証済）
-  - `docs/design-system/` 仕様5冊（README / 01 原則・トークン / 02 コンポーネント / 03 画面適用設計 / 04 AI実装ガイド）
-  - `docs/preview/ds-foundation-test.html` スモークテスト合格（コンソール0 / `screenshots/ds-foundation-test.png`）
-- mockup-refactor-plan（R-1 完了・方式変更記録）/ SHARED-MEMORY（DS正本・併載禁止・追認待ち）を更新。
+- **追認待ち2件を解消**: R-1 の ds-*.css 新設方式=ユーザー追認済み（正式決定）。03 §3.2 ギャップ確定
+  （曜日色=青灰の濃淡のみ / density 3段維持・spacious 値は R-3b で確定 / motion・z・modal-w トークンは ds-tokens.css へ移設済み）
+- **右プロパティ集約の横断設計を確定・文書化**: 03_screen-application.md に §1.1 振り分け基準
+  （中央→ツールバー→右プロパティ→モーダルの判定順+フィルタ/凡例/対象外の横断ルール）と
+  OB/WS/LA/QA 各節のサブ機能確定表を追記（AskUserQuestion 13問で全件ユーザー確認済み）
+- mockup-refactor-plan の R-3 チェックリストへ「サブ機能の振り分け適用」を追加。SHARED-MEMORY へ決定を追記
 
 ## 次にやるべきこと
 
-- **次セッションの主題（ユーザー指示済み）**: SL の「サブ機能は右プロパティ（prop-card + panel-rail）へ集約して中央をスッキリさせる」思想を、SL 以外（OB/WS/LA/QA、必要ならセンター/admin-notify）へ展開する横断設計を `docs/design-system/03_screen-application.md` に追記する（設計のみ。実装は R-3 凍結ルールどおり）。基準の出発点は `design-refresh-plan.md` §4.3（右プロパティ化する対象 / モーダルに残すもの）
-- **ユーザー追認待ち**: R-1 の方式変更「co-tokens.css 統合 → ds-*.css 新設」（同名別値トークン衝突が理由。無応答のため暫定採用）
-- 03_screen-application.md §3.2 の「未定義ギャップ」（曜日セル色 / density 3段 / motion・z-index 移設）をユーザーと決める
-- その後は R-2（通知データモデル改修・Codex と期間調整）
+- **R-2 通知データモデル改修**（Codex と期間調整。`mock.oms.state.v1` 構造変更を伴うため着手前に HANDOFF 同期）
+- R-3a SL 着手時: 右プロパティ4モードの情報粒度確認（mockup-refactor-plan §5 の着手条件）
+- R-3b/c 実施時の持ち越し検証: 曜日色の具体トークン選定 / density spacious の具体値 / OB 地図プレビューの右プロパティ内成立性
 
 ## 今だけの申し送り（任意）
 
-- R-1 成果物一式はコミット済み（本コミット）。screenshots/ は gitignore 対象のためローカルのみ（`ds-foundation-test.png` = スモークテスト合格証跡）。
+- R-3 で機能形態が変わる項目（OB カレンダー入力=中央ビュー切替化・フィルタ行廃止・LA 左サイドバー統合・凡例廃止等）は
+  03 §4 の各画面確定表が正本。実装は R-3 凍結ルールどおり本計画フェーズまで行わない。
