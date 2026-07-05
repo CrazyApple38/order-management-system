@@ -1,10 +1,12 @@
 /* ============================================================
-   co-notify-panel.js — 変更通知パネル 共通挙動
-   - ベルアイコン (.cn-trigger) クリックで .cn-anchor を開閉
-   - 上タブ (最新/履歴) / 縦サブタブ (現場名/アカウント) 切替
-   - 軸グループ・日付グループ・アイテムアコーディオン
-   - 一覧選択フロー (契約先 → 現場 / アカウント)
-   - 「すべて既読」
+   co-notify-panel.js — レール通知カード (cn-card) 共通挙動
+   R-2 (2026-07-03) 簡素化モデル §3.7.8:
+   - 統合ベル1個 (.cn-trigger) クリックで .cn-anchor 内の .cn-card を開閉
+   - カテゴリはエンティティ導出 (§3.7.9): 受注/配置/申請・承認/マスタ
+   - 対象日 (targetDate) 基準の日別グルーピング + カテゴリフィルタチップ
+   - アイテムアコーディオン (diffs / クロスジャンプ / cn:action ボタン)
+   - 「すべて既読」 + フッター「変更通知センターで開く →」
+   - 履歴タブ・検索・一覧選択フローは撤去 (集積・検索はセンターの責務)
    ============================================================ */
 (function () {
     'use strict';
@@ -128,8 +130,15 @@
             }
             return;
         }
-        // パネル外クリック → 閉じる
-        if (!e.target.closest('.cn-panel')) {
+        // カード内の閉じるボタン
+        var closeBtn = e.target.closest('.cn-close');
+        if (closeBtn) {
+            var closeAnchor = closeBtn.closest('.cn-anchor');
+            if (closeAnchor) closeAnchor.classList.remove('is-open');
+            return;
+        }
+        // カード外クリック → 閉じる (.cn-panel は QA モバイル互換)
+        if (!e.target.closest('.cn-card') && !e.target.closest('.cn-panel')) {
             closeAllPanels(null);
         }
     });
@@ -139,39 +148,11 @@
         if (e.key === 'Escape') closeAllPanels(null);
     });
 
-    // ========== 上タブ (最新 / 履歴) ==========
-    document.addEventListener('click', function (e) {
-        var tab = e.target.closest('.cn-tab');
-        if (!tab) return;
-        var panel = tab.closest('.cn-panel');
-        if (!panel) return;
-        var name = tab.dataset.tab;
-        panel.querySelectorAll('.cn-tab').forEach(function (t) {
-            t.classList.toggle('is-active', t === tab);
-        });
-        panel.querySelectorAll('.cn-tab-view').forEach(function (v) {
-            v.classList.toggle('is-active', v.dataset.tab === name);
-        });
-    });
-
-    // ========== 縦サブタブ (現場名 / アカウント) ==========
-    document.addEventListener('click', function (e) {
-        var stab = e.target.closest('.cn-side-tab');
-        if (!stab) return;
-        var view = stab.dataset.view;
-        var layout = stab.closest('.cn-history-layout');
-        if (!layout || !view) return;
-        layout.querySelectorAll('.cn-side-tab').forEach(function (t) {
-            t.classList.toggle('is-active', t === stab);
-        });
-        layout.querySelectorAll('.cn-history-view').forEach(function (v) {
-            v.classList.toggle('is-active', v.dataset.view === view);
-        });
-    });
-
-    // ========== 種別チップ (すべて / 追加 / 変更 / 削除) ==========
+    // ========== フィルタチップ ==========
+    // cn-card: カテゴリ (すべて / 受注 / 配置 / 申請・承認 / マスタ)
+    // 旧 .cn-panel (QA モバイル互換): 種別 (すべて / 追加 / 変更 / 削除)
     // - 「すべて」を選択 → 他すべて解除
-    // - 追加/変更/削除を選択 → 「すべて」解除 + 該当チップを多重選択トグル
+    // - 個別チップを選択 → 「すべて」解除 + 該当チップを多重選択トグル
     // - すべて解除になった場合は「すべて」を自動的にONに戻す
     document.addEventListener('click', function (e) {
         var chip = e.target.closest('.cn-filter-chip');
@@ -193,44 +174,44 @@
             });
             if (!anyOn && allChip) allChip.classList.add('is-active');
         }
-        var view = group.closest('.cn-history-view') || group.closest('.cn-tab-view');
+        var view = group.closest('.cn-card') || group.closest('.cn-history-view') || group.closest('.cn-tab-view');
         if (view) applyCnFilters(view);
     });
 
-    // ========== フィルタ適用 (種別チップ + 一覧選択 を統合) ==========
-    function getActiveFilterTypes(view) {
+    // ========== フィルタ適用 ==========
+    function getActiveFilterValues(view) {
         var group = view.querySelector('.cn-filter-chips');
         if (!group) return null; // フィルタ無し → 全件表示
         var allChip = group.querySelector('.cn-filter-chip[data-filter="all"]');
         if (allChip && allChip.classList.contains('is-active')) return null;
-        var types = [];
+        var values = [];
         group.querySelectorAll('.cn-filter-chip.is-active').forEach(function (c) {
-            if (c.dataset.filter && c.dataset.filter !== 'all') types.push(c.dataset.filter);
+            if (c.dataset.filter && c.dataset.filter !== 'all') values.push(c.dataset.filter);
         });
-        return types.length > 0 ? types : null;
+        return values.length > 0 ? values : null;
     }
 
     function applyCnFilters(view) {
         if (!view) return;
-        var types = getActiveFilterTypes(view);
-        var pickAxis = view.dataset.pickAxis || '';
-        var pickValue = view.dataset.pickValue || '';
+        var values = getActiveFilterValues(view);
+        var isCard = !!(view.classList && view.classList.contains('cn-card'));
+        // 旧パネル (QA) の一覧選択フィルタ
+        var pickAxis = view.dataset ? (view.dataset.pickAxis || '') : '';
+        var pickValue = view.dataset ? (view.dataset.pickValue || '') : '';
 
         // 1) アイテム単位で絞り込み
+        //    cn-card = data-category (エンティティ導出) / 旧パネル = data-type (種別)
         view.querySelectorAll('.cn-item').forEach(function (item) {
-            var itemType = (item.dataset.type || '').toLowerCase();
-            // 種別フィルタ
-            var typeOk = !types || types.indexOf(itemType) !== -1;
-            // 一覧選択フィルタ
+            var key = isCard ? (item.dataset.category || '') : (item.dataset.type || '').toLowerCase();
+            var valueOk = !values || values.indexOf(key) !== -1;
             var pickOk = true;
-            if (pickAxis && pickValue) {
-                var attr = item.dataset[pickAxis] || '';
-                pickOk = (attr === pickValue);
+            if (!isCard && pickAxis && pickValue) {
+                pickOk = ((item.dataset[pickAxis] || '') === pickValue);
             }
-            item.classList.toggle('is-hidden', !(typeOk && pickOk));
+            item.classList.toggle('is-hidden', !(valueOk && pickOk));
         });
 
-        // 2) グループ (axis-group / date-group) 単位で全アイテム非表示なら自身も非表示
+        // 2) グループ単位で全アイテム非表示なら自身も非表示
         view.querySelectorAll('.cn-axis-group, .cn-date-group').forEach(function (g) {
             var visible = g.querySelector('.cn-item:not(.is-hidden)');
             g.classList.toggle('is-hidden', !visible);
@@ -251,6 +232,153 @@
         var toggle = head.querySelector('.cn-axis-group-toggle, .cn-date-group-toggle');
         if (toggle) toggle.textContent = willCollapse ? '▾' : '▴';
     });
+
+    // ============================================================
+    // QA モバイル互換セクション（R-3e で QA を新カードへ移行したら撤去）
+    // quick-access.html は旧 .cn-panel マークアップ (最新/履歴タブ・検索・
+    // 一覧選択フロー) を自前で持ち、以下の汎用ハンドラに依存している。
+    // 共通ナビの cn-card はこれらを使用しない。
+    // ============================================================
+
+    // ----- 上タブ (最新 / 履歴) -----
+    document.addEventListener('click', function (e) {
+        var tab = e.target.closest('.cn-tab');
+        if (!tab) return;
+        var panel = tab.closest('.cn-panel');
+        if (!panel) return;
+        var name = tab.dataset.tab;
+        panel.querySelectorAll('.cn-tab').forEach(function (t) {
+            t.classList.toggle('is-active', t === tab);
+        });
+        panel.querySelectorAll('.cn-tab-view').forEach(function (v) {
+            v.classList.toggle('is-active', v.dataset.tab === name);
+        });
+    });
+
+    // ----- 縦サブタブ (現場名 / アカウント) -----
+    document.addEventListener('click', function (e) {
+        var stab = e.target.closest('.cn-side-tab');
+        if (!stab) return;
+        var view = stab.dataset.view;
+        var layout = stab.closest('.cn-history-layout');
+        if (!layout || !view) return;
+        layout.querySelectorAll('.cn-side-tab').forEach(function (t) {
+            t.classList.toggle('is-active', t === stab);
+        });
+        layout.querySelectorAll('.cn-history-view').forEach(function (v) {
+            v.classList.toggle('is-active', v.dataset.view === view);
+        });
+    });
+
+    // ----- 一覧選択フロー (契約先 → 現場 / アカウント) -----
+    function renderCrumbsInitial(pickView) {
+        var crumbs = pickView.querySelector('.cn-pick-crumbs');
+        if (!crumbs) return;
+        var base = pickView.dataset.crumbBase || '';
+        var step1Label = pickView.dataset.step1Label || '選択';
+        crumbs.innerHTML =
+            '<span>' + base + '</span>' +
+            '<span class="cn-pick-crumb-sep">&gt;</span>' +
+            '<span class="cn-pick-crumb-current">' + step1Label + '</span>';
+    }
+
+    document.addEventListener('click', function (e) {
+        var clear = e.target.closest('.cn-list-pick-clear');
+        if (clear) {
+            e.stopPropagation();
+            var btn = clear.closest('.cn-list-pick-btn');
+            if (btn) {
+                btn.classList.remove('is-selected');
+                var label = btn.querySelector('.cn-list-pick-label');
+                if (label) label.textContent = '一覧';
+                var view = btn.closest('.cn-history-view');
+                if (view) {
+                    delete view.dataset.pickAxis;
+                    delete view.dataset.pickValue;
+                    applyCnFilters(view);
+                }
+                var pev = new CustomEvent('cn:filter-clear', { bubbles: true });
+                btn.dispatchEvent(pev);
+            }
+            return;
+        }
+        var pickBtn = e.target.closest('.cn-list-pick-btn');
+        if (!pickBtn) return;
+        var view2 = pickBtn.closest('.cn-history-view');
+        if (!view2) return;
+        var pickView = view2.querySelector('.cn-pick-view');
+        if (!pickView) return;
+        pickView.querySelectorAll('.cn-pick-step').forEach(function (s, i) {
+            s.classList.toggle('is-active', i === 0);
+        });
+        renderCrumbsInitial(pickView);
+        view2.classList.add('is-picking');
+    });
+
+    document.addEventListener('click', function (e) {
+        var badge = e.target.closest('.cn-pick-badge');
+        if (!badge) return;
+        var step = badge.closest('.cn-pick-step');
+        if (!step || !step.classList.contains('is-active')) return;
+        var pickView = step.closest('.cn-pick-view');
+        var view = pickView.closest('.cn-history-view');
+        var stepName = step.dataset.step;
+
+        if (stepName === 'company') {
+            var company = badge.dataset.company;
+            var step2 = pickView.querySelector('.cn-pick-step[data-step="site"]');
+            if (!step2) return;
+            step2.querySelectorAll('.cn-pick-badges').forEach(function (g) {
+                g.hidden = (g.dataset.company !== company);
+            });
+            step.classList.remove('is-active');
+            step2.classList.add('is-active');
+            var crumbs = pickView.querySelector('.cn-pick-crumbs');
+            var base = pickView.dataset.crumbBase || '';
+            crumbs.innerHTML =
+                '<span>' + base + '</span>' +
+                '<span class="cn-pick-crumb-sep">&gt;</span>' +
+                '<span>' + company + '</span>' +
+                '<span class="cn-pick-crumb-sep">&gt;</span>' +
+                '<span class="cn-pick-crumb-current">現場を選択</span>';
+        } else {
+            var listBtn = view.querySelector('.cn-list-pick-btn');
+            var selValue = badge.textContent.trim();
+            if (listBtn) {
+                var prefix = listBtn.dataset.prefix || '';
+                var label = listBtn.querySelector('.cn-list-pick-label');
+                if (label) label.textContent = prefix ? (prefix + ': ' + selValue) : selValue;
+                listBtn.classList.add('is-selected');
+                var fev = new CustomEvent('cn:filter-select', {
+                    bubbles: true,
+                    detail: { value: selValue, data: Object.assign({}, badge.dataset) }
+                });
+                listBtn.dispatchEvent(fev);
+            }
+            view.dataset.pickAxis = (stepName === 'account') ? 'account' : 'site';
+            view.dataset.pickValue = selValue;
+            applyCnFilters(view);
+            view.classList.remove('is-picking');
+        }
+    });
+
+    document.addEventListener('click', function (e) {
+        var back = e.target.closest('.cn-pick-back');
+        if (!back) return;
+        var pickView = back.closest('.cn-pick-view');
+        var view = back.closest('.cn-history-view');
+        if (!pickView || !view) return;
+        var step2 = pickView.querySelector('.cn-pick-step[data-step="site"]');
+        if (step2 && step2.classList.contains('is-active')) {
+            step2.classList.remove('is-active');
+            var step1 = pickView.querySelector('.cn-pick-step[data-step="company"]');
+            if (step1) step1.classList.add('is-active');
+            renderCrumbsInitial(pickView);
+        } else {
+            view.classList.remove('is-picking');
+        }
+    });
+    // ========== QA モバイル互換セクションここまで ==========
 
     // ========== アイテムクリック ==========
     // - cn-expand 有り: 排他アコーディオン展開（同パネル内の他は閉じる / フラッシュ発火なし）
@@ -446,7 +574,7 @@
             markItemReadAndRefresh(item);
             fireJump(item);
             if (shouldKeepExpandedAfterJump(currentDetail)) {
-                var currentPanel = item.closest('.cn-panel');
+                var currentPanel = item.closest('.cn-card') || item.closest('.cn-panel');
                 if (currentPanel) {
                     currentPanel.querySelectorAll('.cn-item.is-expanded').forEach(function (other) {
                         if (other !== item) setItemExpanded(other, false);
@@ -464,8 +592,8 @@
         }
         var willOpen = !item.classList.contains('is-expanded');
         if (willOpen) {
-            // 排他: 同じ panel 内の他の展開済みアイテムを閉じる
-            var panel = item.closest('.cn-panel');
+            // 排他: 同じカード/パネル内の他の展開済みアイテムを閉じる
+            var panel = item.closest('.cn-card') || item.closest('.cn-panel');
             if (panel) {
                 panel.querySelectorAll('.cn-item.is-expanded').forEach(function (other) {
                     if (other !== item) setItemExpanded(other, false);
@@ -506,7 +634,7 @@
     document.addEventListener('click', function (e) {
         var btn = e.target.closest('.cn-mark-all');
         if (!btn) return;
-        var panel = btn.closest('.cn-panel');
+        var panel = btn.closest('.cn-card') || btn.closest('.cn-panel');
         if (!panel) return;
         panel.querySelectorAll('.cn-item.is-unread').forEach(function (item) {
             item.classList.remove('is-unread');
@@ -528,120 +656,14 @@
         panel.dispatchEvent(ev);
     });
 
-    // ========== 一覧選択フロー (契約先 → 現場 / アカウント) ==========
-    function renderCrumbsInitial(pickView) {
-        var crumbs = pickView.querySelector('.cn-pick-crumbs');
-        if (!crumbs) return;
-        var base = pickView.dataset.crumbBase || '';
-        var step1Label = pickView.dataset.step1Label || '選択';
-        crumbs.innerHTML =
-            '<span>' + base + '</span>' +
-            '<span class="cn-pick-crumb-sep">&gt;</span>' +
-            '<span class="cn-pick-crumb-current">' + step1Label + '</span>';
-    }
-
-    // 「一覧」ボタン: 選択画面を開く / × クリックで選択解除
+    // ========== 「変更通知センターで開く →」 (R-2 導線 / 同タブ遷移) ==========
+    // 集積・検索はセンターの責務 (§3.7.8)。現状はプレビューのセンターモックへ接続 (R-4 で改修予定)。
+    var CN_CENTER_URL = 'preview/change-notification-center-mockup.html';
     document.addEventListener('click', function (e) {
-        var clear = e.target.closest('.cn-list-pick-clear');
-        if (clear) {
-            e.stopPropagation();
-            var btn = clear.closest('.cn-list-pick-btn');
-            if (btn) {
-                btn.classList.remove('is-selected');
-                var label = btn.querySelector('.cn-list-pick-label');
-                if (label) label.textContent = '一覧';
-                // フィルタを解除して再適用
-                var view = btn.closest('.cn-history-view');
-                if (view) {
-                    delete view.dataset.pickAxis;
-                    delete view.dataset.pickValue;
-                    applyCnFilters(view);
-                }
-                var pev = new CustomEvent('cn:filter-clear', { bubbles: true });
-                btn.dispatchEvent(pev);
-            }
-            return;
-        }
-        var pickBtn = e.target.closest('.cn-list-pick-btn');
-        if (!pickBtn) return;
-        var view = pickBtn.closest('.cn-history-view');
-        if (!view) return;
-        var pickView = view.querySelector('.cn-pick-view');
-        if (!pickView) return;
-        pickView.querySelectorAll('.cn-pick-step').forEach(function (s, i) {
-            s.classList.toggle('is-active', i === 0);
-        });
-        renderCrumbsInitial(pickView);
-        view.classList.add('is-picking');
-    });
-
-    // バッジクリック: ステップ進行 (company → site) or 選択確定
-    document.addEventListener('click', function (e) {
-        var badge = e.target.closest('.cn-pick-badge');
-        if (!badge) return;
-        var step = badge.closest('.cn-pick-step');
-        if (!step || !step.classList.contains('is-active')) return;
-        var pickView = step.closest('.cn-pick-view');
-        var view = pickView.closest('.cn-history-view');
-        var stepName = step.dataset.step;
-
-        if (stepName === 'company') {
-            var company = badge.dataset.company;
-            var step2 = pickView.querySelector('.cn-pick-step[data-step="site"]');
-            if (!step2) return;
-            step2.querySelectorAll('.cn-pick-badges').forEach(function (g) {
-                g.hidden = (g.dataset.company !== company);
-            });
-            step.classList.remove('is-active');
-            step2.classList.add('is-active');
-            var crumbs = pickView.querySelector('.cn-pick-crumbs');
-            var base = pickView.dataset.crumbBase || '';
-            crumbs.innerHTML =
-                '<span>' + base + '</span>' +
-                '<span class="cn-pick-crumb-sep">&gt;</span>' +
-                '<span>' + company + '</span>' +
-                '<span class="cn-pick-crumb-sep">&gt;</span>' +
-                '<span class="cn-pick-crumb-current">現場を選択</span>';
-        } else {
-            var listBtn = view.querySelector('.cn-list-pick-btn');
-            var selValue = badge.textContent.trim();
-            if (listBtn) {
-                var prefix = listBtn.dataset.prefix || '';
-                var label = listBtn.querySelector('.cn-list-pick-label');
-                if (label) label.textContent = prefix ? (prefix + ': ' + selValue) : selValue;
-                listBtn.classList.add('is-selected');
-                var fev = new CustomEvent('cn:filter-select', {
-                    bubbles: true,
-                    detail: { value: selValue, data: Object.assign({}, badge.dataset) }
-                });
-                listBtn.dispatchEvent(fev);
-            }
-            // 軸別の絞り込みを view に保存して適用
-            // stepName: 'site' (現場名軸) / 'account' (アカウント軸)
-            view.dataset.pickAxis = (stepName === 'account') ? 'account' : 'site';
-            view.dataset.pickValue = selValue;
-            applyCnFilters(view);
-
-            view.classList.remove('is-picking');
-        }
-    });
-
-    // 戻るボタン: ステップ2 → ステップ1, ステップ1 → リストビューへ
-    document.addEventListener('click', function (e) {
-        var back = e.target.closest('.cn-pick-back');
-        if (!back) return;
-        var pickView = back.closest('.cn-pick-view');
-        var view = back.closest('.cn-history-view');
-        if (!pickView || !view) return;
-        var step2 = pickView.querySelector('.cn-pick-step[data-step="site"]');
-        if (step2 && step2.classList.contains('is-active')) {
-            step2.classList.remove('is-active');
-            var step1 = pickView.querySelector('.cn-pick-step[data-step="company"]');
-            if (step1) step1.classList.add('is-active');
-            renderCrumbsInitial(pickView);
-        } else {
-            view.classList.remove('is-picking');
-        }
+        var btn = e.target.closest('.cn-center-link');
+        if (!btn) return;
+        e.stopPropagation();
+        window.location.href = CN_CENTER_URL;
     });
 
     // ========== ベル/アイテム アイコン解決（Phase N-2.2） ==========
@@ -649,6 +671,8 @@
     // 各画面の HTML から見た相対パスは `assets/icons/...`（docs/ 配下に置かれる前提）。
     var CN_ICON_BASE = 'assets/icons/';
     var CN_SLOT_DEFAULT = {
+        // 統合ベル (R-2 / 1ベル化)
+        'bell-all':        'sign-mark/im-00155-beru-no-aikon-sozai-sono-5.svg',
         // ベル4分類
         'bell-order':      'business/si-46623-personal-information.png',
         'bell-assignment': 'stationery/im-12555-karendaa.svg',
@@ -767,21 +791,7 @@
             + (opPath ? '<span class="cn-composed-op"><img class="cn-composed-op-img" src="' + CN_ICON_BASE + opPath + '" alt=""></span>' : '')
             + '</span>';
     }
-    // item から slotKey を決定（item.slot 明示優先 → type-{bellId}-{type} → 種別フォールバック）
-    function resolveItemSlotKey(bellId, item) {
-        if (item.slot && CN_SLOT_DEFAULT[item.slot]) return item.slot;
-        // 種別エイリアス（LAの new/approve/reject、Pendingの wait など）
-        var typeAlias = { new: 'new', approve: 'approve', reject: 'reject', pending: 'wait', wait: 'wait', auto: 'auto' };
-        var t = typeAlias[item.type] || item.type;
-        var key = 'type-' + bellId + '-' + t;
-        if (CN_SLOT_DEFAULT[key]) return key;
-        // 共通タイプへのフォールバック（add/modify/delete に寄せる）
-        var generic = { add: 'add', new: 'add', modify: 'modify', auto: 'modify', delete: 'delete', reject: 'delete', approve: 'modify', pending: 'modify', wait: 'modify' };
-        var g = generic[item.type] || 'modify';
-        var genericKey = 'type-ob-' + g;
-        return CN_SLOT_DEFAULT[genericKey] ? genericKey : null;
-    }
-    // アイテム種別 → cn-icon の CSS クラスサフィックス（既存カラーマップに沿わせる）
+    // アイテム種別 → cn-item の CSS クラスサフィックス（既存カラーマップに沿わせる）
     function resolveTypeClass(type) {
         var m = { add: 'add', modify: 'modify', delete: 'delete',
                   new: 'new', approve: 'approved', reject: 'rejected',
@@ -795,7 +805,11 @@
         });
     }
 
-    // ========== ベル/アイテム 描画 API（Phase N-2.2） ==========
+    // ========== ベル/アイテム 描画 API（Phase N-2.2 → R-2 で1ベル統合） ==========
+    // 旧ベルID (ob/sl/ws/la/pending/vehicle/master) と旧4分類ID (order/assignment/
+    // approval/master) はすべて統合ベル 'all' へ吸収する。旧IDは sourceBell として
+    // 保持し、カテゴリはエンティティ (domain) から導出する (§3.7.9)。
+    var CN_UNIFIED_BELL = 'all';
     var CN_BELL_ALIASES = Object.assign({
         ob: 'order',
         sl: 'assignment',
@@ -805,23 +819,51 @@
         pending: 'approval',
         master: 'master'
     }, window.coNotifyBellAliases || {});
-    var CN_SOURCE_LABELS = {
-        ob: '受注簿',
-        sl: '配置表',
-        ws: '週間予定',
-        la: '休暇申請',
-        pending: '休暇申請',
-        vehicle: '車両予定',
-        master: 'マスタ',
-        order: '受注簿',
-        assignment: '配置表',
-        approval: '休暇申請'
+    // エンティティ (domain) → 通知カテゴリ (§3.7.9 の導出ルール)
+    var CN_DOMAIN_CATEGORY = {
+        order: 'order',
+        'person-assignment': 'assignment',
+        'vehicle-assignment': 'assignment',
+        'support-reservation': 'assignment',
+        leave: 'approval',
+        master: 'master'
+    };
+    var CN_CATEGORY_LABELS = {
+        order: '受注',
+        assignment: '配置',
+        approval: '申請・承認',
+        master: 'マスタ'
+    };
+    // 配置カテゴリのサブタグ (R-2 確定: 自社/応援/協力業者/車両・ETC)
+    var CN_SUBTAG_LABELS = {
+        own: '自社',
+        support: '応援',
+        partner: '協力業者',
+        vehicle: '車両・ETC'
     };
     function normalizeBellId(bellId) {
-        return CN_BELL_ALIASES[bellId] || bellId;
+        // R-2: DOM 上のベルは統合1個のみ。どの旧IDで呼ばれても 'all' に解決する。
+        return CN_UNIFIED_BELL;
     }
-    function sourceLabelFor(sourceBell) {
-        return CN_SOURCE_LABELS[sourceBell] || '';
+    // カテゴリ導出: 明示 category > domain > inferDomain(発信元, scope) > 旧エイリアス
+    function deriveCategory(item) {
+        if (!item) return 'master';
+        if (item.category && CN_CATEGORY_LABELS[item.category]) return item.category;
+        var domain = item.domain || inferDomain(item.sourceBell || '', item.scope || '');
+        if (CN_DOMAIN_CATEGORY[domain]) return CN_DOMAIN_CATEGORY[domain];
+        var alias = CN_BELL_ALIASES[item.sourceBell || ''];
+        return (alias && CN_CATEGORY_LABELS[alias]) ? alias : 'master';
+    }
+    // サブタグ導出 (配置カテゴリのみ): 明示 subTag > 車両系 > 応援配置 > 予約系(協力業者) > 自社
+    function deriveSubTag(item, category) {
+        if (category !== 'assignment' || !item) return '';
+        if (item.subTag && CN_SUBTAG_LABELS[item.subTag]) return item.subTag;
+        var domain = item.domain || '';
+        var scope = item.scope || '';
+        if (domain === 'vehicle-assignment' || scope === 'vehicle') return 'vehicle';
+        if (scope === 'support') return 'support';
+        if (domain === 'support-reservation' || scope === 'reservation') return 'partner';
+        return 'own';
     }
     function normalizeItemForBell(sourceBell, item) {
         var clone = Object.assign({}, item || {});
@@ -882,30 +924,43 @@
         }
         return null;
     }
-    function cnTargetDateParts(item) {
-        if (item && item.targetDate) return cnParseDateKey(item.targetDate);
+    // targetDate (R-2 第一級ファセット): 単日 = 'YYYY-MM-DD' 文字列 / 範囲 = { start, end }。
+    // 未指定時は target の date / day から導出する (後方互換)。
+    function cnTargetDateRange(item) {
+        if (item && item.targetDate) {
+            if (typeof item.targetDate === 'string') {
+                var single = cnParseDateKey(item.targetDate);
+                return single ? { start: single, end: null } : null;
+            }
+            if (typeof item.targetDate === 'object') {
+                var start = cnParseDateKey(item.targetDate.start);
+                var end = cnParseDateKey(item.targetDate.end);
+                if (start) return { start: start, end: end };
+            }
+        }
         var target = cnFirstTarget(item ? item.target : null);
         if (!target) return null;
         var fromDate = cnParseDateKey(target.date);
-        if (fromDate) return fromDate;
+        if (fromDate) return { start: fromDate, end: null };
         if (target.day != null && target.day !== '') {
             var base = cnCurrentDateParts();
             var day = parseInt(target.day, 10);
-            if (Number.isFinite(day)) return { year: base.year, month: base.month, day: day };
+            if (Number.isFinite(day)) return { start: { year: base.year, month: base.month, day: day }, end: null };
         }
         return null;
     }
+    function cnFormatTargetDateRange(range) {
+        if (!range || !range.start) return '';
+        var label = cnFormatTargetDateBadge(range.start);
+        if (range.end && (range.end.year !== range.start.year ||
+                          range.end.month !== range.start.month ||
+                          range.end.day !== range.start.day)) {
+            label += '〜' + cnFormatTargetDateBadge(range.end);
+        }
+        return label;
+    }
     function cnTargetDateBadgeHtml(item) {
-        var source = item ? (item.sourceBell || '') : '';
-        var parts = cnTargetDateParts(item);
-        if (!parts) return '';
-        // OB はセル単位（scope:site）の受注通知のみ日付バッジを表示（add/modify/delete）。
-        // 行単位（scope:row）・作業内容（scope:badge）は対象外。
-        var isObCell = source === 'ob' && item && item.scope === 'site';
-        var dateBasedSources = ['sl', 'ws', 'la', 'pending', 'vehicle', 'assignment', 'approval'];
-        var isDateBasedSource = dateBasedSources.indexOf(source) >= 0;
-        if (!isObCell && !isDateBasedSource) return '';
-        var label = cnFormatTargetDateBadge(parts);
+        var label = cnFormatTargetDateRange(cnTargetDateRange(item));
         return label ? '<span class="cn-date-badge">' + escapeHtml(label) + '</span>' : '';
     }
     function cnDisplaySub(item) {
@@ -935,8 +990,9 @@
                  + '</div>';
         }).join('') + '</div>';
     }
+    // R-2: cn-card アイテム (SL層モックの cn-site / cn-diff / cn-meta 構造を移植)。
+    // バッジはカテゴリ + 配置サブタグ + 対象日 (発信元画面バッジは表示せず data として保持)。
     function buildItemHtml(bellId, item) {
-        // Phase N-2.4.3: item.scope + item.op があれば合成優先。
         // type は表示色クラス用に scope-op から推測（add/place→add色、modify/approve→modify色、delete/reject/remove→delete色）。
         var effectiveType = item.type;
         if (!effectiveType && item.op) {
@@ -945,13 +1001,8 @@
         }
         var typeClass = resolveTypeClass(effectiveType);
         var unread = item._read ? '' : ' is-unread';
-        // 合成アイコン優先（scope 必須、op はオプション）
-        var composedHtml = item.scope ? buildComposedIconHtml(item.scope, item.op) : null;
-        var slotKey = composedHtml ? '' : (resolveItemSlotKey(bellId, item) || '');
-        var iconPath = composedHtml ? null : resolveSlot(slotKey);
-        var iconInner = composedHtml
-            ? composedHtml
-            : (iconPath ? '<img class="cn-icon-img" src="' + CN_ICON_BASE + iconPath + '" alt="">' : '');
+        var category = deriveCategory(item);
+        var subTag = deriveSubTag(item, category);
         // expand または affects のいずれかがあればアコーディオン展開可（種別問わず）
         var hasDiffs = Array.isArray(item.diffs) && item.diffs.length > 0;
         var hasActions = Array.isArray(item.actions) && item.actions.length > 0;
@@ -969,9 +1020,22 @@
         var primaryAttr = item.primaryPage ? ' data-primary-page="' + escapeHtml(item.primaryPage) + '"' : '';
         var sourceBell = item.sourceBell || bellId;
         var sourceAttr = sourceBell ? ' data-source-bell="' + escapeHtml(sourceBell) + '"' : '';
-        var sourceLabel = sourceLabelFor(sourceBell);
-        var sourceBadgeHtml = sourceLabel ? '<span class="cn-source-badge">' + escapeHtml(sourceLabel) + '</span>' : '';
-        var targetDateBadgeHtml = cnTargetDateBadgeHtml(item);
+        var badgesHtml = ''
+            + '<span class="cn-cat-badge cn-cat-' + escapeHtml(category) + '">' + escapeHtml(CN_CATEGORY_LABELS[category] || category) + '</span>'
+            + (subTag ? '<span class="cn-subtag-badge">' + escapeHtml(CN_SUBTAG_LABELS[subTag] || subTag) + '</span>' : '')
+            + cnTargetDateBadgeHtml(item);
+        // インライン差分 (先頭1件のみ / 全量は展開内 cn-diff-list)
+        var inlineDiffHtml = '';
+        if (hasDiffs) {
+            var d0 = item.diffs[0] || {};
+            inlineDiffHtml = '<span class="cn-diff">'
+                + '<span class="d-label">' + escapeHtml(d0.field || '変更') + '</span>'
+                + '<span class="d-from">' + escapeHtml(normalizeDiffValue(d0.oldVal)) + '</span>'
+                + '<span class="d-arrow">→</span>'
+                + '<span class="d-to">' + escapeHtml(normalizeDiffValue(d0.newVal)) + '</span>'
+                + (item.diffs.length > 1 ? '<span class="d-more">ほか' + (item.diffs.length - 1) + '件</span>' : '')
+                + '</span>';
+        }
         var subText = cnDisplaySub(item);
         var chevronHtml = hasExpand ? '<span class="cn-chevron">▾</span>' : '';
         var expandHtml = '';
@@ -993,15 +1057,14 @@
         }
         var scopeAttr = item.scope ? ' data-scope="' + escapeHtml(item.scope) + '"' : '';
         var opAttr = item.op ? ' data-op="' + escapeHtml(item.op) + '"' : '';
-        // N-3.4.2: item.color (primary/secondary/error/success/warning) で op 連動を上書き
         var colorAttr = item.color ? ' data-color="' + escapeHtml(item.color) + '"' : '';
-        var iconColorCls = item.color ? (' color-' + item.color) : '';
         return ''
             + '<div class="cn-item type-' + typeClass + unread + (isLocked ? ' cn-item-locked' : '') + '"'
             +   idAttr
             +   (isLocked ? ' data-locked="1"' : '')
             +   ' data-type="' + escapeHtml(item.type || effectiveType || '') + '"'
-            +   (slotKey ? ' data-slot="' + escapeHtml(slotKey) + '"' : '')
+            +   ' data-category="' + escapeHtml(category) + '"'
+            +   (subTag ? ' data-sub-tag="' + escapeHtml(subTag) + '"' : '')
             +   scopeAttr
             +   opAttr
             +   colorAttr
@@ -1012,10 +1075,11 @@
             +   targetAttr
             +   diffsAttr + '>'
             +   '<div class="cn-item-row">'
-            +     '<div class="cn-icon type-' + typeClass + iconColorCls + '">' + iconInner + '</div>'
             +     '<div class="cn-text">'
-            +       '<div class="cn-text-main">' + sourceBadgeHtml + targetDateBadgeHtml + '<span class="cn-text-main-label">' + escapeHtml(item.main || '') + '</span></div>'
-            +       (subText ? '<div class="cn-text-sub">' + escapeHtml(subText) + '</div>' : '')
+            +       '<div class="cn-badges">' + badgesHtml + '</div>'
+            +       '<div class="cn-site"><span class="cn-text-main-label">' + escapeHtml(item.main || '') + '</span></div>'
+            +       inlineDiffHtml
+            +       (subText ? '<div class="cn-meta">' + escapeHtml(subText) + '</div>' : '')
             +     '</div>'
             +     chevronHtml
             +   '</div>'
@@ -1031,40 +1095,55 @@
         item.id = 'cn-' + bellId + '-' + Date.now().toString(36) + '-' + idSeq;
         return item;
     }
+    // R-2: 日別グルーピングは対象日 (targetDate) 基準 (§3.7.9)。
+    // 対象日あり = 昇順 (当日→将来)、対象日なし = 末尾「対象日なし」グループ。
     function renderBellLatest(bellId) {
         bellId = normalizeBellId(bellId);
         var body = document.querySelector('[data-bell-body="' + bellId + '"]');
         if (!body) return;
+        var card = body.closest('.cn-card');
         var items = bellItemsStore[bellId] || [];
+        var countEl = card ? card.querySelector('.cn-count') : null;
+        if (countEl) countEl.textContent = items.length > 0 ? (items.length + '件') : '';
         if (items.length === 0) {
             body.innerHTML = '<div class="cn-empty">新しい通知はありません</div>';
             updateBadge(bellId, 0);
             return;
         }
-        // item.date 文字列で日付グループ化（順序保持）
         var groups = {};
         var order = [];
         items.forEach(function (item) {
-            var d = item.date || '';
-            if (!(d in groups)) { groups[d] = []; order.push(d); }
-            groups[d].push(item);
-        });
-        var html = '';
-        order.forEach(function (d) {
-            html += '<div class="cn-date-group">';
-            if (d) {
-                html += '<button type="button" class="cn-date-group-head" aria-expanded="true">'
-                      + escapeHtml(d)
-                      + '<span class="cn-date-group-toggle" aria-hidden="true">▴</span>'
-                      + '</button>';
+            var range = cnTargetDateRange(item);
+            var key = '';
+            var time = Infinity; // 対象日なしは末尾
+            if (range && range.start) {
+                key = cnFormatTargetDateRange(range);
+                time = cnDatePartsToTime(range.start);
             }
-            groups[d].forEach(function (item) {
+            if (!(key in groups)) {
+                groups[key] = { label: key || '対象日なし', time: time, items: [] };
+                order.push(key);
+            }
+            groups[key].items.push(item);
+        });
+        order.sort(function (a, b) { return groups[a].time - groups[b].time; });
+        var html = '';
+        order.forEach(function (key) {
+            var g = groups[key];
+            html += '<div class="cn-date-group">'
+                  + '<button type="button" class="cn-date-group-head" aria-expanded="true">'
+                  + escapeHtml(g.label)
+                  + '<span class="cn-date-group-toggle" aria-hidden="true">▴</span>'
+                  + '</button>';
+            g.items.forEach(function (item) {
                 html += buildItemHtml(bellId, item);
             });
             html += '</div>';
         });
         body.innerHTML = html;
         updateBadge(bellId);
+        // カテゴリフィルタが選択中なら再適用
+        if (card) applyCnFilters(card);
     }
     function setItems(bellId, items) {
         var sourceBell = bellId;
@@ -1086,7 +1165,12 @@
             });
             bellItemsStore[targetBell] = items.concat(preserved);
         } else {
-            bellItemsStore[targetBell] = items;
+            // 統合ベルへの seed 全置換 (co-navbar の setItems('all', ...))。
+            // 実操作で addItem された通知 (_commonSeed なし) は残す。
+            var existing = (bellItemsStore[targetBell] || []).filter(function (it) {
+                return !it._commonSeed;
+            });
+            bellItemsStore[targetBell] = existing.concat(items);
         }
         renderBellLatest(targetBell);
     }
@@ -1303,125 +1387,10 @@
         dispatchJumpFromUrl();
     }
 
-    // ========== 履歴タブ描画 API（Phase N-2.2 / P3 ハイブリッド） ==========
-    // setHistory(bellId, config) で履歴タブを構築。
-    // config = {
-    //   businessAxis: { tab, search, prefix, groups: [{title, items}], companies, sites },
-    //   accountAxis:  { tab, search, prefix, groups: [{title, items}], accounts }
-    // }
-    function buildAxisGroupsHtml(bellId, axisCfg) {
-        return axisCfg.groups.map(function (g) {
-            var itemsHtml = g.items.map(function (it) {
-                // 履歴アイテムは既読扱い。expand/affects は保持し、modify系はアコーディオン展開可
-                var clone = {};
-                Object.keys(it).forEach(function (k) { clone[k] = it[k]; });
-                clone._read = true;
-                return buildItemHtml(bellId, clone);
-            }).join('');
-            return ''
-                + '<div class="cn-axis-group">'
-                +   '<button type="button" class="cn-axis-group-head" aria-expanded="true">'
-                +     escapeHtml(g.title)
-                +     '<span class="cn-axis-group-toggle" aria-hidden="true">▴</span>'
-                +   '</button>'
-                +   itemsHtml
-                + '</div>';
-        }).join('');
-    }
-    function buildPickViewHtml(axisCfg, kind) {
-        if (kind === 'account') {
-            var accountBadges = (axisCfg.accounts || []).map(function (a) {
-                return '<button type="button" class="cn-pick-badge">' + escapeHtml(a) + '</button>';
-            }).join('');
-            return ''
-                + '<div class="cn-pick-view" data-crumb-base="' + escapeHtml(axisCfg.prefix || '') + '"'
-                +     ' data-step1-label="' + escapeHtml((axisCfg.prefix || '') + 'を選択') + '">'
-                +   '<div class="cn-pick-head">'
-                +     '<button type="button" class="cn-pick-back" aria-label="戻る">←</button>'
-                +     '<div class="cn-pick-crumbs"></div>'
-                +   '</div>'
-                +   '<div class="cn-pick-step is-active" data-step="account">'
-                +     '<div class="cn-pick-badges">' + accountBadges + '</div>'
-                +   '</div>'
-                + '</div>';
-        }
-        var companyBadges = (axisCfg.companies || []).map(function (c) {
-            return '<button type="button" class="cn-pick-badge" data-company="'
-                 + escapeHtml(c) + '">' + escapeHtml(c) + '</button>';
-        }).join('');
-        var siteGroups = Object.keys(axisCfg.sites || {}).map(function (c) {
-            var siteBadges = (axisCfg.sites[c] || []).map(function (s) {
-                return '<button type="button" class="cn-pick-badge">' + escapeHtml(s) + '</button>';
-            }).join('');
-            return '<div class="cn-pick-badges" data-company="' + escapeHtml(c) + '" hidden>'
-                 + siteBadges + '</div>';
-        }).join('');
-        return ''
-            + '<div class="cn-pick-view" data-crumb-base="' + escapeHtml(axisCfg.prefix || '') + '"'
-            +     ' data-step1-label="契約先を選択">'
-            +   '<div class="cn-pick-head">'
-            +     '<button type="button" class="cn-pick-back" aria-label="戻る">←</button>'
-            +     '<div class="cn-pick-crumbs"></div>'
-            +   '</div>'
-            +   '<div class="cn-pick-step is-active" data-step="company">'
-            +     '<div class="cn-pick-badges">' + companyBadges + '</div>'
-            +   '</div>'
-            +   '<div class="cn-pick-step" data-step="site">' + siteGroups + '</div>'
-            + '</div>';
-    }
-    function buildHistoryViewHtml(bellId, axisCfg, viewKey, kind) {
-        return ''
-            + '<div class="cn-history-view' + (viewKey === 'business' ? ' is-active' : '')
-            +     '" data-view="' + viewKey + '">'
-            +   '<div class="cn-history-toolbar">'
-            +     '<div class="cn-search-row">'
-            +       '<div class="cn-search">'
-            +         '<input type="text" placeholder="' + escapeHtml(axisCfg.search || '検索...')
-            +           + '" aria-label="' + escapeHtml(axisCfg.search || '検索') + '">'
-            +       '</div>'
-            +       '<button type="button" class="cn-list-pick-btn" data-prefix="'
-            +         escapeHtml(axisCfg.prefix || '') + '">'
-            +         '<span class="cn-list-pick-label">一覧</span>'
-            +         '<span class="cn-list-pick-clear" aria-label="選択解除">×</span>'
-            +       '</button>'
-            +     '</div>'
-            +     '<div class="cn-filter-chips">'
-            +       '<button type="button" class="cn-filter-chip is-active" data-filter="all">すべて</button>'
-            +       '<button type="button" class="cn-filter-chip" data-filter="add">追加</button>'
-            +       '<button type="button" class="cn-filter-chip" data-filter="modify">変更</button>'
-            +       '<button type="button" class="cn-filter-chip" data-filter="delete">削除</button>'
-            +     '</div>'
-            +   '</div>'
-            +   '<div class="cn-body cn-body--history">' + buildAxisGroupsHtml(bellId, axisCfg) + '</div>'
-            +   buildPickViewHtml(axisCfg, kind)
-            + '</div>';
-    }
-    function buildHistoryLayoutHtml(bellId, cfg) {
-        return ''
-            + '<div class="cn-history-layout">'
-            +   '<div class="cn-side-tabs">'
-            +     '<button type="button" class="cn-side-tab is-active" data-view="business">'
-            +       escapeHtml(cfg.businessAxis.tab) + '</button>'
-            +     '<button type="button" class="cn-side-tab" data-view="account">'
-            +       escapeHtml(cfg.accountAxis.tab) + '</button>'
-            +   '</div>'
-            +   '<div class="cn-history-main">'
-            +     buildHistoryViewHtml(bellId, cfg.businessAxis, 'business', 'business')
-            +     buildHistoryViewHtml(bellId, cfg.accountAxis,  'account',  'account')
-            +   '</div>'
-            + '</div>';
-    }
-    function setHistory(bellId, cfg) {
-        var anchor = getAnchor(bellId);
-        if (!anchor) return;
-        var view = anchor.querySelector('.cn-tab-view[data-tab="history"]');
-        if (!view) return;
-        if (!cfg || !cfg.businessAxis || !cfg.accountAxis) {
-            view.innerHTML = '<div class="cn-empty">履歴はありません</div>';
-            return;
-        }
-        view.innerHTML = buildHistoryLayoutHtml(bellId, cfg);
-    }
+    // ========== 履歴タブ API（R-2 で撤去 / 後方互換の no-op） ==========
+    // 集積・検索・軸別の履歴閲覧は変更通知センターの責務 (§3.7.8)。
+    // 旧呼び出し元が残っていても壊れないよう API シグネチャのみ維持する。
+    function setHistory(bellId, cfg) { /* deprecated (R-2): レール通知カードに履歴タブは無い */ }
 
     // ========== 公開 API ==========
     window.coNotifyPanel = {

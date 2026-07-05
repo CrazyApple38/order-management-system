@@ -43,6 +43,9 @@
 - 共通パネルは `affects[]` だけでは通知フォーカスしない。現在画面用 `target` が解決できる場合のみ即時フォーカスする。
 - 通知ベルは表示上4分類だが、画面側 SelfNotify は旧 ID で呼んでよい。共通シード済みの初期通知はページ側 `setItems('sl'|'ws'...)` で上書きしない。実操作の `addItem(...)` は統合ベルへ追加される。
 - 発信元/主担当画面が現在画面と異なる通知は、現在画面でフォーカスできてもパネルを閉じない。アコーディオンを展開し、発信元画面で開くボタンを残す。
+- **（R-2 2026-07-04）通知は統合ベル1個 + `.cn-card`。DOM 上のベルは常に `data-bell="all"`**。各画面 SelfNotify / seed は旧ベルID（ob/sl/ws/la/pending/vehicle/master）で `addItem/setItems` を呼んでよい（`co-notify-panel.js` の `normalizeBellId()` が `'all'` へ吸収し、カテゴリは `domain` から導出）。旧4分類ベル（order/assignment/approval/master）DOM は廃止。
+- **cn-card の CSS は旧画面と ds-tokens.css を併載できない**（同名別値トークン）ため、`co-notify-panel.css` 末尾に `.cn-card` スコープで **DS 値を内蔵した `--cn-*` 変数**を持つ（出典=ds-tokens.css・値変更はユーザー承認必須）。R-3 で画面がレール化して ds-tokens を読むようになったら、この内蔵ブロックを ds 参照へ差し替え検討。
+- **QA（quick-access）は旧 `.cn-panel` マークアップ（最新/履歴タブ・検索・一覧選択）を自前保持**。`co-notify-panel.js` 末尾の「QA モバイル互換セクション」ハンドラが依存。旧 `.cn-panel`/`.cn-history-*`/`.cn-pick-*` CSS も残置（R-3e で QA を新カードへ移行したら撤去）。
 
 ## 構造的変更の警告
 
@@ -60,6 +63,7 @@
 | 2026-05-29 | Claude Code | SL/WS/LA + 通知seed のダミーデータ (配置/応援/休み/車両配置) を `mock-assignments-data.js` に一本化。WS hardcode 28件配置 / 応援 partners 5社 / 予約 / 車両配置 / 整備を共通ソース由来に。LA の empIdx 配列外バグ修正 + デモ今日に isOnLeave 3名 approved 追加。通知seed の架空人名 "DCP-柊本" を実在社員に修正 | 新規 `docs/mockup/mock-assignments-data.js` / `weekly-schedule.js` (seed 2関数 + holidays hardcode 削除) / `screen-layout.js` (slSeedSupportDemoData) / `leave-application.js` (seedDemoLeaves + seedWsAssignments + 通知 seed) / HTML 6本に script タグ + キャッシュバスター |
 | 2026-05-29 | Claude Code | N-6: WS schedule 発火を全配置パスに追加 (delete 8 + add 9 + modify 2 = 19箇所)。**LA通知 target を単一 `{axis:'leaveId'}` → 画面別マップ形式へ変更**（SL 用 `empName` 軸追加 + affects に screen-layout）。SL に empName 着地 `slCnFocusLeaveEmployee` 新設 | `weekly-schedule.js` (削除/追加/移動ハンドラ) / `leave-application.js` (`laCnSelfNotify` target) / `co-navbar.js` (la seed target) / `screen-layout.js` (cn:jump リスナー)。WS の leaveId 処理は画面別マップでも `weekly-schedule` キー維持で無影響 |
 | 2026-06-01 | Codex | LA休暇申請 seed を LA 画面専用生成から `mock-assignments-data.js` 共通生成へ移し、`co-mock-store.js` 未初期化時も seed を返すよう変更。SL/WS/共通ナビ単体起動でも LA 通知 seed が成立 | `mock-assignments-data.js` (`createLeaveApplications`) / `co-mock-store.js` (`getLeaveApplications` fallback) / `leave-application.js` seed 利用 / `co-navbar.js` 現在日優先 LA seed / HTML キャッシュバスター |
+| 2026-07-04 | Claude Code | **R-2 通知データモデル改修（コア実装・runtime検証保留）**: 通知ベルを4分類横並び→**統合ベル1個 + 単一 `.cn-card`（レール通知カード）** へ。カテゴリは**エンティティ(domain)から導出**（受注/配置/申請・承認/マスタ）、配置は**サブタグ**（自社/応援/協力業者/車両・ETC）、**`targetDate`（単日=文字列 / 範囲={start,end}）を第一級ファセット化し日別グルーピングを対象日基準に**。パネルの履歴タブ・検索・一覧選択フローは撤去（集積・検索はセンターの責務）。フッターに「変更通知センターで開く→」（同タブ遷移）。旧ベルID/旧4分類IDは `normalizeBellId()` が全て `'all'` へ吸収、`sourceBell` はジャンプ解決メタとして保持 | `co-notify-panel.js`(v39: カテゴリ/subTag/targetDate導出・buildItemHtml・renderBellLatest・setItems 全置換・QAモバイル互換ハンドラ隔離) / `co-notify-panel.css`(v18: `.cn-card` スコープの DS 内蔵ブロック追加) / `co-navbar.js`(v22: 単一ベルDOM・seedフラット化・targetDate/subTag付与) / HTML6本キャッシュバスター |
 
 ## アクティブな計画書
 

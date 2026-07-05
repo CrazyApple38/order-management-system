@@ -977,3 +977,404 @@ button.cn-date-group-head:hover { background: var(--bg-surface-2); }
 .cn-panel--mobile .cn-pick-step { padding: 10px 8px; }
 .cn-panel--mobile .cn-pick-badge { padding: 4px 9px; font-size: 10px; }
 .cn-panel--mobile .cn-list-pick-btn { padding: 3px 8px; font-size: 10px; max-width: 130px; }
+
+/* ============================================================
+   レール通知カード (.cn-card) — R-2 (2026-07-04) 簡素化モデル §3.7.8
+   ------------------------------------------------------------
+   統合ベル1個 → 単一カード。SL層モック (design-refresh-sl-layer-mockup.html)
+   の .cn-card 見た目を移植。旧画面は ds-tokens.css を読み込めない
+   (同名別値トークンの併載禁止) ため、DS 値を .cn-card スコープの
+   --cn-* 変数に内蔵する（値の出典 = ds-tokens.css / R-1 成果物 2026-07-03。
+   値の変更はユーザー承認必須）。全セレクタを .cn-card 配下に閉じ、
+   QA モバイルの旧 .cn-panel には影響させない。
+   ============================================================ */
+.cn-card {
+    /* --- ds-tokens.css より機械コピー --- */
+    --cn-ink: #172b3a;
+    --cn-muted: #5a6b7a;
+    --cn-line: #dbe5ec;
+    --cn-soft-line: #e8eef3;
+    --cn-blue: #1f5fae;
+    --cn-blue-dark: #123b5d;
+    --cn-chip-text: #385569;
+    --cn-chip-bg: #eef4f8;
+    --cn-radius-xs: 4px;
+    --cn-radius-sm: 8px;
+    --cn-radius-md: 14px;
+    --cn-elevation-1: 0 2px 6px rgba(38, 73, 99, 0.045), 0 1px 2px rgba(38, 73, 99, 0.030);
+    --cn-elevation-5: 0 14px 30px rgba(24, 55, 78, 0.115), 0 5px 12px rgba(24, 55, 78, 0.070);
+    --cn-shadow-card-outer:
+        0 -2px 6px rgba(255, 255, 255, 0.55),
+        0 0 0 1px rgba(18, 38, 54, 0.040),
+        0 4px 9px rgba(18, 38, 54, 0.075),
+        0 1px 3px rgba(18, 38, 54, 0.045);
+    --cn-bevel-card:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.96),
+        inset -1px -1px 0 rgba(182, 198, 211, 0.20);
+
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 1000;
+    width: 344px;
+    max-width: calc(100vw - 16px);
+    max-height: min(560px, calc(100vh - 96px));
+    display: none;
+    flex-direction: column;
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    border-radius: var(--cn-radius-md);
+    background:
+        linear-gradient(to bottom right, rgba(255, 255, 255, 0.97), rgba(246, 250, 253, 0.92)),
+        #fff;
+    box-shadow: var(--cn-elevation-5), var(--cn-shadow-card-outer), var(--cn-bevel-card);
+    color: var(--cn-ink);
+    font-size: 12px;
+    overflow: hidden;
+    animation: cnSlideIn 160ms ease;
+}
+.cn-anchor.is-open > .cn-card { display: flex; }
+
+@keyframes cnSlideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* ----- ヘッダー ----- */
+.cn-card .cn-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px 8px;
+    background: transparent;
+    border-bottom: none;
+}
+.cn-card .cn-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--cn-ink);
+    flex: none;
+}
+.cn-card .cn-count {
+    display: inline-flex;
+    align-items: center;
+    min-height: 18px;
+    padding: 0 7px;
+    border-radius: var(--cn-radius-xs);
+    color: var(--cn-chip-text);
+    background: var(--cn-chip-bg);
+    font-size: 10px;
+    font-weight: 600;
+}
+.cn-card .cn-count:empty { display: none; }
+.cn-card .cn-mark-all {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    color: var(--cn-blue);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 4px;
+    font-family: inherit;
+}
+.cn-card .cn-mark-all:hover { text-decoration: underline; }
+.cn-card .cn-close {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--cn-soft-line);
+    border-radius: var(--cn-radius-sm);
+    background: #fff;
+    color: var(--cn-muted);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: var(--cn-elevation-1);
+    font-family: inherit;
+}
+.cn-card .cn-close:hover { color: var(--cn-ink); }
+
+/* ----- カテゴリフィルタチップ ----- */
+.cn-card .cn-filter-chips {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    padding: 0 14px 10px;
+    border-bottom: 1px solid var(--cn-soft-line);
+}
+.cn-card .cn-filter-chip {
+    background: #fff;
+    border: 1px solid var(--cn-line);
+    border-radius: var(--cn-radius-sm);
+    padding: 3px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--cn-muted);
+    cursor: pointer;
+    line-height: 1.5;
+    transition: background 120ms, color 120ms, border-color 120ms;
+    font-family: inherit;
+}
+.cn-card .cn-filter-chip:hover {
+    color: var(--cn-ink);
+    border-color: var(--cn-muted);
+}
+.cn-card .cn-filter-chip.is-active {
+    /* 選択状態 = 濃紺ベタ + 白文字 (DS 濃色面使用権③) */
+    background: var(--cn-blue-dark);
+    color: #fff;
+    border-color: var(--cn-blue-dark);
+}
+
+/* ----- ボディ (対象日グループ + アイテム) ----- */
+.cn-card .cn-body--latest {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.cn-card .cn-empty {
+    padding: 28px 16px;
+    text-align: center;
+    color: var(--cn-muted);
+    font-size: 11px;
+}
+
+/* 対象日グループ見出し */
+.cn-card .cn-date-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.cn-card .cn-date-group-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 2px 2px 0;
+    background: transparent;
+    border: none;
+    color: var(--cn-muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-align: left;
+    cursor: pointer;
+    position: static;
+    font-family: inherit;
+}
+.cn-card .cn-date-group-head:hover { color: var(--cn-ink); }
+.cn-card .cn-date-group-toggle { flex-shrink: 0; margin-left: 8px; color: var(--cn-muted); }
+.cn-card .cn-date-group.is-collapsed .cn-item { display: none; }
+.cn-card .cn-date-group.is-hidden,
+.cn-card .cn-item.is-hidden { display: none; }
+
+/* アイテム = ライトカード (§02 語彙: soft-line 枠 + 淡グラデ) */
+.cn-card .cn-item {
+    display: block;
+    padding: 8px 12px;
+    border: 1px solid var(--cn-soft-line);
+    border-radius: var(--cn-radius-sm);
+    background: linear-gradient(to bottom right, #fdfeff, #f5f8fa);
+    cursor: pointer;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.cn-card .cn-item:hover {
+    background: linear-gradient(to bottom right, #fdfeff, #f5f8fa);
+    border-color: rgba(160, 182, 200, 0.85);
+    box-shadow: var(--cn-elevation-1);
+}
+.cn-card .cn-item.is-unread {
+    background: linear-gradient(to bottom right, #fbfdff, #eef5fb);
+    border-color: rgba(120, 158, 200, 0.55);
+}
+.cn-card .cn-item.is-unread::before {
+    left: 6px;
+    top: 12px;
+    background: var(--cn-blue);
+}
+.cn-card .cn-item-row {
+    display: flex;
+    gap: 8px;
+    padding: 0;
+    align-items: flex-start;
+}
+.cn-card .cn-text { flex: 1; min-width: 0; display: grid; gap: 3px; }
+
+/* バッジ行 (カテゴリ + 配置サブタグ + 対象日) */
+.cn-card .cn-badges {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+.cn-card .cn-cat-badge,
+.cn-card .cn-subtag-badge,
+.cn-card .cn-date-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 17px;
+    padding: 0 6px;
+    border-radius: var(--cn-radius-xs);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    flex-shrink: 0;
+    letter-spacing: 0.01em;
+}
+/* カテゴリ = ニュートラルチップ (色相を増やさない。ラベルで判別) */
+.cn-card .cn-cat-badge {
+    color: var(--cn-chip-text);
+    background: var(--cn-chip-bg);
+    border: 1px solid var(--cn-line);
+}
+/* 配置サブタグ = 枠のみの淡チップ */
+.cn-card .cn-subtag-badge {
+    color: var(--cn-muted);
+    background: #fff;
+    border: 1px solid var(--cn-line);
+}
+/* 対象日 = 青系チップ */
+.cn-card .cn-date-badge {
+    color: var(--cn-blue);
+    background: rgba(31, 95, 174, 0.10);
+    border: 1px solid rgba(31, 95, 174, 0.28);
+}
+
+.cn-card .cn-site { font-size: 12px; font-weight: 600; color: var(--cn-ink); }
+.cn-card .cn-text-main-label { min-width: 0; }
+
+/* インライン差分 (先頭1件) */
+.cn-card .cn-diff {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 12px;
+}
+.cn-card .cn-diff .d-label { color: #7a8d9c; font-weight: 600; }
+.cn-card .cn-diff .d-from { color: #8fa0ad; }
+.cn-card .cn-diff .d-arrow { color: #9aabb8; font-weight: 600; }
+.cn-card .cn-diff .d-to { color: #2c4356; font-weight: 600; }
+.cn-card .cn-diff .d-more { color: var(--cn-muted); font-size: 10px; }
+
+.cn-card .cn-meta { color: var(--cn-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+
+.cn-card .cn-chevron {
+    color: var(--cn-muted);
+    font-size: 13px;
+    line-height: 1;
+    margin-top: 2px;
+    flex-shrink: 0;
+    transition: transform 120ms;
+}
+.cn-card .cn-item.is-expanded .cn-chevron { color: var(--cn-ink); }
+
+/* 展開エリア */
+.cn-card .cn-expand {
+    padding: 8px 0 2px 0;
+    margin-top: 8px;
+    border-top: 1px dashed var(--cn-soft-line);
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+}
+.cn-card .cn-item.is-expanded .cn-expand { display: flex; }
+.cn-card .cn-expand-summary { font-size: 11px; color: var(--cn-muted); line-height: 1.5; }
+.cn-card .cn-diff-list { display: flex; flex-direction: column; gap: 6px; }
+.cn-card .cn-diff-line {
+    display: grid;
+    grid-template-columns: minmax(56px, max-content) minmax(0, 1fr);
+    gap: 8px;
+    font-size: 11px;
+}
+.cn-card .cn-diff-label { font-size: 10px; font-weight: 700; color: var(--cn-muted); letter-spacing: 0.04em; }
+.cn-card .cn-diff-values { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cn-card .cn-diff-from { color: #8fa0ad; text-decoration: line-through; overflow-wrap: anywhere; }
+.cn-card .cn-diff-to { color: var(--cn-ink); font-weight: 700; overflow-wrap: anywhere; }
+
+/* クロス画面ヒント / ジャンプ */
+.cn-card .cn-cross-hint {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 2px;
+    padding: 6px 8px;
+    background: #fff;
+    border: 1px solid var(--cn-soft-line);
+    border-radius: var(--cn-radius-sm);
+    font-size: 10px;
+}
+.cn-card .cn-cross-hint:empty { display: none; }
+.cn-card .cn-cross-hint-in-context { color: var(--cn-blue); font-weight: 600; }
+.cn-card .cn-cross-hint-out { color: var(--cn-muted); }
+.cn-card .cn-cross-jumps { display: flex; flex-wrap: wrap; }
+.cn-card .cn-cross-jump-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    margin: 2px 4px 2px 0;
+    border: 1px solid var(--cn-line);
+    border-radius: var(--cn-radius-sm);
+    background: #fff;
+    color: var(--cn-blue);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+.cn-card .cn-cross-jump-btn:hover { border-color: var(--cn-blue); background: rgba(31, 95, 174, 0.06); }
+
+/* アクションボタン (復旧 / 復旧キャンセル) */
+.cn-card .cn-action-btn {
+    align-self: flex-start;
+    padding: 5px 12px;
+    background: linear-gradient(to bottom right, #2f6fbf, #1f5fae);
+    color: #fff;
+    border: none;
+    border-radius: var(--cn-radius-sm);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+.cn-card .cn-action-btn--cancel {
+    background: #fff;
+    color: var(--cn-muted);
+    border: 1px solid var(--cn-line);
+}
+
+/* ロック済み通知 */
+.cn-card .cn-item-locked { cursor: default; }
+.cn-card .cn-item-locked:hover { border-color: var(--cn-soft-line); box-shadow: none; }
+.cn-card .cn-item-locked .cn-text-main-label { text-decoration: line-through; color: var(--cn-muted); }
+
+/* ----- フッター (センター導線) ----- */
+.cn-card .cn-foot {
+    padding: 8px 12px 12px;
+    border-top: 1px solid var(--cn-soft-line);
+}
+.cn-card .cn-center-link {
+    width: 100%;
+    height: 30px;
+    border: 1px solid var(--cn-line);
+    border-radius: var(--cn-radius-sm);
+    background: linear-gradient(to bottom right, #ffffff, #f6faff);
+    color: var(--cn-blue);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--cn-elevation-1);
+    font-family: inherit;
+}
+.cn-card .cn-center-link:hover { border-color: var(--cn-blue); }
+
+/* ベル未読バッジは統合ベルでも DS 準拠の橙ハローを避け既存踏襲 */
+.cn-card .cn-trigger-badge { /* トリガー側は既存 .cn-trigger-badge を使用 */ }

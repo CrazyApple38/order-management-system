@@ -16,14 +16,14 @@
     else if (path.indexOf('quick-access') !== -1) currentPage = 'quick-access';
     else if (path.indexOf('admin-notify') !== -1) currentPage = 'admin-notify';
 
-    // --- 変更通知ベル定義（4分類統合 / 2026-05-27）
-    //     表示は業務意味別4分類に集約し、発信元は通知アイテム内バッジで示す。
+    // --- 変更通知ベル定義（R-2 統合ベル1個 / 2026-07-03）
+    //     4分類ベル横並びを廃止し、統合ベル + 単一 cn-card に集約。
+    //     カテゴリ（受注/配置/申請・承認/マスタ）はエンティティ (domain) から
+    //     co-notify-panel.js が導出し、カード内バッジ+フィルタチップで示す。
     var coNotifyBells = [
-        { id: 'order',      title: '受注・業務変更',   tooltip: '受注・業務変更',   group: 'main' },
-        { id: 'assignment', title: '配置・予定変更',   tooltip: '配置・予定変更',   group: 'main' },
-        { id: 'approval',   title: '申請・承認',       tooltip: '申請・承認',       group: 'main' },
-        { id: 'master',     title: 'マスタ・システム', tooltip: 'マスタ・システム', group: 'main' }
+        { id: 'all', title: '変更通知', tooltip: '変更通知', group: 'main' }
     ];
+    // 旧ベルID → 旧4分類（互換吸収用。co-notify-panel.js のカテゴリ導出フォールバックが参照）
     var coNotifyBellAliases = {
         ob: 'order',
         sl: 'assignment',
@@ -78,45 +78,39 @@
         }).join('');
     }
 
-    // 変更通知ベル群（4分類）
+    // 変更通知ベル（R-2: 統合ベル1個 + cn-card。レールが無い画面はベル位置アンカー）
     function buildBellsHtml() {
-        var s = '<div class="md-nav-cn-bells" id="mdNavCnBells">';
-        var lastGroup = null;
-        coNotifyBells.forEach(function (bell) {
-            if (lastGroup !== null && bell.group !== lastGroup) {
-                s += '<span class="md-nav-cn-bells-divider" aria-hidden="true"></span>';
-            }
-            lastGroup = bell.group;
-            s += ''
-                + '<div class="cn-anchor md-nav-cn-bell" data-bell="' + bell.id + '" id="mdNavCnBell-' + bell.id + '">'
-                +   '<button type="button" class="cn-trigger md-nav-action-btn" title="' + bell.tooltip + '" aria-label="' + bell.tooltip + '">'
-                +     '<img class="cn-bell-icon md-nav-cn-bell-icon" data-bell-icon="' + bell.id + '" src="" alt="">'
-                +     '<span class="cn-trigger-badge" hidden>0</span>'
-                +   '</button>'
-                +   '<div class="cn-panel">'
-                +     '<div class="cn-head">'
-                +       '<span class="cn-title">' + bell.title + '</span>'
-                +       '<button type="button" class="cn-mark-all">すべて既読</button>'
-                +     '</div>'
-                +     '<div class="cn-tabs">'
-                +       '<button type="button" class="cn-tab is-active" data-tab="latest">最新</button>'
-                +       '<button type="button" class="cn-tab" data-tab="history">履歴</button>'
-                +     '</div>'
-                +     '<div class="cn-tab-view is-active" data-tab="latest">'
-                +       '<div class="cn-body cn-body--latest" data-bell-body="' + bell.id + '">'
-                +         '<div class="cn-empty">新しい通知はありません</div>'
-                +       '</div>'
-                +     '</div>'
-                +     '<div class="cn-tab-view" data-tab="history">'
-                +       '<div class="cn-body cn-body--history">'
-                +         '<div class="cn-empty">履歴はありません</div>'
-                +       '</div>'
-                +     '</div>'
-                +   '</div>'
-                + '</div>';
-        });
-        s += '</div>';
-        return s;
+        var bell = coNotifyBells[0];
+        return ''
+            + '<div class="md-nav-cn-bells" id="mdNavCnBells">'
+            +   '<div class="cn-anchor md-nav-cn-bell" data-bell="' + bell.id + '" id="mdNavCnBell-' + bell.id + '">'
+            +     '<button type="button" class="cn-trigger md-nav-action-btn" title="' + bell.tooltip + '" aria-label="' + bell.tooltip + '">'
+            +       '<img class="cn-bell-icon md-nav-cn-bell-icon" data-bell-icon="' + bell.id + '" src="" alt="">'
+            +       '<span class="cn-trigger-badge" hidden>0</span>'
+            +     '</button>'
+            +     '<div class="cn-card" role="dialog" aria-label="' + bell.title + '">'
+            +       '<div class="cn-head">'
+            +         '<strong class="cn-title">' + bell.title + '</strong>'
+            +         '<span class="cn-count"></span>'
+            +         '<button type="button" class="cn-mark-all">すべて既読</button>'
+            +         '<button type="button" class="cn-close" title="閉じる" aria-label="閉じる">&times;</button>'
+            +       '</div>'
+            +       '<div class="cn-filter-chips" role="group" aria-label="カテゴリで絞り込み">'
+            +         '<button type="button" class="cn-filter-chip is-active" data-filter="all">すべて</button>'
+            +         '<button type="button" class="cn-filter-chip" data-filter="order">受注</button>'
+            +         '<button type="button" class="cn-filter-chip" data-filter="assignment">配置</button>'
+            +         '<button type="button" class="cn-filter-chip" data-filter="approval">申請・承認</button>'
+            +         '<button type="button" class="cn-filter-chip" data-filter="master">マスタ</button>'
+            +       '</div>'
+            +       '<div class="cn-body cn-body--latest" data-bell-body="' + bell.id + '">'
+            +         '<div class="cn-empty">新しい通知はありません</div>'
+            +       '</div>'
+            +       '<div class="cn-foot">'
+            +         '<button type="button" class="cn-center-link">変更通知センターで開く →</button>'
+            +       '</div>'
+            +     '</div>'
+            +   '</div>'
+            + '</div>';
     }
 
     var html = ''
@@ -201,6 +195,13 @@
     function mdNavDayLabel(dateKey) {
         var parts = String(dateKey || mdNavCurrentDateKey()).split('-');
         return (+parts[1]) + '/' + (+parts[2]);
+    }
+    // 現在表示月の「day 日」を dateKey (YYYY-MM-DD) に変換（OB セル通知の対象日導出用）
+    function mdNavDateKeyForDay(day) {
+        var d = parseInt(day, 10);
+        if (!Number.isFinite(d)) return '';
+        var parts = String(mdNavCurrentDateKey()).split('-');
+        return parts[0] + '-' + parts[1] + '-' + mdNavPad2(d);
     }
     function mdNavGetEmployees() {
         return (typeof employeesData !== 'undefined' && Array.isArray(employeesData)) ? employeesData : [];
@@ -311,6 +312,7 @@
                 main: (row.company || '契約先') + ' / ' + (entry.dailyTaskName || row.task || '受注') + '｜' + actionText,
                 sub: '共通モックデータ ・ ' + (idx === 2 ? '昨日 17:00' : '10:00'),
                 date: idx === 2 ? '昨日' : today,
+                targetDate: mdNavDateKeyForDay(hit.day),
                 expand: expandText,
                 diffs: op === 'modify' ? [{ field: '人数', oldVal: '変更前', newVal: (entry.count || 0) + '名' }] : null,
                 affects: ['order-book', 'screen-layout', 'weekly-schedule'],
@@ -395,6 +397,7 @@
                 main: siteLabel + '｜受注を追加',
                 sub: '共通モックデータ ・ 10:00',
                 date: today,
+                targetDate: currentDateKey,
                 expand: 'OB共通データからSL行へ反映',
                 affects: ['screen-layout', 'order-book'],
                 target: {
@@ -406,9 +409,11 @@
                 scope: 'employee', op: 'place', color: 'secondary',
                 domain: 'person-assignment',
                 primaryPage: 'screen-layout',
+                subTag: 'own',
                 main: (firstOb.entry.dailyTaskName || firstOb.row.task || '現場') + '｜' + employee.name + ' を配置',
                 sub: employee.company + ' ・ 10:15',
                 date: today,
+                targetDate: currentDateKey,
                 affects: ['screen-layout', 'leave-application'],
                 target: {
                     'screen-layout': { axis: 'siteName', value: firstOb.entry.dailyTaskName || firstOb.row.task || '', date: currentDateKey }
@@ -420,9 +425,11 @@
                 scope: 'schedule', op: 'add',
                 domain: 'person-assignment',
                 primaryPage: 'weekly-schedule',
+                subTag: 'own',
                 main: '〇〇株式会社 / 〇〇ビル｜' + employee.name + ' を配置',
                 sub: '共通モックデータ ・ 10:20',
                 date: today,
+                targetDate: currentDateKey,
                 expand: 'WS の配置を更新',
                 affects: ['weekly-schedule'],
                 target: {
@@ -435,9 +442,11 @@
                 scope: 'vehicle', op: 'place',
                 domain: 'vehicle-assignment',
                 primaryPage: 'screen-layout',
+                subTag: 'vehicle',
                 main: (secondOb.entry.dailyTaskName || secondOb.row.task || '現場') + '｜' + (vehicle.plate || vehicle.model || '車両') + ' を配置',
                 sub: (vehicle.model || '車両') + ' ・ 10:25',
                 date: today,
+                targetDate: currentDateKey,
                 affects: ['screen-layout', 'leave-application'],
                 target: {
                     'screen-layout': { axis: 'siteName', value: secondOb.entry.dailyTaskName || secondOb.row.task || '', date: mdNavCurrentDateKey() }
@@ -447,9 +456,11 @@
                 scope: 'vehicle', op: 'modify',
                 domain: 'vehicle-assignment',
                 primaryPage: 'screen-layout',
+                subTag: 'vehicle',
                 main: (vehicle.plate || vehicle.model || '車両') + ' の車両予定を更新',
                 sub: (vehicle.model || '共通車両データ') + ' ・ 10:30',
                 date: today,
+                targetDate: currentDateKey,
                 expand: '車両マスタ: ' + (vehicle.owner || '') + ' / ' + (vehicle.model || ''),
                 affects: ['screen-layout', 'leave-application']
             });
@@ -520,53 +531,19 @@
         }
         return items;
     }
-    function mdNavGroupItems(title, items) {
-        return [{ title: title, items: (items || []).filter(Boolean) }];
-    }
-    function mdNavBuildHistoryForItems(kind, title, items, opts) {
-        opts = opts || {};
-        var safeItems = (items || []).filter(Boolean);
-        if (safeItems.length === 0) return null;
-        return {
-            businessAxis: {
-                tab: opts.businessTab || '対象',
-                search: (opts.businessPrefix || '対象') + 'で検索...',
-                prefix: opts.businessPrefix || '対象',
-                groups: mdNavGroupItems(title, safeItems),
-                companies: [title],
-                sites: {}
-            },
-            accountAxis: {
-                tab: 'アカウント',
-                search: 'アカウント名で検索...',
-                prefix: 'アカウント',
-                groups: mdNavGroupItems('共通モックデータ', safeItems),
-                accounts: ['共通モックデータ']
-            }
-        };
-    }
-    function mdNavBuildBellHistory(items) {
-        return {
-            order: mdNavBuildHistoryForItems('order', '受注・業務変更', items.order, { businessTab: '契約先/現場', businessPrefix: '現場' }),
-            assignment: mdNavBuildHistoryForItems('assignment', '配置・予定変更', items.assignment, { businessTab: '現場/車両', businessPrefix: '対象' }),
-            approval: mdNavBuildHistoryForItems('approval', '申請・承認', items.approval, { businessTab: '申請者', businessPrefix: '申請者' }),
-            master: mdNavBuildHistoryForItems('master', 'マスタ・システム', items.master, { businessTab: 'マスタ種別', businessPrefix: '種別' })
-        };
-    }
-    function mdNavMergeBellItems(rawItems) {
-        var merged = { order: [], assignment: [], approval: [], master: [] };
+    // R-2: 旧画面IDバケツを単一配列へフラット化（sourceBell はジャンプ解決用メタデータとして保持）。
+    // ベルへの振り分けは co-notify-panel.js がエンティティ (domain) から導出するため、ここでは行わない。
+    function mdNavFlattenBellItems(rawItems) {
+        var flat = [];
         Object.keys(rawItems || {}).forEach(function (sourceBell) {
-            var groupId = coNotifyBellAliases[sourceBell] || sourceBell;
-            if (!merged[groupId]) merged[groupId] = [];
             (rawItems[sourceBell] || []).forEach(function (item) {
-                merged[groupId].push(Object.assign({ sourceBell: sourceBell, _commonSeed: true }, item));
+                flat.push(Object.assign({ sourceBell: sourceBell, _commonSeed: true }, item));
             });
         });
-        return merged;
+        return flat;
     }
     var mdNavCnRawBellItems = mdNavBuildBellItems();
-    var mdNavCnBellItems = mdNavMergeBellItems(mdNavCnRawBellItems);
-    var mdNavCnBellHistory = mdNavBuildBellHistory(mdNavCnBellItems);
+    var mdNavCnBellItems = mdNavFlattenBellItems(mdNavCnRawBellItems);
 
     // --- GCフィルタモーダル ---
     html += ''
@@ -676,23 +653,18 @@
         }
     });
 
-    // --- ベル群の初期化 (アイコン適用 / デモ通知投入 / 履歴タブ構築 / バッジ更新) ---
-    //     開閉・タブ切替等のパネル挙動は co-notify-panel.js が処理する。
+    // --- ベル初期化 (アイコン適用 / デモ通知投入 / バッジ更新) ---
+    //     開閉・フィルタ等のカード挙動は co-notify-panel.js が処理する。
     function mdNavApplyBells() {
         if (!window.coNotifyPanel || typeof window.coNotifyPanel.setItems !== 'function') return;
-        coNotifyBells.forEach(function (bell) {
-            window.coNotifyPanel.applyBellIcon(bell.id);
-            window.coNotifyPanel.setItems(bell.id, mdNavCnBellItems[bell.id] || []);
-            if (typeof window.coNotifyPanel.setHistory === 'function') {
-                window.coNotifyPanel.setHistory(bell.id, mdNavCnBellHistory[bell.id] || null);
-            }
-        });
+        window.coNotifyPanel.applyBellIcon('all');
+        // 'all' 直指定 = seed 全置換（実操作の addItem 通知は co-notify-panel 側で保持される）
+        window.coNotifyPanel.setItems('all', mdNavCnBellItems);
     }
     // 通知シードを再構築して再適用（デモ復旧トグル等で状態が変わったとき）
     window.mdNavRefreshBells = function () {
         mdNavCnRawBellItems = mdNavBuildBellItems();
-        mdNavCnBellItems = mdNavMergeBellItems(mdNavCnRawBellItems);
-        mdNavCnBellHistory = mdNavBuildBellHistory(mdNavCnBellItems);
+        mdNavCnBellItems = mdNavFlattenBellItems(mdNavCnRawBellItems);
         mdNavApplyBells();
     };
     mdNavApplyBells();
