@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>配色テーマ比較 — 10候補 + 現行 Calm Operations</title>
+<style>
+/* ============================================================================
+   design-refresh-theme-palettes.html
+   目的: design-refresh-plan §5.4 の10候補 + 現行 Calm Operations(青) を
+         低彩度パレットとして具体化し、SLライブ断片で比較・選定する。
+   注意:
+   - 各パレットの hex 値は「方向性」を可視化するための AI 提案。
+     採用テーマ確定後に実値を詰める（値の発明を避けるため、選ぶのは "方向"）。
+   - 意味色（夜間赤 #D14D41 / 警告橙 #F15E2A）と所属色10色は全テーマ固定。
+     テーマが触るのは ニュートラル地色 + ブランド色（bg/panel/ink/muted/line + brand/brand-dark）のみ。
+   ============================================================================ */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap");
+
+:root{
+  --page:#e7ebef; --card:#ffffff; --card-ink:#1e2833; --card-muted:#63707c; --card-line:#dde3e9;
+  /* 固定意味色 */
+  --fx-night:#d14d41; --fx-alert:#f15e2a; --fx-alert-bg:#fff0e8; --fx-alert-border:#f5a17c;
+  --fx-b1:#afc5e6; --fx-b1-bd:#e5ecf7; --fx-b2:#b4ddc5; --fx-b2-bd:#e7f4ec; --fx-b3:#cdbfea; --fx-b3-bd:#efebf8;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; font-family:"Inter","Noto Sans JP","Segoe UI","Yu Gothic UI",sans-serif;
+  background:var(--page); color:var(--card-ink); padding:26px 30px 440px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+h1{font-size:20px; font-weight:700; margin:0 0 4px;}
+.lead{font-size:12.5px; color:var(--card-muted); max-width:920px; margin:0 0 6px;}
+.note{
+  font-size:12px; color:#5a4a2c; background:#fdf6e6; border:1px solid #efe0b8;
+  border-radius:8px; padding:8px 12px; max-width:920px; margin:10px 0 20px;
+}
+.note b{color:#7a5a1c;}
+.fixed-legend{display:flex; flex-wrap:wrap; gap:14px; align-items:center; font-size:11.5px; color:var(--card-muted); margin:0 0 22px;}
+.fixed-legend .fx{display:inline-flex; align-items:center; gap:6px;}
+.fixed-legend .sw{width:14px; height:14px; border-radius:4px; border:1px solid rgba(0,0,0,.08);}
+
+/* ---- パレットカードグリッド ---- */
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(268px,1fr)); gap:14px; margin-bottom:30px;}
+.tcard{
+  background:var(--card); border:1px solid var(--card-line); border-radius:12px; padding:13px 13px 14px;
+  cursor:pointer; transition:box-shadow .15s ease, border-color .15s ease, transform .12s ease;
+  box-shadow:0 1px 2px rgba(30,55,80,.05);
+}
+.tcard:hover{box-shadow:0 6px 16px rgba(30,55,80,.12); transform:translateY(-1px);}
+.tcard.is-active{border-color:#1f5fae; box-shadow:0 0 0 2px #1f5fae, 0 6px 16px rgba(31,95,174,.18);}
+.tcard .tname{font-size:13.5px; font-weight:700; display:flex; align-items:center; gap:7px;}
+.tcard .tname .live{margin-left:auto; font-size:9.5px; font-weight:600; color:#1f5fae; background:#eaf3ff; border:1px solid #cfe2f7; border-radius:99px; padding:1px 7px; opacity:0; transition:opacity .15s;}
+.tcard.is-active .tname .live{opacity:1;}
+.tcard .tdir{font-size:10.5px; color:var(--card-muted); margin:2px 0 10px; min-height:26px;}
+.tcard .tdir.warn{color:#a3562b;}
+.seclbl{font-size:8.5px; font-weight:700; letter-spacing:.09em; color:#9aa7b2; margin:0 0 5px;}
+.swrow{display:flex; gap:0; border-radius:7px; overflow:hidden; border:1px solid var(--card-line); margin-bottom:10px;}
+.swrow .sw{height:34px; flex:1; position:relative;}
+.swrow .sw[data-lg]{flex:1.4;}
+.brow{display:flex; gap:8px; align-items:center; margin-bottom:2px;}
+.brow .bsw{width:34px; height:34px; border-radius:7px; border:1px solid rgba(0,0,0,.08);}
+.brow .bbtn{font-size:11px; font-weight:600; color:#fff; border-radius:7px; padding:7px 12px; border:none;}
+.brow .bseg{display:flex; border-radius:7px; overflow:hidden; border:1px solid var(--card-line); font-size:10px;}
+.brow .bseg span{padding:6px 9px;}
+.brow .bseg .on{color:#fff; font-weight:600;}
+.brow .bseg .off{color:var(--card-muted); background:#f4f6f8;}
+
+/* ============================================================
+   SL ライブ断片プレビュー — CSS変数はJSでテーマ値を注入
+   ============================================================ */
+.preview-wrap{
+  position:fixed; left:0; right:0; bottom:0; z-index:50;
+  background:var(--page); border-top:1px solid #cfd6dd; box-shadow:0 -6px 22px rgba(20,45,70,.14);
+  padding:10px 30px 14px;
+}
+.preview-head{display:flex; align-items:center; gap:12px; margin:0 0 8px;}
+.preview-head h2{font-size:14px; font-weight:700; margin:0;}
+.preview-head .cur{font-size:12px; color:var(--card-muted);}
+.preview-head .cur b{color:#1f5fae;}
+
+.slp{
+  --bg:#eef4f8; --panel:#ffffff; --ink:#172b3a; --muted:#5a6b7a; --line:#dbe5ec;
+  --brand:#1f5fae; --brand-dark:#123b5d;
+  --night:var(--fx-night); --alert:var(--fx-alert); --alert-bg:var(--fx-alert-bg); --alert-border:var(--fx-alert-border);
+  background:var(--bg); border:1px solid var(--line); border-radius:12px; overflow:hidden;
+  box-shadow:0 8px 26px rgba(20,45,70,.16); font-size:12px; color:var(--ink);
+  transition:background .28s ease;
+}
+/* menubar */
+.slp-menubar{
+  display:flex; align-items:center; gap:16px; padding:0 16px; height:42px;
+  background:linear-gradient(160deg, color-mix(in srgb, var(--brand-dark) 88%, #fff 12%), var(--brand-dark));
+  color:#fff;
+}
+.slp-menubar .mb-logo{font-weight:700; font-size:13px; letter-spacing:.01em;}
+.slp-menubar .mb-nav{display:flex; gap:14px; font-size:11.5px; color:rgba(255,255,255,.72);}
+.slp-menubar .mb-user{margin-left:auto; display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:rgba(255,255,255,.9);}
+.slp-menubar .mb-user .dot{width:7px; height:7px; border-radius:50%; background:#5fd08a; box-shadow:0 0 0 2px rgba(95,208,138,.3);}
+/* toolbar */
+.slp-toolbar{
+  display:flex; align-items:center; gap:12px; padding:8px 16px; background:var(--panel);
+  border-bottom:1px solid var(--line);
+}
+.slp-btn.primary{
+  background:linear-gradient(180deg, color-mix(in srgb,var(--brand) 92%,#fff 8%), var(--brand));
+  color:#fff; border:none; border-radius:8px; padding:7px 13px; font-size:11.5px; font-weight:600; cursor:default;
+  box-shadow:0 2px 5px color-mix(in srgb,var(--brand) 35%, transparent);
+}
+.slp-seg{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:#f2f5f8;}
+.slp-seg span{padding:6px 11px; font-size:11px; color:var(--muted);}
+.slp-seg .on{background:var(--brand); color:#fff; font-weight:600; border-radius:7px;}
+.slp-search{
+  border:1px solid var(--line); border-radius:8px; padding:6px 12px; font-size:11px; color:var(--muted);
+  background:var(--panel); min-width:130px;
+}
+.slp-stat{display:flex; gap:14px; margin-left:auto; align-items:center;}
+.slp-stat .st{display:flex; flex-direction:column; align-items:flex-end; line-height:1.15; padding-left:14px; border-left:1px solid var(--line);}
+.slp-stat .st:first-child{border-left:none; padding-left:0;}
+.slp-stat .st .l{font-size:9px; color:var(--muted); letter-spacing:.02em;}
+.slp-stat .st .v{font-size:16px; font-weight:700; color:var(--ink);}
+.slp-stat .st.alert .v{color:var(--alert);}
+.slp-help{width:26px; height:26px; border-radius:7px; border:1px solid var(--line); background:var(--panel); color:var(--muted); font-size:12px;}
+/* body */
+.slp-body{display:grid; grid-template-columns:52px 1fr 264px; gap:14px; padding:14px;}
+.slp-rail{
+  background:linear-gradient(165deg, color-mix(in srgb,var(--brand-dark) 90%,#fff 10%), var(--brand-dark));
+  border-radius:12px; display:flex; flex-direction:column; align-items:center; gap:8px; padding:12px 0;
+  box-shadow:0 6px 16px rgba(15,35,55,.28);
+}
+.slp-rail .ri{width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+  color:rgba(255,255,255,.72); font-size:15px;}
+.slp-rail .ri.on{background:rgba(255,255,255,.16); color:#fff; box-shadow:inset 0 1px 0 rgba(255,255,255,.25);}
+.slp-rail .ri.bell{margin-top:auto; position:relative;}
+.slp-rail .ri.bell .cnt{position:absolute; top:-3px; right:-3px; background:var(--alert); color:#fff; font-size:8px; font-weight:700; border-radius:99px; padding:0 4px; box-shadow:0 0 8px 2px rgba(241,94,42,.6);}
+/* main card / table */
+.slp-main{min-width:0;}
+.slp-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden;
+  box-shadow:0 4px 12px rgba(24,55,78,.08), inset 1px 1px 0 rgba(255,255,255,.9);}
+.slp-ttl{
+  padding:9px 14px; font-size:12.5px; font-weight:700; color:#fff;
+  background:linear-gradient(120deg, var(--brand-dark), color-mix(in srgb,var(--brand) 70%, var(--brand-dark)));
+}
+.slp-tbl{width:100%; border-collapse:collapse;}
+.slp-tbl th{
+  font-size:9.5px; font-weight:600; color:var(--muted); text-align:left; padding:7px 8px;
+  background:color-mix(in srgb,var(--panel) 78%, var(--bg)); border-bottom:1px solid var(--line);
+}
+.slp-tbl th.c{text-align:center;}
+.slp-tbl td{padding:8px; border-bottom:1px solid var(--line); vertical-align:middle;}
+.slp-tbl tr:last-child td{border-bottom:none;}
+.slp-tbl td.c{text-align:center;}
+.cat{
+  display:inline-flex; align-items:center; justify-content:center; min-width:34px; padding:3px 6px;
+  font-size:10px; font-weight:600; color:#fff; border-radius:99px; line-height:1.25; text-align:center;
+  background:linear-gradient(180deg, color-mix(in srgb,var(--brand) 88%,#fff 12%), var(--brand));
+}
+.site .nm{font-weight:600; font-size:12px;}
+.site .co{font-size:10px; color:var(--muted);}
+.tnum{font-variant-numeric:tabular-nums; font-weight:700; font-size:13px;}
+.tnum .sep{color:var(--muted); font-weight:400;}
+.ppl{font-variant-numeric:tabular-nums; font-weight:700; font-size:13px;}
+.short{display:inline-block; margin-top:2px; font-size:9px; font-weight:600; color:#fff; background:var(--alert); border-radius:99px; padding:0 6px;}
+.chip{
+  display:inline-flex; align-items:center; gap:4px; padding:3px 8px 3px 6px; margin:1px 2px 1px 0;
+  background:var(--panel); border:1px solid var(--line); border-radius:99px; font-size:10px;
+  box-shadow:0 1px 2px rgba(24,55,78,.08); position:relative;
+}
+.chip::before{content:""; position:absolute; left:3px; top:4px; bottom:4px; width:3px; border-radius:2px; background:var(--rib,#ccc);}
+.chip span{margin-left:5px;}
+.chip .ph{width:9px; height:9px; border-radius:50%; }
+.veh{display:inline-block; font-size:10px; font-weight:600; color:var(--ink); background:color-mix(in srgb,var(--bg) 60%, var(--panel)); border:1px solid var(--line); border-radius:6px; padding:2px 6px;}
+.slp .warn{display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%;
+  background:var(--alert-bg); border:1px solid var(--alert-border); color:var(--alert); font-size:10px; font-weight:800; margin-left:4px;}
+tr.night td, tr.night .site .nm, tr.night .tnum, tr.night .ppl, tr.night .site .co{color:var(--night)!important;}
+tr.night .tnum .sep{color:color-mix(in srgb,var(--night) 55%, transparent);}
+.info-badge{display:inline-block; font-size:9px; color:var(--brand); background:color-mix(in srgb,var(--brand) 10%, var(--panel)); border:1px solid color-mix(in srgb,var(--brand) 28%, var(--line)); border-radius:99px; padding:1px 6px;}
+/* prop card */
+.slp-prop{display:flex; flex-direction:column;}
+.slp-prop-inner{background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; flex:1;
+  box-shadow:0 4px 12px rgba(24,55,78,.09), inset 1px 1px 0 rgba(255,255,255,.9);}
+.slp-prop-head{display:flex; align-items:center; gap:8px; padding:9px 12px; border-bottom:1px solid var(--line);}
+.slp-prop-head .h{font-size:12px; font-weight:700;}
+.slp-prop-head .modes{margin-left:auto; display:flex; gap:4px;}
+.slp-prop-head .modes .m{width:22px; height:22px; border-radius:6px; border:1px solid var(--line); background:var(--panel); color:var(--muted); font-size:10px; display:flex; align-items:center; justify-content:center;}
+.slp-prop-head .modes .m.on{background:var(--brand); color:#fff; border-color:var(--brand);}
+.slp-prop-body{padding:11px 12px; font-size:11px;}
+.prop-row{display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px dashed var(--line);}
+.prop-row .k{color:var(--muted);}
+.prop-row .v{font-weight:600;}
+.prop-actions{display:flex; gap:8px; margin-top:12px;}
+.prop-actions .a{flex:1; text-align:center; border-radius:8px; padding:7px; font-size:11px; font-weight:600;}
+.prop-actions .a.pri{background:var(--brand); color:#fff;}
+.prop-actions .a.sec{background:var(--panel); border:1px solid var(--line); color:var(--muted);}
+</style>
+</head>
+<body>
+
+<h1>配色テーマ比較 — 10候補 ＋ 現行 Calm Operations（青）</h1>
+<p class="lead">design-refresh-plan §5.4 の10候補を低彩度パレットとして具体化し、現行 Calm Operations（R-1 確定の青）をベースラインに加えた計11案。カードをクリックすると下の SL 断片がそのテーマで即再着色されます。<b>選ぶのは「方向」</b>で、採用後に実値を詰めます。</p>
+
+<div class="note">
+  ⚠ <b>各 hex は方向性を見るための AI 提案値</b>（採用テーマ確定後に精緻化）。テーマが触るのは <b>ニュートラル地色＋ブランド色のみ</b>（bg / panel / ink / muted / line ＋ brand / brand-dark）。<b>意味色（夜間赤・警告橙）と所属色10色は全テーマ固定</b>で、各テーマとの共存を SL 断片で確認できます（特に Warm Sandstone / Crimson Ledger は夜間赤・警告橙との競合を要チェック）。
+</div>
+
+<div class="fixed-legend">
+  <span style="font-weight:700;color:var(--card-ink);">固定色（全テーマ共通）:</span>
+  <span class="fx"><span class="sw" style="background:#d14d41"></span>夜間赤 #D14D41</span>
+  <span class="fx"><span class="sw" style="background:#f15e2a"></span>警告橙 #F15E2A</span>
+  <span class="fx"><span class="sw" style="background:#afc5e6"></span>所属A</span>
+  <span class="fx"><span class="sw" style="background:#b4ddc5"></span>所属B</span>
+  <span class="fx"><span class="sw" style="background:#cdbfea"></span>所属C … 計10色</span>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="preview-wrap">
+  <div class="preview-head">
+    <h2>SL ライブプレビュー</h2>
+    <span class="cur">選択中: <b id="curName">現行 Calm Operations</b></span>
+  </div>
+
+  <div class="slp" id="slp">
+    <div class="slp-menubar">
+      <span class="mb-logo">業務管理計画書</span>
+      <nav class="mb-nav"><span>受注簿</span><span>週間予定表</span><span>休暇申請</span><span>経理</span></nav>
+      <span class="mb-user"><span class="dot"></span>配置担当 田中</span>
+    </div>
+    <div class="slp-toolbar">
+      <button class="slp-btn primary">＋ 新規配置</button>
+      <div class="slp-seg"><span class="on">全社</span><span>東央</span><span>Nikkei</span><span>全日本</span></div>
+      <span class="slp-search">🔍 配置検索…</span>
+      <div class="slp-stat">
+        <div class="st"><span class="l">未連絡</span><span class="v">3</span></div>
+        <div class="st"><span class="l">OB更新</span><span class="v">2</span></div>
+        <div class="st alert"><span class="l">不足</span><span class="v">1</span></div>
+      </div>
+      <button class="slp-help">?</button>
+    </div>
+    <div class="slp-body">
+      <div class="slp-rail">
+        <div class="ri on" title="配置面">▦</div>
+        <div class="ri" title="社員">☺</div>
+        <div class="ri" title="車両">▤</div>
+        <div class="ri bell" title="通知"><span>🔔</span><span class="cnt">5</span></div>
+      </div>
+
+      <div class="slp-main">
+        <div class="slp-card">
+          <div class="slp-ttl">2026年7月7日（火）の配置</div>
+          <table class="slp-tbl">
+            <thead>
+              <tr>
+                <th>区分</th><th>契約先・現場名</th><th class="c">集合</th><th class="c">時間</th>
+                <th class="c">人数</th><th>配置</th><th>車両・ETC</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="cat">施設</span></td>
+                <td class="site"><div class="nm">△△ビル警備</div><div class="co">○○商事 <span class="info-badge">地図あり</span></div></td>
+                <td class="c tnum">8:30</td>
+                <td class="c tnum">9:00<span class="sep">–</span>17:00</td>
+                <td class="c ppl">4<span class="sep">/</span>4</td>
+                <td>
+                  <span class="chip" style="--rib:#afc5e6"><span class="ph" style="background:#afc5e6"></span><span>佐藤</span></span>
+                  <span class="chip" style="--rib:#b4ddc5"><span class="ph" style="background:#b4ddc5"></span><span>鈴木</span></span>
+                </td>
+                <td><span class="veh">わ 12-34</span></td>
+              </tr>
+              <tr>
+                <td><span class="cat">交通</span></td>
+                <td class="site"><div class="nm">□□道路規制</div><div class="co">××興業</div></td>
+                <td class="c tnum">8:00</td>
+                <td class="c tnum">8:30<span class="sep">–</span>17:30</td>
+                <td class="c ppl">2<span class="sep">/</span>3<br><span class="short">不足1</span></td>
+                <td>
+                  <span class="chip" style="--rib:#cdbfea"><span class="ph" style="background:#cdbfea"></span><span>高橋</span></span>
+                  <span class="chip" style="--rib:#afc5e6"><span class="ph" style="background:#afc5e6"></span><span>田中</span></span>
+                  <span class="warn" title="資格者不足">!</span>
+                </td>
+                <td><span class="veh">ETC-A</span></td>
+              </tr>
+              <tr class="night">
+                <td><span class="cat" style="background:linear-gradient(180deg,#e06a5e,var(--night))">施設</span></td>
+                <td class="site"><div class="nm">夜間立哨警備</div><div class="co">△△不動産</div></td>
+                <td class="c tnum">21:00</td>
+                <td class="c tnum">22:00<span class="sep">–</span>6:00</td>
+                <td class="c ppl">3<span class="sep">/</span>3</td>
+                <td>
+                  <span class="chip" style="--rib:#8a638e"><span class="ph" style="background:#8a638e"></span><span>渡辺</span></span>
+                  <span class="chip" style="--rib:#3d73b7"><span class="ph" style="background:#3d73b7"></span><span>伊藤</span></span>
+                </td>
+                <td><span class="veh">わ 55-66</span></td>
+              </tr>
+              <tr>
+                <td><span class="cat">応援</span></td>
+                <td class="site"><div class="nm">イベント誘導</div><div class="co">▽▽企画 <span class="info-badge">OB更新</span></div></td>
+                <td class="c tnum">7:30</td>
+                <td class="c tnum">8:00<span class="sep">–</span>15:00</td>
+                <td class="c ppl">5<span class="sep">/</span>5</td>
+                <td>
+                  <span class="chip" style="--rib:#b4ddc5"><span class="ph" style="background:#b4ddc5"></span><span>山本</span></span>
+                  <span class="chip" style="--rib:#2c7c78"><span class="ph" style="background:#2c7c78"></span><span>協力A社</span></span>
+                </td>
+                <td><span class="veh">ETC-C</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="slp-prop">
+        <div class="slp-prop-inner">
+          <div class="slp-prop-head">
+            <span class="h">現場詳細</span>
+            <span class="modes"><span class="m on" title="現場詳細">▤</span><span class="m" title="社員配置">☺</span><span class="m" title="車両・ETC">▦</span><span class="m" title="変更履歴">⟳</span></span>
+          </div>
+          <div class="slp-prop-body">
+            <div class="prop-row"><span class="k">契約先</span><span class="v">○○商事</span></div>
+            <div class="prop-row"><span class="k">現場名</span><span class="v">△△ビル警備</span></div>
+            <div class="prop-row"><span class="k">集合場所</span><span class="v">正面ロビー</span></div>
+            <div class="prop-row"><span class="k">必要資格</span><span class="v">施設2級 必須</span></div>
+            <div class="prop-row"><span class="k">連絡状態</span><span class="v" style="color:var(--brand)">連絡済み</span></div>
+            <div class="prop-actions">
+              <span class="a pri">保存</span>
+              <span class="a sec">履歴</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const THEMES = [
+  { id:'current', name:'現行 Calm Operations', dir:'現行の青ベース（R-1 確定）。比較の基準', warn:false,
+    bg:'#eef4f8', panel:'#ffffff', ink:'#172b3a', muted:'#5a6b7a', line:'#dbe5ec', brand:'#1f5fae', brandDark:'#123b5d' },
+  { id:'soft-azure', name:'Soft Azure', dir:'青系でも子供っぽくならない低彩度', warn:false,
+    bg:'#eaf0f6', panel:'#fbfdff', ink:'#1e2a38', muted:'#5a6779', line:'#d6e0ea', brand:'#3f6fa8', brandDark:'#244463' },
+  { id:'icy-indigo', name:'Icy Indigo', dir:'冷たい青。通知や選択状態が読みやすい', warn:false,
+    bg:'#eceef6', panel:'#fbfcff', ink:'#20263a', muted:'#5c6480', line:'#d7dcea', brand:'#4257b8', brandDark:'#212a55' },
+  { id:'slate-mono', name:'Slate Mono', dir:'黒と余白でサイバー感。最も業務寄り', warn:false,
+    bg:'#f2f3f5', panel:'#ffffff', ink:'#1c2126', muted:'#626973', line:'#dfe2e6', brand:'#2b3138', brandDark:'#14181c' },
+  { id:'cool-graphite', name:'Cool Graphite', dir:'最もモノトーンで色の競合が少ない（補完案）', warn:false,
+    bg:'#f0f1f3', panel:'#fdfdfe', ink:'#23282e', muted:'#646a73', line:'#dde0e4', brand:'#4a5560', brandDark:'#272d34' },
+  { id:'matcha-fog', name:'Matcha Fog', dir:'霧がかった緑。落ち着いた管理画面向け', warn:false,
+    bg:'#edf1ec', panel:'#fafcf9', ink:'#26302a', muted:'#616c64', line:'#dae1db', brand:'#4e7d62', brandDark:'#2c4a3a' },
+  { id:'deep-mint', name:'Deep Mint', dir:'緑を抑えたミント。完了色との分離が必要', warn:false,
+    bg:'#e9f2f0', panel:'#f9fdfc', ink:'#1e2e2c', muted:'#586966', line:'#d3e2df', brand:'#2f8478', brandDark:'#1a4e47' },
+  { id:'olive-steel', name:'Olive Steel', dir:'Matcha Fog より硬く業務寄り（補完案）', warn:false,
+    bg:'#f0f1ec', panel:'#fcfdfa', ink:'#2a2d24', muted:'#64685a', line:'#dfe1d7', brand:'#6b7250', brandDark:'#3d4229' },
+  { id:'modern-mauve', name:'Modern Mauve', dir:'柔らかい紫灰。強い業務感を抑える', warn:false,
+    bg:'#f1eef2', panel:'#fdfbfd', ink:'#2c2833', muted:'#675f6d', line:'#e2dce6', brand:'#7a6b9a', brandDark:'#443a5a' },
+  { id:'warm-sandstone', name:'Warm Sandstone', dir:'暖色系。⚠ 夜間オレンジ・警告橙と競合注意', warn:true,
+    bg:'#f3efe9', panel:'#fffdfa', ink:'#322c24', muted:'#6e665a', line:'#e6ded1', brand:'#a97b4c', brandDark:'#5c4327' },
+  { id:'crimson-ledger', name:'Crimson Ledger', dir:'落ち着いた赤系。⚠ 夜間赤と競合注意（補完案）', warn:true,
+    bg:'#f4efef', panel:'#fffcfc', ink:'#302626', muted:'#6d6060', line:'#e6dcdc', brand:'#9a4f52', brandDark:'#5a2c2e' },
+];
+
+const ROLE = { bg:'地色', panel:'面', ink:'文字', muted:'補助文字', line:'罫線', brand:'ブランド', brandDark:'濃色（ナビ）' };
+
+function swatch(hex, role){ return `<div class="sw" style="background:${hex}" title="${role} ${hex}"></div>`; }
+
+function cardHtml(t){
+  return `<div class="tcard" data-id="${t.id}">
+    <div class="tname">${t.name}<span class="live">▼ 表示中</span></div>
+    <div class="tdir${t.warn?' warn':''}">${t.dir}</div>
+    <div class="seclbl">BACKGROUND &amp; TEXT</div>
+    <div class="swrow">
+      ${swatch(t.bg, ROLE.bg)}${swatch(t.panel, ROLE.panel)}
+      <div class="sw" data-lg style="background:${t.ink}" title="文字 ${t.ink}"></div>
+      ${swatch(t.muted, ROLE.muted)}${swatch(t.line, ROLE.line)}
+    </div>
+    <div class="seclbl">BRAND &amp; BUTTONS</div>
+    <div class="brow">
+      <div class="bsw" style="background:${t.brand}" title="ブランド ${t.brand}"></div>
+      <div class="bsw" style="background:${t.brandDark}" title="濃色 ${t.brandDark}"></div>
+      <button class="bbtn" style="background:${t.brand}">主操作</button>
+      <div class="bseg"><span class="on" style="background:${t.brand}">選択</span><span class="off">未選択</span></div>
+    </div>
+  </div>`;
+}
+
+const grid = document.getElementById('grid');
+grid.innerHTML = THEMES.map(cardHtml).join('');
+
+const slp = document.getElementById('slp');
+const curName = document.getElementById('curName');
+
+function applyTheme(t){
+  slp.style.setProperty('--bg', t.bg);
+  slp.style.setProperty('--panel', t.panel);
+  slp.style.setProperty('--ink', t.ink);
+  slp.style.setProperty('--muted', t.muted);
+  slp.style.setProperty('--line', t.line);
+  slp.style.setProperty('--brand', t.brand);
+  slp.style.setProperty('--brand-dark', t.brandDark);
+  curName.textContent = t.name;
+  document.querySelectorAll('.tcard').forEach(c=>c.classList.toggle('is-active', c.dataset.id===t.id));
+}
+
+grid.addEventListener('click', e=>{
+  const card = e.target.closest('.tcard');
+  if(!card) return;
+  const t = THEMES.find(x=>x.id===card.dataset.id);
+  if(t) applyTheme(t);
+});
+
+applyTheme(THEMES[0]);
+</script>
+</body>
+</html>

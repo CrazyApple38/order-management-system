@@ -8,22 +8,22 @@
 ## 最終更新
 
 - **更新者**: Claude Code (Opus 4.8)
-- **日付**: 2026-07-05
-- **コミット**: f2e1254（直前 HEAD・本セッションの作業は本 HANDOFF と同じ新規コミットに含める）
+- **日付**: 2026-07-06
+- **コミット**: 6c39402（直前 HEAD・本セッション分は本コミットに含む）
 
 ## 直前にやったこと（最新のみ）
 
-- **R-2 完了**。Apache 稼働中で Playwright runtime 検証を実施し、OB/SL/WS/LA/QA + admin-notify を確認 → **R-2 起因のコンソールエラー0・崩れなし**。cn-card は DS準拠(344×560)、統合ベル1個、全4カテゴリ+サブタグ+対象日バッジ、フィルタチップ5種、cn:jump スポットライト着地、OB 復旧トグル反転/復元、QA 旧 .cn-panel（最新/履歴タブ・検索・一覧選択）全て回帰なし。スクショ `screenshots/r2-verify-*.png`。
-- **enhancement 実装（ユーザー選択「OB/WSに明示付与」）**: ①OB `obCnSelfNotify`(v19) に明示 `targetDate`（`currentYear/currentMonth`+day から生成・表示月ズレに堅牢）②WS `wsCnSelfNotify`(v19) に明示 `subTag`+`targetDate`。**WSはパネル導出のバグ補正が主眼**: 従来 domain=person-assignment を一律「自社」・support-reservation を一律「協力業者」と誤導出し、**車両配置→自社・応援予約→協力業者を取りこぼしていた**。明示付与で vehicle/own/partner/support を正しく表示（runtime で payload→バッジを実証: 車両→車両・ETC / 応援→応援）。
-- admin-notify は notify-compare.js が既に4分類(MTX_BELLS)+旧キー localStorage 互換のため **表示確認のみで完了**（ユーザー承認）。
-- 既知の別件（R-2無関係）: `shield.svg` 404（QA/adminヘッダ・quick-access.html:82）。「今回は触らず記録のみ」でユーザー決定 → SHARED-MEMORY に記録済み。
+- **R-3a 着手条件の配色テーマを検討 → 方針転換**。10候補比較ツール `docs/preview/design-refresh-theme-palettes.html` を作成し runtime 確認（コンソール0・切替動作OK）。だが「Slate Mono＋青灰グラデ変動」の議論が**当初計画（DS第一条＝全面 `to bottom right` グラデ・テキスト無地は既に既定済）とズレやすい**と判明。→ **ユーザー判断: 色変更/変動機能は後回し、当初計画どおり現行DS（`ds-tokens.css`/`ds-components.css`）で実装**（計画書 §5 フォールバック）。比較ツールはリポジトリに保持（後回しの色機能用の参考）。
+- **右プロパティ = 4モード**（現場詳細／社員配置／車両・ETC／変更履歴）確定。
+- **R-3a 実装計画を作成・承認・plan へ記録**（mockup-refactor-plan §R-3 の「R-3a 実施ブレークダウン」）。staged 分割 / minimap「配置状況」=総数は stat-strip・行一覧は撤去 / ベルは rail（03§1）。
+- 教訓メモリ `feedback_color_work_ground_in_plan` 追加（色は既存DS仕様を先に確認・引用してから／主観選択肢を連射しない）。
 
 ## 次にやるべきこと
 
-- **R-3a（SL 画面別一括適用）**。着手条件（SL 配色テーマ確定 + 右プロパティ4モード情報粒度）を `design-refresh-plan.md` / `03_screen-application.md` §1.1・§4 で確認してから。未確定なら現行配色のまま DS 構造のみ適用可（配色は後続差し替え）。実施チェックリストは mockup-refactor-plan §R-3。
-- Phase Gate: R-3 はモックアップ内リファクタ。Phase 3（仕様書作成）進行はユーザーの「モックアップ完了」宣言が必要。
+- **R-3a-1 着手**: プレビューモック `design-refresh-sl-layer-mockup.html` の骨格/CSS を本番 `docs/screen-layout.html` へ移植。`co-tokens.css` を外し `ds-tokens.css`→`ds-components.css` を読込、骨格を `app/menubar/toolbar/workspace(rail|main-card|prop|panel-rail)` へ再構成、中央7列表を本番データで描画。**既存9モーダルは一旦残置**（機能維持）。→ 見た目=新DS・データ描画・回帰ゼロを確認。
+- **大規模のため R-3a-1 は完結単位で**（途中で本番HTMLを壊さない）。不変条件（03 §5 技術注意）厳守: script 読込順 / cnJump 同タブ / showFocusOverlay / seed・target 固定文字列禁止 / smCategoryClassMap・smShiftClassMap / D&D / 区分円GC色（applyBelongVariables）。
 
 ## 今だけの申し送り（任意）
 
-- R-3 持ち越し（曜日色トークン選定 / density spacious 具体値 / OB 地図プレビュー右プロパティ成立性）は継続で温存。
-- 別件 TODO 候補: shield.svg 404 の解消（アイコン差し替え or img 削除。要ユーザー確認）。R-2 スコープ外のため未着手。
+- 比較ツール `design-refresh-theme-palettes.html` はリポジトリに保持。色変動を再開する時の出発点（不要なら撤去可）。
+- R-3a-1 は 117KB の `screen-layout.css` と 7801行の `screen-layout.js` に触れる。CSS は ds へ寄せ、JS 資産（renderGrid/D&D/保存/通知）は新骨格へ配線し直す方針。

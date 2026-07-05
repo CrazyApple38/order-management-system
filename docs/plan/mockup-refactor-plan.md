@@ -1,7 +1,7 @@
 # モックアップ リファクタ統合計画（新DS適用 × 通知簡素化）
 
-**最終更新**: 2026-07-05
-**ステータス**: R-2 完了（通知データモデル改修・runtime検証済み 2026-07-05）/ 次は R-3a（SL 画面別適用）
+**最終更新**: 2026-07-06
+**ステータス**: R-2 完了（2026-07-05）/ **R-3a 実装計画 承認済み（2026-07-06・staged）→ 次は R-3a-1 着手**
 **対象**: 本番モックアップ全画面（OB / SL / WS / LA / QA）+ 共通基盤（co-*）+ admin-notify + 通知センター
 **起点**: 2026-06-12 ユーザー指示「通知カテゴリ再定義のモック修正は、デザイン大幅変更やその他変更と合わせて一括で行う」
 
@@ -108,6 +108,14 @@
 5. 既存機能の回帰確認（cn:jump・元に戻す/やっぱり反映・seed 整合）
 6. Playwright 検証 + スクリーンショット + コミット（1画面1コミット）
 
+**R-3a 実施ブレークダウン（2026-07-06 ユーザー承認）** — 大規模（本番 `screen-layout.html`＋`screen-layout.css` 117KB＋`screen-layout.js` 7801行）ゆえ段階分割:
+
+- **R-3a-1 骨格＋CSS読替＋中央表**: プレビュー（`design-refresh-sl-layer-mockup.html`）の骨格/CSSを本番へ移植、`co-tokens.css`→`ds-tokens.css`→`ds-components.css`、中央7列表を本番データで描画。**既存9モーダルは一旦残置**（回帰ゼロ確認）。
+- **R-3a-2 編集モーダル→右プロパティ4モード転換**: `siteModal`(+meeting/work/workTime/map/notes)→「現場詳細」/ `staffEditModal`→「社員配置」/ `vehicleEditModal`→「車両・ETC」/ 履歴→「変更履歴」。`sortModal`・削除確認・印刷はモーダル維持（D-01/D-02）。
+- **R-3a-3 通知rail cn-card＋回帰＋検証**: ベルをrailへ・cn-card着地・cn:jump/元に戻す/seed回帰、Playwright＋スクショ＋コミット。
+- **確定事項**: 配色＝現行DS（`ds-tokens`/`ds-components`）そのまま（**§5 フォールバック採用・色テーマ変動は後回し** 2026-07-06）／ 右プロパティ＝4モード（現場詳細/社員配置/車両・ETC/変更履歴）／ 左 `minimap`「配置状況」＝**総数はツールバー stat-strip へ・行ジャンプ一覧は撤去**（中央7列表が全行＋不足バッジで代替）／ ベルは rail（03 §1）。
+- **後回しの参考物**: 色テーマ変動の比較ツール `docs/preview/design-refresh-theme-palettes.html`（リポジトリ保持。10候補＋現行Calm Operations を低彩度パレット化しSLライブ切替、意味色・所属色は固定）。
+
 ### R-4 通知センター改修（プレビュー）
 
 - スレッド/確認依頼/解消記録 UI を撤去し、詳細パネルを「変更内容 + 情報経路 + 現場画面で開く」中心へ
@@ -142,7 +150,7 @@
 | R-0 決定記録 | 完了 | 2026-06-12 | 2026-06-12 | §3.7.9 追記 + 本計画書作成 |
 | R-1 DS基盤統合 | 完了 | 2026-07-03 | 2026-07-03 | ds-tokens/ds-components.css 新設 + docs/design-system/ 5冊 + スモークテスト合格。方式変更はユーザー追認済み（2026-07-03） |
 | R-2 通知データモデル改修 | 完了 | 2026-07-04 | 2026-07-05 | 統合ベル1個+cn-card / カテゴリ=エンティティ導出 / 配置サブタグ / targetDate日別グルーピング / 履歴・検索撤去 / センター導線。実装=co-notify-panel.js(v39)・css(v18)・co-navbar.js(v22)。**runtime検証済**(OB/SL/WS/LA/QA/admin-notify: コンソール0=R-2起因エラーなし・cn-card DS準拠・全4カテゴリ+サブタグ+対象日・フィルタ・cn:jump着地・OB復旧トグル・QA旧.cn-panel全てOK)。**enhancement 完了**: OB=obCnSelfNotify に明示 targetDate(表示月+day, v19) / WS=wsCnSelfNotify に明示 subTag(車両/応援の導出取りこぼしを補正)+targetDate(v19)。admin-notify は notify-compare.js が既に4分類+旧キー互換のため表示確認のみで完了（ユーザー承認 2026-07-05）。既知の別件: shield.svg 404（R-2無関係・SHARED-MEMORY記録） |
-| R-3a〜e 画面別適用 | 未着手 | — | — | SL→OB→WS→LA→QA（提案） |
+| R-3a〜e 画面別適用 | R-3a 計画承認（着手前） | 2026-07-06 | — | **R-3a を staged 分割で承認**（R-3a-1骨格+CSS+中央表 / R-3a-2 モーダル→右プロパティ4モード / R-3a-3 通知rail+回帰）。配色=現行DS（§5フォールバック・色変動後回し）・minimap総数→stat-strip/一覧撤去・ベル→rail。次=R-3a-1 |
 | R-4 センター改修 | 未着手 | — | — | |
 | R-5 DB設計追補 | 未着手 | — | — | |
 | R-6 結合検証 | 未着手 | — | — | |
