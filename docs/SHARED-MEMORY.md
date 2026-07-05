@@ -46,6 +46,7 @@
 - **（R-2 2026-07-04）通知は統合ベル1個 + `.cn-card`。DOM 上のベルは常に `data-bell="all"`**。各画面 SelfNotify / seed は旧ベルID（ob/sl/ws/la/pending/vehicle/master）で `addItem/setItems` を呼んでよい（`co-notify-panel.js` の `normalizeBellId()` が `'all'` へ吸収し、カテゴリは `domain` から導出）。旧4分類ベル（order/assignment/approval/master）DOM は廃止。
 - **cn-card の CSS は旧画面と ds-tokens.css を併載できない**（同名別値トークン）ため、`co-notify-panel.css` 末尾に `.cn-card` スコープで **DS 値を内蔵した `--cn-*` 変数**を持つ（出典=ds-tokens.css・値変更はユーザー承認必須）。R-3 で画面がレール化して ds-tokens を読むようになったら、この内蔵ブロックを ds 参照へ差し替え検討。
 - **QA（quick-access）は旧 `.cn-panel` マークアップ（最新/履歴タブ・検索・一覧選択）を自前保持**。`co-notify-panel.js` 末尾の「QA モバイル互換セクション」ハンドラが依存。旧 `.cn-panel`/`.cn-history-*`/`.cn-pick-*` CSS も残置（R-3e で QA を新カードへ移行したら撤去）。
+- **既知の欠損アセット（R-2無関係・未修正）**: `docs/mockup/icons/shield.svg` が実在せず 404。参照元は `quick-access.html:82`（`<img class="qa-brand-icon">`・commit `bf93d8c` 由来のブランドアイコン）で QA/admin-notify ヘッダで発生。2026-07-05 ユーザー判断「今回は触らず記録のみ」。差し替え or 削除は別途（アイコン選定要確認）。
 
 ## 構造的変更の警告
 
@@ -64,10 +65,11 @@
 | 2026-05-29 | Claude Code | N-6: WS schedule 発火を全配置パスに追加 (delete 8 + add 9 + modify 2 = 19箇所)。**LA通知 target を単一 `{axis:'leaveId'}` → 画面別マップ形式へ変更**（SL 用 `empName` 軸追加 + affects に screen-layout）。SL に empName 着地 `slCnFocusLeaveEmployee` 新設 | `weekly-schedule.js` (削除/追加/移動ハンドラ) / `leave-application.js` (`laCnSelfNotify` target) / `co-navbar.js` (la seed target) / `screen-layout.js` (cn:jump リスナー)。WS の leaveId 処理は画面別マップでも `weekly-schedule` キー維持で無影響 |
 | 2026-06-01 | Codex | LA休暇申請 seed を LA 画面専用生成から `mock-assignments-data.js` 共通生成へ移し、`co-mock-store.js` 未初期化時も seed を返すよう変更。SL/WS/共通ナビ単体起動でも LA 通知 seed が成立 | `mock-assignments-data.js` (`createLeaveApplications`) / `co-mock-store.js` (`getLeaveApplications` fallback) / `leave-application.js` seed 利用 / `co-navbar.js` 現在日優先 LA seed / HTML キャッシュバスター |
 | 2026-07-04 | Claude Code | **R-2 通知データモデル改修（コア実装・runtime検証保留）**: 通知ベルを4分類横並び→**統合ベル1個 + 単一 `.cn-card`（レール通知カード）** へ。カテゴリは**エンティティ(domain)から導出**（受注/配置/申請・承認/マスタ）、配置は**サブタグ**（自社/応援/協力業者/車両・ETC）、**`targetDate`（単日=文字列 / 範囲={start,end}）を第一級ファセット化し日別グルーピングを対象日基準に**。パネルの履歴タブ・検索・一覧選択フローは撤去（集積・検索はセンターの責務）。フッターに「変更通知センターで開く→」（同タブ遷移）。旧ベルID/旧4分類IDは `normalizeBellId()` が全て `'all'` へ吸収、`sourceBell` はジャンプ解決メタとして保持 | `co-notify-panel.js`(v39: カテゴリ/subTag/targetDate導出・buildItemHtml・renderBellLatest・setItems 全置換・QAモバイル互換ハンドラ隔離) / `co-notify-panel.css`(v18: `.cn-card` スコープの DS 内蔵ブロック追加) / `co-navbar.js`(v22: 単一ベルDOM・seedフラット化・targetDate/subTag付与) / HTML6本キャッシュバスター |
+| 2026-07-05 | Claude Code | **R-2 完了（runtime検証済 + SelfNotify 明示付与）**: OB/SL/WS/LA/QA/admin-notify を Playwright 検証（R-2起因のコンソールエラー0・cn-card DS準拠・全4カテゴリ+サブタグ+対象日・フィルタ・cn:jump着地・OB復旧トグル・QA旧.cn-panel 全て回帰なし）。enhancement: **OB `obCnSelfNotify` に明示 `targetDate`**（`currentYear/currentMonth`+day から生成→月移動中でも対象日がズレない） / **WS `wsCnSelfNotify` に明示 `subTag`+`targetDate`**（従来のパネル導出は domain=person-assignment を一律「自社」・support-reservation を一律「協力業者」と判定し、**車両配置→自社・応援予約→協力業者を誤判定していた取りこぼしを補正**。vehicleName→vehicle / empName→own / kind==='partner'→partner / それ以外reservation→support、targetDate=dateKey）。固定文字列を書かず実値から導出 | `order-book.js`(v19) / `weekly-schedule.js`(v19) / order-book.html・weekly-schedule.html キャッシュバスター |
 
 ## アクティブな計画書
 
-- `docs/plan/mockup-refactor-plan.md` — **リファクタ統合計画（SSOT。R-1 完了 2026-07-03 / 次は R-2）**
+- `docs/plan/mockup-refactor-plan.md` — **リファクタ統合計画（SSOT。R-2 完了 2026-07-05 / 次は R-3a SL 画面別適用）**
 - `docs/design-system/` — 新DS仕様の正本（README + 01〜04。実施順序は mockup-refactor-plan が正）
 - `docs/plan/mock-data-unification-plan.md` — SL/WS/LA/通知seed ダミーデータ一本化（**Phase 1+2 完了 / 残: WS `wsVehiclesData`/`wsSitesData` 共通ソース統一は将来課題**）
 - `docs/plan/notification-refactor-plan.md` — 変更通知システム リファクタリング（**N-6 完了（§17）/ 次は Phase 2.5 登録**）

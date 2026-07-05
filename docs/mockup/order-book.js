@@ -4469,6 +4469,14 @@ function obCnSelfNotify(scope, op, opts) {
         if (targetSubIndex !== null && scope !== 'row') target.subIndex = targetSubIndex;
     }
 
+    // R-2: 対象日 (targetDate) を表示月 (currentYear/currentMonth) + day から明示。
+    //   パネル側の「現在日」フォールバックに依存せず、月移動中の編集でも対象日がズレない。
+    var obTargetDate = null;
+    var obTargetDay = obCnTargetNumber(opts.day);
+    if (obTargetDay !== null && scope !== 'row') {
+        obTargetDate = currentYear + '-' + String(currentMonth).padStart(2, '0') + '-' + String(obTargetDay).padStart(2, '0');
+    }
+
     window.coNotifyPanel.addItem('ob', {
         scope: scope,
         op: op,
@@ -4477,6 +4485,7 @@ function obCnSelfNotify(scope, op, opts) {
         main: mainText,
         sub: subText,
         date: obCnTodayLabel(),
+        targetDate: obTargetDate,
         expand: expandText,
         diffs: opts.diffs || null,
         affects: ['order-book', 'screen-layout', 'weekly-schedule'],

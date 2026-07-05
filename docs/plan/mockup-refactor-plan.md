@@ -1,7 +1,7 @@
 # モックアップ リファクタ統合計画（新DS適用 × 通知簡素化）
 
-**最終更新**: 2026-07-03
-**ステータス**: R-1 完了（DS 基盤 = docs/design-system/ + ds-tokens.css / ds-components.css）/ 次は R-2
+**最終更新**: 2026-07-05
+**ステータス**: R-2 完了（通知データモデル改修・runtime検証済み 2026-07-05）/ 次は R-3a（SL 画面別適用）
 **対象**: 本番モックアップ全画面（OB / SL / WS / LA / QA）+ 共通基盤（co-*）+ admin-notify + 通知センター
 **起点**: 2026-06-12 ユーザー指示「通知カテゴリ再定義のモック修正は、デザイン大幅変更やその他変更と合わせて一括で行う」
 
@@ -141,7 +141,7 @@
 | --- | --- | --- | --- | --- |
 | R-0 決定記録 | 完了 | 2026-06-12 | 2026-06-12 | §3.7.9 追記 + 本計画書作成 |
 | R-1 DS基盤統合 | 完了 | 2026-07-03 | 2026-07-03 | ds-tokens/ds-components.css 新設 + docs/design-system/ 5冊 + スモークテスト合格。方式変更はユーザー追認済み（2026-07-03） |
-| R-2 通知データモデル改修 | コア実装済み（runtime検証保留） | 2026-07-04 | — | 統合ベル1個+cn-card / カテゴリ=エンティティ導出 / 配置サブタグ / targetDate日別グルーピング / 履歴・検索撤去 / センター導線。実装=co-notify-panel.js(v39)・css(v18)・co-navbar.js(v22)。**残: runtime検証 + 各画面SelfNotifyの明示targetDate/subTag + admin-notify追従**。詳細 HANDOFF |
+| R-2 通知データモデル改修 | 完了 | 2026-07-04 | 2026-07-05 | 統合ベル1個+cn-card / カテゴリ=エンティティ導出 / 配置サブタグ / targetDate日別グルーピング / 履歴・検索撤去 / センター導線。実装=co-notify-panel.js(v39)・css(v18)・co-navbar.js(v22)。**runtime検証済**(OB/SL/WS/LA/QA/admin-notify: コンソール0=R-2起因エラーなし・cn-card DS準拠・全4カテゴリ+サブタグ+対象日・フィルタ・cn:jump着地・OB復旧トグル・QA旧.cn-panel全てOK)。**enhancement 完了**: OB=obCnSelfNotify に明示 targetDate(表示月+day, v19) / WS=wsCnSelfNotify に明示 subTag(車両/応援の導出取りこぼしを補正)+targetDate(v19)。admin-notify は notify-compare.js が既に4分類+旧キー互換のため表示確認のみで完了（ユーザー承認 2026-07-05）。既知の別件: shield.svg 404（R-2無関係・SHARED-MEMORY記録） |
 | R-3a〜e 画面別適用 | 未着手 | — | — | SL→OB→WS→LA→QA（提案） |
 | R-4 センター改修 | 未着手 | — | — | |
 | R-5 DB設計追補 | 未着手 | — | — | |

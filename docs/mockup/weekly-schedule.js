@@ -5379,6 +5379,18 @@
             }
         }
 
+        // R-2: 配置サブタグ (自社/応援/協力業者/車両・ETC) を実値から明示。
+        //   パネル導出は domain=person-assignment を一律「自社」・support-reservation を一律「協力業者」と
+        //   判定するため、車両配置(vehicleName)と応援予約(kind!=='partner')を取りこぼす。明示付与で補正する。
+        var wsSubTag = '';
+        if (scope === 'schedule') {
+            wsSubTag = opts.vehicleName ? 'vehicle' : 'own';
+        } else if (scope === 'reservation') {
+            wsSubTag = opts.kind === 'partner' ? 'partner' : 'support';
+        }
+        // R-2: 対象日は変更されたセルの日付 (dateKey = 'YYYY-MM-DD')。単日配置変更なので単日で明示。
+        var wsTargetDate = opts.dateKey || null;
+
         window.coNotifyPanel.addItem('ws', {
             scope: scope,
             op: op,
@@ -5387,6 +5399,8 @@
             main: mainText,
             sub: subText,
             date: wsCnTodayLabel(),
+            targetDate: wsTargetDate,
+            subTag: wsSubTag || undefined,
             expand: expandText,
             diffs: opts.diffs || null,
             affects: scope === 'reservation'
