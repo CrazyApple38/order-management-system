@@ -125,11 +125,6 @@
     border-bottom: 1px solid var(--line);
     box-shadow: inset 0 -1px 0 var(--line);
 }
-/* No. 固定列の taupe 背景を DS 中立面へ */
-.app .grid-table .col-no {
-    background: var(--soft-line) !important;
-    color: var(--muted);
-}
 /* 行選択: teal → DS ブルー */
 .app .grid-table tbody tr.selected,
 .app .grid-table tbody tr[aria-selected="true"] {
@@ -140,6 +135,76 @@
 .app .grid-table tbody tr.selected td,
 .app .grid-table tbody tr[aria-selected="true"] td {
     background: transparent;
+}
+
+/* ---- R-3a-1b: SL中央表 7列化 ---- */
+.app .grid-table .col-site-info { width: 28%; min-width: 220px; }
+.app .grid-table .col-meeting { width: 8%; min-width: 76px; }
+.app .grid-table .col-work-time { width: 7%; min-width: 64px; }
+.app .grid-table .col-count { width: 6%; min-width: 58px; }
+.app .grid-table .col-assignment { width: 31%; min-width: 280px; }
+.app .grid-table .col-vt { width: 12%; min-width: 120px; }
+.app .grid-table .col-notes { width: 8%; min-width: 128px; }
+
+.app .grid-table .site-info {
+    align-items: flex-start;
+}
+
+.app .grid-table .site-badges {
+    gap: 6px;
+}
+
+.app .grid-table .work-badge-slot:empty {
+    display: none;
+}
+
+.app .grid-table .work-badge-slot:not(:empty) {
+    cursor: pointer;
+    max-width: 110px;
+}
+
+.app .grid-table .work-badge-slot .badge-display {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.app .grid-table .work-badge-slot .badge-tag {
+    max-width: 104px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.app .grid-table .site-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 5px;
+}
+
+.app .grid-table .sl-map-pills {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.app .grid-table .sl-map-pill,
+.app .grid-table .sl-map-empty {
+    cursor: pointer;
+}
+
+.app .grid-table td.col-notes::before {
+    content: "履歴 -";
+    display: inline-flex;
+    align-items: center;
+    min-height: 18px;
+    margin-right: 6px;
+    padding: 0 6px;
+    border-radius: var(--radius-xs);
+    background: #f1f6fa;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 600;
 }
 
 /* ---- 右サイドパネル（D&D供給源）を .prop 列へ収容（R-3a-1a 暫定） ---- */

@@ -7,23 +7,25 @@
 
 ## 最終更新
 
-- **更新者**: Claude Code (Opus 4.8)
+- **更新者**: Codex (GPT-5)
 - **日付**: 2026-07-06
-- **コミット**: 3a26caa（直前 HEAD・本セッション分は本コミットに含む）
+- **コミット**: ee907f2（直前 HEAD・本セッション分はこの後のコミットに含める）
 
 ## 直前にやったこと（最新のみ）
 
-- **R-3a を 2チェックポイントに分割承認**（調査で規模判明: 骨格再構成＋列クラス40箇所再配線＋minimap撤去）。**R-3a-1a 完了・runtime検証済**。
-- **R-3a-1a**: SL（`docs/screen-layout.html`）を新骨格へ再構成（`app > toolbar / workspace(rail｜main-card｜prop｜panel-rail)`）。CSS読替: `co-tokens.css`撤去 → `ds-tokens.css`＋新設`ds-tokens-bridge.css`＋`ds-components.css`＋新設`sl-ds.css`。minimap撤去→総数はツールバー`stat-strip`（配置10/24・不足6）へ（`renderMinimap`を retarget）。**中央表は現10列のまま維持しCSSでDS化**。右サイドD&D供給源は`.prop`列へ暫定収容。menubar=既存`co-navbar`活用。**9モーダル残置・回帰ゼロ**（siteModal起動flex/行選択青枠/D&D供給源/コンソール0を Playwright 1440px 確認・`screenshots/r3a1a-sl-full.png`）。
-- **CSS機構（重要）**: `ds-tokens-bridge.css`＝co専用トークン（ds未提供の fs/fw/space/lh/icon-size/font-family/cat/day/semantic 等）を元値でshim（残置モーダル回帰ゼロ。同名トークンは ds 新値へ自動読替）。`sl-ds.css`＝SL固有オーバーライド（`.grid-table`のDS化・workspace responsive・prop収容）。screen-layout.css/co-*.cssは無改造。
-- **menu-userチップは延期**: `.menu-user`/`.presence-dot` CSSが ds-components 専用のため、共有co-navbarへ今追加すると他4画面で無スタイル化。共有co-navbar.cssへCSSを置く専用手順が必要。
+- **R-3a-1b 完了・runtime検証済**: SL中央表を10列→7列（区分/契約先・現場名、集合、時間、人数、配置、車両・ETC、変更履歴・備考）へ再構成。固定3行も7列化。
+- **No.列撤去**: 表DOM上の `.col-no` は0件。行番号は `data-sl-seq` に退避し、`slGetRowKey` / `renumberRows` を互換化。
+- **地図/作業内容統合**: 地図は `.col-site-info[data-maps]` 内の `.sl-map-pills .info-pill` へ移動（`openMapModal` 維持）。作業内容は `.work-badge-slot` へ移動（`openWorkModal` 維持）。旧 `.col-map/.col-badge` は表DOM 0件、JS互換フォールバックのみ残置。
+- **検証**: `node --check docs/mockup/screen-layout.js` OK。Chrome経由で localhost 検証: header/dynamic/fixed すべて7列、旧列DOM 0件、行選択OK、現場詳細モーダル display:flex、地図モーダル display:flex、ページ由来console error 0。スクショ `screenshots/r3a1b-sl-full.png`。
 
 ## 次にやるべきこと
 
-- **R-3a-1b 着手（中央表7列化）**: `screen-layout.js` の `cnCreateRow` を10列→7列（区分/契約先・現場名/集合/時間/人数/配置/車両・ETC＋変更履歴・備考）へ。**地図=現場名セルの info-pill**（openMapModal維持）、**No.列撤去**、**作業内容→区分バッジへ内包**。下流の col-no(9)/col-map(6)/col-badge(8)/col-notes(6) 参照を再配線。変更履歴タブは R-3a-3 で実データ配線（1bは備考=実データ／変更履歴=プレースホルダ）。セル内容は ds-components クラス（category-badge/person/vehicle-tag/info-pill等）へ寄せる。回帰: ソート/選択/D&D/cnJump/元に戻す/seed 維持。→ Playwright 検証・コミット。
+- **R-3a-2 着手**: 編集モーダル→右プロパティ4モード転換（現場詳細 / 社員配置 / 車両・ETC / 変更履歴）。
+- `siteModal` 系（meeting/work/workTime/map/notes含む）を右プロパティ「現場詳細」へ段階移植。`sortModal`・削除確認・印刷はモーダル維持。
+- R-3a-2 では、今回追加した `.work-badge-slot` / `.sl-map-pills` / `.col-notes::before` の配置を右プロパティ側のモード設計と整合確認する。
+- 右プロパティ化後、R-3a-3 で通知rail cn-card・cn:jump・元に戻す/seed回帰をまとめて検証。
 
 ## 今だけの申し送り（任意）
 
-- R-3a-1a のコミット後、他4画面は未移行（co-tokens）。`ds-tokens-bridge.css`/`sl-ds.css`はSL専用（読込はSLのみ）。他画面へ拡張時に流用検討。
-- 中央表は1aで10列のまま横スクロール（地図/車両/備考は右へ）。1bで7列化すれば main 幅に収まる想定。
-- 比較ツール `design-refresh-theme-palettes.html` は色変動再開用に保持（不要なら撤去可）。
+- in-app browser `iab` は利用不可だったため、browser-client の Chrome extension 接続で検証した。ページ由来エラーは0、Chrome拡張由来エラーは検証対象外。
+- フルページスクショはブラウザ側10秒制限でタイムアウトしたため、viewportスクショを `screenshots/r3a1b-sl-full.png` として保存。

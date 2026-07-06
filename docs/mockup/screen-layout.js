@@ -198,7 +198,7 @@
                 const no = row.querySelector('.col-no');
                 const info = cnGetRowInfo(row);
                 row.dataset.slRowKey = [
-                    no ? no.textContent.trim() : '',
+                    no ? no.textContent.trim() : (row.dataset.slSeq || ''),
                     info.company || '',
                     info.siteName || '',
                     info.shift || ''
@@ -545,7 +545,7 @@
             countDisplay.classList.remove('count-ok', 'count-shortage', 'count-excess');
             countDisplay.classList.add(assigned < required ? 'count-shortage' : assigned > required ? 'count-excess' : 'count-ok');
 
-            const countCell = targetRow.cells[4];
+            const countCell = targetRow.querySelector('.col-count') || targetRow.cells[3] || targetRow.cells[4];
             if (!countCell) return;
             const shortageBadge = countCell.querySelector('.count-shortage-badge');
             const excessBadge = countCell.querySelector('.count-excess-badge');
@@ -695,15 +695,16 @@
                         siteCell.dataset.meetingPlace = entry.meetingPlace || '';
                         siteCell.dataset.subTasks = JSON.stringify(subTasks);
                         siteCell.dataset.badgeData = JSON.stringify(entry.badge || null);
+                        slEnsureSiteInlineSlots(siteCell);
                     }
 
-                    const mapCell = tr.querySelector('.col-map');
+                    const mapCell = slGetMapCell(tr);
                     if (mapCell && maps.length > 0) {
                         mapCell.dataset.maps = JSON.stringify(maps);
                         smUpdateMapCellDisplay(mapCell, maps);
                     }
 
-                    const badgeCell = tr.querySelector('.col-badge');
+                    const badgeCell = slGetWorkBadgeCell(tr);
                     if (badgeCell && entry.badge && entry.badge.childIds && entry.badge.childIds.length > 0) {
                         badgeCell.innerHTML = smBuildBadgeDisplayHtml(entry.badge);
                     }
@@ -1364,7 +1365,7 @@
 
             // 集合時間・場所をセルから復元
             if (meetingTimeEl) {
-                const meetCell = row ? row.querySelectorAll('td')[2] : null;
+                const meetCell = row ? (row.querySelector('.col-meeting') || row.querySelectorAll('td')[1] || row.querySelectorAll('td')[2]) : null;
                 const timeDisp = meetCell ? meetCell.querySelector('.time-display') : null;
                 meetingTimeEl.value = timeDisp ? timeDisp.textContent.trim() : '';
             }
@@ -1386,7 +1387,7 @@
             // 人数・信頼度の復元
             const countEl = document.getElementById('smCount');
             if (countEl) {
-                const countCell = row ? row.querySelectorAll('td')[4] : null;
+                const countCell = row ? (row.querySelector('.col-count') || row.querySelectorAll('td')[3] || row.querySelectorAll('td')[4]) : null;
                 const countDisp = countCell ? countCell.querySelector('.count-display') : null;
                 if (countDisp) {
                     const m = countDisp.textContent.trim().match(/\d+\/(\d+)/);
@@ -1397,7 +1398,7 @@
             }
 
             // 連絡チップの復元
-            const meetCell = row ? row.querySelectorAll('td')[2] : null;
+            const meetCell = row ? (row.querySelector('.col-meeting') || row.querySelectorAll('td')[1] || row.querySelectorAll('td')[2]) : null;
             const contactEl = meetCell ? meetCell.querySelector('.contact-badge') : null;
             const contactName = contactEl ? contactEl.textContent.trim() : null;
             if (typeof smRenderContactChips === 'function') {
@@ -1464,7 +1465,7 @@
                 if (_cnRow) {
                     var _cnCountEl = _cnRow.querySelector('.count-display');
                     if (_cnCountEl) { var _m = _cnCountEl.textContent.trim().match(/\d+\/(\d+)/); _cnOld.requiredCount = _m ? _m[1] : ''; }
-                    var _cnMeetCell = _cnRow.querySelectorAll('td')[2];
+                    var _cnMeetCell = _cnRow.querySelector('.col-meeting') || _cnRow.querySelectorAll('td')[1] || _cnRow.querySelectorAll('td')[2];
                     var _cnTimeDisp = _cnMeetCell ? _cnMeetCell.querySelector('.time-display') : null;
                     _cnOld.meetingTime = _cnTimeDisp ? _cnTimeDisp.textContent.trim() : '';
                 }
@@ -1505,9 +1506,10 @@
                 if (!siteInfo) {
                     siteInfo = document.createElement('div');
                     siteInfo.className = 'site-info';
-                    siteInfo.innerHTML = '<div class="site-badges"></div><div class="site-details"><div class="company"></div><div class="site-name"></div></div>';
+                    siteInfo.innerHTML = '<div class="site-badges"></div><div class="site-details"><div class="company"></div><div class="site-name"></div><div class="site-meta-row"><span class="sl-map-pills"></span></div></div>';
                     currentSiteCell.insertBefore(siteInfo, currentSiteCell.firstChild);
                 }
+                slEnsureSiteInlineSlots(currentSiteCell);
                 const badges = siteInfo.querySelector('.site-badges');
                 const details = siteInfo.querySelector('.site-details');
 
@@ -1594,8 +1596,8 @@
                 if (row) {
                     const cells = row.querySelectorAll('td');
 
-                    // 集合時間 (index 2) — 連絡先は saveMeetingModal の責務のため触らない
-                    const meetingCell = cells[2];
+                    // 集合時間 — 連絡先は saveMeetingModal の責務のため触らない
+                    const meetingCell = row.querySelector('.col-meeting') || cells[1] || cells[2];
                     if (meetingCell) {
                         let timeDisp = meetingCell.querySelector('.time-display');
                         if (meetingTime) {
@@ -1610,8 +1612,8 @@
                         }
                     }
 
-                    // 必要人数 (index 4)
-                    const countCell = cells[4];
+                    // 必要人数
+                    const countCell = row.querySelector('.col-count') || cells[3] || cells[4];
                     if (countCell) {
                         let countDisp = countCell.querySelector('.count-display');
                         if (countDisp) {
@@ -1635,8 +1637,8 @@
                         }
                     }
 
-                    // 作業内容 (col-badge)
-                    const badgeCell = row.querySelector('.col-badge');
+                    // 作業内容（区分セル内）
+                    const badgeCell = slGetWorkBadgeCell(row);
                     if (badgeCell) {
                         badgeCell.innerHTML = smBuildBadgeDisplayHtml(badgeData);
                     }
@@ -1886,7 +1888,7 @@
                 else delete siteCell.dataset.badgeData;
             }
 
-            // col-badge セル更新
+            // 作業内容スロット更新
             currentWorkCell.innerHTML = smBuildBadgeDisplayHtml(badgeData);
 
             // スナップショットクリア（保存成功）
@@ -2422,12 +2424,17 @@
         }
 
         function smUpdateMapCellDisplay(cell, maps) {
+            slEnsureSiteInlineSlots(cell);
+            var target = cell.querySelector ? cell.querySelector('.sl-map-pills') : null;
             if (!maps || maps.length === 0) {
-                cell.innerHTML = '<span class="map-empty">＋</span>';
+                if (target) target.innerHTML = '<span class="info-pill sl-map-empty" onclick="event.stopPropagation(); openMapModal(this.closest(\'[data-maps]\'), 0)">地図 +</span>';
+                else cell.innerHTML = '<span class="map-empty">＋</span>';
             } else {
-                cell.innerHTML = maps.map(function(m, i) {
-                    return '<span class="map-tag" data-map-index="' + i + '" onclick="event.stopPropagation(); openMapModal(this.closest(\'.col-map\'), 0, ' + i + ')">' + escapeHtml(m.label || '(無題)') + '</span>';
+                var html = maps.map(function(m, i) {
+                    return '<span class="' + (target ? 'info-pill sl-map-pill' : 'map-tag') + '" data-map-index="' + i + '" onclick="event.stopPropagation(); openMapModal(this.closest(\'[data-maps]\'), 0, ' + i + ')">' + escapeHtml(m.label || '(無題)') + '</span>';
                 }).join('');
+                if (target) target.innerHTML = html;
+                else cell.innerHTML = html;
             }
         }
 
@@ -3482,7 +3489,7 @@
         function updateRowCount(zone) {
             const row = zone.closest('tr');
             if (!row) return;
-            const countCell = row.cells[4];
+            const countCell = row.querySelector('.col-count') || row.cells[3] || row.cells[4];
             if (!countCell) return;
             const countDisp = countCell.querySelector('.count-display');
             if (!countDisp) return;
@@ -4133,9 +4140,10 @@
             let seq = 0;
             rows.forEach((row) => {
                 const noCell = row.querySelector('.col-no');
-                if (!noCell) return;
                 const isFixed = row.dataset.fixed === 'true';
                 const label = isFixed ? '—' : String(++seq);
+                row.dataset.slSeq = label;
+                if (!noCell) return;
                 // テキストノードのみ更新（ベルアイコン等の子要素を保持）
                 const textNode = Array.from(noCell.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
                 if (textNode) {
@@ -5022,6 +5030,44 @@
             };
         }
 
+        function slGetWorkBadgeCell(row) {
+            return row ? (row.querySelector('.work-badge-slot') || row.querySelector('.col-badge')) : null;
+        }
+
+        function slGetMapCell(row) {
+            return row ? (row.querySelector('.col-site-info[data-maps]') || row.querySelector('.col-map[data-maps]')) : null;
+        }
+
+        function slEnsureSiteInlineSlots(siteCell) {
+            if (!siteCell) return;
+            var siteInfo = siteCell.querySelector('.site-info');
+            if (!siteInfo) return;
+            var badges = siteInfo.querySelector('.site-badges');
+            if (badges && !badges.querySelector('.work-badge-slot')) {
+                var workSlot = document.createElement('div');
+                workSlot.className = 'work-badge-slot';
+                workSlot.setAttribute('onclick', 'openWorkModal(this, event)');
+                badges.appendChild(workSlot);
+            }
+            var details = siteInfo.querySelector('.site-details');
+            if (details) {
+                var meta = details.querySelector('.site-meta-row');
+                if (!meta) {
+                    meta = document.createElement('div');
+                    meta.className = 'site-meta-row';
+                    var siteName = details.querySelector('.site-name');
+                    if (siteName && siteName.nextSibling) details.insertBefore(meta, siteName.nextSibling);
+                    else details.appendChild(meta);
+                }
+                if (!meta.querySelector('.sl-map-pills')) {
+                    var mapPills = document.createElement('span');
+                    mapPills.className = 'sl-map-pills';
+                    meta.insertBefore(mapPills, meta.firstChild);
+                }
+            }
+            if (!siteCell.hasAttribute('data-maps')) siteCell.setAttribute('data-maps', '[]');
+        }
+
         // ============================================================
         // Phase N-3.1: 自領域発信 — co-notify-panel.js の addItem('sl', ...) ラッパー
         // ============================================================
@@ -5248,8 +5294,8 @@
             'シフト':     '.col-site-info',
             '集合場所':   '.col-site-info',
             '現場監督':   '.col-site-info',
-            '作業内容':   '.col-badge',
-            '地図':       '.col-map',
+            '作業内容':   '.work-badge-slot',
+            '地図':       '.sl-map-pills',
             '備考':       '.col-notes'
         };
 
@@ -5375,20 +5421,22 @@
             var isNight = d.shiftLabel === '夜' || String(d.shiftClass || '').indexOf('shift-night') >= 0;
             tr.className = (d.gcClass || '') + (isNight ? ' row-night' : '');
             tr.className = tr.className.trim();
+            tr.dataset.slSeq = d.no || '';
             tr.dataset.shiftLabel = d.shiftLabel || '';
             tr.dataset.shiftClass = d.shiftClass || '';
             tr.setAttribute('onclick', 'selectRow(this, event)');
             var countClass = d.shortage ? 'count-display count-shortage' : 'count-display count-ok';
             tr.innerHTML =
-                '<td class="col-no">' + d.no + '</td>' +
-                '<td class="col-site-info clickable-cell"' + (d.gcCode ? ' data-group-company="' + d.gcCode + '" data-gc-name="' + (d.gcName || '') + '"' : '') + ' onclick="openSiteModal(this)">' +
+                '<td class="col-site-info clickable-cell" data-maps="[]"' + (d.gcCode ? ' data-group-company="' + d.gcCode + '" data-gc-name="' + (d.gcName || '') + '"' : '') + ' onclick="openSiteModal(this)">' +
                   '<div class="site-info"><div class="site-badges">' +
                     '<span class="category-badge ' + d.categoryClass + '">' + d.categoryLabel + '</span>' +
+                    '<div class="work-badge-slot" onclick="openWorkModal(this, event)"></div>' +
                   '</div><div class="site-details">' +
                     '<div class="company">' + d.company + '</div>' +
                     '<div class="site-name">' + d.siteName + '</div>' +
+                    '<div class="site-meta-row"><span class="sl-map-pills"><span class="info-pill sl-map-empty" onclick="event.stopPropagation(); openMapModal(this.closest(\'[data-maps]\'), 0)">地図 +</span></span></div>' +
                   '</div></div></td>' +
-                '<td class="clickable-cell" onclick="openMeetingModal(this, event)">' +
+                '<td class="col-meeting clickable-cell" onclick="openMeetingModal(this, event)">' +
                   '<span class="time-display">' + d.meetingTime + '</span>' +
                   '<span class="contact-badge ' + d.meetingMethodClass + '">' + d.meetingMethod + '</span>' +
                   (d.contactBadgeHtml || '') + '</td>' +
@@ -5396,12 +5444,10 @@
                   ' data-start-time="' + d.timeStart + '" data-end-time="' + d.timeEnd + '">' +
                   '<span class="work-time-start">' + d.timeStart + '</span>' +
                   '<span class="work-time-end">' + d.timeEnd + '</span></td>' +
-                '<td class="clickable-cell" onclick="startCountEdit(this, event)">' +
+                '<td class="col-count clickable-cell" onclick="startCountEdit(this, event)">' +
                   '<span class="' + countClass + '">' + d.count + '</span>' +
                   (d.shortage ? '<span class="count-shortage-badge">不足</span>' : '') + '</td>' +
-                '<td><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
-                '<td class="col-badge clickable-cell" onclick="openWorkModal(this, event)"></td>' +
-                '<td class="col-map clickable-cell" onclick="openMapModal(this, ' + d.no + ')" data-maps=\'[]\'><span class="map-empty">＋</span></td>' +
+                '<td class="col-assignment"><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
                 '<td class="col-vt"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div><div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div></div></td>' +
                 '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"></td>';
             return tr;
@@ -5887,7 +5933,7 @@
             };
         }
 
-        // バッジデータ → col-badge セル用HTML生成
+        // バッジデータ → 作業内容スロット用HTML生成
         function smBuildBadgeDisplayHtml(badgeData) {
             if (!badgeData || !badgeData.parentId || !badgeData.childIds || badgeData.childIds.length === 0) return '';
             const parent = smBadgeDefinitions.find(p => p.id === badgeData.parentId);
@@ -6267,8 +6313,8 @@
             else document.addEventListener('DOMContentLoaded', slCnSeedInitialDemo);
         }
 
-        // 地図セルの初期表示を data-maps から再描画（onclick ハンドラ付与）
-        document.querySelectorAll('td.col-map[data-maps]').forEach(function(cell) {
+        // 地図表示を data-maps から再描画（onclick ハンドラ付与）
+        document.querySelectorAll('[data-maps]').forEach(function(cell) {
             try {
                 var maps = JSON.parse(cell.getAttribute('data-maps') || '[]');
                 smUpdateMapCellDisplay(cell, maps);
@@ -7741,7 +7787,7 @@
             // 作業内容バッジをセルに反映
             var badgeData = slAddGetSelectedBadgeData();
             if (badgeData && badgeData.childIds && badgeData.childIds.length > 0) {
-                var badgeTd = tr.querySelector('.col-badge');
+                var badgeTd = slGetWorkBadgeCell(tr);
                 if (badgeTd) {
                     badgeTd.innerHTML = slAddBuildBadgeDisplayHtml(badgeData);
                 }
@@ -7750,13 +7796,11 @@
             // 地図データをセルに反映（URLがあるもののみ）
             var allMaps = slAddCollectMapEntries();
             var maps = allMaps.filter(function(m) { return m.url; });
-            var mapTd = tr.querySelector('.col-map');
+            var mapTd = slGetMapCell(tr);
             if (mapTd) {
                 if (maps.length > 0) {
                     mapTd.dataset.maps = JSON.stringify(maps);
-                    mapTd.innerHTML = maps.map(function(m, i) {
-                        return '<span class="map-tag">' + escapeHtml(m.label || '(無題)') + '</span>';
-                    }).join('');
+                    smUpdateMapCellDisplay(mapTd, maps);
                 }
                 // maps.length === 0 の場合はcnCreateRowのデフォルト（＋）表示のまま
             }

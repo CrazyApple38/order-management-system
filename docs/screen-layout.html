@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=18">
     <link rel="stylesheet" href="mockup/co-company-input.css">
     <link rel="stylesheet" href="mockup/screen-layout.css?v=27">
-    <link rel="stylesheet" href="mockup/sl-ds.css?v=1">
+    <link rel="stylesheet" href="mockup/sl-ds.css?v=2">
     <link rel="stylesheet" href="mockup/print-touo-nikkei.css?v=8">
 </head>
 <body>
@@ -111,16 +111,13 @@
                     <table class="grid-table tbl tbl--sticky-head">
                         <thead>
                             <tr>
-                                <th class="col-no">No.</th>
-                                <th class="col-site-info">会社 / 現場名</th>
-                                <th class="col-time">集合</th>
+                                <th class="col-site-info">区分 / 契約先・現場名</th>
+                                <th class="col-meeting">集合</th>
                                 <th class="col-work-time">時間</th>
                                 <th class="col-count">人数</th>
                                 <th>配置（右からドラッグ&ドロップ）</th>
-                                <th class="col-badge">作業内容</th>
-                                <th class="col-map">地図</th>
-                                <th class="col-vt">車両</th>
-                                <th class="col-notes">備考</th>
+                                <th class="col-vt">車両・ETC</th>
+                                <th class="col-notes">変更履歴・備考</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -128,66 +125,69 @@
 
                             <!-- 固定行: 会社 -->
                             <tr class="md-row-fixed md-row-fixed-company" data-fixed="true" onclick="selectRow(this, event)">
-                                <td class="col-no">—</td>
                                 <td class="col-site-info">
                                     <div class="site-info">
+                                        <div class="site-badges">
+                                            <div class="work-badge-slot" onclick="openWorkModal(this, event)"></div>
+                                        </div>
                                         <div class="site-details">
                                             <div class="site-name md-row-fixed-label">会社</div>
+                                            <div class="site-meta-row"><span class="sl-map-pills"></span></div>
                                         </div>
                                     </div>
                                 </td>
-                                <td></td>
+                                <td class="col-meeting"></td>
                                 <td class="col-work-time"></td>
-                                <td></td>
-                                <td>
+                                <td class="col-count"></td>
+                                <td class="col-assignment">
                                     <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
                                 </td>
-                                <td class="col-badge"></td>
-                                <td class="col-map"></td>
                                 <td class="col-vt"></td>
                                 <td class="col-notes"></td>
                             </tr>
 
                             <!-- 固定行: 休み（申請なし） -->
                             <tr class="md-row-fixed md-row-fixed-off-unapproved" data-fixed="true" onclick="selectRow(this, event)">
-                                <td class="col-no">—</td>
                                 <td class="col-site-info">
                                     <div class="site-info">
+                                        <div class="site-badges">
+                                            <div class="work-badge-slot" onclick="openWorkModal(this, event)"></div>
+                                        </div>
                                         <div class="site-details">
                                             <div class="site-name md-row-fixed-label">休み（申請なし）</div>
+                                            <div class="site-meta-row"><span class="sl-map-pills"></span></div>
                                         </div>
                                     </div>
                                 </td>
-                                <td></td>
+                                <td class="col-meeting"></td>
                                 <td class="col-work-time"></td>
-                                <td></td>
-                                <td>
+                                <td class="col-count"></td>
+                                <td class="col-assignment">
                                     <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
                                 </td>
-                                <td class="col-badge"></td>
-                                <td class="col-map"></td>
                                 <td class="col-vt"></td>
                                 <td class="col-notes"></td>
                             </tr>
 
                             <!-- 固定行: 休み（申請あり） -->
                             <tr class="md-row-fixed md-row-fixed-off-approved" data-fixed="true" onclick="selectRow(this, event)">
-                                <td class="col-no">—</td>
                                 <td class="col-site-info">
                                     <div class="site-info">
+                                        <div class="site-badges">
+                                            <div class="work-badge-slot" onclick="openWorkModal(this, event)"></div>
+                                        </div>
                                         <div class="site-details">
                                             <div class="site-name md-row-fixed-label">休み（申請あり）</div>
+                                            <div class="site-meta-row"><span class="sl-map-pills"></span></div>
                                         </div>
                                     </div>
                                 </td>
-                                <td></td>
+                                <td class="col-meeting"></td>
                                 <td class="col-work-time"></td>
-                                <td></td>
-                                <td>
+                                <td class="col-count"></td>
+                                <td class="col-assignment">
                                     <div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
                                 </td>
-                                <td class="col-badge"></td>
-                                <td class="col-map"></td>
                                 <td class="col-vt"></td>
                                 <td class="col-notes"></td>
                             </tr>
@@ -1119,7 +1119,7 @@
     <script src="mockup/co-mock-store.js?v=5"></script>
     <script src="mockup/co-navbar.js?v=22"></script>
     <script src="mockup/co-company-input.js"></script>
-    <script src="mockup/screen-layout.js?v=53"></script>
+    <script src="mockup/screen-layout.js?v=54"></script>
     <script src="mockup/print-touo-nikkei.js?v=1"></script>
 </body>
 </html>
