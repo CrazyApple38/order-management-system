@@ -3753,15 +3753,19 @@
         }
 
         // ===== ミニマップ =====
+        // R-3a-1a: 旧 minimap（左サイドパネル一覧）は撤去。総数はツールバー stat-strip へ集約。
+        // 一覧HTML生成は minimapBody が存在する場合のみ（後方互換。通常は null で skip）。
         function renderMinimap() {
             var body = document.getElementById('minimapBody');
             var totalEl = document.getElementById('minimapTotal');
-            if (!body) return;
+            var statPlacedEl = document.getElementById('slStatPlaced');
+            var statShortageEl = document.getElementById('slStatShortage');
 
             var rows = document.querySelectorAll('.grid-table tbody tr');
             var html = '';
             var totalRequired = 0;
             var totalAssigned = 0;
+            var shortageRows = 0;
 
             rows.forEach(function(row, idx) {
                 if (row.style.display === 'none') return;
@@ -3787,20 +3791,23 @@
                 totalAssigned += assigned;
 
                 var isShortage = assigned < required;
-                var rowClass = 'minimap-row' + (isShortage ? ' shortage' : '');
-                var countClass = 'minimap-count' + (isShortage ? ' shortage' : ' count-ok');
+                if (isShortage) shortageRows++;
 
-                html += '<div class="' + rowClass + '" onclick="minimapScrollToRow(' + idx + ')">'
-                    + '<span class="minimap-shift ' + shiftClass + '">' + (shift || '-') + '</span>'
-                    + '<span class="minimap-site" title="' + siteText.replace(/"/g, '&quot;') + '">' + siteText + '</span>'
-                    + '<span class="' + countClass + '">' + assigned + '/' + required + '</span>'
-                    + '</div>';
+                if (body) {
+                    var rowClass = 'minimap-row' + (isShortage ? ' shortage' : '');
+                    var countClass = 'minimap-count' + (isShortage ? ' shortage' : ' count-ok');
+                    html += '<div class="' + rowClass + '" onclick="minimapScrollToRow(' + idx + ')">'
+                        + '<span class="minimap-shift ' + shiftClass + '">' + (shift || '-') + '</span>'
+                        + '<span class="minimap-site" title="' + siteText.replace(/"/g, '&quot;') + '">' + siteText + '</span>'
+                        + '<span class="' + countClass + '">' + assigned + '/' + required + '</span>'
+                        + '</div>';
+                }
             });
 
-            body.innerHTML = html;
-            if (totalEl) {
-                totalEl.textContent = totalAssigned + '/' + totalRequired;
-            }
+            if (body) body.innerHTML = html;
+            if (totalEl) totalEl.textContent = totalAssigned + '/' + totalRequired;
+            if (statPlacedEl) statPlacedEl.textContent = totalAssigned + '/' + totalRequired;
+            if (statShortageEl) statShortageEl.textContent = String(shortageRows);
         }
 
         function toggleMinimap() {

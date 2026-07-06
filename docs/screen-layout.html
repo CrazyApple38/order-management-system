@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>業務管理計画書 - 画面レイアウト設計</title>
-    <link rel="stylesheet" href="mockup/co-tokens.css">
+    <!-- R-3a-1a: 新DS へ差し替え（co-tokens.css は撤去。ds-tokens と同一ページ併載禁止のため） -->
+    <link rel="stylesheet" href="mockup/ds-tokens.css?v=1">
+    <link rel="stylesheet" href="mockup/ds-tokens-bridge.css?v=1">
+    <link rel="stylesheet" href="mockup/ds-components.css?v=1">
     <link rel="stylesheet" href="mockup/co-forms.css?v=2">
     <link rel="stylesheet" href="mockup/co-buttons.css">
     <link rel="stylesheet" href="mockup/co-modal.css">
@@ -13,6 +16,7 @@
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=18">
     <link rel="stylesheet" href="mockup/co-company-input.css">
     <link rel="stylesheet" href="mockup/screen-layout.css?v=27">
+    <link rel="stylesheet" href="mockup/sl-ds.css?v=1">
     <link rel="stylesheet" href="mockup/print-touo-nikkei.css?v=8">
 </head>
 <body>
@@ -46,60 +50,63 @@
             </symbol>
         </defs>
     </svg>
-    <div class="container">
-        <!-- メインレイアウト -->
-        <div class="main-layout">
-            <!-- 左サイドパネル（配置状況） -->
-            <div class="side-panel side-panel--left">
-                <div class="minimap">
-                    <div class="minimap-header" onclick="toggleMinimap()">
-                        <span class="minimap-title">配置状況</span>
-                        <span class="minimap-total" id="minimapTotal"></span>
-                    </div>
-                    <div class="minimap-body expanded" id="minimapBody">
-                        <!-- JS動的生成 -->
-                    </div>
+    <div class="app">
+        <!-- ツールバー（新DS: menubar=co-navbar 直下） -->
+        <div class="toolbar">
+            <div class="tool-group">
+                <button class="tool-btn primary" onclick="slOpenAddModal()"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg> 新規追加</button>
+                <!-- 日付ナビ（旧 header-section から移設） -->
+                <div class="date-picker">
+                    <button>◀</button>
+                    <span class="date-display">2026年5月1日 <span class="weekday">金曜日</span></span>
+                    <button>▶</button>
+                    <button><img src="mockup/icons/calendar.svg" class="md-ob-icon"></button>
+                </div>
+                <div class="toolbar-separator"></div>
+                <button id="undoBtn" class="tool-btn" onclick="undo()" disabled><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-undo"/></svg> 戻す</button>
+                <button id="redoBtn" class="tool-btn" onclick="redo()" disabled><svg class="ui-icon ui-icon-flip-x" aria-hidden="true"><use href="#ui-icon-undo"/></svg> やり直す</button>
+                <div class="toolbar-separator"></div>
+                <button class="tool-btn danger-btn" onclick="deleteRow()"><img src="mockup/icons/trash.svg" class="md-ob-icon" alt="行削除"> 行削除</button>
+                <button class="tool-btn" onclick="moveRowUp()"><img src="mockup/icons/arrow-up.svg" class="md-ob-icon" alt="上へ"> 上へ</button>
+                <button class="tool-btn" onclick="moveRowDown()"><img src="mockup/icons/arrow-down.svg" class="md-ob-icon" alt="下へ"> 下へ</button>
+                <button class="tool-btn" onclick="openSortModal()"><img src="mockup/icons/chart.svg" class="md-ob-icon" alt="ソート設定"> ソート設定</button>
+                <button class="tool-btn" onclick="toggleColorSettingsPanel()"><img src="mockup/icons/brush.svg" class="md-ob-icon" alt="カラー設定"> カラー設定</button>
+                <button class="tool-btn" onclick="openPrintPreview()" title="業務管理計画書を東央警備&Nikkei書式で印刷"><img src="assets/icons/pc-tech/im-12915-purintaa-no-muryou.svg" class="md-ob-icon" alt="印刷" onerror="this.style.display='none'"> 印刷</button>
+                <button class="tool-btn" onclick="OmsMockStore.resetAndReload()" title="共通ダミーデータを初期状態に戻す"><img src="mockup/icons/broom.svg" class="md-ob-icon" alt=""> データリセット</button>
+            </div>
+            <div class="tool-group">
+                <!-- 配置状況の総数（旧 minimap-total 相当）を stat-strip へ集約 -->
+                <div class="stat-strip" role="group" aria-label="配置状況サマリ">
+                    <div class="stat"><span class="stat-label">配置</span><span class="stat-num" id="slStatPlaced">0/0</span></div>
+                    <div class="stat"><span class="stat-label">不足</span><span class="stat-num" id="slStatShortage">0</span></div>
                 </div>
             </div>
+        </div>
 
-            <!-- 画面モックアップ -->
-            <div class="screen-mockup">
-                <!-- ヘッダー部 -->
-                <div class="header-section">
-                    <div class="header-left">
-                        <div class="date-picker">
-                            <button>◀</button>
-                            <span class="date-display">2026年5月1日 <span class="weekday">金曜日</span></span>
-                            <button>▶</button>
-                            <button><img src="mockup/icons/calendar.svg" class="md-ob-icon"></button>
-                        </div>
-                        <!-- GCフィルタは共通ナビバーに移動 -->
+        <div class="workspace">
+            <!-- 左レール: 作業面切替（R-3a-1a はスカフォールド。ベルは R-3a-3 で co-navbar→rail 移行） -->
+            <aside class="rail" aria-label="作業面切替">
+                <button class="active" type="button" title="業務管理計画書" aria-label="業務管理計画書">
+                    <span class="icon i-doc" aria-hidden="true"></span><span class="sr-only">業務管理計画書</span>
+                </button>
+                <button type="button" title="社員" aria-label="社員">
+                    <span class="icon i-person" aria-hidden="true"></span><span class="sr-only">社員</span>
+                </button>
+                <button type="button" title="車両" aria-label="車両">
+                    <span class="icon i-car" aria-hidden="true"></span><span class="sr-only">車両</span>
+                </button>
+                <button type="button" title="設定" aria-label="設定">
+                    <span class="icon i-settings" aria-hidden="true"></span><span class="sr-only">設定</span>
+                </button>
+            </aside>
+
+            <section class="main">
+                <div class="main-card">
+                    <div class="main-head">
+                        <div class="main-title">業務管理計画書 <span>中央表 = 共通コア + 状態。詳細は右プロパティへ。</span></div>
                     </div>
-                    <div class="header-right">
-                        <!-- 旧 cn-anchor / cnPanel ブロックは N-2.3 で撤去（共通ベル co-navbar が管理） -->
-                    </div>
-                </div>
-
-                <!-- ツールバー -->
-                <div class="toolbar">
-                    <button class="primary" onclick="slOpenAddModal()"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg> 新規追加</button>
-                    <div class="toolbar-separator"></div>
-                    <button id="undoBtn" onclick="undo()" disabled><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-undo"/></svg> 戻す</button>
-                    <button id="redoBtn" onclick="redo()" disabled><svg class="ui-icon ui-icon-flip-x" aria-hidden="true"><use href="#ui-icon-undo"/></svg> やり直す</button>
-                    <div class="toolbar-separator"></div>
-                    <button class="danger" onclick="deleteRow()"><img src="mockup/icons/trash.svg" class="md-ob-icon" alt="行削除"> 行削除</button>
-                    <div class="toolbar-separator"></div>
-                    <button onclick="moveRowUp()"><img src="mockup/icons/arrow-up.svg" class="md-ob-icon" alt="上へ"> 上へ</button>
-                    <button onclick="moveRowDown()"><img src="mockup/icons/arrow-down.svg" class="md-ob-icon" alt="下へ"> 下へ</button>
-                    <button onclick="openSortModal()"><img src="mockup/icons/chart.svg" class="md-ob-icon" alt="ソート設定"> ソート設定</button>
-                    <div class="toolbar-separator"></div>
-                    <button onclick="toggleColorSettingsPanel()"><img src="mockup/icons/brush.svg" class="md-ob-icon" alt="カラー設定"> カラー設定</button>
-                    <div class="toolbar-separator"></div>
-                    <button onclick="openPrintPreview()" title="業務管理計画書を東央警備&Nikkei書式で印刷"><img src="assets/icons/pc-tech/im-12915-purintaa-no-muryou.svg" class="md-ob-icon" alt="印刷" onerror="this.style.display='none'"> 印刷</button>
-                    <button onclick="OmsMockStore.resetAndReload()" title="共通ダミーデータを初期状態に戻す"><img src="mockup/icons/broom.svg" class="md-ob-icon" alt=""> データリセット</button>
-                </div>
-
-                <!-- グリッドテーブル -->
+                    <div class="grid-frame">
+                <!-- グリッドテーブル（本番 <table> を維持し CSS で新DS化） -->
                 <div class="grid-container">
                     <table class="grid-table tbl tbl--sticky-head">
                         <thead>
@@ -186,10 +193,14 @@
                             </tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
+                </div><!-- grid-container -->
+                    </div><!-- grid-frame -->
+                </div><!-- main-card -->
+            </section><!-- main -->
 
-            <!-- 右サイドパネル（社員リスト） -->
+            <!-- 右プロパティ: R-3a-1a は既存の右サイドパネル（D&D供給源）を暫定収容。R-3a-2 で4モード化 -->
+            <aside class="prop">
+            <!-- 右サイドパネル（社員リスト / 車両 / 応援＝D&D供給源） -->
             <div class="side-panel">
                 <div class="side-panel-header">
                     <div class="md-sp-tab active" data-sp-main="employee" onclick="spSwitchMainTab('employee')">社員リスト <span class="md-sp-employee-count">全17名</span></div>
@@ -246,9 +257,17 @@
                         <div class="md-sp-content" id="spVehicleContent"><!-- JS動的生成 --></div>
                     </div>
                 </div>
-            </div>
+            </div><!-- side-panel -->
+            </aside><!-- prop -->
 
-        </div>
+            <!-- 右パネル切替（R-3a-1a はスカフォールド。モード連動は R-3a-2） -->
+            <aside class="panel-rail" aria-label="右パネル切替">
+                <button class="active" type="button" data-panel="site" title="現場詳細" aria-label="現場詳細"><span class="icon i-doc" aria-hidden="true"></span><span class="sr-only">現場詳細</span></button>
+                <button type="button" data-panel="assignment" title="社員配置" aria-label="社員配置"><span class="icon i-person" aria-hidden="true"></span><span class="sr-only">社員配置</span></button>
+                <button type="button" data-panel="vehicle" title="車両・ETC" aria-label="車両・ETC"><span class="icon i-car" aria-hidden="true"></span><span class="sr-only">車両・ETC</span></button>
+                <button type="button" data-panel="history" title="変更履歴" aria-label="変更履歴"><span class="icon i-history" aria-hidden="true"></span><span class="sr-only">変更履歴</span></button>
+            </aside>
+        </div><!-- workspace -->
 
         <!-- GCフィルタモーダルは共通ナビバー(co-navbar.js)に移動 -->
 
@@ -1100,7 +1119,7 @@
     <script src="mockup/co-mock-store.js?v=5"></script>
     <script src="mockup/co-navbar.js?v=22"></script>
     <script src="mockup/co-company-input.js"></script>
-    <script src="mockup/screen-layout.js?v=52"></script>
+    <script src="mockup/screen-layout.js?v=53"></script>
     <script src="mockup/print-touo-nikkei.js?v=1"></script>
 </body>
 </html>

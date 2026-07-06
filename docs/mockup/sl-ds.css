@@ -1,0 +1,158 @@
+/* ============================================================================
+   sl-ds.css — SL 画面（screen-layout.html）新DS適用の画面固有オーバーライド
+   ----------------------------------------------------------------------------
+   位置づけ（2026-07-06 / mockup-refactor-plan R-3a-1a）:
+     - 読込は最後（ds-tokens → ds-tokens-bridge → ds-components → co-* →
+       screen-layout.css → 本ファイル）。screen-layout.css と同名クラス
+       （.toolbar / .grid-table / .grid-container 等）は本ファイルで DS へ再アサートする。
+     - 新骨格の大半は ds-components.css（.menubar/.rail/.workspace/.main-card/
+       .grid-frame/.prop-card/.panel-rail/.stat-strip/.seg 等）が供給。ここでは
+       (a) 本番 <table class="grid-table"> を DS 見た目へ寄せる上書き、
+       (b) 保持した右サイドパネル（D&D供給源）を .prop 列へ収める調整、
+       (c) 1440px でも収まる workspace レスポンシブ、を担う。
+     - 直書き hex は使わず ds-tokens のトークンを参照する。
+   注意: ds-tokens.css / ds-components.css は改変しない（本ファイルは SL 専用）。
+   ============================================================================ */
+
+/* ---- 全体フレーム: co-navbar(=menubar) 直下に載るカード ---- */
+.app {
+    /* co-navbar と接するので上端の角丸は落とす */
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    /* workspace を viewport 内に収めるため、はみ出しはクリップせず内部スクロールに委ねる */
+    overflow: visible;
+    margin: 0;
+}
+
+/* ---- workspace: 1440px でも収まるよう main を minmax(0,1fr) に ---- */
+.app > .workspace {
+    grid-template-columns: 72px minmax(0, 1fr) 288px 58px;
+    min-height: 0;
+}
+
+/* ---- toolbar: screen-layout.css の旧 .toolbar を DS へ再アサート ---- */
+.app > .toolbar {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: #f2f7fb;
+    box-shadow: none;
+    flex-wrap: nowrap;
+}
+.app > .toolbar .tool-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+/* 旧トーンの区切り線は非表示（DS はグループ余白で分ける） */
+.app > .toolbar .toolbar-separator {
+    width: 1px;
+    height: 20px;
+    margin: 0 2px;
+    background: var(--soft-line);
+    border: 0;
+    flex: 0 0 auto;
+}
+/* 破壊操作（行削除）は DS ナイト色で控えめに区別 */
+.app > .toolbar .tool-btn.danger-btn {
+    color: var(--night-text);
+    border-color: var(--alert-border);
+}
+/* toolbar 内の日付ピッカー */
+.app > .toolbar .date-picker {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.app > .toolbar .date-picker button {
+    height: 30px;
+    min-width: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--ink);
+    font-weight: 600;
+}
+.app > .toolbar .date-picker .date-display {
+    padding: 0 6px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+}
+.app > .toolbar .date-picker .weekday { color: var(--muted); font-weight: 500; }
+
+/* ---- main / grid-frame 内で本番テーブルをスクロールさせる ---- */
+.app .main { overflow: visible; }
+.app .grid-frame > .grid-container {
+    max-height: calc(100vh - 220px);
+    overflow: auto;
+    border-radius: var(--radius-sm);
+}
+
+/* ---- 本番 <table class="grid-table"> を DS 見た目へ ---- */
+.app .grid-table,
+.app .grid-table.tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--table-font);
+    color: var(--ink);
+    background: transparent;
+}
+/* 縦罫線を廃し、行区切りのみ（DS §6: 縦罫線なし） */
+.app .grid-table th,
+.app .grid-table td {
+    border: 0;
+    border-bottom: 1px solid var(--soft-line);
+    padding: 8px 10px;
+}
+/* 見出し: taupe/teal → 淡い青灰 + muted 文字（DS） */
+.app .grid-table thead th {
+    background: #eef4f8;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 12px;
+    border-bottom: 1px solid var(--line);
+    box-shadow: inset 0 -1px 0 var(--line);
+}
+/* No. 固定列の taupe 背景を DS 中立面へ */
+.app .grid-table .col-no {
+    background: var(--soft-line) !important;
+    color: var(--muted);
+}
+/* 行選択: teal → DS ブルー */
+.app .grid-table tbody tr.selected,
+.app .grid-table tbody tr[aria-selected="true"] {
+    outline: 2px solid var(--blue);
+    outline-offset: -2px;
+    background: var(--blue-soft) !important;
+}
+.app .grid-table tbody tr.selected td,
+.app .grid-table tbody tr[aria-selected="true"] td {
+    background: transparent;
+}
+
+/* ---- 右サイドパネル（D&D供給源）を .prop 列へ収容（R-3a-1a 暫定） ---- */
+.app .workspace > .prop {
+    min-width: 0;
+    padding: 8px;
+    overflow: auto;
+}
+.app .workspace > .prop > .side-panel {
+    width: 100%;
+    flex: 1 1 auto;
+    box-sizing: border-box;
+}
+
+/* ---- panel-rail / prop-card 見出し（1a はモード非連動のスカフォールド） ---- */
+.app .panel-rail button { cursor: default; }
