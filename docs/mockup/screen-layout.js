@@ -1321,6 +1321,69 @@
             if (typeof applySortSettingsOnLoad === 'function') applySortSettingsOnLoad();
         });
 
+        // R-3a-2: 編集モーダルを右プロパティへドッキング
+        const slPropModeTitles = {
+            site: '現場詳細',
+            assignment: '社員配置',
+            vehicle: '車両・ETC',
+            history: '変更履歴'
+        };
+        const slDockedModalContent = {};
+
+        function slSetPropMode(mode) {
+            if (!slPropModeTitles[mode]) mode = 'site';
+            const title = document.getElementById('slPropTitle');
+            if (title) title.textContent = slPropModeTitles[mode];
+            document.querySelectorAll('.sl-prop-panel').forEach(function(panel) {
+                panel.classList.toggle('is-active', panel.getAttribute('data-prop-panel') === mode);
+            });
+            document.querySelectorAll('.panel-rail [data-panel]').forEach(function(btn) {
+                btn.classList.toggle('active', btn.getAttribute('data-panel') === mode);
+            });
+            if (mode === 'assignment') {
+                spState.mainTab = 'employee';
+                spApplyAccordionState();
+                renderSidePanel();
+                renderSupportPanel();
+            } else if (mode === 'vehicle') {
+                spState.mainTab = 'vehicle';
+                renderVehiclePanel();
+            }
+        }
+
+        function slOpenPropDock(modalId, dockId, mode) {
+            const overlay = document.getElementById(modalId);
+            const dock = document.getElementById(dockId);
+            if (!overlay || !dock) return false;
+            const content = slDockedModalContent[modalId] || overlay.firstElementChild;
+            if (!content) return false;
+            slSetPropMode(mode);
+            dock.querySelectorAll('.sl-docked-modal').forEach(function(el) {
+                el.classList.add('is-docked-hidden');
+            });
+            content.classList.add('sl-docked-modal');
+            content.classList.remove('is-docked-hidden');
+            dock.appendChild(content);
+            slDockedModalContent[modalId] = content;
+            overlay.classList.remove('active');
+            overlay.style.display = 'none';
+            const siteEmpty = document.getElementById('slPropSiteEmpty');
+            if (siteEmpty && dockId === 'slPropSiteDock') siteEmpty.style.display = 'none';
+            return true;
+        }
+
+        function slClosePropDock(modalId) {
+            const overlay = document.getElementById(modalId);
+            const target = slDockedModalContent[modalId];
+            if (target && target.closest('.sl-prop-dock')) {
+                target.classList.add('is-docked-hidden');
+            }
+            if (overlay) {
+                overlay.classList.remove('active');
+                overlay.style.display = 'none';
+            }
+        }
+
         // 現場詳細モーダルの開閉
         let currentSiteCell = null;
 
@@ -1429,7 +1492,7 @@
             // 現場監督候補
             smRenderSupervisorCandidates();
 
-            document.getElementById('siteModal').style.display = 'flex';
+            slOpenPropDock('siteModal', 'slPropSiteDock', 'site');
         }
 
         function closeSiteModal() {
@@ -1439,7 +1502,7 @@
                 smBadgeSnapshot.forEach(b => smBadgeDefinitions.push(b));
                 smBadgeSnapshot = null;
             }
-            document.getElementById('siteModal').style.display = 'none';
+            slClosePropDock('siteModal');
             closeTimePicker();
         }
 
@@ -1704,7 +1767,7 @@
                 }
             }
 
-            document.getElementById('siteModal').style.display = 'none';
+            slClosePropDock('siteModal');
             closeTimePicker();
         }
 
@@ -1728,7 +1791,7 @@
             mtSelectedContact = contactBadge ? contactBadge.textContent.trim() : null;
 
             mtRenderContactChips();
-            document.getElementById('meetingModal').classList.add('active');
+            slOpenPropDock('meetingModal', 'slPropSiteDock', 'site');
         }
 
         function mtRenderContactChips() {
@@ -1830,7 +1893,7 @@
         }
 
         function closeMeetingModal() {
-            document.getElementById('meetingModal').classList.remove('active');
+            slClosePropDock('meetingModal');
             closeTimePicker();
             currentMeetingCell = null;
         }
@@ -1868,7 +1931,7 @@
             }
             smRenderBadgeSection(categoryName, badgeChildIds, badgeGcMap);
 
-            document.getElementById('workModal').classList.add('active');
+            slOpenPropDock('workModal', 'slPropSiteDock', 'site');
         }
 
         function saveWorkModal() {
@@ -1901,7 +1964,7 @@
                     diffs: [{ field: '作業内容', oldVal: _cnOldBadgeText, newVal: _cnNewBadgeText }] });
             }
 
-            document.getElementById('workModal').classList.remove('active');
+            slClosePropDock('workModal');
             currentWorkCell = null;
         }
 
@@ -1912,7 +1975,7 @@
                 smBadgeSnapshot.forEach(b => smBadgeDefinitions.push(b));
                 smBadgeSnapshot = null;
             }
-            document.getElementById('workModal').classList.remove('active');
+            slClosePropDock('workModal');
             currentWorkCell = null;
         }
 
@@ -1951,7 +2014,7 @@
             }
 
             renderVtItems();
-            document.getElementById('notesModal').classList.add('active');
+            slOpenPropDock('notesModal', 'slPropSiteDock', 'site');
         }
 
         function saveNotesModal() {
@@ -1986,7 +2049,7 @@
                     diffs: [{ field: '備考', oldVal: _cnOldNotesText, newVal: _cnNewNotesText }] });
             }
 
-            document.getElementById('notesModal').classList.remove('active');
+            slClosePropDock('notesModal');
             currentNotesCell = null;
             vtItems = [];
         }
@@ -2002,7 +2065,7 @@
         }
 
         function closeNotesModal() {
-            document.getElementById('notesModal').classList.remove('active');
+            slClosePropDock('notesModal');
             currentNotesCell = null;
             vtItems = [];
         }
@@ -2339,7 +2402,7 @@
             smMapActiveTab = idx;
             smRenderMapTabs();
             smLoadMapTab(idx);
-            document.getElementById('mapModal').classList.add('active');
+            slOpenPropDock('mapModal', 'slPropSiteDock', 'site');
             document.getElementById('smMapUrlInput').focus();
         }
 
@@ -2403,7 +2466,7 @@
         }
 
         function closeMapModal() {
-            document.getElementById('mapModal').classList.remove('active');
+            slClosePropDock('mapModal');
             document.getElementById('smMapPreviewFrame').src = '';
             document.getElementById('smMapPreviewSection').style.display = 'none';
             currentMapCell = null;
@@ -6236,11 +6299,11 @@
             const endTime = cell.dataset.endTime || '';
             document.getElementById('wtStartTime').value = startTime;
             document.getElementById('wtEndTime').value = endTime;
-            document.getElementById('workTimeModal').classList.add('active');
+            slOpenPropDock('workTimeModal', 'slPropSiteDock', 'site');
         }
 
         function closeWorkTimeModal() {
-            document.getElementById('workTimeModal').classList.remove('active');
+            slClosePropDock('workTimeModal');
             closeTimePicker();
             currentWorkTimeCell = null;
         }
@@ -6412,11 +6475,11 @@
                 };
             });
             seRender();
-            document.getElementById('staffEditModal').classList.add('active');
+            slOpenPropDock('staffEditModal', 'slPropAssignmentEditDock', 'assignment');
         }
 
         function closeStaffEditModal() {
-            document.getElementById('staffEditModal').classList.remove('active');
+            slClosePropDock('staffEditModal');
             seEditData = [];
         }
 
@@ -6646,11 +6709,11 @@
                 return { label: e.label, owner: e.owner, hidden: e.hidden || false };
             });
             veRender();
-            document.getElementById('vehicleEditModal').classList.add('active');
+            slOpenPropDock('vehicleEditModal', 'slPropVehicleEditDock', 'vehicle');
         }
 
         function closeVehicleEditModal() {
-            document.getElementById('vehicleEditModal').classList.remove('active');
+            slClosePropDock('vehicleEditModal');
         }
 
         function saveVehicleEditModal() {

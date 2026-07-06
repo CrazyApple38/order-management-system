@@ -9,23 +9,21 @@
 
 - **更新者**: Codex (GPT-5)
 - **日付**: 2026-07-06
-- **コミット**: dee7fce（R-3a-1b 実装コミット）
+- **コミット**: 69a72b0（R-3a-2 実装コミット）
 
 ## 直前にやったこと（最新のみ）
 
-- **R-3a-1b 完了・runtime検証済**: SL中央表を10列→7列（区分/契約先・現場名、集合、時間、人数、配置、車両・ETC、変更履歴・備考）へ再構成。固定3行も7列化。
-- **No.列撤去**: 表DOM上の `.col-no` は0件。行番号は `data-sl-seq` に退避し、`slGetRowKey` / `renumberRows` を互換化。
-- **地図/作業内容統合**: 地図は `.col-site-info[data-maps]` 内の `.sl-map-pills .info-pill` へ移動（`openMapModal` 維持）。作業内容は `.work-badge-slot` へ移動（`openWorkModal` 維持）。旧 `.col-map/.col-badge` は表DOM 0件、JS互換フォールバックのみ残置。
-- **検証**: `node --check docs/mockup/screen-layout.js` OK。Chrome経由で localhost 検証: header/dynamic/fixed すべて7列、旧列DOM 0件、行選択OK、現場詳細モーダル display:flex、地図モーダル display:flex、ページ由来console error 0。スクショ `screenshots/r3a1b-sl-full.png`。
+- **R-3a-2 完了・runtime検証済**: SL右プロパティを4モード化（現場詳細 / 社員配置 / 車両・ETC / 変更履歴）し、panel-rail の切替を実動化。
+- `siteModal` / `meetingModal` / `workModal` / `workTimeModal` / `mapModal` / `notesModal` / `staffEditModal` / `vehicleEditModal` は、既存フォームID・保存関数を維持したまま `.prop-card` 内へドック表示する方式に変更。
+- `sortModal`・新規追加・印刷・カラー設定は従来通り維持。変更履歴モードはプレースホルダで、R-3a-3 の通知rail検証時に実データ配線予定。
+- 検証: `node --check docs/mockup/screen-layout.js` OK。Playwright localhost 検証で4パネル、site/meeting/work/workTime/map/notes/staff/vehicle のドック表示、ページ由来console error 0。スクショ `screenshots/r3a2-sl-prop.png`。
 
 ## 次にやるべきこと
 
-- **R-3a-2 着手**: 編集モーダル→右プロパティ4モード転換（現場詳細 / 社員配置 / 車両・ETC / 変更履歴）。
-- `siteModal` 系（meeting/work/workTime/map/notes含む）を右プロパティ「現場詳細」へ段階移植。`sortModal`・削除確認・印刷はモーダル維持。
-- R-3a-2 では、今回追加した `.work-badge-slot` / `.sl-map-pills` / `.col-notes::before` の配置を右プロパティ側のモード設計と整合確認する。
-- 右プロパティ化後、R-3a-3 で通知rail cn-card・cn:jump・元に戻す/seed回帰をまとめて検証。
+- **R-3a-3 着手**: SLのベルを rail へ移し、通知rail cn-card・cn:jump・元に戻す/seed回帰をまとめて検証。
+- 変更履歴モードへ、R-3a-1b の `.col-notes::before` プレースホルダと R-3a-3 の通知/履歴表示を整合させる。
+- 右プロパティ化後の site/meeting/work/workTime/map/notes 保存操作で、通知差分・undo・セル再描画に回帰がないか追加操作検証する。
 
 ## 今だけの申し送り（任意）
 
-- in-app browser `iab` は利用不可だったため、browser-client の Chrome extension 接続で検証した。ページ由来エラーは0、Chrome拡張由来エラーは検証対象外。
-- フルページスクショはブラウザ側10秒制限でタイムアウトしたため、viewportスクショを `screenshots/r3a1b-sl-full.png` として保存。
+- in-app browser は今回も `node_repl js` が露出せず利用不可。代替でローカル Playwright headless を使用。

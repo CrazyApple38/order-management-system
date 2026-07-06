@@ -207,17 +207,140 @@
     font-weight: 600;
 }
 
-/* ---- 右サイドパネル（D&D供給源）を .prop 列へ収容（R-3a-1a 暫定） ---- */
+/* ---- 右プロパティ 4モード（R-3a-2） ---- */
 .app .workspace > .prop {
     min-width: 0;
     padding: 8px;
+    overflow: hidden;
+}
+
+.app .sl-prop-card {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+}
+
+.app .sl-prop-head {
+    flex: 0 0 auto;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--soft-line);
+}
+
+.app .sl-prop-eyebrow {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.app .sl-prop-head h2 {
+    margin: 2px 0 0;
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.app .sl-prop-panel {
+    display: none;
+    min-height: 0;
+    flex: 1 1 auto;
     overflow: auto;
 }
-.app .workspace > .prop > .side-panel {
+
+.app .sl-prop-panel.is-active {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.app .sl-prop-empty,
+.app .sl-history-card {
+    padding: 12px;
+    border: 1px dashed var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.app .sl-history-title {
+    margin-bottom: 4px;
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.app .sl-prop-dock {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.app .sl-docked-modal {
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+.app .sl-docked-modal.is-docked-hidden {
+    display: none !important;
+}
+
+.app .sl-docked-modal .modal-header,
+.app .sl-docked-modal .md-modal-site-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin: 0 0 8px;
+    padding: 0 0 8px;
+    border-bottom: 1px solid var(--soft-line);
+    background: var(--panel);
+}
+
+.app .sl-docked-modal .modal-body,
+.app .sl-docked-modal .md-modal-site-body {
+    max-height: none;
+    padding: 0;
+    overflow: visible;
+}
+
+.app .sl-docked-modal .modal-footer,
+.app .sl-docked-modal .md-modal-site-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin-top: 10px;
+    padding: 8px 0 0;
+    border-top: 1px solid var(--soft-line);
+    background: var(--panel);
+}
+
+.app .sl-docked-modal .md-modal-body-card {
+    margin-bottom: 8px;
+}
+
+.app .sl-prop-source-panel {
     width: 100%;
     flex: 1 1 auto;
     box-sizing: border-box;
 }
 
-/* ---- panel-rail / prop-card 見出し（1a はモード非連動のスカフォールド） ---- */
-.app .panel-rail button { cursor: default; }
+.app .sl-prop-source-panel .side-panel-header {
+    display: none;
+}
+
+.app .sl-prop-source-panel .md-sp-main-panel {
+    display: block !important;
+}
+
+/* ---- panel-rail ---- */
+.app .panel-rail button { cursor: pointer; }

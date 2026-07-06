@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=18">
     <link rel="stylesheet" href="mockup/co-company-input.css">
     <link rel="stylesheet" href="mockup/screen-layout.css?v=27">
-    <link rel="stylesheet" href="mockup/sl-ds.css?v=2">
+    <link rel="stylesheet" href="mockup/sl-ds.css?v=3">
     <link rel="stylesheet" href="mockup/print-touo-nikkei.css?v=8">
 </head>
 <body>
@@ -198,74 +198,96 @@
                 </div><!-- main-card -->
             </section><!-- main -->
 
-            <!-- 右プロパティ: R-3a-1a は既存の右サイドパネル（D&D供給源）を暫定収容。R-3a-2 で4モード化 -->
+            <!-- 右プロパティ: R-3a-2 4モード（現場詳細 / 社員配置 / 車両・ETC / 変更履歴） -->
             <aside class="prop">
-            <!-- 右サイドパネル（社員リスト / 車両 / 応援＝D&D供給源） -->
-            <div class="side-panel">
-                <div class="side-panel-header">
-                    <div class="md-sp-tab active" data-sp-main="employee" onclick="spSwitchMainTab('employee')">社員リスト <span class="md-sp-employee-count">全17名</span></div>
-                    <div class="md-sp-tab" data-sp-main="vehicle" onclick="spSwitchMainTab('vehicle')">車両 <span class="md-sp-vehicle-count">全6台</span></div>
-                </div>
-                <!-- 社員パネル -->
-                <div class="md-sp-main-panel" id="spEmployeePanel">
-                    <div class="md-sp-accordion md-sp-accordion--employee is-expanded" id="spEmployeeAccordion">
-                        <button type="button" class="md-sp-accordion-toggle" onclick="spSetAccordion('employee')" aria-expanded="true" aria-controls="spEmployeeAccordionBody">
-                            <span>社員リスト</span>
-                            <span class="md-sp-employee-count">全17名</span>
-                        </button>
-                        <div class="md-sp-accordion-body" id="spEmployeeAccordionBody">
-                            <div class="side-panel-search">
-                                <input type="text" class="md-fi-input" id="spSearchInput" placeholder="社員検索...">
-                                <button type="button" class="sp-edit-btn" onclick="openStaffEditModal()" title="社員リスト編集">
-                                    <img src="assets/icons/business/im-12032-shimpuru-na-shomei-keiyaku.svg" alt="編集" class="sp-edit-icon">
-                                </button>
-                                <button type="button" class="sp-edit-btn" onclick="toggleColorSettingsPanel()" title="バッジカラー">
-                                    <img src="assets/icons/stationery/im-12928-paretto-no-muryou.svg" alt="バッジカラー" class="sp-edit-icon">
-                                </button>
-                            </div>
-                            <div class="side-panel-body">
-                                <div class="md-sp-vtabs" id="spVtabs"><!-- JS動的生成 --></div>
-                                <div class="md-sp-content" id="spContent"><!-- JS動的生成 --></div>
-                            </div>
+                <div class="prop-card sl-prop-card" id="slPropCard">
+                    <div class="sl-prop-head">
+                        <div>
+                            <div class="sl-prop-eyebrow">右プロパティ</div>
+                            <h2 id="slPropTitle">現場詳細</h2>
                         </div>
                     </div>
-                    <!-- 応援パネル -->
-                    <div class="md-sp-accordion md-sp-accordion--support is-collapsed" id="spSupportPanel">
-                        <button type="button" class="md-sp-accordion-toggle" onclick="spSetAccordion('support')" aria-expanded="false" aria-controls="spSupportAccordionBody">
-                            <span>応援予約</span>
-                            <span class="md-sp-support-count">予約0件</span>
-                        </button>
-                        <div class="md-sp-accordion-body" id="spSupportAccordionBody">
-                            <div class="side-panel-search">
-                                <input type="text" class="md-fi-input" id="spSupportSearchInput" placeholder="応援検索...">
-                            </div>
-                            <div class="side-panel-body md-sp-support-body">
-                                <div class="md-sp-content" id="spSupportContent"><!-- JS動的生成 --></div>
+
+                    <section class="sl-prop-panel is-active" data-prop-panel="site" id="slPropPanelSite">
+                        <div class="sl-prop-empty" id="slPropSiteEmpty">中央表の現場名・集合・時間・地図・備考を選択すると、ここで編集します。</div>
+                        <div class="sl-prop-dock" id="slPropSiteDock"></div>
+                    </section>
+
+                    <section class="sl-prop-panel" data-prop-panel="assignment" id="slPropPanelAssignment">
+                        <div class="side-panel sl-prop-source-panel">
+                            <div class="md-sp-main-panel" id="spEmployeePanel">
+                                <div class="md-sp-accordion md-sp-accordion--employee is-expanded" id="spEmployeeAccordion">
+                                    <button type="button" class="md-sp-accordion-toggle" onclick="spSetAccordion('employee')" aria-expanded="true" aria-controls="spEmployeeAccordionBody">
+                                        <span>社員リスト</span>
+                                        <span class="md-sp-employee-count">全17名</span>
+                                    </button>
+                                    <div class="md-sp-accordion-body" id="spEmployeeAccordionBody">
+                                        <div class="side-panel-search">
+                                            <input type="text" class="md-fi-input" id="spSearchInput" placeholder="社員検索...">
+                                            <button type="button" class="sp-edit-btn" onclick="openStaffEditModal()" title="社員リスト編集">
+                                                <img src="assets/icons/business/im-12032-shimpuru-na-shomei-keiyaku.svg" alt="編集" class="sp-edit-icon">
+                                            </button>
+                                            <button type="button" class="sp-edit-btn" onclick="toggleColorSettingsPanel()" title="バッジカラー">
+                                                <img src="assets/icons/stationery/im-12928-paretto-no-muryou.svg" alt="バッジカラー" class="sp-edit-icon">
+                                            </button>
+                                        </div>
+                                        <div class="side-panel-body">
+                                            <div class="md-sp-vtabs" id="spVtabs"><!-- JS動的生成 --></div>
+                                            <div class="md-sp-content" id="spContent"><!-- JS動的生成 --></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="md-sp-accordion md-sp-accordion--support is-collapsed" id="spSupportPanel">
+                                    <button type="button" class="md-sp-accordion-toggle" onclick="spSetAccordion('support')" aria-expanded="false" aria-controls="spSupportAccordionBody">
+                                        <span>応援予約</span>
+                                        <span class="md-sp-support-count">予約0件</span>
+                                    </button>
+                                    <div class="md-sp-accordion-body" id="spSupportAccordionBody">
+                                        <div class="side-panel-search">
+                                            <input type="text" class="md-fi-input" id="spSupportSearchInput" placeholder="応援検索...">
+                                        </div>
+                                        <div class="side-panel-body md-sp-support-body">
+                                            <div class="md-sp-content" id="spSupportContent"><!-- JS動的生成 --></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                        <div class="sl-prop-dock" id="slPropAssignmentEditDock"></div>
+                    </section>
+
+                    <section class="sl-prop-panel" data-prop-panel="vehicle" id="slPropPanelVehicle">
+                        <div class="side-panel sl-prop-source-panel">
+                            <div class="md-sp-main-panel" id="spVehiclePanel">
+                                <div class="side-panel-search">
+                                    <input type="text" class="md-fi-input" id="spVehicleSearchInput" placeholder="車両検索...">
+                                    <button type="button" class="sp-edit-btn" onclick="openVehicleEditModal()" title="車両リスト編集">
+                                        <img src="assets/icons/business/im-12032-shimpuru-na-shomei-keiyaku.svg" alt="編集" class="sp-edit-icon">
+                                    </button>
+                                </div>
+                                <div class="side-panel-body md-sp-vehicle-body">
+                                    <div class="md-sp-content" id="spVehicleContent"><!-- JS動的生成 --></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sl-prop-dock" id="slPropVehicleEditDock"></div>
+                    </section>
+
+                    <section class="sl-prop-panel" data-prop-panel="history" id="slPropPanelHistory">
+                        <div class="sl-history-card">
+                            <div class="sl-history-title">変更履歴</div>
+                            <p>選択中の現場に紐づく変更履歴を表示します。実データ配線は R-3a-3 で通知 rail と合わせて検証します。</p>
+                        </div>
+                    </section>
                 </div>
-                <!-- 車両パネル -->
-                <div class="md-sp-main-panel" id="spVehiclePanel" style="display:none">
-                    <div class="side-panel-search">
-                        <input type="text" class="md-fi-input" id="spVehicleSearchInput" placeholder="車両検索...">
-                        <button type="button" class="sp-edit-btn" onclick="openVehicleEditModal()" title="車両リスト編集">
-                            <img src="assets/icons/business/im-12032-shimpuru-na-shomei-keiyaku.svg" alt="編集" class="sp-edit-icon">
-                        </button>
-                    </div>
-                    <div class="side-panel-body md-sp-vehicle-body">
-                        <div class="md-sp-content" id="spVehicleContent"><!-- JS動的生成 --></div>
-                    </div>
-                </div>
-            </div><!-- side-panel -->
             </aside><!-- prop -->
 
             <!-- 右パネル切替（R-3a-1a はスカフォールド。モード連動は R-3a-2） -->
             <aside class="panel-rail" aria-label="右パネル切替">
-                <button class="active" type="button" data-panel="site" title="現場詳細" aria-label="現場詳細"><span class="icon i-doc" aria-hidden="true"></span><span class="sr-only">現場詳細</span></button>
-                <button type="button" data-panel="assignment" title="社員配置" aria-label="社員配置"><span class="icon i-person" aria-hidden="true"></span><span class="sr-only">社員配置</span></button>
-                <button type="button" data-panel="vehicle" title="車両・ETC" aria-label="車両・ETC"><span class="icon i-car" aria-hidden="true"></span><span class="sr-only">車両・ETC</span></button>
-                <button type="button" data-panel="history" title="変更履歴" aria-label="変更履歴"><span class="icon i-history" aria-hidden="true"></span><span class="sr-only">変更履歴</span></button>
+                <button class="active" type="button" data-panel="site" onclick="slSetPropMode('site')" title="現場詳細" aria-label="現場詳細"><span class="icon i-doc" aria-hidden="true"></span><span class="sr-only">現場詳細</span></button>
+                <button type="button" data-panel="assignment" onclick="slSetPropMode('assignment')" title="社員配置" aria-label="社員配置"><span class="icon i-person" aria-hidden="true"></span><span class="sr-only">社員配置</span></button>
+                <button type="button" data-panel="vehicle" onclick="slSetPropMode('vehicle')" title="車両・ETC" aria-label="車両・ETC"><span class="icon i-car" aria-hidden="true"></span><span class="sr-only">車両・ETC</span></button>
+                <button type="button" data-panel="history" onclick="slSetPropMode('history')" title="変更履歴" aria-label="変更履歴"><span class="icon i-history" aria-hidden="true"></span><span class="sr-only">変更履歴</span></button>
             </aside>
         </div><!-- workspace -->
 
@@ -1119,7 +1141,7 @@
     <script src="mockup/co-mock-store.js?v=5"></script>
     <script src="mockup/co-navbar.js?v=22"></script>
     <script src="mockup/co-company-input.js"></script>
-    <script src="mockup/screen-layout.js?v=54"></script>
+    <script src="mockup/screen-layout.js?v=55"></script>
     <script src="mockup/print-touo-nikkei.js?v=1"></script>
 </body>
 </html>
