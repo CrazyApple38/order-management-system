@@ -1,0 +1,458 @@
+/* ============================================================================
+   ob-ds.css — OB 画面（order-book.html）新DS適用の画面固有オーバーライド
+   ----------------------------------------------------------------------------
+   R-3b: ds-tokens / ds-components を読み込み、既存の高密度グリッドは維持したまま
+   app / workspace / rail / prop-card / panel-rail 骨格へ載せる。
+   ds-tokens.css / ds-components.css は正本のため改変しない。
+   ============================================================================ */
+
+:root {
+    --bg-page: var(--bg);
+    --bg-surface: var(--panel);
+    --bg-surface-2: var(--info-bg);
+    --bg-surface-3: var(--info-border);
+    --bg-sidebar: var(--blue-dark);
+    --divider: var(--line);
+    --bg-surface-neutral: var(--panel);
+    --bg-surface-neutral-alt: var(--info-bg);
+    --text-primary: var(--ink);
+    --text-secondary: var(--muted);
+    --text-tertiary: var(--muted);
+    --text-disabled: var(--info-border);
+    --accent-primary: var(--blue);
+    --accent-primary-light: var(--blue);
+    --accent-primary-dim: var(--blue-soft);
+    --accent-secondary: var(--accent-orange);
+    --accent-secondary-light: var(--accent-orange-border);
+    --accent-secondary-dim: var(--accent-orange-soft);
+    --semantic-success: var(--info-text);
+    --semantic-success-text: var(--info-text);
+    --semantic-warning: var(--alert-text);
+    --semantic-warning-bg: var(--alert-bg);
+    --semantic-error: var(--alert-text);
+    --font-family-body: var(--font-sans);
+    --font-family-mono: "SF Mono", Consolas, Menlo, monospace;
+    /* density 既定 = comfortable（旧 co-tokens.css Phase D3 の実値を移植） */
+    --tbl-row-h: 36px;
+    --space-row: 8px;
+    --fs-density-base: 14px;
+    --base-grid: var(--panel);
+    --base-grid-alt: var(--info-bg);
+    --base-grid-total: var(--blue-soft);
+    --day-sat: var(--info-bg);
+    --day-sun: var(--blue-soft);
+    --day-sat-head: var(--info-border);
+    --day-sun-head: var(--line);
+    --day-sat-cal: var(--info-bg);
+    --day-sun-cal: var(--blue-soft);
+}
+
+/* density 3段切替（03 §3.2 確定: 3段維持。値は旧 co-tokens.css の実値 = 発明なし。
+   ds-tokens.css 正本への spacious 昇格はユーザー承認後に別途） */
+:root[data-density="compact"] {
+    --tbl-row-h: 28px;
+    --space-row: 4px;
+    --fs-density-base: 13px;
+}
+
+:root[data-density="comfortable"] {
+    --tbl-row-h: 36px;
+    --space-row: 8px;
+    --fs-density-base: 14px;
+}
+
+:root[data-density="spacious"] {
+    --tbl-row-h: 44px;
+    --space-row: 12px;
+    --fs-density-base: 15px;
+}
+
+.i-calendar { --icon-url: var(--icon-task); }
+.i-map { --icon-url: var(--icon-contact); }
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    background: var(--bg);
+    color: var(--ink);
+}
+
+.ob-app {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    overflow: visible;
+    margin: 0;
+    min-height: calc(100vh - 34px);
+    box-shadow: none;
+}
+
+.ob-app > .toolbar {
+    min-height: 48px;
+    padding: 8px 12px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: var(--info-bg);
+    box-shadow: none;
+}
+
+.ob-app .tool-group {
+    min-width: 0;
+}
+
+.ob-app .md-ob-toolbar-left {
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+}
+
+.ob-app .md-ob-toolbar-right {
+    flex: 0 0 auto;
+}
+
+.ob-app .md-ob-tb-btn,
+.ob-app .md-ob-month-btn {
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--panel);
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: var(--elevation-0);
+}
+
+.ob-app .md-ob-tb-btn.active,
+.ob-app .md-ob-tb-btn:hover,
+.ob-app .md-ob-month-btn:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+    background: var(--blue-soft);
+}
+
+.ob-app .md-ob-tb-btn-add,
+.ob-app .md-ob-tb-btn-add:hover {
+    color: var(--panel);
+    background: var(--blue);
+    border-color: var(--blue);
+}
+
+.ob-app .md-ob-month-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ob-app .md-ob-month-label {
+    min-width: 118px;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.ob-app .md-ob-today-label {
+    background: var(--panel);
+    color: var(--muted);
+    border: 1px solid var(--soft-line);
+    opacity: 1;
+}
+
+.ob-app .stat-strip .stat-num {
+    min-width: 58px;
+    font-size: 16px;
+}
+
+.ob-workspace {
+    grid-template-columns: 72px minmax(0, 1fr) 288px 58px;
+    min-height: 0;
+    height: calc(100vh - 82px);
+}
+
+.ob-workspace .main {
+    min-width: 0;
+    padding: 16px 16px 20px;
+    overflow: hidden;
+}
+
+.ob-workspace .main-card {
+    min-width: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.ob-workspace .main-head {
+    flex: 0 0 auto;
+}
+
+.ob-workspace .grid-frame {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.ob-workspace .tbl-grid__wrapper {
+    min-height: 0;
+    border-radius: var(--radius-sm);
+}
+
+.ob-workspace .tbl-grid__scroll {
+    max-height: calc(100vh - 220px);
+}
+
+.ob-workspace .tbl-grid {
+    color: var(--ink);
+    background: transparent;
+}
+
+.ob-workspace .tbl-grid__cell {
+    border-right: 0;
+    border-bottom: 1px solid var(--soft-line);
+    background: var(--panel);
+}
+
+.ob-workspace .tbl-grid__cell.tbl-grid__header,
+.ob-workspace .tbl-grid__cell.tbl-grid__header[class*="tbl-grid__sticky--"] {
+    background: var(--info-bg);
+    color: var(--muted);
+    border-bottom: 1px solid var(--line);
+    box-shadow: inset 0 -1px 0 var(--line);
+}
+
+.ob-workspace .tbl-grid__sticky--0,
+.ob-workspace .tbl-grid__sticky--1,
+.ob-workspace .tbl-grid__sticky--2,
+.ob-workspace .tbl-grid__sticky--3,
+.ob-workspace .tbl-grid__sticky--4,
+.ob-workspace .tbl-grid__sticky--5,
+.ob-workspace .tbl-grid__sticky--6,
+.ob-workspace .tbl-grid__sticky--7,
+.ob-workspace .tbl-grid__sticky--8 {
+    background: var(--panel);
+}
+
+.ob-workspace .tbl-grid__sticky--8 {
+    border-right: 1px solid var(--line);
+}
+
+.ob-workspace .tbl-grid__date-cell:hover,
+.ob-workspace .tbl-grid__cell.is-selected {
+    background: var(--blue-soft) !important;
+    box-shadow: inset 0 0 0 2px var(--blue);
+}
+
+.ob-workspace .tbl-grid__row--total,
+.ob-workspace .tbl-grid__cell--total,
+.ob-workspace .tbl-grid__cell--grand-total {
+    background: var(--blue-soft);
+    color: var(--ink);
+}
+
+/* ツールバー常設フィルタ（seg + 検索カプセル） */
+.ob-app .seg-label {
+    margin-left: 2px;
+}
+
+.ob-app .md-ob-company-search {
+    width: 200px;
+    height: 30px;
+    padding: 0 10px;
+}
+
+.ob-app .md-ob-view-group .btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.ob-workspace .prop {
+    min-width: 0;
+    padding: 8px;
+    overflow: hidden;
+}
+
+.ob-prop-card {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ob-prop-head {
+    flex: 0 0 auto;
+    padding: 12px;
+    border-bottom: 1px solid var(--soft-line);
+}
+
+.ob-prop-head p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+.ob-prop-panel {
+    display: none;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 12px;
+    overflow: auto;
+}
+
+.ob-prop-panel.is-active {
+    display: block;
+}
+
+.ob-prop-empty {
+    padding: 12px;
+    border: 1px dashed var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.55;
+    background: var(--info-bg);
+}
+
+.ob-prop-dock {
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+}
+
+.ob-prop-dock * {
+    max-width: 100%;
+}
+
+.ob-prop-dock .modal-header,
+.ob-prop-dock .modal-body,
+.ob-prop-dock .modal-footer {
+    position: static;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    border-radius: 0;
+    box-shadow: none;
+    box-sizing: border-box;
+}
+
+.ob-prop-dock .modal-header {
+    padding: 0 0 10px;
+    border-bottom: 1px solid var(--soft-line);
+    background: transparent;
+}
+
+.ob-prop-dock .modal-header h3,
+.ob-prop-dock .modal-header span {
+    color: var(--ink);
+    font-size: 14px;
+}
+
+.ob-prop-dock .modal-close {
+    width: 28px;
+    height: 28px;
+}
+
+.ob-prop-dock .modal-body {
+    max-height: none;
+    padding: 0;
+    overflow: visible;
+    background: transparent;
+}
+
+.ob-prop-dock .modal-footer {
+    position: sticky;
+    bottom: 0;
+    margin: 0;
+    padding: 10px 12px;
+    border-top: 1px solid var(--soft-line);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.86), var(--panel));
+}
+
+.ob-prop-dock .md-modal-body-card {
+    padding: 10px;
+    overflow: hidden;
+}
+
+.ob-prop-dock .md-fi-row,
+.ob-prop-dock .md-ob-count-confidence-row,
+.ob-prop-dock .md-ob-map-url-row {
+    grid-template-columns: 1fr;
+    display: grid;
+    gap: 8px;
+}
+
+.ob-prop-dock .md-ob-confidence-chips,
+.ob-prop-dock .md-ob-placement-tabs,
+.ob-prop-dock .md-ob-badge-chips,
+.ob-prop-dock .md-ob-row-chips,
+.ob-prop-dock .md-ob-history-badges {
+    flex-wrap: wrap;
+}
+
+.ob-prop-dock .md-ob-sub-task-entry,
+.ob-prop-dock .md-ob-map-entry-header {
+    grid-template-columns: 1fr auto;
+}
+
+.ob-prop-dock .md-ob-cal-header-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.ob-prop-dock .md-ob-cal-header-meta > span,
+.ob-prop-dock .md-ob-cal-display-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ob-prop-dock .md-ob-map-preview iframe {
+    height: 150px;
+}
+
+.ob-history-list {
+    display: grid;
+    gap: 8px;
+}
+
+.ob-workspace .cn-card {
+    left: calc(100% + 8px);
+    top: 0;
+}
+
+.ob-workspace .rail .md-nav-cn-bells {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.ob-workspace .rail .md-nav-cn-bell {
+    position: relative;
+}
+
+.ob-workspace .rail .cn-trigger {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+}
+
+@media (max-width: 1180px) {
+    .ob-workspace {
+        grid-template-columns: 56px minmax(0, 1fr) 260px 48px;
+    }
+
+    .ob-workspace .main {
+        padding: 12px;
+    }
+}

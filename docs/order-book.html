@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>受注簿</title>
-    <link rel="stylesheet" href="mockup/co-tokens.css">
+    <link rel="stylesheet" href="mockup/ds-tokens.css?v=1">
+    <link rel="stylesheet" href="mockup/ds-components.css?v=1">
     <link rel="stylesheet" href="mockup/co-forms.css?v=2">
     <link rel="stylesheet" href="mockup/co-buttons.css">
     <link rel="stylesheet" href="mockup/co-modal.css">
@@ -12,7 +13,8 @@
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=18">
     <link rel="stylesheet" href="mockup/co-company-input.css">
-    <link rel="stylesheet" href="mockup/order-book.css?v=3">
+    <link rel="stylesheet" href="mockup/order-book.css?v=4">
+    <link rel="stylesheet" href="mockup/ob-ds.css?v=2">
 </head>
 <body>
 
@@ -50,84 +52,111 @@
     <!-- スキップリンク（a11y: Tab キー初回でフォーカス時に可視表示） -->
     <a class="skip-link" href="#obGrid">メインコンテンツへスキップ</a>
 
-    <!-- ヘッダー -->
-    <header class="md-ob-header">
-        <div class="md-ob-header-left">
-            <h1>受注簿</h1>
-            <span class="md-ob-today-label" id="todayLabel"></span><!-- 【検証用】本番環境では不要または別方式 -->
-        </div>
-        <div class="md-ob-header-center">
-            <div class="md-ob-month-nav">
-                <button class="md-ob-month-btn" onclick="changeMonth(-1)">◀ 前月</button>
-                <span class="md-ob-month-label" id="monthLabel">2026年3月</span>
-                <button class="md-ob-month-btn" onclick="changeMonth(1)">次月 ▶</button>
+    <div class="app ob-app">
+        <!-- ツールバー -->
+        <div class="toolbar md-ob-toolbar no-print" role="toolbar" aria-label="受注簿操作バー">
+            <div class="tool-group md-ob-toolbar-left">
+                <button class="tool-btn primary md-ob-tb-btn md-ob-tb-btn-add" onclick="addNewRow()"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg> 新規追加</button>
+                <div class="md-ob-month-nav">
+                    <button class="tool-btn md-ob-month-btn" onclick="changeMonth(-1)">◀ 前月</button>
+                    <span class="md-ob-month-label" id="monthLabel">2026年3月</span>
+                    <button class="tool-btn md-ob-month-btn" onclick="changeMonth(1)">次月 ▶</button>
+                </div>
+                <div class="btn-group md-ob-view-group" role="group" aria-label="中央ビュー切替">
+                    <button type="button" class="btn active" id="obViewGridBtn" title="月間グリッド">月間グリッド</button>
+                    <button type="button" class="btn" id="obViewCalBtn" disabled title="行カレンダー（中央ビュー切替化は R-3b 継続実装）">行カレンダー</button>
+                </div>
+                <span class="toolbar-separator md-ob-toolbar-sep"></span>
+                <button class="tool-btn md-ob-tb-btn" id="undoBtn" onclick="undo()" disabled><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-undo"/></svg> 戻る</button>
+                <button class="tool-btn md-ob-tb-btn" id="redoBtn" onclick="redo()" disabled><svg class="ui-icon ui-icon-flip-x" aria-hidden="true"><use href="#ui-icon-undo"/></svg> 次へ</button>
+                <span class="toolbar-separator md-ob-toolbar-sep"></span>
+                <button class="tool-btn md-ob-tb-btn" onclick="openSortModal()"><img src="mockup/icons/chart.svg" class="md-ob-icon" alt="ソート設定"> ソート設定</button>
+                <button class="tool-btn md-ob-tb-btn" id="hiddenRowsToggleBtn" onclick="toggleHiddenRows()"><img src="mockup/icons/eye.svg" class="md-ob-icon" alt=""> 表示/非表示</button>
+                <button class="tool-btn md-ob-tb-btn" id="btnToggleBadges" onclick="toggleBadgeDisplay()"><img src="mockup/icons/tag.svg" class="md-ob-icon" alt=""> バッジ</button>
+                <button class="tool-btn md-ob-tb-btn" onclick="OmsMockStore.resetAndReload()" title="共通ダミーデータを初期状態に戻す"><img src="mockup/icons/broom.svg" class="md-ob-icon" alt=""> データリセット</button>
+                <span class="toolbar-separator md-ob-toolbar-sep"></span>
+                <!-- フィルタ（ツールバー常設 / 03 §1.1: 会社・区分・昼夜 = seg data-multi、契約先 = 検索カプセル） -->
+                <!-- 【モックアップ専用】会社 seg の選択肢は本番ではDBから動的に生成（buildBranchPanel が注入） -->
+                <span class="seg-label">会社</span>
+                <div class="seg" id="obSegBranch" data-multi role="group" aria-label="会社フィルタ">
+                    <button type="button" class="active" data-all>すべて</button>
+                </div>
+                <span class="seg-label">区分</span>
+                <div class="seg" id="obSegCategory" data-multi role="group" aria-label="区分フィルタ">
+                    <button type="button" class="active" data-all>すべて</button>
+                    <button type="button" data-value="施設">施設</button>
+                    <button type="button" data-value="イベント">イベント</button>
+                    <button type="button" data-value="高速">高速</button>
+                    <button type="button" data-value="交通">交通</button>
+                    <button type="button" data-value="応援交通">応援交通</button>
+                </div>
+                <span class="seg-label">昼夜</span>
+                <div class="seg" id="obSegShift" data-multi role="group" aria-label="昼夜フィルタ">
+                    <button type="button" class="active" data-all>すべて</button>
+                    <button type="button" data-value="昼">昼</button>
+                    <button type="button" data-value="夜">夜</button>
+                </div>
+                <div class="search md-ob-company-search" role="search">
+                    <img src="mockup/icons/search.svg" class="md-ob-icon" alt="">
+                    <input type="text" id="filterCompany" placeholder="契約先名で絞込" oninput="applyFilters()" data-co-company-input>
+                </div>
+            </div>
+            <div class="tool-group md-ob-toolbar-right">
+                <span class="md-ob-today-label" id="todayLabel"></span><!-- 【検証用】本番環境では不要または別方式 -->
+                <div class="stat-strip" role="group" aria-label="受注簿サマリ">
+                    <div class="stat"><span class="stat-label">件数</span><span class="stat-num" id="summaryText">全 12 件</span></div>
+                </div>
             </div>
         </div>
-        <div class="md-ob-header-right">
-            <!-- N-2.3 で旧 cn-anchor (#obCnAnchor) を撤去。変更通知はナビバー新ベル(bell-ob) に統合 -->
-        </div>
-    </header>
 
-    <!-- ツールバー -->
-    <div class="md-ob-toolbar no-print" role="toolbar" aria-label="受注簿操作バー">
-        <div class="md-ob-toolbar-left">
-            <button class="md-ob-tb-btn md-ob-tb-btn-add" onclick="addNewRow()"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg> 新規追加</button>
-            <button class="md-ob-tb-btn" id="undoBtn" onclick="undo()" disabled><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-undo"/></svg> 戻る</button>
-            <button class="md-ob-tb-btn" id="redoBtn" onclick="redo()" disabled><svg class="ui-icon ui-icon-flip-x" aria-hidden="true"><use href="#ui-icon-undo"/></svg> 次へ</button>
-            <span class="md-ob-toolbar-sep"></span>
-            <button class="md-ob-tb-btn" onclick="openSortModal()"><img src="mockup/icons/chart.svg" class="md-ob-icon" alt="ソート設定"> ソート設定</button>
-            <button class="md-ob-tb-btn" onclick="toggleFilterRow()"><img src="mockup/icons/search.svg" class="md-ob-icon"> フィルタ</button>
-            <button class="md-ob-tb-btn" onclick="toggleHiddenRows()"><img src="mockup/icons/eye.svg" class="md-ob-icon"> 表示/非表示</button>
-            <button class="md-ob-tb-btn" id="btnToggleBadges" onclick="toggleBadgeDisplay()"><img src="mockup/icons/tag.svg" class="md-ob-icon"> バッジ</button>
-        </div>
-        <div class="md-ob-toolbar-right">
-            <button class="md-ob-tb-btn" onclick="OmsMockStore.resetAndReload()" title="共通ダミーデータを初期状態に戻す"><img src="mockup/icons/broom.svg" class="md-ob-icon" alt=""> データリセット</button>
-            <span class="md-ob-summary" id="summaryText">全 12 件</span>
-        </div>
-    </div>
+        <div class="workspace ob-workspace">
+            <!-- 左レール: ベル（obMountNotifyRail が装着）。ビュー切替はツールバーの btn-group（03 §1.1） -->
+            <aside class="rail" aria-label="受注簿レール"></aside>
 
-    <!-- フィルタ行（トグル表示） -->
-    <!-- 【モックアップ専用】フィルタの選択肢は本番ではDBから動的に生成 -->
-    <div class="md-ob-filter-bar no-print" id="filterBar" style="display:none;" role="region" aria-label="フィルタ条件">
-        <label>会社:</label>
-        <div class="md-ob-filter-dd" id="filterBranchDD">
-            <button type="button" class="md-ob-filter-dd-btn" onclick="toggleBranchDD()">
-                <span id="filterBranchLabel">すべて</span>
-                <span class="md-ob-filter-dd-arrow">▼</span>
-            </button>
-            <div class="md-ob-filter-dd-panel" id="filterBranchPanel"></div>
-        </div>
-        <label>区分:</label>
-        <div class="md-ob-filter-dd" id="filterCategoryDD">
-            <button type="button" class="md-ob-filter-dd-btn" onclick="toggleCategoryDD()">
-                <span id="filterCategoryLabel">すべて</span>
-                <span class="md-ob-filter-dd-arrow">▼</span>
-            </button>
-            <div class="md-ob-filter-dd-panel" id="filterCategoryPanel">
-                <label class="md-ob-filter-dd-item md-fi-checkbox"><input type="checkbox" value="施設" onchange="onCategoryCheck()"> 施設</label>
-                <label class="md-ob-filter-dd-item md-fi-checkbox"><input type="checkbox" value="イベント" onchange="onCategoryCheck()"> イベント</label>
-                <label class="md-ob-filter-dd-item md-fi-checkbox"><input type="checkbox" value="高速" onchange="onCategoryCheck()"> 高速</label>
-                <label class="md-ob-filter-dd-item md-fi-checkbox"><input type="checkbox" value="交通" onchange="onCategoryCheck()"> 交通</label>
-                <label class="md-ob-filter-dd-item md-fi-checkbox"><input type="checkbox" value="応援交通" onchange="onCategoryCheck()"> 応援交通</label>
-            </div>
-        </div>
-        <label>昼/夜:
-            <select id="filterShift" onchange="applyFilters()">
-                <option value="">すべて</option>
-                <option>昼</option>
-                <option>夜</option>
-            </select>
-        </label>
-        <label>契約先:
-            <input type="text" id="filterCompany" placeholder="契約先名で絞込" oninput="applyFilters()" data-co-company-input>
-        </label>
-        <button class="md-ob-filter-clear" onclick="clearFilters()" aria-label="フィルタをクリア">✕ クリア</button>
-    </div>
+            <section class="main">
+                <div class="main-card">
+                    <div class="main-head">
+                        <div class="main-title">受注簿 <span>月間グリッド。詳細・所在・履歴は右プロパティへ。</span></div>
+                    </div>
 
-    <!-- グリッドコンテナ -->
-    <div class="tbl-grid__wrapper">
-        <div class="tbl-grid__scroll" id="gridScroll">
-            <div class="tbl-grid" id="obGrid" role="grid" tabindex="-1" aria-label="受注簿データグリッド"></div>
+                    <!-- グリッドコンテナ -->
+                    <!-- 旧フィルタ行（トグル表示）は廃止。フィルタはツールバー常設 seg + 検索カプセル（03 §1.1 確定） -->
+                    <div class="grid-frame">
+                        <div class="tbl-grid__wrapper">
+                            <div class="tbl-grid__scroll" id="gridScroll">
+                                <div class="tbl-grid" id="obGrid" role="grid" tabindex="-1" aria-label="受注簿データグリッド"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="prop" aria-label="受注簿右プロパティ">
+                <div class="prop-card ob-prop-card" id="obPropCard">
+                    <div class="prop-head ob-prop-head">
+                        <span class="prop-mode" id="obPropModeLabel">詳細</span>
+                        <strong id="obPropTitle">未選択</strong>
+                        <p id="obPropSub">行または日セルを選択すると、ここに内容を表示します。</p>
+                    </div>
+                    <section class="ob-prop-panel is-active" data-prop-panel="detail" id="obPropPanelDetail">
+                        <div class="ob-prop-empty" id="obPropDetailEmpty">日セルまたは行ヘッダーを選択してください。</div>
+                        <div class="ob-prop-dock" id="obPropDetailDock"></div>
+                    </section>
+                    <section class="ob-prop-panel" data-prop-panel="linkage" id="obPropPanelLinkage">
+                        <div class="ob-prop-empty">請求先・現場住所・地図URL・SL/WS 連携状況をここに集約します。</div>
+                    </section>
+                    <section class="ob-prop-panel" data-prop-panel="history" id="obPropPanelHistory">
+                        <div class="ob-prop-empty">選択中の行/セルに関係する変更通知をここに表示します。</div>
+                        <div class="ob-history-list" id="obPropHistoryList"></div>
+                    </section>
+                </div>
+            </aside>
+
+            <aside class="panel-rail" aria-label="右パネル切替">
+                <button class="active" type="button" data-panel="detail" onclick="obSetPropMode('detail')" title="詳細" aria-label="詳細"><span class="icon i-doc" aria-hidden="true"></span><span class="sr-only">詳細</span></button>
+                <button type="button" data-panel="linkage" onclick="obSetPropMode('linkage')" title="連携・所在" aria-label="連携・所在"><span class="icon i-map" aria-hidden="true"></span><span class="sr-only">連携・所在</span></button>
+                <button type="button" data-panel="history" onclick="obSetPropMode('history')" title="変更履歴" aria-label="変更履歴"><span class="icon i-history" aria-hidden="true"></span><span class="sr-only">変更履歴</span></button>
+            </aside>
         </div>
     </div>
 
@@ -529,6 +558,6 @@
     <script src="mockup/co-mock-store.js?v=5"></script>
     <script src="mockup/co-navbar.js?v=22"></script>
     <script src="mockup/co-company-input.js"></script>
-    <script src="mockup/order-book.js?v=19"></script>
+    <script src="mockup/order-book.js?v=20"></script>
 </body>
 </html>
