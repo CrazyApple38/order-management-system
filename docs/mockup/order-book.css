@@ -13,7 +13,8 @@
 
     /* OB固有α値・用途特殊（co-tokens.css 未収載。Phase M-A で個別対応予定） */
     --error-bg:          rgba(219, 87, 123, 0.08);
-    --night-text:        #DB577B;
+    /* --night-text は ds-tokens.css の #d14d41 を使用（R-3b: 03 §3.1 夜間=night-text / 警告=alert-* を分離。
+       旧ピンク #DB577B のローカル上書きは撤去） */
     --success-bg:        rgba(56, 161, 105, 0.1);
     --semantic-warning-text:      #975A16;  /* 値不一致のため残留。Phase M-A2 で整合検討 */
 }
@@ -116,106 +117,8 @@ body {
 }
 .md-ob-summary { font-size: 12px; color: var(--text-tertiary); }
 
-/* フィルタバー */
-.md-ob-filter-bar {
-    background: rgba(68,166,181,0.08);
-    border-bottom: 1px solid var(--divider);
-    padding: 8px 20px;
-    display: flex; align-items: center; gap: 14px;
-    flex-shrink: 0; flex-wrap: wrap;
-}
-.md-ob-filter-bar label {
-    font-size: 12px; color: var(--text-secondary);
-    display: flex; align-items: center; gap: 4px;
-}
-.md-ob-filter-bar select,
-.md-ob-filter-bar input[type="text"] {
-    padding: 4px 8px; border: 1px solid var(--divider);
-    border-radius: 4px; font-size: 12px;
-    background: var(--bg-surface); color: var(--text-primary);
-}
-.md-ob-filter-bar select:focus,
-.md-ob-filter-bar input[type="text"]:focus {
-    border-color: var(--accent-primary); outline: none;
-    box-shadow: 0 0 0 2px var(--accent-primary-dim);
-}
-.md-ob-filter-bar input[type="text"] { width: 140px; }
-/* 区分フィルタ ドロップダウン+チェック */
-.md-ob-filter-dd {
-    position: relative;
-}
-.md-ob-filter-dd-btn {
-    display: flex; align-items: center; gap: 6px;
-    padding: 4px 10px;
-    border: 1px solid var(--divider);
-    border-radius: 4px;
-    background: var(--bg-surface);
-    color: var(--text-primary);
-    font-size: 12px;
-    cursor: pointer;
-    min-width: 100px;
-    transition: border-color 0.15s;
-}
-.md-ob-filter-dd-btn:hover,
-.md-ob-filter-dd.open .md-ob-filter-dd-btn {
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 0 2px var(--accent-primary-dim);
-}
-.md-ob-filter-dd-arrow {
-    font-size: 9px;
-    color: var(--text-tertiary);
-    margin-left: auto;
-    transition: transform 0.15s;
-}
-.md-ob-filter-dd.open .md-ob-filter-dd-arrow {
-    transform: rotate(180deg);
-}
-.md-ob-filter-dd-panel {
-    display: none;
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    min-width: 140px;
-    background: var(--bg-surface);
-    border: 1px solid var(--divider);
-    border-radius: 6px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-    z-index: 200;
-    padding: 4px 0;
-}
-.md-ob-filter-dd.open .md-ob-filter-dd-panel {
-    display: block;
-}
-.md-ob-filter-dd-item {
-    display: flex; align-items: center; gap: 6px;
-    padding: 6px 12px;
-    font-size: 12px;
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: background 0.1s;
-}
-.md-ob-filter-dd-item:hover {
-    background: var(--accent-primary-dim);
-}
-/* M-B2: input[type=checkbox] の accent/cursor は .md-fi-checkbox（co-forms.css）に委譲済 */
-.md-ob-filter-dd-badge {
-    font-size: 10px;
-    font-weight: 700;
-    background: var(--accent-primary);
-    color: white;
-    border-radius: 8px;
-    min-width: 16px;
-    height: 16px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 4px;
-}
-.md-ob-filter-clear {
-    background: none; border: none; color: var(--accent-primary);
-    cursor: pointer; font-size: 12px;
-}
-.md-ob-filter-clear:hover { text-decoration: underline; }
+/* 旧フィルタバー/ドロップダウン CSS（.md-ob-filter-*）は R-3b で削除。
+   フィルタはツールバー常設 seg + 検索カプセル（03 §1.1 / ob-ds.css） */
 
 /* ========== CSS Grid グリッド ========== */
 .tbl-grid__wrapper {
@@ -997,31 +900,9 @@ body {
     color: var(--accent-primary);
 }
 
-/* ========== カレンダー入力モーダル ==========
-   M-D2: カレンダー幅ルールは co-modal.css の .modal.modal-calendar に移管 */
-.md-ob-cal-close {
-    position: absolute; top: 6px; right: 6px; z-index: 10;
-}
-
-/* ヘッダー */
-.md-ob-cal-header { gap: 6px; padding-right: 36px; }
-.md-ob-cal-month-nav { display: flex; align-items: center; gap: 6px; }
-.md-ob-cal-nav-btn {
-    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
-    color: #FFFFFF; padding: 3px 8px; border-radius: 5px;
-    cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.15s;
-}
-.md-ob-cal-nav-btn:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.5); color: #FFFFFF; }
-.md-ob-cal-nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.md-ob-cal-month-label { font-size: 13px; font-weight: 600; color: #FFFFFF; min-width: 80px; text-align: center; }
-
-/* インフォバー（ヘッダー直下） */
-.md-ob-cal-info-bar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 6px 14px;
-    background: #E9F1F6; border-bottom: 1px solid var(--divider);
-    gap: 8px; flex-wrap: wrap;
-}
+/* ========== 行カレンダー（中央ビュー / R-3b でモーダル廃止） ==========
+   モーダルchrome（close/header/月ナビ/インフォバー/undo-redo/バッジbtn/編集パネル/フッター）は削除。
+   info-meta（対象行メタ）は中央ビューの obCalMeta が再利用するため残置。グリッド系は下段。 */
 .md-ob-cal-info-meta {
     font-size: 13px; color: var(--text-primary);
     display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
@@ -1053,18 +934,8 @@ body {
 .md-ob-cal-info-meta[data-shift="night"] .md-ob-cal-meta-contract { color: var(--night-text); }
 .md-ob-cal-info-meta[data-shift="night"] .md-ob-cal-meta-task { color: var(--night-text); }
 .md-ob-cal-info-meta[data-shift="night"] .md-ob-cal-meta-tags { color: var(--night-text); background: rgba(208,80,80,0.1); }
-.md-ob-cal-info-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.md-ob-cal-undo-redo { display: flex; gap: 2px; }
-.md-ob-cal-info-btn {
-    background: rgba(0,0,0,0.05); border: 1px solid var(--divider);
-    color: var(--text-secondary); padding: 3px 8px; border-radius: 5px;
-    cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.15s;
-}
-.md-ob-cal-info-btn:hover { background: rgba(0,0,0,0.1); border-color: var(--text-disabled); color: var(--text-primary); }
-.md-ob-cal-info-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* カレンダーボディ */
-.md-ob-cal-body { padding: 10px; background: #FFFFFF; }
+/* カレンダーグリッド */
 .md-ob-cal-grid {
     display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px;
 }
@@ -1157,45 +1028,9 @@ body {
 .md-ob-cal-entry + .md-ob-cal-entry { border-top: 1px solid rgba(178,213,226,0.3); padding-top: 1px; }
 
 
-/* バッジ表示ボタン */
-.md-ob-cal-badge-btn {
-    font-size: 10px; font-weight: 500;
-    display: flex; align-items: center; gap: 3px; white-space: nowrap;
-}
-.md-ob-cal-badge-btn .md-ob-icon { width: 11px; height: 11px; }
-.md-ob-cal-badge-btn.active { background: rgba(0,0,0,0.12); border-color: var(--accent-primary); color: var(--accent-primary); }
-
-/* カレンダー内 編集アコーディオンパネル */
-.md-ob-cal-edit-panel {
-    border-top: 2px solid var(--accent-primary);
-}
-.md-ob-cal-edit-panel-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 12px; cursor: pointer;
-    background: var(--accent-primary-dim);
-    font-size: 12px; font-weight: 600; color: var(--text-primary);
-    transition: background 0.15s;
-}
-.md-ob-cal-edit-panel-header:hover { background: rgba(68,166,181,0.18); }
-.md-ob-cal-edit-toggle {
-    font-size: 10px; color: var(--text-tertiary);
-    transition: transform 0.25s;
-}
-.md-ob-cal-edit-panel.collapsed .md-ob-cal-edit-toggle { transform: rotate(180deg); }
-.md-ob-cal-edit-panel-body {
-    overflow-y: auto; overflow-x: hidden;
-    max-height: 50vh;
-    transition: max-height 0.3s ease, padding 0.3s ease;
-}
-.md-ob-cal-edit-panel.collapsed .md-ob-cal-edit-panel-body {
-    max-height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden;
-}
-
-/* フッター */
-.md-ob-cal-footer { gap: 12px; }
-.md-ob-cal-footer-btn:disabled {
-    opacity: 0.35; cursor: not-allowed; pointer-events: none;
-}
+/* R-3b で削除: カレンダー専用バッジボタン（.md-ob-cal-badge-btn）/ 編集アコーディオン
+   （.md-ob-cal-edit-panel*）/ モーダルフッター（.md-ob-cal-footer*）はモーダル廃止に伴い死にコード化。
+   バッジ表示はツールバー「バッジ」に、編集は右プロパティ「詳細」に統合。 */
 
 /* アイコン共通スタイル */
 .md-ob-icon {
@@ -1315,7 +1150,6 @@ body {
     /* ─── 画面専用UIの一括非表示 ─── */
     .no-print,
     .md-ob-toolbar,
-    .md-ob-filter-bar,
     .md-ob-tooltip,
     .md-ob-time-dropdown,
     .md-ob-month-nav,

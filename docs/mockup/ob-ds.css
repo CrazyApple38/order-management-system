@@ -271,6 +271,65 @@ body {
     cursor: default;
 }
 
+/* 行カレンダー中央ビュー（R-3b: カレンダー入力モーダル廃止・ビュー切替は A-04 btn-group） */
+.ob-cal-frame {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ob-cal-meta {
+    flex: 0 0 auto;
+    padding: 8px 10px;
+    border: 1px solid var(--soft-line);
+    border-radius: var(--radius-sm);
+    background: var(--info-bg);
+}
+
+.ob-cal-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    border-radius: var(--radius-sm);
+}
+
+/* 旧モーダル用ハードコード色（桃色・旧ティール）を DS 準拠へ読替
+   （曜日=青灰の濃淡+文字ウェイト 03 §3.2 / 選択=青系はグリッド is-selected と同思想） */
+.ob-cal-frame .md-ob-cal-dow-header.md-ob-cal-sun,
+.ob-cal-frame .md-ob-cal-dow-header.md-ob-cal-sat {
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.ob-cal-frame .md-ob-cal-cell {
+    border-color: var(--soft-line);
+}
+
+.ob-cal-frame .md-ob-cal-cell.md-ob-cal-sun .md-ob-cal-day-num,
+.ob-cal-frame .md-ob-cal-cell.md-ob-cal-sat .md-ob-cal-day-num {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.ob-cal-frame .md-ob-cal-holiday-name {
+    color: var(--muted);
+}
+
+.ob-cal-frame .md-ob-cal-entry:hover {
+    background: var(--blue-soft);
+}
+
+.ob-cal-frame .md-ob-cal-entry + .md-ob-cal-entry {
+    border-top: 1px solid var(--soft-line);
+}
+
+.ob-cal-frame .md-ob-cal-cell.md-ob-cal-selected {
+    background: var(--blue-soft) !important;
+    border: 2px solid var(--blue) !important;
+}
+
 .ob-workspace .prop {
     min-width: 0;
     padding: 8px;
@@ -417,9 +476,146 @@ body {
     height: 150px;
 }
 
-.ob-history-list {
-    display: grid;
+/* 連携・所在パネル（R-3b 実データ配線） */
+.ob-linkage-body {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
+}
+
+.ob-lk-section {
+    margin-top: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+}
+
+.ob-lk-section:first-child {
+    margin-top: 0;
+}
+
+.ob-lk-dl {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+}
+
+.ob-lk-dl > div {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 8px;
+    align-items: baseline;
+}
+
+.ob-lk-dl dt {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.ob-lk-dl dd {
+    margin: 0;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 600;
+    word-break: break-word;
+}
+
+.ob-lk-muted {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.ob-lk-map {
+    padding: 8px;
+    border: 1px solid var(--soft-line);
+    border-radius: var(--radius-sm);
+    background: var(--info-bg);
+}
+
+.ob-lk-map-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.ob-lk-map-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.ob-lk-map-url {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.4;
+    word-break: break-all;
+}
+
+.ob-lk-map-preview {
+    margin-top: 8px;
+}
+
+.ob-lk-map-preview iframe {
+    width: 100%;
+    height: 150px;
+    border: 1px solid var(--soft-line);
+    border-radius: var(--radius-xs);
+}
+
+.ob-lk-link {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* 変更履歴パネル（R-3b 実データ配線・SL sl-history-* と同思想） */
+.ob-history-scope {
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.ob-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ob-history-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--soft-line);
+    border-radius: var(--radius-sm);
+    background: linear-gradient(to bottom right, var(--panel), var(--bg));
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    box-shadow: var(--elevation-0);
+}
+
+.ob-history-item:hover {
+    border-color: var(--line);
+}
+
+.ob-history-main {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.ob-history-diff,
+.ob-history-meta {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.4;
 }
 
 .ob-workspace .cn-card {
