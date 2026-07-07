@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=18">
     <link rel="stylesheet" href="mockup/co-company-input.css">
     <link rel="stylesheet" href="mockup/screen-layout.css?v=27">
-    <link rel="stylesheet" href="mockup/sl-ds.css?v=3">
+    <link rel="stylesheet" href="mockup/sl-ds.css?v=4">
     <link rel="stylesheet" href="mockup/print-touo-nikkei.css?v=8">
 </head>
 <body>
@@ -84,7 +84,7 @@
         </div>
 
         <div class="workspace">
-            <!-- 左レール: 作業面切替（R-3a-1a はスカフォールド。ベルは R-3a-3 で co-navbar→rail 移行） -->
+            <!-- 左レール: 作業面切替 + 通知ベル（ベルDOMは共通ナビ生成後にSL専用JSで移動） -->
             <aside class="rail" aria-label="作業面切替">
                 <button class="active" type="button" title="業務管理計画書" aria-label="業務管理計画書">
                     <span class="icon i-doc" aria-hidden="true"></span><span class="sr-only">業務管理計画書</span>
@@ -274,10 +274,7 @@
                     </section>
 
                     <section class="sl-prop-panel" data-prop-panel="history" id="slPropPanelHistory">
-                        <div class="sl-history-card">
-                            <div class="sl-history-title">変更履歴</div>
-                            <p>選択中の現場に紐づく変更履歴を表示します。実データ配線は R-3a-3 で通知 rail と合わせて検証します。</p>
-                        </div>
+                        <div class="sl-history-list" id="slNotifyHistoryList"></div>
                     </section>
                 </div>
             </aside><!-- prop -->
@@ -1141,7 +1138,7 @@
     <script src="mockup/co-mock-store.js?v=5"></script>
     <script src="mockup/co-navbar.js?v=22"></script>
     <script src="mockup/co-company-input.js"></script>
-    <script src="mockup/screen-layout.js?v=55"></script>
+    <script src="mockup/screen-layout.js?v=56"></script>
     <script src="mockup/print-touo-nikkei.js?v=1"></script>
 </body>
 </html>

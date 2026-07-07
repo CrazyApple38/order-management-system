@@ -207,6 +207,24 @@
     font-weight: 600;
 }
 
+.app .grid-table td.col-notes:not([data-history-count=""])::before {
+    content: "履歴 " attr(data-history-count);
+    background: var(--blue-soft);
+    color: var(--blue);
+}
+
+.app .grid-table td.col-notes:not([data-history-latest=""])::after {
+    content: attr(data-history-latest);
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* ---- 右プロパティ 4モード（R-3a-2） ---- */
 .app .workspace > .prop {
     min-width: 0;
@@ -272,6 +290,44 @@
     margin-bottom: 4px;
     color: var(--ink);
     font-weight: 700;
+}
+
+.app .sl-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.app .sl-history-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--soft-line);
+    border-radius: var(--radius-sm);
+    background: linear-gradient(to bottom right, var(--panel), var(--bg));
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    box-shadow: var(--elevation-0);
+}
+
+.app .sl-history-item:hover {
+    border-color: var(--line);
+}
+
+.app .sl-history-main {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.app .sl-history-diff,
+.app .sl-history-meta {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.4;
 }
 
 .app .sl-prop-dock {
@@ -344,3 +400,46 @@
 
 /* ---- panel-rail ---- */
 .app .panel-rail button { cursor: pointer; }
+
+/* ---- R-3a-3: 通知ベルを左 rail へ移動 ---- */
+.app .rail {
+    overflow: visible;
+}
+
+.app .rail .sl-rail-cn-bells {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    margin-top: auto;
+}
+
+.app .rail .md-nav-cn-bell {
+    position: relative;
+    display: inline-flex;
+}
+
+.app .rail .cn-trigger {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+}
+
+.app .rail .cn-trigger .cn-bell-icon {
+    width: 17px;
+    height: 17px;
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+}
+
+.app .rail .cn-trigger-badge {
+    top: -5px;
+    right: -5px;
+}
+
+.app .rail .cn-card {
+    top: auto;
+    right: auto;
+    bottom: 0;
+    left: calc(100% + 12px);
+    max-height: min(560px, calc(100vh - 112px));
+}

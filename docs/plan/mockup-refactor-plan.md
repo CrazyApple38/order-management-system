@@ -1,7 +1,7 @@
 # モックアップ リファクタ統合計画（新DS適用 × 通知簡素化）
 
 **最終更新**: 2026-07-06
-**ステータス**: R-2 完了（2026-07-05）/ **R-3a-2 完了（2026-07-06・runtime検証済）→ 次は R-3a-3（通知rail cn-card＋回帰＋検証）**
+**ステータス**: R-2 完了（2026-07-05）/ **R-3a-3 完了（2026-07-07・runtime検証済）→ 次は R-3b（OB）**
 **対象**: 本番モックアップ全画面（OB / SL / WS / LA / QA）+ 共通基盤（co-*）+ admin-notify + 通知センター
 **起点**: 2026-06-12 ユーザー指示「通知カテゴリ再定義のモック修正は、デザイン大幅変更やその他変更と合わせて一括で行う」
 
@@ -114,7 +114,7 @@
   - **R-3a-1a 骨格＋CSS読替＋minimap撤去（完了 2026-07-06・runtime検証済）**: `co-tokens.css`撤去→`ds-tokens.css`＋`ds-tokens-bridge.css`＋`ds-components.css`＋`sl-ds.css`。骨格を `app > toolbar / workspace(rail｜main-card｜prop｜panel-rail)` へ再構成。menubar=既存`co-navbar`活用（menu-userチップは延期＝`.menu-user`CSSがds-components専用のため他4画面で無スタイル化する。共有co-navbar.cssへ置く専用手順が必要）。minimap撤去→総数はツールバー`stat-strip`（配置/不足）へ（`renderMinimap`を retarget）。**中央表は現10列のまま維持しCSSでDS化**（縦罫線撤去・淡見出し・青選択）。右サイドD&D供給源は`.prop`列へ暫定収容。**既存9モーダル残置・回帰ゼロ**（siteModal起動/行選択/D&D供給源/コンソール0を Playwright 確認）。**CSS機構**: `ds-tokens-bridge.css`＝co専用トークン（ds未提供分）を元値でshim（残置モーダル回帰ゼロ・同名は ds 新値へ自動読替）／ `sl-ds.css`＝SL固有オーバーライド（表DS化・workspace responsive・prop収容）。
   - **R-3a-1b 中央表7列化（完了 2026-07-06・runtime検証済）**: `cnCreateRow`を7列化（区分/契約先・現場名/集合/時間/人数/配置/車両・ETC/変更履歴・備考）。地図=現場名セルのinfo-pill（openMapModal維持）、No.列撤去、作業内容→区分セル内のバッジスロットへ内包。col-no/col-map/col-badge の下流JSを再配線。変更履歴はプレースホルダ（実データ配線は R-3a-3）。
 - **R-3a-2 編集モーダル→右プロパティ4モード転換（完了 2026-07-06・runtime検証済）**: `siteModal`(+meeting/work/workTime/map/notes)→「現場詳細」/ `staffEditModal`→「社員配置」/ `vehicleEditModal`→「車両・ETC」/ 履歴→「変更履歴」。既存フォームIDと保存関数を維持し、モーダル内容を `.prop-card` 内のドックへ移動表示。`sortModal`・削除確認・印刷はモーダル維持（D-01/D-02）。スクショ `screenshots/r3a2-sl-prop.png`。
-- **R-3a-3 通知rail cn-card＋回帰＋検証**: ベルをrailへ・cn-card着地・cn:jump/元に戻す/seed回帰、Playwright＋スクショ＋コミット。
+- **R-3a-3 通知rail cn-card＋回帰＋検証（完了 2026-07-07・runtime検証済）**: SL の統合ベル DOM を左 rail へ移動（他画面は co-navbar 位置維持）。通知ストア `getItems('all')` 由来で右プロパティ「変更履歴」リストと中央表 `.col-notes` 件数/最新要約を配線。SL SelfNotify/seed に `targetDate` と画面別 target を補完。検証: `node --check` OK、Playwright localhost で rail ベル表示、cn-card、SL 自発通知 cn:jump、履歴項目クリック cn:jump、action button 存在、console error 0。スクショ `screenshots/r3a3-sl-notify-rail.png`。
 - **確定事項**: 配色＝現行DS（`ds-tokens`/`ds-components`）そのまま（**§5 フォールバック採用・色テーマ変動は後回し** 2026-07-06）／ 右プロパティ＝4モード（現場詳細/社員配置/車両・ETC/変更履歴）／ 左 `minimap`「配置状況」＝**総数はツールバー stat-strip へ・行ジャンプ一覧は撤去**（中央7列表が全行＋不足バッジで代替）／ ベルは rail（03 §1）。
 - **後回しの参考物**: 色テーマ変動の比較ツール `docs/preview/design-refresh-theme-palettes.html`（リポジトリ保持。10候補＋現行Calm Operations を低彩度パレット化しSLライブ切替、意味色・所属色は固定）。
 
@@ -152,7 +152,7 @@
 | R-0 決定記録 | 完了 | 2026-06-12 | 2026-06-12 | §3.7.9 追記 + 本計画書作成 |
 | R-1 DS基盤統合 | 完了 | 2026-07-03 | 2026-07-03 | ds-tokens/ds-components.css 新設 + docs/design-system/ 5冊 + スモークテスト合格。方式変更はユーザー追認済み（2026-07-03） |
 | R-2 通知データモデル改修 | 完了 | 2026-07-04 | 2026-07-05 | 統合ベル1個+cn-card / カテゴリ=エンティティ導出 / 配置サブタグ / targetDate日別グルーピング / 履歴・検索撤去 / センター導線。実装=co-notify-panel.js(v39)・css(v18)・co-navbar.js(v22)。**runtime検証済**(OB/SL/WS/LA/QA/admin-notify: コンソール0=R-2起因エラーなし・cn-card DS準拠・全4カテゴリ+サブタグ+対象日・フィルタ・cn:jump着地・OB復旧トグル・QA旧.cn-panel全てOK)。**enhancement 完了**: OB=obCnSelfNotify に明示 targetDate(表示月+day, v19) / WS=wsCnSelfNotify に明示 subTag(車両/応援の導出取りこぼしを補正)+targetDate(v19)。admin-notify は notify-compare.js が既に4分類+旧キー互換のため表示確認のみで完了（ユーザー承認 2026-07-05）。既知の別件: shield.svg 404（R-2無関係・SHARED-MEMORY記録） |
-| R-3a〜e 画面別適用 | R-3a-2 完了 / 次は R-3a-3 | 2026-07-06 | — | **R-3a-1a 完了（runtime検証済 2026-07-06）**: 骨格再構成＋CSS読替＋minimap撤去→stat-strip。**R-3a-1b 完了（runtime検証済 2026-07-06）**: SL中央表を7列化、No.列撤去、地図=現場名セルinfo-pill、作業内容=区分セル内、変更履歴=プレースホルダ。**R-3a-2 完了（runtime検証済 2026-07-06）**: 右プロパティ4モード化、site/meeting/work/workTime/map/notes/staff/vehicle の編集UIを右プロパティへドック表示。表DOM旧列 `.col-no/.col-map/.col-badge` は0件。スクショ `screenshots/r3a1b-sl-full.png` / `screenshots/r3a2-sl-prop.png`。**次=R-3a-3（通知rail cn-card＋回帰＋検証）**。以降 R-3b〜e |
+| R-3a〜e 画面別適用 | R-3a 完了 / 次は R-3b OB | 2026-07-06 | — | **R-3a-1a 完了（runtime検証済 2026-07-06）**: 骨格再構成＋CSS読替＋minimap撤去→stat-strip。**R-3a-1b 完了（runtime検証済 2026-07-06）**: SL中央表を7列化、No.列撤去、地図=現場名セルinfo-pill、作業内容=区分セル内、変更履歴=プレースホルダ。**R-3a-2 完了（runtime検証済 2026-07-06）**: 右プロパティ4モード化、site/meeting/work/workTime/map/notes/staff/vehicle の編集UIを右プロパティへドック表示。**R-3a-3 完了（runtime検証済 2026-07-07）**: SLベルをrailへ移動し、cn-card / 変更履歴 / `.col-notes` 要約 / SL SelfNotify targetDate を配線。スクショ `screenshots/r3a1b-sl-full.png` / `screenshots/r3a2-sl-prop.png` / `screenshots/r3a3-sl-notify-rail.png`。**次=R-3b OB**。以降 R-3c〜e |
 | R-4 センター改修 | 未着手 | — | — | |
 | R-5 DB設計追補 | 未着手 | — | — | |
 | R-6 結合検証 | 未着手 | — | — | |

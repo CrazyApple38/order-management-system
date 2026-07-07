@@ -1351,6 +1351,136 @@
             }
         }
 
+        function slRailNotifySetup() {
+            const rail = document.querySelector('.workspace .rail');
+            const bells = document.getElementById('mdNavCnBells');
+            if (!rail || !bells || bells.dataset.slRailMounted === '1') return;
+            bells.dataset.slRailMounted = '1';
+            bells.classList.add('sl-rail-cn-bells');
+            rail.appendChild(bells);
+            slRefreshNotifyHistory();
+        }
+
+        function slIsScreenLayoutNotifyItem(item) {
+            if (!item) return false;
+            if (item.sourceBell === 'sl' || item.primaryPage === 'screen-layout') return true;
+            if (Array.isArray(item.affects) && item.affects.indexOf('screen-layout') !== -1) return true;
+            const target = item.target || null;
+            if (target && target.axis) return true;
+            return !!(target && target['screen-layout'] && target['screen-layout'].axis);
+        }
+
+        function slNotifyTargetForScreen(item) {
+            const target = item && item.target;
+            if (!target) return null;
+            if (target['screen-layout']) return target['screen-layout'];
+            return target.axis ? target : null;
+        }
+
+        function slNotifyText(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, function(c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        function slNotifyMatchesRow(item, row) {
+            if (!row) return false;
+            const target = slNotifyTargetForScreen(item);
+            const info = cnGetRowInfo(row);
+            if (!target) return false;
+            const value = String(target.value || '');
+            if (target.axis === 'siteName') {
+                return !!(info.siteName && (info.siteName === value || info.siteName.indexOf(value) >= 0 || value.indexOf(info.siteName) >= 0));
+            }
+            if (target.axis === 'orderId') {
+                return String(row.dataset.obRowId || '') === value;
+            }
+            return false;
+        }
+
+        function slNotifyItems() {
+            if (!window.coNotifyPanel || typeof window.coNotifyPanel.getItems !== 'function') return [];
+            return window.coNotifyPanel.getItems('all').filter(slIsScreenLayoutNotifyItem);
+        }
+
+        function slRenderNotifyHistoryPanel(items) {
+            const panel = document.getElementById('slNotifyHistoryList');
+            if (!panel) return;
+            const list = (items || []).slice(0, 6);
+            if (!list.length) {
+                panel.innerHTML =
+                    '<div class="sl-history-card">' +
+                    '<div class="sl-history-title">変更履歴</div>' +
+                    '<div>この画面に関連する通知はまだありません。</div>' +
+                    '</div>';
+                return;
+            }
+            panel.innerHTML = list.map(function(item) {
+                const diffs = Array.isArray(item.diffs) ? item.diffs : [];
+                const firstDiff = diffs[0];
+                const diffHtml = firstDiff
+                    ? '<div class="sl-history-diff">' + slNotifyText(firstDiff.field || '変更') + ': ' +
+                      slNotifyText(firstDiff.oldVal || '(空)') + ' → ' + slNotifyText(firstDiff.newVal || '(空)') + '</div>'
+                    : '';
+                const meta = [item.date, item.sub].filter(Boolean).join(' / ');
+                return '<button type="button" class="sl-history-item" data-cn-history-id="' + slNotifyText(item.id || '') + '">' +
+                    '<span class="sl-history-main">' + slNotifyText(item.main || '') + '</span>' +
+                    diffHtml +
+                    (meta ? '<span class="sl-history-meta">' + slNotifyText(meta) + '</span>' : '') +
+                    '</button>';
+            }).join('');
+        }
+
+        function slRenderRowNotifySummaries(items) {
+            document.querySelectorAll('.grid-table tbody tr').forEach(function(row) {
+                const notesCell = row.querySelector('.col-notes');
+                if (!notesCell) return;
+                const rowItems = (items || []).filter(function(item) { return slNotifyMatchesRow(item, row); });
+                if (!rowItems.length) {
+                    notesCell.dataset.historyCount = '';
+                    notesCell.dataset.historyLatest = '';
+                    return;
+                }
+                notesCell.dataset.historyCount = String(rowItems.length);
+                notesCell.dataset.historyLatest = rowItems[0].main || '';
+            });
+        }
+
+        function slRefreshNotifyHistory() {
+            const items = slNotifyItems();
+            slRenderNotifyHistoryPanel(items);
+            slRenderRowNotifySummaries(items);
+        }
+
+        function slBindNotifyHistoryPanel() {
+            const panel = document.getElementById('slNotifyHistoryList');
+            if (!panel || panel.dataset.bound === '1') return;
+            panel.dataset.bound = '1';
+            panel.addEventListener('click', function(e) {
+                const btn = e.target.closest('[data-cn-history-id]');
+                if (!btn) return;
+                const id = btn.getAttribute('data-cn-history-id') || '';
+                const item = Array.prototype.slice.call(document.querySelectorAll('.cn-item[data-id]'))
+                    .find(function(el) { return el.dataset.id === id; });
+                const row = item ? item.querySelector(':scope > .cn-item-row') : null;
+                if (row) row.click();
+            });
+        }
+
+        function slPatchNotifyRefreshHooks() {
+            if (!window.coNotifyPanel || window.coNotifyPanel._slHistoryHooked) return;
+            ['setItems', 'addItem', 'removeItem', 'clearItems'].forEach(function(name) {
+                const original = window.coNotifyPanel[name];
+                if (typeof original !== 'function') return;
+                window.coNotifyPanel[name] = function() {
+                    const result = original.apply(window.coNotifyPanel, arguments);
+                    setTimeout(slRefreshNotifyHistory, 0);
+                    return result;
+                };
+            });
+            window.coNotifyPanel._slHistoryHooked = true;
+        }
+
         function slOpenPropDock(modalId, dockId, mode) {
             const overlay = document.getElementById(modalId);
             const dock = document.getElementById(dockId);
@@ -5264,6 +5394,8 @@
                 op: op,
                 domain: domain,
                 primaryPage: primaryPage,
+                subTag: scope === 'vehicle' ? 'vehicle' : (scope === 'support' ? 'support' : (scope === 'reservation' ? 'partner' : (scope === 'employee' ? 'own' : ''))),
+                targetDate: slCurrentDateKey(),
                 main: mainText,
                 sub: '自分 ・ ' + slCnTimeNow(),
                 date: slCnTodayLabel(),
@@ -5314,8 +5446,12 @@
                     expand: '区分: ' + (info.category || '') + ' / シフト: ' + (info.shift || '') +
                         (countText ? ' / 人数: ' + countText : ''),
                     diffs: demoDiffs,
+                    targetDate: slCurrentDateKey(),
                     affects: ['screen-layout', 'weekly-schedule', 'order-book'],
-                    target: { axis: 'siteName', value: info.siteName }
+                    target: {
+                        'screen-layout': { axis: 'siteName', value: info.siteName, date: slCurrentDateKey() },
+                        'weekly-schedule': { axis: 'siteName', value: info.siteName, date: slCurrentDateKey() }
+                    }
                 });
             });
 
@@ -5330,11 +5466,16 @@
                     scope: 'employee',
                     op: 'place',
                     color: 'secondary',
+                    subTag: 'own',
+                    targetDate: slCurrentDateKey(),
                     main: (assignedInfo.siteName || '現場') + '（' + (assignedInfo.shift || '') + '） に ' + empName + ' を配置',
                     sub: '共通社員データ ・ ' + today,
                     date: today,
                     affects: ['screen-layout', 'weekly-schedule'],
-                    target: assignedInfo.siteName ? { axis: 'siteName', value: assignedInfo.siteName } : null
+                    target: assignedInfo.siteName ? {
+                        'screen-layout': { axis: 'siteName', value: assignedInfo.siteName, date: slCurrentDateKey() },
+                        'weekly-schedule': { axis: 'siteName', value: assignedInfo.siteName, date: slCurrentDateKey() }
+                    } : null
                 });
             }
             window.coNotifyPanel.setItems('sl', items);
@@ -6368,6 +6509,9 @@
         slApplyOnLeaveMarkersToAllAssigned();
         slRenderHolidayRow();
         slRefreshContinuousBadges();
+        slRailNotifySetup();
+        slPatchNotifyRefreshHooks();
+        slBindNotifyHistoryPanel();
 
         // N-3.1: SL ベル 初期デモ通知 (row×add / employee×place / vehicle×place の代表3件)
         if (typeof slCnSeedInitialDemo === 'function') {
@@ -6375,6 +6519,7 @@
             if (window.coNotifyPanel) slCnSeedInitialDemo();
             else document.addEventListener('DOMContentLoaded', slCnSeedInitialDemo);
         }
+        slRefreshNotifyHistory();
 
         // 地図表示を data-maps から再描画（onclick ハンドラ付与）
         document.querySelectorAll('[data-maps]').forEach(function(cell) {
