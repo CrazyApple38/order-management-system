@@ -7,29 +7,25 @@
 
 ## 最終更新
 
-- **更新者**: Claude Code (Sonnet 5)
+- **更新者**: Claude Code (Sonnet 5)（Codex (GPT-5) の同日フォロー修正を統合してコミット）
 - **日付**: 2026-07-08
-- **コミット**: 本コミット（親=452da70）。**R-3c-3（WS 通知rail cn-card＋履歴配線）完了 → R-3c 全段階完了**。次は R-3d LA
-- 直近コミット: `452da70` R-3c-2b 応援予約モーダル→ドック転換 / `678b45d` R-3c-2a panel-rail 4モード / `0e10e4d` 休み色 info化
+- **コミット**: 本コミット（親=5719c7c）。**R-3c（WS）全段階が完了** — R-3c-3 実装（Claude）＋直後の `.cn-card` 表示クリップ修正（Codex）を統合。次は R-3d LA。
 
 ## 直前にやったこと（最新のみ）
 
-- **R-3c-3（WS 通知rail cn-card＋履歴配線＋回帰確認）完了**（Playwright 1440px runtime 検証済・コンソール0/0）:
-  - **統合ベルDOM移設**: `wsMountNotifyRail()` 新設。`#mdNavCnBells` を `.ws-workspace .rail` へ移動（アンカーCSSは ws-ds.css に先行定義済み）。init() から `wsMountNotifyRail(); setTimeout(..., 0);` で呼び出し。
-  - **変更履歴を「選択セル」モードに埋め込み**（WSは専用history modeを持たないため、①選択セルパネルの下部に追加）: `wsRenderHistorySection(sidebar, cell)` 新設。`wsNotifyItems()`（sourceBell==='ws' || primaryPage==='weekly-schedule' || affects含む || target.axis==='wsCell' でフィルタ）→ `cell` があれば `wsResolveCellSiteIds()`（siteId直接 / empIndex→`getAssignedSites` / vehicleId→`getVehicleAssignedSites`）で対象siteId群を解決し `wsNotifyMatchesCell()` で絞り込み。未選択時は週間予定表全体の直近6件を表示。カード→`data-cn-history-id`委譲→隠れた`.cn-item`があれば`.cn-item-row`をclick()（OB/SL同型）、無ければ直接`cn:jump`dispatch。
-  - **cn:jump リスナー強化**: 着地時に `selectedCell` を再設定し `wsPropMode='cell'` に切替えて `renderSidebar()`（OB `obSelectRow(ri)` と同型）。従来はハイライトのみでパネルが連動していなかった欠落を補完。
-  - **副産物バグ修正**: `.cn-item-row`委譲クリック（`rowEl.click()`）が実DOM `click` イベントとしてもbubbleし、WS独自の「グリッド外クリックで選択解除」グローバルリスナー（co-notify-panel由来の隠しDOMは`.md-ws-sidebar`外にあるため誤爆）に反応して選択セルが即座に解除される問題を発見。`.rail`/`.cn-card`/`.cn-panel` を解除除外対象に追加して修正（OB/SLにはこのグローバル「外側クリックで解除」リスナー自体が存在しないため同種バグなし＝WS固有）。
-  - **通知の追加/削除への追従**: `wsPatchNotifyRefreshHooks()` — `coNotifyPanel.setItems/addItem/removeItem/clearItems` をラップし、`wsPropMode==='cell'` のときのみ `renderSidebar()` で履歴セクションを再描画。
-  - **N-6 回帰確認**: 現場軸/社員軸切替・週送り・GCフィルタモーダル・応援予約ドック・セル選択→社員配置→schedule通知発火→ベル件数増加→履歴フィルタ反映→cn:jump着地→選択セル再選択、を実操作で確認。コンソールエラー0を全工程で維持。
-  - スクショ `screenshots/r3c3-ws-notify-rail.png`。`weekly-schedule.js?v=23` / `ws-ds.css?v=5`（`weekly-schedule.css?v=5` 据置）。
+- **R-3c-3（Claude, commit 5719c7c）**: 統合ベルDOMを `.rail` へ移設、変更履歴を「選択セル」パネルへ埋め込み（`wsRenderHistorySection`）、cn:jump着地時に `selectedCell` を再設定してパネルを追従させる修正、**および** 通知カード委譲クリック（`.cn-item-row.click()`）がWS固有の「グリッド外クリックで選択解除」リスナーに誤反応し選択セルが即解除される不具合を発見・修正（`.rail`/`.cn-card`/`.cn-panel` を解除除外に追加）。
+- **直後のフォロー修正（Codex, 本コミットで確定）**: `.cn-card`（通知ドロップダウン）が `.rail` 移設後も共通 `.workspace{overflow:hidden}` の影響でクリップされ**画面上に表示されない**バグを実動作確認で発見。`docs/mockup/ws-ds.css` に `.ws-workspace .rail { overflow: visible; }` / `.ws-workspace .cn-card { right: auto; }` を追加し `ws-ds.css?v=6` へキャッシュバスター更新。Claude 側で再度 Playwright 再検証（ベル open→17件表示・カテゴリフィルタ・cn:jump着地・履歴パネル、コンソールエラー0）して確定。
+- 両修正とも他画面（OB/SL/LA/QA）へは無影響（WS専用ファイルのみ）。
+- Obsidian（Claude私的メモリ）へ本セッションの技術的教訓を記録済み: 「`.cn-item-row`委譲clickの実DOMバブル」と「popup移設は開いた状態のスクショ必須（DOM評価だけでは表示クリップを検知できない）」の2点。
 
 ## 次にやるべきこと
 
-- **R-3d LA（leave-application.html）新DS適用**: SSOT=`docs/plan/mockup-refactor-plan.md` §4 表（LA=3モード×作業面連動+ミニカレンダー prop-card 上部常設）。着手前に該当設計章（`docs/design-system/03_screen-application.md`）を確認し、詳細段階計画（R-3c の `vivid-swinging-elephant.md` 相当）が必要か判断。
-- 以降 R-3e QA。
+- **R-3d LA（leave-application.html）新DS適用**: 着手前に `docs/plan/mockup-refactor-plan.md` と `docs/design-system/03_screen-application.md` の LA 節（3モード×作業面連動+ミニカレンダー prop-card 上部常設）を確認。R-3c の詳細段階計画（`vivid-swinging-elephant.md`相当）が必要か判断してから着手。
+- LA/QA で通知履歴パネルを実装する際は、上記の2つの落とし穴（外側クリック解除リスナーの有無確認／popupは開いた状態でスクショ）を必ずチェックする。
+- R-3 全体完了後に、色の細かいズレ・直書き hex・画面間余白/密度の横断レビューをまとめて行う（Codex申し送り、継続）。
 
 ## 今だけの申し送り（任意）
 
-- **R-3c は全段階（1/2a/2b/3）完了**。WS はこれで新DS(Calm Operations)＋通知簡素化＋panel-rail 4モード＋通知rail cn-card が揃った状態。
-- WS の「選択セル」モードには変更履歴セクションが常設（専用historyモードは無し・OB/SLとはUI配置が異なる点に注意——次画面で同型実装する際は「専用historyモードを設けるか/選択中モードに埋め込むか」を都度 03 §4 で確認）。
-- Playwright の孤立 Chrome ロックが出たら該当プロファイルのみ kill。OB の `shield.svg` 404 は既知・未対応。
+- WS の休み行ピンク系残りや直書き hex は今回の対象外。R-3 全体完了後の横断品質チェック候補（Codex申し送り、継続）。
+- OB の `shield.svg` 404 は既知・未対応。
+- Playwright の孤立 Chrome ロックが出たら該当プロファイルのみ kill。

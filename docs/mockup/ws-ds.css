@@ -185,6 +185,7 @@ body {
     padding: 10px 0;
     position: relative;
     z-index: 2;
+    overflow: visible;
 }
 
 .ws-workspace .main {
@@ -427,6 +428,7 @@ body {
    ============================================================ */
 .ws-workspace .cn-card {
     left: calc(100% + 8px);
+    right: auto;
     top: 0;
 }
 
