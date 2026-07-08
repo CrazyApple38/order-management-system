@@ -681,8 +681,8 @@ body {
 .md-ws-holiday-mark {
     font-size: 10px;
     font-weight: 700;
-    color: var(--semantic-error);
-    background: var(--error-dim, rgba(220, 38, 38, 0.1));
+    color: var(--info-text);
+    background: var(--info-bg);
     border-radius: 4px;
     padding: 2px 8px;
     text-align: center;
@@ -2291,8 +2291,8 @@ body {
 }
 
 .md-ws-dow-badge.md-ws-dow-holiday {
-    background: var(--error-bg);
-    color: var(--semantic-error);
+    background: var(--info-bg);
+    color: var(--info-text);
     font-weight: 600;
     opacity: 0.7;
 }
@@ -2708,7 +2708,7 @@ body {
 /* 休み行のセル — 白基調: 行種別はチップ色（赤系）と下線で識別 */
 .md-ws-cell.md-ws-holiday-row-cell {
     background: var(--cell-base-day);
-    border-bottom: 2px solid var(--error-light);
+    border-bottom: 2px solid var(--info-border);
 }
 
 .md-ws-cell.md-ws-holiday-row-cell.md-ws-night-col {
@@ -2721,9 +2721,9 @@ body {
     font-weight: 600;
     padding: 2px 5px;
     border-radius: 4px;
-    background: rgba(219, 87, 123, 0.12);
-    color: var(--semantic-error);
-    border: 1px solid rgba(219, 87, 123, 0.25);
+    background: var(--info-bg);
+    color: var(--info-text);
+    border: 1px solid var(--info-border);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2736,8 +2736,8 @@ body {
 }
 
 .md-ws-holiday-emp-chip:hover {
-    background: rgba(219, 87, 123, 0.22);
-    border-color: var(--semantic-error);
+    background: var(--info-border);
+    border-color: var(--info-text);
 }
 
 .md-ws-holiday-emp-chip:active {
