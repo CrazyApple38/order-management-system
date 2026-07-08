@@ -9,10 +9,18 @@
 
 - **更新者**: Claude Code (Opus 4.8)
 - **日付**: 2026-07-08
-- **コミット**: 本コミット（親=23faa0f）。**R-3c-1（WS チェックポイント）完了** — 骨格再構成+CSS読替+ツールバー整理+中央ボード色面整理+サイドバー暫定収容
+- **コミット**: 本コミット（親=0e10e4d）。**R-3c-2a（WS panel-rail 4モード化）完了** — 右プロパティを選択セル/社員/車両/協力業者・応援予約の4モードへ。応援予約モーダル→ドック転換は R-3c-2b（次）
+- 直近コミット: `6d4650e` R-3c-1 骨格 / `0e10e4d` 休み色 info化 / 本コミット R-3c-2a
 
 ## 直前にやったこと（最新のみ）
 
+- **R-3c-2a（WS panel-rail 4モード化）完了**（Playwright 1440px runtime 検証済・コンソール0）:
+  - panel-rail（4列目 58px）新設: **選択セル / 社員 / 車両 / 協力業者・応援予約**。`wsPropMode` state + `wsSetPropMode`/`wsUpdatePanelRail`、init で `[data-prop]` ボタン配線。
+  - `renderSidebar` を wsPropMode routing へ全面書換（既存 `renderSidebarSiteMode`＝現場軸セルの候補表示、`renderSidebarAssignSite`/`ForVehicle`＝社員軸セル、`renderEmployeeOverviewContent`/`renderVehicleOverviewContent(EmpView)` を再利用）。ヘルパー `wsRenderPropHeader`/`wsRenderPropEmpty`/`wsRenderSupportContent` 追加。
+  - **選択セル自動遷移**: `selectCellSiteView`/`EmployeeView`/`VehicleView` で `wsPropMode='cell'`（前モードを `wsPrevPropMode` に退避）、`deselectCell` で復帰。
+  - **応援/協力業者を④モードへ集約**: `renderEmployeeOverviewContent` の `appendUnifiedSupportSection` 2箇所を撤去し `wsRenderSupportContent`（GC別 active partners + 統合応援プリセット）へ。配置候補側（`renderAssignEmployeeContent` の support）は D&D 用に残置。
+  - **バグ修正**: グローバル「グリッド外クリック→選択解除」に `.panel-rail` 除外を追加（panel-rail クリックで選択が消えD&D供給源が使えない問題）。
+  - 検証: 4列 grid（72/1fr/288/58）・4モード切替・選択→cell自動遷移＋モード切替で選択保持（社員モードで供給源利用可）・cell復帰・解除で前モード復帰・社員軸セル配置候補10件・support 5社・コンソール0。スクショ `screenshots/r3c2a-ws-panelrail.png`。`weekly-schedule.js?v=21` / `ws-ds.css?v=3` / `weekly-schedule.css?v=5`。
 - **R-3c-1（WS チェックポイント）完了**（Playwright localhost 1440px で runtime 検証済・コンソールエラー0/警告0）:
   1. **CSS読替**: `co-tokens.css` 撤去→ `ds-tokens.css`＋`ds-components.css`＋新設 **`ws-ds.css`**。`ws-ds.css` 冒頭 `:root` で旧 co-tokens 名→ds 値をファイル内リマップ（ob-ds.css と同方式・bridge 不使用）。`weekly-schedule.css` は `?v=4`。
   2. **骨格再構成**: `.md-ws-container(header/toolbar/main)` → `.app.ws-app > .toolbar.md-ws-toolbar / .workspace.ws-workspace(rail 72 | main>main-card 1fr | prop 288)`。旧 `.md-ws-header` 濃紺帯を撤去（濃色=メニューバー1段のみ）、タイトルはツールバーへ。**panel-rail は R-3c-2 で 4 列化**。既存サイドバー(`.md-ws-sidebar` 340px)を `.prop` 列へ幅上書きで暫定収容。
@@ -22,8 +30,9 @@
 
 ## 次にやるべきこと
 
-- **R-3c-2（WS 右プロパティ4モード化）**: `.prop-card#wsPropCard` + `panel-rail` 4ボタン（①選択セル ②社員 ③車両 ④協力業者・応援予約）。既存サイドバー render 群を各モードへ割当（`wsSetPropMode` 新設・OB/SL 同型）。**応援予約3モーダル**(`openReservationModal`/`QuickModal`/`WeekModal`)→④モード内 `.prop` ドックへ転換（schedule 発火機構は維持）。業者紐付けポップオーバー(`showLinkPopover`)は④へ整理。→ その後 **R-3c-3**（通知 rail cn-card + 変更履歴配線 + schedule19発火(N-6)回帰 + Playwright）。
-- 以降 R-3d LA → R-3e QA。SSOT=`docs/plan/mockup-refactor-plan.md`、詳細計画=`~/.claude/plans/vivid-swinging-elephant.md`（R-3c 3段階ブレークダウン）。
+- **R-3c-2b（応援予約モーダル→ドック転換）**: `openReservationModal`(4351)/`openReservationQuickModal`(4505)/`openReservationWeekModal`(4639) の中身を④モード（`wsRenderSupportContent`）内 `.md-ws-sidebar` ドックへ移動表示（schedule 発火機構は維持）。業者紐付けポップオーバー(`showLinkPopover`)は④モード内操作へ整理（ポップオーバー要否は実装時判断）。**R-3c-2 は 2a/2b にサブ分割済み（ユーザー承認 2026-07-08）**。
+- その後 **R-3c-3**（通知 rail cn-card: 統合ベルを左 `.rail` へ移動 + 変更履歴の右プロパティ配線 + schedule19発火(N-6)回帰 + Playwright）。
+- 以降 R-3d LA → R-3e QA。SSOT=`docs/plan/mockup-refactor-plan.md`、詳細計画=`~/.claude/plans/vivid-swinging-elephant.md`（R-3c 3段階ブレークダウン・2a/2b サブ分割）。
 
 ## 今だけの申し送り（任意）
 

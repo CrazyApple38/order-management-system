@@ -143,7 +143,12 @@
     var siteAccordionCollapsed = {};
 
     // サイドバーメインタブ: 'employee' | 'vehicle' | 'site'
+    // （R-3c-2a 以降: 選択セルモード内の「社員候補/車両候補」サブ切替として再利用）
     var wsSidebarMainTab = 'employee';
+
+    // R-3c-2a: 右プロパティ panel-rail モード: 'cell' | 'employee' | 'vehicle' | 'support'
+    var wsPropMode = 'employee';
+    var wsPrevPropMode = 'employee'; // セル選択で 'cell' へ移る前の非セルモードを記憶
 
     // 現場タブ用GC縦タブ: 'all' | gcCode
     var wsSiteTab = { activeGc: 'all' };
@@ -1924,6 +1929,8 @@
         selectedCell = { siteId: siteId, date: date, shift: shift };
         selectedDate = date;
         if (!keepTab) wsSidebarMainTab = 'employee';
+        if (wsPropMode !== 'cell') wsPrevPropMode = wsPropMode;
+        wsPropMode = 'cell';
         applySelectionHighlight();
         renderSidebar();
     }
@@ -1939,6 +1946,8 @@
         selectedCell = { empIndex: empIndex, date: date, shift: shift };
         selectedDate = date;
         if (!keepTab) wsSidebarMainTab = 'employee';
+        if (wsPropMode !== 'cell') wsPrevPropMode = wsPropMode;
+        wsPropMode = 'cell';
         applySelectionHighlight();
         renderSidebar();
     }
@@ -1953,6 +1962,8 @@
         selectedCell = { vehicleId: vehicleId, date: date, shift: shift };
         selectedDate = date;
         if (!keepTab) wsSidebarMainTab = 'site';
+        if (wsPropMode !== 'cell') wsPrevPropMode = wsPropMode;
+        wsPropMode = 'cell';
         applySelectionHighlight();
         renderSidebar();
     }
@@ -1960,6 +1971,7 @@
     function deselectCell() {
         selectedCell = null;
         wsSidebarMainTab = 'employee';
+        if (wsPropMode === 'cell') wsPropMode = wsPrevPropMode || 'employee';
         removeSelectionHighlight();
         renderSidebar();
     }
@@ -2555,20 +2567,102 @@
     // サイドバー描画
     // ==========================================================
 
+    // R-3c-2a: panel-rail 4モード（選択セル / 社員 / 車両 / 協力業者・応援予約）で routing。
+    // 内部の render 関数（renderSidebarSiteMode / renderSidebarAssignSite / *OverviewContent）は再利用。
     function renderSidebar() {
-        if (viewMode === 'site') {
-            renderSidebarSiteMode();
-        } else {
-            if (selectedCell) {
-                if (selectedCell.vehicleId) {
-                    renderSidebarAssignSiteForVehicle();
-                } else {
-                    renderSidebarAssignSite();
-                }
-            } else {
-                renderSidebarEmployeeMode();
+        var sidebar = document.querySelector('.md-ws-sidebar');
+        if (!sidebar) return;
+        wsUpdatePanelRail();
+
+        // ① 選択セル: 配置編集（セル未選択なら空状態）
+        if (wsPropMode === 'cell') {
+            if (!selectedCell) {
+                wsRenderPropEmpty(sidebar, '中央のセルを選択すると、ここで配置編集ができます。');
+                return;
             }
+            if (viewMode === 'site') {
+                // 現場軸セル: 既存の配置モード（社員/車両候補サブタブ付き）を再利用
+                renderSidebarSiteMode();
+            } else if (selectedCell.vehicleId) {
+                renderSidebarAssignSiteForVehicle();
+            } else {
+                renderSidebarAssignSite();
+            }
+            return;
         }
+
+        // ②③④ 非セルモード（供給源リスト / 応援）
+        wsRenderPropHeader(sidebar);
+        if (wsPropMode === 'vehicle') {
+            if (viewMode === 'employee') renderVehicleOverviewContentEmpView(sidebar);
+            else renderVehicleOverviewContent(sidebar);
+        } else if (wsPropMode === 'support') {
+            wsRenderSupportContent(sidebar);
+        } else {
+            renderEmployeeOverviewContent(sidebar);
+        }
+    }
+
+    // panel-rail のモード切替（HTML の [data-prop] ボタンから init で配線）
+    function wsSetPropMode(mode) {
+        wsPropMode = mode;
+        if (mode !== 'cell') wsPrevPropMode = mode;
+        renderSidebar();
+    }
+
+    function wsUpdatePanelRail() {
+        var btns = document.querySelectorAll('.ws-workspace .panel-rail [data-prop]');
+        btns.forEach(function (b) {
+            b.classList.toggle('active', b.dataset.prop === wsPropMode);
+        });
+    }
+
+    // 非セルモード共通ヘッダー（モード名 + 件数プレースホルダ）
+    function wsRenderPropHeader(sidebar) {
+        sidebar.innerHTML = '';
+        var labelMap = { employee: '社員', vehicle: '車両', support: '協力業者・応援予約' };
+        var header = el('div', 'md-ws-sidebar-header');
+        header.innerHTML =
+            '<span class="md-ws-prop-mode-label">' + (labelMap[wsPropMode] || '') + '</span>' +
+            '<span style="flex:1;"></span>' +
+            '<span class="md-ws-employee-count" id="wsEmpCount"></span>';
+        sidebar.appendChild(header);
+    }
+
+    // 選択セルモードで未選択のときの空状態
+    function wsRenderPropEmpty(sidebar, msg) {
+        sidebar.innerHTML = '';
+        var header = el('div', 'md-ws-sidebar-header');
+        header.innerHTML = '<span class="md-ws-prop-mode-label">選択セル</span>';
+        sidebar.appendChild(header);
+        sidebar.appendChild(el('div', 'md-ws-prop-empty', msg));
+    }
+
+    // ④ 協力業者・応援予約モードの内容（実在パートナー + 統合応援プリセット）
+    // ※ 応援予約の追加/編集モーダルのドック転換は R-3c-2b で実施
+    function wsRenderSupportContent(sidebar) {
+        var content = el('div', 'md-ws-badge-content md-ws-support-content');
+        var visibleCompanies = (typeof groupCompaniesData !== 'undefined')
+            ? groupCompaniesData.filter(function (gc) { return wsGcIsVisible(gc.code); })
+            : [];
+        var total = 0;
+        visibleCompanies.forEach(function (gc) {
+            var partners = getActivePartners(gc.code);
+            if (partners.length === 0) return;
+            content.appendChild(el('div', 'md-ws-gc-section-label', gc.shortName));
+            partners.forEach(function (p) {
+                content.appendChild(createSupportBadge(p));
+                total++;
+            });
+        });
+        appendUnifiedSupportSection(content, function (p) { return createSupportBadge(p); });
+        if (total === 0 && !content.querySelector('.md-ws-support-outer')) {
+            content.appendChild(el('div', 'md-ws-prop-empty',
+                '登録済みの協力業者・応援がありません。中央ボードの応援予約行「＋」から追加できます。'));
+        }
+        sidebar.appendChild(content);
+        var countEl = sidebar.querySelector('.md-ws-employee-count');
+        if (countEl) countEl.textContent = total + '社';
     }
 
     // --- 社員軸ビュー統合サイドバー（メインタブ対応） ---
@@ -3528,9 +3622,7 @@
                     content.appendChild(createEmpBadge(emp));
                 });
             });
-            appendUnifiedSupportSection(content, function (p) {
-                return createSupportBadge(p);
-            });
+            // \u5354\u529b\u696d\u8005\u30fb\u5fdc\u63f4\u306f panel-rail \u2463\u30e2\u30fc\u30c9\uff08wsRenderSupportContent\uff09\u3078\u96c6\u7d04\uff08R-3c-2a\uff09
             sidebar.appendChild(content);
 
             var countEl = sidebar.querySelector('.md-ws-employee-count');
@@ -3633,10 +3725,7 @@
             });
         }
 
-        // 統合「応援」セクション（GC問わず1個・全タブ共通で末尾に表示）
-        appendUnifiedSupportSection(content, function (p) {
-            return createSupportBadge(p);
-        });
+        // 協力業者・応援は panel-rail ④モード（wsRenderSupportContent）へ集約（R-3c-2a）
 
         panel.appendChild(content);
         sidebar.appendChild(panel);
@@ -5603,6 +5692,11 @@
         if (nextDayBtn) nextDayBtn.addEventListener('click', nextDay);
         if (todayBtn) todayBtn.addEventListener('click', goToday);
 
+        // panel-rail: 右プロパティのモード切替（選択セル/社員/車両/協力業者・応援予約）
+        document.querySelectorAll('.ws-workspace .panel-rail [data-prop]').forEach(function (b) {
+            b.addEventListener('click', function () { wsSetPropMode(b.dataset.prop); });
+        });
+
         // 共通GCフィルタ変更イベントを受けて画面を更新
         document.addEventListener('gcFilterChanged', function () {
             deselectCell();
@@ -5650,6 +5744,7 @@
             if (!e.target.isConnected) return;
             if (selectedCell && !e.target.closest('.md-ws-cell') &&
                 !e.target.closest('.md-ws-sidebar') &&
+                !e.target.closest('.panel-rail') &&
                 !e.target.closest('.md-ws-candidate-item')) {
                 deselectCell();
             }
