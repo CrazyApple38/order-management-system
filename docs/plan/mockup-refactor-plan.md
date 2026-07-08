@@ -1,7 +1,7 @@
 # モックアップ リファクタ統合計画（新DS適用 × 通知簡素化）
 
 **最終更新**: 2026-07-08
-**ステータス**: R-2 完了（2026-07-05）/ R-3a 完了（2026-07-07）/ R-3b OB 完了（2026-07-08）/ R-3c-1 WS チェックポイント完了 / R-3c-2a WS panel-rail 4モード化完了 / **R-3c-2b 応援予約モーダル→ドック転換完了（2026-07-08・runtime検証済）→ 次は R-3c-3（通知rail cn-card＋履歴配線）**
+**ステータス**: R-2 完了（2026-07-05）/ R-3a 完了（2026-07-07）/ R-3b OB 完了（2026-07-08）/ R-3c-1 WS チェックポイント完了 / R-3c-2a WS panel-rail 4モード化完了 / R-3c-2b 応援予約モーダル→ドック転換完了（2026-07-08） / **R-3c-3 通知rail cn-card＋履歴配線＋回帰確認 完了（2026-07-08・runtime検証済）→ R-3c 全段階完了 → 次は R-3d LA**
 **対象**: 本番モックアップ全画面（OB / SL / WS / LA / QA）+ 共通基盤（co-*）+ admin-notify + 通知センター
 **起点**: 2026-06-12 ユーザー指示「通知カテゴリ再定義のモック修正は、デザイン大幅変更やその他変更と合わせて一括で行う」
 
@@ -152,7 +152,7 @@
 | R-0 決定記録 | 完了 | 2026-06-12 | 2026-06-12 | §3.7.9 追記 + 本計画書作成 |
 | R-1 DS基盤統合 | 完了 | 2026-07-03 | 2026-07-03 | ds-tokens/ds-components.css 新設 + docs/design-system/ 5冊 + スモークテスト合格。方式変更はユーザー追認済み（2026-07-03） |
 | R-2 通知データモデル改修 | 完了 | 2026-07-04 | 2026-07-05 | 統合ベル1個+cn-card / カテゴリ=エンティティ導出 / 配置サブタグ / targetDate日別グルーピング / 履歴・検索撤去 / センター導線。実装=co-notify-panel.js(v39)・css(v18)・co-navbar.js(v22)。**runtime検証済**(OB/SL/WS/LA/QA/admin-notify: コンソール0=R-2起因エラーなし・cn-card DS準拠・全4カテゴリ+サブタグ+対象日・フィルタ・cn:jump着地・OB復旧トグル・QA旧.cn-panel全てOK)。**enhancement 完了**: OB=obCnSelfNotify に明示 targetDate(表示月+day, v19) / WS=wsCnSelfNotify に明示 subTag(車両/応援の導出取りこぼしを補正)+targetDate(v19)。admin-notify は notify-compare.js が既に4分類+旧キー互換のため表示確認のみで完了（ユーザー承認 2026-07-05）。既知の別件: shield.svg 404（R-2無関係・SHARED-MEMORY記録） |
-| R-3a〜e 画面別適用 | R-3a/R-3b 完了 / R-3c-1・2a 完了 / 次は R-3c-2b | 2026-07-06 | — | **R-3a 完了（SL・runtime検証済 2026-07-06〜07）**: 骨格再構成＋CSS読替＋中央表7列化＋右プロパティ4モード＋通知rail cn-card。スクショ `screenshots/r3a*.png`。**R-3b 完了（OB・runtime検証済 2026-07-08）**: 骨格＋右プロパティ3モード＋seg フィルタ（チェックポイント 9a2c8ae）に加え、**①行カレンダーを中央ビュー切替化**（カレンダー入力モーダル廃止・月ナビ/undo redo をツールバー共通へ一本化・編集は右プロパティ詳細ドック）**②連携・所在パネル実配線**（請求先/地図URL集約+288px内 iframe プレビュー/SL現場逆引き）**③変更履歴パネル実配線**（getItems('all') 行フィルタ+cn:jump 委譲）**④夜間色を `--night-text`(#d14d41) へ分離+死にCSS削除**（.md-ob-filter-*・カレンダーモーダルchrome）。スクショ `screenshots/r3b-ob-cal-view.png` / `r3b-ob-linkage.png` / `r3b-ob-history.png`。**次=R-3c WS**。以降 R-3d〜e |
+| R-3a〜e 画面別適用 | R-3a/R-3b/R-3c 完了 / 次は R-3d LA | 2026-07-06 | — | **R-3a 完了（SL・runtime検証済 2026-07-06〜07）**: 骨格再構成＋CSS読替＋中央表7列化＋右プロパティ4モード＋通知rail cn-card。スクショ `screenshots/r3a*.png`。**R-3b 完了（OB・runtime検証済 2026-07-08）**: 骨格＋右プロパティ3モード＋seg フィルタ（チェックポイント 9a2c8ae）に加え、**①行カレンダーを中央ビュー切替化**（カレンダー入力モーダル廃止・月ナビ/undo redo をツールバー共通へ一本化・編集は右プロパティ詳細ドック）**②連携・所在パネル実配線**（請求先/地図URL集約+288px内 iframe プレビュー/SL現場逆引き）**③変更履歴パネル実配線**（getItems('all') 行フィルタ+cn:jump 委譲）**④夜間色を `--night-text`(#d14d41) へ分離+死にCSS削除**（.md-ob-filter-*・カレンダーモーダルchrome）。スクショ `screenshots/r3b-ob-cal-view.png` / `r3b-ob-linkage.png` / `r3b-ob-history.png`。**R-3c 完了（WS・runtime検証済 2026-07-08）**: R-3c-1骨格＋R-3c-2a panel-rail4モード＋R-3c-2b応援予約モーダル→ドック転換に加え、**R-3c-3 通知rail cn-card＋履歴配線**（統合ベルDOMを`.rail`へ移設／①選択セルモードに`wsRenderHistorySection`で変更履歴を埋め込み・選択セル未選択時は週間予定表全体の一般履歴・選択時はsiteId+日付でフィルタ／履歴カード→cn-item委譲→cn:jump→`selectedCell`再選択で着地セルをそのまま選択セル編集パネルに反映（OB `obSelectRow`と同型）／通知追加削除フックで自動追従）。**副産物のバグ修正**: `.cn-item`委譲クリック時の実DOM click伝播がWS独自の「グリッド外クリックで選択解除」グローバルリスナーに誤反応し選択セルが即座に解除される問題を発見・修正（`.rail`/`.cn-card`/`.cn-panel`を解除対象外に追加）。N-6 schedule発火19箇所は回帰なしを実操作で確認。スクショ `screenshots/r3c3-ws-notify-rail.png`。**次=R-3d LA**。以降 R-3e |
 | R-4 センター改修 | 未着手 | — | — | |
 | R-5 DB設計追補 | 未着手 | — | — | |
 | R-6 結合検証 | 未着手 | — | — | |

@@ -289,6 +289,93 @@ body {
 }
 
 /* ============================================================
+   選択セル: 変更履歴セクション（R-3c-3・OB/SL history と同型）
+   ============================================================ */
+.ws-history-block {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-height: 190px;
+    gap: 6px;
+    padding: 8px 10px;
+    border-top: 1px solid var(--soft-line);
+}
+
+.ws-history-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.ws-history-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.ws-history-count {
+    font-size: 10px;
+    color: var(--muted);
+}
+
+.ws-history-sub {
+    flex-shrink: 0;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+.ws-history-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ws-history-empty {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.ws-history-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex-shrink: 0;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--soft-line);
+    border-radius: var(--radius-sm);
+    background: linear-gradient(to bottom right, var(--panel), var(--bg));
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    box-shadow: var(--elevation-0);
+}
+
+.ws-history-item:hover {
+    border-color: var(--line);
+}
+
+.ws-history-main {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.ws-history-diff,
+.ws-history-meta {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+/* ============================================================
    panel-rail: 右パネルモード切替（縦並びボタン・58px）
    ============================================================ */
 .ws-workspace .panel-rail {

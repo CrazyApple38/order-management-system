@@ -2580,10 +2580,11 @@
         if (!sidebar) return;
         wsUpdatePanelRail();
 
-        // ① 選択セル: 配置編集（セル未選択なら空状態）
+        // ① 選択セル: 配置編集（セル未選択なら空状態）＋ 変更履歴（R-3c-3）
         if (wsPropMode === 'cell') {
             if (!selectedCell) {
                 wsRenderPropEmpty(sidebar, '中央のセルを選択すると、ここで配置編集ができます。');
+                wsRenderHistorySection(sidebar, null);
                 return;
             }
             if (viewMode === 'site') {
@@ -2594,6 +2595,7 @@
             } else {
                 renderSidebarAssignSite();
             }
+            wsRenderHistorySection(sidebar, selectedCell);
             return;
         }
 
@@ -5506,11 +5508,164 @@
         if (dd < viewStartDate || dd >= new Date(viewStartDate.getTime() + visibleWeeks * 7 * 86400000)) {
             viewStartDate = getWeekStart(dd);
             renderGrid();
-            renderSidebar();
             needsRender = true;
         }
+        // 着地セルを右プロパティ「選択セル」へ反映（OB obSelectRow と同型・R-3c-3）
+        selectedCell = { siteId: siteId, date: dateKey, shift: shift || 'day' };
+        selectedDate = dateKey;
+        wsSidebarMainTab = 'employee';
+        wsPropMode = 'cell';
+        applySelectionHighlight();
+        renderSidebar();
         setTimeout(function () { wsCnHighlightCell(siteId, dateKey, shift, op); }, needsRender ? 100 : 0);
     });
+
+    // ==================== R-3c-3: 通知rail移設 + 右プロパティ「選択セル」変更履歴配線 ====================
+
+    function wsNotifyText(value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+
+    // セル選択（現場軸/社員軸/車両軸）から関連する siteId 群を解決
+    function wsResolveCellSiteIds(cell) {
+        if (!cell) return [];
+        if (cell.siteId) return [cell.siteId];
+        if (cell.empIndex != null) return getAssignedSites(cell.empIndex, cell.date, cell.shift);
+        if (cell.vehicleId != null) return getVehicleAssignedSites(cell.vehicleId, cell.date, cell.shift);
+        return [];
+    }
+
+    function wsHistoryCellLabel(cell) {
+        if (!cell) return '';
+        if (cell.siteId) {
+            var site = findSite(cell.siteId);
+            return site ? (site.company + ' / ' + site.name) : cell.siteId;
+        }
+        if (cell.empIndex != null) {
+            var emp = employeesData[cell.empIndex];
+            return emp ? emp.name : '';
+        }
+        if (cell.vehicleId != null) {
+            var vehicle = findVehicle(cell.vehicleId);
+            return vehicle ? (vehicle.plate + ' ' + vehicle.model) : cell.vehicleId;
+        }
+        return '';
+    }
+
+    function wsIsWsNotifyItem(item) {
+        if (!item) return false;
+        if (item.sourceBell === 'ws' || item.primaryPage === 'weekly-schedule') return true;
+        if (Array.isArray(item.affects) && item.affects.indexOf('weekly-schedule') !== -1) return true;
+        var t = item.target || null;
+        if (t && t['weekly-schedule'] && t['weekly-schedule'].axis) return true;
+        return !!(t && t.axis === 'wsCell');
+    }
+
+    function wsNotifyTargetForScreen(item) {
+        var t = item && item.target;
+        if (!t) return null;
+        if (t['weekly-schedule']) return t['weekly-schedule'];
+        return t.axis ? t : null;
+    }
+
+    function wsNotifyMatchesCell(item, cell) {
+        if (!cell) return false;
+        var t = wsNotifyTargetForScreen(item);
+        if (!t || t.axis !== 'wsCell') return false;
+        var siteIds = wsResolveCellSiteIds(cell);
+        if (!siteIds.length || siteIds.indexOf(t.value) === -1) return false;
+        return !cell.date || !t.date || t.date === cell.date;
+    }
+
+    function wsNotifyItems() {
+        if (!window.coNotifyPanel || typeof window.coNotifyPanel.getItems !== 'function') return [];
+        return window.coNotifyPanel.getItems('all').filter(wsIsWsNotifyItem);
+    }
+
+    // 選択セル/対象でフィルタした変更履歴セクションを右プロパティ「選択セル」内に追加表示
+    function wsRenderHistorySection(sidebar, cell) {
+        if (!sidebar) return;
+        var items = wsNotifyItems();
+        var filtered = cell ? items.filter(function (item) { return wsNotifyMatchesCell(item, cell); }) : items;
+        var list = filtered.slice(0, 6);
+        var label = wsHistoryCellLabel(cell);
+
+        var box = el('div', 'ws-history-block');
+        var head = el('div', 'ws-history-head');
+        head.innerHTML = '<span class="ws-history-title">変更履歴</span>' +
+            '<span class="ws-history-count">' + filtered.length + '件</span>';
+        box.appendChild(head);
+        box.appendChild(el('div', 'ws-history-sub', cell
+            ? ('対象: ' + (label || '(未特定)'))
+            : '週間予定表に関する通知'));
+
+        var listEl = el('div', 'ws-history-list');
+        if (!list.length) {
+            listEl.innerHTML = '<div class="ws-history-empty">' +
+                (cell ? 'このセルに関する通知はまだありません。' : '週間予定表に関する通知はまだありません。') +
+                '</div>';
+        } else {
+            listEl.innerHTML = list.map(function (item) {
+                var diffs = Array.isArray(item.diffs) ? item.diffs : [];
+                var firstDiff = diffs[0];
+                var diffHtml = firstDiff
+                    ? '<span class="ws-history-diff">' + wsNotifyText(firstDiff.field || '変更') + ': ' +
+                      wsNotifyText(firstDiff.oldVal || '(空)') + ' → ' + wsNotifyText(firstDiff.newVal || '(空)') + '</span>'
+                    : '';
+                var meta = [item.date, item.sub].filter(Boolean).join(' / ');
+                return '<button type="button" class="ws-history-item" data-cn-history-id="' + wsNotifyText(item.id || '') + '">' +
+                    '<span class="ws-history-main">' + wsNotifyText(item.main || '') + '</span>' +
+                    diffHtml +
+                    (meta ? '<span class="ws-history-meta">' + wsNotifyText(meta) + '</span>' : '') +
+                    '</button>';
+            }).join('');
+        }
+        listEl.addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-cn-history-id]');
+            if (!btn) return;
+            var id = btn.getAttribute('data-cn-history-id') || '';
+            var cnItem = Array.prototype.slice.call(document.querySelectorAll('.cn-item[data-id]'))
+                .find(function (n) { return n.dataset.id === id; });
+            var rowEl = cnItem ? cnItem.querySelector(':scope > .cn-item-row') : null;
+            if (rowEl) { rowEl.click(); return; }
+            var item = wsNotifyItems().find(function (i) { return String(i.id) === id; });
+            var t = item ? wsNotifyTargetForScreen(item) : null;
+            if (t) document.dispatchEvent(new CustomEvent('cn:jump', { detail: { inContext: true, target: t, op: item.op || 'modify' } }));
+        });
+        box.appendChild(listEl);
+        sidebar.appendChild(box);
+    }
+
+    // 通知の追加/削除に「選択セル」モードの変更履歴セクションを追従させる
+    function wsRefreshHistoryIfVisible() {
+        if (wsPropMode === 'cell') renderSidebar();
+    }
+
+    function wsPatchNotifyRefreshHooks() {
+        if (!window.coNotifyPanel || window.coNotifyPanel._wsHistoryHooked) return;
+        ['setItems', 'addItem', 'removeItem', 'clearItems'].forEach(function (name) {
+            var original = window.coNotifyPanel[name];
+            if (typeof original !== 'function') return;
+            window.coNotifyPanel[name] = function () {
+                var result = original.apply(window.coNotifyPanel, arguments);
+                setTimeout(wsRefreshHistoryIfVisible, 0);
+                return result;
+            };
+        });
+        window.coNotifyPanel._wsHistoryHooked = true;
+    }
+
+    // 統合ベルDOMを左レールへ移設（SL R-3a-3 / OB R-3b と同型。アンカーCSSは ws-ds.css 先行定義済み）
+    function wsMountNotifyRail() {
+        var rail = document.querySelector('.ws-workspace .rail');
+        var bells = document.getElementById('mdNavCnBells');
+        if (!rail || !bells || bells.dataset.wsRailMounted === '1') return;
+        bells.dataset.wsRailMounted = '1';
+        bells.classList.add('ws-rail-cn-bells');
+        rail.appendChild(bells);
+    }
 
     function init() {
         restoreTheme();
@@ -5586,10 +5741,14 @@
         document.addEventListener('click', function (e) {
             // DOM再構築でターゲットが切断済みの場合は無視（タブ切替等）
             if (!e.target.isConnected) return;
+            // 通知レール/カード（.cn-item 委譲クリックの実クリック伝播含む・R-3c-3）は選択解除の対象外
             if (selectedCell && !e.target.closest('.md-ws-cell') &&
                 !e.target.closest('.md-ws-sidebar') &&
                 !e.target.closest('.panel-rail') &&
-                !e.target.closest('.md-ws-candidate-item')) {
+                !e.target.closest('.md-ws-candidate-item') &&
+                !e.target.closest('.rail') &&
+                !e.target.closest('.cn-card') &&
+                !e.target.closest('.cn-panel')) {
                 deselectCell();
             }
         });
@@ -5606,6 +5765,11 @@
 
         // 変更通知デモ初期投入（共通ベル co-notify-panel が管理）
         wsCnSeedInitialDemo();
+
+        // R-3c-3: 通知ベルをレールへ移設 + 変更履歴セクションの追従フック
+        wsMountNotifyRail();
+        setTimeout(wsMountNotifyRail, 0);
+        wsPatchNotifyRefreshHooks();
     }
 
     function injectViewToggle() {
