@@ -9,35 +9,31 @@
 
 - **更新者**: Claude Code (Opus 4.8)
 - **日付**: 2026-07-08
-- **コミット**: 本コミット（親=0e10e4d）。**R-3c-2a（WS panel-rail 4モード化）完了** — 右プロパティを選択セル/社員/車両/協力業者・応援予約の4モードへ。応援予約モーダル→ドック転換は R-3c-2b（次）
-- 直近コミット: `6d4650e` R-3c-1 骨格 / `0e10e4d` 休み色 info化 / 本コミット R-3c-2a
+- **コミット**: 本コミット（親=678b45d）。**R-3c-2b（応援予約モーダル→ドック転換）完了** — 応援予約3モーダル＋⋮メニューを撤去し④モードの右プロパティドックへ縦リスト化集約。次は R-3c-3（通知rail cn-card＋履歴配線）
+- 直近コミット: `678b45d` R-3c-2a panel-rail 4モード / `0e10e4d` 休み色 info化 / `6d4650e` R-3c-1 骨格
 
 ## 直前にやったこと（最新のみ）
 
-- **R-3c-2a（WS panel-rail 4モード化）完了**（Playwright 1440px runtime 検証済・コンソール0）:
-  - panel-rail（4列目 58px）新設: **選択セル / 社員 / 車両 / 協力業者・応援予約**。`wsPropMode` state + `wsSetPropMode`/`wsUpdatePanelRail`、init で `[data-prop]` ボタン配線。
-  - `renderSidebar` を wsPropMode routing へ全面書換（既存 `renderSidebarSiteMode`＝現場軸セルの候補表示、`renderSidebarAssignSite`/`ForVehicle`＝社員軸セル、`renderEmployeeOverviewContent`/`renderVehicleOverviewContent(EmpView)` を再利用）。ヘルパー `wsRenderPropHeader`/`wsRenderPropEmpty`/`wsRenderSupportContent` 追加。
-  - **選択セル自動遷移**: `selectCellSiteView`/`EmployeeView`/`VehicleView` で `wsPropMode='cell'`（前モードを `wsPrevPropMode` に退避）、`deselectCell` で復帰。
-  - **応援/協力業者を④モードへ集約**: `renderEmployeeOverviewContent` の `appendUnifiedSupportSection` 2箇所を撤去し `wsRenderSupportContent`（GC別 active partners + 統合応援プリセット）へ。配置候補側（`renderAssignEmployeeContent` の support）は D&D 用に残置。
-  - **バグ修正**: グローバル「グリッド外クリック→選択解除」に `.panel-rail` 除外を追加（panel-rail クリックで選択が消えD&D供給源が使えない問題）。
-  - 検証: 4列 grid（72/1fr/288/58）・4モード切替・選択→cell自動遷移＋モード切替で選択保持（社員モードで供給源利用可）・cell復帰・解除で前モード復帰・社員軸セル配置候補10件・support 5社・コンソール0。スクショ `screenshots/r3c2a-ws-panelrail.png`。`weekly-schedule.js?v=21` / `ws-ds.css?v=3` / `weekly-schedule.css?v=5`。
-- **R-3c-1（WS チェックポイント）完了**（Playwright localhost 1440px で runtime 検証済・コンソールエラー0/警告0）:
-  1. **CSS読替**: `co-tokens.css` 撤去→ `ds-tokens.css`＋`ds-components.css`＋新設 **`ws-ds.css`**。`ws-ds.css` 冒頭 `:root` で旧 co-tokens 名→ds 値をファイル内リマップ（ob-ds.css と同方式・bridge 不使用）。`weekly-schedule.css` は `?v=4`。
-  2. **骨格再構成**: `.md-ws-container(header/toolbar/main)` → `.app.ws-app > .toolbar.md-ws-toolbar / .workspace.ws-workspace(rail 72 | main>main-card 1fr | prop 288)`。旧 `.md-ws-header` 濃紺帯を撤去（濃色=メニューバー1段のみ）、タイトルはツールバーへ。**panel-rail は R-3c-2 で 4 列化**。既存サイドバー(`.md-ws-sidebar` 340px)を `.prop` 列へ幅上書きで暫定収容。
-  3. **ツールバー整理**: 現場軸/社員軸トグル(`injectViewToggle`)をタイトル直後へ、期間ナビ/今日を配置、右端に **stat-strip**（休み(本日)/整備(本日)= `wsRenderStatStrip`・renderGrid から更新）。**GC フィルタ seg は延期**（横断課題・下記申し送り）。
-  4. **色面整理**（03 §3.1/§3.2）: `weekly-schedule.css :root` の桃色/teal ローカル定義を撤去 → 区分=青(`--cat-*`→blue-soft/blue)、桃色エラー→ `--error-*`=alert、`--night-text` の #DB577B 上書き撤去→ds `#d14d41` 継承、`--accent-hover`→blue-dark、`--semantic-warning-text`→alert。ws-ds.css remap で `--semantic-error`→alert-text(警告用)、holiday(日付ヘッダ/休みマーク)は青灰へターゲット上書き。直書き hex は :root から排除。
-- 検証: `node --check` OK / Playwright: 骨格DOM（rail|main|prop = 72/1fr/288）・view-toggle 順序・stat-strip 描画（休み3人/整備0台）・軸切替(site⇄employee)・週移動(翌週/今日)・**非過去日セル選択（selection-active/cell-selected/col-highlighted）**・トークン remap 実測（夜間#d14d41 / 警告#f15e2a / 青#1f5fae / 区分#eaf3ff）・コンソール0/0。スクショ `screenshots/r3c1-ws-skeleton.png`。
+- **R-3c-2b（応援予約モーダル→ドック転換）完了**（Playwright 1440px runtime 検証済・コンソール0/0）:
+  - **モーダル4関数を撤去**: `openReservationModal`/`openReservationQuickModal`/`openReservationWeekModal`/`showPartnerRowMenu`。`createStepper`/`createPartnerAutocomplete` は再利用で残置。
+  - **`wsRenderSupportContent` を全書換**（④協力業者・応援予約モード）: GC別に**業者カード縦積み**。カード = ヘッダ（`∷`グリップ+名前+マスタ未完備警告+`⋮`メニュー、**ヘッダ自体が D&D 配置供給源**＝dragstart payload `{type:'sidebar-support',partnerId}` 維持）+ ボディ（7日予約ステッパー、配置済み下限・`wsCnSelfNotify` schedule発火維持、予約変更時 `renderGrid` のみでドック非再構築）。ヘルパー `wsBuildSupportCard`/`wsBuildSupportAddRow`/`wsShowSupportCardMenu`/`wsFocusSupportInDock` 追加。統合応援プリセット（`appendUnifiedSupportSection`）は据置。
+  - **GCセクション折りたたみ**: `wsSupportCollapsedGc`（gcCode→true）。見出しクリックで▼▶トグル。
+  - **⋮メニュー**（旧 showPartnerRowMenu 相当・`.md-ws-res-week-row-menu` CSS 再利用）: 「この週の予約をクリア」/「マスタから削除」。**業者追加**は各GC末尾の `＋ 業者追加`（`createPartnerAutocomplete`）。
+  - **中央ボード「＋」差替**: 名前セル「＋」（旧 WeekModal）/日付セル「＋」（旧 QuickModal）とも `wsSupportCollapsedGc[gc]=false → wsSetPropMode('support') → wsFocusSupportInDock(gc, dateKey|null)`（対象GC/日へスクロール+`md-ws-support-flash` 着地）。
+  - **`showLinkPopover` 据置**（ユーザー承認 2026-07-08・チップ文脈依存のため）。
+  - **CSSレイアウトバグ修正**: `.md-ws-support-content`（flex列）内で子カードが `flex-shrink` されクリップ→7行中1行しか見えなかったため `> * { flex-shrink:0 }` 追加。
+  - 検証: 3GC/5カード/各7日ステッパー・ヘッダdraggable(payload正常)・ステッパー編集→予約更新＋通知+1＋グリッド`残N`反映＋ドック非再構築・GC折りたたみ▼▶・cell「＋」/名前「＋」→support遷移+flash着地・⋮メニュー2項目・業者追加トグル+autocomplete・全モード巡回・コンソール0/0。スクショ `screenshots/r3c2b-ws-support-dock.png`。`weekly-schedule.js?v=22` / `ws-ds.css?v=4`（`weekly-schedule.css?v=5` 据置）。
 
 ## 次にやるべきこと
 
-- **R-3c-2b（応援予約モーダル→ドック転換）**: `openReservationModal`(4351)/`openReservationQuickModal`(4505)/`openReservationWeekModal`(4639) の中身を④モード（`wsRenderSupportContent`）内 `.md-ws-sidebar` ドックへ移動表示（schedule 発火機構は維持）。業者紐付けポップオーバー(`showLinkPopover`)は④モード内操作へ整理（ポップオーバー要否は実装時判断）。**R-3c-2 は 2a/2b にサブ分割済み（ユーザー承認 2026-07-08）**。
-- その後 **R-3c-3**（通知 rail cn-card: 統合ベルを左 `.rail` へ移動 + 変更履歴の右プロパティ配線 + schedule19発火(N-6)回帰 + Playwright）。
-- 以降 R-3d LA → R-3e QA。SSOT=`docs/plan/mockup-refactor-plan.md`、詳細計画=`~/.claude/plans/vivid-swinging-elephant.md`（R-3c 3段階ブレークダウン・2a/2b サブ分割）。
+- **R-3c-3（通知rail cn-card＋履歴配線＋回帰＋検証）**: ①統合ベルDOMを左 `.rail` へ移動（SL R-3a-3 / OB R-3b と同型・アンカーCSSは ws-ds.css に先行定義済 `.ws-workspace .cn-card`/`.rail .md-nav-cn-bells`）。②変更履歴の右プロパティ配線（`coNotifyPanel.getItems('all')` の WS関連を選択セル/対象でフィルタ・cn:jump委譲・`scrollToRowAndFlash`/`wsCnHighlightCell` 着地整合）。③**N-6 回帰**（schedule発火19箇所を実操作で確認）。④Playwright検証+コミット。スクショ `screenshots/r3c3-ws-notify-rail.png`。
+- 以降 R-3d LA → R-3e QA。SSOT=`docs/plan/mockup-refactor-plan.md`、詳細計画=`~/.claude/plans/vivid-swinging-elephant.md`（R-3c 3段階・2a/2b サブ分割）。
 
 ## 今だけの申し送り（任意）
 
-- **GC フィルタ seg 化は延期（ユーザー承認 2026-07-08）**: GC フィルタは階層構造を持つ共有ナビモーダル。R-3c では現行の共有モーダルをそのまま使い（回帰ゼロ）、seg 吸収は「全画面横断の別課題」で階層対応ごと一括（HANDOFF 既知項目）。WS には会社ローカル seg を追加していない（OB とは異なり二重状態を作らない選択）。
-- **昼夜ヘッダ文字色**（`--shift-header-text-day` #B8651F amber / `-night` #1F5E70 navy-teal）は昼夜識別軸として **R-3c-1 では据え置き**。DS 非トークンのため、色面の最終調整（休みチップの色含む）は R-3c-2 の色パスでユーザー確認の上で検討。
-- **ダークテーマ**は DS(Calm Operations)=light 専用のため WS でも移行対象外（`weekly-schedule.css [data-theme="dark"]` は残置・未検証）。OB は order-book.css からダーク全撤去済み。
-- Playwright の孤立 Chrome（`mcp-chrome-33eff96` プロファイル）がロックを保持していたため該当 PID のみ kill して復帰。検証時に再発したら同プロファイルのみ終了。
-- OB の 404: `shield.svg`（既知・R-2無関係・SHARED-MEMORY記録）は未対応のまま。
+- **GC フィルタ seg 化は延期のまま**（R-3c では現行の共有モーダルを回帰ゼロで維持。seg 吸収は全画面横断の別課題）。WS には会社ローカル seg を追加していない。
+- **昼夜ヘッダ文字色**（`--shift-header-text-day` amber / `-night` navy-teal）は据え置き（DS非トークン・昼夜識別軸）。色面の最終調整はユーザー確認の上で別途。
+- **ダークテーマ**は DS(Calm Operations)=light 専用のため WS でも対象外（`weekly-schedule.css [data-theme="dark"]` は残置・未検証）。
+- R-3c-2b で予約ステッパーは**過去日も編集可**（旧 WeekModal の挙動を踏襲・意図的）。過去日ロックが要るなら別途指示を。
+- 旧モーダルの死にCSS（`.md-ws-modal-*`/`.md-ws-res-quick-*`/`.md-ws-res-week-*` の一部）は `weekly-schedule.css` に残置（`.md-ws-modal-btn`/`.md-ws-res-week-row-menu`/`.md-ws-pac-*` は新ドックで再利用中）。掃除は将来。
+- Playwright の孤立 Chrome ロックが出たら該当プロファイルのみ kill。OB の `shield.svg` 404 は既知・未対応。

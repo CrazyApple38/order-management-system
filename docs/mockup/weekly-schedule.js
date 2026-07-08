@@ -149,6 +149,8 @@
     // R-3c-2a: 右プロパティ panel-rail モード: 'cell' | 'employee' | 'vehicle' | 'support'
     var wsPropMode = 'employee';
     var wsPrevPropMode = 'employee'; // セル選択で 'cell' へ移る前の非セルモードを記憶
+    // R-3c-2b: ④協力業者・応援予約モードの GC セクション折りたたみ状態（gcCode -> true=折りたたみ）
+    var wsSupportCollapsedGc = {};
 
     // 現場タブ用GC縦タブ: 'all' | gcCode
     var wsSiteTab = { activeGc: 'all' };
@@ -1208,7 +1210,9 @@
                 addBtn.title = '\u9031\u5168\u4f53\u306e\u4e88\u7d04\u3092\u4e00\u89a7\u30fb\u7de8\u96c6';
                 (function (gcCode) {
                     addBtn.addEventListener('click', function () {
-                        openReservationWeekModal(gcCode);
+                        wsSupportCollapsedGc[gcCode] = false;
+                        wsSetPropMode('support');
+                        wsFocusSupportInDock(gcCode, null);
                     });
                 })(gc.code);
                 rNameCell.appendChild(addBtn);
@@ -1255,7 +1259,9 @@
                         (function (gcCode, dateKey) {
                             cellAddBtn.addEventListener('click', function (e) {
                                 e.stopPropagation();
-                                openReservationQuickModal(gcCode, dateKey);
+                                wsSupportCollapsedGc[gcCode] = false;
+                                wsSetPropMode('support');
+                                wsFocusSupportInDock(gcCode, dateKey);
                             });
                         })(gc.code, dk);
                         cell.appendChild(cellAddBtn);
@@ -2638,31 +2644,244 @@
         sidebar.appendChild(el('div', 'md-ws-prop-empty', msg));
     }
 
-    // ④ 協力業者・応援予約モードの内容（実在パートナー + 統合応援プリセット）
-    // ※ 応援予約の追加/編集モーダルのドック転換は R-3c-2b で実施
+    // ④ 協力業者・応援予約モードの内容（R-3c-2b: 週マトリクスモーダル→ドック縦リスト化）
+    // GC 別に業者カードを縦積み。カード = ①ヘッダ(D&D 配置供給源 + 名前 + 警告 + ⋮メニュー)
+    // ②7日分の予約人数ステッパー。旧 openReservationWeekModal / openReservationQuickModal
+    // の機能（予約数編集・週クリア・業者削除・業者追加）を全てドック内へ集約。schedule 発火維持。
     function wsRenderSupportContent(sidebar) {
         var content = el('div', 'md-ws-badge-content md-ws-support-content');
+        var dates = getVisibleDates();
+        var dowLabels = getDaysOfWeek();
         var visibleCompanies = (typeof groupCompaniesData !== 'undefined')
             ? groupCompaniesData.filter(function (gc) { return wsGcIsVisible(gc.code); })
             : [];
         var total = 0;
+
         visibleCompanies.forEach(function (gc) {
             var partners = getActivePartners(gc.code);
-            if (partners.length === 0) return;
-            content.appendChild(el('div', 'md-ws-gc-section-label', gc.shortName));
+            var collapsed = !!wsSupportCollapsedGc[gc.code];
+
+            // GC 見出し（折りたたみトグル）
+            var gcLabel = el('div', 'md-ws-gc-section-label md-ws-support-gc-label' + (collapsed ? ' md-ws-collapsed' : ''));
+            var chevron = el('span', 'md-ws-support-gc-chevron', collapsed ? '▶' : '▼');
+            gcLabel.appendChild(chevron);
+            gcLabel.appendChild(el('span', 'md-ws-support-gc-name', gc.shortName));
+            if (partners.length > 0) {
+                gcLabel.appendChild(el('span', 'md-ws-support-gc-count', partners.length + '社'));
+            }
+            (function (code, wasCollapsed) {
+                gcLabel.addEventListener('click', function () {
+                    wsSupportCollapsedGc[code] = !wasCollapsed;
+                    renderSidebar();
+                });
+            })(gc.code, collapsed);
+            content.appendChild(gcLabel);
+
+            if (collapsed) { total += partners.length; return; }
+
+            if (partners.length === 0) {
+                content.appendChild(el('div', 'md-ws-support-empty-gc', '登録済みの協力業者はありません。'));
+            }
             partners.forEach(function (p) {
-                content.appendChild(createSupportBadge(p));
+                content.appendChild(wsBuildSupportCard(p, gc.code, dates, dowLabels));
                 total++;
             });
+
+            // 業者追加
+            content.appendChild(wsBuildSupportAddRow(gc.code));
         });
+
+        // 統合応援プリセット（GC 非依存・D&D 供給源のみ）
         appendUnifiedSupportSection(content, function (p) { return createSupportBadge(p); });
+
         if (total === 0 && !content.querySelector('.md-ws-support-outer')) {
             content.appendChild(el('div', 'md-ws-prop-empty',
-                '登録済みの協力業者・応援がありません。中央ボードの応援予約行「＋」から追加できます。'));
+                '登録済みの協力業者・応援がありません。各社の「＋ 業者追加」から登録できます。'));
         }
         sidebar.appendChild(content);
         var countEl = sidebar.querySelector('.md-ws-employee-count');
         if (countEl) countEl.textContent = total + '社';
+    }
+
+    // ④ 業者カード（ヘッダ=D&D配置供給源+⋮ / ボディ=7日予約ステッパー）
+    function wsBuildSupportCard(partner, gcCode, dates, dowLabels) {
+        var card = el('div', 'md-ws-support-card');
+        card.dataset.supportGc = gcCode;
+        card.dataset.supportPartner = partner.id;
+
+        // --- ヘッダ（ドラッグして現場セルへ配置） ---
+        var header = el('div', 'md-ws-support-card-header');
+        header.draggable = true;
+        header.title = 'ドラッグして現場セルへ配置';
+        header.addEventListener('dragstart', function (e) {
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+                type: 'sidebar-support', partnerId: partner.id
+            }));
+            e.dataTransfer.effectAllowed = 'copy';
+            header.style.opacity = '0.5';
+            activateDragMode(null);
+        });
+        header.addEventListener('dragend', function () {
+            header.style.opacity = '';
+            deactivateDragMode();
+        });
+
+        header.appendChild(el('span', 'md-ws-support-card-grip', '∷'));
+        header.appendChild(el('span', 'md-ws-support-card-name', partner.shortName));
+        if (!partner.isMasterComplete) {
+            var warn = el('span', 'md-ws-support-card-warn');
+            warn.innerHTML = WARN_ICON_SVG;
+            warn.title = 'マスタ未完備';
+            header.appendChild(warn);
+        }
+        var menuBtn = el('button', 'md-ws-support-card-menu', '⋮');
+        menuBtn.title = 'メニュー';
+        menuBtn.draggable = false;
+        menuBtn.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+        menuBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            wsShowSupportCardMenu(menuBtn, partner, gcCode);
+        });
+        header.appendChild(menuBtn);
+        card.appendChild(header);
+
+        // --- ボディ（7日予約ステッパー） ---
+        var body = el('div', 'md-ws-support-card-body');
+        dates.forEach(function (d) {
+            var dk = formatDateKey(d);
+            var row = el('div', 'md-ws-support-day-row');
+            row.dataset.supportDate = dk;
+
+            row.appendChild(el('span', 'md-ws-support-day-label',
+                (d.getMonth() + 1) + '/' + d.getDate() + '(' + dowLabels[d.getDay()] + ')'));
+
+            var reserved = getReservedCount(partner.id, dk);
+            var assigned = getAssignedCountForDate(partner.id, dk);
+            var stepper = createStepper(reserved, function (v) {
+                // 配置済みより下には設定不可（整合性）
+                if (v < assigned) { stepper.setValue(assigned); return; }
+                var oldVal = getReservedCount(partner.id, dk);
+                if (v === oldVal) return;
+                setReservedCount(partner.id, dk, v);
+                var op = (oldVal === 0 && v > 0) ? 'add' : ((v === 0 && oldVal > 0) ? 'delete' : 'modify');
+                wsCnSelfNotify('reservation', op, {
+                    partnerName: partner.shortName,
+                    day: wsCnGetDayLabel(dk),
+                    count: v, oldCount: oldVal, newCount: v
+                });
+                renderGrid();
+                // 予約変更は配置数(配N)に影響しないため sidebar 全再描画は不要（ステッパー状態を保持）
+            }, { min: 0 });
+            row.appendChild(stepper);
+
+            if (assigned > 0) {
+                var asHint = el('span', 'md-ws-support-day-assigned', '配' + assigned);
+                asHint.title = '配置済み';
+                row.appendChild(asHint);
+            }
+            body.appendChild(row);
+        });
+        card.appendChild(body);
+        return card;
+    }
+
+    // ④ 業者追加行（トグル→オートコンプリート）
+    function wsBuildSupportAddRow(gcCode) {
+        var addRow = el('div', 'md-ws-support-add-row');
+        var toggle = el('button', 'md-ws-support-add-toggle', '＋ 業者追加');
+        var panel = el('div', 'md-ws-support-add-panel');
+        panel.style.display = 'none';
+
+        var ac = createPartnerAutocomplete(gcCode, {
+            excludeIds: getActivePartners(gcCode).map(function (p) { return p.id; })
+        });
+        var confirmBtn = el('button', 'md-ws-modal-btn md-ws-modal-btn-primary', '登録');
+        var cancelBtn = el('button', 'md-ws-modal-btn md-ws-modal-btn-secondary', 'キャンセル');
+        var btnRow = el('div', 'md-ws-support-add-btnrow');
+        btnRow.appendChild(confirmBtn);
+        btnRow.appendChild(cancelBtn);
+        panel.appendChild(ac);
+        panel.appendChild(btnRow);
+
+        toggle.addEventListener('click', function () {
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            if (panel.style.display === 'block') setTimeout(function () { ac.focus(); }, 30);
+        });
+        cancelBtn.addEventListener('click', function () { panel.style.display = 'none'; });
+        confirmBtn.addEventListener('click', function () {
+            var sel = ac.getSelected();
+            var q = ac.getQuery();
+            if (!sel && !q) { alert('協力業者を入力してください'); return; }
+            var name = sel ? sel.shortName : q;
+            addPartner(name, gcCode);
+            panel.style.display = 'none';
+            renderGrid();
+            renderSidebar();
+        });
+
+        addRow.appendChild(toggle);
+        addRow.appendChild(panel);
+        return addRow;
+    }
+
+    // ④ 業者カード ⋮メニュー（この週クリア / マスタから削除）※旧 showPartnerRowMenu 相当
+    function wsShowSupportCardMenu(btnEl, partner, gcCode) {
+        var existing = document.querySelector('.md-ws-res-week-row-menu');
+        if (existing) existing.remove();
+
+        var menu = el('div', 'md-ws-res-week-row-menu');
+        var clearBtn = el('button', 'md-ws-res-week-row-menu-item', 'この週の予約をクリア');
+        clearBtn.addEventListener('click', function () {
+            getVisibleDates().forEach(function (d) {
+                var dk = formatDateKey(d);
+                var assigned = getAssignedCountForDate(partner.id, dk);
+                setReservedCount(partner.id, dk, assigned); // 配置済みは残す
+            });
+            menu.remove();
+            renderGrid();
+            renderSidebar();
+        });
+        var deleteBtn = el('button', 'md-ws-res-week-row-menu-item md-ws-res-week-row-menu-danger', 'マスタから削除');
+        deleteBtn.addEventListener('click', function () {
+            if (!confirm(partner.shortName + ' をマスタから削除します。よろしいですか？')) return;
+            deactivatePartner(partner.id);
+            menu.remove();
+            renderGrid();
+            renderSidebar();
+        });
+        menu.appendChild(clearBtn);
+        menu.appendChild(deleteBtn);
+
+        document.body.appendChild(menu);
+        var rect = btnEl.getBoundingClientRect();
+        menu.style.top = (rect.bottom + 4) + 'px';
+        menu.style.left = (rect.right - 160) + 'px';
+        setTimeout(function () {
+            function onOutside(e) {
+                if (!menu.contains(e.target)) {
+                    menu.remove();
+                    document.removeEventListener('mousedown', onOutside);
+                }
+            }
+            document.addEventListener('mousedown', onOutside);
+        }, 10);
+    }
+
+    // ④ ドック内スクロール＋フラッシュ（中央「＋」からの遷移着地）
+    function wsFocusSupportInDock(gcCode, dateKey) {
+        var sidebar = document.querySelector('.md-ws-sidebar');
+        if (!sidebar) return;
+        var card = sidebar.querySelector('[data-support-gc="' + gcCode + '"]');
+        var target = null;
+        if (dateKey && card) {
+            target = card.querySelector('[data-support-date="' + dateKey + '"]') || card;
+        } else {
+            target = card || sidebar.querySelector('.md-ws-support-gc-label');
+        }
+        if (!target) return;
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.classList.add('md-ws-support-flash');
+        setTimeout(function () { target.classList.remove('md-ws-support-flash'); }, 1600);
     }
 
     // --- 社員軸ビュー統合サイドバー（メインタブ対応） ---
@@ -4427,61 +4646,6 @@
         }, 10);
     }
 
-    // ==========================================================
-    // 応援予約モーダル（A5）
-    // ==========================================================
-
-    /**
-     * 汎用モーダル骨格を生成
-     * @param {string} title
-     * @param {HTMLElement} bodyNode
-     * @param {Array<{label: string, variant?: string, onClick: function}>} actions
-     * @returns {{ overlay: HTMLElement, close: function }}
-     */
-    function openReservationModal(title, bodyNode, actions) {
-        // 既存モーダル閉じる（多重起動防止）
-        var existing = document.querySelector('.md-ws-modal-overlay');
-        if (existing) existing.remove();
-
-        var overlay = el('div', 'md-ws-modal-overlay');
-        var content = el('div', 'md-ws-modal-content');
-
-        var header = el('div', 'md-ws-modal-header');
-        var titleEl = el('span', 'md-ws-modal-title', title);
-        var closeBtn = el('button', 'md-ws-modal-close', '\u2715');
-        closeBtn.addEventListener('click', function () { overlay.remove(); });
-        header.appendChild(titleEl);
-        header.appendChild(closeBtn);
-
-        var body = el('div', 'md-ws-modal-body');
-        body.appendChild(bodyNode);
-
-        var footer = el('div', 'md-ws-modal-footer');
-        (actions || []).forEach(function (a) {
-            var btn = el('button', 'md-ws-modal-btn' + (a.variant ? ' md-ws-modal-btn-' + a.variant : ''), a.label);
-            btn.addEventListener('click', function () { a.onClick({ close: function () { overlay.remove(); } }); });
-            footer.appendChild(btn);
-        });
-
-        content.appendChild(header);
-        content.appendChild(body);
-        if (actions && actions.length) content.appendChild(footer);
-        overlay.appendChild(content);
-
-        overlay.addEventListener('click', function (e) {
-            if (e.target === overlay) overlay.remove();
-        });
-        document.addEventListener('keydown', function onEsc(e) {
-            if (e.key === 'Escape') {
-                overlay.remove();
-                document.removeEventListener('keydown', onEsc);
-            }
-        });
-
-        document.body.appendChild(overlay);
-        return { overlay: overlay, close: function () { overlay.remove(); } };
-    }
-
     /**
      * 人数ステッパー（−/＋ ボタン付き）
      */
@@ -4587,326 +4751,6 @@
         wrap.getQuery = function () { return inp.value.trim(); };
         wrap.focus = function () { inp.focus(); };
         return wrap;
-    }
-
-    /**
-     * 単日モーダル: その日の応援予約を追加
-     */
-    function openReservationQuickModal(gcCode, dateKey) {
-        var body = el('div', 'md-ws-res-quick-body');
-
-        var dateLine = el('div', 'md-ws-res-quick-date');
-        var d = new Date(dateKey + 'T00:00:00');
-        var dow = ['\u65e5','\u6708','\u706b','\u6c34','\u6728','\u91d1','\u571f'][d.getDay()];
-        dateLine.textContent = (d.getMonth() + 1) + '/' + d.getDate() + '(' + dow + ')';
-        body.appendChild(dateLine);
-
-        var gcLabel = groupCompaniesData.filter(function (g) { return g.code === gcCode; })[0];
-        var gcLine = el('div', 'md-ws-res-quick-gc', '\u4f9d\u983c\u5143\uff1a' + (gcLabel ? gcLabel.shortName : gcCode));
-        body.appendChild(gcLine);
-
-        // 業者入力（入力欄＋候補バッジ一覧）
-        var partnerField = el('div', 'md-ws-res-quick-field');
-        partnerField.appendChild(el('label', 'md-ws-res-quick-label', '\u5354\u529b\u696d\u8005'));
-
-        var nameInput = document.createElement('input');
-        nameInput.type = 'text';
-        nameInput.className = 'md-ws-res-quick-input';
-        nameInput.placeholder = '\u7565\u79f0\u3092\u5165\u529b or \u4e0b\u306e\u30d0\u30c3\u30b8\u304b\u3089\u9078\u629e';
-        partnerField.appendChild(nameInput);
-
-        var hintLine = el('div', 'md-ws-res-quick-hint');
-        partnerField.appendChild(hintLine);
-
-        var badgeListLabel = el('div', 'md-ws-res-quick-badges-label', '\u5019\u88dc\u696d\u8005');
-        partnerField.appendChild(badgeListLabel);
-        var badgeList = el('div', 'md-ws-res-quick-badges');
-        partnerField.appendChild(badgeList);
-
-        body.appendChild(partnerField);
-
-        // 人数ステッパー
-        var countField = el('div', 'md-ws-res-quick-field');
-        countField.appendChild(el('label', 'md-ws-res-quick-label', '\u4eba\u6570'));
-        var stepper = createStepper(0, null, { min: 0 });
-        countField.appendChild(stepper);
-        body.appendChild(countField);
-
-        var selectedPartnerId = null;
-
-        function applyName(name) {
-            var existing = getActivePartners(gcCode).filter(function (p) { return p.shortName === name; })[0];
-            if (existing) {
-                selectedPartnerId = existing.id;
-                var current = getReservedCount(existing.id, dateKey);
-                hintLine.textContent = current > 0
-                    ? '\u73fe\u5728 ' + current + '\u540d\uff08\u5909\u66f4\u5f8c\u306e\u4eba\u6570\u3067\u4e0a\u66f8\u304d\u3055\u308c\u307e\u3059\uff09'
-                    : '\u672a\u4e88\u7d04';
-                stepper.setValue(current);
-            } else if (name) {
-                selectedPartnerId = null;
-                hintLine.textContent = '\u65b0\u898f\u767b\u9332\uff08\u30de\u30b9\u30bf\u672a\u5b8c\u5099\u3068\u3057\u3066\u8b66\u544a\u30a2\u30a4\u30b3\u30f3\u4ed8\u4e0e\uff09';
-                stepper.setValue(0);
-            } else {
-                selectedPartnerId = null;
-                hintLine.textContent = '';
-                stepper.setValue(0);
-            }
-            // バッジ選択状態を更新
-            Array.from(badgeList.children).forEach(function (b) {
-                b.classList.toggle('md-ws-res-quick-badge-selected', b.dataset.partnerName === name);
-            });
-        }
-
-        function renderBadges() {
-            badgeList.innerHTML = '';
-            var partners = getActivePartners(gcCode);
-            if (partners.length === 0) {
-                var empty = el('div', 'md-ws-res-quick-badges-empty', '\u767b\u9332\u6e08\u307f\u306e\u5354\u529b\u696d\u8005\u306f\u3042\u308a\u307e\u305b\u3093');
-                badgeList.appendChild(empty);
-                return;
-            }
-            partners.forEach(function (p) {
-                var badge = el('button', 'md-ws-res-quick-badge');
-                badge.type = 'button';
-                badge.dataset.partnerId = p.id;
-                badge.dataset.partnerName = p.shortName;
-                badge.appendChild(el('span', 'md-ws-res-quick-badge-name', p.shortName));
-                var reserved = getReservedCount(p.id, dateKey);
-                if (reserved > 0) {
-                    badge.appendChild(el('span', 'md-ws-res-quick-badge-count', '\u4e88' + reserved));
-                }
-                badge.addEventListener('click', function () {
-                    nameInput.value = p.shortName;
-                    applyName(p.shortName);
-                });
-                badgeList.appendChild(badge);
-            });
-        }
-        renderBadges();
-
-        nameInput.addEventListener('input', function () {
-            applyName(nameInput.value.trim());
-        });
-
-        openReservationModal((gcLabel ? gcLabel.shortName : gcCode) + ' \u5fdc\u63f4\u4e88\u7d04\u8ffd\u52a0', body, [
-            { label: '\u30ad\u30e3\u30f3\u30bb\u30eb', variant: 'secondary', onClick: function (ctx) { ctx.close(); } },
-            { label: '\u4fdd\u5b58', variant: 'primary', onClick: function (ctx) {
-                var name = nameInput.value.trim();
-                if (!name) {
-                    alert('\u5354\u529b\u696d\u8005\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044');
-                    return;
-                }
-                var count = stepper.getValue();
-                var partnerId = selectedPartnerId;
-                var oldCount = 0;
-                if (!partnerId) {
-                    // 入力文字列で新規登録（既存が無ければ）
-                    var existing = getActivePartners(gcCode).filter(function (p) { return p.shortName === name; })[0];
-                    partnerId = existing ? existing.id : addPartner(name, gcCode, { silent: true });
-                } else {
-                    oldCount = getReservedCount(partnerId, dateKey);
-                }
-                setReservedCount(partnerId, dateKey, count);
-                var newOp = (oldCount === 0) ? 'add' : 'modify';
-                wsCnSelfNotify('reservation', newOp, {
-                    partnerName: wsCnGetPartnerName(partnerId),
-                    day: wsCnGetDayLabel(dateKey),
-                    count: count, oldCount: oldCount, newCount: count
-                });
-                ctx.close();
-                renderGrid();
-                renderSidebar();
-            } }
-        ]);
-
-        setTimeout(function () { nameInput.focus(); }, 50);
-    }
-
-    /**
-     * 週全体モーダル: 業者×日付マトリクス
-     */
-    function openReservationWeekModal(gcCode) {
-        var dates = getVisibleDates();
-        var body = el('div', 'md-ws-res-week-body');
-
-        var gcLabel = groupCompaniesData.filter(function (g) { return g.code === gcCode; })[0];
-        var intro = el('div', 'md-ws-res-week-intro', (gcLabel ? gcLabel.shortName : gcCode) + ' \u9031\u5168\u4f53\u306e\u4e88\u7d04\u4eba\u6570\u3092\u7de8\u96c6\u3002\u5909\u66f4\u306f\u5373\u6642\u53cd\u6620\u3055\u308c\u307e\u3059\u3002');
-        body.appendChild(intro);
-
-        var tableWrap = el('div', 'md-ws-res-week-tablewrap');
-        var table = el('table', 'md-ws-res-week-table');
-        var thead = el('thead');
-        var headRow = el('tr');
-        headRow.appendChild(el('th', 'md-ws-res-week-th-partner', '\u5354\u529b\u696d\u8005'));
-        dates.forEach(function (d) {
-            var dow = ['\u65e5','\u6708','\u706b','\u6c34','\u6728','\u91d1','\u571f'][d.getDay()];
-            var th = el('th', 'md-ws-res-week-th-date', (d.getMonth() + 1) + '/' + d.getDate() + '\n(' + dow + ')');
-            headRow.appendChild(th);
-        });
-        headRow.appendChild(el('th', 'md-ws-res-week-th-menu', ''));
-        thead.appendChild(headRow);
-        table.appendChild(thead);
-        var tbody = el('tbody');
-        table.appendChild(tbody);
-
-        function renderBody() {
-            tbody.innerHTML = '';
-            var partners = getActivePartners(gcCode);
-            partners.forEach(function (p) {
-                var tr = el('tr');
-                tr.dataset.partnerId = p.id;
-
-                var nameTd = el('td', 'md-ws-res-week-td-partner');
-                var nameSpan = el('span', 'md-ws-res-week-partner-name', p.shortName);
-                nameTd.appendChild(nameSpan);
-                if (!p.isMasterComplete) {
-                    var warn = el('span', 'md-ws-res-week-partner-warn');
-                    warn.innerHTML = WARN_ICON_SVG;
-                    warn.title = '\u30de\u30b9\u30bf\u672a\u5b8c\u5099';
-                    nameTd.appendChild(warn);
-                }
-                tr.appendChild(nameTd);
-
-                dates.forEach(function (d) {
-                    var dk = formatDateKey(d);
-                    var td = el('td', 'md-ws-res-week-td-count');
-                    var reserved = getReservedCount(p.id, dk);
-                    var assigned = getAssignedCountForDate(p.id, dk);
-                    var stepper = createStepper(reserved, function (v) {
-                        // 配置済みより下には設定不可（整合性）
-                        if (v < assigned) {
-                            stepper.setValue(assigned);
-                            return;
-                        }
-                        var oldVal = getReservedCount(p.id, dk);
-                        setReservedCount(p.id, dk, v);
-                        var stepOp = (oldVal === 0 && v > 0) ? 'add' : ((v === 0 && oldVal > 0) ? 'delete' : 'modify');
-                        wsCnSelfNotify('reservation', stepOp, {
-                            partnerName: p.shortName,
-                            day: wsCnGetDayLabel(dk),
-                            count: v, oldCount: oldVal, newCount: v
-                        });
-                        renderGrid();
-                        renderSidebar();
-                    }, { min: 0 });
-                    if (assigned > 0) {
-                        var asHint = el('span', 'md-ws-res-week-assigned-hint', '\u914d' + assigned);
-                        asHint.title = '\u914d\u7f6e\u6e08\u307f';
-                        td.appendChild(asHint);
-                    }
-                    td.appendChild(stepper);
-                    tr.appendChild(td);
-                });
-
-                // ⋮ メニュー
-                var menuTd = el('td', 'md-ws-res-week-td-menu');
-                var menuBtn = el('button', 'md-ws-res-week-menu-btn', '\u22ee');
-                menuBtn.title = '\u30e1\u30cb\u30e5\u30fc';
-                (function (partner) {
-                    menuBtn.addEventListener('click', function (e) {
-                        e.stopPropagation();
-                        showPartnerRowMenu(menuBtn, partner, gcCode, renderBody);
-                    });
-                })(p);
-                menuTd.appendChild(menuBtn);
-                tr.appendChild(menuTd);
-
-                tbody.appendChild(tr);
-            });
-        }
-        renderBody();
-
-        tableWrap.appendChild(table);
-        body.appendChild(tableWrap);
-
-        // ＋業者追加
-        var addRow = el('div', 'md-ws-res-week-add-row');
-        var addToggleBtn = el('button', 'md-ws-res-week-add-btn', '\uff0b \u696d\u8005\u8ffd\u52a0');
-        var addPanel = el('div', 'md-ws-res-week-add-panel');
-        addPanel.style.display = 'none';
-        var addAc = createPartnerAutocomplete(gcCode, {
-            excludeIds: getActivePartners(gcCode).map(function (p) { return p.id; })
-        });
-        var addConfirm = el('button', 'md-ws-modal-btn md-ws-modal-btn-primary', '\u767b\u9332');
-        var addCancel = el('button', 'md-ws-modal-btn md-ws-modal-btn-secondary', '\u30ad\u30e3\u30f3\u30bb\u30eb');
-        addPanel.appendChild(addAc);
-        addPanel.appendChild(addConfirm);
-        addPanel.appendChild(addCancel);
-
-        addToggleBtn.addEventListener('click', function () {
-            addPanel.style.display = addPanel.style.display === 'none' ? 'flex' : 'none';
-            if (addPanel.style.display === 'flex') setTimeout(function () { addAc.focus(); }, 30);
-        });
-        addCancel.addEventListener('click', function () {
-            addPanel.style.display = 'none';
-        });
-        addConfirm.addEventListener('click', function () {
-            var sel = addAc.getSelected();
-            var q = addAc.getQuery();
-            if (!sel && !q) { alert('\u5354\u529b\u696d\u8005\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044'); return; }
-            var name = sel ? sel.shortName : q;
-            addPartner(name, gcCode);
-            addPanel.style.display = 'none';
-            renderBody();
-            renderGrid();
-            renderSidebar();
-        });
-
-        addRow.appendChild(addToggleBtn);
-        addRow.appendChild(addPanel);
-        body.appendChild(addRow);
-
-        openReservationModal((gcLabel ? gcLabel.shortName : gcCode.toUpperCase()) + ' \u5fdc\u63f4\u4e88\u7d04 \u9031\u5168\u4f53\u7de8\u96c6', body, [
-            { label: '\u9589\u3058\u308b', variant: 'primary', onClick: function (ctx) { ctx.close(); } }
-        ]);
-    }
-
-    /**
-     * 週全体モーダルの⋮メニュー
-     */
-    function showPartnerRowMenu(btnEl, partner, gcCode, onChange) {
-        var existing = document.querySelector('.md-ws-res-week-row-menu');
-        if (existing) existing.remove();
-
-        var menu = el('div', 'md-ws-res-week-row-menu');
-        var clearBtn = el('button', 'md-ws-res-week-row-menu-item', '\u3053\u306e\u9031\u306e\u4e88\u7d04\u3092\u30af\u30ea\u30a2');
-        clearBtn.addEventListener('click', function () {
-            getVisibleDates().forEach(function (d) {
-                var dk = formatDateKey(d);
-                var assigned = getAssignedCountForDate(partner.id, dk);
-                setReservedCount(partner.id, dk, assigned); // 配置済みは残す
-            });
-            menu.remove();
-            onChange();
-            renderGrid();
-            renderSidebar();
-        });
-        var deleteBtn = el('button', 'md-ws-res-week-row-menu-item md-ws-res-week-row-menu-danger', '\u30de\u30b9\u30bf\u304b\u3089\u524a\u9664');
-        deleteBtn.addEventListener('click', function () {
-            if (!confirm(partner.shortName + ' \u3092\u30de\u30b9\u30bf\u304b\u3089\u524a\u9664\u3057\u307e\u3059\u3002\u3088\u308d\u3057\u3044\u3067\u3059\u304b\uff1f')) return;
-            deactivatePartner(partner.id);
-            menu.remove();
-            onChange();
-            renderGrid();
-            renderSidebar();
-        });
-        menu.appendChild(clearBtn);
-        menu.appendChild(deleteBtn);
-
-        document.body.appendChild(menu);
-        var rect = btnEl.getBoundingClientRect();
-        menu.style.top = (rect.bottom + 4) + 'px';
-        menu.style.left = (rect.right - 160) + 'px';
-        setTimeout(function () {
-            function onOutside(e) {
-                if (!menu.contains(e.target)) {
-                    menu.remove();
-                    document.removeEventListener('mousedown', onOutside);
-                }
-            }
-            document.addEventListener('mousedown', onOutside);
-        }, 10);
     }
 
     // サイドバータブ切替

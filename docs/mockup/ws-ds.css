@@ -374,6 +374,173 @@ body {
 }
 
 /* ============================================================
+   ④ 協力業者・応援予約 ドック（R-3c-2b: 週マトリクスモーダル→縦リスト化）
+   ============================================================ */
+/* コンテナ: md-ws-badge-content の pill flow を縦積みへ上書き */
+.ws-workspace .prop .md-ws-support-content {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 6px;
+    align-content: stretch;
+    padding: 8px 10px;
+}
+/* flex 列内で子カードが縮小してクリップされないよう固定（コンテナ側で縦スクロール） */
+.ws-workspace .prop .md-ws-support-content > * {
+    flex-shrink: 0;
+}
+
+/* GC 見出し（折りたたみトグル） */
+.ws-workspace .prop .md-ws-support-gc-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    margin-top: 8px;
+}
+.ws-workspace .prop .md-ws-support-gc-label:first-child { margin-top: 0; }
+.ws-workspace .prop .md-ws-support-gc-label:hover { color: var(--blue); }
+.md-ws-support-gc-chevron {
+    font-size: 9px;
+    color: var(--muted);
+    width: 10px;
+    flex-shrink: 0;
+}
+.md-ws-support-gc-name { flex: 1; }
+.md-ws-support-gc-count {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+/* 業者カード */
+.md-ws-support-card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--panel);
+    overflow: hidden;
+}
+
+/* ヘッダ（D&D 配置供給源） */
+.md-ws-support-card-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 6px 6px 4px;
+    background: var(--info-bg);
+    border-bottom: 1px solid var(--soft-line);
+    cursor: grab;
+    user-select: none;
+}
+.md-ws-support-card-header:active { cursor: grabbing; }
+.md-ws-support-card-grip {
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: -2px;
+    flex-shrink: 0;
+}
+.md-ws-support-card-name {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.md-ws-support-card-warn {
+    display: inline-flex;
+    align-items: center;
+    color: var(--alert-text);
+    flex-shrink: 0;
+}
+.md-ws-support-card-warn svg { width: 13px; height: 13px; }
+.md-ws-support-card-menu {
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.md-ws-support-card-menu:hover { background: var(--blue-soft); color: var(--blue); }
+
+/* ボディ（7日予約ステッパー） */
+.md-ws-support-card-body {
+    display: flex;
+    flex-direction: column;
+    padding: 4px 6px;
+    gap: 2px;
+}
+.md-ws-support-day-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 1px 0;
+    border-radius: var(--radius-sm);
+}
+.md-ws-support-day-label {
+    width: 62px;
+    flex-shrink: 0;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+.md-ws-support-day-assigned {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--info-text);
+    background: var(--info-bg);
+    border-radius: 3px;
+    padding: 1px 4px;
+}
+
+/* 業者追加 */
+.md-ws-support-add-row { margin: 2px 0 4px; }
+.md-ws-support-add-toggle {
+    width: 100%;
+    border: 1px dashed var(--line);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--blue);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px;
+    cursor: pointer;
+}
+.md-ws-support-add-toggle:hover { background: var(--blue-soft); }
+.md-ws-support-add-panel {
+    margin-top: 5px;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--info-bg);
+}
+.md-ws-support-add-btnrow {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+}
+.md-ws-support-add-btnrow .md-ws-modal-btn { flex: 1; }
+
+.md-ws-support-empty-gc {
+    font-size: 11px;
+    color: var(--muted);
+    padding: 4px 2px 6px;
+}
+
+/* 中央ボード「＋」からの着地フラッシュ */
+.md-ws-support-flash {
+    animation: wsSupportFlash 1.6s ease-out;
+}
+@keyframes wsSupportFlash {
+    0%, 100% { background: transparent; box-shadow: none; }
+    15% { background: var(--blue-soft); box-shadow: 0 0 0 2px var(--blue) inset; }
+}
+
+/* ============================================================
    レスポンシブ
    ============================================================ */
 @media (max-width: 1180px) {
