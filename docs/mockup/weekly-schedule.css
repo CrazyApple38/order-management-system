@@ -23,15 +23,15 @@
     --md-gc-bg-nikkei: #F3F9F6;
     --md-gc-bg-zennihon: #F2F4F8;
 
-    /* WS 固有: 区分カラー（SL 統一: 全カテゴリ同一 teal） */
-    --cat-bg-facility: rgba(68, 166, 181, 0.12);
-    --cat-bg-event: rgba(68, 166, 181, 0.12);
-    --cat-bg-traffic: rgba(68, 166, 181, 0.12);
-    --cat-bg-highway: rgba(68, 166, 181, 0.12);
-    --cat-text-facility: #1c4d54;
-    --cat-text-event: #1c4d54;
-    --cat-text-traffic: #1c4d54;
-    --cat-text-highway: #1c4d54;
+    /* WS 固有: 区分カラー（03 §3.1: 区分は青一色。旧 teal 統一色を DS 青へ） */
+    --cat-bg-facility: var(--blue-soft);
+    --cat-bg-event: var(--blue-soft);
+    --cat-bg-traffic: var(--blue-soft);
+    --cat-bg-highway: var(--blue-soft);
+    --cat-text-facility: var(--blue);
+    --cat-text-event: var(--blue);
+    --cat-text-traffic: var(--blue);
+    --cat-text-highway: var(--blue);
 
     /* WS 固有: シフト（昼/夜） */
     --shift-bg-day: rgba(211, 208, 200, 0.12);
@@ -39,9 +39,9 @@
     --shift-bg-night: rgba(0, 69, 84, 0.12);
     --shift-text-night: #005c70;
 
-    /* WS 固有: インタラクション */
-    --accent-hover: #3a8a96;
-    --warning-dim: rgba(214, 158, 46, 0.1);
+    /* WS 固有: インタラクション（DS 青 / 警告淡橙へ） */
+    --accent-hover: var(--blue-dark);
+    --warning-dim: var(--alert-bg);
 
     /* WS 固有: 過去日オーバーレイ */
     --past-overlay: rgba(0, 0, 0, 0.12);
@@ -52,13 +52,13 @@
     --shadow-medium: rgba(0, 69, 84, 0.12);
     --shadow-strong: rgba(0, 69, 84, 0.15);
 
-    /* WS 固有: α値・階調独自（co-tokens の semantic と値不一致） */
-    --error-light: #E88AA5;
-    --error-bg: rgba(219, 87, 123, 0.12);
-    --success-bg: rgba(56, 161, 105, 0.1);
-    --semantic-warning-text: #975A16;
-    /* co-tokens は #92400e */
-    --night-text: #DB577B;
+    /* WS 固有: α値・階調（03 §3.1 分離: 桃色エラー廃止 → 警告=alert / 情報=info /
+       夜間=ds-tokens.css --night-text(#d14d41) を継承。旧 #DB577B 桃色上書きは撤去） */
+    --error-light: var(--alert-border);
+    --error-bg: var(--alert-bg);
+    --error-dim: var(--alert-bg);
+    --success-bg: var(--info-bg);
+    --semantic-warning-text: var(--alert-text);
 
     /* WS 固有: tooltip / ヘッダー内ボタン */
     --tooltip-bg: rgba(0, 69, 84, 0.95);

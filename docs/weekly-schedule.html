@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>週間予定表 - 受注管理システム</title>
-    <link rel="stylesheet" href="mockup/co-tokens.css">
-    <link rel="stylesheet" href="mockup/co-forms.css">
+    <link rel="stylesheet" href="mockup/ds-tokens.css?v=1">
+    <link rel="stylesheet" href="mockup/ds-components.css?v=1">
+    <link rel="stylesheet" href="mockup/co-forms.css?v=2">
     <link rel="stylesheet" href="mockup/co-buttons.css">
     <link rel="stylesheet" href="mockup/co-modal.css">
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=18">
-    <link rel="stylesheet" href="mockup/weekly-schedule.css?v=3">
+    <link rel="stylesheet" href="mockup/weekly-schedule.css?v=4">
+    <link rel="stylesheet" href="mockup/ws-ds.css?v=1">
 </head>
 <body>
     <!-- SVG icon sprite -->
@@ -44,16 +46,11 @@
 
     <!-- co-navbar.js が自動挿入 -->
 
-    <div class="md-ws-container">
-        <!-- ヘッダー -->
-        <div class="md-ws-header">
+    <div class="app ws-app">
+        <!-- ツールバー（濃色帯はメニューバー1段のみ・タイトルはここへ統合） -->
+        <div class="toolbar md-ws-toolbar" role="toolbar" aria-label="週間予定表操作バー">
             <span class="md-ws-header-title">週間予定表</span>
-            <div class="md-ws-header-spacer"></div>
-        </div>
-
-        <!-- ツールバー -->
-        <div class="md-ws-toolbar">
-            <!-- 現場軸/社員軸 トグルは JS が左端に挿入 -->
+            <!-- 現場軸/社員軸トグルは JS(injectViewToggle) がタイトル直後に挿入 -->
             <div class="md-ws-nav-group">
                 <button type="button" class="md-ws-nav-btn" id="wsPrevWeek" aria-label="前週" title="前週"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevrons-left"/></svg></button>
                 <button type="button" class="md-ws-nav-btn" id="wsPrevDay" aria-label="前日" title="前日"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-left"/></svg></button>
@@ -62,31 +59,43 @@
                 <button type="button" class="md-ws-nav-btn" id="wsNextWeek" aria-label="翌週" title="翌週"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevrons-right"/></svg></button>
             </div>
             <button type="button" class="md-ws-today-btn" id="wsTodayBtn">今日</button>
+            <span class="toolbar-sep"></span>
             <button type="button" class="md-ws-today-btn" onclick="OmsMockStore.resetAndReload()" title="共通ダミーデータを初期状態に戻す">データリセット</button>
+            <span class="md-ws-toolbar-spacer"></span>
+            <div class="stat-strip" id="wsStatStrip" role="group" aria-label="週間予定表サマリ"></div>
         </div>
 
-        <!-- メインエリア -->
-        <div class="md-ws-main">
-            <!-- グリッド -->
-            <div class="md-ws-grid-wrapper" id="wsGridWrapper">
-                <div class="md-ws-grid" id="wsGrid">
-                    <!-- JS で描画 -->
-                </div>
-            </div>
+        <!-- ワークスペース: rail | main | prop -->
+        <div class="workspace ws-workspace">
+            <!-- 左レール（R-3c-3 で統合ベル cn-card を移設） -->
+            <aside class="rail" aria-label="週間予定表レール"></aside>
 
-            <!-- サイドバー -->
-            <div class="md-ws-sidebar">
-                <div class="md-ws-sidebar-header">
-                    <img src="mockup/icons/calendar.svg" alt="" style="width:16px;height:16px;filter:brightness(10);">
-                    <span class="md-ws-sidebar-date" id="wsSidebarDate">5月1日</span>
-                    <span class="md-ws-sidebar-dow" id="wsSidebarDow">(金)</span>
-                    <span style="flex:1;"></span>
-                    <span class="md-ws-employee-count" id="wsEmpCount"></span>
+            <!-- 中央: 週配置ボード -->
+            <section class="main">
+                <div class="main-card">
+                    <div class="main-head">
+                        <span class="main-title">現場配置表</span>
+                        <span class="main-hint" id="wsMainHint">セル選択で配置編集は右パネルへ。現場軸/社員軸はツールバーで切替。</span>
+                    </div>
+                    <div class="md-ws-grid-wrapper" id="wsGridWrapper">
+                        <div class="md-ws-grid" id="wsGrid">
+                            <!-- JS で描画 -->
+                        </div>
+                    </div>
                 </div>
-                <div class="md-ws-sidebar-body" id="wsSidebarBody">
-                    <!-- JS で描画 -->
+            </section>
+
+            <!-- 右プロパティ（R-3c-1: 既存サイドバーを暫定収容 / R-3c-2 で 4 モード化） -->
+            <aside class="prop" aria-label="週間予定表右プロパティ">
+                <div class="md-ws-sidebar">
+                    <div class="md-ws-sidebar-header">
+                        <span class="md-ws-employee-count" id="wsEmpCount"></span>
+                    </div>
+                    <div class="md-ws-sidebar-body" id="wsSidebarBody">
+                        <!-- JS で描画 -->
+                    </div>
                 </div>
-            </div>
+            </aside>
         </div>
     </div>
 

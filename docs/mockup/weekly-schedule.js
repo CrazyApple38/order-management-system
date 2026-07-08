@@ -862,6 +862,7 @@
             renderEmployeeGrid();
         }
         updateMonthLabel();
+        wsRenderStatStrip();
         fixStickyHeaderTops();
         wsSaveWeekToStore();
     }
@@ -5149,6 +5150,18 @@
         label.textContent = text;
     }
 
+    // ツールバー右端の件数サマリ（stat-strip）
+    function wsRenderStatStrip() {
+        var strip = document.getElementById('wsStatStrip');
+        if (!strip) return;
+        var todayKey = formatDateKey(today);
+        var offCount = getHolidayEmployees(todayKey).length;
+        var maintCount = getMaintenanceVehicles(todayKey).length;
+        strip.innerHTML =
+            '<div class="stat"><span class="stat-label">休み(本日)</span><span class="stat-num">' + offCount + '人</span></div>' +
+            '<div class="stat"><span class="stat-label">整備(本日)</span><span class="stat-num">' + maintCount + '台</span></div>';
+    }
+
     function toggleGroup(groupId) {
         collapsedGroups[groupId] = !collapsedGroups[groupId];
         var isCollapsed = collapsedGroups[groupId];
@@ -5624,7 +5637,7 @@
             if (e.key === 'Tab' && !e.ctrlKey && !e.altKey && !e.shiftKey) {
                 var active = document.activeElement;
                 // input等にフォーカスがない場合のみ
-                if (!active || active === document.body || active.closest('.md-ws-container')) {
+                if (!active || active === document.body || active.closest('.ws-app')) {
                     e.preventDefault();
                     switchView(viewMode === 'site' ? 'employee' : 'site');
                 }
@@ -5674,7 +5687,13 @@
         toggle.appendChild(siteBtn);
         toggle.appendChild(empBtn);
 
-        toolbar.insertBefore(toggle, toolbar.firstChild);
+        // タイトル直後・期間ナビ群の直前に挿入
+        var navGroup = toolbar.querySelector('.md-ws-nav-group');
+        if (navGroup) {
+            toolbar.insertBefore(toggle, navGroup);
+        } else {
+            toolbar.insertBefore(toggle, toolbar.firstChild);
+        }
     }
 
     // GCフィルタモーダル関連は共通ナビバー(co-navbar.js)に移動済み
