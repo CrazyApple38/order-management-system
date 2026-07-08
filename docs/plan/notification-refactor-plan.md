@@ -1,7 +1,9 @@
 # 変更通知システム リファクタリング — 統合計画書
 
-**最終更新**: 2026-06-10
-**ステータス**: Phase N-6（結合テスト・整合性確認）完了（§17）。次は Phase 2.5 登録、および変更通知の情報照合機能に関する要件ブラッシュアップ
+**完了**（2026-07-08 確認・§18「完了サマリ」参照）。**新規参照時は §18 のみ読めば足りる（§1〜17 の全読は不要）**。以降の通知アーキテクチャ変更は `docs/plan/mockup-refactor-plan.md` が正本。
+
+**最終更新**: 2026-06-10（内容） / 2026-07-08（完了サマリ追記）
+**ステータス**: Phase N-0〜N-6 全完了（§17）。後続の Phase 2.5 登録は R-2/R-3（mockup-refactor-plan.md）に統合され本書側の追加作業なし
 **対象**: 全モックアップ（OB / SL / WS / LA / QA）+ 共通ナビバー
 **起点**: 社内モックアップレビュー（2026-05-14）
 
@@ -1524,6 +1526,17 @@ localhost で WS / SL を実操作（console error 0）。
 WS の add/delete は実 UI で実証（modify は同型実装）。SL 着地ロジックも実証。
 
 **2026-06-01 追補（§17.7-5 解消）**: 原因は `leaveApplications` 未初期化時の seed 生成が LA 画面 `seedDemoLeaves()` に閉じており、SL/WS/共通ナビだけを開いた場合に `OmsMockStore.getLeaveApplications()` が `null` を返すことだった。LA seed 生成を `mock-assignments-data.js` に移し、`co-mock-store.js` が未初期化時も共通 seed を返すよう修正。Playwright MCP で空ストア直後の SL を確認し、`getLeaveApplications()` 17件、申請・承認ベル表示、5/1 林の LA 通知カードクリックによる SL スポットライト表示（console error 0）まで実証済み。
+
+---
+
+## 18. 完了サマリ（2026-07-08 追記）
+
+**本計画書は完了済み。参照ルールにより完了済み計画書は本節のみ読めば足りる（§1〜17 の全読は不要）。**
+
+- Phase N-0〜N-6（本計画書のスコープ全体）は 2026-06-01 までに実装・実動検証済み（§17 参照）。以降の追加作業は発生していない。
+- **重要な留意点**: 本書の最終更新は 2026-06-10 で、**2026-07-04 の R-2（通知データモデル改修）以降の変更を反映していない**。本書が前提とする「通知ベル4分類（order/assignment/approval/master）」表示モデルは R-2 で**統合ベル1個 + `.cn-card`**へ置き換わっている。**現在の通知アーキテクチャの正本は本書ではなく `docs/plan/mockup-refactor-plan.md` と `docs/SHARED-MEMORY.md`**（「触らないでほしいもの」節の R-2/R-3 関連項目）。
+- 本書が今も有効な設計知識（R-2でも変更されていない部分）: target解決（単一形式`{axis,value}` / 画面別マップ形式の2系統・`resolveTargetForPage`）、domain→primaryPage優先度マップ、`cn:jump` の同タブ遷移設計、`showFocusOverlay` スポットライト着地。
+- 通知関連の新規作業（LA/QA の R-3d/R-3e 等）は、まず `docs/plan/mockup-refactor-plan.md` を読み、本書は上記の設計知識が必要になった箇所だけピンポイントで参照すれば足りる。
 
 ---
 
