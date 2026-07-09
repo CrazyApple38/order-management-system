@@ -1,14 +1,6 @@
-/* LA R-3d: new-DS shell. Existing detail controls retain their original classes. */
+/* LA R-3d: new-DS shell. Existing detail controls retain their original classes.
+   旧トークン名→新DSの読替は ds-legacy-aliases.css（正準・重複定義禁止）。ここは LA 固有のみ。 */
 :root {
-    --bg-page: var(--bg); --bg-surface: var(--panel); --bg-surface-2: var(--info-bg); --bg-surface-3: var(--info-border);
-    --bg-surface-neutral: var(--panel); --bg-sidebar: var(--blue-dark); --divider: var(--line); --text-primary: var(--ink);
-    --text-secondary: var(--muted); --text-tertiary: var(--muted); --text-disabled: var(--info-border); --accent-primary: var(--blue);
-    --accent-primary-light: var(--blue); --accent-primary-dim: var(--blue-soft); --accent-bg: var(--blue-soft); --accent-secondary: var(--alert-text);
-    --font-family-body: var(--font-sans); --semantic-error: var(--alert-text); --semantic-warning: var(--alert-text); --semantic-warning-bg: var(--alert-bg);
-    --semantic-warning-text: var(--alert-text); --semantic-success: var(--info-text); --fs-sm: 13px; --fs-caption: 11px; --fs-md: 16px;
-    --fw-medium: 500; --fw-semibold: 600; --fw-bold: 700; --lh-tight: 1.3; --lh-base: 1.5;
-    --space-xs: 4px; --space-sm: 8px; --space-md: 12px; --space-lg: 16px;
-    --day-sat: var(--info-bg); --day-sun: var(--blue-soft);
     /* --chart-seq-*: 新DS未確定（経理D着工時に正式化・据え置き）。暫定で承認済みの青系トークンを濃淡化 */
     --chart-seq-0: var(--info-bg); --chart-seq-1: var(--blue-soft); --chart-seq-2: var(--blue);
     --chart-seq-3: color-mix(in srgb, var(--blue) 40%, var(--blue-dark) 60%); --chart-seq-4: var(--blue-dark);

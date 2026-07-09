@@ -90,7 +90,7 @@ DOM 正本: `docs/preview/design-refresh-sl-layer-mockup.html`。全画面をこ
 | 部位 | 主クラス | 規範 |
 | --- | --- | --- |
 | アプリ枠 | `.app` | 画面全体の丸枠トレイ |
-| メニューバー | `.menubar` + `.menu-user` | 濃紺帯（濃色面使用権①）。右端にユーザーチップ+在席ドット |
+| メニューバー | `.menubar` + `.menu-user` | 濃紺帯（濃色面使用権①）。右端にユーザーチップ+在席ドット。**menu-user は全画面未実装**（`.menu-user` CSS が ds-components 専用のため共有 co-navbar への導入手順が別途必要 = R-3f。ロール切替のチップメニュー移設も同時） |
 | ツールバー | `.toolbar` / `.tool-group` / `.tool-btn(.primary)` | **高さ0のフラット面**（影なし）。主操作 `.tool-btn.primary` は1〜2個 |
 | ワークスペース | `.workspace` | grid 4カラム: 左レール 72px / 中央 main / 右プロパティ 288px / panel-rail 58px |
 | 左レール（作業面切替） | `.rail`（+ `.rail .bell-count`） | 白フレームに濃紺内面が嵌まる二重構造。**最上位の高さ（elevation-5）**。アイコンは白抜き（`filter: invert(1)`）。ベルボタンに件数バッジ（グロー例外②） |
@@ -105,7 +105,7 @@ DOM 正本: `docs/preview/design-refresh-sl-layer-mockup.html`。全画面をこ
 | 車両/ETC タグ | `.vehicle-tag` + `.vehicle-label` + `.belong-N` | `わ 12-34` / `ETC-A` 形式。社員カプセルと同語彙 |
 | 警告アイコン | `.warn-icon[data-tip]` / `.person-warn[data-tip]`（子 svg `#ic-caution-line`） | `.warn-icon` は **::before の mask で自動描画するため子要素不要**（カタログ D-02/D-03 の子 svg 版は本仕様で廃止）。理由はホバーポップで示す |
 | 右プロパティ | `.prop > .prop-card`（`.prop-head/.prop-mode/.prop-body`）+ `.tabs` | 浮くのは prop-card 1枚だけ。内部 `.section` は淡色フラット面 |
-| panel-rail（右パネル切替） | `.panel-rail > button(.active)` | icon-btn と同レシピ。active=青リング |
+| panel-rail（右パネル切替） | `.panel-rail > button(.active)` | icon-btn と同レシピ。**active=青リング（ds-components 実値が正 / 2026-07-10 ユーザー確定）**。WS/LA の「白面+ニュートラル枠」再実装は逸脱 → R-3f で正へ寄せる |
 | セクション/詳細 | `.section` + `.section-title` / `.detail-list > .detail-row` | 現場詳細は dl 行形式（3連タイル禁止） |
 | D&D 受け皿 | `.drop-zone(.empty)` / `.drag-pool` | 点線はドラッグ中/ホバー時に強調（常時主張させない） |
 | 絞り込みチップ | `.filter-row > .filter-btn(.active)` | active=濃紺選択ピル |

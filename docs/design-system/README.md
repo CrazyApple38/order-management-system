@@ -14,6 +14,7 @@
 | 種別 | 正本 | 内容 |
 | --- | --- | --- |
 | **トークン値**（色・影・角丸・タイポ） | `docs/mockup/ds-tokens.css` | CSS カスタムプロパティ。**値はここからコピーする。再発明禁止** |
+| **旧トークン名の正準エイリアス** | `docs/mockup/ds-legacy-aliases.css` | co-tokens 撤去画面で共用 CSS が参照する旧トークン名 → 新 DS 値の唯一の対応表（03 §3.3）。**画面 CSS に再導出しない** |
 | **コンポーネント CSS** | `docs/mockup/ds-components.css` | 全コンポーネントのクラス定義（プレビューモックから機械抽出） |
 | **DOM 構造の見本** | `docs/preview/design-refresh-components.html`（37件カタログ）/ `docs/preview/design-refresh-sl-layer-mockup.html`（レイアウト骨格） | 実際に動く見本。**これらのプレビューは参照専用・改変禁止** |
 | **規範・使用ルール・禁止事項** | 本ディレクトリの 01〜04 | 下記の読み順で参照 |
@@ -41,6 +42,7 @@
 
 ## 4. 関連ファイル
 
+- `scripts/design-audit/ds-audit.js` — デザイントークン静的監査（未定義 var() 参照・co/ds 併載・直書き値）。R-3 系作業の完了前に必ず NG=0 を確認（04 §5）
 - `docs/preview/ds-foundation-test.html` — 基盤 CSS 単体読込のスモークテストページ（回帰確認用）
 - `screenshots/ds-foundation-test.png` — スモークテストの合格スクリーンショット（2026-07-03）
 - `docs/plan/design-refresh-plan.md` — デザイン刷新の経緯・診断・判断記録（歴史的経緯の正本）

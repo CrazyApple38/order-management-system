@@ -1,0 +1,86 @@
+/* ============================================================================
+   ds-legacy-aliases.css — 旧 co-tokens.css トークン名の正準エイリアス（新DS読替）
+   ----------------------------------------------------------------------------
+   目的: co-tokens.css を撤去した画面（R-3 移行済み: OB / WS / LA。R-3e 以降 QA も）で、
+   共用 CSS（co-forms / co-buttons / co-modal / co-shared-badges / co-navbar /
+   co-notify-panel / co-company-input）と画面レガシー CSS が参照する旧トークン名を
+   新DS（ds-tokens.css）の値へ一括読替する **唯一の正準対応表**。
+   画面別 *-ds.css に同じエイリアスを再導出・重複定義しないこと
+   （経緯: R-3b/c/d で画面ごとに部分集合を再導出した結果、画面ごとに異なる欠落が発生。
+    2026-07-10 レビューで本ファイルへ統合 — docs/design-system/03 §3.3）。
+
+   読込順: ds-tokens.css → 本ファイル → ds-components.css → co-*.css → 画面CSS。
+   SL は例外: 残置モーダルを旧見た目のまま維持するため ds-tokens-bridge.css
+   （旧 co-tokens 実値のシム）を継続使用し、本ファイルは読み込まない（撤去は R-3f）。
+
+   規則:
+   - 色・意味色は ds-tokens.css のトークン参照（値の再発明禁止）。
+   - スケール系（fs/fw/lh/space/icon）は新DSに該当トークンが無いため、
+     旧 co-tokens.css の実値を転記（発明なし）。ds-tokens への正式昇格はユーザー承認後。
+   - ここに無い旧トークン（--focus-ring / --primary / --secondary / --bg-primary /
+     --bg-secondary / --shadow-strong 等)は旧 co-tokens.css にも定義が無かった既存負債。
+     本ファイルで補わない（解消は R-3f で別途判断）。
+   - --chart-seq-*（LA 暫定・経理Dで正式化）と density 3段（--tbl-row-h 等・OB）は
+     画面固有につき la-ds.css / ob-ds.css 側に置く。
+   ============================================================================ */
+:root {
+    /* ---- テキスト・面・罫線 ---- */
+    --text-primary: var(--ink);
+    --text-secondary: var(--muted);
+    --text-tertiary: var(--muted);
+    --text-disabled: var(--info-border);
+    --bg-page: var(--bg);
+    --bg-surface: var(--panel);
+    --bg-surface-2: var(--info-bg);
+    --bg-surface-3: var(--info-border);
+    --bg-surface-neutral: var(--panel);
+    --bg-surface-neutral-alt: var(--info-bg);
+    --bg-sidebar: var(--blue-dark);
+    --divider: var(--line);
+
+    /* ---- アクセント（旧ティール→青 / 旧テラコッタ→警告橙） ---- */
+    --accent-primary: var(--blue);
+    --accent-primary-light: var(--blue);
+    --accent-primary-dim: var(--blue-soft);
+    --accent-bg: var(--blue-soft);
+    --accent-secondary: var(--alert-text);
+
+    /* ---- 意味色（03 §3.1: 警告=Signal Orange / 正常=緑で主張しない→情報青灰） ---- */
+    --semantic-error: var(--alert-text);
+    --semantic-warning: var(--alert-text);
+    --semantic-warning-bg: var(--alert-bg);
+    --semantic-warning-text: var(--alert-text);
+    --semantic-success: var(--info-text);
+    --semantic-success-text: var(--info-text);
+
+    /* ---- 曜日セル（03 §3.2 確定: 青灰の濃淡のみ・旧桃色面は廃止） ---- */
+    --day-sat: var(--info-bg);
+    --day-sun: var(--blue-soft);
+    --day-sat-head: var(--info-border);
+    --day-sun-head: var(--line);
+    --day-sat-cal: var(--info-bg);
+    --day-sun-cal: var(--blue-soft);
+
+    /* ---- フォント ---- */
+    --font-family-body: var(--font-sans);
+    --font-family-mono: "SF Mono", Consolas, Menlo, monospace;
+
+    /* ---- スケール系（旧 co-tokens.css 実値の転記・発明なし） ---- */
+    --fs-caption: 11px;
+    --fs-sm: 13px;
+    --fs-base: 14px;
+    --fs-md: 16px;
+    --fw-medium: 500;
+    --fw-semibold: 600;
+    --fw-bold: 700;
+    --lh-tight: 1.3;
+    --lh-base: 1.5;
+    --space-2xs: 2px;
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-3xl: 48px;
+    --icon-md: 16px;
+    --icon-lg: 20px;
+}

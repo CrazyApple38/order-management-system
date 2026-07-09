@@ -6,32 +6,9 @@
    ds-tokens.css / ds-components.css は正本のため改変しない。
    ============================================================================ */
 
+/* 旧トークン名→新DSの読替は ds-legacy-aliases.css（正準・重複定義禁止）。
+   ここには OB 画面固有トークンのみ置く。 */
 :root {
-    --bg-page: var(--bg);
-    --bg-surface: var(--panel);
-    --bg-surface-2: var(--info-bg);
-    --bg-surface-3: var(--info-border);
-    --bg-sidebar: var(--blue-dark);
-    --divider: var(--line);
-    --bg-surface-neutral: var(--panel);
-    --bg-surface-neutral-alt: var(--info-bg);
-    --text-primary: var(--ink);
-    --text-secondary: var(--muted);
-    --text-tertiary: var(--muted);
-    --text-disabled: var(--info-border);
-    --accent-primary: var(--blue);
-    --accent-primary-light: var(--blue);
-    --accent-primary-dim: var(--blue-soft);
-    --accent-secondary: var(--accent-orange);
-    --accent-secondary-light: var(--accent-orange-border);
-    --accent-secondary-dim: var(--accent-orange-soft);
-    --semantic-success: var(--info-text);
-    --semantic-success-text: var(--info-text);
-    --semantic-warning: var(--alert-text);
-    --semantic-warning-bg: var(--alert-bg);
-    --semantic-error: var(--alert-text);
-    --font-family-body: var(--font-sans);
-    --font-family-mono: "SF Mono", Consolas, Menlo, monospace;
     /* density 既定 = comfortable（旧 co-tokens.css Phase D3 の実値を移植） */
     --tbl-row-h: 36px;
     --space-row: 8px;
@@ -39,12 +16,6 @@
     --base-grid: var(--panel);
     --base-grid-alt: var(--info-bg);
     --base-grid-total: var(--blue-soft);
-    --day-sat: var(--info-bg);
-    --day-sun: var(--blue-soft);
-    --day-sat-head: var(--info-border);
-    --day-sun-head: var(--line);
-    --day-sat-cal: var(--info-bg);
-    --day-sun-cal: var(--blue-soft);
 }
 
 /* density 3段切替（03 §3.2 確定: 3段維持。値は旧 co-tokens.css の実値 = 発明なし。

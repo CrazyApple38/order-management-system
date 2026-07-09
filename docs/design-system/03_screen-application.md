@@ -1,6 +1,6 @@
 # 03. 画面別適用設計（リファクタリング設計書）
 
-**最終更新**: 2026-07-03
+**最終更新**: 2026-07-10（§3.3 正準エイリアス新設・§3.2 実装確定値・§4 実装確定メモ・監査手順を追記）
 **実施順序の SSOT**: `docs/plan/mockup-refactor-plan.md`（R-3a〜R-3e。本書は「各画面で何をどう変えるか」の設計正本）
 **前提**: R-1（DS 基盤 = ds-tokens.css / ds-components.css / 本文書群）完了済み。
 通知カードの共通コンポーネント化・カテゴリ/対象日改修は **R-2 と同時**（本書では設計のみ示す）。
@@ -57,20 +57,24 @@
   文字での絞り込みは検索カプセル。右プロパティ内のリスト絞り込みは filter-btn。
   OB のフィルタ行トグルと共通ナビの GC フィルタモーダルはツールバー seg へ吸収する
 - **凡例の廃止（ヘルプ集約）** — 常設の凡例面は置かない。必要な画面はツールバー右端のヘルプ icon-btn
-  （title / aria-label 必須）→ 濃紺ポップ/メニューで表示する
+  （title / aria-label 必須）→ 濃紺ポップ/メニューで表示する。
+  **実装状況（2026-07-10）**: 凡例撤去は済んだがヘルプ icon-btn は全画面未実装 → R-3f で一括対応
 - **対象外** — 通知センター / admin-notify は本振り分けの適用対象外（センターは side-nav+リスト+詳細の確立形で、
   詳細パネルが「選択対象の詳細」である点で思想整合済み。3カラム不採用判例を維持）
 
 ## 2. 共通適用手順（1画面 = 1サイクル = 1コミット）
 
-1. **CSS 読替**: `co-tokens.css`（および旧 DS 依存の共通 CSS）を外し、`ds-tokens.css` → `ds-components.css` の順で読込。
+1. **CSS 読替**: `co-tokens.css`（および旧 DS 依存の共通 CSS）を外し、
+   `ds-tokens.css` → **`ds-legacy-aliases.css`（§3.3 正準エイリアス・必須）** → `ds-components.css` の順で読込。
    キャッシュバスター `?v=N` を更新。**旧 co-tokens.css と新 ds-tokens.css の同時読込は禁止**（同名別値トークンあり）
 2. **骨格再構成**: §1 の共通骨格へ再配置（menubar / toolbar / rail / main-card / prop / panel-rail）
 3. **コンポーネント置換**: 画面固有 CSS を ds-components.css のクラスへ置換（§3 対応表）。
    置換しきれない画面固有スタイルは「ds のトークンのみ参照する画面 CSS」として残す（直書き hex 禁止）
 4. **通知組込（R-2 成果物）**: ベル → `.cn-card` スライド表示、項目クリック → 該当セルへスクロール + `.is-selected` + `.cn-flash`
 5. **回帰確認**: cn:jump 着地（スポットライト）/ 「元に戻す・やっぱり反映」/ seed 整合 / 画面固有機能（§4）
-6. **Playwright 検証**: コンソールエラー0・1440px 基準・`screenshots/` へ保存 → コミット
+6. **Playwright 検証**: コンソールエラー0・1440px 基準・`screenshots/` へ保存。
+   **加えて `node scripts/design-audit/ds-audit.js` が NG=0 であること**（未定義トークン参照はコンソールエラーを出さず
+   目視でも見落とすため。経緯: R-3d の太字・意味色無効化、2026-07-10 横断レビューの OB/WS 同型欠落）→ コミット
 
 ## 3. 旧→新 対応表
 
@@ -103,7 +107,28 @@
 | `--day-sat/--day-sun` 系 | WS/OB/LA の曜日別セル色 | **青灰の濃淡のみ**。色相を増やさず、土日祝とも薄青灰の背景濃淡＋ヘッダー文字ウェイトで区別（旧桃色面 `--day-sun` 系は廃止）。具体トークンは R-3b/R-3c 実施時に既存青灰系から選定（新値が必要ならユーザー承認） |
 | density（`--tbl-row-h` 3段切替） | compact/comfortable/spacious | **3段切替を維持**。新 DS へ spacious 相当を追加する（追加自体は承認済み）。具体値は R-3b で OB 実物に当てて確定（値の発明を避ける） |
 | `--duration-*` / `--ease-*` / `--z-*` / `--modal-w-*` | モーション・z 層・モーダル幅 | **ds-tokens.css へ正式移設済み**（2026-07-03。値は不変・名前衝突なし） |
-| `--chart-*` | グラフ配色 | 経理 D 着工時に新 DS 準拠で再定義（据え置き） |
+| `--chart-*` | グラフ配色 | 経理 D 着工時に新 DS 準拠で再定義（据え置き）。**暫定**: LA 年間ヒートマップのみ承認済み青系トークンの濃淡で `la-ds.css` に定義（2026-07-10 ユーザー承認） |
+
+**§3.2 の実装確定（R-3b〜d で確定した値・2026-07-10 追記）**:
+
+- 曜日セル色 = `--day-sat: var(--info-bg)` / `--day-sun: var(--blue-soft)`（+OB 用 `-head/-cal` 派生）。ds-legacy-aliases.css §3.3 に収載
+- density 3段 = compact 28px / comfortable 36px / spacious 44px（`--tbl-row-h`。`--space-row` 4/8/12px・`--fs-density-base` 13/14/15px）。
+  旧 co-tokens 実値の移植（発明なし）・所在は `ob-ds.css`（OB 固有）。ds-tokens.css 正本への昇格はユーザー承認後に別途
+
+### 3.3 正準エイリアス供給（co-tokens 撤去時の必須手順 / 2026-07-10 確定）
+
+**正本 = `docs/mockup/ds-legacy-aliases.css`**（旧 co-tokens トークン名 → 新 DS 値の唯一の対応表）。
+
+- co-tokens.css を撤去する画面は、`ds-tokens.css` の直後に **必ず ds-legacy-aliases.css を読み込む**。
+  共用 CSS（co-forms / co-buttons / co-modal / co-shared-badges / co-navbar / co-notify-panel / co-company-input）と
+  画面レガシー CSS が旧トークン名を参照し続けるため、供給が無いと**コンソールエラー 0 のまま**余白・太字・意味色が無効化する
+- **画面別 *-ds.css に同じエイリアスを再導出・重複定義しない**（R-3b/c/d で画面ごとに部分集合を再導出した結果、
+  画面ごとに異なる欠落が発生した反省。2026-07-10 に本ファイルへ統合済み）
+- 画面固有トークン（OB: density 3段・`--base-grid*` / LA: `--chart-seq-*` 暫定）だけを *-ds.css に置く
+- **SL は例外**: 残置モーダルを旧見た目のまま維持するため `ds-tokens-bridge.css`（旧 co-tokens **実値**のシム）を継続使用。
+  bridge → ds-legacy-aliases への切替（=残置モーダルの新 DS 化）は R-3f
+- 旧 co-tokens.css にも定義が無かった既存負債（`--focus-ring` / `--primary` / `--secondary` / `--bg-primary` /
+  `--bg-secondary` / `--shadow-strong`）は本ファイルで補わない。解消は R-3f（監査スクリプトの ALLOWLIST と同期）
 
 ## 4. 画面別設計
 
@@ -116,6 +141,8 @@
 - 夜間行: `.night-text` を行内の文字系要素へ。警告は `.warn-icon`/`.person-warn` に集約
 - **着手前の前提**（mockup-refactor-plan §5): 右プロパティ4モードの情報粒度確認。所属カラーは淡パステル8色パレットで確定済み
 - 固有注意: 配置 D&D・区分円 GC 色（belong 連動）・`smCategoryClassMap`/`smShiftClassMap` の命名維持
+- **実装確定（R-3a 完了・2026-07-10 追記）**: CSS は `ds-tokens-bridge.css` + `sl-ds.css` 構成（§3.3 の例外）。
+  9モーダルは旧見た目のまま残置 → 残置モーダルの新 DS 化と bridge 撤去は R-3f
 
 ### R-3b OB `order-book.html`
 
@@ -163,6 +190,10 @@
 | 週・日ナビ / 今日 | ツールバーの期間ナビ |
 | GC フィルタ（共通ナビのモーダル） | ツールバー seg（`data-multi`）へ吸収 |
 
+- **実装確定（R-3c-3・2026-07-10 追記）**: WS は専用「変更履歴」panel-rail モードを持たず、
+  ①選択セルモードの下部に履歴セクション（`wsRenderHistorySection`）を埋め込む
+  （選択セルあり = siteId+日付でフィルタ / 未選択 = 画面全体の直近）。panel-rail は上記4モードのまま
+
 ### R-3d LA `leave-application.html`
 
 - 中央: 月カレンダー（+週間/年間ビュー）。承認状態は意味色体系（承認待ち=情報青灰 / 要対応=警告橙 / 承認済み=ニュートラル）
@@ -186,6 +217,10 @@
 | 月次集計・CSV 出力モーダル | モーダル維持（出力系 = D-01 用途） |
 | 下部固定の凡例（休暇/車両） | 廃止 — ツールバー右端のヘルプ icon-btn に集約（§1.1 横断ルール） |
 | 圧縮表示トグル | ツールバーの表示トグル |
+
+- **実装確定（R-3d・2026-07-10 追記）**: ロール切替（本人/DCP/管理）は、受け皿のユーザーチップメニュー
+  （menu-user）が共有ナビに未実装のため**ツールバー据置**（2026-07-10 ユーザー判断）。移設は R-3f
+  （menu-user チップ導入と同時）。`--chart-seq-*` は暫定青系（§3.2）
 
 ### R-3e QA `quick-access.html`
 
@@ -219,4 +254,5 @@
 - 色の意味が 01 §3 の表で説明できる（説明できない色が残っていない）
 - 既存の高密度業務操作・一覧性・既存機能（§4 固有機能）を損なわない
 - 直書き hex が残っていない（ds-tokens のトークン参照のみ）
+- `node scripts/design-audit/ds-audit.js` が NG=0（未定義トークン参照・co/ds 併載の機械検査）
 - Playwright: コンソールエラー0 + スクリーンショット保存 + 1画面1コミット

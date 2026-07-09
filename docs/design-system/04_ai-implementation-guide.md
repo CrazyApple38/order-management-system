@@ -1,6 +1,6 @@
 # 04. AI 実装ガイド（エージェント非依存プロトコル）
 
-**最終更新**: 2026-07-03
+**最終更新**: 2026-07-10（監査スクリプト・computed style 検証・正準エイリアス規則を追記）
 **対象**: 本プロジェクトで実装を行うすべての AI エージェント（Claude Code / Codex / Gemini ほか）と人間。
 **目的**: 実装者が変わってもデザインが 1px 単位でブレないための手順・規則・自己検査。
 
@@ -44,6 +44,9 @@
 - **レイアウトを組む** → SL 層モックの該当部位（02 §6 の表）から DOM をコピー
 - **画面固有スタイルが必要** → 「ds-tokens のトークンのみを参照する画面 CSS」として画面ファイル側に書く。
   ds-components.css には画面固有スタイルを足さない
+- **co-tokens.css を撤去する画面** → `ds-tokens.css` の直後に **`ds-legacy-aliases.css`（正準エイリアス）** を読み込む。
+  旧トークン名のエイリアスを画面 CSS に自前で再導出・重複定義しない（03 §3.3。
+  画面固有の density / chart-seq 等のみ *-ds.css 側）。SL のみ例外で `ds-tokens-bridge.css` を継続（R-3f まで）
 - **JS の挙動** → 見た目に関わる状態クラス（`.active` / `.is-selected` / `.open` / `.cn-flash` 等）の
   付け外しだけで表現し、インライン style での色・影の直接操作をしない
 
@@ -64,17 +67,26 @@
 - [ ] icon-only ボタンに title / aria-label がある
 - [ ] 絵文字・Unicode 記号アイコンを使っていない
 - [ ] 旧 `co-tokens.css` と新 `ds-tokens.css` を同一ページで併載していない
+- [ ] `node scripts/design-audit/ds-audit.js` が **NG=0**（未定義 var() 参照・併載・直書き値の機械検査）
 - [ ] script 読込順・cnJump・スポットライト着地など SHARED-MEMORY の禁止事項に触れていない
 
 ## 5. 検証手順（Playwright）
 
-1. `http://localhost/order-management-system/...` で対象画面を開く（XAMPP。file:// は fetch 系が動かない点に注意）
-2. コンソールメッセージ 0（エラー・警告とも）を確認
-3. 1440px 幅基準でフルページスクリーンショットを **`screenshots/`** ディレクトリへ保存
+1. **静的監査**: `node scripts/design-audit/ds-audit.js` → **NG=0** を確認。
+   CSS カスタムプロパティの未定義参照は**コンソールエラーを出さずに黙って無効化**する
+   （経緯: R-3d で太字・意味色が無効化したままコンソール 0 で完了扱いになり、
+   2026-07-10 の横断レビューで OB/WS にも同型欠落が発覚）。コンソール確認だけでは検出できない
+2. `http://localhost/order-management-system/...` で対象画面を開く（XAMPP。file:// は fetch 系が動かない点に注意）。
+   **HTML 自体はキャッシュバスターが付かないため、再検証時は `?cachebust=N` 等を URL に付けて旧 HTML の再利用を防ぐ**
+3. コンソールメッセージ 0（エラー・警告とも）を確認
+4. **computed style 実測**: 変更したトークン・スタイルの効き先を `getComputedStyle` で実測する
+   （例: font-weight が 600 か、padding が 0 に潰れていないか、意味色が透明化していないか）。
+   目視スクリーンショットは「崩れて見えない崩れ」（ウェイト・数 px の余白）を拾えない
+5. 1440px 幅基準でフルページスクリーンショットを **`screenshots/`** ディレクトリへ保存
    （プロジェクトルート直下に PNG を散らかさない — 保存先規約）
-4. 基盤 CSS 自体を変更した場合は `docs/preview/ds-foundation-test.html` も再確認
+6. 基盤 CSS 自体を変更した場合は `docs/preview/ds-foundation-test.html` も再確認
    （合格基準: `screenshots/ds-foundation-test.png` と同等の描画・コンソール 0）
-5. 変更した HTML の `<link>`/`<script>` キャッシュバスター `?v=N` を更新したか確認
+7. 変更した HTML の `<link>`/`<script>` キャッシュバスター `?v=N` を更新したか確認
 
 ## 6. 作業終了プロトコル
 

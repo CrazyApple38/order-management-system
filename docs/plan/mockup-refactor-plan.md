@@ -1,7 +1,7 @@
 # モックアップ リファクタ統合計画（新DS適用 × 通知簡素化）
 
 **最終更新**: 2026-07-10
-**ステータス**: R-2 完了（2026-07-05）/ R-3a 完了（2026-07-07）/ R-3b OB 完了（2026-07-08）/ R-3c WS 完了（2026-07-08）/ **R-3d LA 完了（2026-07-10・runtime検証済）→ 次は R-3e QA**
+**ステータス**: R-2 完了（2026-07-05）/ R-3a〜R-3d 完了（〜2026-07-10）/ **横断レビュー+エイリアス補修 完了（2026-07-10・R-3f 新設）→ 次は R-3e QA、その後 R-3f**
 **対象**: 本番モックアップ全画面（OB / SL / WS / LA / QA）+ 共通基盤（co-*）+ admin-notify + 通知センター
 **起点**: 2026-06-12 ユーザー指示「通知カテゴリ再定義のモック修正は、デザイン大幅変更やその他変更と合わせて一括で行う」
 
@@ -118,6 +118,28 @@
 - **確定事項**: 配色＝現行DS（`ds-tokens`/`ds-components`）そのまま（**§5 フォールバック採用・色テーマ変動は後回し** 2026-07-06）／ 右プロパティ＝4モード（現場詳細/社員配置/車両・ETC/変更履歴）／ 左 `minimap`「配置状況」＝**総数はツールバー stat-strip へ・行ジャンプ一覧は撤去**（中央7列表が全行＋不足バッジで代替）／ ベルは rail（03 §1）。
 - **後回しの参考物**: 色テーマ変動の比較ツール `docs/preview/design-refresh-theme-palettes.html`（リポジトリ保持。10候補＋現行Calm Operations を低彩度パレット化しSLライブ切替、意味色・所属色は固定）。
 
+### R-3f 横断クリーンアップ（R-3e 完了後・R-4 の前 / 2026-07-10 新設・ユーザー承認）
+
+2026-07-10 の横断デザインレビュー（実装 vs DS 正本の全照合 + runtime 検証）で確定した残課題を一括処理する。
+HANDOFF に散在していた「R-3 全体完了後の横断レビュー」項目の正式フェーズ化。
+**先行対応済み（同日）**: 旧トークン欠落の補修 = `ds-legacy-aliases.css` 新設（03 §3.3）+ 監査スクリプト
+`scripts/design-audit/ds-audit.js` 配備（OB のフォーム余白 0 化・ボタン太字 400 化等の実害を解消済み）。
+
+| # | 項目 | 内容 |
+| --- | --- | --- |
+| 1 | `.btn` 系の新旧統一 | ds-components（A-01）と旧 co-buttons が**同名別レシピ**で衝突し旧が勝つ。残置モーダルのボタンを DS クラスへ置換し co-buttons/co-forms/co-shared-badges の依存を解消 → 撤去。旧 CSS 内の廃止ティール `#0a9db0`（btn-primary:active）もこれで消える |
+| 2 | panel-rail active の統一 | 正 = ds-components の青リング（02 §6 / 2026-07-10 確定）。WS/LA の白面+ニュートラル枠再実装を正へ寄せる |
+| 3 | 既存負債トークンの解消 | `--focus-ring`（**全画面でキーボードフォーカスリング無効 = a11y**）/ `--primary` / `--secondary` / `--bg-primary` / `--bg-secondary` / `--shadow-strong`。旧 co-tokens 時代から未定義。定義追加（値はユーザー承認）or 参照側を DS トークンへ書換。監査 ALLOWLIST と同期して解消 |
+| 4 | 死に CSS 撤去 | `.md-nav-cn-*`（旧通知ドロップ）/ `.cn-icon.type-*`（旧 .cn-panel。**QA 分は R-3e 後に判断**）/ `.bt-*` チップ系 等。現行 JS が生成しないことを確認済み |
+| 5 | 直書き値の残り | `ws-ds.css`（レール右罫線 rgba(0,0,0,0.15)・radius:3px）/ `la-ds.css`（レール内 seg の白黒アルファ・radius calc-2px）→ トークン化 or 承認（監査 WARN 9件） |
+| 6 | menu-user チップ導入 | `.menu-user` を共有 co-navbar へ導入（全画面）。LA ロール切替のチップメニュー移設も同時（03 §4 R-3d 実装確定メモ） |
+| 7 | ヘルプ icon-btn | 凡例廃止の受け皿（03 §1.1）を全画面へ |
+| 8 | SL bridge 撤去 | SL 残置9モーダルの新 DS 化 → `ds-tokens-bridge.css`+旧依存 CSS を読込チェーンから外す |
+| 9 | cn-card 内蔵ブロック | `co-notify-panel.css` の `--cn-*` DS 値内蔵を ds-tokens 参照へ差替（QA が ds-tokens を読むようになってから = R-3e 後） |
+| 10 | ダークテーマの扱い | 共有ナビ `mdNavThemeBtn` + `weekly-schedule.css` [data-theme=dark] が残存。新 DS はライトのみでダーク時は混在描画。廃止 or 正式対応をユーザー判断 |
+| 11 | 確認: LA 月間ビューの土日祝の日付文字色 | 赤系表示が §3.2「青灰の濃淡+ウェイト」方針と整合するか確認（慣習表示として維持の可能性あり） |
+| 12 | 画面間の余白・密度・直書き hex 横断確認 | 従来 HANDOFF 記載分。監査 WARN と合わせて棚卸し |
+
 ### R-4 通知センター改修（プレビュー）
 
 - スレッド/確認依頼/解消記録 UI を撤去し、詳細パネルを「変更内容 + 情報経路 + 現場画面で開く」中心へ
@@ -153,6 +175,7 @@
 | R-1 DS基盤統合 | 完了 | 2026-07-03 | 2026-07-03 | ds-tokens/ds-components.css 新設 + docs/design-system/ 5冊 + スモークテスト合格。方式変更はユーザー追認済み（2026-07-03） |
 | R-2 通知データモデル改修 | 完了 | 2026-07-04 | 2026-07-05 | 統合ベル1個+cn-card / カテゴリ=エンティティ導出 / 配置サブタグ / targetDate日別グルーピング / 履歴・検索撤去 / センター導線。実装=co-notify-panel.js(v39)・css(v18)・co-navbar.js(v22)。**runtime検証済**(OB/SL/WS/LA/QA/admin-notify: コンソール0=R-2起因エラーなし・cn-card DS準拠・全4カテゴリ+サブタグ+対象日・フィルタ・cn:jump着地・OB復旧トグル・QA旧.cn-panel全てOK)。**enhancement 完了**: OB=obCnSelfNotify に明示 targetDate(表示月+day, v19) / WS=wsCnSelfNotify に明示 subTag(車両/応援の導出取りこぼしを補正)+targetDate(v19)。admin-notify は notify-compare.js が既に4分類+旧キー互換のため表示確認のみで完了（ユーザー承認 2026-07-05）。既知の別件: shield.svg 404（R-2無関係・SHARED-MEMORY記録） |
 | R-3a〜e 画面別適用 | R-3a/R-3b/R-3c/R-3d 完了 / 次は R-3e QA | 2026-07-06 | — | **R-3a 完了（SL・runtime検証済 2026-07-06〜07）**: 骨格再構成＋CSS読替＋中央表7列化＋右プロパティ4モード＋通知rail cn-card。スクショ `screenshots/r3a*.png`。**R-3b 完了（OB・runtime検証済 2026-07-08）**: 骨格＋右プロパティ3モード＋seg フィルタ（チェックポイント 9a2c8ae）に加え、**①行カレンダーを中央ビュー切替化**（カレンダー入力モーダル廃止・月ナビ/undo redo をツールバー共通へ一本化・編集は右プロパティ詳細ドック）**②連携・所在パネル実配線**（請求先/地図URL集約+288px内 iframe プレビュー/SL現場逆引き）**③変更履歴パネル実配線**（getItems('all') 行フィルタ+cn:jump 委譲）**④夜間色を `--night-text`(#d14d41) へ分離+死にCSS削除**（.md-ob-filter-*・カレンダーモーダルchrome）。スクショ `screenshots/r3b-ob-cal-view.png` / `r3b-ob-linkage.png` / `r3b-ob-history.png`。**R-3c 完了（WS・runtime検証済 2026-07-08）**: R-3c-1骨格＋R-3c-2a panel-rail4モード＋R-3c-2b応援予約モーダル→ドック転換に加え、**R-3c-3 通知rail cn-card＋履歴配線**（統合ベルDOMを`.rail`へ移設／①選択セルモードに`wsRenderHistorySection`で変更履歴を埋め込み・選択時はsiteId+日付でフィルタ）。**R-3d 完了（LA・runtime検証済 2026-07-10）**: `co-tokens.css`を撤去し、`ds-tokens.css`/`ds-components.css`/`la-ds.css`へ読替。骨格を `toolbar / workspace(rail｜main-card｜prop｜panel-rail)` 化し、左レール=休暇/車両作業面+統合ベル、右プロパティ=ミニカレンダー常設+詳細/リスト/要対応の3モードへ統合。休暇詳細ポップオーバー・車両マスタ編集をドックへ転換し、通知の休暇target着地時は車両作業面から休暇面へ戻す。スクショ `screenshots/r3d-la-initial.png` / `r3d-la-detail-dock-settled.png` / `r3d-la-vehicle-dock.png`。**次=R-3e QA**。 |
+| R-3f 横断クリーンアップ | 未着手（項目確定済み） | — | — | 2026-07-10 横断レビューで新設（§4 R-3f 表）。**先行対応済み**: 旧トークン欠落補修 = `ds-legacy-aliases.css` 新設（OB/WS/LA 読込・SL は bridge 継続）+ `scripts/design-audit/ds-audit.js` 配備（NG=0 確認済み・WARN 9件は R-3f #5）。runtime 再検証: OB `.btn` fw600 / `.md-fi-*` 余白復旧・WS/LA 全トークン解決・R-3d 修正維持・コンソール0。スクショ `screenshots/r3f0-{ob,ws,la}-alias-fix.png` |
 | R-4 センター改修 | 未着手 | — | — | |
 | R-5 DB設計追補 | 未着手 | — | — | |
 | R-6 結合検証 | 未着手 | — | — | |
