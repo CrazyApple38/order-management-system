@@ -134,6 +134,7 @@
     var sidebarMode = 'emp'; // 'emp' | 'alerts' — 縦タブで切替
     var sidebarCollapsed = false;
     var sidebarActiveTab = 'all'; // 'all' | 'touo' | 'nikkei' | 'zennihon' | 'dueSoon'
+    var laPropMode = 'list'; // 'detail' | 'list' | 'alerts'
     var gcFilter = { touo: true, nikkei: true, zennihon: true };
     var compactMode = false;
     var searchQuery = '';
@@ -1489,6 +1490,8 @@
         var leaveId = target.value;
         var lv = laLeaves.find(function (x) { return String(x.id) === String(leaveId); });
         if (!lv) return;
+        // 通知の対象は休暇レコード。車両作業面のままでは対象バッジを解決できない。
+        if (currentMode !== 'leave') vsSwitchMode('leave');
         // 月間ビュー切替 + 月遷移
         var dd = parseDate(lv.date);
         var needsRender = (
@@ -1644,6 +1647,54 @@
     // サイドパネル
     // ==========================================================
 
+    function laSetPropMode(mode) {
+        if (['detail', 'list', 'alerts'].indexOf(mode) === -1) return;
+        laPropMode = mode;
+        var app = document.getElementById('laContainer');
+        if (app) app.classList.toggle('is-prop-detail', mode === 'detail');
+        document.querySelectorAll('.panel-rail [data-prop]').forEach(function (button) {
+            button.classList.toggle('active', button.dataset.prop === mode);
+        });
+        if (mode === 'alerts') {
+            sidebarMode = 'alerts';
+            sidebarActiveTab = 'alerts';
+        } else if (mode === 'list' && sidebarMode === 'alerts') {
+            sidebarMode = 'emp';
+            sidebarActiveTab = 'all';
+        }
+        if (mode !== 'detail') renderSidebar();
+    }
+
+    function laRenderPropGcFilters() {
+        var root = document.getElementById('laPropGcFilters');
+        if (!root) return;
+        root.innerHTML = '';
+        if (laPropMode === 'alerts') {
+            root.style.display = 'none';
+            return;
+        }
+        root.style.display = '';
+        var options = [
+            { id: 'all', label: 'すべて' },
+            { id: 'touo', label: '東央' },
+            { id: 'nikkei', label: 'Nikkei' },
+            { id: 'zennihon', label: '全日本' }
+        ];
+        options.forEach(function (option) {
+            var button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'filter-btn' + (sidebarActiveTab === option.id ? ' is-active' : '');
+            button.textContent = option.label;
+            button.addEventListener('click', function () {
+                sidebarMode = 'emp';
+                sidebarActiveTab = option.id;
+                renderSidebar();
+                if (currentMode === 'vehicle' && currentView === 'month') renderCalendar();
+            });
+            root.appendChild(button);
+        });
+    }
+
     function renderSidebar() {
         var body = document.getElementById('laSidebarBody');
         var title = document.getElementById('laSidebarTitle');
@@ -1651,11 +1702,24 @@
         var search = document.querySelector('.md-la-sidebar-search');
         if (!body) return;
         body.innerHTML = '';
+        laRenderPropGcFilters();
         body.classList.toggle('mode-emp',    sidebarMode === 'emp' && currentMode === 'leave');
         body.classList.toggle('mode-alerts', sidebarMode === 'alerts');
         body.classList.toggle('mode-vehicle', currentMode === 'vehicle');
 
-        if (currentMode === 'vehicle') {
+        if (laPropMode === 'alerts') {
+            if (title) title.textContent = currentMode === 'vehicle' ? '要対応' : '要対応';
+            if (search) search.classList.add('md-la-hidden');
+            if (currentMode === 'vehicle') {
+                sidebarMode = 'emp';
+                sidebarActiveTab = 'dueSoon';
+                vsRenderVehicleList(body, count);
+            } else {
+                sidebarMode = 'alerts';
+                sidebarActiveTab = 'alerts';
+                renderAlertList(body, count);
+            }
+        } else if (currentMode === 'vehicle') {
             if (title) title.textContent = '車両';
             if (search) {
                 search.classList.remove('md-la-hidden');
@@ -2327,14 +2391,17 @@
             date: lv.date
         };
         var popover = buildPopoverEl();
-        document.body.appendChild(popover);
-        positionPopover(popover, anchorEl);
-
-        // 外部クリック・ESC で閉じる (次のティックから有効化して自身のクリックで閉じないように)
-        setTimeout(function () {
+        var dock = document.getElementById('laPropDock');
+        laSetPropMode('detail');
+        if (dock) {
+            dock.innerHTML = '';
+            dock.appendChild(popover);
+        } else {
+            document.body.appendChild(popover);
+            positionPopover(popover, anchorEl);
             document.addEventListener('mousedown', onOutsideMousedown);
-            document.addEventListener('keydown', onPopoverKeydown);
-        }, 0);
+        }
+        document.addEventListener('keydown', onPopoverKeydown);
     }
 
     function buildPopoverEl() {
@@ -2898,12 +2965,19 @@
     function vsSwitchMode(mode) {
         if (mode !== 'leave' && mode !== 'vehicle') return;
         if (currentMode === mode) return;
+        // 作業面を跨いで詳細フォームを残すと、休暇と車両の編集文脈が混在する。
+        if (laPropMode === 'detail') {
+            laClosePopover();
+            laSetPropMode('list');
+        }
         currentMode = mode;
         var container = document.getElementById('laContainer');
         if (container) {
             container.classList.toggle('is-mode-leave',   mode === 'leave');
             container.classList.toggle('is-mode-vehicle', mode === 'vehicle');
         }
+        var mainTitle = document.getElementById('laMainTitle');
+        if (mainTitle) mainTitle.textContent = mode === 'vehicle' ? '車両スケジュール' : '休暇カレンダー';
         // 年間ビュー表示中にモード切替したら月間に戻す
         if (currentView === 'year') {
             currentView = 'month';
@@ -3354,7 +3428,60 @@
     // ==========================================================
     // 車両マスタ編集モーダル
     // ==========================================================
+    function vsOpenMasterDock(vehicleId) {
+        var isNew = !vehicleId;
+        var vehicle = isNew
+            ? { id: 'v-new-' + (vsNextVehicleId++), numberPlate: '', plate: '', numberLast4: '', vehicleName: '', model: '', owner: 'touo', nextShakenDate: '', nextInspectionDate: '' }
+            : Object.assign({}, vsVehicles.find(function (x) { return x.id === vehicleId; }));
+        var dock = document.getElementById('laPropDock');
+        if (!vehicle || !dock) return false;
+
+        laSetPropMode('detail');
+        dock.innerHTML =
+            '<div class="md-la-popover md-vs-master-dock">' +
+                '<div class="md-la-popover-header"><span class="md-la-popover-title">' + (isNew ? '車両を追加' : '車両情報を編集') + '</span></div>' +
+                '<div class="md-la-popover-body"><div class="md-vs-master-form">' +
+                    '<label>ナンバープレート</label><input type="text" name="numberPlate" placeholder="品川 500 あ 12-34" value="' + (vehicle.numberPlate || '') + '">' +
+                    '<label>下4桁 (表示用)</label><input type="text" name="numberLast4" maxlength="6" value="' + (vehicle.numberLast4 || vsGetLast4(vehicle)) + '">' +
+                    '<label>車種・車名</label><input type="text" name="vehicleName" placeholder="ハイエース" value="' + (vehicle.vehicleName || vehicle.model || '') + '">' +
+                    '<label>所属会社</label><select name="owner">' +
+                        '<option value="touo"' + (vehicle.owner === 'touo' ? ' selected' : '') + '>東央警備</option>' +
+                        '<option value="nikkei"' + (vehicle.owner === 'nikkei' ? ' selected' : '') + '>Nikkei</option>' +
+                        '<option value="zennihon"' + (vehicle.owner === 'zennihon' ? ' selected' : '') + '>全日本</option>' +
+                    '</select><label>次回車検期限</label><input type="date" name="nextShakenDate" value="' + (vehicle.nextShakenDate || '') + '">' +
+                    '<label>次回点検期限</label><input type="date" name="nextInspectionDate" value="' + (vehicle.nextInspectionDate || '') + '">' +
+                '</div></div>' +
+                '<div class="md-la-popover-footer">' +
+                    (isNew ? '' : '<button type="button" class="md-la-btn is-danger" data-action="delete">削除</button>') +
+                    '<div class="md-la-footer-spacer"></div><button type="button" class="md-la-btn" data-action="cancel">キャンセル</button><button type="button" class="md-la-btn is-primary" data-action="save">保存</button>' +
+                '</div>' +
+            '</div>';
+        var form = dock.querySelector('.md-vs-master-dock');
+        var close = function () { laSetPropMode('list'); };
+        form.querySelector('[data-action="cancel"]').addEventListener('click', close);
+        form.querySelector('[data-action="save"]').addEventListener('click', function () {
+            var value = function (name) { return form.querySelector('[name="' + name + '"]').value.trim(); };
+            var payload = {
+                numberPlate: value('numberPlate'), numberLast4: value('numberLast4'), vehicleName: value('vehicleName'), model: value('vehicleName'),
+                owner: value('owner'), nextShakenDate: value('nextShakenDate'), nextInspectionDate: value('nextInspectionDate')
+            };
+            if (!payload.numberPlate || !payload.vehicleName) { alert('ナンバープレートと車種・車名は必須です'); return; }
+            if (isNew) { payload.id = vehicle.id; payload.plate = payload.numberLast4 || payload.numberPlate; vsVehicles.push(payload); }
+            else { var original = vsVehicles.find(function (x) { return x.id === vehicleId; }); if (original) Object.assign(original, payload); }
+            close(); render();
+        });
+        var remove = form.querySelector('[data-action="delete"]');
+        if (remove) remove.addEventListener('click', function () {
+            if (!confirm('この車両を削除します。関連スケジュールも削除されます。よろしいですか?')) return;
+            vsVehicles = vsVehicles.filter(function (x) { return x.id !== vehicleId; });
+            vsSchedules = vsSchedules.filter(function (schedule) { return schedule.vehicleId !== vehicleId; });
+            close(); render();
+        });
+        return true;
+    }
+
     function vsOpenMasterModal(vehicleId) {
+        if (vsOpenMasterDock(vehicleId)) return;
         var isNew = !vehicleId;
         var v = isNew
             ? { id: 'v-new-' + (vsNextVehicleId++), numberPlate: '', plate: '', numberLast4: '', vehicleName: '', model: '', owner: 'touo', nextShakenDate: '', nextInspectionDate: '' }
@@ -3502,6 +3629,14 @@
                 selectSidebarTab(el.dataset.tab);
             });
         });
+
+        // R-3d: 右プロパティ（詳細 / リスト / 要対応）と左レールへ集約。
+        document.querySelectorAll('.panel-rail [data-prop]').forEach(function (button) {
+            button.addEventListener('click', function () { laSetPropMode(button.dataset.prop); });
+        });
+        var notifyBells = document.getElementById('mdNavCnBells');
+        var rail = document.querySelector('.la-workspace .rail');
+        if (notifyBells && rail) rail.appendChild(notifyBells);
 
         // 折畳トグル
         var collapseBtn = document.getElementById('laSidebarToggle');

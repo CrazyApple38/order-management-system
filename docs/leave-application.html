@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>休暇申請管理 - 受注管理システム</title>
-    <link rel="stylesheet" href="mockup/co-tokens.css">
+    <link rel="stylesheet" href="mockup/ds-tokens.css">
+    <link rel="stylesheet" href="mockup/ds-components.css">
     <link rel="stylesheet" href="mockup/co-forms.css">
     <link rel="stylesheet" href="mockup/co-buttons.css">
     <link rel="stylesheet" href="mockup/co-modal.css">
@@ -12,6 +13,7 @@
     <link rel="stylesheet" href="mockup/co-navbar.css?v=4">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=18">
     <link rel="stylesheet" href="mockup/leave-application.css?v=31">
+    <link rel="stylesheet" href="mockup/la-ds.css?v=1">
 </head>
 <body>
     <!-- SVG icon sprite (CLAUDE.md アイコン運用ルール準拠) -->
@@ -50,43 +52,55 @@
 
     <!-- co-navbar.js が自動挿入 -->
 
-    <div class="md-la-container is-mode-leave" id="laContainer">
-        <!-- ヘッダー -->
-        <div class="md-la-header">
-            <!-- 月見出し (Google型 大きめ・軽量フォント) -->
-            <span class="md-la-month-label-lg" id="laMonthLabel">2026年5月</span>
-
-            <!-- 旧ナビ (ボタン本体は左サイドバー / ミニカレンダーへ移動。ID 互換のため hidden 保持) -->
-            <button class="md-la-nav-btn md-la-hidden" id="laPrevBtn" title="前月" aria-hidden="true">◀</button>
-            <button class="md-la-nav-btn md-la-hidden" id="laNextBtn" title="翌月" aria-hidden="true">▶</button>
-
-            <div class="md-la-header-spacer"></div>
-
-            <!-- アクション -->
-            <div class="md-la-header-actions">
-                <button class="md-la-header-action" onclick="OmsMockStore.resetAndReload()" title="共通ダミーデータを初期状態に戻す">データリセット</button>
-                <button class="md-la-header-action" id="laCompactBtn" title="イニシャル圧縮表示">圧縮</button>
-                <button class="md-la-header-action" id="laReportBtn" title="月次集計・CSV出力">集計</button>
+    <div class="la-app md-la-container is-mode-leave" id="laContainer">
+        <div class="toolbar" aria-label="休暇申請管理ツールバー">
+            <span class="la-toolbar-title">休暇申請管理</span>
+            <div class="seg la-view-tabs" role="tablist" aria-label="ビュー切替">
+                <button type="button" role="tab" class="md-la-view-tab is-active" data-view="month" aria-selected="true">月間</button>
+                <button type="button" role="tab" class="md-la-view-tab" data-view="week" aria-selected="false">週間</button>
+                <button type="button" role="tab" class="md-la-view-tab" data-view="year" aria-selected="false">年間</button>
             </div>
+            <div class="la-period-nav">
+                <button type="button" class="icon-btn" id="laPrevBtn" title="前の期間" aria-label="前の期間">‹</button>
+                <span class="md-la-month-label-lg" id="laMonthLabel">2026年5月</span>
+                <button type="button" class="icon-btn" id="laNextBtn" title="次の期間" aria-label="次の期間">›</button>
+                <button type="button" class="tool-btn" id="laTodayBtn">今日</button>
+            </div>
+            <div class="toolbar-spacer"></div>
+            <div class="la-role-switcher is-mode-leave-only" id="laRoleSwitcher" role="group" aria-label="モック用ロール切替">
+                <button type="button" class="md-la-role-btn" data-role="self">本人</button>
+                <button type="button" class="md-la-role-btn is-active" data-role="dcp">DCP</button>
+                <button type="button" class="md-la-role-btn" data-role="admin">管理</button>
+            </div>
+            <button type="button" class="tool-btn primary" id="laNewBtn"><svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg>新規申請</button>
+            <button type="button" class="tool-btn" id="laCompactBtn" title="イニシャル圧縮表示">圧縮</button>
+            <button type="button" class="tool-btn" id="laReportBtn" title="月次集計・CSV出力">集計</button>
+            <button type="button" class="tool-btn" onclick="OmsMockStore.resetAndReload()" title="共通ダミーデータを初期状態に戻す">リセット</button>
         </div>
 
-        <!-- メインエリア -->
-        <div class="md-la-main">
-            <!-- 左サイドバー: モード切替 / 新規申請 / 今日 / ミニカレンダー / ビュー切替 -->
-            <aside class="md-la-mini-sidebar" id="laMiniSidebar">
-                <!-- モード切替セグメント (休暇申請 / 車両スケジュール) -->
-                <div class="md-la-mode-seg" role="tablist" aria-label="画面モード切替">
-                    <button type="button" class="md-la-mode-seg-btn is-active" data-mode="leave" role="tab" aria-selected="true">休暇申請</button>
-                    <button type="button" class="md-la-mode-seg-btn" data-mode="vehicle" role="tab" aria-selected="false">車両スケジュール</button>
+        <div class="workspace la-workspace">
+            <aside class="rail" aria-label="休暇申請管理レール">
+                <div class="md-la-mode-seg" role="tablist" aria-label="作業面切替">
+                    <button type="button" class="md-la-mode-seg-btn is-active" data-mode="leave" role="tab" aria-selected="true">休暇</button>
+                    <button type="button" class="md-la-mode-seg-btn" data-mode="vehicle" role="tab" aria-selected="false">車両</button>
                 </div>
-                <!-- 新規申請 (メインアクション / Google Cal の Create 相当) -->
-                <button type="button" class="md-la-create-btn" id="laNewBtn" title="新規申請">
-                    <svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-plus"/></svg>
-                    <span>新規申請</span>
-                </button>
-                <!-- 今日 (ミニカレンダーの上) -->
-                <button type="button" class="md-la-today-btn-side" id="laTodayBtn">今日</button>
-                <!-- ミニカレンダー -->
+            </aside>
+
+            <section class="main" aria-label="カレンダー">
+                <div class="main-card">
+                    <div class="main-head"><span class="main-title" id="laMainTitle">休暇カレンダー</span><span class="main-hint">申請を選択すると詳細を右プロパティに表示します。</span></div>
+                    <div class="md-la-calendar-wrapper">
+                        <div class="md-la-calendar" id="laCalendar"></div>
+                        <div class="md-la-week md-la-hidden" id="laWeek"><div class="md-la-week-grid" id="laWeekGrid"></div></div>
+                        <div class="md-la-year md-la-hidden" id="laYear"></div>
+                        <div class="md-la-year-tooltip" id="laYearTooltip" role="tooltip" hidden></div>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="prop" aria-label="休暇申請管理右プロパティ">
+                <div class="prop-card">
+                    <div class="md-la-mini-sidebar" id="laMiniSidebar">
                 <div class="md-la-mini-cal" id="laMiniCal">
                     <div class="md-la-mini-cal-header">
                         <button type="button" class="md-la-mini-cal-nav" id="laMiniPrev" aria-label="前月">
@@ -101,60 +115,9 @@
                         <!-- JS で描画 -->
                     </div>
                 </div>
-                <!-- ビュー切替 (月間/週間/年間 トグルグループ) -->
-                <div class="md-la-view-tabs" role="tablist" aria-label="ビュー切替">
-                    <button type="button" role="tab" class="md-la-view-tab is-active" data-view="month" aria-selected="true">月間</button>
-                    <button type="button" role="tab" class="md-la-view-tab" data-view="week" aria-selected="false" hidden>週間</button>
-                    <button type="button" role="tab" class="md-la-view-tab" data-view="year" aria-selected="false">年間</button>
-                </div>
-                <!-- ロール切替 (モック / 休暇モード時のみ表示) -->
-                <div class="md-la-role-switcher is-mode-leave-only" id="laRoleSwitcher">
-                    <span class="md-la-role-label">ロール:</span>
-                    <button class="md-la-role-btn" data-role="self" title="本人 (自分の申請のみ編集可)">本人</button>
-                    <button class="md-la-role-btn is-active" data-role="dcp" title="所属GCのDCP (承認可能)">DCP</button>
-                    <button class="md-la-role-btn" data-role="admin" title="管理者 (全権限)">管理</button>
-                </div>
-            </aside>
-            <!-- カレンダー (月間) / 週間グリッド -->
-            <div class="md-la-calendar-wrapper">
-                <div class="md-la-calendar" id="laCalendar">
-                    <!-- JS で描画 (月間ビュー) -->
-                </div>
-                <div class="md-la-week md-la-hidden" id="laWeek">
-                    <div class="md-la-week-grid" id="laWeekGrid">
-                        <!-- JS で描画 (週間ビュー) -->
                     </div>
-                </div>
-                <div class="md-la-year md-la-hidden" id="laYear">
-                    <!-- JS で描画 (年間ビュー) -->
-                </div>
-                <!-- 年間ビュー用 吹き出しツールチップ (単一要素を使い回し) -->
-                <div class="md-la-year-tooltip" id="laYearTooltip" role="tooltip" hidden></div>
-            </div>
-
-            <!-- 右サイドパネル -->
-            <div class="md-la-sidebar" id="laSidebar">
-                <!-- 縦タブ (休暇モード: 要対応 / 車両モード: 期限近い に切替) -->
-                <div class="md-la-sidebar-vtabs">
-                    <button class="md-la-sidebar-vtab is-active" data-tab="all" title="全員/全車">全員</button>
-                    <button class="md-la-sidebar-vtab" data-tab="touo" title="東央警備">東央</button>
-                    <button class="md-la-sidebar-vtab" data-tab="nikkei" title="Nikkei">Nikkei</button>
-                    <button class="md-la-sidebar-vtab" data-tab="zennihon" title="全日本">全日本</button>
-                    <!-- 休暇モード時: 要対応 -->
-                    <button class="md-la-sidebar-vtab is-alerts is-mode-leave-only" data-tab="alerts" title="要対応アラート">
-                        要対応
-                        <span class="md-la-sidebar-vtab-badge md-la-hidden" id="laAlertTabBadge">0</span>
-                    </button>
-                    <!-- 車両モード時: 期限近い (車検/点検期限30日以内) -->
-                    <button class="md-la-sidebar-vtab is-alerts is-mode-vehicle-only" data-tab="dueSoon" title="車検/点検期限30日以内">
-                        期限近い
-                        <span class="md-la-sidebar-vtab-badge md-la-hidden" id="laDueSoonBadge">0</span>
-                    </button>
-                    <div style="flex:1;"></div>
-                    <button class="md-la-sidebar-vtab" id="laSidebarToggle" title="折り畳み／展開">⇔</button>
-                </div>
-                <!-- パネル本体 -->
-                <div class="md-la-sidebar-panel">
+                    <div class="md-la-sidebar" id="laSidebar">
+                        <div class="md-la-sidebar-panel">
                     <div class="md-la-sidebar-header">
                         <span class="md-la-sidebar-title" id="laSidebarTitle">社員</span>
                         <span class="md-la-sidebar-count" id="laSidebarCount"></span>
@@ -167,61 +130,21 @@
                     <div class="md-la-sidebar-search">
                         <input type="text" id="laSidebarSearch" placeholder="氏名で検索...">
                     </div>
+                    <div class="la-prop-gc-filters" id="laPropGcFilters"></div>
                     <div class="md-la-sidebar-body" id="laSidebarBody">
                         <!-- JS で描画 -->
                     </div>
+                    <div class="la-prop-dock" id="laPropDock"><div class="la-prop-empty">カレンダーの申請、または車両リストの編集を選択してください。</div></div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </aside>
 
-        <!-- 凡例 (休暇モード) -->
-        <div class="md-la-legend is-mode-leave-only">
-            <span class="md-la-legend-item">
-                <span class="md-la-legend-chip kind-paid"></span>有給
-            </span>
-            <span class="md-la-legend-item">
-                <span class="md-la-legend-chip kind-absent"></span>休暇
-            </span>
-            <span class="md-la-legend-item">
-                <span class="md-la-legend-chip kind-other"></span>その他
-            </span>
-            <span style="width:1px;height:12px;background:var(--divider);"></span>
-            <span class="md-la-legend-item">
-                <span class="md-la-legend-chip status-pending"></span>申請中（破線）
-            </span>
-            <span class="md-la-legend-item">
-                <span class="md-la-legend-chip status-approved"></span>承認済（実線）
-            </span>
-            <span style="width:1px;height:12px;background:var(--divider);"></span>
-            <span class="md-la-legend-item" style="color:var(--text-tertiary);font-style:italic;">
-                Phase E1: 月間ビュー + D&amp;D 基盤のみ実装。詳細編集・承認・週年ビューは後続フェーズで拡張。
-            </span>
-        </div>
-
-        <!-- 凡例 (車両モード) -->
-        <div class="md-la-legend is-mode-vehicle-only">
-            <span class="md-la-legend-item">
-                <span class="md-la-legend-chip vs-kind-inspection"></span>点検
-            </span>
-            <span class="md-la-legend-item">
-                <span class="md-la-legend-chip vs-kind-repair"></span>修理
-            </span>
-            <span class="md-la-legend-item">
-                <span class="md-la-legend-chip vs-kind-oil"></span>オイル交換
-            </span>
-            <span class="md-la-legend-item">
-                <span class="md-la-legend-chip vs-kind-shaken"></span>車検
-            </span>
-            <span class="md-la-legend-item">
-                <span class="md-la-legend-chip vs-kind-tire"></span>タイヤ交換
-            </span>
-            <span class="md-la-legend-item">
-                <span class="md-la-legend-chip vs-kind-other"></span>その他
-            </span>
-            <span style="width:1px;height:12px;background:var(--divider);"></span>
-            <span class="md-la-legend-item" style="color:var(--text-tertiary);font-style:italic;">
-                車両ナンバー(下4桁)バッジに種別子バッジを追加。バッジは右パネルからD&amp;D。
-            </span>
+            <aside class="panel-rail" aria-label="右プロパティ切替">
+                <button type="button" data-prop="detail" title="詳細" aria-label="詳細">詳細</button>
+                <button type="button" class="active" data-prop="list" title="リスト" aria-label="リスト">リスト</button>
+                <button type="button" data-prop="alerts" title="要対応" aria-label="要対応">要対応</button>
+            </aside>
         </div>
     </div>
 
@@ -233,6 +156,6 @@
     <script src="mockup/co-notify-panel.js?v=39"></script>
     <script src="mockup/co-mock-store.js?v=5"></script>
     <script src="mockup/co-navbar.js?v=22"></script>
-    <script src="mockup/leave-application.js?v=29"></script>
+    <script src="mockup/leave-application.js?v=30"></script>
 </body>
 </html>
