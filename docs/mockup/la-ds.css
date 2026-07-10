@@ -59,7 +59,8 @@ body { background: var(--bg); color: var(--ink); font-size: 13px; }
 .la-workspace .panel-rail { display:flex; flex-direction:column; gap:6px; padding:10px 8px; background:var(--info-bg); border-left:1px solid var(--line); }
 .la-workspace .panel-rail button { min-height:52px; padding:6px 2px; border:1px solid transparent; border-radius:var(--radius-sm); background:transparent; color:var(--muted); font:700 11px var(--font-sans); cursor:pointer; }
 .la-workspace .panel-rail button:hover { background:var(--blue-soft); color:var(--blue); }
-.la-workspace .panel-rail button.active { background:var(--panel); border-color:var(--line); color:var(--blue); box-shadow:var(--shadow-card-outer); }
+/* active = 青リング（正 = ds-components .panel-rail button.active の実値 / 02 §6・R-3f #2） */
+.la-workspace .panel-rail button.active { color:var(--blue); background:#fff; border-color:var(--blue); box-shadow:0 0 0 2px rgba(34, 103, 203, 0.12), var(--elevation-2), var(--inset-highlight); }
 .la-workspace .rail .md-nav-cn-bells { position:relative; display:flex; justify-content:center; margin-top:12px; }
 .la-workspace .rail .cn-trigger { width:34px; height:34px; padding:0; }
 .la-workspace .cn-card { top:0; left:calc(100% + 8px); right:auto; }

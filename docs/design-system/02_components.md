@@ -105,7 +105,7 @@ DOM 正本: `docs/preview/design-refresh-sl-layer-mockup.html`。全画面をこ
 | 車両/ETC タグ | `.vehicle-tag` + `.vehicle-label` + `.belong-N` | `わ 12-34` / `ETC-A` 形式。社員カプセルと同語彙 |
 | 警告アイコン | `.warn-icon[data-tip]` / `.person-warn[data-tip]`（子 svg `#ic-caution-line`） | `.warn-icon` は **::before の mask で自動描画するため子要素不要**（カタログ D-02/D-03 の子 svg 版は本仕様で廃止）。理由はホバーポップで示す |
 | 右プロパティ | `.prop > .prop-card`（`.prop-head/.prop-mode/.prop-body`）+ `.tabs` | 浮くのは prop-card 1枚だけ。内部 `.section` は淡色フラット面 |
-| panel-rail（右パネル切替） | `.panel-rail > button(.active)` | icon-btn と同レシピ。**active=青リング（ds-components 実値が正 / 2026-07-10 ユーザー確定）**。WS/LA の「白面+ニュートラル枠」再実装は逸脱 → R-3f で正へ寄せる |
+| panel-rail（右パネル切替） | `.panel-rail > button(.active)` | icon-btn と同レシピ。**active=青リング（ds-components 実値が正 / 2026-07-10 ユーザー確定）**。WS/LA の旧「白面+ニュートラル枠」再実装は R-3f #2（2026-07-10）で正へ統一済み |
 | セクション/詳細 | `.section` + `.section-title` / `.detail-list > .detail-row` | 現場詳細は dl 行形式（3連タイル禁止） |
 | D&D 受け皿 | `.drop-zone(.empty)` / `.drag-pool` | 点線はドラッグ中/ホバー時に強調（常時主張させない） |
 | 絞り込みチップ | `.filter-row > .filter-btn(.active)` | active=濃紺選択ピル |

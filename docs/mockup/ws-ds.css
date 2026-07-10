@@ -380,11 +380,12 @@ body {
     color: var(--blue);
 }
 
+/* active = 青リング（正 = ds-components .panel-rail button.active の実値 / 02 §6・R-3f #2） */
 .ws-workspace .panel-rail button.active {
-    background: var(--panel);
-    border-color: var(--line);
     color: var(--blue);
-    box-shadow: var(--shadow-card-outer, 0 1px 2px rgba(23, 43, 58, 0.06));
+    background: #fff;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 2px rgba(34, 103, 203, 0.12), var(--elevation-2), var(--inset-highlight);
 }
 
 .ws-workspace .panel-rail .md-ws-pr-label {
