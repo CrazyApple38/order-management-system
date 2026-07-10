@@ -93,60 +93,8 @@
     gap: 10px;
 }
 
-/* --- 変更通知オーバーレイ（body+footer を覆う） --- */
-.md-cn-body-overlay {
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    /* top は JS で modal-header の高さに応じて設定 */
-    background: rgba(0, 0, 0, 0.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 20;
-    padding: 24px;
-    box-sizing: border-box;
-    animation: md-cn-body-overlay-fade 0.2s ease-out;
-}
-@keyframes md-cn-body-overlay-fade {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-.md-cn-body-overlay-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--divider);
-    border-radius: 10px;
-    padding: 22px 26px;
-    max-width: 420px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-    animation: md-cn-body-overlay-card-pop 0.25s ease-out;
-}
-@keyframes md-cn-body-overlay-card-pop {
-    from { opacity: 0; transform: translateY(-6px) scale(0.98); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-.md-cn-body-overlay-icon {
-    font-size: 28px;
-    line-height: 1;
-    color: var(--semantic-warning-text, #8A5A00);
-}
-.md-cn-body-overlay-text {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary);
-    line-height: 1.55;
-}
-.md-cn-body-overlay-hint {
-    font-size: 11.5px;
-    color: var(--text-tertiary);
-    margin-top: 4px;
-}
+/* 旧 .md-cn-body-overlay 系（変更通知コンフリクト警告オーバーレイ）は
+   R-3f #4 (2026-07-10) で撤去（旧通知モーダル廃止に伴い利用者ゼロ）。 */
 
 /* --- カレンダーモーダル固有（OB） --- */
 .modal.modal-calendar {

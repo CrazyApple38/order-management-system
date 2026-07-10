@@ -1065,48 +1065,10 @@ body {
 }
 
 /* ==================== 変更通知システム ==================== */
-/* N-2.3 (2026-05-18) で旧UIスタイルを全撤去:
-   - .md-cn-notify-btn (ヘッダーベル) / .md-cn-bell-icon
-   - .md-cn-modal / .md-cn-header* / .md-cn-tabs* / .md-cn-body / .md-cn-tab-content / .md-cn-empty
-   - .md-cn-card* / .md-cn-diff* / .md-cn-btn-revert / .md-cn-btn-reapprove / .md-cn-timeline* / .md-cn-tl*
-   - .md-cn-card-highlight + @keyframes md-cn-highlight / .md-cn-footer*
-   - .md-ob-row-bell* (行ベル) / 旧トースト (#obCnToastContainer / .md-cn-toast*)
-   - コンフリクト警告オーバーレイ (.md-cn-body-overlay は co-modal.css 側も含めて撤去候補)
-   保留: @keyframes md-cn-flash-* / .md-cn-cell-glow-* (N-5 セルハイライト用)
-*/
-
-/* .md-cn-shift/category-badge, shift-day/night, cat-* → co-shared-badges.css */
-
-/* --- フラッシュアニメーション --- */
-@keyframes md-cn-flash-green {
-    0% { box-shadow: inset 0 0 0 2px var(--semantic-success); }
-    100% { box-shadow: none; }
-}
-@keyframes md-cn-flash-yellow {
-    0% { box-shadow: inset 0 0 0 2px var(--semantic-warning); }
-    100% { box-shadow: none; }
-}
-@keyframes md-cn-flash-red {
-    0% { box-shadow: inset 0 0 0 2px var(--semantic-error); }
-    100% { box-shadow: none; }
-}
-
-/* --- セル明滅ハイライト（5秒、ゆっくり明滅 — box-shadow insetで背景・z-indexを壊さない） --- */
-.md-cn-cell-glow-modify { animation: md-cn-glow-yellow 1.2s ease-in-out 4; }
-.md-cn-cell-glow-add    { animation: md-cn-glow-green  1.2s ease-in-out 4; }
-.md-cn-cell-glow-delete  { animation: md-cn-glow-red    1.2s ease-in-out 4; }
-@keyframes md-cn-glow-yellow {
-    0%, 100% { box-shadow: none; }
-    50% { box-shadow: inset 0 0 0 100px rgba(236, 201, 75, 0.3); }
-}
-@keyframes md-cn-glow-green {
-    0%, 100% { box-shadow: none; }
-    50% { box-shadow: inset 0 0 0 100px rgba(72, 187, 120, 0.3); }
-}
-@keyframes md-cn-glow-red {
-    0%, 100% { box-shadow: none; }
-    50% { box-shadow: inset 0 0 0 100px rgba(245, 101, 101, 0.3); }
-}
+/* 旧UI (.md-cn-* 一族) は N-2.3 で大半を撤去済み。残っていた
+   フラッシュ/セル明滅 (md-cn-flash-* / md-cn-cell-glow-*) も R-3f #4 (2026-07-10)
+   で撤去 — cn:jump 着地はスポットライト方式 (.cn-focus-spotlight) へ移行済みで
+   OB では利用者ゼロ (glow 付与は quick-access.js のみ = QA 側 CSS が正)。 */
 
 /* ============================================================================
    Phase M-F2 — 印刷CSS（A4 縦 / 画面UI非表示 / sticky 解除 / 帳票最適化）
@@ -1210,12 +1172,6 @@ body {
     .tbl-grid__header {
         break-after: avoid;
         page-break-after: avoid;
-    }
-
-    /* ─── 通知フラッシュ・セル明滅アニメを停止 ─── */
-    [class*="md-cn-cell-glow-"],
-    [class*="md-cn-flash-"] {
-        animation: none !important;
     }
 
     /* ─── ページブレイク・ユーティリティ ─── */

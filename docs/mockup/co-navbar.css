@@ -215,13 +215,7 @@
     opacity: 1;
 }
 
-/* 通知バッジ（既存 md-cn-badge を流用） */
-.md-nav-action-btn .md-cn-badge {
-    top: 2px;
-    right: 2px;
-}
-
-/* === 変更通知ベル群（4分類統合） === */
+/* === 変更通知ベル（R-2: 統合ベル1個） === */
 .md-nav-cn-bells {
     display: flex;
     align-items: center;
@@ -262,21 +256,7 @@
     opacity: 1;
 }
 /* バッジ位置は .cn-trigger-badge デフォルト（top:2px / right:2px）でOK */
-
-/* 縦仕切り（将来ベルグループが分かれた場合のみ表示） */
-.md-nav-cn-bells-divider {
-    display: inline-block;
-    width: 1px;
-    height: 20px;
-    background: rgba(255, 255, 255, 0.15);
-    margin: 0 4px;
-    flex-shrink: 0;
-}
-
-/* パネルは右寄せ。最後のベル（master）パネルが右端からはみ出さないように */
-.md-nav-cn-bell .cn-panel {
-    right: 0;
-}
+/* 旧 .md-nav-cn-bells-divider / .md-nav-cn-bell .cn-panel は R-3f #4 で撤去（利用者ゼロ） */
 
 /* テーマアイコン切替 */
 .md-nav-theme-icon-light,

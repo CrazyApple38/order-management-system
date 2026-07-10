@@ -1,7 +1,8 @@
 /* ============================================================
-   co-notify-panel.css — 変更通知パネル 共通スタイル
-   notify-compare.html (統合案 + 履歴タブ縦タブ) を本番採用
-   ベルアイコンに対するドロップダウンとして動作
+   co-notify-panel.css — 変更通知 共通スタイル
+   統合ベル1個 + レール通知カード (.cn-card / R-2 簡素化モデル)。
+   前半 = ベルトリガー + アイテム共用ベース、後半 = .cn-card スコープ。
+   旧 .cn-panel (最新/履歴タブ・検索・一覧選択) は R-3f #4 で撤去済み。
    ============================================================ */
 
 /* ----- アンカー (ベルボタン + パネルの位置基準) ----- */
@@ -52,29 +53,9 @@
 }
 .cn-trigger-badge[hidden] { display: none; }
 
-/* ============================================================
-   パネル本体
-   ============================================================ */
-.cn-panel {
-    position: absolute;
-    top: calc(100% + 6px);
-    right: 0;
-    z-index: 1000;
-    width: 320px;
-    max-width: calc(100vw - 16px);
-    background: var(--bg-surface);
-    border: 1px solid var(--divider);
-    border-radius: var(--radius-md);
-    box-shadow: var(--elevation-4);
-    overflow: hidden;
-    font-size: 12px;
-    color: var(--text-primary);
-    display: none;
-}
-.cn-anchor.is-open > .cn-panel,
-.cn-panel.is-open { display: block; }
-
-.cn-panel--mobile { width: 280px; }
+/* 旧 .cn-panel 本体・上タブ (最新/履歴)・履歴系 UI は R-3f #4 (2026-07-10) で撤去。
+   全画面が統合ベル + .cn-card (R-2〜R-3e) へ移行済みのため利用者ゼロ。
+   プレビュー (notify-compare) は自前 CSS で自己完結しており影響なし。 */
 
 /* ----- ヘッダー ----- */
 .cn-head {
@@ -101,75 +82,18 @@
 }
 .cn-mark-all:hover { text-decoration: underline; }
 
-/* ----- 上タブ (最新 / 履歴) ----- */
-.cn-tabs {
-    display: flex;
-    background: var(--bg-surface);
-    border-bottom: 1px solid var(--divider);
-}
-.cn-tab {
-    flex: 1;
-    background: transparent;
-    border: none;
-    padding: 8px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-tertiary);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: color 150ms, border-color 150ms;
-    font-family: inherit;
-}
-.cn-tab:hover { color: var(--text-primary); }
-.cn-tab.is-active {
-    color: var(--accent-primary);
-    border-bottom-color: var(--accent-primary);
-}
-
-/* ----- タブビュー (上タブ連動) ----- */
-.cn-tab-view { display: none; }
-.cn-tab-view.is-active { display: block; }
-
 /* ----- ボディ ----- */
 .cn-body {
     max-height: 360px;
     overflow-y: auto;
 }
 .cn-body--latest { max-height: 420px; }
-.cn-body--history { max-height: 380px; }
 
 .cn-empty {
     padding: 32px 16px;
     text-align: center;
     color: var(--text-tertiary);
     font-size: 11px;
-}
-
-/* フィルタ非表示 (種別チップ / 一覧選択 共用) */
-.cn-item.is-hidden,
-.cn-axis-group.is-hidden,
-.cn-date-group.is-hidden { display: none; }
-
-/* 行フィルタラベル (ヘッダー右上) */
-.cn-row-filter-label {
-    display: inline-block;
-    padding: 1px 6px;
-    background: var(--accent-primary);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 600;
-    border-radius: 8px;
-    line-height: 1.5;
-}
-.cn-row-filter-label[hidden] { display: none; }
-
-/* ジャンプ時のハイライト (cnJumpToCard 等が付与) */
-.cn-item-highlight {
-    animation: cn-flash 1.5s ease-out;
-}
-@keyframes cn-flash {
-    0%   { background: rgba(68, 166, 181, 0.35); }
-    100% { background: transparent; }
 }
 
 /* 通知ジャンプ先フォーカス: 画面全体を暗転し、対象セル（外接矩形）だけを
@@ -219,31 +143,9 @@
     background: var(--accent-primary);
 }
 
-/* アクション種別アイコン */
-.cn-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 700;
-    flex-shrink: 0;
-    line-height: 1;
-}
-.cn-icon.type-add      { background: var(--accent-primary); }
-.cn-icon.type-modify   { background: var(--accent-secondary); }
-.cn-icon.type-delete   { background: var(--semantic-error); }
-.cn-icon.type-new      { background: var(--accent-primary); }
-.cn-icon.type-approved { background: var(--semantic-success); }
-.cn-icon.type-rejected { background: var(--semantic-error); }
-.cn-icon.type-master   { background: var(--accent-secondary); }   /* マスタ更新 */
-.cn-icon.type-leave    { background: var(--accent-primary); }     /* 休暇申請 */
-.cn-icon.type-pending  { background: var(--accent-secondary); }   /* 承認待ち */
+/* 旧アクション種別アイコン (.cn-icon type-*) と合成アイコン (.cn-composed 系) は
+   R-3f #4 で撤去 (buildComposedIconHtml の呼び出し元ゼロ・cn-card はバッジ行で表現)。 */
 
-.cn-source-badge,
 .cn-date-badge {
     display: inline-flex;
     align-items: center;
@@ -259,136 +161,6 @@
     color: var(--accent-primary);
     background: rgba(68, 166, 181, 0.12);
     border: 1px solid rgba(68, 166, 181, 0.35);
-}
-
-/* アイテム種別アイコン内の <img>（Phase N-2.2 / notify-icons-selected.json 適用） */
-.cn-icon-img {
-    width: 16px;
-    height: 16px;
-    object-fit: contain;
-    display: block;
-    /* 円形カラー背景の上に白シルエットで載せる */
-    filter: brightness(0) invert(1);
-    pointer-events: none;
-}
-
-/* ============================================================
-   合成アイコン (scope×op) — Phase N-2.4.3 / 2026-05-20 背景円追加
-   item.scope + item.op が指定された場合:
-   - scope アイコン (色そのまま) の下層に op 連動の小さな円カラー背景
-   - SVG の透明部分から色が透けて、新規/変更/削除 を一目で判別可能
-   - op アイコン (右下バッジ) は独立した白背景バッジ
-   ============================================================ */
-.cn-icon:has(.cn-composed),
-.cn-icon:has(.cn-composed-single) {
-    width: 24px;
-    height: 24px;
-    border-radius: 0;
-    background: transparent !important;
-    /* op が右側コンテンツに被らないよう右余白を確保 */
-    margin-right: 18px;
-    overflow: visible;
-}
-.cn-composed {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-}
-/* op 連動カラー背景 (角丸四角 24x30 / scope を包み込み / 縦長)
-   配置: container 24x24 に対し上下 3px ずつ拡張 (top:-3 / height:30)
-   角丸 6px (OP バッジと揃える) / 背景色は solid */
-.cn-composed::before {
-    content: '';
-    position: absolute;
-    top: -3px;
-    left: 0;
-    width: 24px;
-    height: 30px;
-    border-radius: 6px;
-    background: transparent;
-    z-index: 0;
-}
-.cn-composed .cn-composed-base {
-    width: 22px;
-    height: 22px;
-    object-fit: contain;
-    display: block;
-    position: relative;
-    z-index: 1;
-    /* 角丸カラー背景の上に白シルエットで載せる */
-    filter: brightness(0) invert(1);
-}
-/* op 連動の背景色 — .cn-icon.type-* (resolveTypeClass の結果) 経由 / solid */
-.cn-icon.type-add     .cn-composed::before,
-.cn-icon.type-new     .cn-composed::before,
-.cn-icon.type-leave   .cn-composed::before    { background: var(--accent-primary); }
-.cn-icon.type-modify  .cn-composed::before,
-.cn-icon.type-master  .cn-composed::before,
-.cn-icon.type-pending .cn-composed::before    { background: var(--accent-secondary); }
-.cn-icon.type-delete  .cn-composed::before,
-.cn-icon.type-rejected .cn-composed::before   { background: var(--semantic-error); }
-.cn-icon.type-approved .cn-composed::before   { background: var(--semantic-success); }
-
-/* N-3.4.2: item.color による色 override (op 連動より優先 / 表で指定された色を強制)
-   scope 背景 (::before) と op バッジ (.cn-composed-op) の両方に同じ色を適用して一致させる */
-.cn-icon.color-primary   .cn-composed::before,
-.cn-icon.color-primary   .cn-composed .cn-composed-op { background: var(--accent-primary)   !important; }
-.cn-icon.color-secondary .cn-composed::before,
-.cn-icon.color-secondary .cn-composed .cn-composed-op { background: var(--accent-secondary) !important; }
-.cn-icon.color-error     .cn-composed::before,
-.cn-icon.color-error     .cn-composed .cn-composed-op { background: var(--semantic-error)   !important; }
-.cn-icon.color-success   .cn-composed::before,
-.cn-icon.color-success   .cn-composed .cn-composed-op { background: var(--semantic-success) !important; }
-.cn-icon.color-warning   .cn-composed::before,
-.cn-icon.color-warning   .cn-composed .cn-composed-op { background: var(--semantic-warning) !important; }
-
-/* OP バッジ: <span> ラッパー (背景色 + border + 影) + <img> (白シルエット)
-   bg は scope 背景と同じ op 色 (.cn-icon.type-* 経由) */
-.cn-composed .cn-composed-op {
-    position: absolute;
-    /* op (20) の中心が scope 右下角の +4px 右に来る (right: -13px, bottom: -9px) */
-    right: -13px;
-    bottom: -9px;
-    width: 20px;
-    height: 20px;
-    padding: 2px;
-    border: 1.5px solid var(--bg-surface, #FFF);
-    /* 角丸 6px の四角バッジ */
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-    box-sizing: border-box;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-}
-.cn-composed .cn-composed-op-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-    /* 白シルエット化 (filter は背景色も白くするため、bg は親 span 側で持つ) */
-    filter: brightness(0) invert(1);
-}
-/* OP バッジ背景色 — scope 背景と同じ op 色 */
-.cn-icon.type-add     .cn-composed .cn-composed-op,
-.cn-icon.type-new     .cn-composed .cn-composed-op,
-.cn-icon.type-leave   .cn-composed .cn-composed-op    { background: var(--accent-primary); }
-.cn-icon.type-modify  .cn-composed .cn-composed-op,
-.cn-icon.type-master  .cn-composed .cn-composed-op,
-.cn-icon.type-pending .cn-composed .cn-composed-op    { background: var(--accent-secondary); }
-.cn-icon.type-delete  .cn-composed .cn-composed-op,
-.cn-icon.type-rejected .cn-composed .cn-composed-op   { background: var(--semantic-error); }
-.cn-icon.type-approved .cn-composed .cn-composed-op   { background: var(--semantic-success); }
-.cn-composed-single {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-    display: block;
 }
 
 /* ============================================================
@@ -454,50 +226,8 @@
     flex: 1;
     min-width: 0;
 }
-.cn-text-main {
-    color: var(--text-primary);
-    font-weight: 500;
-    line-height: 1.4;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-.cn-source-badge {
-    display: inline-flex;
-    align-items: center;
-    height: 18px;
-    padding: 0 6px;
-    border-radius: 4px;
-    background: var(--bg-surface-2);
-    border: 1px solid var(--divider);
-    color: var(--text-secondary);
-    font-size: 10px;
-    font-weight: 700;
-    line-height: 1;
-    white-space: nowrap;
-}
 .cn-text-main-label {
     min-width: 0;
-}
-.cn-text-sub {
-    color: var(--text-tertiary);
-    font-size: 10px;
-    margin-top: 2px;
-    font-variant-numeric: tabular-nums;
-}
-
-/* 1行目末尾の対象日付チップ */
-.cn-date-chip {
-    display: inline-block;
-    padding: 1px 6px;
-    background: var(--bg-surface-3);
-    color: var(--text-secondary);
-    font-size: 10px;
-    font-weight: 700;
-    border-radius: 8px;
-    letter-spacing: 0.02em;
 }
 
 /* 折り畳み矢印 */
@@ -552,7 +282,6 @@
     text-decoration-thickness: 1px;
     overflow-wrap: anywhere;
 }
-.cn-diff-arrow { color: var(--text-tertiary); }
 .cn-diff-to {
     color: var(--text-primary);
     font-weight: 700;
@@ -615,39 +344,8 @@
 }
 
 /* ============================================================
-   履歴タブ — 共通ツールバー
+   フィルタチップ (cn-card のカテゴリフィルタが継承する共用ベース)
    ============================================================ */
-.cn-history-toolbar {
-    padding: 8px 12px;
-    background: var(--bg-surface-2);
-    border-bottom: 1px solid var(--divider);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.cn-search { display: block; }
-.cn-search input {
-    width: 100%;
-    padding: 5px 10px;
-    border: 1px solid var(--divider);
-    border-radius: var(--radius-sm);
-    font-size: 11px;
-    background: var(--bg-surface);
-    color: var(--text-primary);
-    outline: none;
-    transition: border-color 150ms;
-    font-family: inherit;
-}
-.cn-search input:focus { border-color: var(--accent-primary); }
-.cn-search input::placeholder { color: var(--text-tertiary); }
-
-.cn-filter-row {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    flex-wrap: wrap;
-}
 .cn-filter-chips {
     display: flex;
     gap: 4px;
@@ -675,29 +373,8 @@
     color: #fff;
     border-color: var(--accent-primary);
 }
-.cn-filter-select {
-    flex: 1;
-    min-width: 0;
-    padding: 4px 6px;
-    border: 1px solid var(--divider);
-    border-radius: var(--radius-sm);
-    font-size: 10px;
-    background: var(--bg-surface);
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-family: inherit;
-}
-
-/* 検索ボックスと一覧ボタンを横並び */
-.cn-search-row {
-    display: flex;
-    gap: 4px;
-    align-items: stretch;
-}
-.cn-search-row .cn-search { flex: 1; min-width: 0; }
-
 /* ============================================================
-   日付グルーピング (最新タブ / LA履歴で共有) — アコーディオン化
+   日付グルーピング — アコーディオン化
    ============================================================ */
 .cn-date-group-head {
     padding: 5px 12px;
@@ -736,281 +413,42 @@ button.cn-date-group-head:hover { background: var(--bg-surface-2); }
 }
 .cn-date-group.is-collapsed .cn-item { display: none; }
 
-/* 履歴タブでは未読色分けを弱める */
-.cn-body--history .cn-item.is-unread { background: var(--bg-surface); }
-.cn-body--history .cn-item.is-unread:hover { background: var(--bg-surface-2); }
-.cn-body--history .cn-item.is-unread::before { display: none; }
-
-/* ============================================================
-   履歴タブ 縦型サブタブ (現場名 / アカウント)
-   ============================================================ */
-.cn-history-layout {
-    display: flex;
-    background: var(--bg-surface-2);
-}
-.cn-side-tabs {
-    width: 36px;
-    flex-shrink: 0;
-    background: var(--bg-surface-2);
-    display: flex;
-    flex-direction: column;
-    padding: 6px 0 6px 2px;
-    gap: 3px;
-    border-right: 1px solid var(--divider);
-}
-.cn-side-tab {
-    writing-mode: vertical-rl;
-    text-orientation: upright;
-    background: var(--bg-surface-3);
-    border: 1px solid var(--divider);
-    border-right: none;
-    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
-    padding: 10px 4px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: color 150ms, background 150ms, border-color 150ms, box-shadow 150ms;
-    line-height: 1.5;
-    letter-spacing: 0.04em;
-    margin-right: -1px;
-    flex: none;
-    position: relative;
-    font-family: inherit;
-}
-.cn-side-tab:hover {
-    color: var(--text-primary);
-    background: var(--bg-surface-2);
-}
-.cn-side-tab.is-active {
-    background: var(--bg-surface);
-    color: var(--accent-primary);
-    border-color: var(--divider);
-    box-shadow: 1px 0 0 0 var(--bg-surface);
-    z-index: 2;
-}
-
-.cn-history-main {
-    flex: 1;
-    min-width: 0;
-    background: var(--bg-surface);
-}
-
-.cn-history-view { display: none; }
-.cn-history-view.is-active { display: block; }
-
-/* ============================================================
-   軸別グルーピング (現場名 / アカウント) — アコーディオン化
-   ============================================================ */
-.cn-axis-group-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 5px 12px;
-    background: var(--bg-page);
-    color: var(--text-secondary);
-    font: inherit;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    text-align: left;
-    border: none;
-    border-bottom: 1px solid var(--divider);
-    border-top: 1px solid var(--divider);
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    cursor: pointer;
-}
-.cn-axis-group-head:hover { background: var(--bg-surface-2); }
-.cn-axis-group:first-child .cn-axis-group-head { border-top: none; }
-
-.cn-axis-group-toggle {
-    flex-shrink: 0;
-    margin-left: 8px;
-    font-size: 11px;
-    line-height: 1;
-    color: var(--text-tertiary);
-}
-.cn-axis-group.is-collapsed .cn-item { display: none; }
-
-/* ============================================================
-   履歴タブ 一覧選択画面 (バッジで2段階選択)
-   ============================================================ */
-.cn-list-pick-btn {
-    background: var(--bg-surface);
-    border: 1px solid var(--divider);
-    border-radius: var(--radius-sm);
-    padding: 4px 10px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    cursor: pointer;
-    flex: none;
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    transition: background 150ms, color 150ms, border-color 150ms;
-    max-width: 160px;
-    font-family: inherit;
-}
-.cn-list-pick-btn:hover {
-    background: var(--bg-surface-2);
-    color: var(--text-primary);
-    border-color: var(--text-tertiary);
-}
-.cn-list-pick-btn.is-selected {
-    background: var(--accent-primary);
-    color: #fff;
-    border-color: var(--accent-primary);
-    padding-right: 4px;
-}
-.cn-list-pick-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-}
-.cn-list-pick-clear {
-    display: none;
-    width: 16px;
-    height: 16px;
-    line-height: 14px;
-    text-align: center;
-    border-radius: 50%;
-    font-size: 11px;
-    color: #fff;
-    cursor: pointer;
-    flex: none;
-}
-.cn-list-pick-btn.is-selected .cn-list-pick-clear {
-    display: inline-block;
-}
-.cn-list-pick-clear:hover { background: rgba(255, 255, 255, 0.25); }
-
-.cn-pick-view {
-    display: none;
-    background: var(--bg-surface);
-}
-.cn-history-view.is-picking .cn-history-toolbar,
-.cn-history-view.is-picking .cn-body--history { display: none; }
-.cn-history-view.is-picking .cn-pick-view { display: block; }
-
-.cn-pick-head {
-    padding: 6px 10px;
-    background: var(--bg-surface-2);
-    border-bottom: 1px solid var(--divider);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.cn-pick-back {
-    background: transparent;
-    border: none;
-    font-size: 14px;
-    color: var(--accent-primary);
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: var(--radius-sm);
-    line-height: 1;
-    flex: none;
-    font-family: inherit;
-}
-.cn-pick-back:hover { background: var(--bg-surface-3); }
-
-.cn-pick-crumbs {
-    flex: 1;
-    font-size: 11px;
-    color: var(--text-secondary);
-    font-weight: 600;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.cn-pick-crumb-sep {
-    color: var(--text-tertiary);
-    margin: 0 4px;
-}
-.cn-pick-crumb-current { color: var(--text-primary); }
-
-.cn-pick-step { display: none; padding: 12px 10px; }
-.cn-pick-step.is-active { display: block; }
-
-.cn-pick-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-.cn-pick-badge {
-    background: var(--bg-surface-2);
-    border: 1px solid var(--divider);
-    border-radius: 14px;
-    padding: 5px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: background 150ms, color 150ms, border-color 150ms;
-    font-family: inherit;
-}
-.cn-pick-badge:hover {
-    background: var(--accent-primary);
-    color: #fff;
-    border-color: var(--accent-primary);
-}
-
-/* ============================================================
-   モバイル
-   ============================================================ */
-.cn-panel--mobile .cn-history-toolbar { padding: 6px 10px; gap: 5px; }
-.cn-panel--mobile .cn-search input { font-size: 10px; padding: 4px 8px; }
-.cn-panel--mobile .cn-filter-chips { gap: 3px; }
-.cn-panel--mobile .cn-filter-chip { padding: 2px 7px; font-size: 9px; }
-.cn-panel--mobile .cn-filter-select { width: 100%; flex: none; font-size: 10px; }
-.cn-panel--mobile .cn-side-tabs { width: 30px; padding: 4px 0 4px 2px; }
-.cn-panel--mobile .cn-side-tab { padding: 8px 3px; font-size: 10px; letter-spacing: 0.02em; }
-.cn-panel--mobile .cn-pick-head { padding: 5px 8px; }
-.cn-panel--mobile .cn-pick-back { font-size: 13px; padding: 1px 4px; }
-.cn-panel--mobile .cn-pick-crumbs { font-size: 10px; }
-.cn-panel--mobile .cn-pick-step { padding: 10px 8px; }
-.cn-panel--mobile .cn-pick-badge { padding: 4px 9px; font-size: 10px; }
-.cn-panel--mobile .cn-list-pick-btn { padding: 3px 8px; font-size: 10px; max-width: 130px; }
-
 /* ============================================================
    レール通知カード (.cn-card) — R-2 (2026-07-04) 簡素化モデル §3.7.8
    ------------------------------------------------------------
    統合ベル1個 → 単一カード。SL層モック (design-refresh-sl-layer-mockup.html)
-   の .cn-card 見た目を移植。旧画面は ds-tokens.css を読み込めない
-   (同名別値トークンの併載禁止) ため、DS 値を .cn-card スコープの
-   --cn-* 変数に内蔵する（値の出典 = ds-tokens.css / R-1 成果物 2026-07-03。
-   値の変更はユーザー承認必須）。全セレクタを .cn-card 配下に閉じ、
-   QA モバイルの旧 .cn-panel には影響させない。
+   の .cn-card 見た目を移植。
+   R-3f #9 (2026-07-10): 全5画面が ds-tokens.css を読むようになったため
+   --cn-* を ds-tokens 参照へ差替（フォールバック値 = ds-tokens.css の現値。
+   co-tokens のまま cn-card を表示する admin-notify.html 用）。
+   ただし --radius-sm/md・--elevation-1/5 の4個は co-tokens に同名別値が
+   あり admin-notify で誤解決するため、admin-notify が DS 化されるまで
+   リテラル値を維持する。値の変更はユーザー承認必須。
    ============================================================ */
 .cn-card {
-    /* --- ds-tokens.css より機械コピー --- */
-    --cn-ink: #172b3a;
-    --cn-muted: #5a6b7a;
-    --cn-line: #dbe5ec;
-    --cn-soft-line: #e8eef3;
-    --cn-blue: #1f5fae;
-    --cn-blue-dark: #123b5d;
-    --cn-chip-text: #385569;
-    --cn-chip-bg: #eef4f8;
-    --cn-radius-xs: 4px;
+    /* --- ds-tokens.css 参照 (フォールバック = 同値) --- */
+    --cn-ink: var(--ink, #172b3a);
+    --cn-muted: var(--muted, #5a6b7a);
+    --cn-line: var(--line, #dbe5ec);
+    --cn-soft-line: var(--soft-line, #e8eef3);
+    --cn-blue: var(--blue, #1f5fae);
+    --cn-blue-dark: var(--blue-dark, #123b5d);
+    --cn-chip-text: var(--neutral-chip-text, #385569);
+    --cn-chip-bg: var(--neutral-chip-bg, #eef4f8);
+    --cn-radius-xs: var(--radius-xs, 4px);
+    --cn-shadow-card-outer: var(--shadow-card-outer,
+        0 -2px 6px rgba(255, 255, 255, 0.55),
+        0 0 0 1px rgba(18, 38, 54, 0.040),
+        0 4px 9px rgba(18, 38, 54, 0.075),
+        0 1px 3px rgba(18, 38, 54, 0.045));
+    --cn-bevel-card: var(--bevel-card,
+        inset 1px 1px 0 rgba(255, 255, 255, 0.96),
+        inset -1px -1px 0 rgba(182, 198, 211, 0.20));
+    /* --- co-tokens と同名別値のため参照化保留 (ds-tokens.css の値を機械コピー) --- */
     --cn-radius-sm: 8px;
     --cn-radius-md: 14px;
     --cn-elevation-1: 0 2px 6px rgba(38, 73, 99, 0.045), 0 1px 2px rgba(38, 73, 99, 0.030);
     --cn-elevation-5: 0 14px 30px rgba(24, 55, 78, 0.115), 0 5px 12px rgba(24, 55, 78, 0.070);
-    --cn-shadow-card-outer:
-        0 -2px 6px rgba(255, 255, 255, 0.55),
-        0 0 0 1px rgba(18, 38, 54, 0.040),
-        0 4px 9px rgba(18, 38, 54, 0.075),
-        0 1px 3px rgba(18, 38, 54, 0.045);
-    --cn-bevel-card:
-        inset 1px 1px 0 rgba(255, 255, 255, 0.96),
-        inset -1px -1px 0 rgba(182, 198, 211, 0.20);
 
     position: absolute;
     top: calc(100% + 8px);

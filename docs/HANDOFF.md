@@ -9,24 +9,24 @@
 
 - **更新者**: Claude Code (Fable 5)
 - **日付**: 2026-07-10
-- **コミット**: R-3e QA 新DS適用 + 旧 .cn-panel → 共通 cn-card 移行（本コミット）
+- **コミット**: R-3f #4+#9（死にCSS撤去 + cn-card トークン ds 参照化）（本コミット）
 
 ## 直前にやったこと（最新のみ）
 
-- **R-3e 完了（QA・runtime検証済）**: CSS 読替（ds-tokens → ds-legacy-aliases → ds-components + 新設 qa-ds.css）。
-  モバイル例外のため骨格転換なし・カード型フローへ DS レシピ適用。旧パレット直書き（teal/pink/桃色曜日面）を DS トークン化。
-- **QA 通知を統合ベル + 共通 cn-card へ移行**（ユーザー判断）: 旧 .cn-panel マークアップ + co-notify-panel.js QA互換セクション撤去、
-  `qaCell` 軸新設、アンカー1個をホーム⇄カレンダーへ JS 移設、revert/reapprove は cn:action 化（スナップショット復元維持）。
-- **共通挙動の追加**: アクションボタン付きアイテムはジャンプ後もパネル/展開を維持（co-notify-panel.js v40・全画面共通）。
-- 検証: ds-audit NG=0（qa-ds WARN 0）/ QA 全フロー + OB/SL/WS/LA/admin-notify 回帰なし / コンソール0 / `screenshots/r3e-qa-*.png`。
+- **R-3f #4 完了**: 使用者ゼロを機械確認したセレクタのみ撤去（見た目不変）。旧 .cn-panel 系一式 / 旧 .cn-icon・.cn-composed /
+  旧 .md-cn-* 通知モーダル一族（SL 431行）/ 旧 md-cn バッジ群 + .bt-* 全部 / .md-cn-body-overlay / OB・WS の死に glow/flash。
+- **R-3f #9 完了**: cn-card 内蔵 --cn-* 11個を var(--ds名, 現値) 参照化。4個（--radius-sm/md・--elevation-1/5）は
+  co-tokens 同名別値のため admin-notify 誤解決の制約でリテラル維持（SHARED-MEMORY 注意事項に記録）。
+- 検証: ds-audit NG=0 WARN=9（悪化なし）/ OB/SL/WS/LA/QA/admin-notify の cn-card computed style 一致 /
+  QA toast・glow 存置動作 / notify-compare 埋込自己完結 / コンソール0。スクショ `screenshots/r3f4-*-cn-card.png`。
 
 ## 次にやるべきこと
 
-1. **R-3f 横断クリーンアップ**: 計画書 §4 R-3f 表の12項目が SSOT。値・見た目の変更は全てユーザー承認必須。
-   R-3e 完了により前提解消済み: **#4 旧 .cn-panel CSS（co-notify-panel.css）は利用者ゼロ = 撤去可** / **#9 cn-card 内蔵 `--cn-*` ブロックの ds 参照化も着手可**（全画面が ds-tokens 読込済み）。
+1. **R-3f 残項目**（計画書 §4 表が SSOT）: 承認済み着手順 = 次は **#2 panel-rail active 青リング統一**（正=ds-components・02 §6）、
+   その後 #1 .btn 新旧統一 / #8 SL bridge 撤去（構造統一系）。#3/#5/#10/#11 は各着手時にユーザー判断を確認。
 2. 監査 ALLOWLIST（ds-audit.js 内）と #3 既存負債（--focus-ring 等）の解消を同期させること。
 
 ## 今だけの申し送り（任意）
 
-- `shield.svg` 404 は既知の別件（QA/admin-notify ヘッダ・アイコン選定待ち）。R-3e では触っていない。
-- QA のベルアンカーは DOM 1個を画面間で移設する方式（SHARED-MEMORY 注意事項参照）。複製すると共通 first-match 前提が壊れる。
+- `buildComposedIconHtml`（co-notify-panel.js）は呼び出し元ゼロの死にJS。今回は CSS のみ撤去し JS 非改変。JS 整理は別途判断。
+- `shield.svg` 404 は既知の別件（QA/admin-notify ヘッダ・アイコン選定待ち）。

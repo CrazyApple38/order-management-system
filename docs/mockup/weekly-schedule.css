@@ -3987,27 +3987,5 @@ body {
     }
 }
 
-/* ============================================================================
-   変更通知（WS固有） — セルグロウ (cn:jump 着地用 / N-2.3 で旧ベルブロック撤去)
-   ============================================================================ */
-
-/* セル明滅ハイライト（cn:jump 着地用） — OB と同方式の box-shadow inset */
-.md-ws-cell.md-cn-cell-glow-modify { animation: md-ws-cn-glow-yellow 1.2s ease-in-out 4; }
-.md-ws-cell.md-cn-cell-glow-add    { animation: md-ws-cn-glow-green  1.2s ease-in-out 4; }
-.md-ws-cell.md-cn-cell-glow-delete { animation: md-ws-cn-glow-red    1.2s ease-in-out 4; }
-@keyframes md-ws-cn-glow-yellow {
-    0%, 100% { box-shadow: none; }
-    50% { box-shadow: inset 0 0 0 100px rgba(236, 201, 75, 0.35); }
-}
-@keyframes md-ws-cn-glow-green {
-    0%, 100% { box-shadow: none; }
-    50% { box-shadow: inset 0 0 0 100px rgba(72, 187, 120, 0.35); }
-}
-@keyframes md-ws-cn-glow-red {
-    0%, 100% { box-shadow: none; }
-    50% { box-shadow: inset 0 0 0 100px rgba(245, 101, 101, 0.35); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .md-ws-cell[class*="md-cn-cell-glow-"] { animation: none; }
-}
+/* 旧セルグロウ (.md-ws-cell.md-cn-cell-glow-*) は R-3f #4 (2026-07-10) で撤去。
+   cn:jump 着地はスポットライト方式 (.cn-focus-spotlight) へ移行済みで WS では利用者ゼロ。 */
