@@ -10,8 +10,8 @@
     2026-07-10 レビューで本ファイルへ統合 — docs/design-system/03 §3.3）。
 
    読込順: ds-tokens.css → 本ファイル → ds-components.css → co-*.css → 画面CSS。
-   SL は例外: 残置モーダルを旧見た目のまま維持するため ds-tokens-bridge.css
-   （旧 co-tokens 実値のシム）を継続使用し、本ファイルは読み込まない（撤去は R-3f）。
+   SL も R-3f #8 B-2b-1（2026-07-11）で ds-tokens-bridge.css を撤去し本ファイルへ合流
+   （= 残置9モーダルも旧トークン名のまま新DS値で描画。全5画面が同一対応表を共有）。
 
    規則:
    - 色・意味色は ds-tokens.css のトークン参照（値の再発明禁止）。
@@ -80,6 +80,7 @@
     --space-sm: 8px;
     --space-md: 12px;
     --space-lg: 16px;
+    --space-2xl: 32px; /* print-touo-nikkei.css が参照（B-2b-1 で bridge から移管） */
     --space-3xl: 48px;
     --icon-md: 16px;
     --icon-lg: 20px;

@@ -30,6 +30,20 @@
     --emp-badge-border-zennihon: rgba(107, 122, 153, 0.45);
     --emp-badge-text-zennihon: #2E3A5A;
 
+    /* SL固有: 区分色 = DS 青一色（03 §3.1「色相分化は不採用」/ R-3f B-2b-1
+       ユーザー承認 2026-07-11・WS weekly-schedule.css :27-34 と同一マッピング。
+       応援・研修・社内の旧緑も青一色へ統一。旧4色相の光源は撤去済み bridge） */
+    --cat-bg-facility: var(--blue-soft);
+    --cat-bg-event: var(--blue-soft);
+    --cat-bg-traffic: var(--blue-soft);
+    --cat-bg-highway: var(--blue-soft);
+    --cat-text-facility: var(--blue);
+    --cat-text-event: var(--blue);
+    --cat-text-traffic: var(--blue);
+    --cat-text-highway: var(--blue);
+    --cat-bg-support: var(--blue-soft);
+    --cat-text-support: var(--blue);
+
     /* SL固有: シフト区分 */
     --shift-bg-day: rgba(211, 208, 200, 0.12);
     --shift-text-day: #3f3b31;
@@ -86,6 +100,9 @@
     --cat-text-traffic: #d9b28c;
     --cat-bg-highway: rgba(98, 158, 120, 0.22);    /* sage green */
     --cat-text-highway: #9dc9ab;
+    /* B-2b-1: 応援系は dark の従来描画（緑）を維持（dark 自体の扱いは R-3f #10） */
+    --cat-bg-support: rgba(56, 161, 105, 0.12);
+    --cat-text-support: #68d391;
     --shift-bg-day: rgba(211, 208, 200, 0.2);
     --shift-text-day: #d3d0c8;
     --shift-bg-night: rgba(0, 69, 84, 0.2);
@@ -1687,11 +1704,11 @@ h1 {
 .category-event,           [data-category="event"]           { background: var(--cat-bg-event); color: var(--cat-text-event); }
 .category-traffic,         [data-category="traffic"]         { background: var(--cat-bg-traffic); color: var(--cat-text-traffic); }
 .category-highway,         [data-category="highway"]         { background: var(--cat-bg-highway); color: var(--cat-text-highway); }
-.category-support-event,   [data-category="support-event"]   { background: rgba(56, 161, 105, 0.12); color: var(--semantic-success-text); }
-.category-support-traffic, [data-category="support-traffic"] { background: rgba(56, 161, 105, 0.12); color: var(--semantic-success-text); }
-.category-support-highway, [data-category="support-highway"] { background: rgba(56, 161, 105, 0.12); color: var(--semantic-success-text); }
-.category-training,        [data-category="training"]        { background: rgba(56, 161, 105, 0.12); color: var(--semantic-success-text); }
-.category-company,         [data-category="company"]         { background: rgba(56, 161, 105, 0.12); color: var(--semantic-success-text); }
+.category-support-event,   [data-category="support-event"]   { background: var(--cat-bg-support); color: var(--cat-text-support); }
+.category-support-traffic, [data-category="support-traffic"] { background: var(--cat-bg-support); color: var(--cat-text-support); }
+.category-support-highway, [data-category="support-highway"] { background: var(--cat-bg-support); color: var(--cat-text-support); }
+.category-training,        [data-category="training"]        { background: var(--cat-bg-support); color: var(--cat-text-support); }
+.category-company,         [data-category="company"]         { background: var(--cat-bg-support); color: var(--cat-text-support); }
 
 .shift-day,   [data-shift="day"]   { background: var(--shift-bg-day); color: var(--shift-text-day); }
 .shift-night, [data-shift="night"] { background: var(--shift-bg-night); color: var(--shift-text-night); }

@@ -125,8 +125,10 @@
 - **画面別 *-ds.css に同じエイリアスを再導出・重複定義しない**（R-3b/c/d で画面ごとに部分集合を再導出した結果、
   画面ごとに異なる欠落が発生した反省。2026-07-10 に本ファイルへ統合済み）
 - 画面固有トークン（OB: density 3段・`--base-grid*` / LA: `--chart-seq-*` 暫定）だけを *-ds.css に置く
-- **SL は例外**: 残置モーダルを旧見た目のまま維持するため `ds-tokens-bridge.css`（旧 co-tokens **実値**のシム）を継続使用。
-  bridge → ds-legacy-aliases への切替（=残置モーダルの新 DS 化）は R-3f
+- ~~SL は例外~~ → **解消済み（R-3f #8 B-2b-1 / 2026-07-11）**: `ds-tokens-bridge.css` を撤去・削除し、
+  SL も本ファイルへ合流（全5画面が同一対応表）。SL 区分色は 03 §3.1 どおり青一色へ統一
+  （`--cat-*` = `--blue-soft`/`--blue` を screen-layout.css :root に定義・WS と同一マッピング。
+  応援・研修・社内の旧緑も青一色〔ユーザー承認 2026-07-11〕。dark の従来描画は維持 = #10 で判断）
 - 旧 co-tokens.css にも定義が無かった既存負債（`--focus-ring` / `--primary` / `--secondary` / `--bg-primary` /
   `--bg-secondary` / `--shadow-strong`）は本ファイルで補わない。解消は R-3f（監査スクリプトの ALLOWLIST と同期）
 
@@ -143,6 +145,9 @@
 - 固有注意: 配置 D&D・区分円 GC 色（belong 連動）・`smCategoryClassMap`/`smShiftClassMap` の命名維持
 - **実装確定（R-3a 完了・2026-07-10 追記）**: CSS は `ds-tokens-bridge.css` + `sl-ds.css` 構成（§3.3 の例外）。
   9モーダルは旧見た目のまま残置 → 残置モーダルの新 DS 化と bridge 撤去は R-3f
+- **B-2b-1（2026-07-11）**: bridge → `ds-legacy-aliases.css` 差替・bridge 削除（トークン層 = 残置モーダルも
+  旧トークン名のまま DS 値で描画）。区分色は青一色へ（§3.3 参照）。モーダル内部の md-fi-*/md-ob-* の
+  DS レシピ置換と co-forms/co-shared-badges 撤去は B-2b-2/B-3（次段）
 
 ### R-3b OB `order-book.html`
 

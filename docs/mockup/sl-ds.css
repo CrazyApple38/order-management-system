@@ -2,8 +2,8 @@
    sl-ds.css — SL 画面（screen-layout.html）新DS適用の画面固有オーバーライド
    ----------------------------------------------------------------------------
    位置づけ（2026-07-06 / mockup-refactor-plan R-3a-1a）:
-     - 読込は最後（ds-tokens → ds-tokens-bridge → ds-components → co-* →
-       screen-layout.css → 本ファイル）。screen-layout.css と同名クラス
+     - 読込は最後（ds-tokens → ds-legacy-aliases〔B-2b-1 で bridge から差替〕→
+       ds-components → co-* → screen-layout.css → 本ファイル）。screen-layout.css と同名クラス
        （.toolbar / .grid-table / .grid-container 等）は本ファイルで DS へ再アサートする。
      - 新骨格の大半は ds-components.css（.menubar/.rail/.workspace/.main-card/
        .grid-frame/.prop-card/.panel-rail/.stat-strip/.seg 等）が供給。ここでは
