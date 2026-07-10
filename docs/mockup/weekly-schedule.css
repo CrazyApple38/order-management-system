@@ -1776,7 +1776,7 @@ body {
 }
 
 /* 社員バッジ（ピル型）
-   Phase W-E: co-shared-badges.css `.bt-drag-tag` と視覚整合
+   Phase W-E: 旧 co-shared-badges.css `.bt-drag-tag`（B-3 で撤去済）と視覚整合
    （draggable な社員名タグ。radius/padding/gap/transition は DS 準拠） */
 .md-ws-emp-tag {
     display: inline-flex;

@@ -2,8 +2,9 @@
    ds-legacy-aliases.css — 旧 co-tokens.css トークン名の正準エイリアス（新DS読替）
    ----------------------------------------------------------------------------
    目的: co-tokens.css を撤去した画面（R-3 移行済み: OB / WS / LA。R-3e 以降 QA も）で、
-   共用 CSS（co-forms / co-buttons / co-modal / co-shared-badges / co-navbar /
-   co-notify-panel / co-company-input）と画面レガシー CSS が参照する旧トークン名を
+   共用 CSS（co-modal / co-navbar / co-notify-panel / co-company-input。
+   co-buttons/co-forms/co-shared-badges は R-3f B-1〜B-3 で DS 正本へ移設・撤去済み）と
+   画面レガシー CSS が参照する旧トークン名を
    新DS（ds-tokens.css）の値へ一括読替する **唯一の正準対応表**。
    画面別 *-ds.css に同じエイリアスを再導出・重複定義しないこと
    （経緯: R-3b/c/d で画面ごとに部分集合を再導出した結果、画面ごとに異なる欠落が発生。

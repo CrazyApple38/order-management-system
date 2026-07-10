@@ -58,6 +58,7 @@
 | B-07 | リスト3種 | `.list-plain`（タイムライン型）/ `.list-select`（`.is-selected`） | 履歴=時刻+内容、選択リスト=淡青面+白インセットリング | — |
 | B-08 | セマンティックバッジ一覧 | `.tag`(+`.cat-*`) / `.info-pill`(+`.req/.missing`) / `.mini-badge`(+`.ok/.warn/.alert`) / `.count-state`(+`.ok/.short/.over`) / `.bell-count` / `.night-sample` | 意味色体系（01 §3）に厳密対応 | 意味の転用禁止。bell-count のグローは要対応系限定 |
 | B-09 | アバター/ユーザーチップ | `.avatar`(`.sm/.lg`) / `.avatar-group` / `.menu-user`+`.presence-dot` / `.user-chip` | メニューバー右端にログインユーザー（全画面共通） | user-chip はカプセルバッジ語彙（公式例外①） |
+| B拡張 | バッジ編集・表示（旧 co-shared-badges 由来） | `.md-ob-badge-*`（選択式バッジ D&D 編集一式）/ `.md-ob-row-chip(s)` / `.md-ob-confidence-chip`（確度）/ `.badge-display`+`.badge-tag`+`.badge-child-tag`/`.badge-gc-tag`（表示専用・SL） | R-3f B-3（2026-07-11 ユーザー承認）で ds-components.css §J に受け皿化し co-shared-badges.css を撤去。旧 teal 淡色→--blue-soft/--info-*・undo バー琥珀→DS alert 系・未定義 var(--primary)→var(--ink) へ読替 | 信頼度 active の琥珀 #f59e0b/灰青 #94a3b8 は確度の意味色のためリテラル維持（正式パレットは R-3f #5 で判断）。使用箇所は OB/SL |
 
 ## 4. C. ナビゲーション系（7件）
 

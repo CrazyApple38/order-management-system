@@ -64,8 +64,6 @@
     --header-btn-bg: rgba(255, 255, 255, 0.15);
     --header-btn-hover: rgba(255, 255, 255, 0.25);
 
-    /* 後方互換（co-shared-badges.css 参照用） */
-    --secondary: var(--divider);
 }
 
 /* === Dark Theme Override === */
@@ -126,8 +124,6 @@
     --header-btn-bg: rgba(255, 255, 255, 0.08);
     --header-btn-hover: rgba(255, 255, 255, 0.15);
 
-    /* 後方互換 */
-    --secondary: var(--divider);
 }
 
 * {
@@ -1788,7 +1784,7 @@ h1 {
     border: 1px solid rgba(68, 166, 181, 0.25);
 }
 
-/* badge-display系 → co-shared-badges.css */
+/* badge-display系 → ds-components.css §J (B-3) */
 
 /* 時間表示 */
 .time-display {
@@ -3599,7 +3595,7 @@ h1 {
    現場詳細入力モーダル — 追加スタイル
    ============================================ */
 
-/* M-D2: モーダル close は co-modal.css (.modal-close) に移管。site-header variants は co-shared-badges.css */
+/* M-D2: モーダル close は co-modal.css (.modal-close) に移管。site-header variants は ds-components.css §J (B-3) */
 
 /* 現場名 + 業務詳細グループ */
 .md-sm-site-group {
@@ -3665,7 +3661,7 @@ h1 {
     font-size: 11px; font-weight: 600; color: var(--accent-primary);
     letter-spacing: 0.5px;
 }
-/* .md-ob-row-chips, .md-ob-row-chip, :hover, .md-ob-chip-active → co-shared-badges.css */
+/* .md-ob-row-chips, .md-ob-row-chip, :hover, .md-ob-chip-active → ds-components.css §J (B-3) */
 /* ── 業務詳細（サブタスク） ── */
 .md-ob-sub-task-fields {
     display: flex; flex-direction: column; gap: 10px;
@@ -3743,7 +3739,7 @@ h1 {
     color: var(--text-disabled); font-style: italic; font-weight: 400;
 }
 
-/* .md-ob-badge-section 〜 .md-ob-touch-drag-over → co-shared-badges.css */
+/* .md-ob-badge-section 〜 .md-ob-touch-drag-over → ds-components.css §J (B-3) */
 
 /* ── 現場監督候補チップ ── */
 .md-ob-supervisor-candidates {
@@ -4066,7 +4062,7 @@ h1 {
     font-size: 11px; font-weight: 600; color: var(--text-tertiary);
     text-transform: uppercase; letter-spacing: 0.5px;
 }
-/* .md-ob-confidence-chips, .md-ob-confidence-chip, :hover, .md-ob-conf-active-* → co-shared-badges.css */
+/* .md-ob-confidence-chips, .md-ob-confidence-chip, :hover, .md-ob-conf-active-* → ds-components.css §J (B-3) */
 
 /* 現場地図セクション */
 .md-ob-map-fields {

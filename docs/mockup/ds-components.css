@@ -2948,3 +2948,209 @@ th.sorted { color: var(--blue); }
     outline: none;
     box-shadow: 0 0 0 2px rgba(34, 103, 203, 0.12);
 }
+
+/* ============================================================================
+ * J. バッジ編集・表示拡張 — 旧 co-shared-badges 由来（R-3f B-3 / 2026-07-11
+ * ユーザー承認）。OB/SL 共用のバッジ編集 D&D 一式・信頼度チップ・表示専用バッジ。
+ * 旧トークン名→DS トークン読替 + 旧 teal 淡色→--blue-soft/--info-* +
+ * undo バー琥珀→DS alert 系 + 未定義負債 var(--primary)→var(--ink)（承認済み）。
+ * 例外: 信頼度 active の琥珀 #f59e0b / 灰青 #94a3b8 は確度の意味色のため
+ * リテラル維持（DS 橙=警告と意味衝突。正式パレットは R-3f #5 で判断）。
+ * ========================================================================== */
+
+/* ---- バッジセクション・チップ（選択式バッジ UI） ---- */
+.md-ob-badge-section {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 0;
+    background: transparent; border: none;
+    border-radius: 0;
+}
+.md-ob-badge-chip {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: var(--radius-md);
+    border: 1px solid var(--line);
+    background: var(--panel); color: var(--muted);
+    font-size: 11px; font-weight: 500;
+    cursor: pointer; transition: all var(--duration-fast);
+    user-select: none;
+}
+.md-ob-badge-chip:hover {
+    border-color: var(--blue); color: var(--blue);
+    background: var(--blue-soft);
+}
+.md-ob-badge-chip.md-ob-badge-selected {
+    background: var(--blue); color: #fff;
+    border-color: var(--blue);
+}
+.md-ob-badge-chip.md-ob-badge-child {
+    font-size: 10px; padding: 2px 8px; border-radius: var(--radius-lg);
+}
+.md-ob-badge-chip.md-ob-badge-child.md-ob-badge-selected {
+    background: var(--line); color: var(--ink);
+    border-color: var(--line);
+}
+.md-ob-badge-delete-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    border: none; background: transparent;
+    color: inherit; font-size: 9px;
+    cursor: pointer; transition: all var(--duration-fast);
+    padding: 0; line-height: 1;
+}
+.md-ob-badge-delete-btn:hover { background: rgba(0, 0, 0, 0.08); }
+.md-ob-badge-selected .md-ob-badge-delete-btn:hover { background: rgba(255, 255, 255, 0.25); }
+
+/* ---- 行チップ ---- */
+.md-ob-row-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.md-ob-row-chip {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: var(--radius-md);
+    border: 1px solid var(--line);
+    background: var(--panel); color: var(--muted);
+    font-size: 11px; font-weight: 500;
+    cursor: pointer; transition: all var(--duration-fast);
+    user-select: none;
+}
+.md-ob-row-chip:hover {
+    border-color: var(--blue); color: var(--blue);
+    background: var(--blue-soft);
+}
+.md-ob-row-chip.md-ob-chip-active {
+    background: var(--blue); color: #fff;
+    border-color: var(--blue);
+}
+
+/* ---- グループ・見出し ---- */
+.md-ob-badge-group { display: flex; flex-direction: column; gap: 6px; }
+.md-ob-badge-child-group { padding-top: 8px; border-top: 1px dashed var(--line); }
+.md-ob-badge-group-header { display: flex; align-items: center; gap: 6px; }
+.md-ob-badge-group-title { font-size: 12px; font-weight: 600; color: var(--muted); }
+.md-ob-badge-parent-display {
+    display: inline-flex; align-items: center;
+    padding: 3px 12px; border-radius: var(--radius-md);
+    background: var(--blue); color: #fff;
+    font-size: 12px; font-weight: 600;
+}
+.md-ob-badge-parent-display.md-ob-badge-parent-unknown {
+    background: var(--line); color: var(--muted);
+}
+.md-ob-badge-group-subtitle { font-size: 11px; font-weight: 600; color: var(--muted); }
+.md-ob-badge-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.md-ob-badge-empty { font-size: 11px; color: var(--info-border); font-style: italic; }
+
+/* ---- ドラッグ＆ドロップ ---- */
+.md-ob-badge-drag-item {
+    display: inline-flex; align-items: center; gap: 2px;
+    border-radius: var(--radius-md);
+    transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+}
+.md-ob-badge-drag-item[draggable="true"] { cursor: grab; }
+.md-ob-badge-drag-item.md-ob-badge-dragging { opacity: 0.4; transform: scale(0.95); }
+.md-ob-badge-drag-item.md-ob-badge-drag-over {
+    box-shadow: 0 0 0 2px var(--blue);
+    border-radius: var(--radius-md);
+}
+.md-ob-badge-drag-grip {
+    font-size: 10px; color: var(--info-border);
+    cursor: grab; padding: 0 2px;
+    user-select: none;
+}
+
+/* ---- バッジ削除復元バー（旧琥珀→DS alert 系へ読替） ---- */
+.md-ob-badge-undo-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border-radius: 6px;
+    background: var(--alert-bg); border: 1px solid var(--alert-border);
+    font-size: 11px; color: var(--alert-text);
+    animation: badgeUndoFadeIn 0.2s ease;
+}
+.md-ob-badge-undo-btn {
+    padding: 2px 10px; border-radius: 10px;
+    border: 1px solid var(--alert-border); background: #fff;
+    color: var(--alert-text); font-size: 11px; font-weight: 600;
+    cursor: pointer; transition: all var(--duration-fast);
+}
+.md-ob-badge-undo-btn:hover { background: var(--alert-text); color: #fff; }
+@keyframes badgeUndoFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- 孫バッジ ---- */
+.md-ob-grandchild-section {
+    width: 100%;
+    margin: 4px 0 6px 0;
+    padding: 8px 10px 6px 14px;
+    border-left: 2px solid var(--line);
+    background: var(--blue-soft);
+    border-radius: 0 6px 6px 0;
+}
+.md-ob-badge-grandchild { font-size: 10px; padding: 2px 8px; border-radius: var(--radius-lg); }
+.md-ob-badge-grandchild.md-ob-badge-selected {
+    background: var(--line); color: var(--ink);
+    border-color: var(--line);
+}
+.md-ob-gc-drag-item { border-radius: var(--radius-lg); }
+.md-ob-gc-undo-bar { margin-top: 6px; }
+.md-ob-gc-add { font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+
+/* ---- タッチドラッグ共通 ---- */
+.md-ob-touch-dragging { opacity: 0.4; transform: scale(0.95); }
+.md-ob-touch-drag-over { box-shadow: 0 0 0 2px var(--blue); }
+
+/* ---- 信頼度チップ（active 2色はリテラル維持 = #5 で正式パレット判断） ---- */
+.md-ob-confidence-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.md-ob-confidence-chip {
+    display: inline-flex; align-items: center;
+    padding: 2px 8px; border-radius: var(--radius-lg);
+    border: 1px solid var(--line);
+    background: var(--panel); color: var(--muted);
+    font-size: 10px; font-weight: 500;
+    cursor: pointer; transition: all var(--duration-fast);
+    user-select: none;
+}
+.md-ob-confidence-chip:hover {
+    border-color: var(--blue); color: var(--blue);
+    background: var(--blue-soft);
+}
+.md-ob-confidence-chip.md-ob-conf-active-confirmed {
+    background: var(--blue); color: #fff; border-color: var(--blue);
+}
+.md-ob-confidence-chip.md-ob-conf-active-tentative_high {
+    background: #f59e0b; color: #fff; border-color: #f59e0b;
+}
+.md-ob-confidence-chip.md-ob-conf-active-tentative_low {
+    background: #94a3b8; color: #fff; border-color: #94a3b8;
+}
+
+/* ---- 表示専用バッジ（グリッド・一覧表示用 / SL） ---- */
+.badge-display { display: flex; flex-wrap: wrap; gap: 3px; }
+.badge-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+.badge-child-tag {
+    background: var(--blue-soft);
+    color: var(--blue);
+    border: 1px solid var(--info-border);
+}
+.badge-gc-tag {
+    background: var(--info-bg);
+    color: var(--muted);
+    border: 1px solid var(--info-border);
+    font-weight: 500;
+}
+.badge-gc-sep { flex-basis: 100%; height: 0; font-size: 0; overflow: hidden; }
+.badge-group-sep {
+    flex-basis: 100%;
+    height: 0;
+    border-top: 1px dotted var(--info-border);
+    font-size: 0;
+    overflow: hidden;
+    margin: 3px 0 1px;
+}

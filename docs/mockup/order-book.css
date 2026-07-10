@@ -478,7 +478,7 @@ body {
     font-size: 11px; font-weight: 600; color: var(--text-tertiary);
     text-transform: uppercase; letter-spacing: 0.5px;
 }
-/* .md-ob-confidence-chips/chip → co-shared-badges.css */
+/* .md-ob-confidence-chips/chip → ds-components.css §J (B-3) */
 
 /* グリッド信頼度による文字色 */
 .tbl-grid__date-cell.md-ob-conf-tentative_high .tbl-grid__cell-count { opacity: 0.5; }
@@ -549,10 +549,10 @@ body {
     color: var(--text-disabled); font-style: italic; font-weight: 400;
 }
 
-/* バッジセクション → co-shared-badges.css */
+/* バッジセクション → ds-components.css §J (B-3) */
 
 /* 孫バッジセクション（固有部分）
-   M-E1: .md-ob-grandchild-section は co-shared-badges.css L282-289 に集約。
+   M-E1: .md-ob-grandchild-section は ds-components.css §J (B-3) に集約。
          ここでは header/label/arrow/chips のみ定義。 */
 .md-ob-grandchild-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -569,7 +569,7 @@ body {
 .md-ob-grandchild-chips {
     display: flex; flex-wrap: wrap; gap: 5px;
 }
-/* .md-ob-badge-grandchild, gc-*, btn-add-gc → co-shared-badges.css */
+/* .md-ob-badge-grandchild, gc-*, btn-add-gc → ds-components.css §J (B-3) */
 
 /* ツールチップ内バッジ
    M-E1: 新DS .bt-tooltip-badge-accent (styles-light L2218-2230) と値同一。
@@ -704,7 +704,7 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* 行編集モーダル：チップ選択 → co-shared-badges.css */
+/* 行編集モーダル：チップ選択 → ds-components.css §J (B-3) */
 .md-ob-row-chip.md-ob-chip-disabled {
     opacity: 0.35; cursor: not-allowed;
     background: var(--bg-surface-2); color: var(--text-tertiary);
