@@ -27,6 +27,16 @@
 
    注意: ds-tokens.css / ds-components.css（新DS正本）は改変しない。本ファイルは
      あくまで移行専用の別ファイル。値の追加・変更はユーザー承認が必要。
+
+   B-2a 棚卸し（R-3f #8 / 2026-07-11）:
+     SL 読込チェーン全体（screen-layout.css/js・sl-ds・co-forms・co-modal・
+     co-shared-badges・co-company-input・co-navbar・co-notify-panel・print-touo-nikkei・
+     HTML）を機械集計し、参照ゼロの死にシム36個（chart系14・bp系5・fs/icon/space/
+     radius/lh の拡張スケール・fw-regular/black・accent-secondary light/dim・
+     density 3種+切替ブロック）を削除した。残存トークンの生存根拠:
+     - color.category 8個 = screen-layout.css .category-* バッジ（B-2b 承認案件）
+     - --space-2xl = print-touo-nikkei.css
+     - その他 = ds-legacy-aliases.css と同名（B-2b の bridge→aliases 差替で DS 値へ移行）
    ============================================================================ */
 
 :root {
@@ -59,8 +69,6 @@
   --accent-primary-light:   #5AB8C6;
   --accent-primary-dim:     rgba(68, 166, 181, 0.12);
   --accent-secondary:       #E07856;
-  --accent-secondary-light: #EA9980;
-  --accent-secondary-dim:   rgba(224, 120, 86, 0.12);
 
   /* ----- color.semantic（co 専用） ----- */
   --semantic-success:      #38A169;
@@ -70,7 +78,10 @@
   --semantic-warning-bg:   rgba(214, 158, 46, 0.1);
   --semantic-error:        #DB577B;
 
-  /* ----- color.category（co 専用） ----- */
+  /* ----- color.category（co 専用・B-2b 要ユーザー承認）
+     screen-layout.css 1686-1689 の .category-* / [data-category] バッジ（現場詳細
+     モーダル等・smCategoryClassMap 管理）が参照する唯一の生存グループ。
+     ds-tokens に区分色が無いため、B-2b で DS 区分色を決めて置換する ----- */
   --cat-bg-facility:   rgba(68, 166, 181, 0.14);
   --cat-text-facility: #1c4d54;
   --cat-bg-event:      rgba(122, 140, 196, 0.14);
@@ -80,22 +91,6 @@
   --cat-bg-highway:    rgba(98, 158, 120, 0.14);
   --cat-text-highway:  #1f4e31;
 
-  /* ----- color.chart（co 専用） ----- */
-  --chart-1: #44A6B5;
-  --chart-2: #E07856;
-  --chart-3: #7A8CC4;
-  --chart-4: #629E78;
-  --chart-5: #B48764;
-  --chart-6: #B8607A;
-  --chart-seq-0: #E9F1F6;
-  --chart-seq-1: #B2D5E2;
-  --chart-seq-2: #6B9AA8;
-  --chart-seq-3: #2A6B7A;
-  --chart-seq-4: #004554;
-  --chart-diverge-neg:     #DB577B;
-  --chart-diverge-neutral: #D3D0C8;
-  --chart-diverge-pos:     #38A169;
-
   /* ----- typography（co 専用: ds はスケールトークンを持たない） ----- */
   --font-family-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic UI', 'Segoe UI', Roboto, sans-serif;
   --font-family-mono: 'SF Mono', Consolas, Menlo, monospace;
@@ -104,19 +99,13 @@
   --fs-sm:      13px;
   --fs-base:    14px;
   --fs-md:      16px;
-  --fs-lg:      20px;
-  --fs-xl:      26px;
-  --fs-2xl:     34px;
 
-  --fw-regular:  400;
   --fw-medium:   500;
   --fw-semibold: 600;
   --fw-bold:     700;
-  --fw-black:    700; /* §3.1: 800 廃止 → 700 上限。旧 --fw-black 参照を 700 に丸める */
 
   --lh-tight: 1.3;
   --lh-base:  1.5;
-  --lh-loose: 1.7;
 
   /* ----- spacing（co 専用） ----- */
   --space-2xs: 2px;
@@ -124,48 +113,10 @@
   --space-sm:  8px;
   --space-md:  12px;
   --space-lg:  16px;
-  --space-xl:  24px;
-  --space-2xl: 32px;
+  --space-2xl: 32px; /* print-touo-nikkei.css が参照 */
   --space-3xl: 48px;
 
-  /* ----- radius（co 専用: ds 未定義の --radius-xl のみ。同名 sm/md/lg は ds 新値を使う） ----- */
-  --radius-xl: 16px;
-
-  /* ----- breakpoint（co 専用） ----- */
-  --bp-sm:  640px;
-  --bp-md:  768px;
-  --bp-lg:  1024px;
-  --bp-xl:  1280px;
-  --bp-2xl: 1536px;
-
   /* ----- icon-size（co 専用） ----- */
-  --icon-xs:  12px;
-  --icon-sm:  14px;
   --icon-md:  16px;
   --icon-lg:  20px;
-  --icon-xl:  24px;
-  --icon-2xl: 32px;
-
-  /* ----- density（co 専用: 3段切替を維持） ----- */
-  --tbl-row-h:       36px;
-  --space-row:       8px;
-  --fs-density-base: 14px;
-}
-
-:root[data-density="compact"] {
-  --tbl-row-h:       28px;
-  --space-row:       4px;
-  --fs-density-base: 13px;
-}
-
-:root[data-density="comfortable"] {
-  --tbl-row-h:       36px;
-  --space-row:       8px;
-  --fs-density-base: 14px;
-}
-
-:root[data-density="spacious"] {
-  --tbl-row-h:       44px;
-  --space-row:       12px;
-  --fs-density-base: 15px;
 }
