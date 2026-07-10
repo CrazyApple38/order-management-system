@@ -137,8 +137,8 @@
             if (closeAnchor) closeAnchor.classList.remove('is-open');
             return;
         }
-        // カード外クリック → 閉じる (.cn-panel は QA モバイル互換)
-        if (!e.target.closest('.cn-card') && !e.target.closest('.cn-panel')) {
+        // カード外クリック → 閉じる
+        if (!e.target.closest('.cn-card')) {
             closeAllPanels(null);
         }
     });
@@ -150,7 +150,6 @@
 
     // ========== フィルタチップ ==========
     // cn-card: カテゴリ (すべて / 受注 / 配置 / 申請・承認 / マスタ)
-    // 旧 .cn-panel (QA モバイル互換): 種別 (すべて / 追加 / 変更 / 削除)
     // - 「すべて」を選択 → 他すべて解除
     // - 個別チップを選択 → 「すべて」解除 + 該当チップを多重選択トグル
     // - すべて解除になった場合は「すべて」を自動的にONに戻す
@@ -174,7 +173,7 @@
             });
             if (!anyOn && allChip) allChip.classList.add('is-active');
         }
-        var view = group.closest('.cn-card') || group.closest('.cn-history-view') || group.closest('.cn-tab-view');
+        var view = group.closest('.cn-card');
         if (view) applyCnFilters(view);
     });
 
@@ -194,21 +193,12 @@
     function applyCnFilters(view) {
         if (!view) return;
         var values = getActiveFilterValues(view);
-        var isCard = !!(view.classList && view.classList.contains('cn-card'));
-        // 旧パネル (QA) の一覧選択フィルタ
-        var pickAxis = view.dataset ? (view.dataset.pickAxis || '') : '';
-        var pickValue = view.dataset ? (view.dataset.pickValue || '') : '';
 
-        // 1) アイテム単位で絞り込み
-        //    cn-card = data-category (エンティティ導出) / 旧パネル = data-type (種別)
+        // 1) アイテム単位で絞り込み (data-category = エンティティ導出)
         view.querySelectorAll('.cn-item').forEach(function (item) {
-            var key = isCard ? (item.dataset.category || '') : (item.dataset.type || '').toLowerCase();
+            var key = item.dataset.category || '';
             var valueOk = !values || values.indexOf(key) !== -1;
-            var pickOk = true;
-            if (!isCard && pickAxis && pickValue) {
-                pickOk = ((item.dataset[pickAxis] || '') === pickValue);
-            }
-            item.classList.toggle('is-hidden', !(valueOk && pickOk));
+            item.classList.toggle('is-hidden', !valueOk);
         });
 
         // 2) グループ単位で全アイテム非表示なら自身も非表示
@@ -233,152 +223,7 @@
         if (toggle) toggle.textContent = willCollapse ? '▾' : '▴';
     });
 
-    // ============================================================
-    // QA モバイル互換セクション（R-3e で QA を新カードへ移行したら撤去）
-    // quick-access.html は旧 .cn-panel マークアップ (最新/履歴タブ・検索・
-    // 一覧選択フロー) を自前で持ち、以下の汎用ハンドラに依存している。
-    // 共通ナビの cn-card はこれらを使用しない。
-    // ============================================================
-
-    // ----- 上タブ (最新 / 履歴) -----
-    document.addEventListener('click', function (e) {
-        var tab = e.target.closest('.cn-tab');
-        if (!tab) return;
-        var panel = tab.closest('.cn-panel');
-        if (!panel) return;
-        var name = tab.dataset.tab;
-        panel.querySelectorAll('.cn-tab').forEach(function (t) {
-            t.classList.toggle('is-active', t === tab);
-        });
-        panel.querySelectorAll('.cn-tab-view').forEach(function (v) {
-            v.classList.toggle('is-active', v.dataset.tab === name);
-        });
-    });
-
-    // ----- 縦サブタブ (現場名 / アカウント) -----
-    document.addEventListener('click', function (e) {
-        var stab = e.target.closest('.cn-side-tab');
-        if (!stab) return;
-        var view = stab.dataset.view;
-        var layout = stab.closest('.cn-history-layout');
-        if (!layout || !view) return;
-        layout.querySelectorAll('.cn-side-tab').forEach(function (t) {
-            t.classList.toggle('is-active', t === stab);
-        });
-        layout.querySelectorAll('.cn-history-view').forEach(function (v) {
-            v.classList.toggle('is-active', v.dataset.view === view);
-        });
-    });
-
-    // ----- 一覧選択フロー (契約先 → 現場 / アカウント) -----
-    function renderCrumbsInitial(pickView) {
-        var crumbs = pickView.querySelector('.cn-pick-crumbs');
-        if (!crumbs) return;
-        var base = pickView.dataset.crumbBase || '';
-        var step1Label = pickView.dataset.step1Label || '選択';
-        crumbs.innerHTML =
-            '<span>' + base + '</span>' +
-            '<span class="cn-pick-crumb-sep">&gt;</span>' +
-            '<span class="cn-pick-crumb-current">' + step1Label + '</span>';
-    }
-
-    document.addEventListener('click', function (e) {
-        var clear = e.target.closest('.cn-list-pick-clear');
-        if (clear) {
-            e.stopPropagation();
-            var btn = clear.closest('.cn-list-pick-btn');
-            if (btn) {
-                btn.classList.remove('is-selected');
-                var label = btn.querySelector('.cn-list-pick-label');
-                if (label) label.textContent = '一覧';
-                var view = btn.closest('.cn-history-view');
-                if (view) {
-                    delete view.dataset.pickAxis;
-                    delete view.dataset.pickValue;
-                    applyCnFilters(view);
-                }
-                var pev = new CustomEvent('cn:filter-clear', { bubbles: true });
-                btn.dispatchEvent(pev);
-            }
-            return;
-        }
-        var pickBtn = e.target.closest('.cn-list-pick-btn');
-        if (!pickBtn) return;
-        var view2 = pickBtn.closest('.cn-history-view');
-        if (!view2) return;
-        var pickView = view2.querySelector('.cn-pick-view');
-        if (!pickView) return;
-        pickView.querySelectorAll('.cn-pick-step').forEach(function (s, i) {
-            s.classList.toggle('is-active', i === 0);
-        });
-        renderCrumbsInitial(pickView);
-        view2.classList.add('is-picking');
-    });
-
-    document.addEventListener('click', function (e) {
-        var badge = e.target.closest('.cn-pick-badge');
-        if (!badge) return;
-        var step = badge.closest('.cn-pick-step');
-        if (!step || !step.classList.contains('is-active')) return;
-        var pickView = step.closest('.cn-pick-view');
-        var view = pickView.closest('.cn-history-view');
-        var stepName = step.dataset.step;
-
-        if (stepName === 'company') {
-            var company = badge.dataset.company;
-            var step2 = pickView.querySelector('.cn-pick-step[data-step="site"]');
-            if (!step2) return;
-            step2.querySelectorAll('.cn-pick-badges').forEach(function (g) {
-                g.hidden = (g.dataset.company !== company);
-            });
-            step.classList.remove('is-active');
-            step2.classList.add('is-active');
-            var crumbs = pickView.querySelector('.cn-pick-crumbs');
-            var base = pickView.dataset.crumbBase || '';
-            crumbs.innerHTML =
-                '<span>' + base + '</span>' +
-                '<span class="cn-pick-crumb-sep">&gt;</span>' +
-                '<span>' + company + '</span>' +
-                '<span class="cn-pick-crumb-sep">&gt;</span>' +
-                '<span class="cn-pick-crumb-current">現場を選択</span>';
-        } else {
-            var listBtn = view.querySelector('.cn-list-pick-btn');
-            var selValue = badge.textContent.trim();
-            if (listBtn) {
-                var prefix = listBtn.dataset.prefix || '';
-                var label = listBtn.querySelector('.cn-list-pick-label');
-                if (label) label.textContent = prefix ? (prefix + ': ' + selValue) : selValue;
-                listBtn.classList.add('is-selected');
-                var fev = new CustomEvent('cn:filter-select', {
-                    bubbles: true,
-                    detail: { value: selValue, data: Object.assign({}, badge.dataset) }
-                });
-                listBtn.dispatchEvent(fev);
-            }
-            view.dataset.pickAxis = (stepName === 'account') ? 'account' : 'site';
-            view.dataset.pickValue = selValue;
-            applyCnFilters(view);
-            view.classList.remove('is-picking');
-        }
-    });
-
-    document.addEventListener('click', function (e) {
-        var back = e.target.closest('.cn-pick-back');
-        if (!back) return;
-        var pickView = back.closest('.cn-pick-view');
-        var view = back.closest('.cn-history-view');
-        if (!pickView || !view) return;
-        var step2 = pickView.querySelector('.cn-pick-step[data-step="site"]');
-        if (step2 && step2.classList.contains('is-active')) {
-            step2.classList.remove('is-active');
-            var step1 = pickView.querySelector('.cn-pick-step[data-step="company"]');
-            if (step1) step1.classList.add('is-active');
-            renderCrumbsInitial(pickView);
-        } else {
-            view.classList.remove('is-picking');
-        }
-    });
-    // ========== QA モバイル互換セクションここまで ==========
+    // (QA モバイル互換セクションは R-3e で QA が新カードへ移行したため撤去 2026-07-10)
 
     // ========== アイテムクリック ==========
     // - cn-expand 有り: 排他アコーディオン展開（同パネル内の他は閉じる / フラッシュ発火なし）
@@ -398,7 +243,8 @@
             slRow: 'screen-layout',
             wsCell: 'weekly-schedule',
             leaveId: 'leave-application',
-            vehicleSchedule: 'leave-application'
+            vehicleSchedule: 'leave-application',
+            qaCell: 'quick-access'
         };
         return axisPage[rawTarget.axis] || '';
     }
@@ -406,7 +252,8 @@
         'order-book':        ['orderId', 'siteName'],
         'screen-layout':     ['siteName', 'orderId', 'wsCell'],
         'weekly-schedule':   ['wsCell', 'siteName', 'orderId', 'leaveId'],
-        'leave-application': ['leaveId', 'vehicleSchedule']
+        'leave-application': ['leaveId', 'vehicleSchedule'],
+        'quick-access':      ['qaCell']
     };
     function currentStoreDateKey() {
         return (window.OmsMockStore && window.OmsMockStore.getCurrentDate && window.OmsMockStore.getCurrentDate()) || '';
@@ -523,6 +370,9 @@
     }
     function shouldKeepExpandedAfterJump(detail) {
         if (!detail || !detail.inContext || !detail.target) return false;
+        // アクションボタン付き (元に戻す等) はジャンプ後もパネル・展開を維持する
+        // (閉じるとボタンへ到達できなくなるため。R-3e QA で導入・全画面共通の一般則)
+        if (detail.item && detail.item.querySelector('.cn-action-btn')) return true;
         if (detail.primaryPage && detail.primaryPage !== detail.page) return true;
         var sourcePage = sourceToPrimaryPage(detail.source);
         if (sourcePage && sourcePage !== detail.page) return true;
@@ -574,7 +424,7 @@
             markItemReadAndRefresh(item);
             fireJump(item);
             if (shouldKeepExpandedAfterJump(currentDetail)) {
-                var currentPanel = item.closest('.cn-card') || item.closest('.cn-panel');
+                var currentPanel = item.closest('.cn-card');
                 if (currentPanel) {
                     currentPanel.querySelectorAll('.cn-item.is-expanded').forEach(function (other) {
                         if (other !== item) setItemExpanded(other, false);
@@ -593,7 +443,7 @@
         var willOpen = !item.classList.contains('is-expanded');
         if (willOpen) {
             // 排他: 同じカード/パネル内の他の展開済みアイテムを閉じる
-            var panel = item.closest('.cn-card') || item.closest('.cn-panel');
+            var panel = item.closest('.cn-card');
             if (panel) {
                 panel.querySelectorAll('.cn-item.is-expanded').forEach(function (other) {
                     if (other !== item) setItemExpanded(other, false);
@@ -634,7 +484,7 @@
     document.addEventListener('click', function (e) {
         var btn = e.target.closest('.cn-mark-all');
         if (!btn) return;
-        var panel = btn.closest('.cn-card') || btn.closest('.cn-panel');
+        var panel = btn.closest('.cn-card');
         if (!panel) return;
         panel.querySelectorAll('.cn-item.is-unread').forEach(function (item) {
             item.classList.remove('is-unread');

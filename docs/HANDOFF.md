@@ -9,24 +9,24 @@
 
 - **更新者**: Claude Code (Fable 5)
 - **日付**: 2026-07-10
-- **コミット**: `2a12d30`（push 済み）— 横断デザインレビュー+旧トークン欠落補修+R-3f 新設。
+- **コミット**: R-3e QA 新DS適用 + 旧 .cn-panel → 共通 cn-card 移行（本コミット）
 
 ## 直前にやったこと（最新のみ）
 
-- **横断レビュー**: R-1〜R-3d 実装を DS 正本と全照合。R-3d 型トークン欠落が OB（実害）/WS/LA にも存在 → **`ds-legacy-aliases.css` 新設**（旧トークン→DS値の正準表・03 §3.3）で補修、runtime 再検証済（`screenshots/r3f0-*.png`）。
-- **監査恒久化**: `scripts/design-audit/ds-audit.js`（未定義var/co・ds併載/直書き値）。**R-3 系の完了条件 = NG:0**（04 §5）。現在 NG=0 / WARN9 は R-3f #5 で棚卸し予定。
-- **R-3f 横断クリーンアップ（12項目）を計画書 §4 に正式フェーズ化**（.btn新旧統一 / panel-rail active=青リングが正 / focus-ring等既存負債 / 死にCSS / menu-user / ヘルプicon-btn / SL bridge撤去 / ダークテーマ扱い 等）。
+- **R-3e 完了（QA・runtime検証済）**: CSS 読替（ds-tokens → ds-legacy-aliases → ds-components + 新設 qa-ds.css）。
+  モバイル例外のため骨格転換なし・カード型フローへ DS レシピ適用。旧パレット直書き（teal/pink/桃色曜日面）を DS トークン化。
+- **QA 通知を統合ベル + 共通 cn-card へ移行**（ユーザー判断）: 旧 .cn-panel マークアップ + co-notify-panel.js QA互換セクション撤去、
+  `qaCell` 軸新設、アンカー1個をホーム⇄カレンダーへ JS 移設、revert/reapprove は cn:action 化（スナップショット復元維持）。
+- **共通挙動の追加**: アクションボタン付きアイテムはジャンプ後もパネル/展開を維持（co-notify-panel.js v40・全画面共通）。
+- 検証: ds-audit NG=0（qa-ds WARN 0）/ QA 全フロー + OB/SL/WS/LA/admin-notify 回帰なし / コンソール0 / `screenshots/r3e-qa-*.png`。
 
-## 次にやるべきこと（順序はユーザー確認済み: R-3e → R-3f）
+## 次にやるべきこと
 
-1. **R-3e QA（quick-access.html）新DS適用**: 着手前に `mockup-refactor-plan.md` と 03 の QA 節を全読。
-   モバイル例外（レール/右プロパティ無し・通知はトースト維持）。カード型入力フローを ds コンポーネントへ置換のみ。
-   co-tokens 撤去時は **ds-tokens → ds-legacy-aliases → ds-components の順で読込**（03 §3.3。エイリアス再導出禁止）。
-   QA 自前の旧 `.cn-panel` マークアップと co-notify-panel.js「QAモバイル互換セクション」の扱いに注意（SHARED-MEMORY 参照）。
-   完了条件: `node scripts/design-audit/ds-audit.js` **NG=0** + computed style 実測 + コンソール0（04 §5。再検証時は URL に `?cachebust=N`）。
-2. **R-3f 横断クリーンアップ**: 計画書 §4 R-3f 表の12項目が SSOT。値・見た目の変更は全てユーザー承認必須。
-   #4 QA分・#9 cn-card内蔵ブロックは R-3e 完了が前提（それ以外は独立）。監査 ALLOWLIST（ds-audit.js 内）と #3 既存負債の解消を同期させること。
+1. **R-3f 横断クリーンアップ**: 計画書 §4 R-3f 表の12項目が SSOT。値・見た目の変更は全てユーザー承認必須。
+   R-3e 完了により前提解消済み: **#4 旧 .cn-panel CSS（co-notify-panel.css）は利用者ゼロ = 撤去可** / **#9 cn-card 内蔵 `--cn-*` ブロックの ds 参照化も着手可**（全画面が ds-tokens 読込済み）。
+2. 監査 ALLOWLIST（ds-audit.js 内）と #3 既存負債（--focus-ring 等）の解消を同期させること。
 
 ## 今だけの申し送り（任意）
 
-- Apache 起動済み。`shield.svg` 404 は既知の別件（QA ヘッダで発生・アイコン選定待ち。R-3e 中に触らない）。
+- `shield.svg` 404 は既知の別件（QA/admin-notify ヘッダ・アイコン選定待ち）。R-3e では触っていない。
+- QA のベルアンカーは DOM 1個を画面間で移設する方式（SHARED-MEMORY 注意事項参照）。複製すると共通 first-match 前提が壊れる。

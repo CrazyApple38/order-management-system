@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Quick Access — 受注クイック入力</title>
-    <link rel="stylesheet" href="mockup/co-tokens.css">
+    <link rel="stylesheet" href="mockup/ds-tokens.css?v=1">
+    <link rel="stylesheet" href="mockup/ds-legacy-aliases.css?v=1">
+    <link rel="stylesheet" href="mockup/ds-components.css?v=1">
     <link rel="stylesheet" href="mockup/co-forms.css?v=2">
     <link rel="stylesheet" href="mockup/co-buttons.css">
     <link rel="stylesheet" href="mockup/co-shared-badges.css">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=18">
     <link rel="stylesheet" href="mockup/co-company-input.css">
-    <link rel="stylesheet" href="mockup/quick-access.css?v=phase-ab">
+    <link rel="stylesheet" href="mockup/quick-access.css?v=r3e-1">
+    <link rel="stylesheet" href="mockup/qa-ds.css?v=2">
 </head>
 <body>
 
@@ -83,108 +86,32 @@
                     <h1 class="qa-brand-title">Quick Access</h1>
                 </div>
                 <div class="qa-header-actions">
-                    <div class="cn-anchor qa-cn-anchor" id="qaCnAnchor">
-                        <button type="button" class="cn-trigger qa-cn-btn" id="qaCnNotifyBtn" onclick="qaCnOpenModal()" title="変更通知" aria-label="変更通知を開く">
-                            <img src="mockup/icons/bell.svg" alt="">
-                            <span class="cn-trigger-badge qa-cn-badge" id="qaCnBadge" hidden>0</span>
+                    <!-- 統合ベル + レール通知カード (R-3e: 旧 .cn-panel → 共通 .cn-card へ移行。
+                         アンカーは1個のみで、画面切替時に JS がホーム⇄カレンダーのヘッダーへ移設する) -->
+                    <div class="cn-anchor qa-cn-anchor" id="qaCnAnchor" data-bell="all">
+                        <button type="button" class="cn-trigger qa-cn-btn" title="変更通知" aria-label="変更通知を開く">
+                            <img class="cn-bell-icon" data-bell-icon="all" src="mockup/icons/bell.svg" alt="">
+                            <span class="cn-trigger-badge" hidden>0</span>
                         </button>
-                        <!-- 通知パネル本体 (qa-cn-panel-template でレンダリング先を識別) -->
-                        <div class="cn-panel cn-panel--mobile qa-cn-panel">
+                        <div class="cn-card" role="dialog" aria-label="変更通知">
                             <div class="cn-head">
-                                <span class="cn-title">変更通知</span>
-                                <button class="cn-mark-all">既読</button>
+                                <strong class="cn-title">変更通知</strong>
+                                <span class="cn-count"></span>
+                                <button type="button" class="cn-mark-all">すべて既読</button>
+                                <button type="button" class="cn-close" title="閉じる" aria-label="閉じる">&times;</button>
                             </div>
-                            <div class="cn-tabs">
-                                <button class="cn-tab is-active" data-tab="latest">最新</button>
-                                <button class="cn-tab" data-tab="history">履歴</button>
+                            <div class="cn-filter-chips" role="group" aria-label="カテゴリで絞り込み">
+                                <button type="button" class="cn-filter-chip is-active" data-filter="all">すべて</button>
+                                <button type="button" class="cn-filter-chip" data-filter="order">受注</button>
+                                <button type="button" class="cn-filter-chip" data-filter="assignment">配置</button>
+                                <button type="button" class="cn-filter-chip" data-filter="approval">申請・承認</button>
+                                <button type="button" class="cn-filter-chip" data-filter="master">マスタ</button>
                             </div>
-                            <div class="cn-tab-view is-active" data-tab="latest">
-                                <div class="cn-body cn-body--latest qa-cn-latest-body">
-                                    <div class="cn-empty">変更通知はありません</div>
-                                </div>
+                            <div class="cn-body cn-body--latest" data-bell-body="all">
+                                <div class="cn-empty">新しい通知はありません</div>
                             </div>
-                            <div class="cn-tab-view" data-tab="history">
-                                <div class="cn-history-layout">
-                                    <div class="cn-side-tabs">
-                                        <button class="cn-side-tab is-active" data-view="site">現場名</button>
-                                        <button class="cn-side-tab" data-view="account">アカウント</button>
-                                    </div>
-                                    <div class="cn-history-main">
-                                        <div class="cn-history-view is-active" data-view="site">
-                                            <div class="cn-history-toolbar">
-                                                <div class="cn-search-row">
-                                                    <div class="cn-search">
-                                                        <input type="text" placeholder="契約先・現場で検索..." aria-label="現場名で検索">
-                                                    </div>
-                                                    <button class="cn-list-pick-btn" data-prefix="現場">
-                                                        <span class="cn-list-pick-label">一覧</span>
-                                                        <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
-                                                    </button>
-                                                </div>
-                                                <div class="cn-filter-chips" data-axis="site">
-                                                    <button class="cn-filter-chip is-active" data-filter="all">すべて</button>
-                                                    <button class="cn-filter-chip" data-filter="add">追加</button>
-                                                    <button class="cn-filter-chip" data-filter="modify">変更</button>
-                                                    <button class="cn-filter-chip" data-filter="delete">削除</button>
-                                                </div>
-                                            </div>
-                                            <div class="cn-body cn-body--history qa-cn-history-site-body">
-                                                <div class="cn-empty">変更履歴はありません</div>
-                                            </div>
-                                            <div class="cn-pick-view" data-crumb-base="現場" data-step1-label="契約先を選択">
-                                                <div class="cn-pick-head">
-                                                    <button class="cn-pick-back" aria-label="戻る">←</button>
-                                                    <div class="cn-pick-crumbs">
-                                                        <span>現場</span>
-                                                        <span class="cn-pick-crumb-sep">&gt;</span>
-                                                        <span class="cn-pick-crumb-current">契約先を選択</span>
-                                                    </div>
-                                                </div>
-                                                <div class="cn-pick-step is-active" data-step="company">
-                                                    <div class="cn-pick-badges qa-cn-pick-company"></div>
-                                                </div>
-                                                <div class="cn-pick-step" data-step="site">
-                                                    <div class="qa-cn-pick-site-groups"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="cn-history-view" data-view="account">
-                                            <div class="cn-history-toolbar">
-                                                <div class="cn-search-row">
-                                                    <div class="cn-search">
-                                                        <input type="text" placeholder="アカウントで検索..." aria-label="アカウントで検索">
-                                                    </div>
-                                                    <button class="cn-list-pick-btn" data-prefix="アカウント">
-                                                        <span class="cn-list-pick-label">一覧</span>
-                                                        <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
-                                                    </button>
-                                                </div>
-                                                <div class="cn-filter-chips" data-axis="account">
-                                                    <button class="cn-filter-chip is-active" data-filter="all">すべて</button>
-                                                    <button class="cn-filter-chip" data-filter="add">追加</button>
-                                                    <button class="cn-filter-chip" data-filter="modify">変更</button>
-                                                    <button class="cn-filter-chip" data-filter="delete">削除</button>
-                                                </div>
-                                            </div>
-                                            <div class="cn-body cn-body--history qa-cn-history-account-body">
-                                                <div class="cn-empty">変更履歴はありません</div>
-                                            </div>
-                                            <div class="cn-pick-view" data-crumb-base="アカウント" data-step1-label="アカウントを選択">
-                                                <div class="cn-pick-head">
-                                                    <button class="cn-pick-back" aria-label="戻る">←</button>
-                                                    <div class="cn-pick-crumbs">
-                                                        <span>アカウント</span>
-                                                        <span class="cn-pick-crumb-sep">&gt;</span>
-                                                        <span class="cn-pick-crumb-current">アカウントを選択</span>
-                                                    </div>
-                                                </div>
-                                                <div class="cn-pick-step is-active" data-step="account">
-                                                    <div class="cn-pick-badges qa-cn-pick-account"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="cn-foot">
+                                <button type="button" class="cn-center-link">変更通知センターで開く →</button>
                             </div>
                         </div>
                     </div>
@@ -235,110 +162,7 @@
                     <div class="qa-cal-site-name" id="qaCalSiteName"></div>
                 </div>
                 <div class="qa-header-actions">
-                    <div class="cn-anchor qa-cn-anchor" id="qaCnAnchorCal">
-                        <button type="button" class="cn-trigger qa-cn-btn" id="qaCnNotifyBtnCal" onclick="qaCnOpenModal()" title="変更通知" aria-label="変更通知を開く">
-                            <img src="mockup/icons/bell.svg" alt="">
-                            <span class="cn-trigger-badge qa-cn-badge" id="qaCnBadgeCal" hidden>0</span>
-                        </button>
-                        <div class="cn-panel cn-panel--mobile qa-cn-panel">
-                            <div class="cn-head">
-                                <span class="cn-title">変更通知</span>
-                                <button class="cn-mark-all">既読</button>
-                            </div>
-                            <div class="cn-tabs">
-                                <button class="cn-tab is-active" data-tab="latest">最新</button>
-                                <button class="cn-tab" data-tab="history">履歴</button>
-                            </div>
-                            <div class="cn-tab-view is-active" data-tab="latest">
-                                <div class="cn-body cn-body--latest qa-cn-latest-body">
-                                    <div class="cn-empty">変更通知はありません</div>
-                                </div>
-                            </div>
-                            <div class="cn-tab-view" data-tab="history">
-                                <div class="cn-history-layout">
-                                    <div class="cn-side-tabs">
-                                        <button class="cn-side-tab is-active" data-view="site">現場名</button>
-                                        <button class="cn-side-tab" data-view="account">アカウント</button>
-                                    </div>
-                                    <div class="cn-history-main">
-                                        <div class="cn-history-view is-active" data-view="site">
-                                            <div class="cn-history-toolbar">
-                                                <div class="cn-search-row">
-                                                    <div class="cn-search">
-                                                        <input type="text" placeholder="契約先・現場で検索..." aria-label="現場名で検索">
-                                                    </div>
-                                                    <button class="cn-list-pick-btn" data-prefix="現場">
-                                                        <span class="cn-list-pick-label">一覧</span>
-                                                        <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
-                                                    </button>
-                                                </div>
-                                                <div class="cn-filter-chips" data-axis="site">
-                                                    <button class="cn-filter-chip is-active" data-filter="all">すべて</button>
-                                                    <button class="cn-filter-chip" data-filter="add">追加</button>
-                                                    <button class="cn-filter-chip" data-filter="modify">変更</button>
-                                                    <button class="cn-filter-chip" data-filter="delete">削除</button>
-                                                </div>
-                                            </div>
-                                            <div class="cn-body cn-body--history qa-cn-history-site-body">
-                                                <div class="cn-empty">変更履歴はありません</div>
-                                            </div>
-                                            <div class="cn-pick-view" data-crumb-base="現場" data-step1-label="契約先を選択">
-                                                <div class="cn-pick-head">
-                                                    <button class="cn-pick-back" aria-label="戻る">←</button>
-                                                    <div class="cn-pick-crumbs">
-                                                        <span>現場</span>
-                                                        <span class="cn-pick-crumb-sep">&gt;</span>
-                                                        <span class="cn-pick-crumb-current">契約先を選択</span>
-                                                    </div>
-                                                </div>
-                                                <div class="cn-pick-step is-active" data-step="company">
-                                                    <div class="cn-pick-badges qa-cn-pick-company"></div>
-                                                </div>
-                                                <div class="cn-pick-step" data-step="site">
-                                                    <div class="qa-cn-pick-site-groups"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="cn-history-view" data-view="account">
-                                            <div class="cn-history-toolbar">
-                                                <div class="cn-search-row">
-                                                    <div class="cn-search">
-                                                        <input type="text" placeholder="アカウントで検索..." aria-label="アカウントで検索">
-                                                    </div>
-                                                    <button class="cn-list-pick-btn" data-prefix="アカウント">
-                                                        <span class="cn-list-pick-label">一覧</span>
-                                                        <span class="cn-list-pick-clear" aria-label="選択解除">×</span>
-                                                    </button>
-                                                </div>
-                                                <div class="cn-filter-chips" data-axis="account">
-                                                    <button class="cn-filter-chip is-active" data-filter="all">すべて</button>
-                                                    <button class="cn-filter-chip" data-filter="add">追加</button>
-                                                    <button class="cn-filter-chip" data-filter="modify">変更</button>
-                                                    <button class="cn-filter-chip" data-filter="delete">削除</button>
-                                                </div>
-                                            </div>
-                                            <div class="cn-body cn-body--history qa-cn-history-account-body">
-                                                <div class="cn-empty">変更履歴はありません</div>
-                                            </div>
-                                            <div class="cn-pick-view" data-crumb-base="アカウント" data-step1-label="アカウントを選択">
-                                                <div class="cn-pick-head">
-                                                    <button class="cn-pick-back" aria-label="戻る">←</button>
-                                                    <div class="cn-pick-crumbs">
-                                                        <span>アカウント</span>
-                                                        <span class="cn-pick-crumb-sep">&gt;</span>
-                                                        <span class="cn-pick-crumb-current">アカウントを選択</span>
-                                                    </div>
-                                                </div>
-                                                <div class="cn-pick-step is-active" data-step="account">
-                                                    <div class="cn-pick-badges qa-cn-pick-account"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- 統合ベルアンカー (#qaCnAnchor) はカレンダー表示中に JS がここへ移設する -->
                     <div class="qa-account">
                         <button type="button" class="qa-avatar-btn" id="qaAvatarBtnCal" onclick="qaToggleAccountMenu(event)" aria-haspopup="menu" aria-expanded="false" aria-controls="qaAccountMenu" title="アカウント">
                             <span id="qaUserInitialsCal"></span>
@@ -610,8 +434,8 @@
     <script src="mockup/mock-assignments-data.js?v=4"></script>
     <script src="mockup/demo-data.js?v=4"></script>
     <script src="mockup/notify-icons-selected.js?v=2"></script>
-    <script src="mockup/co-notify-panel.js?v=39"></script>
+    <script src="mockup/co-notify-panel.js?v=40"></script>
     <script src="mockup/co-company-input.js"></script>
-    <script src="mockup/quick-access.js?v=phase-ab2"></script>
+    <script src="mockup/quick-access.js?v=r3e-1"></script>
 </body>
 </html>

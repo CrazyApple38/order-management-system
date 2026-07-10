@@ -1,0 +1,90 @@
+/* QA R-3e: new-DS overrides（モバイル例外画面 = 共通骨格なし。カード型入力フローへ
+   DS コンポーネントレシピ = btn / card / toast を適用する。03 §4 R-3e）
+   旧トークン名→新DSの読替は ds-legacy-aliases.css（正準・重複定義禁止）。ここは QA 固有のみ。
+   レシピの直書き値は ds-tokens.css / ds-components.css の正本値の転記（発明なし）。 */
+
+/* ---- キャンバス ---- */
+body { background: var(--bg); color: var(--ink); }
+
+/* ---- ヘッダー: 濃紺（レールと同系のグラデ = ds-components rail 由来） ---- */
+.qa-header,
+.qa-cal-header {
+    background: linear-gradient(180deg, #16456b 0%, var(--blue-dark) 100%);
+}
+
+/* ---- 浮きカードレシピ（--shadow-card-outer / 03 サーフェスレシピ） ---- */
+.qa-login-card,
+.qa-client-card,
+.qa-add-client-form,
+.qa-modal,
+.qa-account-menu,
+.qa-logout-confirm-modal {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-card-outer);
+}
+.qa-client-card:active { box-shadow: var(--elevation-3); }
+
+/* ---- 編集パネル内カード（B-04 lite-card レシピ） ---- */
+.qa-card {
+    background: linear-gradient(to bottom right, #fdfeff, #f5f8fa);
+    border: 1px solid var(--soft-line);
+}
+
+/* ---- 主操作ボタン（A-01 btn-primary レシピ） ---- */
+.qa-login-btn,
+.qa-add-client-submit,
+.qa-modal-btn-save,
+.qa-header-save-btn {
+    border: 1px solid var(--blue);
+    background: linear-gradient(to bottom right, #2b72cb, var(--blue));
+    box-shadow: 0 2px 5px rgba(18, 59, 93, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+.qa-login-btn:hover,
+.qa-add-client-submit:hover,
+.qa-modal-btn-save:hover,
+.qa-header-save-btn:hover {
+    border-color: var(--blue);
+    background: linear-gradient(to bottom right, #2b72cb, var(--blue));
+    box-shadow: 0 4px 9px rgba(18, 59, 93, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.26);
+}
+
+/* ---- 標準ボタン（A-01 btn-secondary = 白ベベル+薄影レシピ） ---- */
+.qa-modal-btn-cancel,
+.qa-add-client-cancel,
+.qa-logout-confirm-btn--cancel {
+    color: #2c4356;
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    border-right-color: rgba(192, 208, 220, 0.72);
+    border-bottom-color: rgba(180, 198, 212, 0.66);
+    background: linear-gradient(to bottom right, #ffffff 0%, #fafbfd 50%, #f4f7fa 100%);
+    box-shadow:
+        0 2px 4px rgba(24, 55, 78, 0.10),
+        inset 1px 0 0 rgba(255, 255, 255, 0.92),
+        inset -1px 0 0 rgba(53, 83, 104, 0.07);
+}
+.qa-modal-btn-cancel:hover,
+.qa-add-client-cancel:hover,
+.qa-logout-confirm-btn--cancel:hover {
+    background: linear-gradient(to bottom right, #ffffff 0%, #fafbfd 50%, #f4f7fa 100%);
+    border-color: rgba(160, 182, 200, 0.85);
+}
+
+/* ---- 通知カード位置（モバイル: ベル直下・右端整列） ----
+   ds-components.css の .cn-card はレール前提の left:84px を持つため QA では打ち消す */
+.qa-cn-anchor .cn-card {
+    left: auto;
+    right: 0;
+    top: calc(100% + 8px);
+}
+
+/* ---- デモボタン実行中（警告 = Signal Orange。旧 inline #DB577B を置換） ---- */
+.qa-cn-demo-btn.is-running {
+    background: var(--alert-bg);
+    border-color: var(--alert-border);
+    color: var(--alert-text);
+}
+.qa-content-toolbar .qa-cn-demo-btn.is-running:hover {
+    border-color: var(--alert-text);
+    color: var(--alert-text);
+}

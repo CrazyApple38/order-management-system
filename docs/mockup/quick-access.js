@@ -938,6 +938,7 @@ function qaOpenCalendar(clientId, siteId) {
     document.getElementById('qaCalSiteName').textContent = site.name;
     document.getElementById('qaHomeScreen').style.display = 'none';
     document.getElementById('qaCalendarScreen').classList.add('active');
+    qaCnMountAnchor('calendar');
 
     // 編集パネルは非表示（セルクリックで表示）
     const panel = document.getElementById('qaCalEditPanel');
@@ -953,6 +954,7 @@ let qaWeekMode = false;
 function qaCloseCalendar() {
     document.getElementById('qaCalendarScreen').classList.remove('active');
     document.getElementById('qaHomeScreen').style.display = 'flex';
+    qaCnMountAnchor('home');
     qaSelectedDay = null;
     qaWeekMode = false;
     document.getElementById('qaCalBody').classList.remove('qa-week-mode');
@@ -1895,32 +1897,24 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('gcFilterChanged', () => {
         qaRenderTabs();
         qaRenderClients();
-        // 変更通知モーダルが開いていれば再描画
-        var cnModal = document.getElementById('qaCnModal');
-        if (cnModal && cnModal.classList.contains('active')) {
-            qaCnRenderLatest();
-            qaCnRenderHistory();
-        }
     });
+    // 統合ベルのアイコン適用 (R-3e: 共通 cn-card へ移行)
+    if (window.coNotifyPanel) window.coNotifyPanel.applyBellIcon('all');
 });
 
 // ==================== 変更通知システム ====================
+// R-3e (2026-07-10): 旧 .cn-panel (最新/履歴タブ・検索・一覧選択) を撤去し、
+// 共通統合ベル + .cn-card (co-notify-panel.js) へ一本化。QA 固有で維持:
+// - QA登録現場フィルタ (未登録現場の通知は受信しない = qaCnReceive)
+// - モバイルトースト (受信時のコンパクト1行表示)
+// - カレンダーセル明滅ハイライト + cn:jump 着地 (qaCell 軸)
+// - 元に戻す / やっぱり反映 (スナップショット復元。cn:action 経由)
+// バッジ・既読・カテゴリフィルタ・センター導線は共通側が処理する。
 
 const qaCnState = {
-    notifications: [],
-    history: [],
-    unreadCount: 0,
-    activeTab: 'latest',
-    nextId: 1,
-    filterSite: ''
+    notifications: [],   // 受信済み通知 (復元スナップショット + ベルitem対応を保持)
+    nextId: 1
 };
-
-const qaCnCatClassMap = {
-    '施設': 'md-cn-cat-facility', 'イベント': 'md-cn-cat-event',
-    '高速': 'md-cn-cat-highway', '交通': 'md-cn-cat-traffic',
-    '応援交通': 'md-cn-cat-support'
-};
-const qaCnShiftClassMap = { '昼': 'md-cn-shift-day', '夜': 'md-cn-shift-night' };
 
 function qaCnTimeNow() {
     var d = new Date();
@@ -1928,19 +1922,16 @@ function qaCnTimeNow() {
         d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
 }
 
-// バッジ更新（ホーム + カレンダー両方）
-function qaCnUpdateBadge() {
-    ['qaCnBadge', 'qaCnBadgeCal'].forEach(function(id) {
-        var badge = document.getElementById(id);
-        if (!badge) return;
-        if (qaCnState.unreadCount > 0) {
-            badge.textContent = qaCnState.unreadCount;
-            badge.hidden = false;
-        } else {
-            badge.textContent = '0';
-            badge.hidden = true;
-        }
-    });
+// 統合ベルアンカー (#qaCnAnchor) をホーム⇄カレンダーのヘッダーへ移設
+// (共通 co-notify-panel.js はアンカー1個を前提とするため、DOM を移動して共有する)
+function qaCnMountAnchor(screen) {
+    var anchor = document.getElementById('qaCnAnchor');
+    if (!anchor) return;
+    var host = document.querySelector(screen === 'calendar'
+        ? '#qaCalendarScreen .qa-header-actions'
+        : '#qaHomeScreen .qa-header-actions');
+    if (!host || anchor.parentElement === host) return;
+    host.insertBefore(anchor, host.querySelector('.qa-account'));
 }
 
 // トースト表示（コンパクト1行・1件のみ・横スワイプで消去）
@@ -1951,19 +1942,19 @@ function qaCnShowToast(n) {
     var existing = container.querySelectorAll('.md-cn-toast');
     for (var i = 0; i < existing.length; i++) existing[i].remove();
     var toast = document.createElement('div');
-    var dotColors = { add: '#44A6B5', modify: '#DECCBE', delete: '#DB577B' };
     var typeLabels = { add: '追加', modify: '変更', delete: '削除' };
     toast.className = 'md-cn-toast md-cn-toast-' + n.type;
     toast.innerHTML =
-        '<span class="md-cn-toast-icon" style="width:10px;height:10px;border-radius:50%;background:' + dotColors[n.type] + ';flex-shrink:0;"></span>' +
+        '<span class="md-cn-toast-icon"></span>' +
         '<div class="md-cn-toast-body">' +
             '<span class="md-cn-toast-title">' + typeLabels[n.type] + '</span>' +
             '<span class="md-cn-toast-desc">' + escHtml(n.user) + ' — ' + escHtml(n.siteName || '') + '</span>' +
         '</div>';
-    // タップで通知モーダルを開く
+    // タップで統合ベルの通知カードを開く
     toast.onclick = function() {
         qaCnDismissToast(toast);
-        qaCnOpenModal();
+        var anchor = document.getElementById('qaCnAnchor');
+        if (anchor && window.coNotifyPanel) window.coNotifyPanel.open(anchor);
     };
     // 横スワイプで消去
     qaCnAddSwipeToDismiss(toast);
@@ -2015,45 +2006,6 @@ function qaCnAddSwipeToDismiss(toast) {
     });
 }
 
-// パネル開閉: ヘッダーベルクリックは描画のみ。開閉は co-notify-panel.js が処理
-function qaCnOpenModal() {
-    // 既に開いているアンカーがあれば描画スキップ (閉じる動作)
-    var anyOpen = document.querySelector('.qa-cn-anchor.is-open');
-    if (anyOpen) return;
-    qaCnState.notifications.forEach(function(n) { n._read = true; });
-    qaCnState.unreadCount = 0;
-    qaCnUpdateBadge();
-    qaCnRenderLatest();
-    qaCnRenderHistory();
-}
-
-function qaCnCloseModal() {
-    document.querySelectorAll('.qa-cn-anchor').forEach(function(a) {
-        if (window.coNotifyPanel) window.coNotifyPanel.close(a);
-    });
-}
-
-// 互換ラッパー (co-notify-panel.js が処理する上タブ切替)
-function qaCnSwitchTab(tabName) {
-    qaCnState.activeTab = tabName;
-    document.querySelectorAll('.qa-cn-panel').forEach(function(panel) {
-        panel.querySelectorAll('.cn-tab').forEach(function(t) {
-            t.classList.toggle('is-active', t.dataset.tab === tabName);
-        });
-        panel.querySelectorAll('.cn-tab-view').forEach(function(v) {
-            v.classList.toggle('is-active', v.dataset.tab === tabName);
-        });
-    });
-}
-
-// 現場フィルタ (履歴タブ内チップ/一覧で代替するため互換スタブ)
-function qaCnSetFilter(site) {
-    qaCnState.filterSite = site;
-    qaCnRenderLatest();
-    qaCnRenderHistory();
-}
-function qaCnUpdateFilterSelect() { /* 互換スタブ: 旧selectは廃止 */ }
-
 // セル明滅ハイライト
 function qaCnHighlightCell(dayKey, type) {
     // 既存のハイライトをクリア
@@ -2080,50 +2032,7 @@ function qaCnHighlightCell(dayKey, type) {
     });
 }
 
-// カードクリック→該当カレンダー画面へ遷移してセルハイライト
-function qaCnCardClick(notificationId) {
-    var n = qaCnState.notifications.find(function(x) { return x.id === notificationId; });
-    if (!n || !n.dayKey) return;
-    // パネルは開いたまま、該当の現場・年月へ遷移してセルをハイライト
-
-    var calScreen = document.getElementById('qaCalendarScreen');
-    var isCalOpen = calScreen && calScreen.classList.contains('active');
-    var isSameSite = qaCurrentClientName === n.clientName && qaCurrentSiteName === n.siteName;
-
-    if (!isCalOpen || !isSameSite) {
-        if (n.clientId && n.siteId) {
-            qaOpenCalendar(n.clientId, n.siteId);
-        }
-    }
-
-    var parts = n.dayKey.split('-');
-    var targetYear = parseInt(parts[0]);
-    var targetMonth = parseInt(parts[1]) - 1;
-    if (qaCalendarYear !== targetYear || qaCalendarMonth !== targetMonth) {
-        qaCalendarYear = targetYear;
-        qaCalendarMonth = targetMonth;
-        qaRenderCalendar();
-    }
-
-    setTimeout(function() { qaCnHighlightCell(n.dayKey, n.type); }, 200);
-}
-
-// 履歴→最新タブの該当アイテムへジャンプ
-function qaCnJumpToCard(notificationId) {
-    qaCnSwitchTab('latest');
-    setTimeout(function() {
-        var item = document.querySelector('.qa-cn-panel.qa-cn-anchor-open .cn-item[data-nid="' + notificationId + '"]')
-            || document.querySelector('.qa-cn-panel .cn-item[data-nid="' + notificationId + '"]');
-        if (!item) return;
-        item.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        item.classList.add('cn-item-highlight');
-        setTimeout(function() { item.classList.remove('cn-item-highlight'); }, 1500);
-    }, 50);
-}
-
-// ========== 通知パネル レンダリング (cn-* 規約) ==========
-const qaCnIconChars = { add: '＋', modify: '✎', delete: '✕' };
-
+// ========== 共通 cn-card への通知連携 ==========
 function qaCnSiteLabel(n) {
     if (n.clientName && n.siteName) return n.clientName + ' / ' + n.siteName;
     return n.siteName || n.clientName || '';
@@ -2140,197 +2049,100 @@ function qaCnDescribeAction(n) {
     return name;
 }
 
-function qaCnBuildDiffHtml(n) {
-    if (n.type === 'modify' && n.diffs) {
-        return n.diffs.map(function(d) {
-            return '<div class="cn-diff-line">' +
-                '<span class="cn-diff-label">' + escHtml(d.field) + '</span>' +
-                '<span class="cn-diff-from">' + escHtml(d.oldVal) + '</span>' +
-                '<span class="cn-diff-arrow">→</span>' +
-                '<span class="cn-diff-to">' + escHtml(d.newVal) + '</span>' +
-            '</div>';
-        }).join('');
-    } else if (n.type === 'add' && n.details) {
-        return n.details.map(function(d) {
-            return '<div class="cn-diff-line">' +
-                '<span class="cn-diff-label">' + escHtml(d.field) + '</span>' +
-                '<span class="cn-diff-to">' + escHtml(d.value) + '</span>' +
-            '</div>';
-        }).join('');
+// 復元データを持つ通知か (元に戻す / やっぱり反映 の対象)
+function qaCnHasRestore(n) {
+    return !!(n._snapshot || n._newSnapshot || n._addedKey || n._addedData || n._deletedSnapshot);
+}
+
+// 通知 → 共通 cn-card アイテムへ変換して統合ベルへ追加
+// (カテゴリは domain='order' から共通側が導出。QA の日次配置・契約先/現場マスタは受注エンティティ)
+function qaCnPushToBell(n) {
+    if (!window.coNotifyPanel) return;
+    var diffs = null;
+    if (n.diffs && n.diffs.length) {
+        diffs = n.diffs;
+    } else if (n.details && n.details.length) {
+        // 追加系: details (field/value) を差分形式 (空→新値) に読み替え
+        diffs = n.details.map(function(d) { return { field: d.field, oldVal: '', newVal: d.value }; });
     }
-    return '';
-}
-
-function qaCnRenderItem(n) {
-    var iconChar = qaCnIconChars[n.type] || '?';
-    var stateClass = n.reverted ? ' is-reverted' : (n._approved ? ' is-approved' : '');
-    var unreadClass = !n._read ? ' is-unread' : '';
-    var dayChip = n.dayLabel ? '<span class="cn-date-chip">' + escHtml(n.dayLabel) + '</span>' : '';
-
-    var diffHtml = qaCnBuildDiffHtml(n);
-    if (!diffHtml && n.type === 'delete') {
-        diffHtml = '<div class="cn-diff-line"><span class="cn-diff-from">この配置は削除されました</span></div>';
-    }
-    var actionBtn = n.reverted
-        ? '<button type="button" class="cn-jump-btn" onclick="event.stopPropagation();qaCnReapprove(' + n.id + ')">↻ 適用する</button>'
-        : '<button type="button" class="cn-jump-btn" onclick="event.stopPropagation();qaCnRevert(' + n.id + ')">↩ キャンセル</button>';
-    var expandHtml = '<div class="cn-expand">' + diffHtml + actionBtn + '</div>';
-    var chevron = '<span class="cn-chevron">▾</span>';
-
-    var siteKey = n.siteName || '';
-    return '<div class="cn-item type-' + n.type + unreadClass + stateClass + '" data-nid="' + n.id + '" data-type="' + n.type + '" data-site="' + escHtml(siteKey) + '" data-account="' + escHtml(n.user || '') + '">' +
-        '<div class="cn-item-row">' +
-            '<div class="cn-icon type-' + n.type + '">' + iconChar + '</div>' +
-            '<div class="cn-text">' +
-                '<div class="cn-text-main">' + escHtml(qaCnDescribeAction(n)) + dayChip + '</div>' +
-                '<div class="cn-text-sub">' + escHtml(n.user) + ' ・ ' + escHtml(n.time || '') + '</div>' +
-            '</div>' +
-            chevron +
-        '</div>' +
-        expandHtml +
-    '</div>';
-}
-
-function qaCnFilterNotifications() {
-    return qaCnState.notifications.filter(function(n) {
-        if (n.branch && typeof qaIsGcVisible === 'function' && !qaIsGcVisible(n.branch)) return false;
-        if (qaCnState.filterSite !== '' && n.siteName !== qaCnState.filterSite) return false;
-        return true;
+    var target = n.dayKey ? {
+        axis: 'qaCell',
+        date: n.dayKey,
+        clientId: n.clientId,
+        siteId: n.siteId,
+        siteName: n.siteName || ''
+    } : null;
+    n._itemId = window.coNotifyPanel.addItem('all', {
+        type: n.type,
+        op: n.type,
+        scope: 'site',
+        domain: 'order',
+        primaryPage: 'quick-access',
+        main: qaCnDescribeAction(n),
+        sub: (n.user || '') + ' ・ ' + (n.time || ''),
+        targetDate: n.dayKey || null,
+        affects: target ? ['quick-access'] : [],
+        target: target,
+        diffs: diffs,
+        expand: (n.type === 'delete') ? 'この配置は削除されました' : '',
+        actions: qaCnHasRestore(n) ? [{ label: '↩ 元に戻す', action: 'qa-revert' }] : null
     });
 }
 
-function qaCnRenderLatest() {
-    var bodies = document.querySelectorAll('.qa-cn-latest-body');
-    var filtered = qaCnFilterNotifications();
-    var html;
-    if (filtered.length === 0) {
-        html = '<div class="cn-empty">変更通知はありません</div>';
-    } else {
-        html = '<div class="cn-date-group">' +
-            '<button type="button" class="cn-date-group-head" aria-expanded="true">今日' +
-                '<span class="cn-date-group-toggle" aria-hidden="true">▴</span>' +
-            '</button>' +
-            filtered.map(qaCnRenderItem).join('') +
-        '</div>';
-    }
-    bodies.forEach(function(b) { b.innerHTML = html; });
+// 元に戻す/やっぱり反映 の状態をベル側アイテムへ同期して再描画
+function qaCnSyncBellItem(n) {
+    if (!window.coNotifyPanel || !n._itemId) return;
+    var stored = window.coNotifyPanel.getItems('all').find(function(it) { return it.id === n._itemId; });
+    if (!stored) return;
+    stored.actions = [n.reverted
+        ? { label: '↻ やっぱり反映', action: 'qa-reapply' }
+        : { label: '↩ 元に戻す', action: 'qa-revert' }];
+    stored.expand = n.reverted
+        ? '変更を取り消しました（データは元に戻っています）'
+        : ((n.type === 'delete') ? 'この配置は削除されました' : '');
+    // setItems('all', []) は既存の実操作アイテムを保持したまま再レンダーする
+    window.coNotifyPanel.setItems('all', []);
 }
 
-function qaCnFilterHistory() {
-    return qaCnState.history.filter(function(h) {
-        if (h.branch && typeof qaIsGcVisible === 'function' && !qaIsGcVisible(h.branch)) return false;
-        if (qaCnState.filterSite !== '' && h.siteName !== qaCnState.filterSite) return false;
-        return true;
-    });
-}
-
-function qaCnRenderHistoryItem(h) {
-    var iconChar = qaCnIconChars[h.type] || '?';
-    var name = h.clientName ? h.clientName + ' / ' + (h.siteName || '') : (h.siteName || '');
-    var dayChip = h.dayLabel ? '<span class="cn-date-chip">' + escHtml(h.dayLabel) + '</span>' : '';
-    var summary = h.summary ? ' (' + h.summary + ')' : '';
-    var siteKey = h.siteName || '';
-    var attrs = (h.notificationId != null ? ' data-nid="' + h.notificationId + '"' : '') +
-        ' data-type="' + h.type + '"' +
-        ' data-site="' + escHtml(siteKey) + '"' +
-        ' data-account="' + escHtml(h.user || '') + '"';
-    return '<div class="cn-item type-' + h.type + '"' + attrs + '>' +
-        '<div class="cn-item-row">' +
-            '<div class="cn-icon type-' + h.type + '">' + iconChar + '</div>' +
-            '<div class="cn-text">' +
-                '<div class="cn-text-main">' + escHtml(name) + escHtml(summary) + dayChip + '</div>' +
-                '<div class="cn-text-sub">' + escHtml(h.user) + ' ・ ' + escHtml(h.time || '') + '</div>' +
-            '</div>' +
-        '</div>' +
-    '</div>';
-}
-
-function qaCnGroupBy(items, keyFn) {
-    var groups = {};
-    var order = [];
-    items.forEach(function(it) {
-        var k = keyFn(it) || '(未分類)';
-        if (!groups[k]) { groups[k] = []; order.push(k); }
-        groups[k].push(it);
-    });
-    return order.map(function(k) { return { key: k, items: groups[k] }; });
-}
-
-function qaCnRenderAxisGroups(grouped) {
-    if (grouped.length === 0) return '<div class="cn-empty">変更履歴はありません</div>';
-    return grouped.map(function(g) {
-        return '<div class="cn-axis-group">' +
-            '<button type="button" class="cn-axis-group-head" aria-expanded="true">' + escHtml(g.key) +
-                '<span class="cn-axis-group-toggle" aria-hidden="true">▴</span>' +
-            '</button>' +
-            g.items.map(qaCnRenderHistoryItem).join('') +
-        '</div>';
-    }).join('');
-}
-
-function qaCnRenderHistory() {
-    var siteBodies = document.querySelectorAll('.qa-cn-history-site-body');
-    var accBodies = document.querySelectorAll('.qa-cn-history-account-body');
-    var filtered = qaCnFilterHistory();
-
-    var bySite = qaCnGroupBy(filtered, function(h) {
-        return h.clientName ? h.clientName + ' / ' + (h.siteName || '') : (h.siteName || '');
-    });
-    var siteHtml = qaCnRenderAxisGroups(bySite);
-    siteBodies.forEach(function(b) { b.innerHTML = siteHtml; });
-
-    var byAcc = qaCnGroupBy(filtered, function(h) { return h.user; });
-    var accHtml = qaCnRenderAxisGroups(byAcc);
-    accBodies.forEach(function(b) { b.innerHTML = accHtml; });
-
-    qaCnRenderPickBadges(filtered);
-}
-
-function qaCnRenderPickBadges(historyItems) {
-    var companyBadgeNodes = document.querySelectorAll('.qa-cn-pick-company');
-    var siteGroupsNodes = document.querySelectorAll('.qa-cn-pick-site-groups');
-    var accBadgeNodes = document.querySelectorAll('.qa-cn-pick-account');
-
-    var byCompany = qaCnGroupBy(
-        historyItems.filter(function(h) { return !!h.clientName; }),
-        function(h) { return h.clientName; }
-    );
-    var companyHtml = byCompany.length
-        ? byCompany.map(function(g) {
-            return '<button type="button" class="cn-pick-badge" data-company="' + escHtml(g.key) + '">' + escHtml(g.key) + '</button>';
-        }).join('')
-        : '<button type="button" class="cn-pick-badge" disabled>契約先がありません</button>';
-    companyBadgeNodes.forEach(function(n) { n.innerHTML = companyHtml; });
-
-    var siteGroupHtml = byCompany.map(function(g) {
-        var sites = {};
-        g.items.forEach(function(h) { if (h.siteName) sites[h.siteName] = true; });
-        return '<div class="cn-pick-badges" data-company="' + escHtml(g.key) + '" hidden>' +
-            Object.keys(sites).map(function(s) {
-                return '<button type="button" class="cn-pick-badge">' + escHtml(s) + '</button>';
-            }).join('') +
-        '</div>';
-    }).join('');
-    siteGroupsNodes.forEach(function(n) { n.innerHTML = siteGroupHtml; });
-
-    var users = {};
-    historyItems.forEach(function(h) { if (h.user) users[h.user] = true; });
-    var userList = Object.keys(users);
-    var accHtml = userList.length
-        ? userList.map(function(u) { return '<button type="button" class="cn-pick-badge">' + escHtml(u) + '</button>'; }).join('')
-        : '<button type="button" class="cn-pick-badge" disabled>アカウントがありません</button>';
-    accBadgeNodes.forEach(function(n) { n.innerHTML = accHtml; });
-}
-
-// 履歴/最新アイテム → セルへジャンプ
-document.addEventListener('cn:jump', function(e) {
-    var item = e.detail && e.detail.item;
-    if (!item) return;
-    if (!item.closest('.qa-cn-panel')) return;
-    var nid = item.dataset && item.dataset.nid;
-    if (!nid) return;
-    qaCnCardClick(parseInt(nid, 10));
+// cn:action (元に戻す / やっぱり反映)
+document.addEventListener('cn:action', function(e) {
+    var action = e.detail && e.detail.action;
+    if (action !== 'qa-revert' && action !== 'qa-reapply') return;
+    var el = e.detail.item;
+    var itemId = el && el.dataset ? el.dataset.id : '';
+    var n = qaCnState.notifications.find(function(x) { return x._itemId === itemId; });
+    if (!n) return;
+    if (action === 'qa-revert') qaCnRevert(n);
+    else qaCnReapprove(n);
 });
+
+// cn:jump (qaCell 軸) → 該当現場のカレンダーへ遷移してセルをハイライト
+document.addEventListener('cn:jump', function(e) {
+    var d = e.detail || {};
+    var t = d.target;
+    if (!t || t.axis !== 'qaCell') return;
+    qaCnJumpToCell(t, d.type || d.op || 'modify');
+});
+
+function qaCnJumpToCell(t, type) {
+    var calScreen = document.getElementById('qaCalendarScreen');
+    var isCalOpen = calScreen && calScreen.classList.contains('active');
+    var isSameSite = (qaCurrentClientId === t.clientId && qaCurrentSiteId === t.siteId);
+    if ((!isCalOpen || !isSameSite) && t.clientId && t.siteId) {
+        qaOpenCalendar(t.clientId, t.siteId);
+    }
+    var parts = String(t.date || '').split('-');
+    if (parts.length === 3) {
+        var targetYear = parseInt(parts[0], 10);
+        var targetMonth = parseInt(parts[1], 10) - 1;
+        if (qaCalendarYear !== targetYear || qaCalendarMonth !== targetMonth) {
+            qaCalendarYear = targetYear;
+            qaCalendarMonth = targetMonth;
+            qaRenderCalendar();
+        }
+    }
+    setTimeout(function() { qaCnHighlightCell(t.date, type); }, 200);
+}
 
 // QA登録現場かどうか判定
 function qaCnIsRegisteredSite(siteName) {
@@ -2383,24 +2195,8 @@ function qaCnReceive(n) {
     }
     n.id = qaCnState.nextId++;
     n.reverted = false;
-    n._read = false;
-    n._approved = true;
     qaCnState.notifications.unshift(n);
-    qaCnState.history.unshift({
-        notificationId: n.id,
-        type: n.type,
-        user: n.user,
-        time: n.time,
-        siteName: n.siteName || '',
-        clientName: n.clientName || '',
-        branch: n.branch || '',
-        dayLabel: n.dayLabel || '',
-        summary: (n.type === 'modify' && n.diffs
-            ? n.diffs.map(function(d) { return d.field; }).join('・')
-            : '')
-    });
-    qaCnState.unreadCount++;
-    qaCnUpdateBadge();
+    qaCnPushToBell(n);
     qaCnShowToast(n);
     // カレンダー表示中ならセルハイライト
     if (n.dayKey && document.getElementById('qaCalendarScreen').classList.contains('active')) {
@@ -2445,8 +2241,7 @@ function _qaCnRestoreSnapshot(snap) {
     }
 }
 
-function qaCnRevert(id) {
-    var n = qaCnState.notifications.find(function(x) { return x.id === id; });
+function qaCnRevert(n) {
     if (!n || n.reverted) return;
 
     if (n.type === 'modify' && n._snapshot) {
@@ -2476,17 +2271,10 @@ function qaCnRevert(id) {
     }
 
     n.reverted = true;
-    n._approved = false;
-    if (n._read) {
-        n._read = false;
-        qaCnState.unreadCount++;
-        qaCnUpdateBadge();
-    }
-    qaCnRenderLatest();
+    qaCnSyncBellItem(n);
 }
 
-function qaCnReapprove(id) {
-    var n = qaCnState.notifications.find(function(x) { return x.id === id; });
+function qaCnReapprove(n) {
     if (!n || !n.reverted) return;
 
     if (n.type === 'modify' && n._newSnapshot) {
@@ -2531,13 +2319,7 @@ function qaCnReapprove(id) {
     }
 
     n.reverted = false;
-    n._approved = true;
-    if (!n._read) {
-        n._read = true;
-        qaCnState.unreadCount = Math.max(0, qaCnState.unreadCount - 1);
-        qaCnUpdateBadge();
-    }
-    qaCnRenderLatest();
+    qaCnSyncBellItem(n);
 }
 
 // --- デモシミュレーション ---
@@ -2741,20 +2523,15 @@ function qaCnToggleDemo() {
         qaCnDemoInterval = null;
         qaCnDemoRunning = false;
         btn.innerHTML = '<svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-chevron-right"/></svg>デモ';
-        btn.style.background = '';
-        btn.style.color = '';
+        btn.classList.remove('is-running');
     } else {
         qaCnState.notifications = [];
-        qaCnState.history = [];
-        qaCnState.unreadCount = 0;
         qaCnState.nextId = 1;
-        qaCnState.filterSite = '';
-        qaCnUpdateBadge();
+        if (window.coNotifyPanel) window.coNotifyPanel.clearItems('all');
         qaCnDemoIndex = 0;
         qaCnDemoRunning = true;
         btn.innerHTML = '<svg class="ui-icon" aria-hidden="true"><use href="#ui-icon-close"/></svg>停止';
-        btn.style.background = '#DB577B';
-        btn.style.color = '#fff';
+        btn.classList.add('is-running');
         qaCnSendDemoNotification();
         qaCnDemoInterval = setInterval(qaCnSendDemoNotification, 3000);
     }
