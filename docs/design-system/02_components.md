@@ -31,6 +31,7 @@
 | ID | 名前 | 主クラス | 規範 | 禁止・注意 |
 | --- | --- | --- | --- | --- |
 | A-01 | ボタン階層 | `.btn` + `-primary/-secondary/-flat/-ghost/-danger`、サイズ `-sm/-lg` | 主操作=青塗り（**1画面1〜2個**）/ 標準=白ベベル / フラット=ツールバー用（高さ0）/ ゴースト=文字のみ / 危険=薄背景+オレンジ文字 | 危険操作を強い塗りにしない。既定高 32px・sm 26px・lg 38px |
+| A-01拡張 | 旧 co-buttons 由来バリアント | `.btn-outline`（青枠副操作）/ `.btn-icon`（正方形・幅=高さ）/ `.btn-ghost--danger-hover`（hover で警告色）/ `.btn-ghost--pill-dashed`（破線ピル追加ボタン）+ `[data-density]` 連動（compact/spacious は sm/lg 実値へ1段シフト） | R-3f #1（2026-07-11 ユーザー承認）で ds-components.css §H に受け皿化し co-buttons.css を撤去。旧 teal→`--blue`・旧桃色 danger→Signal Orange へ読替 | 使用箇所は OB/SL の残置モーダル・右プロパティドック |
 | A-02 | アイコンボタン | `.icon-btn`（`.sm` 26px / `.active` 青リング） | **必ず `title` + `aria-label`** を付ける | アイコンだけの操作に tooltip 無しは不可 |
 | A-03 | 分割ボタン | `.split` + `.split-caret`（`.split-soft` 白版） | 既定動作+派生動作（保存して次へ 等） | — |
 | A-04 | ボタングループ | `.btn-group` + `.btn.active`（押し込み表現） | **表示切替=グループ / フィルタ=seg** と使い分ける | seg と役割を混在させない |

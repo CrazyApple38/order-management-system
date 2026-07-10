@@ -2851,3 +2851,59 @@ th.sorted { color: var(--blue); }
     0% { background-color: rgba(31, 95, 174, 0.16); }
     100% { background-color: transparent; }
 }
+
+/* ============================================================
+ * H. A-01 拡張 — 旧 co-buttons 由来バリアント（R-3f #1 / 2026-07-11 ユーザー承認）
+ * ------------------------------------------------------------
+ * 用途: OB/SL の残置モーダル・右プロパティドック内の小型操作ボタン。
+ * 旧 co-buttons.css の意図を DS トークンで再表現して受け皿化し、
+ * co-buttons.css を全ページの読込チェーンから撤去した（同名 .btn 衝突の解消）。
+ * 旧 teal（accent-primary）→ --blue、旧 桃色系 danger → Signal Orange（03 §3.1）。
+ * ============================================================ */
+
+/* アウトライン: 青枠の副操作（セクションバーの追加系） */
+.btn-outline {
+    color: var(--blue);
+    border: 1px solid var(--blue);
+    background: transparent;
+}
+.btn-outline:hover { background: var(--blue-soft); }
+.btn-outline:active { background: var(--blue); color: #fff; }
+
+/* アイコン単独: 正方形（幅=高さ。サイズ・density に自動追従） */
+.btn-icon {
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    width: auto;
+}
+.btn-icon svg,
+.btn-icon img { display: block; width: 14px; height: 14px; }
+.btn-icon.btn-sm svg,
+.btn-icon.btn-sm img { width: 12px; height: 12px; }
+.btn-icon.btn-lg svg,
+.btn-icon.btn-lg img { width: 18px; height: 18px; }
+
+/* ゴースト + hover 危険色（行・エントリ削除ボタン） */
+.btn-ghost--danger-hover:hover {
+    background: var(--alert-bg);
+    border-color: var(--alert-border);
+    color: var(--alert-text);
+}
+
+/* ゴースト + 破線ピル（チップ・バッジ追加ボタン） */
+.btn-ghost--pill-dashed {
+    border-style: dashed;
+    border-color: var(--blue);
+    border-radius: var(--radius-md);
+    color: var(--blue);
+}
+.btn-ghost--pill-dashed:hover { background: var(--blue-soft); }
+
+/* density 連動（03 §3.2: 3段維持）。compact/spacious は DS の sm/lg 実値へ
+   1段シフトするだけで、新しい寸法は発明しない（comfortable = 基準レシピ） */
+[data-density="compact"] .btn { height: 26px; padding: 0 12px; font-size: 11px; }
+[data-density="compact"] .btn.btn-lg { height: 32px; padding: 0 16px; font-size: 12px; }
+[data-density="compact"] .btn.btn-icon { padding: 0; }
+[data-density="spacious"] .btn { height: 38px; padding: 0 20px; font-size: 13px; }
+[data-density="spacious"] .btn.btn-sm { height: 32px; padding: 0 16px; font-size: 12px; }
+[data-density="spacious"] .btn.btn-icon { padding: 0; }

@@ -9,21 +9,23 @@
 
 - **更新者**: Claude Code (Fable 5)
 - **日付**: 2026-07-10
-- **コミット**: R-3f #2（panel-rail active 青リング統一）（本コミット）。#4+#9 は `214732f`
+- **コミット**: R-3f #1 B-1（.btn 統一・co-buttons 廃止）（本コミット）。#2 は `f20a205` / #4+#9 は `214732f`
 
 ## 直前にやったこと（最新のみ）
 
 - **R-3f #4+#9 完了**（`214732f`）: 死にCSS一括撤去（-1,580行・使用者ゼロを機械確認＝見た目不変）+
   cn-card 内蔵 --cn-* 11個を var(--ds名, 現値) 参照化。4個（--radius-sm/md・--elevation-1/5）は
   co-tokens 同名別値のため admin-notify 誤解決の制約でリテラル維持（SHARED-MEMORY 注意事項に記録）。
-- **R-3f #2 完了**: WS/LA の `.panel-rail button.active` を正（ds-components 実値: 白面+青枠+青リング）へ統一。
-  幾何（min-height 52px・ラベル）は画面固有のまま。02 §6 の逸脱注記を解消。ds-audit WARN 9→8。
-- 検証: 各コミット時に ds-audit NG=0 / 6ページ computed style 実測 / コンソール0。スクショ `screenshots/r3f4-*` `r3f2-*`。
+- **R-3f #2 完了**（`f20a205`）: WS/LA の panel-rail active を正（青リング）へ統一。02 §6 の逸脱注記解消。
+- **R-3f #1 B-1 完了**: co-buttons.css を全ページから撤去・削除（.btn 同名衝突解消→全ボタン DS A-01 化）。
+  独自4バリアント+density 連動は ds-components §H「A-01 拡張」へ受け皿化（ユーザー承認済み・B群3分割も承認済み）。
+- 検証: 各コミット時に ds-audit NG=0 / computed style 実測 / コンソール0。スクショ `screenshots/r3f1-* r3f2-* r3f4-*`。
 
 ## 次にやるべきこと
 
-1. **R-3f 残項目**（計画書 §4 表が SSOT）: 承認済み着手順 = 次は **B群 #1 .btn 新旧統一 / #8 SL bridge 撤去**（構造統一系・
-   残置モーダルの新DS化を伴う）。#3/#5/#10/#11 は各着手時にユーザー判断を確認、#6/#7（menu-user・ヘルプ icon-btn）はその後。
+1. **B-2 = #8 SL 残置9モーダルの DS 化 + ds-tokens-bridge.css 撤去**（R-3a 級の規模。着手時に分割提案を推奨）。
+2. **B-3 = co-forms（md-fi-* = OB/SL）・co-shared-badges（md-ob-* = OB/SL）の依存解消→撤去**。
+3. その後 D群（#3/#5/#10/#11 = 各着手時にユーザー判断）→ E群（#6 menu-user / #7 ヘルプ icon-btn）→ #12 棚卸し。
 2. 監査 ALLOWLIST（ds-audit.js 内）と #3 既存負債（--focus-ring 等）の解消を同期させること。
 
 ## 今だけの申し送り（任意）
