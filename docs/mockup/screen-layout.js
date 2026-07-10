@@ -3221,16 +3221,16 @@
             const body = slEl('div', 'sl-support-form');
             body.appendChild(slEl('div', 'sl-support-form-note', gcLabel + ' / ' + slDateLabel(dateKey)));
 
-            const nameLabel = slEl('label', 'md-fi-label', '協力業者');
+            const nameLabel = slEl('label', 'field-label', '協力業者');
             const nameInput = document.createElement('input');
             nameInput.type = 'text';
-            nameInput.className = 'md-fi-input';
+            nameInput.className = 'input';
             nameInput.placeholder = '略称を入力';
-            const countLabel = slEl('label', 'md-fi-label', '人数');
+            const countLabel = slEl('label', 'field-label', '人数');
             const countInput = document.createElement('input');
             countInput.type = 'number';
             countInput.min = '0';
-            countInput.className = 'md-fi-input';
+            countInput.className = 'input';
             countInput.value = '1';
             const chips = slEl('div', 'sl-support-picker');
             slGetActiveSupportPartners(gcCode).forEach(function(p) {
@@ -3287,7 +3287,7 @@
                 const input = document.createElement('input');
                 input.type = 'number';
                 input.min = String(slGetAssignedSupportCount(p.id, dateKey));
-                input.className = 'md-fi-input sl-support-week-input';
+                input.className = 'input sl-support-week-input';
                 input.value = String(slGetReservedCount(p.id, dateKey));
                 input.dataset.partnerId = p.id;
                 row.appendChild(input);
@@ -3296,7 +3296,7 @@
             const addRow = slEl('div', 'sl-support-week-add');
             const addInput = document.createElement('input');
             addInput.type = 'text';
-            addInput.className = 'md-fi-input';
+            addInput.className = 'input';
             addInput.placeholder = '新規業者';
             addRow.appendChild(addInput);
             body.appendChild(addRow);

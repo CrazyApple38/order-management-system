@@ -432,11 +432,11 @@ body {
 }
 /* M-D2: モーダルフッタ定義は co-modal.css の .modal-footer / .modal-footer-right に移管 */
 
-/* 編集フォーム（M-B1: .md-ob-form-row* → 新DS .md-fi-* 体系へ移行済） */
+/* 編集フォーム（M-B1: .md-ob-form-row* → 新DS .md-fi-* → DS A-05 (.field/.input) 体系へ移行済 (B-2b-2)） */
 .md-ob-edit-form { display: flex; flex-direction: column; gap: 14px; }
 
-/* OB 固有: 人数入力は新DS .md-fi-input-number を18px/700に強調 */
-.md-ob-edit-form .md-fi-input-number {
+/* OB 固有: 人数入力は新DS .input-number を18px/700に強調 */
+.md-ob-edit-form .input-number {
     font-size: 18px;
     font-weight: 700;
 }
@@ -470,7 +470,7 @@ body {
 .md-ob-count-confidence-row {
     display: flex; gap: 16px; align-items: flex-start;
 }
-.md-ob-count-confidence-row > .md-fi-field { flex-shrink: 0; }
+.md-ob-count-confidence-row > .field { flex-shrink: 0; }
 .md-ob-confidence-field {
     flex: 1; display: flex; flex-direction: column; gap: 5px;
 }
@@ -634,7 +634,7 @@ body {
     background: rgba(255,255,255,0.9);
 }
 
-/* M-B1: .md-ob-form-row-half は .md-fi-row（新DS）に置換済 */
+/* M-B1: .md-ob-form-row-half は .field-row（DS A-05拡張）に置換済 */
 
 /* カスタム時間ピッカー */
 .md-ob-time-picker-wrap {
@@ -688,7 +688,7 @@ body {
 
 /* M-D1: モーダル共通ボタンは co-buttons.css の .btn / .btn-primary / .btn-secondary / .btn-danger に置換済 */
 
-/* M-B1: .md-ob-form-row select の独自定義は新DS .md-fi-select に集約済 */
+/* M-B1: .md-ob-form-row select の独自定義は旧 .md-fi-select に集約後、B-2b-2 で DS A-05 体系へ */
 /* 行編集モーダル：チップフィールド */
 .md-ob-chip-field {
     display: flex; flex-direction: column; gap: 5px;

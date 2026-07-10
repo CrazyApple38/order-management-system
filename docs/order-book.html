@@ -6,15 +6,14 @@
     <title>受注簿</title>
     <link rel="stylesheet" href="mockup/ds-tokens.css?v=1">
     <link rel="stylesheet" href="mockup/ds-legacy-aliases.css?v=2">
-    <link rel="stylesheet" href="mockup/ds-components.css?v=2">
-    <link rel="stylesheet" href="mockup/co-forms.css?v=2">
+    <link rel="stylesheet" href="mockup/ds-components.css?v=3">
     <link rel="stylesheet" href="mockup/co-modal.css?v=2">
     <link rel="stylesheet" href="mockup/co-shared-badges.css?v=2">
     <link rel="stylesheet" href="mockup/co-navbar.css?v=5">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=19">
     <link rel="stylesheet" href="mockup/co-company-input.css">
-    <link rel="stylesheet" href="mockup/order-book.css?v=7">
-    <link rel="stylesheet" href="mockup/ob-ds.css?v=5">
+    <link rel="stylesheet" href="mockup/order-book.css?v=8">
+    <link rel="stylesheet" href="mockup/ob-ds.css?v=6">
 </head>
 <body>
 
@@ -204,9 +203,9 @@
                         <!-- 人数 + 信頼度 -->
                         <div class="md-modal-section-bar">配置情報</div>
                         <div class="md-ob-count-confidence-row">
-                            <div class="md-fi-field">
-                                <label class="md-fi-label">人数</label>
-                                <input type="number" class="md-fi-input md-fi-input-number" id="editCount" min="0" max="99">
+                            <div class="field">
+                                <label class="field-label">人数</label>
+                                <input type="number" class="input input-number" id="editCount" min="0" max="99">
                             </div>
                             <div class="md-ob-confidence-field">
                                 <label>信頼度</label>
@@ -252,16 +251,16 @@
                 <div class="md-modal-body-card">
                     <div class="md-ob-edit-form">
                         <!-- 開始/終了時間 -->
-                        <div class="md-fi-row">
-                            <div class="md-fi-field">
-                                <label class="md-fi-label">開始時間</label>
+                        <div class="field-row">
+                            <div class="field">
+                                <label class="field-label">開始時間</label>
                                 <div class="md-ob-time-picker-wrap" onclick="openTimePicker('editStartTime', this)">
                                     <input type="text" id="editStartTime" class="md-ob-time-input" readonly placeholder="--:--">
                                     <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
                                 </div>
                             </div>
-                            <div class="md-fi-field">
-                                <label class="md-fi-label">終了時間</label>
+                            <div class="field">
+                                <label class="field-label">終了時間</label>
                                 <div class="md-ob-time-picker-wrap" onclick="openTimePicker('editEndTime', this)">
                                     <input type="text" id="editEndTime" class="md-ob-time-input" readonly placeholder="--:--">
                                     <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
@@ -270,14 +269,14 @@
                         </div>
                         <!-- 担当者 -->
                         <div class="md-modal-section-bar">担当者</div>
-                        <div class="md-fi-row">
-                            <div class="md-fi-field">
-                                <label class="md-fi-label">現場監督</label>
-                                <input type="text" class="md-fi-input" id="editSupervisor" placeholder="氏名">
+                        <div class="field-row">
+                            <div class="field">
+                                <label class="field-label">現場監督</label>
+                                <input type="text" class="input" id="editSupervisor" placeholder="氏名">
                             </div>
-                            <div class="md-fi-field">
-                                <label class="md-fi-label">連絡先</label>
-                                <input type="tel" class="md-fi-input" id="editSupervisorTel" placeholder="電話番号">
+                            <div class="field">
+                                <label class="field-label">連絡先</label>
+                                <input type="tel" class="input" id="editSupervisorTel" placeholder="電話番号">
                             </div>
                         </div>
                         <div class="md-ob-supervisor-candidates" id="supervisorCandidates" style="display:none;">
@@ -290,13 +289,13 @@
                         </div>
                         <!-- 集合 -->
                         <div class="md-modal-section-bar">集合</div>
-                        <div class="md-fi-row">
-                            <div class="md-fi-field">
-                                <label class="md-fi-label">集合場所</label>
-                                <input type="text" class="md-fi-input" id="editMeetingPlace" placeholder="集合場所を入力">
+                        <div class="field-row">
+                            <div class="field">
+                                <label class="field-label">集合場所</label>
+                                <input type="text" class="input" id="editMeetingPlace" placeholder="集合場所を入力">
                             </div>
-                            <div class="md-fi-field">
-                                <label class="md-fi-label">集合時間</label>
+                            <div class="field">
+                                <label class="field-label">集合時間</label>
                                 <div class="md-ob-time-picker-wrap" onclick="openTimePicker('editMeetingTime', this)">
                                     <input type="text" id="editMeetingTime" class="md-ob-time-input" readonly placeholder="--:--">
                                     <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
@@ -325,9 +324,9 @@
                         </div>
                         <!-- 備考 -->
                         <div class="md-modal-section-bar">備考</div>
-                        <div class="md-fi-field">
-                            <label class="md-fi-label">備考</label>
-                            <textarea class="md-fi-textarea" id="editRemarks" rows="2"></textarea>
+                        <div class="field">
+                            <label class="field-label">備考</label>
+                            <textarea class="input" id="editRemarks" rows="2"></textarea>
                         </div>
                     </div>
                 </div>
@@ -394,27 +393,27 @@
                 <!-- ━━ Fields ━━ -->
                 <div class="md-modal-body-field"><div class="md-modal-body-field-value">Fields</div></div>
                 <div class="md-modal-body-card">
-                    <div class="md-fi-field md-ob-company-field">
-                        <label class="md-fi-label">契約先名</label>
-                        <input type="text" class="md-fi-input" id="rowEditCompany" oninput="checkRowDuplicate(); obCompanySuggest(); updateFieldWarnings()" autocomplete="off" data-co-company-input>
+                    <div class="field md-ob-company-field">
+                        <label class="field-label">契約先名</label>
+                        <input type="text" class="input" id="rowEditCompany" oninput="checkRowDuplicate(); obCompanySuggest(); updateFieldWarnings()" autocomplete="off" data-co-company-input>
                         <div class="md-ob-company-suggest" id="obCompanySuggest" style="display:none;"></div>
                         <div class="md-ob-field-warning" id="warnCompany" style="display:none;">契約先名を入力してください</div>
                     </div>
-                    <div class="md-fi-field md-ob-task-field">
-                        <label class="md-fi-label">業務名</label>
-                        <input type="text" class="md-fi-input" id="rowEditTask" placeholder="空欄で個別業務" oninput="checkRowDuplicate(); obTaskSuggest()" autocomplete="off">
+                    <div class="field md-ob-task-field">
+                        <label class="field-label">業務名</label>
+                        <input type="text" class="input" id="rowEditTask" placeholder="空欄で個別業務" oninput="checkRowDuplicate(); obTaskSuggest()" autocomplete="off">
                         <div class="md-ob-company-suggest" id="obTaskSuggest" style="display:none;"></div>
                     </div>
-                    <div class="md-fi-row">
-                        <div class="md-fi-field">
-                            <label class="md-fi-label">開始時間（プリセット）</label>
+                    <div class="field-row">
+                        <div class="field">
+                            <label class="field-label">開始時間（プリセット）</label>
                             <div class="md-ob-time-picker-wrap" onclick="openTimePicker('rowEditPresetStart', this)">
                                 <input type="text" id="rowEditPresetStart" class="md-ob-time-input" readonly placeholder="--:--">
                                 <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>
                             </div>
                         </div>
-                        <div class="md-fi-field">
-                            <label class="md-fi-label">終了時間（プリセット）</label>
+                        <div class="field">
+                            <label class="field-label">終了時間（プリセット）</label>
                             <div class="md-ob-time-picker-wrap" onclick="openTimePicker('rowEditPresetEnd', this)">
                                 <input type="text" id="rowEditPresetEnd" class="md-ob-time-input" readonly placeholder="--:--">
                                 <span class="md-ob-time-picker-icon"><img src="mockup/icons/clock.svg" class="md-ob-icon"></span>

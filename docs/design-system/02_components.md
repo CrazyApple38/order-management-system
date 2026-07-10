@@ -36,6 +36,7 @@
 | A-03 | 分割ボタン | `.split` + `.split-caret`（`.split-soft` 白版） | 既定動作+派生動作（保存して次へ 等） | — |
 | A-04 | ボタングループ | `.btn-group` + `.btn.active`（押し込み表現） | **表示切替=グループ / フィルタ=seg** と使い分ける | seg と役割を混在させない |
 | A-05 | テキスト入力 | `.field` + `.field-label` + `.input`（`.error` / `:disabled`）+ `.field-help` | 入力欄=押し込み面（インセット例外）。フォーカス=青2pxリング、エラー=オレンジ枠+ヘルプ文字 | — |
+| A-05拡張 | 旧 co-forms 由来 | `.field-row`（フォーム行レイアウト・行内 .field は min-width 解除+input 幅追従）/ `.input-number`（80px 中央揃え・ネイティブスピナー維持）/ `.skip-link`（a11y。focus リングは DS 標準リング値へ読替） | R-3f #8 B-2b-2（2026-07-11 ユーザー承認）で ds-components.css §I に受け皿化し co-forms.css を撤去（.md-fi-* → .field/.field-label/.input へ置換） | 使用箇所は OB/SL のフォーム・右プロパティドック |
 | A-06 | セレクト | `.select-wrap > select.input` | CSS山括弧（`::after`）。リッチな候補一覧は C-07 を使う | ネイティブ矢印を出さない（appearance:none） |
 | A-07 | テキストエリア | `textarea.input` | 備考・作業内容など複数行 | — |
 | A-08 | チェックボックス | `.check` = `<label class="check"><input><span class="box"></span>ラベル</label>` | 選択=青塗り+白チェック（CSS描画） | input は視覚非表示（opacity:0）で box が描画を担う |

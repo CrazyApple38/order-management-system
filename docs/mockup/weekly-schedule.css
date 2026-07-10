@@ -3418,7 +3418,7 @@ body {
 }
 
 /* オートコンプリート
-   Phase W-B: co-forms.css `.md-fi-input` と同一のトークン
+   Phase W-B: 旧 co-forms.css `.md-fi-input`（B-2b-2 で DS A-05 .input へ移行・撤去済）と同一のトークン
    （border-radius / focus-ring / padding-y）を共有。class 名は JS 互換性のため温存。 */
 .md-ws-pac {
     position: relative;

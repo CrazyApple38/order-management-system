@@ -410,7 +410,7 @@ body {
     overflow: hidden;
 }
 
-.ob-prop-dock .md-fi-row,
+.ob-prop-dock .field-row,
 .ob-prop-dock .md-ob-count-confidence-row,
 .ob-prop-dock .md-ob-map-url-row {
     grid-template-columns: 1fr;

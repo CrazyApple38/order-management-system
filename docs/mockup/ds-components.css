@@ -2907,3 +2907,44 @@ th.sorted { color: var(--blue); }
 [data-density="spacious"] .btn { height: 38px; padding: 0 20px; font-size: 13px; }
 [data-density="spacious"] .btn.btn-sm { height: 32px; padding: 0 16px; font-size: 12px; }
 [data-density="spacious"] .btn.btn-icon { padding: 0; }
+
+/* ============================================================================
+ * I. A-05 拡張 — 旧 co-forms 由来（R-3f #8 B-2b-2 / 2026-07-11 ユーザー承認）
+ * 旧 .md-fi-* 体系を DS A-05/A-07 レシピ（.field / .field-label / .input）へ
+ * 置換した際、DS に相当が無かった3点の受け皿。値は旧 co-forms.css からの
+ * 転記（スケール系リテラル）+ DS トークン読替のみで、新しい値は発明しない。
+ * ========================================================================== */
+
+/* フォーム行レイアウト（旧 .md-fi-row）。ドック内2列等で .field の
+   min-width: 200px が行を溢れさせないよう row 文脈では解除する */
+.field-row { display: flex; gap: 12px; align-items: flex-end; }
+.field-row > .field { flex: 1; min-width: 0; }
+/* 行内では input の内在幅（約170px）が .field の縮小を妨げるため幅を追従させる
+   （旧 .md-fi-input の width:100% 相当。.input-number の固定80pxは除く） */
+.field-row .input:not(.input-number) { width: 100%; min-width: 0; }
+
+/* 数値入力（旧 .md-fi-input-number）。ネイティブスピナー（▲▼）維持のため
+   appearance 系の非表示指定は入れない。.input と併用する */
+.input-number { width: 80px; text-align: center; }
+
+/* スキップリンク（旧 co-forms M-F1 a11y。使用 = OB。focus リングは
+   DS 標準リング値へ読替 — 旧 --focus-ring は未定義負債だった） */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 12px;
+    z-index: var(--z-toast);
+    padding: 8px 12px;
+    background: var(--blue);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: top var(--duration-fast) var(--ease-out);
+}
+.skip-link:focus {
+    top: 12px;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(34, 103, 203, 0.12);
+}
