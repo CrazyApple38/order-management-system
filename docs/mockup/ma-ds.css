@@ -1,4 +1,4 @@
-/* F-1: master management shell and contract-company CRUD. */
+/* F-2: master management shell and definition-driven CRUD. */
 html, body { min-height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 13px var(--font-sans); overflow: hidden; }
 .ma-app [hidden] { display: none !important; }
@@ -41,6 +41,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 13px var(--fon
 .ma-prop-card .prop-head p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
 .ma-prop-card .prop-body { overflow: auto; }
 .ma-prop-card .field + .field { margin-top: 10px; }
+.ma-prop-card .ma-check { margin-top: 10px; }
 .ma-prop-card textarea.input { min-height: 84px; resize: vertical; }
 .ma-form-actions { display: flex; justify-content: space-between; gap: 8px; }
 .ma-history { height: 100%; }
