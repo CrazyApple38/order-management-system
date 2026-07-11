@@ -21,6 +21,8 @@ Excel VBAで運用していた受注簿・業務管理計画書をWebシステ�
 | C | Quick Access（受注クイック入力） | 作成中 | — |
 | D | 経理画面（グループ間請求確認） | — | — |
 | E | 休日申請管理 | — | — |
+| F | マスタ管理（統合1画面） | 計画済・未着手 | 計画= docs/plan/mockup-master-account-plan.md |
+| G | アカウント画面（個人設定+ユーザー管理） | 計画済・未着手 | 同上 |
 
 ### Phase Gate Rules（厳守）
 
