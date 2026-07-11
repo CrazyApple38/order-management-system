@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アカウント設定 - 受注管理システム</title>
+    <link rel="stylesheet" href="mockup/ds-tokens.css?v=2">
+    <link rel="stylesheet" href="mockup/ds-legacy-aliases.css?v=2">
+    <link rel="stylesheet" href="mockup/ds-components.css?v=5">
+    <link rel="stylesheet" href="mockup/co-navbar.css?v=8">
+    <link rel="stylesheet" href="mockup/co-notify-panel.css?v=19">
+    <link rel="stylesheet" href="mockup/ac-ds.css?v=1">
+</head>
+<body>
+    <main class="app ac-app" id="acApp">
+        <div class="toolbar" aria-label="アカウント設定ツールバー">
+            <div class="tool-group">
+                <strong class="ac-toolbar-title">アカウント設定</strong>
+                <div class="seg" role="tablist" aria-label="アカウント設定タブ">
+                    <button type="button" class="active" role="tab" aria-selected="true">個人設定</button>
+                    <button type="button" id="acUserAdminTab" role="tab" aria-selected="false" hidden>ユーザー管理</button>
+                </div>
+            </div>
+            <div class="tool-group">
+                <span class="ac-save-status" id="acSaveStatus" role="status" aria-live="polite"></span>
+                <button type="button" class="btn btn-secondary" id="acResetBtn">既定に戻す</button>
+                <button type="button" class="btn btn-primary" id="acSaveBtn">保存</button>
+            </div>
+        </div>
+
+        <div class="workspace ac-workspace">
+            <aside class="rail ac-rail" id="acRail" aria-label="変更通知"></aside>
+
+            <section class="main" aria-label="個人設定">
+                <div class="main-card ac-main-card">
+                    <div class="main-head">
+                        <div>
+                            <span class="main-title">個人設定</span>
+                            <p>ログイン時に復元する初期表示を設定します。</p>
+                        </div>
+                    </div>
+
+                    <div class="ac-settings" id="acSettings">
+                        <section class="section ac-section" aria-labelledby="acProfileTitle">
+                            <div class="section-title" id="acProfileTitle">プロフィール</div>
+                            <div class="ac-profile-grid">
+                                <div class="field">
+                                    <label class="field-label" for="acDisplayName">氏名</label>
+                                    <input class="input" id="acDisplayName" value="佐藤" disabled>
+                                </div>
+                                <div class="field">
+                                    <label class="field-label" for="acGroupCompany">所属グループ会社</label>
+                                    <input class="input" id="acGroupCompany" value="東央警備" disabled>
+                                </div>
+                                <div class="field">
+                                    <label class="field-label" for="acEmployee">紐付く社員</label>
+                                    <input class="input" id="acEmployee" value="佐藤" disabled>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="section ac-section" aria-labelledby="acGcTitle">
+                            <div class="section-title" id="acGcTitle">GCフィルタ初期値</div>
+                            <p class="ac-section-help">画面ごとに初期表示するグループ会社を選択します。</p>
+                            <div class="ac-screen-list" id="acGcDefaults"></div>
+                        </section>
+
+                        <section class="section ac-section" aria-labelledby="acNotifyTitle">
+                            <div class="section-title" id="acNotifyTitle">通知の既定スコープ</div>
+                            <div class="seg" id="acNotificationScope" role="group" aria-label="通知の既定スコープ">
+                                <button type="button" class="active" data-value="involved">担当現場・所属GC</button>
+                                <button type="button" data-value="all">全社</button>
+                            </div>
+                        </section>
+
+                        <section class="section ac-section" aria-labelledby="acVisibilityTitle">
+                            <div class="section-title" id="acVisibilityTitle">画面の表示・非表示</div>
+                            <p class="ac-section-help">メニューバーに表示する画面を選択します。</p>
+                            <div class="ac-toggle-grid" id="acScreenVisibility"></div>
+                        </section>
+
+                        <section class="section ac-section" aria-labelledby="acDensityTitle">
+                            <div class="section-title" id="acDensityTitle">密度・表示設定</div>
+                            <div class="seg" id="acDensity" role="group" aria-label="画面密度の既定">
+                                <button type="button" data-value="compact">コンパクト</button>
+                                <button type="button" class="active" data-value="normal">標準</button>
+                                <button type="button" data-value="spacious">ゆったり</button>
+                            </div>
+                        </section>
+
+                        <section class="section ac-section ac-links" aria-labelledby="acRelatedTitle">
+                            <div class="section-title" id="acRelatedTitle">画面別プリセット</div>
+                            <div class="ac-link-row">
+                                <div>
+                                    <strong>Quick Access 表示プリセット</strong>
+                                    <span>非表示にする契約先・現場を管理します。</span>
+                                </div>
+                                <a class="btn btn-secondary" href="quick-access.html">Quick Accessを開く</a>
+                            </div>
+                            <div class="ac-link-row">
+                                <div>
+                                    <strong>カラープリセット</strong>
+                                    <span>業務管理計画書の表示色を管理します。</span>
+                                </div>
+                                <a class="btn btn-secondary" href="screen-layout.html">カラー設定を開く</a>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="mockup/mock-employees-data.js?v=1"></script>
+    <script src="mockup/mock-vehicles-data.js?v=1"></script>
+    <script src="mockup/mock-assignments-data.js?v=4"></script>
+    <script src="mockup/demo-data.js?v=5"></script>
+    <script src="mockup/notify-icons-selected.js?v=2"></script>
+    <script src="mockup/co-notify-panel.js?v=40"></script>
+    <script src="mockup/co-mock-store.js?v=5"></script>
+    <script src="mockup/co-navbar.js?v=26"></script>
+    <script src="mockup/account-settings.js?v=1"></script>
+</body>
+</html>

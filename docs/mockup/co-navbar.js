@@ -16,6 +16,7 @@
     else if (path.indexOf('quick-access') !== -1) currentPage = 'quick-access';
     else if (path.indexOf('admin-notify') !== -1) currentPage = 'admin-notify';
     else if (path.indexOf('master-management') !== -1) currentPage = 'master-management';
+    else if (path.indexOf('account-settings') !== -1) currentPage = 'account-settings';
 
     // --- 変更通知ベル定義（R-2 統合ベル1個 / 2026-07-03）
     //     4分類ベル横並びを廃止し、統合ベル + 単一 cn-card に集約。
@@ -132,6 +133,10 @@
             +   '<div class="md-nav-user-menu" id="mdNavUserMenu" role="menu" hidden>'
             +     '<div class="md-nav-user-name">佐藤</div>'
             +     '<div class="md-nav-user-meta">東央警備 ・ 在席中</div>'
+            +     '<div class="md-nav-user-divider"></div>'
+            +     '<a class="md-nav-user-link' + (currentPage === 'account-settings' ? ' is-active' : '') + '" href="account-settings.html" role="menuitem">'
+            +       menuItemIcon('gear.svg') + 'アカウント設定'
+            +     '</a>'
             +     roleItems
             +   '</div>'
             + '</div>';

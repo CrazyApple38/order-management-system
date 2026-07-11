@@ -5,21 +5,21 @@
 ## 最終更新
 - **更新者**: Codex (GPT-5)
 - **日付**: 2026-07-11
-- **コミット**: F-1成果 `93b6c69`（push済み）
+- **コミット**: 直前HEAD `d4d681d`（G-1成果は本コミット）
 
 ## 直前にやったこと
-- **F-1（骨格+契約先CRUDパターン）を完了**。`master-management.html` / `ma-ds.css` / `master-management.js` を新設。
-- 契約先の一覧・検索・有効状態seg・追加・編集・論理削除を右プロパティで実装。専用キー `mock.oms.master.v1` で再読込復元。
-- `co-navbar.js` v25で全マスタ項目を統合画面へ直接遷移。未展開種別はF-1時点では契約先へ正規化。
-- localhost 1440pxでCRUD/復元/遷移を確認。既存6画面回帰、ds-audit NG=0/WARN=0、node --check、diff-check合格。
+- **G-1（骨格+個人設定タブ）を完了**。`account-settings.html` / `ac-ds.css` / `account-settings.js` を新設。
+- プロフィール表示、GCフィルタ既定、通知スコープ、画面表示、密度、QA/カラー設定導線を実装。専用キー `mock.oms.account.preferences.v1` で保存・再読込復元。
+- `co-navbar.js` v26で共通 `.menu-user` に「アカウント設定」を追加し、既存LAロール切替と併存。
+- localhost 1440pxで保存/復元/リセット/OBからの遷移を確認。既存6画面回帰、HTTP 200、ds-audit NG=0/WARN=0、node --check、diff-check合格。
 
 ## 次にやるべきこと
-1. 推奨順の次は **G-1（骨格+個人設定タブ）**。着手前にユーザー確認し、`account-settings.html` と共有 `.menu-user` 改修を確定する。
-2. **F-2（単純マスタ横展開）**を先行する選択も可。祝日一本化は横断影響があるためF側シード追加だけに留めるか事前確認する。
-3. F-2は §3.1 のCRUD契約を使い、種別ごとの列/フォーム/シードのみ追加する。
+1. 次は **G-2（ユーザー管理タブ）** または **F-2（単純マスタ横展開）**。着手Phaseをユーザーへ確認する。
+2. G-2は管理権限者のみの一覧+右プロパティ編集とし、ロール/社員/担当契約先紐付けを実装する。
+3. F-2は §3.1 のCRUD契約を使い、祝日はF側シードだけに留めて画面間一本化を行わない。
 4. Phase 3へは「モックアップ完了」宣言があるまで進まない。
 
 ## 今だけの申し送り
 - `.agent-env.json` と `docs/doc-export-smoke-test.{md,docx,pdf}` は未追跡成果物。変更・コミットしない。
-- QAの `shield.svg` 404とOB iframe sandbox警告は既知の既存事象。F-1起因のコンソールエラー/警告は0。
-- `screenshots/f1-master-management.png` がF-1合格スクリーンショット。
+- Chrome拡張由来の既知エラーを除き `account-settings.js` 起因ログは0。QAの `shield.svg` 404とOB iframe sandbox警告は既知の既存事象。
+- `screenshots/g1-account-settings.png` がG-1合格スクリーンショット。

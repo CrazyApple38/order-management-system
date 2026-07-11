@@ -31,6 +31,7 @@
 
 - **F/G 画面追加（2026-07-11 ユーザー確定）**: F=マスタ管理は**統合1画面+左レール種別切替**（旧「マスタ管理ハブ+個別画面群」要件 §3.21 は改訂済み・個別マスタ画面は作らない）/ G=アカウント画面は**個人設定+ユーザー管理（権限者のみ）の2タブ1画面**。モックアップとして実装（Phase 2 継続）。**SSOT= `docs/plan/mockup-master-account-plan.md`**（複数エージェント実装前提の AI 実装ガイドライン §2 を厳守。着手前に同計画書全読必須）。DB 受け皿= `user_profiles`（§3.31・auth↔社員・ロール）/ `user_preferences`（§3.32・個人設定 key-value。既知キーは表に追記してから使用）。要件 §3.14.3 の旧記述（4分類ベル・履歴タブ・センター要対応/状態フィルタ）は現行仕様へ是正済み。
 - **F-1 マスタCRUD基盤（2026-07-11 ユーザー承認）**: 統合画面=`docs/master-management.html`、画面JS/CSS=`master-management.js` / `ma-ds.css`。マスタ編集状態は専用 localStorage キー `mock.oms.master.v1` を正とし、既存 `mock.oms.state.v1` / `co-mock-store.js` は拡張しない。契約先CRUDの実装契約は `mockup-master-account-plan.md` §3.1 が正本。
+- **G-1 アカウント個人設定（2026-07-11 ユーザー承認）**: 統合画面=`docs/account-settings.html`、画面JS/CSS=`account-settings.js` / `ac-ds.css`。個人設定は専用 localStorage キー `mock.oms.account.preferences.v1` にDB §3.32の既知キー4種を保存し、既存 `mock.oms.state.v1` / `co-mock-store.js` は拡張しない。他画面への設定反映はG-3。実装契約は `mockup-master-account-plan.md` §4.1 が正本。
 
 ## 会社マッピング（`demo-data.js` 由来・確定）
 
