@@ -11,6 +11,7 @@
 - R-6 runtime 検証完遂 → mockup-refactor-plan **R-0〜R-6 全完了**（7a5180a）。
 - 通知UX採用6項目を要件 §3.14.3 + DB §3.15.4 `notification_reads` へ記録。§3.14.3 の旧記述（4分類ベル・履歴タブ・センター要対応/状態フィルタ）を現行仕様へ是正。
 - **F マスタ管理（統合1画面）/ G アカウント画面を新規計画化**（ユーザー確定）: 要件 §3.21 改訂+§3.22 新設、DB §3.31 `user_profiles`+§3.32 `user_preferences` 追補、計画書 `docs/plan/mockup-master-account-plan.md` 新設（**複数エージェント実装前提・§2 AI実装ガイドライン厳守**）。
+- F/G の画面別設計を `docs/design-system/03_screen-application.md` §4 へ追記（F=nav-pane 種別ナビ+panel-rail 2モード / G=タブ seg+個人設定は中央1カラム・ユーザー管理は一覧+右プロパティ）。計画書 §2.1 必読リストに接続。
 
 ## 次にやるべきこと
 1. F-0（マスタモックデータ棚卸し）or G-1 から着手可。**各 Phase 着手時にユーザー確認**・計画書 §2 を全読してから。

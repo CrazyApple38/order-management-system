@@ -30,7 +30,8 @@ Phase 2 モックアップとして F/G の2画面を新DS準拠で新規作成�
 2. `docs/HANDOFF.md` 全読
 3. 本計画書の該当 Phase 節
 4. `docs/design-system/README.md` + `04_ai-implementation-guide.md`（DS実装手順の正本）
-5. `docs/design-system/02_components.md` の使用コンポーネント節（A-01/A-05/B系/C系）
+5. **`docs/design-system/03_screen-application.md` §4「F マスタ管理」「G アカウント画面」節（画面別設計の正本・2026-07-11 追記）**
+6. `docs/design-system/02_components.md` の使用コンポーネント節（A-01/A-05/B系/C系）
 
 ### 2.2 実装規範（新画面共通）
 
