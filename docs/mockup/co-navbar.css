@@ -215,6 +215,125 @@
     opacity: 1;
 }
 
+/* === ユーザーチップ + 在席ドット（B-09） === */
+.md-nav-user {
+    position: relative;
+    margin-left: 4px;
+}
+.menu-user.md-nav-user-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 26px;
+    padding: 3px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: var(--radius-pill, 999px);
+    background: rgba(255, 255, 255, 0.10);
+    color: #eaf4ff;
+    font: 600 11px var(--font-sans, sans-serif);
+    cursor: pointer;
+    white-space: nowrap;
+}
+.menu-user.md-nav-user-trigger:hover,
+.menu-user.md-nav-user-trigger[aria-expanded="true"] {
+    background: rgba(255, 255, 255, 0.18);
+}
+.presence-dot {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 auto;
+    border-radius: var(--radius-pill, 999px);
+    background: #39c26d;
+    box-shadow: 0 0 4px rgba(57, 194, 109, 0.8);
+}
+.md-nav-user-role-label {
+    padding-left: 6px;
+    border-left: 1px solid rgba(255, 255, 255, 0.18);
+    color: rgba(234, 244, 255, 0.72);
+    font-size: 10px;
+}
+.md-nav-user-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 210px;
+    padding: 8px;
+    border: 1px solid var(--line, #c9dae8);
+    border-radius: var(--radius-sm, 8px);
+    background: var(--panel, #fff);
+    box-shadow: var(--elevation-4, 0 12px 28px rgba(24, 55, 78, 0.20));
+    color: var(--ink, #172b3a);
+    z-index: 2100;
+}
+.md-nav-user-menu[hidden] { display: none; }
+.md-nav-user-name { padding: 4px 6px 1px; font-size: 12px; font-weight: 700; }
+.md-nav-user-meta { padding: 0 6px 6px; color: var(--muted, #5f7484); font-size: 10px; }
+.md-nav-user-divider { height: 1px; margin: 4px 2px 6px; background: var(--soft-line, #d9e4ec); }
+.md-nav-user-heading { padding: 2px 6px 4px; color: var(--muted, #5f7484); font-size: 10px; font-weight: 700; }
+.md-nav-user-role {
+    width: 100%;
+    padding: 7px 8px;
+    border: 0;
+    border-radius: var(--radius-xs, 4px);
+    background: transparent;
+    color: var(--ink, #172b3a);
+    font: 600 12px var(--font-sans, sans-serif);
+    text-align: left;
+    cursor: pointer;
+}
+.md-nav-user-role:hover { background: var(--blue-soft, #eaf3ff); }
+.md-nav-user-role.is-active { color: var(--blue, #1f5fae); background: var(--blue-soft, #eaf3ff); }
+.md-nav-user-role.is-active::after {
+    content: "";
+    float: right;
+    width: 6px;
+    height: 6px;
+    margin-top: 4px;
+    border-radius: var(--radius-pill, 999px);
+    background: var(--blue, #1f5fae);
+}
+
+/* === ツールバー右端ヘルプ（A-02 / C-07） === */
+.co-help-wrap { position: relative; flex: 0 0 auto; margin-left: 6px; }
+.co-help-btn img { width: 15px; height: 15px; }
+.co-help-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 2200;
+    width: 250px;
+}
+.co-help-menu[hidden] { display: none; }
+.co-help-title { padding: 4px 6px 8px; color: var(--ink, #172b3a); font-size: 12px; font-weight: 700; }
+.co-help-item {
+    display: grid;
+    grid-template-columns: 14px 58px 1fr;
+    align-items: center;
+    gap: 7px;
+    padding: 6px;
+    color: var(--muted, #5f7484);
+    font-size: 10px;
+}
+.co-help-item strong { color: var(--ink, #172b3a); font-size: 11px; }
+.co-help-swatch {
+    width: 12px;
+    height: 12px;
+    border: 1px solid var(--line, #c9dae8);
+    border-radius: var(--radius-xs, 4px);
+    background: var(--info-bg, #eef4f8);
+}
+.co-help-swatch.is-night { color: var(--night-text, #d14d41); border-color: var(--alert-border, #f5a17c); background: currentColor; }
+.co-help-swatch.is-alert { border-color: var(--alert-border, #f5a17c); background: var(--alert-bg, #fff0e8); }
+.co-help-swatch.is-selected { border: 2px solid var(--blue, #1f5fae); background: var(--panel, #fff); }
+.co-help-swatch.is-info { border-color: var(--info-border, #c9dae8); background: var(--info-bg, #eef4f8); }
+.co-help-swatch.is-paid { border-color: var(--la-kind-paid-text, var(--blue, #1f5fae)); background: var(--la-kind-paid-bg, var(--blue-soft, #eaf3ff)); }
+.co-help-swatch.is-absent { border-color: var(--la-kind-absent-text, var(--muted, #5f7484)); background: var(--la-kind-absent-bg, var(--info-bg, #eef4f8)); }
+.co-help-swatch.is-pending { border-style: dashed; background: transparent; }
+.co-help-swatch.is-approved { border-color: var(--text-secondary, var(--muted, #5f7484)); background: transparent; }
+.co-help-swatch.is-heat { background: linear-gradient(90deg, var(--blue-soft, #eaf3ff), var(--blue, #1f5fae)); }
+.co-help-swatch.is-shaken { background: var(--vs-kind-shaken, var(--alert-bg, #fff0e8)); }
+.co-help-swatch.is-inspection { background: var(--vs-kind-inspection, var(--info-bg, #eef4f8)); }
+
 /* === 変更通知ベル（R-2: 統合ベル1個） === */
 .md-nav-cn-bells {
     display: flex;

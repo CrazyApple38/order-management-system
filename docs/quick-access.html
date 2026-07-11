@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="mockup/ds-components.css?v=5">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=19">
     <link rel="stylesheet" href="mockup/co-company-input.css">
-    <link rel="stylesheet" href="mockup/quick-access.css?v=r3e-1">
+    <link rel="stylesheet" href="mockup/quick-access.css?v=r3f-e1">
     <link rel="stylesheet" href="mockup/qa-ds.css?v=2">
 </head>
 <body>
@@ -112,6 +112,9 @@
                             </div>
                         </div>
                     </div>
+                    <button type="button" class="qa-help-btn" id="qaHelpBtn" onclick="qaToggleHelpMenu(event)" title="凡例・ヘルプ" aria-label="凡例・ヘルプを開く" aria-haspopup="dialog" aria-expanded="false">
+                        <img src="assets/icons/sign-mark/im-00091-hatena-maaku.svg" alt="" aria-hidden="true">
+                    </button>
                     <div class="qa-account">
                         <button type="button" class="qa-avatar-btn" id="qaAvatarBtn" onclick="qaToggleAccountMenu(event)" aria-haspopup="menu" aria-expanded="false" aria-controls="qaAccountMenu" title="アカウント">
                             <span id="qaUserInitials"></span>
@@ -160,6 +163,9 @@
                 </div>
                 <div class="qa-header-actions">
                     <!-- 統合ベルアンカー (#qaCnAnchor) はカレンダー表示中に JS がここへ移設する -->
+                    <button type="button" class="qa-help-btn" id="qaHelpBtnCal" onclick="qaToggleHelpMenu(event)" title="凡例・ヘルプ" aria-label="凡例・ヘルプを開く" aria-haspopup="dialog" aria-expanded="false">
+                        <img src="assets/icons/sign-mark/im-00091-hatena-maaku.svg" alt="" aria-hidden="true">
+                    </button>
                     <div class="qa-account">
                         <button type="button" class="qa-avatar-btn" id="qaAvatarBtnCal" onclick="qaToggleAccountMenu(event)" aria-haspopup="menu" aria-expanded="false" aria-controls="qaAccountMenu" title="アカウント">
                             <span id="qaUserInitialsCal"></span>
@@ -402,6 +408,15 @@
     <!-- アクションメニュー（契約先/現場 kebab 共用） -->
     <div class="qa-action-menu" id="qaActionMenu" role="menu" hidden></div>
 
+    <!-- 色・記号の凡例 -->
+    <div class="qa-help-menu" id="qaHelpMenu" role="dialog" aria-label="Quick Accessの凡例" hidden>
+        <div class="qa-help-title">Quick Accessの凡例</div>
+        <div class="qa-help-item"><span class="qa-help-swatch is-selected" aria-hidden="true"></span><strong>選択中</strong><span>入力対象の日付</span></div>
+        <div class="qa-help-item"><span class="qa-help-swatch is-night" aria-hidden="true"></span><strong>夜間</strong><span>夜間の受注</span></div>
+        <div class="qa-help-item"><span class="qa-help-swatch is-alert" aria-hidden="true"></span><strong>要確認</strong><span>未選択・未設定</span></div>
+        <div class="qa-help-item"><span class="qa-help-swatch is-info" aria-hidden="true"></span><strong>情報</strong><span>登録済み受注</span></div>
+    </div>
+
     <!-- アカウントメニュー（ドロップダウン） -->
     <div class="qa-account-menu" id="qaAccountMenu" role="menu" aria-labelledby="qaAvatarBtn" hidden>
         <div class="qa-account-header">
@@ -433,6 +448,6 @@
     <script src="mockup/notify-icons-selected.js?v=2"></script>
     <script src="mockup/co-notify-panel.js?v=40"></script>
     <script src="mockup/co-company-input.js"></script>
-    <script src="mockup/quick-access.js?v=r3e-1"></script>
+    <script src="mockup/quick-access.js?v=r3f-e1"></script>
 </body>
 </html>

@@ -50,7 +50,6 @@
     /* WS 固有: shadow 単色（box-shadow の color 引数として使用） */
     --shadow-color: rgba(0, 69, 84, 0.08);
     --shadow-medium: rgba(0, 69, 84, 0.12);
-    --shadow-strong: rgba(0, 69, 84, 0.15);
 
     /* WS 固有: α値・階調（03 §3.1 分離: 桃色エラー廃止 → 警告=alert / 情報=info /
        夜間=ds-tokens.css --night-text(#d14d41) を継承。旧 #DB577B 桃色上書きは撤去） */
@@ -960,7 +959,7 @@ body {
     border-radius: 6px;
     background: var(--accent-primary);
     color: #fff;
-    box-shadow: 0 4px 12px var(--shadow-strong);
+    box-shadow: var(--elevation-3);
     white-space: nowrap;
     opacity: 0.92;
 }

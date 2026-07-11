@@ -50,12 +50,10 @@
     /* SL固有: α値独自・意味が異なる色 */
     --shadow-color: rgba(0, 69, 84, 0.08);
     --shadow-medium: rgba(0, 69, 84, 0.12);
-    --shadow-strong: rgba(0, 69, 84, 0.15);
     --error-light: #E88AA5;
     --error-bg: rgba(219, 87, 123, 0.12);
     --success-bg: rgba(56, 161, 105, 0.1);
     --semantic-warning-text: #975A16;  /* 値不一致のため残留。co-tokens: #92400e */
-    --night-text: #DB577B;
     --tooltip-bg: rgba(0, 69, 84, 0.95);
     --tooltip-color: white;
     --header-btn-bg: rgba(255, 255, 255, 0.15);
@@ -1454,7 +1452,7 @@ h1 {
     background: var(--bg-surface);
     border: 1px solid var(--divider);
     border-radius: 8px;
-    box-shadow: 0 4px 16px var(--shadow-strong);
+    box-shadow: var(--elevation-4);
     padding: 10px;
     z-index: 2000;
     display: none;
@@ -2292,7 +2290,7 @@ h1 {
     background: var(--bg-surface);
     padding: 25px;
     border-radius: 12px;
-    box-shadow: 0 10px 40px var(--shadow-strong);
+    box-shadow: var(--elevation-5);
     min-width: 300px;
     max-width: 90vw;
     border: 1px solid var(--divider);
@@ -2541,7 +2539,7 @@ h1 {
 .sort-modal {
     background: var(--bg-surface);
     border-radius: 12px;
-    box-shadow: 0 10px 60px var(--shadow-strong);
+    box-shadow: var(--elevation-5);
     width: 90vw;
     max-width: 900px;
     max-height: 85vh;

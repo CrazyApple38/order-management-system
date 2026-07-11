@@ -849,75 +849,6 @@ body {
 }
 
 /* ============================================================
-   ロール切替 (E6)
-   ============================================================ */
-.md-la-role-switcher {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    background: rgba(255,255,255,0.10);
-    padding: 3px 5px 3px 8px;
-    border-radius: var(--radius-sm);
-    margin-right: var(--space-xs);
-}
-.md-la-role-label {
-    font-size: 10px;
-    color: rgba(255,255,255,0.7);
-    font-weight: var(--fw-bold);
-    letter-spacing: 0.04em;
-    margin-right: 2px;
-}
-.md-la-role-btn {
-    background: transparent;
-    border: none;
-    color: rgba(255,255,255,0.75);
-    padding: 3px 8px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 10px;
-    font-weight: var(--fw-semibold);
-    transition: background var(--duration-fast);
-}
-.md-la-role-btn:hover { color: #fff; background: rgba(255,255,255,0.10); }
-.md-la-role-btn.is-active {
-    background: #fff;
-    color: var(--text-primary);
-}
-
-/* 左サイドバー配置時 (明るい背景) */
-.md-la-mini-sidebar .md-la-role-switcher {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    background: var(--bg-surface-2);
-    padding: 4px 6px;
-    border-radius: var(--radius-md);
-    margin-top: 24px;
-    margin-right: 0;
-}
-.md-la-mini-sidebar .md-la-role-label {
-    font-size: 10px;
-    color: var(--text-secondary);
-    margin-right: 4px;
-}
-.md-la-mini-sidebar .md-la-role-btn {
-    flex: 1;
-    color: var(--text-secondary);
-    padding: 4px 6px;
-    border-radius: var(--radius-sm);
-    font-size: 11px;
-}
-.md-la-mini-sidebar .md-la-role-btn:hover {
-    color: var(--text-primary);
-    background: var(--bg-surface);
-}
-.md-la-mini-sidebar .md-la-role-btn.is-active {
-    background: var(--bg-surface);
-    color: var(--accent-primary);
-    box-shadow: var(--elevation-1);
-}
-
-/* ============================================================
    通知センター (E6) — N-2.3 で旧ベル/パネル UI を全撤去
    md-la-badge-flash (cn:jump 着地アニメーション) は L522-528 で保持
    ============================================================ */
@@ -1103,43 +1034,7 @@ body {
 .md-la-year-cell.lv-4 { background: var(--chart-seq-3); color: #fff; }
 .md-la-year-cell.lv-5 { background: var(--chart-seq-4); color: #fff; }
 
-.md-la-year-legend {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 10px;
-    color: var(--text-tertiary);
-    padding: 4px 8px;
-    margin-bottom: 8px;
-}
-.md-la-year-legend-scale {
-    display: inline-flex;
-    gap: 2px;
-}
-.md-la-year-legend-chip {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-}
-
 /* --- 年間ビュー (車両モード) — 車検/点検期限カレンダー --- */
-.md-la-year.is-mode-vehicle .md-la-year-legend {
-    gap: 12px;
-}
-.md-la-year-legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-.md-la-year-legend-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-}
-.md-la-year-legend-dot.vs-kind-shaken     { background: var(--vs-kind-shaken); }
-.md-la-year-legend-dot.vs-kind-inspection { background: var(--vs-kind-inspection); }
 .md-la-year-cell-dots {
     display: inline-flex;
     gap: 2px;

@@ -23,6 +23,7 @@
 - **サブ機能の右プロパティ集約（2026-07-03 確定）**: 振り分け基準（中央→ツールバー→右プロパティ→モーダルの判定順）と画面別 panel-rail モード構成（OB=3モード選択連動 / WS=4モード / LA=3モード×作業面連動+ミニカレンダー prop-card 上部常設 / QA=モバイル例外・デスクトップ右プロパティは将来拡張）は `docs/design-system/03_screen-application.md` §1.1・§4 が正本。編集モーダル→右プロパティ転換は R-3 と同時一括。フィルタ=ツールバー seg 統一 / 凡例=ヘルプ集約 / OB カレンダー入力=中央ビュー切替化 / センター・admin-notify は対象外。
 - **デザイン刷新** は **案B改: Calm Operations** 方向で継続（ツールバーはフラット維持、左メニュー／中央パネル／縦型アイコンメニュー／右プロパティを同一マテリアル表現で統一。影＝高さレイヤー、縦型アイコンメニューが最上位）。
 - **R-3f D群（2026-07-11 確定）**: 新DSはライトテーマのみ（共有テーマ切替・SL/WS dark定義は廃止）。レール暗色面と受注確度は `--rail-dark-*` / `--confidence-tentative-*` を正本トークンとする。LAの中央月間/ミニカレンダーは土日祝文字を青灰+ウェイト差へ統一し、赤/青の慣習色は使わない。
+- **R-3f E群・#12（2026-07-11 確定）**: 共有ナビ右端は「佐藤＋在席ドット」の `.menu-user`（LAのみ本人/DCP/管理ロール切替を内包）。画面の色・記号凡例は常設せず、OB/SL/WS/LA のツールバー右端と QA ヘッダーのヘルプ icon-btn へ集約する。旧 `--shadow-strong` は廃止し、ポップ=`--elevation-4`、モーダル=`--elevation-5`、ドラッグゴースト=`--elevation-3` を使う。SL の夜間色ローカル上書きは禁止し、正本 `--night-text` を継承する。
 - **通知** はエンティティ別カテゴリ（受注/配置/申請/マスタ）＋対象日ファセット。責務は「知らせる＋該当箇所を示す」に限定し確認は系外（電話・チャット）。詳細は `docs/plan/notification-refactor-plan.md` §3.7.8/3.7.9。
 
 ## 会社マッピング（`demo-data.js` 由来・確定）
@@ -79,7 +80,7 @@
 
 ## アクティブな計画書
 
-- `docs/plan/mockup-refactor-plan.md` — **リファクタ統合計画（SSOT。R-2〜R-3e 完了 = R-3 画面別適用 全完了 / 次は R-3f 横断クリーンアップ）**
+- `docs/plan/mockup-refactor-plan.md` — **リファクタ統合計画（SSOT。R-2〜R-3f 完了 / 次は R-4 通知センター改修）**
 - `docs/design-system/` — 新DS仕様の正本（README + 01〜04。実施順序は mockup-refactor-plan が正）
 - `docs/plan/mock-data-unification-plan.md` — SL/WS/LA/通知seed ダミーデータ一本化（**Phase 1+2 完了 / 残: WS `wsVehiclesData`/`wsSitesData` 共通ソース統一は将来課題**）
 - `docs/plan/notification-refactor-plan.md` — 変更通知システム リファクタリング（**完了・追加作業なし。新規参照時は §18 完了サマリのみで足りる**）

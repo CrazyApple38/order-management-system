@@ -93,7 +93,7 @@ DOM 正本: `docs/preview/design-refresh-sl-layer-mockup.html`。全画面をこ
 | 部位 | 主クラス | 規範 |
 | --- | --- | --- |
 | アプリ枠 | `.app` | 画面全体の丸枠トレイ |
-| メニューバー | `.menubar` + `.menu-user` | 濃紺帯（濃色面使用権①）。右端にユーザーチップ+在席ドット。**menu-user は全画面未実装**（`.menu-user` CSS が ds-components 専用のため共有 co-navbar への導入手順が別途必要 = R-3f。ロール切替のチップメニュー移設も同時） |
+| メニューバー | `.menubar` + `.menu-user` | 濃紺帯（濃色面使用権①）。右端にユーザーチップ+在席ドット。R-3f #6 で共有 `co-navbar` へ実装済み。LA はチップメニュー内で本人/DCP/管理ロールを切替 |
 | ツールバー | `.toolbar` / `.tool-group` / `.tool-btn(.primary)` | **高さ0のフラット面**（影なし）。主操作 `.tool-btn.primary` は1〜2個 |
 | ワークスペース | `.workspace` | grid 4カラム: 左レール 72px / 中央 main / 右プロパティ 288px / panel-rail 58px |
 | 左レール（作業面切替） | `.rail`（+ `.rail .bell-count`） | 白フレームに濃紺内面が嵌まる二重構造。**最上位の高さ（elevation-5）**。アイコンは白抜き（`filter: invert(1)`）。ベルボタンに件数バッジ（グロー例外②） |

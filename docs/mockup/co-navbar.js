@@ -110,6 +110,83 @@
             +       '</div>'
             +     '</div>'
             +   '</div>'
+             + '</div>';
+    }
+
+    function buildUserMenuHtml() {
+        var roleItems = currentPage === 'leave-application'
+            ? '<div class="md-nav-user-divider"></div>'
+                + '<div class="md-nav-user-heading">表示ロール</div>'
+                + '<button type="button" class="md-nav-user-role md-la-role-btn" data-role="self" role="menuitemradio" aria-checked="false">本人</button>'
+                + '<button type="button" class="md-nav-user-role md-la-role-btn is-active" data-role="dcp" role="menuitemradio" aria-checked="true">DCP</button>'
+                + '<button type="button" class="md-nav-user-role md-la-role-btn" data-role="admin" role="menuitemradio" aria-checked="false">管理</button>'
+            : '';
+        return ''
+            + '<div class="md-nav-user" id="mdNavUser">'
+            +   '<button type="button" class="menu-user md-nav-user-trigger" id="mdNavUserBtn" aria-haspopup="menu" aria-expanded="false">'
+            +     '<span class="presence-dot" aria-hidden="true"></span>'
+            +     '<span>佐藤</span>'
+            +     '<span class="md-nav-user-role-label" id="mdNavUserRoleLabel">' + (currentPage === 'leave-application' ? 'DCP' : '在席中') + '</span>'
+            +   '</button>'
+            +   '<div class="md-nav-user-menu" id="mdNavUserMenu" role="menu" hidden>'
+            +     '<div class="md-nav-user-name">佐藤</div>'
+            +     '<div class="md-nav-user-meta">東央警備 ・ 在席中</div>'
+            +     roleItems
+            +   '</div>'
+            + '</div>';
+    }
+
+    var helpByPage = {
+        'screen-layout': {
+            title: '業務管理計画書の凡例',
+            items: [
+                ['night', '夜間', '夜間勤務'],
+                ['alert', '要対応', '不足・未設定'],
+                ['selected', '選択中', '右パネルの対象行']
+            ]
+        },
+        'order-book': {
+            title: '受注簿の凡例',
+            items: [
+                ['night', '夜間', '夜間の受注'],
+                ['alert', '不足', '人数不足・要確認'],
+                ['selected', '選択中', '右パネルの対象行']
+            ]
+        },
+        'weekly-schedule': {
+            title: '週間予定表の凡例',
+            items: [
+                ['selected', '選択中', '編集対象セル'],
+                ['alert', '警告', '不足・重複・未設定'],
+                ['info', '情報', '配置・予約情報']
+            ]
+        },
+        'leave-application': {
+            title: '休暇申請管理の凡例',
+            items: [
+                ['paid', '有給', '有給休暇'],
+                ['absent', '休暇', '休暇・欠勤'],
+                ['pending', '申請中', '承認待ち'],
+                ['approved', '承認済', '承認済み'],
+                ['heat', '少 → 多', '年間の日別休暇人数'],
+                ['shaken', '車検期限', '年間の車検期限'],
+                ['inspection', '点検期限', '年間の点検期限']
+            ]
+        }
+    };
+
+    function buildHelpHtml(config) {
+        return '<div class="co-help-wrap">'
+            + '<button type="button" class="icon-btn sm co-help-btn" title="凡例・ヘルプ" aria-label="凡例・ヘルプを開く" aria-expanded="false">'
+            +   '<img src="assets/icons/sign-mark/im-00091-hatena-maaku.svg" alt="" aria-hidden="true">'
+            + '</button>'
+            + '<div class="co-help-menu menu-pop" role="dialog" aria-label="' + config.title + '" hidden>'
+            +   '<div class="co-help-title">' + config.title + '</div>'
+            +   config.items.map(function (item) {
+                    return '<div class="co-help-item"><span class="co-help-swatch is-' + item[0] + '" aria-hidden="true"></span>'
+                        + '<strong>' + item[1] + '</strong><span>' + item[2] + '</span></div>';
+                }).join('')
+            + '</div>'
             + '</div>';
     }
 
@@ -157,6 +234,7 @@
         // --- 右端アクション ---
         +   '<div class="md-nav-actions">'
         +     buildBellsHtml()
+        +     buildUserMenuHtml()
         +   '</div>'
         + '</nav>';
 
@@ -567,6 +645,65 @@
         document.body.insertBefore(container.firstChild, document.body.firstChild);
     }
 
+    var helpConfig = helpByPage[currentPage];
+    var pageToolbar = document.querySelector('.app > .toolbar, .la-app > .toolbar');
+    if (helpConfig && pageToolbar) {
+        pageToolbar.insertAdjacentHTML('beforeend', buildHelpHtml(helpConfig));
+    }
+
+    function closeUserMenu() {
+        var menu = document.getElementById('mdNavUserMenu');
+        var trigger = document.getElementById('mdNavUserBtn');
+        if (!menu || !trigger) return;
+        menu.hidden = true;
+        trigger.setAttribute('aria-expanded', 'false');
+    }
+
+    function closeHelpMenu() {
+        var menu = document.querySelector('.co-help-menu');
+        var trigger = document.querySelector('.co-help-btn');
+        if (!menu || !trigger) return;
+        menu.hidden = true;
+        trigger.setAttribute('aria-expanded', 'false');
+    }
+
+    var userTrigger = document.getElementById('mdNavUserBtn');
+    if (userTrigger) {
+        userTrigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var menu = document.getElementById('mdNavUserMenu');
+            var opening = menu.hidden;
+            closeHelpMenu();
+            menu.hidden = !opening;
+            userTrigger.setAttribute('aria-expanded', opening ? 'true' : 'false');
+        });
+    }
+
+    document.querySelectorAll('.md-nav-user-role').forEach(function (button) {
+        button.addEventListener('click', function () {
+            document.querySelectorAll('.md-nav-user-role').forEach(function (item) {
+                var active = item === button;
+                item.classList.toggle('is-active', active);
+                item.setAttribute('aria-checked', active ? 'true' : 'false');
+            });
+            var label = document.getElementById('mdNavUserRoleLabel');
+            if (label) label.textContent = button.textContent;
+            closeUserMenu();
+        });
+    });
+
+    var helpTrigger = document.querySelector('.co-help-btn');
+    if (helpTrigger) {
+        helpTrigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var menu = document.querySelector('.co-help-menu');
+            var opening = menu.hidden;
+            closeUserMenu();
+            menu.hidden = !opening;
+            helpTrigger.setAttribute('aria-expanded', opening ? 'true' : 'false');
+        });
+    }
+
     // --- ドロップダウン開閉 ---
     window.mdNavToggleDD = function (id) {
         var el = document.getElementById(id);
@@ -585,6 +722,8 @@
                 d.classList.remove('md-nav-open');
             });
         }
+        if (!e.target.closest('.md-nav-user')) closeUserMenu();
+        if (!e.target.closest('.co-help-wrap')) closeHelpMenu();
     });
 
     // --- マスタメニュー項目クリック → モーダル表示 ---

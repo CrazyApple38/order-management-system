@@ -766,21 +766,6 @@
         root.innerHTML = '';
         root.classList.remove('is-mode-vehicle');
 
-        // 凡例
-        var legend = document.createElement('div');
-        legend.className = 'md-la-year-legend';
-        legend.innerHTML =
-            '日毎の休暇人数（少 ' +
-            '<span class="md-la-year-legend-scale">' +
-            '<span class="md-la-year-legend-chip md-la-year-cell lv-1"></span>' +
-            '<span class="md-la-year-legend-chip md-la-year-cell lv-2"></span>' +
-            '<span class="md-la-year-legend-chip md-la-year-cell lv-3"></span>' +
-            '<span class="md-la-year-legend-chip md-la-year-cell lv-4"></span>' +
-            '<span class="md-la-year-legend-chip md-la-year-cell lv-5"></span>' +
-            '</span> 多）';
-        legend.style.gridColumn = '1 / -1';
-        root.appendChild(legend);
-
         var year = currentDate.getFullYear();
         var today = laDemoTodayDate(); today.setHours(0, 0, 0, 0);
         var byDate = leavesByDate();
@@ -930,15 +915,6 @@
         if (!root) return;
         root.innerHTML = '';
         root.classList.add('is-mode-vehicle');
-
-        // 凡例 (車検 / 点検)
-        var legend = document.createElement('div');
-        legend.className = 'md-la-year-legend';
-        legend.innerHTML =
-            '<span class="md-la-year-legend-item"><span class="md-la-year-legend-dot vs-kind-shaken"></span>車検期限</span>' +
-            '<span class="md-la-year-legend-item"><span class="md-la-year-legend-dot vs-kind-inspection"></span>点検期限</span>';
-        legend.style.gridColumn = '1 / -1';
-        root.appendChild(legend);
 
         var year = currentDate.getFullYear();
         var today = laDemoTodayDate(); today.setHours(0, 0, 0, 0);

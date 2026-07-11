@@ -6,22 +6,22 @@
 
 - **更新者**: Codex (GPT-5)
 - **日付**: 2026-07-11
-- **コミット**: 作業開始時 HEAD `ec58bbe`（R-3f D群は未コミット）
+- **コミット**: 作業開始時 HEAD `4d21c9b`（R-3f E群・#12は未コミット）
 
 ## 直前にやったこと（最新のみ）
 
-- **R-3f D群 #5/#10/#11 完了**: 直書きWARNを用途別DSトークン化し `ds-audit NG=0 WARN=0`。
-- ダークテーマを廃止し、共有切替UI・SL/WS切替/復元JS・dark CSSを撤去（テーマ参照0件）。
-- LA中央月間/ミニカレンダーの土日祝文字と祝日名を青灰+ウェイト差へ統一。
-- JS構文検査は合格。アプリ内ブラウザ接続先が利用不可のためruntime実測・スクショは未実施。
+- **R-3f E群 #6/#7 + #12 完了**: 共有 menu-user、LAロール移設、全5画面ヘルプ集約を実装。
+- LA年間ビューの常設凡例を撤去し、色・記号ヘルプへ移設。
+- 余白・密度・直書き値を横断棚卸しし、`--shadow-strong` 4箇所を DS elevation へ置換。SLの旧夜間色上書きも撤去。
+- `ds-audit NG=0 WARN=0`、JS構文検査、6ページHTTP 200確認済み。R-3f #1〜#12は全完了。
 
 ## 次にやるべきこと
 
-1. runtime検証環境が利用可能なら LA/SL/WS/OB/admin-notify を `localhost` で実測する。
-2. **R-3f E群 #6 menu-user / #7 ヘルプ icon-btn** を方針確認後に実装する。
-3. その後 #12 横断棚卸し（SL/WS `--shadow-strong` のDS化を含む）→ R-4。
+1. アプリ内ブラウザが利用可能なら E群のメニュー開閉・LAロール反映・QAを含むヘルプ表示を localhost で実測する。
+2. `mockup-refactor-plan.md` の次工程 **R-4 通知センター改修**へ進む。
+3. R-4 着手前に完了済み `notification-refactor-plan.md` §18 完了サマリと対象プレビューを照合する。
 
 ## 今だけの申し送り
 
-- HTMLキャッシュバスター更新済み。完了条件は `node scripts/design-audit/ds-audit.js` の NG=0/WARN=0。
-- 既存の `localStorage.theme_v2` は残っていても読み手がなく、画面へ影響しない。
+- アプリ内ブラウザは Chrome拡張のみで iab 接続先なし。手順規約に従い別バックエンドへ切り替えていない。
+- QA既知の `mockup/icons/shield.svg` 404 は今回も対象外。

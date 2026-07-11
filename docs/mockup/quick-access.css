@@ -219,6 +219,58 @@ body {
     border-color: rgba(255,255,255,0.55);
 }
 
+.qa-help-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.15);
+    cursor: pointer;
+}
+.qa-help-btn:hover,
+.qa-help-btn[aria-expanded="true"] { background: rgba(255,255,255,0.25); }
+.qa-help-btn img { width: 18px; height: 18px; filter: brightness(0) invert(1); }
+
+.qa-help-menu {
+    position: fixed;
+    width: min(260px, calc(100vw - 16px));
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--panel);
+    box-shadow: var(--elevation-4), var(--bevel-card);
+    color: var(--ink);
+    z-index: 1200;
+}
+.qa-help-menu[hidden] { display: none; }
+.qa-help-title { padding: 4px 6px 8px; font-size: 12px; font-weight: 700; }
+.qa-help-item {
+    display: grid;
+    grid-template-columns: 14px 54px 1fr;
+    align-items: center;
+    gap: 7px;
+    padding: 6px;
+    color: var(--muted);
+    font-size: 10px;
+}
+.qa-help-item strong { color: var(--ink); font-size: 11px; }
+.qa-help-swatch {
+    width: 12px;
+    height: 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+    background: var(--info-bg);
+}
+.qa-help-swatch.is-selected { border: 2px solid var(--blue); background: var(--panel); }
+.qa-help-swatch.is-night { border-color: var(--alert-border); background: var(--night-text); }
+.qa-help-swatch.is-alert { border-color: var(--alert-border); background: var(--alert-bg); }
+.qa-help-swatch.is-info { border-color: var(--info-border); background: var(--info-bg); }
+
 /* アカウントメニュー（ドロップダウン） */
 .qa-account-menu {
     position: fixed;
@@ -1864,6 +1916,7 @@ body {
 
 /* --- :focus-visible 拡充（残る主要ボタン） --- */
 .qa-cn-btn:focus-visible,
+.qa-help-btn:focus-visible,
 .qa-avatar-btn:focus-visible,
 .qa-cal-back-btn:focus-visible,
 .qa-cal-nav-btn:focus-visible,
@@ -1892,7 +1945,8 @@ body {
 .qa-cal-back-btn,
 .qa-cal-edit-close,
 .qa-placement-tab,
-.qa-cn-btn {
+.qa-cn-btn,
+.qa-help-btn {
     min-width: 44px;
     min-height: 44px;
 }
@@ -1959,6 +2013,8 @@ body {
     .qa-avatar-btn,
     .qa-account-menu,
     .qa-cn-btn,
+    .qa-help-btn,
+    .qa-help-menu,
     .qa-cn-demo-btn,
     .qa-cal-edit-panel,
     .qa-add-client-form { display: none !important; }

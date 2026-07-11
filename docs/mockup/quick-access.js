@@ -114,6 +114,7 @@ function qaLogout() {
 // --- アカウントメニュー（ドロップダウン） ---
 function qaToggleAccountMenu(event) {
     if (event) event.stopPropagation();
+    qaCloseHelpMenu();
     const menu = document.getElementById('qaAccountMenu');
     const expanded = !menu.hasAttribute('hidden');
     if (expanded) { qaCloseAccountMenu(); return; }
@@ -163,6 +164,47 @@ function qaAccountMenuOutsideClick(e) {
 }
 function qaAccountMenuKeydown(e) {
     if (e.key === 'Escape') qaCloseAccountMenu();
+}
+
+// --- 色・記号の凡例 ---
+function qaToggleHelpMenu(event) {
+    if (event) event.stopPropagation();
+    qaCloseAccountMenu();
+    const menu = document.getElementById('qaHelpMenu');
+    const opening = menu.hasAttribute('hidden');
+    if (!opening) { qaCloseHelpMenu(); return; }
+
+    const btn = event.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 6) + 'px';
+    menu.style.right = Math.max(8, window.innerWidth - rect.right) + 'px';
+    menu.removeAttribute('hidden');
+    ['qaHelpBtn', 'qaHelpBtnCal'].forEach(id => {
+        const item = document.getElementById(id);
+        if (item) item.setAttribute('aria-expanded', item === btn ? 'true' : 'false');
+    });
+    setTimeout(() => {
+        document.addEventListener('click', qaHelpOutsideClick);
+        document.addEventListener('keydown', qaHelpKeydown);
+    }, 0);
+}
+function qaCloseHelpMenu() {
+    const menu = document.getElementById('qaHelpMenu');
+    if (!menu || menu.hasAttribute('hidden')) return;
+    menu.setAttribute('hidden', '');
+    ['qaHelpBtn', 'qaHelpBtnCal'].forEach(id => {
+        const item = document.getElementById(id);
+        if (item) item.setAttribute('aria-expanded', 'false');
+    });
+    document.removeEventListener('click', qaHelpOutsideClick);
+    document.removeEventListener('keydown', qaHelpKeydown);
+}
+function qaHelpOutsideClick(e) {
+    if (e.target.closest('.qa-help-menu, .qa-help-btn')) return;
+    qaCloseHelpMenu();
+}
+function qaHelpKeydown(e) {
+    if (e.key === 'Escape') qaCloseHelpMenu();
 }
 
 // --- ログアウト確認 ---
@@ -924,6 +966,7 @@ function qaGenerateDummyData() {
 
 // --- カレンダー画面 ---
 function qaOpenCalendar(clientId, siteId) {
+    qaCloseHelpMenu();
     const client = qaClients.find(c => c.id === clientId);
     const site = client?.sites.find(s => s.id === siteId);
     if (!client || !site) return;
@@ -952,6 +995,7 @@ function qaOpenCalendar(clientId, siteId) {
 let qaWeekMode = false;
 
 function qaCloseCalendar() {
+    qaCloseHelpMenu();
     document.getElementById('qaCalendarScreen').classList.remove('active');
     document.getElementById('qaHomeScreen').style.display = 'flex';
     qaCnMountAnchor('home');

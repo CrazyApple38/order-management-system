@@ -13,9 +13,6 @@ body { background: var(--bg); color: var(--ink); font-size: 13px; }
 .la-toolbar-title, .main-title { color:var(--ink); font-weight:700; }
 .la-toolbar-title { font-size:14px; margin-right:4px; white-space:nowrap; }
 .toolbar-spacer { flex:1 1 auto; }
-.la-role-switcher { display:flex; gap:2px; padding:2px; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--panel); }
-.la-role-switcher .md-la-role-btn { border:0; border-radius:4px; padding:4px 7px; background:transparent; color:var(--muted); font:600 10px var(--font-sans); cursor:pointer; }
-.la-role-switcher .md-la-role-btn.is-active { color:var(--blue); background:var(--blue-soft); }
 .la-app .seg { margin:0; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--info-bg); padding:2px; }
 .la-app .md-la-view-tab { border:0; border-radius:calc(var(--radius-sm) - 2px); background:transparent; color:var(--muted); padding:5px 12px; font:600 12px var(--font-sans); cursor:pointer; }
 .la-app .md-la-view-tab.is-active { background:var(--panel); color:var(--blue); box-shadow:var(--shadow-card-outer); }
