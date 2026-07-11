@@ -1,4 +1,4 @@
-/* F-2: master management shell and definition-driven CRUD. */
+/* F-3: master management shell, definition-driven CRUD, and hierarchy trees. */
 html, body { min-height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 13px var(--font-sans); overflow: hidden; }
 .ma-app [hidden] { display: none !important; }
@@ -33,6 +33,31 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 13px var(--fon
 .ma-table-frame tbody tr { cursor: pointer; }
 .ma-table-frame td:first-child { width: 132px; font-variant-numeric: tabular-nums; }
 .ma-table-frame td:last-child { width: 72px; text-align: center; }
+.ma-tree-group td,
+.ma-tree-group td:last-child { width: auto; text-align: left; background: var(--info-bg); }
+.ma-tree-group td { color: var(--ink); }
+.ma-tree-group-count { margin-left: var(--space-sm); color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.ma-tree-cell { display: flex; align-items: center; min-width: 0; gap: var(--space-xs); }
+.ma-tree-cell strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ma-tree-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    padding: var(--space-xs);
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+}
+.ma-tree-toggle .chev { transform: rotate(45deg); }
+.ma-tree-toggle.is-collapsed .chev { transform: rotate(-45deg); }
+.ma-tree-toggle:focus-visible { outline: solid var(--blue); outline-offset: var(--space-2xs); }
+.ma-tree-spacer { flex: 0 0 calc(var(--space-sm) + var(--space-sm)); }
+.ma-tree-depth-2 .ma-tree-cell { padding-left: var(--space-lg); }
+.ma-tree-depth-3 .ma-tree-cell { padding-left: var(--space-2xl); }
+.ma-tree-depth-4 .ma-tree-cell { padding-left: var(--space-3xl); }
+.ma-tree-depth-5 .ma-tree-cell { padding-left: calc(var(--space-3xl) + var(--space-lg)); }
 .ma-status { display: inline-flex; align-items: center; min-height: 21px; padding: 0 7px; border: 1px solid var(--soft-line); border-radius: var(--radius-pill); color: var(--muted); font-size: 11px; font-weight: 700; }
 .ma-status.is-active { color: var(--blue); background: var(--blue-soft); border-color: var(--info-border); }
 .ma-table-frame .empty-state { margin: 24px; }

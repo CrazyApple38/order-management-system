@@ -4,12 +4,14 @@
     var STORAGE_KEY = 'mock.oms.master.v1';
     var MASTER_IDS = [
         'company', 'group-company', 'license-type', 'support-partner',
-        'price-note', 'special-note', 'vehicle', 'etc-card', 'holiday', 'penalty-code'
+        'price-note', 'special-note', 'vehicle', 'etc-card', 'holiday', 'penalty-code',
+        'org-level-type', 'org-unit', 'site', 'site-category'
     ];
     var selectedMasterId = 'company';
     var selectedId = null;
     var editorMode = 'detail';
     var statusFilter = 'active';
+    var collapsedTreeIds = {};
 
     var masterSections = [
         { label: '組織', items: [
@@ -78,6 +80,32 @@
             ],
             unique: [['code', '同じ会社コードが登録されています。']], seed: seedGroupCompanies
         },
+        'org-level-type': {
+            label: '組織階層種別', singular: '組織階層種別', search: '階層種別を検索',
+            columns: [['name', '階層種別名', 'strong']],
+            fields: [
+                selectField('gcCode', 'グループ会社', gcOptions),
+                treeParentField('parentId', '上位階層種別'),
+                field('name', '階層種別名', 'text', true, 50)
+            ],
+            tree: treeConfig('gcCode', function () { return gcOptions; }, '階層種別', 5),
+            normalize: normalizeOrgLevelType,
+            seed: seedOrgLevelTypes
+        },
+        'org-unit': {
+            label: '組織ノード', singular: '組織ノード', search: '組織ノードを検索',
+            columns: [['code', '組織コード'], ['name', '組織名', 'strong']],
+            fields: [
+                selectField('gcCode', 'グループ会社', gcOptions),
+                treeParentField('parentId', '親組織ノード'),
+                field('code', '組織コード', 'text', true, 20),
+                field('name', '組織名', 'text', true, 100),
+                field('sortOrder', '表示順', 'number')
+            ],
+            tree: treeConfig('gcCode', function () { return gcOptions; }, '組織', 5),
+            compoundUnique: ['gcCode', 'code'], compoundMessage: '同じ会社に同じ組織コードが登録されています。',
+            seed: seedOrgUnits
+        },
         'license-type': {
             label: '資格検定', singular: '資格種別', search: '資格を検索',
             columns: [['code', '資格コード'], ['name', '資格名', 'strong'], ['category', 'カテゴリ', 'option'], ['requiresRenewal', '更新', 'boolean']],
@@ -141,6 +169,42 @@
                 field('description', '説明', 'textarea'), field('sortOrder', '表示順', 'number')
             ],
             unique: [['code', '同じペナルティコードが登録されています。']], seed: seedPenaltyCodes
+        },
+        'site': {
+            label: '現場', singular: '現場・子項目', search: '現場を検索',
+            columns: [['code', '現場コード'], ['name', '現場・項目名', 'strong']],
+            fields: [
+                dynamicSelectField('companyId', '契約先', function () { return companyOptions(true); }),
+                treeParentField('parentId', '親現場・項目'),
+                field('code', '現場・項目コード', 'text', true, 20),
+                field('name', '現場・項目名', 'text', true, 100),
+                field('label', '項目ラベル', 'text', false, 50, '子項目の場合に使用します。'),
+                { key: 'categoryId', label: '区分', type: 'select', options: categoryOptions(), required: false },
+                { key: 'defaultShiftType', label: '既定シフト', type: 'select', required: false, options: [
+                    { value: '', label: '未設定' }, { value: 'day', label: '昼' }, { value: 'night', label: '夜' }
+                ]},
+                field('defaultStartTime', '既定開始時刻', 'time'),
+                field('defaultEndTime', '既定終了時刻', 'time'),
+                field('notes', '備考', 'textarea'),
+                field('sortOrder', '表示順', 'number')
+            ],
+            tree: treeConfig('companyId', function () { return companyOptions(true); }, '現場', 3),
+            compoundUnique: ['companyId', 'code'], compoundMessage: '同じ契約先に同じ現場・項目コードが登録されています。',
+            normalize: normalizeSite,
+            seed: seedSites
+        },
+        'site-category': {
+            label: '区分・バッジ', singular: '区分・バッジ', search: '区分・バッジを検索',
+            columns: [['code', 'コード'], ['name', '区分・バッジ名', 'strong']],
+            fields: [
+                treeParentField('parentId', '親区分・バッジ'),
+                field('code', 'コード', 'text', true, 20),
+                field('name', '区分・バッジ名', 'text', true, 50),
+                field('sortOrder', '表示順', 'number')
+            ],
+            tree: treeConfig(null, null, '区分・バッジ', 3),
+            unique: [['code', '同じ区分・バッジコードが登録されています。']],
+            seed: seedSiteCategories
         }
     };
 
@@ -154,6 +218,39 @@
 
     function checkboxField(key, label) {
         return { key: key, label: label, type: 'checkbox' };
+    }
+
+    function dynamicSelectField(key, label, optionsProvider) {
+        return { key: key, label: label, type: 'select', optionsProvider: optionsProvider, required: true };
+    }
+
+    function treeParentField(key, label) {
+        return { key: key, label: label, type: 'tree-parent' };
+    }
+
+    function treeConfig(groupKey, groupOptionsProvider, itemType, maxDepth) {
+        return {
+            groupKey: groupKey,
+            groupOptionsProvider: groupOptionsProvider,
+            itemType: itemType,
+            maxDepth: maxDepth
+        };
+    }
+
+    function companyOptions(includeInactive) {
+        var companies = state && state.datasets && state.datasets.company ? state.datasets.company : seedCompanies();
+        return companies.filter(function (item) { return includeInactive || item.isActive; }).map(function (item) {
+            return { value: item.id, label: item.name };
+        });
+    }
+
+    function categoryOptions() {
+        return [
+            { value: '', label: '未設定' },
+            { value: 'facility', label: '施設' }, { value: 'event', label: 'イベント' },
+            { value: 'highway', label: '高速' }, { value: 'traffic', label: '交通' },
+            { value: 'support-traffic', label: '応援交通' }
+        ];
     }
 
     function templateDefinition(label, singular, seed) {
@@ -192,6 +289,125 @@
                 postalCode: '', address: '', representativeTitle: '', representativeName: '', phone: ''
             });
         });
+    }
+
+    function seedOrgLevelTypes() {
+        var source = typeof orgLevelTypesData !== 'undefined' ? orgLevelTypesData : {};
+        var rows = [];
+        Object.keys(source).forEach(function (gcCode) {
+            var parentId = '';
+            source[gcCode].forEach(function (item, index) {
+                var id = 'org-level-type-' + gcCode + '-' + item.depth;
+                rows.push(Object.assign(baseRecord(id, index + 1), {
+                    gcCode: gcCode, parentId: parentId, depth: item.depth, name: item.name || ''
+                }));
+                parentId = id;
+            });
+        });
+        return rows;
+    }
+
+    function normalizeOrgLevelType(item) {
+        item.depth = treeDepthFor(item, currentItems());
+        return item;
+    }
+
+    function seedOrgUnits() {
+        var source = typeof orgUnitsData !== 'undefined' ? orgUnitsData : {};
+        var rows = [];
+        Object.keys(source).forEach(function (gcCode) {
+            function walk(nodes, parentId) {
+                (nodes || []).forEach(function (node, index) {
+                    rows.push(Object.assign(baseRecord(node.id, index + 1), {
+                        gcCode: gcCode,
+                        parentId: parentId || '',
+                        code: String(node.id || '').replace(gcCode + '-', '').replace('zen-', '').replace(/-/g, '_').toUpperCase(),
+                        name: node.name || ''
+                    }));
+                    walk(node.children, node.id);
+                });
+            }
+            walk(source[gcCode], '');
+        });
+        return rows;
+    }
+
+    function seedSites() {
+        var source = typeof defaultSitesData !== 'undefined' ? defaultSitesData : {};
+        var rows = [];
+        Object.keys(source).forEach(function (companySourceId) {
+            function walk(nodes, parentId, depth) {
+                (nodes || []).forEach(function (node, index) {
+                    var id = depth === 1 ? 'site-' + node.id : 'site-sub-' + node.id;
+                    rows.push(Object.assign(baseRecord(id, index + 1), {
+                        companyId: 'company-' + companySourceId,
+                        parentId: parentId || '',
+                        code: (depth === 1 ? 'S' : 'SI') + String(node.id),
+                        name: node.name || '',
+                        label: depth === 1 ? '' : (depth === 2 ? '業務内容' : '作業内容'),
+                        categoryId: '', defaultShiftType: '', defaultStartTime: '', defaultEndTime: '', notes: ''
+                    }));
+                    walk(node.subItems, id, depth + 1);
+                });
+            }
+            walk(source[companySourceId], '', 1);
+        });
+        return rows;
+    }
+
+    function normalizeSite(item) {
+        if (item.parentId) {
+            var parent = currentItems().find(function (row) { return row.id === item.parentId; });
+            if (parent) item.companyId = parent.companyId;
+        }
+        return item;
+    }
+
+    function cascadeTreeGroup(item) {
+        var definition = currentDefinition();
+        if (!definition.tree || !definition.tree.groupKey || !item) return;
+        var groupKey = definition.tree.groupKey;
+        currentItems().forEach(function (child) {
+            if (child.parentId === item.id && child[groupKey] !== item[groupKey]) {
+                child[groupKey] = item[groupKey];
+                cascadeTreeGroup(child);
+            }
+        });
+    }
+
+    function seedSiteCategories() {
+        var source = [
+            { id: 'facility', name: '施設', children: [] },
+            { id: 'event', name: 'イベント', children: [] },
+            { id: 'highway', name: '高速', children: [
+                { id: 'hw-lane', name: '車線規制', children: [
+                    { id: 'hw-lane-sign', name: '標識車' }, { id: 'hw-lane-mat', name: '規制材' }, { id: 'hw-lane-light', name: '保安灯' }
+                ]},
+                { id: 'hw-shoulder', name: '路肩規制', children: [
+                    { id: 'hw-sh-cone', name: 'コーン' }, { id: 'hw-sh-bar', name: 'バー' }
+                ]},
+                { id: 'hw-booth', name: 'ブース規制', children: [] },
+                { id: 'hw-security', name: '保安員', children: [] }
+            ]},
+            { id: 'traffic', name: '交通', children: [
+                { id: 'tr-alternate', name: '片側交互', children: [
+                    { id: 'tr-alt-flag', name: '旗' }, { id: 'tr-alt-sign', name: '看板' }
+                ]},
+                { id: 'tr-closure', name: '通行止め', children: [] }
+            ]},
+            { id: 'support-traffic', name: '応援交通', children: [] }
+        ];
+        var rows = [];
+        function walk(nodes, parentId) {
+            (nodes || []).forEach(function (node, index) {
+                rows.push(Object.assign(baseRecord(node.id, index + 1), {
+                    parentId: parentId || '', code: String(node.id).replace(/-/g, '_').toUpperCase(), name: node.name || ''
+                }));
+                walk(node.children, node.id);
+            });
+        }
+        walk(source, '');
+        return rows;
     }
 
     function seedLicenseTypes() {
@@ -294,17 +510,18 @@
             });
             nextIds.company = Math.max.apply(null, [0, Number(previousNextCompanyId || 1) - 1].concat(usedLocalIds));
         }
-        return { version: 2, nextIds: nextIds, datasets: datasets };
+        return { version: 3, nextIds: nextIds, datasets: datasets };
     }
 
     function loadState() {
         try {
             var saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-            if (saved && saved.version === 2 && saved.datasets) {
+            if (saved && (saved.version === 2 || saved.version === 3) && saved.datasets) {
                 MASTER_IDS.forEach(function (id) {
                     if (!Array.isArray(saved.datasets[id])) saved.datasets[id] = masterDefinitions[id].seed();
                 });
                 if (!saved.nextIds) saved.nextIds = {};
+                saved.version = 3;
                 return saved;
             }
             if (saved && Array.isArray(saved.companies)) return createInitialState(saved.companies, saved.nextCompanyId);
@@ -346,7 +563,7 @@
     }
 
     function optionLabel(fieldDef, value) {
-        var options = fieldDef && fieldDef.options ? fieldDef.options : [];
+        var options = fieldDef && fieldDef.optionsProvider ? fieldDef.optionsProvider() : (fieldDef && fieldDef.options ? fieldDef.options : []);
         var option = options.find(function (item) { return item.value === value; });
         return option ? option.label : value;
     }
@@ -386,8 +603,122 @@
         }).sort(function (a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0); });
     }
 
+    function treeDepthFor(item, items) {
+        var depth = 1;
+        var parentId = item && item.parentId;
+        var visited = {};
+        while (parentId && !visited[parentId] && depth < 10) {
+            visited[parentId] = true;
+            var parent = items.find(function (row) { return row.id === parentId; });
+            if (!parent) break;
+            depth += 1;
+            parentId = parent.parentId;
+        }
+        return depth;
+    }
+
+    function treeGroupOptions(definition) {
+        if (!definition.tree.groupKey) return [{ value: '', label: definition.label }];
+        return definition.tree.groupOptionsProvider ? definition.tree.groupOptionsProvider() : [];
+    }
+
+    function treeGroupKey(definition, item) {
+        return definition.tree.groupKey ? String(item[definition.tree.groupKey] || '') : '';
+    }
+
+    function treeTypeLabel(item, depth) {
+        if (selectedMasterId === 'org-level-type') return '第' + depth + '階層';
+        if (selectedMasterId === 'org-unit') {
+            var level = state.datasets['org-level-type'].find(function (row) {
+                return row.gcCode === item.gcCode && treeDepthFor(row, state.datasets['org-level-type']) === depth;
+            });
+            return level ? level.name : '組織';
+        }
+        if (selectedMasterId === 'site') return depth === 1 ? '現場' : (item.label || '子項目');
+        if (selectedMasterId === 'site-category') return depth === 1 ? '区分' : (depth === 2 ? '子バッジ' : '孫バッジ');
+        return currentDefinition().tree.itemType;
+    }
+
+    function treeCollapsed(key) {
+        return !!(collapsedTreeIds[selectedMasterId] && collapsedTreeIds[selectedMasterId][key]);
+    }
+
+    function toggleTree(key) {
+        if (!collapsedTreeIds[selectedMasterId]) collapsedTreeIds[selectedMasterId] = {};
+        collapsedTreeIds[selectedMasterId][key] = !collapsedTreeIds[selectedMasterId][key];
+        renderTable();
+    }
+
+    function renderTreeTable(definition) {
+        var items = currentItems().slice().sort(function (a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0); });
+        var query = document.getElementById('maSearch').value.trim().toLocaleLowerCase('ja');
+        var included = {};
+        items.forEach(function (item) {
+            var statusMatch = statusFilter === 'all' || (statusFilter === 'active' ? item.isActive : !item.isActive);
+            var queryMatch = !query || searchableValues(item).some(function (value) {
+                return String(value == null ? '' : value).toLocaleLowerCase('ja').indexOf(query) !== -1;
+            });
+            if (statusMatch && queryMatch) included[item.id] = true;
+        });
+        Object.keys(included).forEach(function (id) {
+            var current = items.find(function (row) { return row.id === id; });
+            var guard = {};
+            while (current && current.parentId && !guard[current.parentId]) {
+                guard[current.parentId] = true;
+                included[current.parentId] = true;
+                current = items.find(function (row) { return row.id === current.parentId; });
+            }
+        });
+
+        var rows = [];
+        var visibleCount = Object.keys(included).length;
+        treeGroupOptions(definition).forEach(function (group) {
+            var groupItems = items.filter(function (item) { return treeGroupKey(definition, item) === String(group.value) && included[item.id]; });
+            if (!groupItems.length) return;
+            var groupKey = 'group:' + group.value;
+            var groupCollapsed = !query && treeCollapsed(groupKey);
+            rows.push('<tr class="ma-tree-group"><td colspan="3"><button type="button" class="ma-tree-toggle' + (groupCollapsed ? ' is-collapsed' : '')
+                + '" data-tree-key="' + escapeHtml(groupKey) + '" title="' + (groupCollapsed ? '展開' : '折りたたみ') + '" aria-label="' + (groupCollapsed ? '展開' : '折りたたみ') + '">'
+                + '<span class="chev" aria-hidden="true"></span></button><strong>' + escapeHtml(group.label) + '</strong><span class="ma-tree-group-count">'
+                + groupItems.length + '件</span></td></tr>');
+            if (groupCollapsed) return;
+            var groupIds = {};
+            groupItems.forEach(function (item) { groupIds[item.id] = true; });
+            var roots = groupItems.filter(function (item) { return !item.parentId || !groupIds[item.parentId]; });
+            function appendNode(item) {
+                var depth = treeDepthFor(item, items);
+                var children = groupItems.filter(function (row) { return row.parentId === item.id; });
+                var key = 'item:' + item.id;
+                var collapsed = !query && treeCollapsed(key);
+                var toggle = children.length
+                    ? '<button type="button" class="ma-tree-toggle' + (collapsed ? ' is-collapsed' : '') + '" data-tree-key="' + escapeHtml(key)
+                        + '" title="' + (collapsed ? '展開' : '折りたたみ') + '" aria-label="' + (collapsed ? '展開' : '折りたたみ') + '"><span class="chev" aria-hidden="true"></span></button>'
+                    : '<span class="ma-tree-spacer" aria-hidden="true"></span>';
+                rows.push('<tr data-id="' + escapeHtml(item.id) + '" class="ma-tree-row ma-tree-depth-' + Math.min(depth, 5) + ' ' + (item.id === selectedId ? 'is-selected' : '') + '" tabindex="0">'
+                    + '<td><div class="ma-tree-cell">' + toggle + '<strong>' + escapeHtml(item.name || item.code || definition.singular) + '</strong></div></td>'
+                    + '<td class="sub">' + escapeHtml(treeTypeLabel(item, depth)) + '</td>'
+                    + '<td><span class="ma-status' + (item.isActive ? ' is-active' : '') + '">' + (item.isActive ? '有効' : '無効') + '</span></td></tr>');
+                if (!collapsed) children.forEach(appendNode);
+            }
+            roots.forEach(appendNode);
+        });
+
+        document.getElementById('maTableHead').innerHTML = '<tr><th>' + escapeHtml(definition.label) + '</th><th>種別</th><th class="num">状態</th></tr>';
+        document.getElementById('maTableBody').innerHTML = rows.join('');
+        document.getElementById('maEmptyState').hidden = visibleCount !== 0;
+        document.getElementById('maEmptyTitle').textContent = '該当する' + definition.label + 'はありません';
+        document.getElementById('maMainTitle').textContent = definition.label;
+        document.getElementById('maMainCount').textContent = visibleCount + '件';
+        document.getElementById('maTable').setAttribute('aria-label', definition.label + 'ツリー');
+        renderNav();
+    }
+
     function renderTable() {
         var definition = currentDefinition();
+        if (definition.tree) {
+            renderTreeTable(definition);
+            return;
+        }
         var items = filteredItems();
         document.getElementById('maTableHead').innerHTML = '<tr>' + definition.columns.map(function (column) {
             return '<th>' + escapeHtml(column[1]) + '</th>';
@@ -416,12 +747,13 @@
             return '<label class="check ma-check"><input type="checkbox" id="' + id + '" name="' + fieldDef.key + '"' + (value ? ' checked' : '') + '><span class="box"></span>' + escapeHtml(fieldDef.label) + '</label>';
         }
         var control;
-        if (fieldDef.type === 'select' || fieldDef.type === 'vehicle-select') {
+        if (fieldDef.type === 'select' || fieldDef.type === 'vehicle-select' || fieldDef.type === 'tree-parent') {
             var options = fieldDef.type === 'vehicle-select'
                 ? [{ value: '', label: '紐付けなし' }].concat(state.datasets.vehicle.filter(function (vehicle) { return vehicle.isActive; }).map(function (vehicle) {
                     return { value: vehicle.id, label: vehicle.licensePlate + ' / ' + vehicle.model };
                 }))
-                : fieldDef.options;
+                : fieldDef.type === 'tree-parent' ? treeParentOptions(item || {})
+                : fieldDef.optionsProvider ? fieldDef.optionsProvider() : fieldDef.options;
             control = '<div class="select-wrap"><select class="input" id="' + id + '" name="' + fieldDef.key + '"' + (fieldDef.required ? ' required' : '') + '>'
                 + options.map(function (option) {
                     return '<option value="' + escapeHtml(option.value) + '"' + (option.value === value ? ' selected' : '') + '>' + escapeHtml(option.label) + '</option>';
@@ -436,10 +768,45 @@
             + (fieldDef.help ? '<span class="field-help">' + escapeHtml(fieldDef.help) + '</span>' : '') + '</div>';
     }
 
+    function treeParentOptions(item) {
+        var definition = currentDefinition();
+        if (!definition.tree) return [];
+        var groupKey = definition.tree.groupKey;
+        var selectedGroup = groupKey ? String(item[groupKey] || '') : '';
+        var descendants = {};
+        function markDescendants(parentId) {
+            currentItems().forEach(function (row) {
+                if (row.parentId === parentId && !descendants[row.id]) {
+                    descendants[row.id] = true;
+                    markDescendants(row.id);
+                }
+            });
+        }
+        if (item.id) markDescendants(item.id);
+        var options = [{ value: '', label: '親なし（ルート）' }];
+        currentItems().filter(function (row) {
+            if (row.id === item.id || descendants[row.id]) return false;
+            if (groupKey && String(row[groupKey] || '') !== selectedGroup) return false;
+            return treeDepthFor(row, currentItems()) < definition.tree.maxDepth;
+        }).sort(function (a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0); }).forEach(function (row) {
+            var depth = treeDepthFor(row, currentItems());
+            options.push({ value: row.id, label: Array(depth).join('- ') + row.name });
+        });
+        return options;
+    }
+
     function renderEditor(item) {
         document.getElementById('maFields').innerHTML = currentDefinition().fields.map(function (fieldDef) {
             return renderField(fieldDef, item);
         }).join('');
+    }
+
+    function itemTitle(item) {
+        return item.name || item.shortName || item.body || item.licensePlate || item.cardLabel || currentDefinition().singular;
+    }
+
+    function itemSub(item) {
+        return item.code || item.vehicleCode || item.date || '';
     }
 
     function clearEditor() {
@@ -449,6 +816,7 @@
         document.getElementById('maPropMode').textContent = '詳細';
         document.getElementById('maPropTitle').textContent = '未選択';
         document.getElementById('maPropSub').textContent = currentDefinition().singular + 'を選択するか、新規追加を実行してください。';
+        document.getElementById('maAddChildBtn').hidden = true;
         renderTable();
     }
 
@@ -460,29 +828,46 @@
         renderEditor(item);
         document.getElementById('maMasterForm').hidden = false;
         document.getElementById('maPropMode').textContent = '編集';
-        document.getElementById('maPropTitle').textContent = item.name || item.shortName || item.body || item.licensePlate || item.cardLabel || currentDefinition().singular;
-        document.getElementById('maPropSub').textContent = item.code || item.vehicleCode || item.date || '';
+        document.getElementById('maPropTitle').textContent = itemTitle(item);
+        document.getElementById('maPropSub').textContent = itemSub(item);
         var toggle = document.getElementById('maToggleActiveBtn');
         toggle.hidden = false;
         toggle.textContent = item.isActive ? '無効化' : '有効化';
         toggle.className = item.isActive ? 'btn btn-danger' : 'btn btn-secondary';
+        var childButton = document.getElementById('maAddChildBtn');
+        childButton.hidden = !currentDefinition().tree || treeDepthFor(item, currentItems()) >= currentDefinition().tree.maxDepth;
         setPanelMode('detail');
         renderTable();
     }
 
-    function startNew() {
+    function startNew(defaults) {
         selectedId = null;
         editorMode = 'new';
-        renderEditor({ sortOrder: currentItems().length + 1 });
+        var initial = Object.assign({ sortOrder: currentItems().length + 1 }, defaults || {});
+        if (currentDefinition().tree && currentDefinition().tree.groupKey && !initial[currentDefinition().tree.groupKey]) {
+            var groups = treeGroupOptions(currentDefinition());
+            initial[currentDefinition().tree.groupKey] = groups.length ? groups[0].value : '';
+        }
+        renderEditor(initial);
         document.getElementById('maMasterForm').hidden = false;
         document.getElementById('maPropMode').textContent = '新規追加';
         document.getElementById('maPropTitle').textContent = currentDefinition().singular + 'を追加';
         document.getElementById('maPropSub').textContent = '必須項目を入力して保存します。';
         document.getElementById('maToggleActiveBtn').hidden = true;
+        document.getElementById('maAddChildBtn').hidden = true;
         setPanelMode('detail');
         renderTable();
         var first = document.querySelector('#maFields input, #maFields select, #maFields textarea');
         if (first) first.focus();
+    }
+
+    function startChild() {
+        if (!selectedId || !currentDefinition().tree) return;
+        var parent = currentItems().find(function (row) { return row.id === selectedId; });
+        if (!parent || treeDepthFor(parent, currentItems()) >= currentDefinition().tree.maxDepth) return;
+        var defaults = { parentId: parent.id, sortOrder: currentItems().filter(function (row) { return row.parentId === parent.id; }).length + 1 };
+        if (currentDefinition().tree.groupKey) defaults[currentDefinition().tree.groupKey] = parent[currentDefinition().tree.groupKey];
+        startNew(defaults);
     }
 
     function readFormValues() {
@@ -520,6 +905,29 @@
         return duplicateField ? { field: duplicateField, message: message } : null;
     }
 
+    function validateTreeValues(values) {
+        var definition = currentDefinition();
+        if (!definition.tree) return null;
+        var parent = values.parentId ? currentItems().find(function (row) { return row.id === values.parentId; }) : null;
+        if (values.parentId && !parent) return { field: 'parentId', message: '選択した親が見つかりません。' };
+        if (parent && definition.tree.groupKey) values[definition.tree.groupKey] = parent[definition.tree.groupKey];
+        var nextDepth = parent ? treeDepthFor(parent, currentItems()) + 1 : 1;
+        if (nextDepth > definition.tree.maxDepth) return { field: 'parentId', message: 'これ以上深い階層には移動できません。' };
+        if (selectedMasterId === 'org-level-type') {
+            var sibling = currentItems().find(function (row) {
+                return row.id !== selectedId && row.gcCode === values.gcCode && String(row.parentId || '') === String(values.parentId || '');
+            });
+            if (sibling) return { field: 'parentId', message: '同じ深さの階層種別は1件だけ登録できます。' };
+        }
+        if (selectedMasterId === 'org-unit') {
+            var levelExists = state.datasets['org-level-type'].some(function (row) {
+                return row.isActive && row.gcCode === values.gcCode && treeDepthFor(row, state.datasets['org-level-type']) === nextDepth;
+            });
+            if (!levelExists) return { field: 'parentId', message: 'この深さの組織階層種別が定義されていません。' };
+        }
+        return null;
+    }
+
     function normalizeSupportPartner(item) {
         item.isMasterComplete = !!(item.formalName && item.address && item.representativeTitle && item.representativeName);
         return item;
@@ -534,7 +942,8 @@
     function submitItem(event) {
         event.preventDefault();
         var values = readFormValues();
-        var duplicate = findDuplicate(values);
+        if (currentDefinition().normalize) currentDefinition().normalize(values);
+        var duplicate = validateTreeValues(values) || findDuplicate(values);
         if (duplicate) {
             var duplicateInput = document.getElementById('maField-' + duplicate.field);
             duplicateInput.setCustomValidity(duplicate.message);
@@ -546,14 +955,15 @@
         });
         if (editorMode === 'new') {
             var newItem = Object.assign(baseRecord(nextLocalId(), values.sortOrder || currentItems().length + 1), values);
-            if (currentDefinition().normalize) newItem = currentDefinition().normalize(newItem);
             currentItems().push(newItem);
             selectedId = newItem.id;
+            cascadeTreeGroup(newItem);
         } else {
             var item = currentItems().find(function (row) { return row.id === selectedId; });
             if (!item) return;
             Object.assign(item, values);
             if (currentDefinition().normalize) currentDefinition().normalize(item);
+            cascadeTreeGroup(item);
         }
         saveState();
         selectItem(selectedId);
@@ -606,8 +1016,8 @@
             var item = currentItems().find(function (row) { return row.id === selectedId; });
             if (item) {
                 document.getElementById('maPropMode').textContent = '編集';
-                document.getElementById('maPropTitle').textContent = item.name || item.shortName || item.body || item.licensePlate || item.cardLabel || currentDefinition().singular;
-                document.getElementById('maPropSub').textContent = item.code || item.vehicleCode || item.date || '';
+                document.getElementById('maPropTitle').textContent = itemTitle(item);
+                document.getElementById('maPropSub').textContent = itemSub(item);
             }
         } else if (editorMode === 'new') {
             document.getElementById('maPropMode').textContent = '新規追加';
@@ -626,17 +1036,39 @@
         if (bells && rail) rail.appendChild(bells);
     }
 
+    function refreshTreeParentOptions() {
+        var parentSelect = document.getElementById('maField-parentId');
+        if (!parentSelect || !currentDefinition().tree) return;
+        var draft = readFormValues();
+        if (selectedId) draft.id = selectedId;
+        var currentValue = parentSelect.value;
+        parentSelect.innerHTML = treeParentOptions(draft).map(function (option) {
+            return '<option value="' + escapeHtml(option.value) + '"' + (option.value === currentValue ? ' selected' : '') + '>' + escapeHtml(option.label) + '</option>';
+        }).join('');
+        if (!parentSelect.querySelector('option:checked')) parentSelect.value = '';
+    }
+
     function bindEvents() {
         document.getElementById('maSearch').addEventListener('input', renderTable);
-        document.getElementById('maNewBtn').addEventListener('click', startNew);
+        document.getElementById('maNewBtn').addEventListener('click', function () { startNew(); });
+        document.getElementById('maAddChildBtn').addEventListener('click', startChild);
         document.getElementById('maMasterForm').addEventListener('submit', submitItem);
         document.getElementById('maToggleActiveBtn').addEventListener('click', toggleActive);
         document.getElementById('maFields').addEventListener('input', function (event) { event.target.setCustomValidity(''); });
+        document.getElementById('maFields').addEventListener('change', function (event) {
+            if (currentDefinition().tree && event.target.name === currentDefinition().tree.groupKey) refreshTreeParentOptions();
+        });
         document.getElementById('maSideNav').addEventListener('click', function (event) {
             var button = event.target.closest('[data-master]');
             if (button && !button.disabled) switchMaster(button.getAttribute('data-master'), true);
         });
         document.getElementById('maTableBody').addEventListener('click', function (event) {
+            var treeToggle = event.target.closest('[data-tree-key]');
+            if (treeToggle) {
+                event.stopPropagation();
+                toggleTree(treeToggle.getAttribute('data-tree-key'));
+                return;
+            }
             var row = event.target.closest('tr[data-id]');
             if (row) selectItem(row.getAttribute('data-id'));
         });
