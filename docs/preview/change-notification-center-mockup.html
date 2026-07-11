@@ -27,10 +27,6 @@
             --blue: #1f5fae;
             --blue-dark: #123b5d;
             --blue-soft: #eaf3ff;
-            --accent-orange: #f15e2a;
-            --alert-text: #f15e2a;
-            --alert-bg: #fff0e8;
-            --alert-border: #f5a17c;
             --info-text: #1f5fae;
             --info-bg: #edf6ff;
             --info-border: #bfd7f4;
@@ -59,7 +55,6 @@
             --bevel-card:
                 inset 1px 1px 0 rgba(255, 255, 255, 0.96),
                 inset -1px -1px 0 rgba(182, 198, 211, 0.20);
-            --icon-task: url("../assets/icons/business/im-16152-tasuku-torei.svg");
             --icon-calendar: url("../assets/icons/business/im-00188-sukejuuru-karendaa.svg");
             --icon-building: url("../assets/icons/building/im-00084-muryou-no-biru.svg");
             --icon-pin: url("../assets/icons/transport/im-00020-mappu-no-pin.svg");
@@ -232,17 +227,6 @@
             font-variant-numeric: tabular-nums;
         }
 
-        .nav-count.alert {
-            min-width: 18px;
-            padding: 1px 6px;
-            border-radius: var(--radius-pill);
-            background: var(--accent-orange);
-            color: #fff;
-            font-size: 10px;
-            font-weight: 700;
-            text-align: center;
-        }
-
         .nav-pane .icon {
             width: 15px;
             height: 15px;
@@ -254,7 +238,6 @@
             opacity: 0.78;
         }
 
-        .i-task { --icon-url: var(--icon-task); }
         .i-calendar { --icon-url: var(--icon-calendar); }
         .i-building { --icon-url: var(--icon-building); }
         .i-pin { --icon-url: var(--icon-pin); }
@@ -410,9 +393,7 @@
 
         .chip.route { color: #506575; background: #f1f6fa; border: 1px solid var(--soft-line); }
         .chip.kind { color: var(--neutral-chip-text); background: var(--neutral-chip-bg); }
-        .chip.state-open { color: var(--info-text); background: var(--info-bg); border: 1px solid var(--info-border); }
-        .chip.state-done { color: var(--neutral-chip-text); background: var(--neutral-chip-bg); border: 1px solid var(--soft-line); }
-        .chip.mismatch { color: var(--alert-text); background: var(--alert-bg); border: 1px solid var(--alert-border); }
+        .chip.subtag { color: var(--info-text); background: var(--info-bg); border: 1px solid var(--info-border); }
 
         .empty-note {
             padding: 24px 12px;
@@ -421,7 +402,7 @@
             font-size: 12px;
         }
 
-        /* ===== 右: 詳細 + スレッド ===== */
+        /* ===== 右: 変更内容 + 情報経路 ===== */
         .detail-pane {
             min-width: 0;
             padding: 16px 16px 20px 16px;
@@ -557,95 +538,6 @@
             font-size: 11px;
         }
 
-        .thread-list {
-            list-style: none;
-            margin: 0 0 10px;
-            padding: 0;
-            display: grid;
-            gap: 8px;
-        }
-
-        .thread-list li {
-            display: grid;
-            grid-template-columns: auto minmax(0, 1fr);
-            gap: 8px;
-            align-items: start;
-        }
-
-        .t-avatar {
-            width: 26px;
-            height: 26px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--soft-line);
-            border-radius: var(--radius-pill);
-            background: linear-gradient(to bottom right, #ffffff, #f1f6fa);
-            color: var(--belong-color, var(--belong-1));
-        }
-
-        .t-avatar svg { width: 14px; height: 14px; fill: currentColor; }
-
-        .t-body {
-            padding: 8px 10px;
-            border: 1px solid var(--soft-line);
-            border-radius: var(--radius-sm);
-            background: linear-gradient(to bottom right, #fdfeff, #f5f8fa);
-            font-size: 12px;
-        }
-
-        .t-body .t-meta {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 3px;
-            color: var(--muted);
-            font-size: 11px;
-        }
-
-        .t-body .t-meta strong { color: var(--ink); font-weight: 600; }
-
-        .t-body.t-system {
-            background: var(--blue-soft);
-            border-color: var(--info-border);
-            color: #245777;
-        }
-
-        .thread-empty {
-            margin: 0 0 10px;
-            padding: 12px;
-            color: var(--muted);
-            font-size: 12px;
-            text-align: center;
-            border: 1px dashed #c4d4e0;
-            border-radius: var(--radius-sm);
-        }
-
-        .reply-row {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
-            gap: 8px;
-        }
-
-        .reply-input {
-            height: 32px;
-            padding: 0 12px;
-            border: 1px solid var(--line);
-            border-radius: var(--radius-sm);
-            background: #fff;
-            color: var(--ink);
-            font-family: var(--font-sans);
-            font-size: 12px;
-        }
-
-        .reply-input::placeholder { color: #95a6b3; }
-
-        .thread-actions {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            margin-top: 8px;
-        }
-
         .act-btn {
             height: 28px;
             display: inline-flex;
@@ -660,12 +552,6 @@
             font-weight: 600;
             cursor: pointer;
             box-shadow: var(--elevation-1), var(--inset-highlight);
-        }
-
-        .act-btn.primary {
-            color: #fff;
-            background: linear-gradient(to bottom right, #2b72cb, var(--blue));
-            border-color: var(--blue);
         }
 
         .detail-foot {
@@ -726,7 +612,7 @@
     <main class="page">
         <section class="top-note">
             <h1>変更通知センター モックアップ</h1>
-            <p>3層構造の第2層「調べる・照合する」専用ページ。左=縦型軸タブ（グループ化切替）/ 中=グループ化リスト / 右=詳細+情報照合スレッド。業務作業面（中央表）は持たず、現場文脈は cn:jump で実画面へ飛ぶ。</p>
+            <p>3層構造の第2層「集積・検索」専用ページ。左=縦型軸タブ（グループ化切替）/ 中=グループ化リスト / 右=変更内容+情報経路。業務作業面（中央表）は持たず、現場文脈は cn:jump で実画面へ飛ぶ。</p>
         </section>
         <section class="app">
             <nav class="menubar" aria-label="メニュー">
@@ -743,18 +629,20 @@
                 <div class="tool-group">
                     <div class="search">検索: 現場名 / 契約先 / 変更者 / 値</div>
                     <button class="tool-btn" type="button">期間: 直近7日</button>
-                    <button class="tool-btn" type="button">状態: すべて</button>
+                    <label class="sr-only" for="assignmentSubtagFilter">配置区分</label>
+                    <select class="tool-btn" id="assignmentSubtagFilter">
+                        <option value="all">配置区分: すべて</option>
+                        <option value="own">配置区分: 自社</option>
+                        <option value="support">配置区分: 応援</option>
+                        <option value="partner">配置区分: 協力業者</option>
+                        <option value="vehicle">配置区分: 車両・ETC</option>
+                    </select>
                     <button class="tool-btn" type="button">連絡出力</button>
                 </div>
             </div>
 
             <div class="workspace">
                 <aside class="nav-pane" aria-label="グループ化軸の切替" id="axisRail">
-                    <button type="button" data-axis="inbox" title="要対応: 自分宛の確認依頼がある確認中スレッド">
-                        <span class="icon i-task" aria-hidden="true"></span>
-                        <span class="nav-label">要対応</span>
-                        <span class="nav-count alert" id="inboxCount" hidden>0</span>
-                    </button>
                     <div class="nav-section">グループ化</div>
                     <button type="button" data-axis="date" class="active" title="日別に表示">
                         <span class="icon i-calendar" aria-hidden="true"></span>
@@ -801,14 +689,12 @@
 
         <section class="design-note-card">
             <strong>設計メモ:</strong>
-            通知パネル（第1層）は新着+要返信のトリアージ専用で検索を持たない。検索・期間・状態・連絡出力は本センターに集約。
-            照合状態は opt-in（スレッドが開かれた通知のみ 確認中→解消済み、「食い違い」はタグ）。
-            要対応バッジ = 自分宛の確認依頼がある確認中スレッド数のみ。現在のログインユーザーは <strong>佐藤</strong> としてモック。
+            通知パネル（第1層）は新着の把握と該当箇所の提示に限定し、検索・期間・配置区分・連絡出力は本センターに集約。
+            日別軸は通知の入力日時ではなく業務上の対象日でグループ化する。確認や照合は電話・チャット等の系外で行い、本センターには操作 UI を持たせない。
         </section>
     </main>
     <script>
-        // 【モックアップ専用】ダミーデータ。実装時は change_notifications + threads テーブル相当
-        const CURRENT_USER = "佐藤";
+        // 【モックアップ専用】ダミーデータ。実装時は change_notifications 相当
 
         const ROUTE_LABELS = {
             genba: "現場受注",
@@ -824,106 +710,82 @@
 
         const notifications = [
             {
-                id: "n1", date: "6/11", time: "08:47", client: "港湾開発", site: "港湾道路 夜間片交",
+                id: "n1", date: "6/11", time: "08:47", targetDate: "6/12", client: "港湾開発", site: "港湾道路 夜間片交",
                 kind: "受注変更", inputType: "受領記録型", route: "eigyo", author: "田中", belong: "belong-2",
                 people: [{ name: "港湾開発", role: "契約先", belong: "belong-5" }, { name: "田中", role: "営業担当", belong: "belong-2" }],
-                changes: [{ label: "集合", from: "20:00", to: "20:30" }],
-                thread: {
-                    state: "確認中", mismatch: true, requestedTo: "佐藤",
-                    comments: [
-                        { who: "鈴木", belong: "belong-3", time: "6/11 09:02", text: "現場の班長からは「集合20:00のまま」と聞いています。営業経由の20:30と食い違いがあります。" },
-                        { who: "田中", belong: "belong-2", time: "6/11 09:15", text: "契約先の窓口に確認します。先方の発注書は20:30になっていました。", system: false },
-                        { who: "システム", belong: "belong-1", time: "6/11 09:15", text: "田中 さんが 佐藤 さんへ確認を依頼しました。", system: true }
-                    ]
-                }
+                changes: [{ label: "集合", from: "20:00", to: "20:30" }]
             },
             {
-                id: "n2", date: "6/11", time: "09:12", client: "三都ビル管理", site: "商業施設A 巡回警備",
+                id: "n2", date: "6/11", time: "09:12", targetDate: "6/11", client: "三都ビル管理", site: "商業施設A 巡回警備",
                 kind: "受注変更", inputType: "受領記録型", route: "genba", author: "佐藤", belong: "belong-3",
                 people: [{ name: "商業施設A", role: "現場", belong: "belong-4" }, { name: "林", role: "社員", belong: "belong-1" }],
-                changes: [{ label: "集合", from: "07:00", to: "06:40" }],
-                thread: null
+                changes: [{ label: "集合", from: "07:00", to: "06:40" }]
             },
             {
-                id: "n3", date: "6/11", time: "10:05", client: "市民文化財団", site: "駅前イベント会場",
-                kind: "配置変更", inputType: "業務判断型", route: null, author: "高橋", belong: "belong-4",
+                id: "n3", date: "6/11", time: "10:05", targetDate: "6/15", client: "市民文化財団", site: "駅前イベント会場",
+                kind: "配置変更", subTag: "own", inputType: "業務判断型", route: null, author: "高橋", belong: "belong-4",
                 people: [],
-                changes: [{ label: "配置", from: "—", to: "伊藤" }, { label: "人数", from: "3", to: "4" }],
-                thread: null
+                changes: [{ label: "配置", from: "—", to: "伊藤" }, { label: "人数", from: "3", to: "4" }]
             },
             {
-                id: "n4", date: "6/10", time: "14:20", client: "港湾開発", site: "港湾道路 夜間片交",
+                id: "n4", date: "6/10", time: "14:20", targetDate: "6/12", client: "港湾開発", site: "港湾道路 夜間片交",
                 kind: "受注変更", inputType: "受領記録型", route: "keiyaku", author: "田中", belong: "belong-2",
                 people: [{ name: "港湾開発", role: "契約先", belong: "belong-5" }, { name: "田中", role: "営業担当", belong: "belong-2" }],
-                changes: [{ label: "人数", from: "2", to: "1" }],
-                thread: {
-                    state: "解消済み", mismatch: true, requestedTo: null,
-                    comments: [
-                        { who: "佐藤", belong: "belong-3", time: "6/10 15:01", text: "現場受注では2名のままと聞いていたため確認依頼します。" },
-                        { who: "田中", belong: "belong-2", time: "6/10 16:30", text: "【電話確認】契約先 港湾開発・発注担当へ電話確認。資格者1名のみで足りるとのこと。", system: false },
-                        { who: "システム", belong: "belong-1", time: "6/10 16:32", text: "解消として記録: 採用値=1名 / 根拠=契約先への電話確認 / 確認先=港湾開発 発注担当 / 方法=電話", system: true }
-                    ]
-                }
+                changes: [{ label: "人数", from: "2", to: "1" }]
             },
             {
-                id: "n5", date: "6/10", time: "11:08", client: "丸越物流", site: "物流倉庫B 夜間警備",
-                kind: "車両変更", inputType: "業務判断型", route: null, author: "山本", belong: "belong-5",
+                id: "n5", date: "6/10", time: "11:08", targetDate: "6/11", client: "丸越物流", site: "物流倉庫B 夜間警備",
+                kind: "車両変更", subTag: "vehicle", inputType: "業務判断型", route: null, author: "山本", belong: "belong-5",
                 people: [],
-                changes: [{ label: "車両", from: "わ 12-34", to: "に 45-67" }],
-                thread: null
+                changes: [{ label: "車両", from: "わ 12-34", to: "に 45-67" }]
             },
             {
-                id: "n6", date: "6/10", time: "09:40", client: "—", site: "休暇申請（伊藤 6/15 有給）",
+                id: "n6", date: "6/10", time: "09:40", targetDate: "6/15", client: "—", site: "休暇申請（伊藤 6/15 有給）",
                 kind: "休暇申請", inputType: "受領記録型", route: null, author: "伊藤", belong: "belong-5",
                 people: [],
-                changes: [{ label: "休暇", from: "—", to: "6/15 有給" }],
-                thread: null
+                changes: [{ label: "休暇", from: "—", to: "6/15 有給" }]
             },
             {
-                id: "n7", date: "6/10", time: "17:55", client: "三都ビル管理", site: "商業施設A 巡回警備",
+                id: "n7", date: "6/10", time: "17:55", targetDate: "6/11", client: "三都ビル管理", site: "商業施設A 巡回警備",
                 kind: "受注変更", inputType: "受領記録型", route: "eigyo", author: "林", belong: "belong-1",
                 people: [{ name: "三都ビル管理", role: "契約先", belong: "belong-4" }, { name: "林", role: "営業担当", belong: "belong-1" }],
-                changes: [{ label: "時間", from: "16:00", to: "17:30" }],
-                thread: {
-                    state: "確認中", mismatch: false, requestedTo: "佐藤",
-                    comments: [
-                        { who: "林", belong: "belong-1", time: "6/10 17:58", text: "延長の理由が発注書に無かったため、配置側で問題ないか確認お願いします。" },
-                        { who: "システム", belong: "belong-1", time: "6/10 17:58", text: "林 さんが 佐藤 さんへ確認を依頼しました。", system: true }
-                    ]
-                }
+                changes: [{ label: "時間", from: "16:00", to: "17:30" }]
             },
             {
-                id: "n8", date: "6/9", time: "08:15", client: "市民文化財団", site: "駅前イベント会場",
+                id: "n8", date: "6/9", time: "08:15", targetDate: "6/10", client: "市民文化財団", site: "駅前イベント会場",
                 kind: "受注変更", inputType: "受領記録型", route: "genba", author: "佐藤", belong: "belong-3",
                 people: [{ name: "駅前イベント会場", role: "現場", belong: "belong-4" }, { name: "高橋", role: "社員", belong: "belong-4" }],
-                changes: [{ label: "集合", from: "08:00", to: "08:10" }],
-                thread: null
+                changes: [{ label: "集合", from: "08:00", to: "08:10" }]
             },
             {
-                id: "n9", date: "6/9", time: "13:30", client: "道路公社", site: "高速道路N線 規制",
-                kind: "配置変更", inputType: "業務判断型", route: null, author: "高橋", belong: "belong-4",
+                id: "n9", date: "6/9", time: "13:30", targetDate: "6/12", client: "道路公社", site: "高速道路N線 規制",
+                kind: "配置変更", subTag: "support", inputType: "業務判断型", route: null, author: "高橋", belong: "belong-4",
                 people: [],
-                changes: [{ label: "配置", from: "佐藤", to: "山本" }],
-                thread: null
+                changes: [{ label: "配置", from: "佐藤", to: "山本" }]
             },
             {
-                id: "n10", date: "6/9", time: "18:02", client: "丸越物流", site: "物流倉庫B 夜間警備",
+                id: "n10", date: "6/9", time: "18:02", targetDate: "6/10", client: "丸越物流", site: "物流倉庫B 夜間警備",
                 kind: "受注変更", inputType: "受領記録型", route: "keiyaku", author: "田中", belong: "belong-2",
                 people: [{ name: "丸越物流", role: "契約先", belong: "belong-5" }, { name: "田中", role: "営業担当", belong: "belong-2" }],
-                changes: [{ label: "時間", from: "22:00", to: "21:30" }],
-                thread: {
-                    state: "解消済み", mismatch: false, requestedTo: null,
-                    comments: [
-                        { who: "山本", belong: "belong-5", time: "6/9 18:20", text: "前倒しの背景を確認しました。施設側の閉門時刻変更とのことです。" },
-                        { who: "システム", belong: "belong-1", time: "6/9 18:21", text: "解消として記録: 採用値=21:30 / 根拠=契約先連絡 / 確認先=丸越物流 / 方法=LINE", system: true }
-                    ]
-                }
+                changes: [{ label: "時間", from: "22:00", to: "21:30" }]
+            },
+            {
+                id: "n11", date: "6/9", time: "16:18", targetDate: "6/15", client: "市民文化財団", site: "駅前イベント会場",
+                kind: "配置変更", subTag: "partner", inputType: "業務判断型", route: null, author: "山本", belong: "belong-5",
+                people: [],
+                changes: [{ label: "協力業者", from: "—", to: "中央セキュリティ 2名" }]
             }
         ];
 
+        const SUBTAG_LABELS = {
+            own: "自社",
+            support: "応援",
+            partner: "協力業者",
+            vehicle: "車両・ETC"
+        };
+
         const AXES = {
-            inbox: { title: "要対応", group: null },
-            date: { title: "日別", group: (n) => `${n.date}（${({ "6/11": "木", "6/10": "水", "6/9": "火" })[n.date] || ""}）` },
+            date: { title: "日別（対象日）", group: (n) => `${n.targetDate}（${({ "6/15": "月", "6/12": "金", "6/11": "木", "6/10": "水", "6/9": "火" })[n.targetDate] || ""}）` },
             client: { title: "契約先別", group: (n) => n.client },
             site: { title: "現場別", group: (n) => n.site },
             kind: { title: "種別", group: (n) => n.kind },
@@ -931,7 +793,8 @@
         };
 
         let currentAxis = "date";
-        let selectedId = "n1";
+        let selectedId = "n3";
+        let selectedSubtag = "all";
 
         function escapeHtml(value) {
             return String(value ?? "").replace(/[&<>"']/g, (ch) => ({
@@ -939,17 +802,25 @@
             }[ch]));
         }
 
-        function isActionRequired(n) {
-            return !!(n.thread && n.thread.state === "確認中" && n.thread.requestedTo === CURRENT_USER);
+        function filteredNotifications() {
+            const items = selectedSubtag === "all"
+                ? notifications.slice()
+                : notifications.filter((n) => n.subTag === selectedSubtag);
+            if (currentAxis === "date") {
+                items.sort((a, b) => targetDateValue(b.targetDate) - targetDateValue(a.targetDate));
+            }
+            return items;
         }
 
-        function stateChips(n, compact) {
-            if (!n.thread) return "";
-            const chips = [];
-            if (n.thread.state === "確認中") chips.push('<span class="chip state-open">確認中</span>');
-            if (n.thread.state === "解消済み") chips.push('<span class="chip state-done">解消済み</span>');
-            if (n.thread.mismatch) chips.push('<span class="chip mismatch">食い違い</span>');
-            return chips.join("");
+        function targetDateValue(value) {
+            const [month, day] = value.split("/").map(Number);
+            return month * 100 + day;
+        }
+
+        function subtagChip(n) {
+            return n.subTag
+                ? `<span class="chip subtag">${escapeHtml(SUBTAG_LABELS[n.subTag])}</span>`
+                : "";
         }
 
         function diffSummary(n) {
@@ -970,8 +841,7 @@
             const listSummary = document.getElementById("listSummary");
             const listBody = document.getElementById("listBody");
 
-            let items = notifications.slice();
-            if (currentAxis === "inbox") items = items.filter(isActionRequired);
+            const items = filteredNotifications();
 
             listTitle.textContent = axis.title;
             listSummary.textContent = `${items.length}件`;
@@ -983,7 +853,7 @@
 
             const groups = new Map();
             items.forEach((n) => {
-                const key = axis.group ? axis.group(n) : "自分宛の確認依頼";
+                const key = axis.group(n);
                 if (!groups.has(key)) groups.set(key, []);
                 groups.get(key).push(n);
             });
@@ -995,13 +865,13 @@
                         <div class="notif-card ${n.id === selectedId ? "is-selected" : ""}" data-id="${n.id}" tabindex="0" role="button" aria-label="${escapeHtml(n.site)} の詳細を表示">
                             <div class="nc-row1">
                                 <span class="nc-site">${escapeHtml(n.site)}</span>
-                                ${stateChips(n)}
                             </div>
                             <div class="nc-diff">${diffSummary(n)}</div>
                             <div class="nc-meta">
                                 <span class="chip kind">${escapeHtml(n.kind)}</span>
+                                ${subtagChip(n)}
                                 ${n.route ? `<span class="chip route">${escapeHtml(ROUTE_LABELS[n.route])}</span>` : ""}
-                                <span>${escapeHtml(n.author)} ・ ${escapeHtml(n.date)} ${escapeHtml(n.time)}</span>
+                                <span>対象日 ${escapeHtml(n.targetDate)} ・ ${escapeHtml(n.author)} ・ 入力 ${escapeHtml(n.date)} ${escapeHtml(n.time)}</span>
                             </div>
                         </div>
                     `).join("")}
@@ -1015,47 +885,6 @@
                     <span class="person-icon" aria-hidden="true"><svg><use href="#ic-person"/></svg></span>
                     ${escapeHtml(name)}${role ? ` <small>${escapeHtml(role)}</small>` : ""}
                 </span>
-            `;
-        }
-
-        function renderThreadSection(n) {
-            const t = n.thread;
-            const comments = t ? t.comments.map((c) => `
-                <li>
-                    <span class="t-avatar ${escapeHtml(c.belong || "belong-1")}" aria-hidden="true"><svg><use href="#ic-person"/></svg></span>
-                    <div class="t-body ${c.system ? "t-system" : ""}">
-                        <div class="t-meta"><strong>${escapeHtml(c.who)}</strong><span>${escapeHtml(c.time)}</span></div>
-                        ${escapeHtml(c.text)}
-                    </div>
-                </li>
-            `).join("") : "";
-
-            const stateRow = t
-                ? `<span>${stateChips(n)}</span>`
-                : '<span class="chip kind">スレッド未開始</span>';
-
-            const actions = [];
-            actions.push('<button class="act-btn primary" type="button" data-act="reply">返信</button>');
-            if (!t) {
-                actions.push('<button class="act-btn" type="button" data-act="request">確認依頼</button>');
-                actions.push('<button class="act-btn" type="button" data-act="mismatch">食い違いを報告</button>');
-            } else if (t.state === "確認中") {
-                actions.push('<button class="act-btn" type="button" data-act="request">確認依頼</button>');
-                actions.push('<button class="act-btn" type="button" data-act="phone">電話で確認済みを記録</button>');
-                actions.push('<button class="act-btn" type="button" data-act="resolve">解消として記録</button>');
-            } else {
-                actions.push('<button class="act-btn" type="button" data-act="reopen">照合を再開</button>');
-            }
-
-            return `
-                <div class="section">
-                    <div class="section-title">情報照合スレッド ${stateRow}</div>
-                    ${t ? `<ul class="thread-list">${comments}</ul>` : '<div class="thread-empty">スレッドはまだありません。確認依頼または食い違いの報告で開始します。</div>'}
-                    <div class="reply-row">
-                        <input class="reply-input" id="replyInput" type="text" placeholder="根拠・確認結果・補足を記録…">
-                    </div>
-                    <div class="thread-actions">${actions.join("")}</div>
-                </div>
             `;
         }
 
@@ -1078,7 +907,7 @@
                 </div>
             ` : `
                 <div class="section">
-                    <div class="section-title">操作情報（業務判断型）</div>
+                    <div class="section-title">情報経路（業務判断型）</div>
                     <div class="route-people">${personChip(n.author, "操作者", n.belong)}</div>
                     <div class="route-note">担当者自身の業務判断による操作。判断理由は警告踏み越え時のみ必須、それ以外は任意。</div>
                 </div>
@@ -1088,11 +917,11 @@
                 <div class="prop-head">
                     <div class="d-kind-row">
                         <span class="chip kind">${escapeHtml(n.kind)}</span>
+                        ${subtagChip(n)}
                         ${n.route ? `<span class="chip route">${escapeHtml(ROUTE_LABELS[n.route])}</span>` : ""}
-                        ${stateChips(n)}
                     </div>
                     <strong>${escapeHtml(n.site)}</strong>
-                    <span class="d-client">${escapeHtml(n.client)} ・ ${escapeHtml(n.author)} ・ ${escapeHtml(n.date)} ${escapeHtml(n.time)}（システム入力日時）</span>
+                    <span class="d-client">${escapeHtml(n.client)} ・ 対象日 ${escapeHtml(n.targetDate)} ・ ${escapeHtml(n.author)} ・ ${escapeHtml(n.date)} ${escapeHtml(n.time)}（システム入力日時）</span>
                 </div>
                 <div class="prop-body">
                     <div class="section">
@@ -1109,7 +938,6 @@
                         </ul>
                     </div>
                     ${routeSection}
-                    ${renderThreadSection(n)}
                 </div>
                 <div class="detail-foot">
                     <span class="jump-note">現場の文脈が必要なときは実画面へ（cn:jump スポットライト着地）</span>
@@ -1118,36 +946,15 @@
             `;
         }
 
-        function updateInboxCount() {
-            const count = notifications.filter(isActionRequired).length;
-            const badge = document.getElementById("inboxCount");
-            badge.hidden = count === 0;
-            badge.textContent = String(count);
-        }
-
         // 【採用】各軸のグループ数をナビ右端に表示（日別=日数 / 契約先=社数 …）
         function updateAxisCounts() {
+            const items = selectedSubtag === "all"
+                ? notifications
+                : notifications.filter((n) => n.subTag === selectedSubtag);
             Object.entries(AXES).forEach(([key, axis]) => {
                 const el = document.querySelector(`[data-axis-count="${key}"]`);
-                if (!el || !axis.group) return;
-                el.textContent = String(new Set(notifications.map(axis.group)).size);
-            });
-        }
-
-        function nowLabel() {
-            return "6/11 10:30";
-        }
-
-        function addComment(n, text, system) {
-            if (!n.thread) {
-                n.thread = { state: "確認中", mismatch: false, requestedTo: null, comments: [] };
-            }
-            n.thread.comments.push({
-                who: system ? "システム" : CURRENT_USER,
-                belong: system ? "belong-1" : "belong-3",
-                time: nowLabel(),
-                text,
-                system: !!system
+                if (!el) return;
+                el.textContent = String(new Set(items.map(axis.group)).size);
             });
         }
 
@@ -1161,62 +968,21 @@
             renderList();
         });
 
+        document.getElementById("assignmentSubtagFilter").addEventListener("change", (event) => {
+            selectedSubtag = event.target.value;
+            const items = filteredNotifications();
+            if (!items.some((n) => n.id === selectedId)) selectedId = items[0]?.id || null;
+            updateAxisCounts();
+            renderList();
+            renderDetail();
+        });
+
         document.getElementById("listBody").addEventListener("click", (event) => {
             const cardEl = event.target.closest(".notif-card");
             if (!cardEl) return;
             selectedId = cardEl.dataset.id;
             renderList();
             renderDetail();
-        });
-
-        document.getElementById("detailCard").addEventListener("click", (event) => {
-            const button = event.target.closest("[data-act]");
-            if (!button) return;
-            const n = notifications.find((item) => item.id === selectedId);
-            if (!n) return;
-            const input = document.getElementById("replyInput");
-            const text = (input?.value || "").trim();
-
-            switch (button.dataset.act) {
-                case "reply":
-                    if (!text) return;
-                    addComment(n, text, false);
-                    break;
-                case "request":
-                    addComment(n, `${CURRENT_USER} さんが 田中 さんへ確認を依頼しました。${text ? `（${text}）` : ""}`, true);
-                    n.thread.state = "確認中";
-                    n.thread.requestedTo = "田中";
-                    break;
-                case "mismatch":
-                    addComment(n, text || "情報ソース間の食い違いを報告します。", false);
-                    n.thread.mismatch = true;
-                    n.thread.state = "確認中";
-                    break;
-                case "phone":
-                    addComment(n, `【電話確認】${text || "確認結果をここに記録"}`, false);
-                    break;
-                case "resolve":
-                    addComment(n, `解消として記録: 採用値=${n.changes[0].to} / 根拠=${text || "確認結果"} / 確認先=関係者 / 方法=電話`, true);
-                    n.thread.state = "解消済み";
-                    n.thread.requestedTo = null;
-                    break;
-                case "reopen":
-                    n.thread.state = "確認中";
-                    addComment(n, "照合を再開しました。", true);
-                    break;
-                default:
-                    return;
-            }
-            updateInboxCount();
-            renderList();
-            renderDetail();
-        });
-
-        document.getElementById("detailCard").addEventListener("keydown", (event) => {
-            if (event.key !== "Enter") return;
-            if (!event.target.classList.contains("reply-input")) return;
-            const replyBtn = document.querySelector('[data-act="reply"]');
-            if (replyBtn) replyBtn.click();
         });
 
         document.getElementById("listBody").addEventListener("keydown", (event) => {
@@ -1229,7 +995,6 @@
             renderDetail();
         });
 
-        updateInboxCount();
         updateAxisCounts();
         renderList();
         renderDetail();
