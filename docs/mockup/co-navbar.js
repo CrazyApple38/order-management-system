@@ -15,6 +15,7 @@
     else if (path.indexOf('leave-application') !== -1) currentPage = 'leave-application';
     else if (path.indexOf('quick-access') !== -1) currentPage = 'quick-access';
     else if (path.indexOf('admin-notify') !== -1) currentPage = 'admin-notify';
+    else if (path.indexOf('master-management') !== -1) currentPage = 'master-management';
 
     // --- 変更通知ベル定義（R-2 統合ベル1個 / 2026-07-03）
     //     4分類ベル横並びを廃止し、統合ベル + 単一 cn-card に集約。
@@ -212,7 +213,7 @@
         +   '<div class="md-nav-sep"></div>'
         // --- マスタ管理ドロップダウン ---
         +   '<div class="md-nav-dropdown" id="mdNavMasterDD">'
-        +     '<button class="md-nav-dropdown-btn" onclick="mdNavToggleDD(\'mdNavMasterDD\')">'
+        +     '<button class="md-nav-dropdown-btn' + (currentPage === 'master-management' ? ' md-nav-active' : '') + '" onclick="mdNavToggleDD(\'mdNavMasterDD\')">'
         +       'マスタ管理 <span class="md-nav-dropdown-arrow">▼</span>'
         +     '</button>'
         +     '<div class="md-nav-dropdown-panel">'
@@ -738,6 +739,11 @@
         'leave-application': 'leave-application.html',
         'admin-notify':      'admin-notify.html'
     };
+    masterItems.forEach(function (item) {
+        if (!item.divider && item.id !== 'admin-notify') {
+            pageLinks[item.id] = 'master-management.html?master=' + encodeURIComponent(item.id);
+        }
+    });
 
     document.querySelectorAll('.md-nav-menu-item[data-master]').forEach(function (btn) {
         btn.addEventListener('click', function () {

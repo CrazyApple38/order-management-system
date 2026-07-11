@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マスタ管理 - 受注管理システム</title>
+    <link rel="stylesheet" href="mockup/ds-tokens.css?v=2">
+    <link rel="stylesheet" href="mockup/ds-legacy-aliases.css?v=2">
+    <link rel="stylesheet" href="mockup/ds-components.css?v=5">
+    <link rel="stylesheet" href="mockup/co-navbar.css?v=7">
+    <link rel="stylesheet" href="mockup/co-notify-panel.css?v=19">
+    <link rel="stylesheet" href="mockup/ma-ds.css?v=1">
+</head>
+<body>
+    <main class="app ma-app" id="maApp">
+        <div class="toolbar" aria-label="マスタ管理ツールバー">
+            <div class="tool-group">
+                <strong class="ma-toolbar-title">マスタ管理</strong>
+                <div class="search" role="search">
+                    <span class="icon i-doc icon-ink" aria-hidden="true"></span>
+                    <input type="search" id="maSearch" placeholder="契約先を検索" autocomplete="off">
+                </div>
+                <span class="seg-label">状態</span>
+                <div class="seg" id="maStatusFilter" role="group" aria-label="有効状態で絞り込み">
+                    <button type="button" class="active" data-status="active">有効</button>
+                    <button type="button" data-status="inactive">無効</button>
+                    <button type="button" data-status="all">すべて</button>
+                </div>
+            </div>
+            <div class="tool-group">
+                <button type="button" class="tool-btn primary" id="maNewBtn">
+                    <img src="assets/icons/sign-mark/im-00105-purasu.svg" alt="" aria-hidden="true">新規追加
+                </button>
+            </div>
+        </div>
+
+        <div class="workspace ma-workspace">
+            <aside class="rail ma-rail" id="maRail" aria-label="変更通知"></aside>
+
+            <nav class="ma-nav-pane" aria-label="マスタ種別">
+                <div class="ma-nav-head">マスタ種別</div>
+                <div class="side-nav" id="maSideNav"></div>
+            </nav>
+
+            <section class="main" aria-label="契約先マスタ一覧">
+                <div class="main-card">
+                    <div class="main-head">
+                        <div>
+                            <span class="main-title" id="maMainTitle">契約先</span>
+                            <span class="ma-main-count" id="maMainCount"></span>
+                        </div>
+                    </div>
+                    <div class="tbl-frame ma-table-frame">
+                        <table class="dtable dense" aria-label="契約先一覧">
+                            <thead>
+                                <tr>
+                                    <th>契約先コード</th>
+                                    <th>契約先名</th>
+                                    <th>正式名称</th>
+                                    <th>備考</th>
+                                    <th class="num">状態</th>
+                                </tr>
+                            </thead>
+                            <tbody id="maTableBody"></tbody>
+                        </table>
+                        <div class="empty-state" id="maEmptyState" hidden>
+                            <span class="icon i-doc icon-ink" aria-hidden="true"></span>
+                            <strong class="empty-title">該当する契約先はありません</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="prop" aria-label="契約先の詳細と編集">
+                <div class="prop-card ma-prop-card">
+                    <div class="prop-head">
+                        <span class="prop-mode" id="maPropMode">詳細</span>
+                        <strong id="maPropTitle">未選択</strong>
+                        <p id="maPropSub">契約先を選択するか、新規追加を実行してください。</p>
+                    </div>
+                    <form class="prop-body" id="maCompanyForm" hidden>
+                        <div class="section">
+                            <div class="section-title">基本情報</div>
+                            <div class="field">
+                                <label class="field-label" for="maCompanyCode">契約先コード</label>
+                                <input class="input" id="maCompanyCode" name="code" maxlength="20" required>
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="maCompanyName">契約先名</label>
+                                <input class="input" id="maCompanyName" name="name" maxlength="100" required>
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="maCompanyFormalName">正式名称</label>
+                                <input class="input" id="maCompanyFormalName" name="formalName" maxlength="200" required data-co-company-input>
+                                <span class="field-help">注文書の発注者名に使用します。</span>
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="maCompanyNotes">備考</label>
+                                <textarea class="input" id="maCompanyNotes" name="notes" rows="4"></textarea>
+                            </div>
+                        </div>
+                        <div class="ma-form-actions">
+                            <button type="button" class="btn btn-danger" id="maToggleActiveBtn">無効化</button>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                    <div class="prop-body ma-history" id="maHistoryPanel" hidden>
+                        <div class="section">
+                            <div class="section-title">変更履歴</div>
+                            <div class="history-list" id="maHistoryList"></div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <aside class="panel-rail" aria-label="右プロパティ切替">
+                <button type="button" class="active" data-mode="detail" title="詳細" aria-label="詳細">
+                    <span class="icon i-doc icon-ink" aria-hidden="true"></span>
+                </button>
+                <button type="button" data-mode="history" title="変更履歴" aria-label="変更履歴">
+                    <span class="icon i-history icon-ink" aria-hidden="true"></span>
+                </button>
+            </aside>
+        </div>
+    </main>
+
+    <script src="mockup/mock-employees-data.js?v=1"></script>
+    <script src="mockup/mock-vehicles-data.js?v=1"></script>
+    <script src="mockup/mock-assignments-data.js?v=4"></script>
+    <script src="mockup/demo-data.js?v=5"></script>
+    <script src="mockup/notify-icons-selected.js?v=2"></script>
+    <script src="mockup/co-notify-panel.js?v=40"></script>
+    <script src="mockup/co-mock-store.js?v=5"></script>
+    <script src="mockup/co-navbar.js?v=25"></script>
+    <script src="mockup/co-company-input.js?v=3"></script>
+    <script src="mockup/master-management.js?v=1"></script>
+</body>
+</html>

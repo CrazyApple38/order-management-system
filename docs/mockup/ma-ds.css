@@ -1,0 +1,53 @@
+/* F-1: master management shell and contract-company CRUD. */
+html, body { min-height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 13px var(--font-sans); overflow: hidden; }
+.ma-app [hidden] { display: none !important; }
+.md-nav-bar { margin-bottom: 0; }
+.ma-app { height: calc(100vh - 36px); border: 0; border-radius: 0; box-shadow: none; }
+.ma-app > .toolbar { min-height: 56px; justify-content: space-between; }
+.ma-toolbar-title { font-size: 14px; white-space: nowrap; }
+.ma-app .search { width: 260px; }
+.ma-app .tool-btn img { width: 14px; height: 14px; filter: brightness(0) invert(1); }
+.ma-workspace {
+    grid-template-columns: 72px 220px minmax(0, 1fr) 288px 58px;
+    min-height: 0;
+    height: calc(100vh - 92px);
+    overflow: hidden;
+}
+.ma-rail { min-width: 0; }
+.ma-rail .md-nav-cn-bells { margin: 10px auto; }
+.ma-rail .md-nav-cn-bell { position: static; }
+.ma-rail .cn-card { left: 62px; top: 8px; }
+.ma-nav-pane { min-width: 0; overflow: auto; border-right: 1px solid var(--line); background: var(--panel); }
+.ma-nav-head { padding: 14px 18px 6px; color: var(--ink); font-size: 13px; font-weight: 700; }
+.ma-nav-pane .side-nav { width: auto; }
+.ma-nav-pane .side-nav-item[disabled] { cursor: default; opacity: 0.62; }
+.ma-nav-pane .side-nav-item[disabled]:hover { background: transparent; }
+.ma-nav-pane .side-nav-item .icon { flex: 0 0 auto; }
+.ma-workspace .main { min-width: 0; padding: 8px; overflow: hidden; }
+.ma-workspace .main-card { height: 100%; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.ma-workspace .main-head { display: flex; align-items: center; min-height: 44px; padding: 0 14px; border-bottom: 1px solid var(--line); }
+.ma-main-count { margin-left: 8px; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.ma-table-frame { margin: 8px; overflow: auto; }
+.ma-table-frame .dtable { table-layout: fixed; }
+.ma-table-frame tbody tr { cursor: pointer; }
+.ma-table-frame td:first-child { width: 132px; font-variant-numeric: tabular-nums; }
+.ma-table-frame td:last-child { width: 72px; text-align: center; }
+.ma-status { display: inline-flex; align-items: center; min-height: 21px; padding: 0 7px; border: 1px solid var(--soft-line); border-radius: var(--radius-pill); color: var(--muted); font-size: 11px; font-weight: 700; }
+.ma-status.is-active { color: var(--blue); background: var(--blue-soft); border-color: var(--info-border); }
+.ma-table-frame .empty-state { margin: 24px; }
+.ma-workspace .prop { min-width: 0; padding: 8px 0; overflow: hidden; }
+.ma-prop-card { height: 100%; display: flex; flex-direction: column; border-radius: var(--radius-md) 0 0 var(--radius-md); }
+.ma-prop-card .prop-head p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.ma-prop-card .prop-body { overflow: auto; }
+.ma-prop-card .field + .field { margin-top: 10px; }
+.ma-prop-card textarea.input { min-height: 84px; resize: vertical; }
+.ma-form-actions { display: flex; justify-content: space-between; gap: 8px; }
+.ma-history { height: 100%; }
+.ma-history .section { min-height: 0; }
+.ma-history-empty { color: var(--muted); font-size: 12px; }
+.ma-workspace .panel-rail { margin-left: 0; }
+@media (max-width: 1100px) {
+    body { overflow: auto; }
+    .ma-app { min-width: 1040px; }
+}

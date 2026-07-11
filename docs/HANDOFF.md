@@ -5,21 +5,21 @@
 ## 最終更新
 - **更新者**: Codex (GPT-5)
 - **日付**: 2026-07-11
-- **コミット**: F-0成果 `ee445c8`（push済み）
+- **コミット**: 作業開始時 HEAD `79f4256`（F-1は本コミットに含めてpush予定）
 
 ## 直前にやったこと
-- `mockup-master-account-plan.md` の **F-0（マスタモックデータ棚卸し）を完了**し、全20項目の種別×データソース対応表を§3へ追記。
-- 既存正本は `demo-data.js` / `mock-employees-data.js` / `mock-vehicles-data.js` / `mock-assignments-data.js`。`co-mock-store.js` は画面状態ストアでマスタ正本ではないと確認。
-- 組織階層は既存データを再利用可能。祝日はLA/OB/WSで重複し単一正本なし。資格/祝日/ペナルティ/定型文はDB初期値からF用シードが必要。
-- `ds-audit.js` は NG=0 / WARN=0、`git diff --check` OK。F-0は文書のみのためruntime検証対象外。
+- **F-1（骨格+契約先CRUDパターン）を完了**。`master-management.html` / `ma-ds.css` / `master-management.js` を新設。
+- 契約先の一覧・検索・有効状態seg・追加・編集・論理削除を右プロパティで実装。専用キー `mock.oms.master.v1` で再読込復元。
+- `co-navbar.js` v25で全マスタ項目を統合画面へ直接遷移。未展開種別はF-1時点では契約先へ正規化。
+- localhost 1440pxでCRUD/復元/遷移を確認。既存6画面回帰、ds-audit NG=0/WARN=0、node --check、diff-check合格。
 
 ## 次にやるべきこと
-1. 推奨順の次は **F-1（骨格+契約先CRUDパターン）**。着手前にユーザー確認し、仮ファイル名 `master-management.html` を確定する。
-2. F-1の保存方式は `co-mock-store.js` を拡張せず専用キー/専用シードにするか、着手時に確認する。
-3. G-1を先行する選択も可。仮ファイル名 `account-settings.html` と共有 `.menu-user` 改修を着手前に確認する。
-4. Phase 3（仕様書）へは「モックアップ完了」宣言があるまで進まない。
+1. 推奨順の次は **G-1（骨格+個人設定タブ）**。着手前にユーザー確認し、`account-settings.html` と共有 `.menu-user` 改修を確定する。
+2. **F-2（単純マスタ横展開）**を先行する選択も可。祝日一本化は横断影響があるためF側シード追加だけに留めるか事前確認する。
+3. F-2は §3.1 のCRUD契約を使い、種別ごとの列/フォーム/シードのみ追加する。
+4. Phase 3へは「モックアップ完了」宣言があるまで進まない。
 
 ## 今だけの申し送り
 - `.agent-env.json` と `docs/doc-export-smoke-test.{md,docx,pdf}` は未追跡成果物。変更・コミットしない。
-- OB の cn:jump 着地で右プロパティ詳細ペインが「未選択」なのは仕様（詳細ドックは編集時のみ。着地行は連携・所在/変更履歴モードへ反映）。
-- 区分・バッジ共有化と祝日一本化は既存画面への横断影響があるため、F-3/F-2着手時に事前確認する。
+- QAの `shield.svg` 404とOB iframe sandbox警告は既知の既存事象。F-1起因のコンソールエラー/警告は0。
+- `screenshots/f1-master-management.png` がF-1合格スクリーンショット。
