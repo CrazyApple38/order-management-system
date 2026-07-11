@@ -1,7 +1,7 @@
 # マスタ管理・アカウント画面 モックアップ計画（F / G）
 
 **作成**: 2026-07-11（ユーザー決定に基づく）
-**ステータス**: 未着手（各 Phase 着手時にユーザー確認）
+**ステータス**: F-0 完了（2026-07-11。各 Phase 着手時にユーザー確認）
 **対象**: F=マスタ管理画面（統合1画面） / G=アカウント画面 + QA整合確認
 **実装者**: Sonnet 5 / Codex 等の複数エージェント（本計画書がズレ防止の単一情報源）
 
@@ -71,6 +71,32 @@ Phase 2 モックアップとして F/G の2画面を新DS準拠で新規作成�
 | F-4 社員マスタ | 社員一覧+右プロパティ編集（所属GC/組織ノード/資格サブリスト/配置制約） | 資格・制約の追加削除が右プロパティ内で完結 |
 | F-5 通知+検証 | マスタ変更→`domain: 'master'` 通知発火（対象日なし）。他画面のベルに反映。全体回帰+スクショ | 通知が「対象日なし」グループに入る・センターの種別軸に表示される |
 
+#### F-0 データソース対応表（2026-07-11 棚卸し済み）
+
+| カテゴリ | マスタ | モックでの正本 / 初期値 | Fでの扱い |
+| --- | --- | --- | --- |
+| 組織 | グループ会社 | `demo-data.js` の `groupCompaniesData` | 既存配列を参照。会社コードは SHARED-MEMORY のマッピングを維持 |
+| 組織 | 組織階層種別 | `demo-data.js` の `orgLevelTypesData` | 既存オブジェクトを参照（当初の「新規シード」想定を棚卸しで訂正） |
+| 組織 | 組織ノード | `demo-data.js` の `orgUnitsData` | 既存ツリーを参照。`departmentsData` は後方互換の派生配列なので正本にしない |
+| 人事 | 社員 | `mock-employees-data.js` の `OmsMockEmployeesData.createEmployees()`（`demo-data.js` の `employeesData` 経由） | 既存25名を参照。社員コード・資格・配置制約は未保持のため F-4 で補完 |
+| 人事 | 資格検定 | モック正本なし。DB §3.4 `license_types` の初期データ | F-2 用の新規シードが必要 |
+| 現場・取引 | 契約先 | `demo-data.js` の `companiesData`（初期値=`defaultCompaniesData`） | F-1 の共通CRUDパターン確立に使用 |
+| 現場・取引 | 現場 | `demo-data.js` の `sitesData`（初期値=`defaultSitesData`） | F-3 のツリーに使用。`mock-assignments-data.js#createSites()` はWS/LA配置用の6現場であり、マスタ正本にしない |
+| 現場・取引 | 区分・バッジ | `order-book.js` の `badgeDefinitions` | 既存定義を初期値に使用。F-3 で共有ソース化する場合はOBへの横断影響があるため着手前に確認 |
+| 協力業者 | 協力業者 | `mock-assignments-data.js` の `OmsMockAssignmentsData.createSupportPartners()` | `preset-unified` はUI専用なのでCRUD対象外。残る5社を参照 |
+| 書類テンプレ | 料金特記定型文 | モック正本なし。DB §3.26 `price_note_templates` の初期データ | F-2 用の新規シードが必要 |
+| 書類テンプレ | その他特記定型文 | モック正本なし。DB §3.27 `special_note_templates` の初期データ | F-2 用の新規シードが必要 |
+| 書類テンプレ | 注文書テンプレート | モック・DBとも専用マスタなし | 将来項目。今回のCRUD対象外 |
+| 車両・資機材 | 車両 | `mock-vehicles-data.js` の `OmsMockVehiclesData.createVehicles()`（`demo-data.js` の `vehiclesData` 経由） | 既存15台を参照 |
+| 車両・資機材 | ETCカード | `mock-vehicles-data.js` の `OmsMockVehiclesData.createEtcCards()`（`demo-data.js` の `etcCardsData` 経由） | 既存9枚を参照 |
+| 運用・制度 | 祝日 | 単一のモック正本なし。LA=`holidays-jp API`+キャッシュ+2025〜2027フォールバック、OB/WS=画面別固定値。DB §3.18 に2026年初期データ | F-2 用の新規シードが必要。画面別祝日の一本化は横断変更なので本Phaseでは行わない |
+| 運用・制度 | ペナルティコード | モック正本なし。DB §3.12 `penalty_codes` の初期データ | F-2 用の新規シードが必要 |
+| システム | ユーザー・権限 | F側のデータ正本なし。G=`user_profiles` 相当 | FはG画面への導線のみ。CRUDはG-2 |
+| システム | カラープリセット | `screen-layout.js` の `colorPresets_v2_light`（SLローカル）/ DB §3.19 `user_color_presets` | Fで重複管理せず、G-1の個人設定から既存管理への導線を提供 |
+| システム | ユーザー契約先紐付 | モック正本なし。DB §3.20 `user_company_assignments` | Fで重複管理せず、G-2でモック正本を作成してQAと共有 |
+
+`co-mock-store.js` はOB/SL/WS/LAの保存済み画面状態を保持するストアであり、マスタ初期値の正本ではない。FのCRUD状態を同ストアへ追加すると既存構造へ影響するため、F-1以降の保存方式は着手時に別途確認する。
+
 ## 4. G: アカウント画面
 
 **要件正本**: `01_要件定義.md` §3.22。仮ファイル名 `docs/account-settings.html`（**G-1 着手時に命名をユーザー確認**）。
@@ -101,7 +127,7 @@ QA はモック・要件（§3.12）とも既存のため新規作業はなし�
 
 | Phase | 状態 | 開始 | 完了 | メモ |
 | --- | --- | --- | --- | --- |
-| F-0 | 未着手 | — | — | |
+| F-0 | 完了 | 2026-07-11 | 2026-07-11 | §3 F-0 データソース対応表を追記 |
 | F-1 | 未着手 | — | — | 着手時: ファイル名確認 |
 | F-2 | 未着手 | — | — | |
 | F-3 | 未着手 | — | — | |
