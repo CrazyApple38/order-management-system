@@ -18,6 +18,14 @@
     else if (path.indexOf('master-management') !== -1) currentPage = 'master-management';
     else if (path.indexOf('account-settings') !== -1) currentPage = 'account-settings';
 
+    var accountPreferences = window.OmsMockAccountPreferences
+        ? window.OmsMockAccountPreferences.load()
+        : { screen_visibility: {}, gc_filter_default: {}, notification_scope_default: 'all' };
+
+    function mdNavScreenVisible(screenId) {
+        return accountPreferences.screen_visibility[screenId] !== false;
+    }
+
     // --- 変更通知ベル定義（R-2 統合ベル1個 / 2026-07-03）
     //     4分類ベル横並びを廃止し、統合ベル + 単一 cn-card に集約。
     //     カテゴリ（受注/配置/申請・承認/マスタ）はエンティティ (domain) から
@@ -61,6 +69,7 @@
         { id: 'weekly-schedule',   label: '週間予定表',     icon: 'calendar.svg' },
         { id: 'leave-application', label: '休暇申請管理',   icon: 'clock.svg' }
     ];
+    var visibleScheduleItems = scheduleItems.filter(function (item) { return mdNavScreenVisible(item.id); });
 
     // --- HTML構築 ---
     function icon(name) {
@@ -83,6 +92,7 @@
     // 変更通知ベル（R-2: 統合ベル1個 + cn-card。レールが無い画面はベル位置アンカー）
     function buildBellsHtml() {
         var bell = coNotifyBells[0];
+        var involvedScope = accountPreferences.notification_scope_default !== 'all';
         return ''
             + '<div class="md-nav-cn-bells" id="mdNavCnBells">'
             +   '<div class="cn-anchor md-nav-cn-bell" data-bell="' + bell.id + '" id="mdNavCnBell-' + bell.id + '">'
@@ -97,7 +107,11 @@
             +         '<button type="button" class="cn-mark-all">すべて既読</button>'
             +         '<button type="button" class="cn-close" title="閉じる" aria-label="閉じる">&times;</button>'
             +       '</div>'
-            +       '<div class="cn-filter-chips" role="group" aria-label="カテゴリで絞り込み">'
+            +       '<div class="cn-filter-chips" data-filter-group="scope" role="group" aria-label="通知範囲で絞り込み">'
+            +         '<button type="button" class="cn-filter-chip' + (involvedScope ? ' is-active' : '') + '" data-filter="involved">担当・所属</button>'
+            +         '<button type="button" class="cn-filter-chip' + (involvedScope ? '' : ' is-active') + '" data-filter="all">全社</button>'
+            +       '</div>'
+            +       '<div class="cn-filter-chips" data-filter-group="category" role="group" aria-label="カテゴリで絞り込み">'
             +         '<button type="button" class="cn-filter-chip is-active" data-filter="all">すべて</button>'
             +         '<button type="button" class="cn-filter-chip" data-filter="order">受注</button>'
             +         '<button type="button" class="cn-filter-chip" data-filter="assignment">配置</button>'
@@ -200,21 +214,23 @@
         + '<nav class="md-nav-bar">'
         +   '<div class="md-nav-logo">受注管理</div>'
         // --- ページタブ ---
-        +   '<a href="screen-layout.html" class="md-nav-tab' + (currentPage === 'screen-layout' ? ' md-nav-active' : '') + '">'
-        +     icon('calendar.svg') + '業務管理計画書'
-        +   '</a>'
-        +   '<a href="order-book.html" class="md-nav-tab' + (currentPage === 'order-book' ? ' md-nav-active' : '') + '">'
-        +     icon('chart.svg') + '受注簿'
-        +   '</a>'
+        +   (mdNavScreenVisible('screen-layout')
+            ? '<a href="screen-layout.html" class="md-nav-tab' + (currentPage === 'screen-layout' ? ' md-nav-active' : '') + '">'
+                + icon('calendar.svg') + '業務管理計画書</a>'
+            : '')
+        +   (mdNavScreenVisible('order-book')
+            ? '<a href="order-book.html" class="md-nav-tab' + (currentPage === 'order-book' ? ' md-nav-active' : '') + '">'
+                + icon('chart.svg') + '受注簿</a>'
+            : '')
         // --- スケジュールドロップダウン ---
-        +   '<div class="md-nav-dropdown" id="mdNavScheduleDD">'
+        +   (visibleScheduleItems.length ? '<div class="md-nav-dropdown" id="mdNavScheduleDD">'
         +     '<button class="md-nav-dropdown-btn' + ((currentPage === 'weekly-schedule' || currentPage === 'leave-application') ? ' md-nav-active' : '') + '" onclick="mdNavToggleDD(\'mdNavScheduleDD\')">'
         +       'スケジュール <span class="md-nav-dropdown-arrow">▼</span>'
         +     '</button>'
         +     '<div class="md-nav-dropdown-panel">'
-        +       buildMenuItems(scheduleItems)
+        +       buildMenuItems(visibleScheduleItems)
         +     '</div>'
-        +   '</div>'
+        +   '</div>' : '')
         +   '<div class="md-nav-sep"></div>'
         // --- マスタ管理ドロップダウン ---
         +   '<div class="md-nav-dropdown" id="mdNavMasterDD">'
@@ -234,9 +250,9 @@
         // --- スペーサー ---
         +   '<div class="md-nav-spacer"></div>'
         // --- モバイルタブ ---
-        +   '<a href="quick-access.html" target="_blank" rel="noopener" class="md-nav-tab' + (currentPage === 'quick-access' ? ' md-nav-active' : '') + '">'
+        +   (mdNavScreenVisible('quick-access') ? '<a href="quick-access.html" target="_blank" rel="noopener" class="md-nav-tab' + (currentPage === 'quick-access' ? ' md-nav-active' : '') + '">'
         +     icon('smartphone.svg') + 'モバイル'
-        +   '</a>'
+        +   '</a>' : '')
         // --- 右端アクション ---
         +   '<div class="md-nav-actions">'
         +     buildBellsHtml()
@@ -870,7 +886,15 @@
     // --- localStorage から復元 ---
     // フィルタ配列: 会社コード（全選択）+ 組織ノードID（部分選択）の混在
     var stored = null;
-    try { stored = JSON.parse(localStorage.getItem('gcFilter')); } catch (e) {}
+    var runtimeGcFilter = window.OmsMockAccountPreferences
+        ? window.OmsMockAccountPreferences.loadGcRuntime(currentPage)
+        : null;
+    var preferredGcFilter = runtimeGcFilter || accountPreferences.gc_filter_default[currentPage];
+    if (Array.isArray(preferredGcFilter) && preferredGcFilter.length > 0) {
+        stored = preferredGcFilter.slice();
+    } else {
+        try { stored = JSON.parse(localStorage.getItem('gcFilter')); } catch (e) {}
+    }
     if (!Array.isArray(stored) || stored.length === 0) {
         // デフォルト: 全社全ノード選択
         stored = gcfAllCodes.slice();
@@ -880,6 +904,9 @@
     gcfAllCodes.forEach(function (gc) { allValidIds = allValidIds.concat(gcfCollectAllIds(gc)); });
     stored = stored.filter(function (id) { return allValidIds.indexOf(id) >= 0; });
     if (stored.length === 0) stored = gcfAllCodes.slice();
+    if (window.OmsMockAccountPreferences) {
+        window.OmsMockAccountPreferences.saveGcRuntime(currentPage, stored);
+    }
 
     // グローバルに公開
     window.mdNavGcFilter = stored;
@@ -1146,6 +1173,9 @@
         }
         window.mdNavGcFilter = selected;
         localStorage.setItem('gcFilter', JSON.stringify(selected));
+        if (window.OmsMockAccountPreferences) {
+            window.OmsMockAccountPreferences.saveGcRuntime(currentPage, selected);
+        }
         gcfUpdateLabel();
         gcfCloseModal();
         document.dispatchEvent(new CustomEvent('gcFilterChanged', { detail: { selected: selected } }));

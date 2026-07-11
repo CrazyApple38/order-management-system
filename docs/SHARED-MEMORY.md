@@ -33,6 +33,7 @@
 - **F-1 マスタCRUD基盤（2026-07-11 ユーザー承認）**: 統合画面=`docs/master-management.html`、画面JS/CSS=`master-management.js` / `ma-ds.css`。マスタ編集状態は専用 localStorage キー `mock.oms.master.v1` を正とし、既存 `mock.oms.state.v1` / `co-mock-store.js` は拡張しない。契約先CRUDの実装契約は `mockup-master-account-plan.md` §3.1 が正本。
 - **G-1 アカウント個人設定（2026-07-11 ユーザー承認）**: 統合画面=`docs/account-settings.html`、画面JS/CSS=`account-settings.js` / `ac-ds.css`。個人設定は専用 localStorage キー `mock.oms.account.preferences.v1` にDB §3.32の既知キー4種を保存し、既存 `mock.oms.state.v1` / `co-mock-store.js` は拡張しない。他画面への設定反映はG-3。実装契約は `mockup-master-account-plan.md` §4.1 が正本。
 - **G-2 ユーザー管理（2026-07-11 ユーザー承認）**: 専用 localStorage キー `mock.oms.account.users.v1` と共有 `mock-account-data.js` を正とし、`user_profiles` 相当と `user_company_assignments` 相当を保存する。QA契約先シードも同モジュールへ集約し、QA利用者（田中）の担当IDでカードを絞り込む。実装契約は `mockup-master-account-plan.md` §4.2。
+- **G-3 個人設定反映（2026-07-11 ユーザー承認）**: 共有 `mock-account-preferences.js` が既知キー4種を正規化し、GC画面別初期値・共通ナビ表示・通知既定スコープ・densityを反映する。手動GC選択は `mock.oms.account.gc-filter-runtime.v1` に画面別保持し、設定保存/リセット時に破棄。通知の関与判定はモック限定で `affects[]` / `primaryPage` を使い、本実装で担当現場・所属GCへ差し替える。実装契約は `mockup-master-account-plan.md` §4.3。
 
 ## 会社マッピング（`demo-data.js` 由来・確定）
 
@@ -91,7 +92,7 @@
 ## アクティブな計画書
 
 - `docs/plan/mockup-refactor-plan.md` — **リファクタ統合計画（SSOT。R-0〜R-6 全完了 2026-07-11。実施項目は完了・Phase 3 進行はユーザー宣言待ち）**
-- `docs/plan/mockup-master-account-plan.md` — **F マスタ管理 / G アカウント モックアップ計画（F-0/F-1/G-1/G-2完了。各 Phase 着手時ユーザー確認。実装エージェントは §2 AI実装ガイドライン厳守）**
+- `docs/plan/mockup-master-account-plan.md` — **F マスタ管理 / G アカウント モックアップ計画（F-0/F-1/G-1/G-2/G-3完了。各 Phase 着手時ユーザー確認。実装エージェントは §2 AI実装ガイドライン厳守）**
 - `docs/design-system/` — 新DS仕様の正本（README + 01〜04。実施順序は mockup-refactor-plan が正）
 - `docs/plan/mock-data-unification-plan.md` — SL/WS/LA/通知seed ダミーデータ一本化（**Phase 1+2 完了 / 残: WS `wsVehiclesData`/`wsSitesData` 共通ソース統一は将来課題**）
 - `docs/plan/notification-refactor-plan.md` — 変更通知システム リファクタリング（**完了・追加作業なし。新規参照時は §18 完了サマリのみで足りる**）

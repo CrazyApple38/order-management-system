@@ -1,8 +1,7 @@
-/* G-2: personal preferences and admin-only user management. */
+/* G-3: personal preferences, user management, and shared setting application. */
 (function () {
     'use strict';
 
-    var PREFERENCES_KEY = 'mock.oms.account.preferences.v1';
     var SCREENS = [
         { id: 'screen-layout', label: '業務管理計画書' },
         { id: 'order-book', label: '受注簿' },
@@ -20,10 +19,6 @@
     var activeTab = 'personal';
     var selectedUserId = null;
     var statusFilter = 'active';
-
-    function clone(value) {
-        return JSON.parse(JSON.stringify(value));
-    }
 
     function escapeHtml(value) {
         return String(value).replace(/[&<>"']/g, function (character) {
@@ -43,34 +38,8 @@
         return window.OmsMockAccountData ? window.OmsMockAccountData.createQaCompanies() : [];
     }
 
-    function defaultValues() {
-        var gcIds = groupCompanies().map(function (company) { return company.code; });
-        var gcDefaults = {};
-        var visibility = {};
-        SCREENS.forEach(function (screen) {
-            gcDefaults[screen.id] = gcIds.slice();
-            visibility[screen.id] = true;
-        });
-        return {
-            gc_filter_default: gcDefaults,
-            notification_scope_default: 'involved',
-            screen_visibility: visibility,
-            density_default: 'normal'
-        };
-    }
-
     function loadValues() {
-        var defaults = defaultValues();
-        try {
-            var saved = JSON.parse(localStorage.getItem(PREFERENCES_KEY) || 'null');
-            if (!saved || !Array.isArray(saved.preferences)) return defaults;
-            saved.preferences.forEach(function (entry) {
-                if (entry && Object.prototype.hasOwnProperty.call(defaults, entry.pref_key)) defaults[entry.pref_key] = clone(entry.pref_value);
-            });
-        } catch (error) {
-            return defaults;
-        }
-        return defaults;
+        return window.OmsMockAccountPreferences.load();
     }
 
     function checkMarkup(id, label, checked, attrs) {
@@ -134,11 +103,8 @@
 
     function savePreferences() {
         var values = collectValues();
-        localStorage.setItem(PREFERENCES_KEY, JSON.stringify({
-            version: 1,
-            user_id: 'mock-user-sato',
-            preferences: Object.keys(values).map(function (key) { return { pref_key: key, pref_value: clone(values[key]) }; })
-        }));
+        window.OmsMockAccountPreferences.save(values);
+        window.OmsMockAccountPreferences.applyDensity(values);
         showStatus('保存しました');
     }
 
@@ -313,8 +279,9 @@
             showStatus('ユーザーデータを既定値に戻しました');
             return;
         }
-        localStorage.removeItem(PREFERENCES_KEY);
-        renderPreferences(defaultValues());
+        var values = window.OmsMockAccountPreferences.reset();
+        window.OmsMockAccountPreferences.applyDensity(values);
+        renderPreferences(values);
         showStatus('既定値に戻しました');
     }
 

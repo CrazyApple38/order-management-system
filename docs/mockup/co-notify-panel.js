@@ -11,6 +11,26 @@
 (function () {
     'use strict';
 
+    function currentNotificationPage() {
+        var path = location.pathname;
+        if (path.indexOf('screen-layout') !== -1) return 'screen-layout';
+        if (path.indexOf('order-book') !== -1) return 'order-book';
+        if (path.indexOf('weekly-schedule') !== -1) return 'weekly-schedule';
+        if (path.indexOf('leave-application') !== -1) return 'leave-application';
+        if (path.indexOf('quick-access') !== -1) return 'quick-access';
+        if (path.indexOf('master-management') !== -1) return 'master-management';
+        return '';
+    }
+
+    function isItemInvolved(item) {
+        if (typeof item.involved === 'boolean') return item.involved;
+        var page = currentNotificationPage();
+        if (!page) return true;
+        if (page === 'master-management' && deriveCategory(item, item.sourceBell) === 'master') return true;
+        if (item.primaryPage === page) return true;
+        return Array.isArray(item.affects) && item.affects.indexOf(page) !== -1;
+    }
+
     // ========== 通知ジャンプ先フォーカス ==========
     var focusOverlayState = {
         timer: null,
@@ -179,7 +199,7 @@
 
     // ========== フィルタ適用 ==========
     function getActiveFilterValues(view) {
-        var group = view.querySelector('.cn-filter-chips');
+        var group = view.querySelector('.cn-filter-chips[data-filter-group="category"], .cn-filter-chips:not([data-filter-group])');
         if (!group) return null; // フィルタ無し → 全件表示
         var allChip = group.querySelector('.cn-filter-chip[data-filter="all"]');
         if (allChip && allChip.classList.contains('is-active')) return null;
@@ -190,15 +210,24 @@
         return values.length > 0 ? values : null;
     }
 
+    function getActiveScope(view) {
+        var group = view.querySelector('.cn-filter-chips[data-filter-group="scope"]');
+        if (!group) return 'all';
+        var active = group.querySelector('.cn-filter-chip.is-active');
+        return active ? (active.dataset.filter || 'all') : 'all';
+    }
+
     function applyCnFilters(view) {
         if (!view) return;
         var values = getActiveFilterValues(view);
+        var scope = getActiveScope(view);
 
         // 1) アイテム単位で絞り込み (data-category = エンティティ導出)
         view.querySelectorAll('.cn-item').forEach(function (item) {
             var key = item.dataset.category || '';
             var valueOk = !values || values.indexOf(key) !== -1;
-            item.classList.toggle('is-hidden', !valueOk);
+            var scopeOk = scope !== 'involved' || item.dataset.involved !== 'false';
+            item.classList.toggle('is-hidden', !valueOk || !scopeOk);
         });
 
         // 2) グループ単位で全アイテム非表示なら自身も非表示
@@ -206,6 +235,14 @@
             var visible = g.querySelector('.cn-item:not(.is-hidden)');
             g.classList.toggle('is-hidden', !visible);
         });
+
+        var visibleItems = view.querySelectorAll('.cn-item:not(.is-hidden)');
+        var count = view.querySelector('.cn-count');
+        if (count) count.textContent = visibleItems.length ? visibleItems.length + '件' : '';
+        var anchor = view.closest('.cn-anchor');
+        if (anchor) {
+            updateBadge(anchor.dataset.bell || 'all', view.querySelectorAll('.cn-item.is-unread:not(.is-hidden)').length);
+        }
     }
     // 公開: 外部からも再適用できるよう
     window._cnApplyFilters = applyCnFilters;
@@ -906,6 +943,7 @@
             expandHtml = '<div class="cn-expand">' + summary + diffsHtml + hint + actionsHtml + '</div>';
         }
         var scopeAttr = item.scope ? ' data-scope="' + escapeHtml(item.scope) + '"' : '';
+        var involvedAttr = ' data-involved="' + (isItemInvolved(item) ? 'true' : 'false') + '"';
         var opAttr = item.op ? ' data-op="' + escapeHtml(item.op) + '"' : '';
         var colorAttr = item.color ? ' data-color="' + escapeHtml(item.color) + '"' : '';
         return ''
@@ -916,6 +954,7 @@
             +   ' data-category="' + escapeHtml(category) + '"'
             +   (subTag ? ' data-sub-tag="' + escapeHtml(subTag) + '"' : '')
             +   scopeAttr
+            +   involvedAttr
             +   opAttr
             +   colorAttr
             +   affectsAttr
