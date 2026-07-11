@@ -5,7 +5,7 @@
 ## 最終更新
 - **更新者**: Codex (GPT-5)
 - **日付**: 2026-07-11
-- **コミット**: 作業開始時 HEAD `79f4256`（F-1は本コミットに含めてpush予定）
+- **コミット**: F-1成果 `93b6c69`（push済み）
 
 ## 直前にやったこと
 - **F-1（骨格+契約先CRUDパターン）を完了**。`master-management.html` / `ma-ds.css` / `master-management.js` を新設。
