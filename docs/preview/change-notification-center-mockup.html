@@ -710,67 +710,67 @@
 
         const notifications = [
             {
-                id: "n1", date: "6/11", time: "08:47", targetDate: "6/12", client: "港湾開発", site: "港湾道路 夜間片交",
+                id: "n1", date: "6/11", time: "08:47", targetDate: "6/12", targetPage: "order-book", client: "港湾開発", site: "港湾道路 夜間片交",
                 kind: "受注変更", inputType: "受領記録型", route: "eigyo", author: "田中", belong: "belong-2",
                 people: [{ name: "港湾開発", role: "契約先", belong: "belong-5" }, { name: "田中", role: "営業担当", belong: "belong-2" }],
                 changes: [{ label: "集合", from: "20:00", to: "20:30" }]
             },
             {
-                id: "n2", date: "6/11", time: "09:12", targetDate: "6/11", client: "三都ビル管理", site: "商業施設A 巡回警備",
+                id: "n2", date: "6/11", time: "09:12", targetDate: "6/11", targetPage: "order-book", client: "三都ビル管理", site: "商業施設A 巡回警備",
                 kind: "受注変更", inputType: "受領記録型", route: "genba", author: "佐藤", belong: "belong-3",
                 people: [{ name: "商業施設A", role: "現場", belong: "belong-4" }, { name: "林", role: "社員", belong: "belong-1" }],
                 changes: [{ label: "集合", from: "07:00", to: "06:40" }]
             },
             {
-                id: "n3", date: "6/11", time: "10:05", targetDate: "6/15", client: "市民文化財団", site: "駅前イベント会場",
+                id: "n3", date: "6/11", time: "10:05", targetDate: "6/15", targetPage: "screen-layout", client: "市民文化財団", site: "駅前イベント会場",
                 kind: "配置変更", subTag: "own", inputType: "業務判断型", route: null, author: "高橋", belong: "belong-4",
                 people: [],
                 changes: [{ label: "配置", from: "—", to: "伊藤" }, { label: "人数", from: "3", to: "4" }]
             },
             {
-                id: "n4", date: "6/10", time: "14:20", targetDate: "6/12", client: "港湾開発", site: "港湾道路 夜間片交",
+                id: "n4", date: "6/10", time: "14:20", targetDate: "6/12", targetPage: "order-book", client: "港湾開発", site: "港湾道路 夜間片交",
                 kind: "受注変更", inputType: "受領記録型", route: "keiyaku", author: "田中", belong: "belong-2",
                 people: [{ name: "港湾開発", role: "契約先", belong: "belong-5" }, { name: "田中", role: "営業担当", belong: "belong-2" }],
                 changes: [{ label: "人数", from: "2", to: "1" }]
             },
             {
-                id: "n5", date: "6/10", time: "11:08", targetDate: "6/11", client: "丸越物流", site: "物流倉庫B 夜間警備",
+                id: "n5", date: "6/10", time: "11:08", targetDate: "6/11", targetPage: "screen-layout", client: "丸越物流", site: "物流倉庫B 夜間警備",
                 kind: "車両変更", subTag: "vehicle", inputType: "業務判断型", route: null, author: "山本", belong: "belong-5",
                 people: [],
                 changes: [{ label: "車両", from: "わ 12-34", to: "に 45-67" }]
             },
             {
-                id: "n6", date: "6/10", time: "09:40", targetDate: "6/15", client: "—", site: "休暇申請（伊藤 6/15 有給）",
+                id: "n6", date: "6/10", time: "09:40", targetDate: "6/15", targetPage: "leave-application", client: "—", site: "休暇申請（伊藤 6/15 有給）",
                 kind: "休暇申請", inputType: "受領記録型", route: null, author: "伊藤", belong: "belong-5",
                 people: [],
                 changes: [{ label: "休暇", from: "—", to: "6/15 有給" }]
             },
             {
-                id: "n7", date: "6/10", time: "17:55", targetDate: "6/11", client: "三都ビル管理", site: "商業施設A 巡回警備",
+                id: "n7", date: "6/10", time: "17:55", targetDate: "6/11", targetPage: "order-book", client: "三都ビル管理", site: "商業施設A 巡回警備",
                 kind: "受注変更", inputType: "受領記録型", route: "eigyo", author: "林", belong: "belong-1",
                 people: [{ name: "三都ビル管理", role: "契約先", belong: "belong-4" }, { name: "林", role: "営業担当", belong: "belong-1" }],
                 changes: [{ label: "時間", from: "16:00", to: "17:30" }]
             },
             {
-                id: "n8", date: "6/9", time: "08:15", targetDate: "6/10", client: "市民文化財団", site: "駅前イベント会場",
+                id: "n8", date: "6/9", time: "08:15", targetDate: "6/10", targetPage: "order-book", client: "市民文化財団", site: "駅前イベント会場",
                 kind: "受注変更", inputType: "受領記録型", route: "genba", author: "佐藤", belong: "belong-3",
                 people: [{ name: "駅前イベント会場", role: "現場", belong: "belong-4" }, { name: "高橋", role: "社員", belong: "belong-4" }],
                 changes: [{ label: "集合", from: "08:00", to: "08:10" }]
             },
             {
-                id: "n9", date: "6/9", time: "13:30", targetDate: "6/12", client: "道路公社", site: "高速道路N線 規制",
+                id: "n9", date: "6/9", time: "13:30", targetDate: "6/12", targetPage: "weekly-schedule", client: "道路公社", site: "高速道路N線 規制",
                 kind: "配置変更", subTag: "support", inputType: "業務判断型", route: null, author: "高橋", belong: "belong-4",
                 people: [],
                 changes: [{ label: "配置", from: "佐藤", to: "山本" }]
             },
             {
-                id: "n10", date: "6/9", time: "18:02", targetDate: "6/10", client: "丸越物流", site: "物流倉庫B 夜間警備",
+                id: "n10", date: "6/9", time: "18:02", targetDate: "6/10", targetPage: "order-book", client: "丸越物流", site: "物流倉庫B 夜間警備",
                 kind: "受注変更", inputType: "受領記録型", route: "keiyaku", author: "田中", belong: "belong-2",
                 people: [{ name: "丸越物流", role: "契約先", belong: "belong-5" }, { name: "田中", role: "営業担当", belong: "belong-2" }],
                 changes: [{ label: "時間", from: "22:00", to: "21:30" }]
             },
             {
-                id: "n11", date: "6/9", time: "16:18", targetDate: "6/15", client: "市民文化財団", site: "駅前イベント会場",
+                id: "n11", date: "6/9", time: "16:18", targetDate: "6/15", targetPage: "weekly-schedule", client: "市民文化財団", site: "駅前イベント会場",
                 kind: "配置変更", subTag: "partner", inputType: "業務判断型", route: null, author: "山本", belong: "belong-5",
                 people: [],
                 changes: [{ label: "協力業者", from: "—", to: "中央セキュリティ 2名" }]
@@ -782,6 +782,13 @@
             support: "応援",
             partner: "協力業者",
             vehicle: "車両・ETC"
+        };
+
+        const SCREEN_URLS = {
+            "order-book": "../order-book.html",
+            "screen-layout": "../screen-layout.html",
+            "weekly-schedule": "../weekly-schedule.html",
+            "leave-application": "../leave-application.html"
         };
 
         const AXES = {
@@ -940,8 +947,8 @@
                     ${routeSection}
                 </div>
                 <div class="detail-foot">
-                    <span class="jump-note">現場の文脈が必要なときは実画面へ（cn:jump スポットライト着地）</span>
-                    <button class="act-btn" type="button">現場画面で開く →</button>
+                    <span class="jump-note">関連する実画面を同じタブで開きます</span>
+                    <button class="act-btn" type="button" data-target-page="${escapeHtml(n.targetPage)}">現場画面で開く →</button>
                 </div>
             `;
         }
@@ -993,6 +1000,13 @@
             selectedId = cardEl.dataset.id;
             renderList();
             renderDetail();
+        });
+
+        document.getElementById("detailCard").addEventListener("click", (event) => {
+            const button = event.target.closest("[data-target-page]");
+            if (!button) return;
+            const url = SCREEN_URLS[button.dataset.targetPage];
+            if (url) window.location.href = url;
         });
 
         updateAxisCounts();

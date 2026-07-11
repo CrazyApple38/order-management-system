@@ -24,8 +24,8 @@
 - **デザイン刷新** は **案B改: Calm Operations** 方向で継続（ツールバーはフラット維持、左メニュー／中央パネル／縦型アイコンメニュー／右プロパティを同一マテリアル表現で統一。影＝高さレイヤー、縦型アイコンメニューが最上位）。
 - **R-3f D群（2026-07-11 確定）**: 新DSはライトテーマのみ（共有テーマ切替・SL/WS dark定義は廃止）。レール暗色面と受注確度は `--rail-dark-*` / `--confidence-tentative-*` を正本トークンとする。LAの中央月間/ミニカレンダーは土日祝文字を青灰+ウェイト差へ統一し、赤/青の慣習色は使わない。
 - **R-3f E群・#12（2026-07-11 確定）**: 共有ナビ右端は「佐藤＋在席ドット」の `.menu-user`（LAのみ本人/DCP/管理ロール切替を内包）。画面の色・記号凡例は常設せず、OB/SL/WS/LA のツールバー右端と QA ヘッダーのヘルプ icon-btn へ集約する。旧 `--shadow-strong` は廃止し、ポップ=`--elevation-4`、モーダル=`--elevation-5`、ドラッグゴースト=`--elevation-3` を使う。SL の夜間色ローカル上書きは禁止し、正本 `--night-text` を継承する。
-- **R-4 通知センター（2026-07-11 確定）**: 通知センターは集積・検索に限定し、スレッド/確認依頼/解消記録と、それらに依存する要対応軸・状態フィルタを持たない。詳細は変更内容・情報経路・現場画面への導線を表示する。日別軸は入力日時ではなく `targetDate` 基準、配置は自社/応援/協力業者/車両・ETCのサブタグで絞り込む。
-- **R-5 通知DB（2026-07-11 確定）**: 画面通知の正本は `change_notifications`（カテゴリは保存せず `domain` から導出、単日=`target_date`・範囲終端=`target_date_end`、targets/affects/diffs/復元スナップショットを保持）。情報経路は順序付き `route_participants`、`notification_logs` は LINE/メール外部送信結果だけを保持する。スレッド/確認状態は初期DBへ追加せず将来別テーブルで拡張する。
+- **R-4 通知センター（2026-07-11 確定）**: 通知センターは集積・検索に限定し、スレッド/確認依頼/解消記録と、それらに依存する要対応軸・状態フィルタを持たない。詳細は変更内容・情報経路・現場画面への導線を表示する。日別軸は入力日時ではなく `targetDate` 基準、配置は自社/応援/協力業者/車両・ETCのサブタグで絞り込む。「現場画面で開く」は通知種別に応じOB/SL/WS/LAを同じタブで開く。
+- **R-5 通知DB（2026-07-11 確定 / R-6補正）**: 画面通知の正本は `change_notifications`（カテゴリは保存せず `domain` から導出、単日=`target_date`・範囲終端=`target_date_end`、targets/affects/diffs/復元スナップショットを保持）。`target_date` は行全体・マスタ等の「対象日なし」通知に限りNULL可。情報経路は順序付き `route_participants`、`notification_logs` は LINE/メール外部送信結果だけを保持する。スレッド/確認状態は初期DBへ追加せず将来別テーブルで拡張する。
 - **通知** はエンティティ別カテゴリ（受注/配置/申請/マスタ）＋対象日ファセット。責務は「知らせる＋該当箇所を示す」に限定し確認は系外（電話・チャット）。詳細は `docs/plan/notification-refactor-plan.md` §3.7.8/3.7.9。
 
 ## 会社マッピング（`demo-data.js` 由来・確定）
@@ -80,10 +80,11 @@
 | 2026-07-10 | Claude Code | **R-3f #4+#9 完了（死にCSS撤去 + cn-card トークン ds 参照化・runtime検証済）**: #4=使用者ゼロを機械確認（定義 vs 全モックJS/HTML使用の集合比較）したセレクタのみ撤去＝見た目不変。旧 `.cn-panel` 系一式・旧 `.cn-icon`/`.cn-composed`（co-notify-panel.css 約350行）/ 旧 `.md-cn-*` 通知モーダル一族（screen-layout.css 431行。存置= `.md-cn-cell-old/new`）/ 旧 md-cn バッジ群+`.bt-*` エイリアス全部（co-shared-badges.css）/ `.md-cn-body-overlay`（co-modal.css）/ 死に glow/flash（order-book.css・weekly-schedule.css。**glow/toast 付与は quick-access.js のみ = QA 側 CSS が正**）/ bells-divider+旧 .cn-panel 位置（co-navbar.css）。`buildComposedIconHtml` は呼び出し元ゼロの死にJSだが JS は非改変（CSSのみ撤去）。#9=cn-card 内蔵 `--cn-*` 11個を `var(--ds名, 現値)` 参照化・4個（--radius-sm/md・--elevation-1/5）は co-tokens 同名別値のためリテラル維持（上記注意事項参照）。全7 CSS のキャッシュバスター更新（co-notify-panel v19 / co-navbar v5 / 他）。検証: ds-audit NG=0 WARN=9（悪化なし）/ 6ページ cn-card computed style 一致 / コンソール0 | `co-notify-panel.css`(v19) / `co-navbar.css`(v5) / `screen-layout.css`(v28) / `co-shared-badges.css`(v2) / `co-modal.css`(v2) / `order-book.css`(v7) / `weekly-schedule.css`(v6) / HTML8本バスター |
 | 2026-07-10 | Claude Code | **R-3e 完了（QA・runtime検証済）**: `co-tokens.css`撤去→`ds-tokens`+`ds-legacy-aliases`+`ds-components`+新設`qa-ds.css`（モバイル例外＝骨格転換なし・カード型フローへ DS レシピ適用 + cn-card 右端整列補正〔ds-components の `left:84px` 打ち消し〕）。**QA の旧 `.cn-panel` を撤去し統合ベル + 共通 `.cn-card` へ移行（ユーザー判断）**: 通知は `addItem('all')`（domain=order・targetDate=dayKey・target=新設`qaCell`軸）、アンカー1個を画面切替で移設、元に戻す/やっぱり反映は `cn:action`（qa-revert/qa-reapply）でスナップショット復元維持、トースト・QA登録現場フィルタ維持。**共通側変更**: co-notify-panel.js(v40)=QA互換セクション+旧`.cn-panel`分岐撤去・`qaCell`軸追加・**アクションボタン付きアイテムはジャンプ後もパネル/展開を維持**（全画面共通の新一般則）。全画面キャッシュバスター v40。検証: ds-audit NG=0・QA全フロー+OB/SL/WS/LA/admin-notify 回帰なし・コンソール0 | `quick-access.html` / `quick-access.js`(v=r3e-1) / `quick-access.css`(v=r3e-1: 死にCSS約320行撤去+旧パレット直書き→DSトークン化) / 新規 `qa-ds.css` / `co-notify-panel.js`(v40) / HTML5本キャッシュバスター |
 | 2026-07-11 | Codex | **R-5 通知DB設計追補**: 旧 `notification_logs` 一体型モデルを、画面通知正本 `change_notifications` / 情報経路 `route_participants` / 外部送信ログ `notification_logs` の3責務へ分離。カテゴリはdomain導出、対象日・範囲、画面別target、差分、復元スナップショットを定義。スレッド系は将来拡張メモのみ | `docs/03_データベース設計.md` §3.15 / ER概要 / 索引 / RLS |
+| 2026-07-11 | Codex | **R-6 結合静的検証で通知対象日とセンター導線を補正**: 行全体・マスタの「対象日なし」と整合するよう `change_notifications.target_date` をNULL許容化し、期間終端だけの保存をCHECKで禁止。センター詳細の実画面ボタンを通知別OB/SL/WS/LA同タブ遷移へ接続 | `docs/03_データベース設計.md` §3.15 / `change-notification-center-mockup.html` / R-6検証スクリプト |
 
 ## アクティブな計画書
 
-- `docs/plan/mockup-refactor-plan.md` — **リファクタ統合計画（SSOT。R-2〜R-5 完了 / 次は R-6 結合検証）**
+- `docs/plan/mockup-refactor-plan.md` — **リファクタ統合計画（SSOT。R-2〜R-5 完了 / R-6は静的検証完了・runtime検証待ち）**
 - `docs/design-system/` — 新DS仕様の正本（README + 01〜04。実施順序は mockup-refactor-plan が正）
 - `docs/plan/mock-data-unification-plan.md` — SL/WS/LA/通知seed ダミーデータ一本化（**Phase 1+2 完了 / 残: WS `wsVehiclesData`/`wsSitesData` 共通ソース統一は将来課題**）
 - `docs/plan/notification-refactor-plan.md` — 変更通知システム リファクタリング（**完了・追加作業なし。新規参照時は §18 完了サマリのみで足りる**）
