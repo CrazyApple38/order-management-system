@@ -1,12 +1,9 @@
 ﻿/* =============================================
-   Screen Layout V2 - Unified Theme
-   Light: Coastal Palette
-   Dark: Luca Davincci Palette
+   Screen Layout V2 - Light Theme
    ============================================= */
 
-/* === CSS Variables (Light Theme - Default) === */
-/* Phase S-A: co-tokens.css で解決可能な共通トークンは削除し、SL固有のみ残留。
-   Dark 側は co-tokens.css が Light のみのため、SL 側で全オーバーライドを維持。 */
+/* === CSS Variables (Light Theme) === */
+/* Phase S-A: 共通トークンは ds-tokens / legacy aliases で解決し、SL固有のみ残留。 */
 :root {
     --sl-side-panel-width: 280px;
     --sl-left-panel-collapsed-width: 36px;
@@ -63,66 +60,6 @@
     --tooltip-color: white;
     --header-btn-bg: rgba(255, 255, 255, 0.15);
     --header-btn-hover: rgba(255, 255, 255, 0.25);
-
-}
-
-/* === Dark Theme Override === */
-[data-theme="dark"] {
-    /* Tier 1 — Base */
-    --bg-page:         #1a1e22;
-    --bg-surface:      #2a3038;
-    --bg-surface-2:    #3D444B;
-    --bg-surface-3:    #505A63;
-    /* Tier 2 — Sub */
-    --bg-sidebar:      #14181c;
-    /* Tier 3 — Accent */
-    --accent-primary:        #098698;
-    --accent-primary-light:  #0a9db0;
-    --accent-primary-dim:    rgba(9, 134, 152, 0.2);
-    /* テキスト */
-    --text-primary:   #D9D4D1;
-    --text-secondary: #BAB1AD;
-    --text-tertiary:  #8a8480;
-    --text-disabled:  #5a5550;
-    --divider: #AEC0C2;
-
-    --md-gc-bg-touo: #2a3038;
-    --md-gc-bg-nikkei: #2d3540;
-    --md-gc-bg-zennihon: #303848;
-    /* Phase D5.2: カテゴリ4色相分化（Dark 用トーン） */
-    --cat-bg-facility: rgba(68, 166, 181, 0.22);   /* teal */
-    --cat-text-facility: #76d6e4;
-    --cat-bg-event: rgba(122, 140, 196, 0.22);     /* blue-violet */
-    --cat-text-event: #a8b6e2;
-    --cat-bg-traffic: rgba(180, 135, 100, 0.22);   /* warm brown */
-    --cat-text-traffic: #d9b28c;
-    --cat-bg-highway: rgba(98, 158, 120, 0.22);    /* sage green */
-    --cat-text-highway: #9dc9ab;
-    /* B-2b-1: 応援系は dark の従来描画（緑）を維持（dark 自体の扱いは R-3f #10） */
-    --cat-bg-support: rgba(56, 161, 105, 0.12);
-    --cat-text-support: #68d391;
-    --shift-bg-day: rgba(211, 208, 200, 0.2);
-    --shift-text-day: #d3d0c8;
-    --shift-bg-night: rgba(0, 69, 84, 0.2);
-    --shift-text-night: #5ab8c6;
-
-    --shadow-color: rgba(0, 0, 0, 0.3);
-    --shadow-medium: rgba(0, 0, 0, 0.2);
-    --shadow-strong: rgba(0, 0, 0, 0.4);
-    --semantic-error: #E88AA5;
-    --error-light: #F0B0C2;
-    --error-bg: rgba(232, 138, 165, 0.2);
-    --semantic-success: #68d391;
-    --semantic-success-text: #68d391;
-    --success-bg: rgba(72, 187, 120, 0.2);
-    --semantic-warning: #ecc94b;
-    --semantic-warning-text: #ecc94b;
-    --semantic-warning-bg: rgba(236, 201, 75, 0.2);
-    --night-text: #E88AA5;
-    --tooltip-bg: rgba(20, 24, 28, 0.95);
-    --tooltip-color: #D9D4D1;
-    --header-btn-bg: rgba(255, 255, 255, 0.08);
-    --header-btn-hover: rgba(255, 255, 255, 0.15);
 
 }
 

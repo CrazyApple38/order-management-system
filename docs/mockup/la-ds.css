@@ -27,8 +27,8 @@ body { background: var(--bg); color: var(--ink); font-size: 13px; }
 .la-app .tool-btn.primary { background:var(--blue); border-color:var(--blue); color:var(--panel); }
 .la-workspace { display:grid; grid-template-columns:72px minmax(0,1fr) 288px 58px; min-height:0; height:calc(100vh - 92px); overflow:hidden; }
 .la-workspace .rail { background:linear-gradient(180deg,#16456b 0%,var(--blue-dark) 100%); padding:10px 8px; overflow:visible; position:relative; z-index:2; }
-.la-workspace .rail .md-la-mode-seg { display:flex; flex-direction:column; width:100%; margin:0; padding:0; overflow:hidden; border-color:rgba(255,255,255,.18); background:rgba(0,0,0,.12); }
-.la-workspace .rail .md-la-mode-seg-btn { min-height:52px; padding:6px 2px; border:0; background:transparent; color:rgba(255,255,255,.7); font:700 11px var(--font-sans); cursor:pointer; }
+.la-workspace .rail .md-la-mode-seg { display:flex; flex-direction:column; width:100%; margin:0; padding:0; overflow:hidden; border-color:var(--rail-dark-border); background:var(--rail-dark-inset); }
+.la-workspace .rail .md-la-mode-seg-btn { min-height:52px; padding:6px 2px; border:0; background:transparent; color:var(--rail-dark-muted); font:700 11px var(--font-sans); cursor:pointer; }
 .la-workspace .rail .md-la-mode-seg-btn.is-active { color:var(--blue); background:var(--panel); }
 .la-workspace .main { min-width:0; overflow:hidden; padding:14px; }
 .la-workspace .main-card, .la-workspace .prop-card { height:100%; display:flex; flex-direction:column; min-width:0; overflow:hidden; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-md); box-shadow:var(--shadow-card-outer); }

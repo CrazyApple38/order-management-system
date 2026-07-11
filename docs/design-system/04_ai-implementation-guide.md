@@ -1,6 +1,6 @@
 # 04. AI 実装ガイド（エージェント非依存プロトコル）
 
-**最終更新**: 2026-07-10（監査スクリプト・computed style 検証・正準エイリアス規則を追記）
+**最終更新**: 2026-07-11（R-3f #5 承認済み角丸例外と WARN=0 基準を追記）
 **対象**: 本プロジェクトで実装を行うすべての AI エージェント（Claude Code / Codex / Gemini ほか）と人間。
 **目的**: 実装者が変わってもデザインが 1px 単位でブレないための手順・規則・自己検査。
 
@@ -67,12 +67,12 @@
 - [ ] icon-only ボタンに title / aria-label がある
 - [ ] 絵文字・Unicode 記号アイコンを使っていない
 - [ ] 旧 `co-tokens.css` と新 `ds-tokens.css` を同一ページで併載していない
-- [ ] `node scripts/design-audit/ds-audit.js` が **NG=0**（未定義 var() 参照・併載・直書き値の機械検査）
+- [ ] `node scripts/design-audit/ds-audit.js` が **NG=0 / WARN=0**（未定義 var() 参照・併載・直書き値の機械検査）
 - [ ] script 読込順・cnJump・スポットライト着地など SHARED-MEMORY の禁止事項に触れていない
 
 ## 5. 検証手順（Playwright）
 
-1. **静的監査**: `node scripts/design-audit/ds-audit.js` → **NG=0** を確認。
+1. **静的監査**: `node scripts/design-audit/ds-audit.js` → **NG=0 / WARN=0** を確認。
    CSS カスタムプロパティの未定義参照は**コンソールエラーを出さずに黙って無効化**する
    （経緯: R-3d で太字・意味色が無効化したままコンソール 0 で完了扱いになり、
    2026-07-10 の横断レビューで OB/WS にも同型欠落が発覚）。コンソール確認だけでは検出できない

@@ -60,6 +60,11 @@ for (const src of ['ds-tokens.css', 'ds-components.css']) {
     for (const m of t.matchAll(/rgba?\([^)]*\)/g)) canonicalLiterals.add(m[0].replace(/\s+/g, ''));
 }
 const RADIUS_SCALE = new Set(['0px', '4px', '8px', '14px', '20px', '999px']);
+// R-3f #5 承認済み。既存描画を維持する局所的な同心角丸 / 極小チップのみ許可する。
+const APPROVED_RADIUS_EXCEPTIONS = new Set([
+    'la-ds.css:2px',
+    'ws-ds.css:3px',
+]);
 
 // JS 由来の動的定義を収集
 const jsDefined = new Set();
@@ -117,7 +122,7 @@ for (const page of pages) {
             }
             for (const m of ln.matchAll(/border-radius\s*:\s*([^;]+);/g))
                 for (const v of m[1].match(/\d+px/g) || [])
-                    if (!RADIUS_SCALE.has(v)) { lines.push(`  [WARN] ${f}:${i + 1} スケール外角丸 ${v}`); warnCount++; }
+                    if (!RADIUS_SCALE.has(v) && !APPROVED_RADIUS_EXCEPTIONS.has(`${f}:${v}`)) { lines.push(`  [WARN] ${f}:${i + 1} スケール外角丸 ${v}`); warnCount++; }
             for (const m of ln.matchAll(/font-weight\s*:\s*(\d+)/g))
                 if (+m[1] > 700) { lines.push(`  [WARN] ${f}:${i + 1} font-weight ${m[1]}（上限700）`); warnCount++; }
         });

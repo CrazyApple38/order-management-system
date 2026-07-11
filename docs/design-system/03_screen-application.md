@@ -1,6 +1,6 @@
 # 03. 画面別適用設計（リファクタリング設計書）
 
-**最終更新**: 2026-07-10（§3.3 正準エイリアス新設・§3.2 実装確定値・§4 実装確定メモ・監査手順を追記）
+**最終更新**: 2026-07-11（R-3f D群: 直書き値正式化・ダークテーマ廃止・LA曜日文字色を確定）
 **実施順序の SSOT**: `docs/plan/mockup-refactor-plan.md`（R-3a〜R-3e。本書は「各画面で何をどう変えるか」の設計正本）
 **前提**: R-1（DS 基盤 = ds-tokens.css / ds-components.css / 本文書群）完了済み。
 通知カードの共通コンポーネント化・カテゴリ/対象日改修は **R-2 と同時**（本書では設計のみ示す）。
@@ -112,6 +112,7 @@
 **§3.2 の実装確定（R-3b〜d で確定した値・2026-07-10 追記）**:
 
 - 曜日セル色 = `--day-sat: var(--info-bg)` / `--day-sun: var(--blue-soft)`（+OB 用 `-head/-cal` 派生）。ds-legacy-aliases.css §3.3 に収載
+- LA中央月間/ミニカレンダーの土日祝文字 = `--text-secondary`（青灰）+ 曜日ヘッダーのウェイト差。祝日名も青灰。赤/青の慣習色は廃止（R-3f #11）
 - density 3段 = compact 28px / comfortable 36px / spacious 44px（`--tbl-row-h`。`--space-row` 4/8/12px・`--fs-density-base` 13/14/15px）。
   旧 co-tokens 実値の移植（発明なし）・所在は `ob-ds.css`（OB 固有）。ds-tokens.css 正本への昇格はユーザー承認後に別途
 
@@ -128,7 +129,7 @@
 - ~~SL は例外~~ → **解消済み（R-3f #8 B-2b-1 / 2026-07-11）**: `ds-tokens-bridge.css` を撤去・削除し、
   SL も本ファイルへ合流（全5画面が同一対応表）。SL 区分色は 03 §3.1 どおり青一色へ統一
   （`--cat-*` = `--blue-soft`/`--blue` を screen-layout.css :root に定義・WS と同一マッピング。
-  応援・研修・社内の旧緑も青一色〔ユーザー承認 2026-07-11〕。dark の従来描画は維持 = #10 で判断）
+  応援・研修・社内の旧緑も青一色〔ユーザー承認 2026-07-11〕）。R-3f #10 でダークテーマ自体を廃止し、共有切替UI・SL/WS定義を撤去済み
 - 旧 co-tokens.css にも定義が無かった既存負債（`--focus-ring` / `--primary` / `--secondary` / `--bg-primary` /
   `--bg-secondary` / `--shadow-strong`）は本ファイルで補わない。解消は R-3f（監査スクリプトの ALLOWLIST と同期）
 

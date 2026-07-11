@@ -258,14 +258,6 @@
 /* バッジ位置は .cn-trigger-badge デフォルト（top:2px / right:2px）でOK */
 /* 旧 .md-nav-cn-bells-divider / .md-nav-cn-bell .cn-panel は R-3f #4 で撤去（利用者ゼロ） */
 
-/* テーマアイコン切替 */
-.md-nav-theme-icon-light,
-.md-nav-theme-icon-dark { display: none; }
-[data-theme="dark"] .md-nav-theme-icon-dark,
-:root:not([data-theme="dark"]) .md-nav-theme-icon-light {
-    display: block;
-}
-
 /* === マスタモーダル（共通枠） === */
 .md-nav-modal-overlay {
     display: none;

@@ -1,21 +1,4 @@
-﻿        // === テーマ切替 ===
-        function toggleTheme() {
-            const html = document.documentElement;
-            const isDark = html.getAttribute('data-theme') === 'dark';
-            const newTheme = isDark ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme_v2', newTheme);
-            var btn = document.getElementById('themeToggleBtn');
-            if (btn) btn.textContent = isDark ? '🌙 Dark' : '☀️ Light';
-        }
-        (function initTheme() {
-            var saved = localStorage.getItem('theme_v2');
-            if (saved === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
-        })();
-
-        // サイドパネル状態
+﻿        // サイドパネル状態
         const spState = {
             activeTab: 'all',
             expandedCompanies: new Set(),
@@ -1309,13 +1292,6 @@
             });
 
             loadColorPresetsFromStorage();
-
-            // テーマボタン初期テキスト
-            var themeBtn = document.getElementById('themeToggleBtn');
-            if (themeBtn) {
-                var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                themeBtn.textContent = isDark ? '☀️ Light' : '🌙 Dark';
-            }
 
             // 保存済みソート設定の自動適用
             if (typeof applySortSettingsOnLoad === 'function') applySortSettingsOnLoad();

@@ -66,6 +66,8 @@
 | `--accent-orange` 系・`--alert-*` | 警告（§3 参照） |
 | `--night-text` | 夜間文字（§3 参照） |
 | `--info-*` / `--neutral-chip-*` | 情報差分 / ニュートラル状態 |
+| `--rail-dark-*` | 暗色レール上の境界・押し込み面・補助文字（R-3f #5） |
+| `--confidence-tentative-high/low` | 受注確度の暫定高/低。警告色とは分離 |
 | `--gc-*` | GC 行背景・GC 色（belong に連動） |
 | `--belong-1..10`（+ `-bg` / `-border`） | 所属会社 10 社分。1〜5 は淡いパステル8色パレットの初期割当（A=Slate Blue #AFC5E6 / B=Fresh Green #B4DDC5 / C=Bright Mauve #CDBFEA / D=Soft Yellow #EEDDA2 / E=Coral Rose #EDBCBC）。実運用では設定 UI から `color-mix` で -bg(10%)/-border(32%) を導出 |
 
@@ -82,6 +84,8 @@
 | `--bevel-card` | 左上明・右下暗の 1px インセットベベル |
 | `--inset-highlight` / `--inset-edge` | 面上端の白ハイライト / 下端の陰 |
 | `--radius-xs/sm/md/lg/pill` | 4/8/14/20/999px。xs=チップ内要素 / sm=ボタン・小カード / md=大カード / lg=トレイ / pill=カプセル。**このスケール外の角丸を作らない** |
+
+承認済み局所例外（R-3f #5）: LA seg 内側の6px同心角丸と、WS極小チップの3px角丸。監査はファイル単位で限定許可し、新規利用へ拡張しない。
 
 **D&D 対象（カプセルバッジ）は通常カードよりわずかに高い影**（2層影 `0 4px 8px` + `0 2px 3px`、hover で増強）。
 

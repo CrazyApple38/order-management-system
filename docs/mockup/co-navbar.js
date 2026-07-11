@@ -157,10 +157,6 @@
         // --- 右端アクション ---
         +   '<div class="md-nav-actions">'
         +     buildBellsHtml()
-        +     '<button class="md-nav-action-btn" id="mdNavThemeBtn" title="テーマ切替">'
-        +       '<img src="mockup/icons/moon.svg" class="md-nav-theme-icon-light" alt="Dark">'
-        +       '<img src="mockup/icons/brush.svg" class="md-nav-theme-icon-dark" alt="Light">'
-        +     '</button>'
         +   '</div>'
         + '</nav>';
 
@@ -1019,19 +1015,5 @@
 
     // 初期ラベル設定
     gcfUpdateLabel();
-
-    // --- テーマ切替ボタン ---
-    document.getElementById('mdNavThemeBtn').addEventListener('click', function () {
-        if (typeof toggleTheme === 'function') {
-            toggleTheme();
-        } else {
-            // order-book用フォールバック（別方式の場合）
-            var htmlEl = document.documentElement;
-            var isDark = htmlEl.getAttribute('data-theme') === 'dark';
-            var newTheme = isDark ? 'light' : 'dark';
-            htmlEl.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme_v2', newTheme);
-        }
-    });
 
 })();

@@ -263,8 +263,8 @@ body {
     padding: 4px 0;
     letter-spacing: 0.04em;
 }
-.md-la-mini-dow.is-sat { color: var(--accent-primary); }
-.md-la-mini-dow.is-sun { color: var(--semantic-error); }
+.md-la-mini-dow.is-sat,
+.md-la-mini-dow.is-sun { color: var(--text-secondary); font-weight: var(--fw-bold); }
 
 .md-la-mini-day {
     aspect-ratio: 1;
@@ -285,9 +285,9 @@ body {
 }
 .md-la-mini-day:hover { background: var(--bg-surface-2); }
 .md-la-mini-day.is-other-month { color: var(--text-disabled); }
-.md-la-mini-day.is-sat { color: var(--accent-primary); }
+.md-la-mini-day.is-sat,
 .md-la-mini-day.is-sun,
-.md-la-mini-day.is-holiday { color: var(--semantic-error); }
+.md-la-mini-day.is-holiday { color: var(--text-secondary); font-weight: var(--fw-semibold); }
 .md-la-mini-day.is-today {
     background: var(--accent-primary);
     color: #fff;
@@ -351,8 +351,8 @@ body {
     text-align: center;
     letter-spacing: 0.04em;
 }
-.md-la-dow-header.is-sat { color: var(--accent-primary); }
-.md-la-dow-header.is-sun { color: var(--semantic-error); }
+.md-la-dow-header.is-sat,
+.md-la-dow-header.is-sun { color: var(--text-secondary); font-weight: var(--fw-bold); }
 
 .md-la-cell {
     background: var(--bg-surface);
@@ -372,13 +372,13 @@ body {
 .md-la-cell.is-sat {
     background: var(--day-sat);
 }
-.md-la-cell.is-sat .md-la-cell-day { color: var(--accent-primary); }
+.md-la-cell.is-sat .md-la-cell-day { color: var(--text-secondary); }
 .md-la-cell.is-sun,
 .md-la-cell.is-holiday {
     background: var(--day-sun);
 }
 .md-la-cell.is-sun .md-la-cell-day,
-.md-la-cell.is-holiday .md-la-cell-day { color: var(--semantic-error); }
+.md-la-cell.is-holiday .md-la-cell-day { color: var(--text-secondary); }
 
 /* 他月セル: Google カレンダー風に統一された薄グレー (土/日/祝日も上書き) */
 .md-la-cell.is-other-month,
@@ -413,9 +413,9 @@ body {
     font-weight: var(--fw-bold);
     color: var(--text-primary);
 }
-.md-la-cell.is-sat .md-la-cell-day { color: var(--accent-primary); }
+.md-la-cell.is-sat .md-la-cell-day { color: var(--text-secondary); }
 .md-la-cell.is-sun .md-la-cell-day,
-.md-la-cell.is-holiday .md-la-cell-day { color: var(--semantic-error); }
+.md-la-cell.is-holiday .md-la-cell-day { color: var(--text-secondary); }
 
 .md-la-cell-warn {
     margin-left: auto;
@@ -426,12 +426,12 @@ body {
     align-items: center;
 }
 
-/* 祝日名バッジ (Google カレンダー風) — セル上部、日付の右隣に小さな赤文字 */
+/* 祝日名バッジ — セル上部、日付の右隣に青灰文字 */
 .md-la-cell-holiday {
     flex: 1;
     min-width: 0;
     font-size: 10px;
-    color: var(--semantic-error);
+    color: var(--text-secondary);
     font-weight: var(--fw-semibold);
     line-height: 1.2;
     white-space: nowrap;

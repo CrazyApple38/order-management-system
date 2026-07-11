@@ -5139,24 +5139,6 @@
     }
 
     // ==========================================================
-    // テーマ
-    // ==========================================================
-
-    window.toggleTheme = function () {
-        var htmlEl = document.documentElement;
-        var isDark = htmlEl.getAttribute('data-theme') === 'dark';
-        htmlEl.setAttribute('data-theme', isDark ? 'light' : 'dark');
-        localStorage.setItem('theme_v2', isDark ? 'light' : 'dark');
-    };
-
-    function restoreTheme() {
-        var saved = localStorage.getItem('theme_v2');
-        if (saved === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        }
-    }
-
-    // ==========================================================
     // 初期化
     // ==========================================================
 
@@ -5668,7 +5650,6 @@
     }
 
     function init() {
-        restoreTheme();
         today = wsDemoTodayDate();
         var current = wsCurrentStoreDate();
         viewStartDate = getWeekStart(current);

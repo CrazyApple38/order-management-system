@@ -46,6 +46,14 @@
     --info-border: #c9d5de;
     --neutral-chip-text: #385569;
     --neutral-chip-bg: #eef4f8;
+    /* 暗色レール上の境界・押し込み面・補助文字（R-3f #5 で現行描画を正式化） */
+    --rail-dark-edge: rgba(0, 0, 0, 0.15);
+    --rail-dark-border: rgba(255, 255, 255, 0.18);
+    --rail-dark-inset: rgba(0, 0, 0, 0.12);
+    --rail-dark-muted: rgba(255, 255, 255, 0.7);
+    /* 受注確度。警告色とは意味が異なるため専用トークンで保持 */
+    --confidence-tentative-high: #f59e0b;
+    --confidence-tentative-low: #94a3b8;
     --gc-line: #2c6fa3;
     --gc-line-soft: #7f9bae;
     /* GC会社色 = 下部の所属カラー(belong)を使用。東央=A社=belong-1 / Nikkei=B社=belong-2 / 全日本=C社=belong-3 */
