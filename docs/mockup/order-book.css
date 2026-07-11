@@ -613,7 +613,7 @@ body {
 .md-ob-map-url-row input {
     flex: 1; padding: 6px 10px;
     border: 1px solid var(--divider); border-radius: 6px;
-    font-size: 13px; background: var(--bg-primary); color: var(--text-primary);
+    font-size: 13px; background: var(--panel); color: var(--text-primary);
 }
 .md-ob-map-url-row input:focus {
     outline: none; border-color: var(--accent-primary);
@@ -622,7 +622,7 @@ body {
 .md-ob-map-preview {
     position: relative;
     border: 1px solid var(--divider); border-radius: 6px;
-    overflow: hidden; background: var(--bg-secondary);
+    overflow: hidden; background: var(--bg);
 }
 .md-ob-map-preview iframe {
     width: 100%; height: 180px; border: none; display: block;
@@ -1220,7 +1220,7 @@ body {
 .sort-modal {
     background: var(--bg-surface);
     border-radius: 12px;
-    box-shadow: 0 10px 60px var(--shadow-strong);
+    box-shadow: var(--elevation-5); /* R-3f #3: 旧 var(--shadow-strong) は未定義負債（影なし描画）→ DS モーダル影へ */
     width: 90vw;
     max-width: 900px;
     max-height: 85vh;

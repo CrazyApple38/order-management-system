@@ -26,16 +26,11 @@ const DOCS = path.join(__dirname, '..', '..', 'docs');
 const MOCKUP = path.join(DOCS, 'mockup');
 const VERBOSE = process.argv.includes('--verbose');
 
-/* 既存負債（旧 co-tokens.css 時代から未定義のまま参照されているトークン）。
-   解消は R-3f（横断クリーンアップ）で判断。新規追加はしないこと。 */
-const ALLOWLIST = new Set([
-    '--focus-ring',      // co-forms/co-buttons の focus-visible リング（全画面で未定義）
-    '--primary',         // co-shared-badges（旧世代の名残）
-    '--secondary',       // 同上
-    '--bg-primary',      // order-book.css / screen-layout.css の地図URL入力・プレビュー
-    '--bg-secondary',    // 同上
-    '--shadow-strong',   // order-book.css .sort-modal（WS/SL はローカル定義あり）
-]);
+/* 既存負債の未定義トークン参照は R-3f #3（2026-07-11）で全解消済み。
+   --focus-ring/--primary/--secondary = B-2b-2/B-3 で参照側を DS 値へ読替済み。
+   --bg-primary/--bg-secondary/--shadow-strong = #3 で --panel/--bg/--elevation-5 へ書換。
+   ここへの新規追加は禁止（未定義参照は発生時点で修正すること）。 */
+const ALLOWLIST = new Set([]);
 
 /* JS から setProperty で供給されるトークン（動的定義。プレフィックス一致も可） */
 const JS_DEFINED_PREFIXES = ['--belong-', '--la-tip-pointer-left', '--icon-url'];

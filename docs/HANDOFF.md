@@ -9,25 +9,25 @@
 
 - **更新者**: Claude Code (Fable 5)
 - **日付**: 2026-07-11
-- **コミット**: R-3f B-3（co-shared-badges 廃止）（本コミット）。B-2b-2 は `e7d6ef7` / B-2b-1 は `32e9d73`
+- **コミット**: R-3f #3（既存負債トークン解消）（本コミット）。B群3コミットは `32e9d73`/`e7d6ef7`/`5e60474`
 
 ## 直前にやったこと（最新のみ）
 
-- **R-3f #8/#1 B群 全完了**: B-2b-1=SL bridge 撤去+区分色青一色（`32e9d73`）→
-  B-2b-2=md-fi-*→DS A-05 置換・co-forms 削除・§I 受け皿（`e7d6ef7`）→
-  B-3=md-ob バッジ編集一式を §J 受け皿化・co-shared-badges 削除（本コミット）。
-- 色読替はユーザー承認済み: 旧teal淡色→--blue-soft/--info-*・undo琥珀→DS alert・
-  var(--primary)→var(--ink)。**信頼度 active の琥珀#f59e0b/灰青#94a3b8 はリテラル維持=#5 案件**。
-- 検証: 各コミットで ds-audit NG=0 WARN=8 / OB・SL 実測 / 全画面回帰なし・コンソール0。
-  スクショ `screenshots/r3f8-*`。
+- **R-3f #3 完了**（ユーザー承認 = 未定義参照のみ解消）: --focus-ring/--primary/--secondary は
+  B群で解消済みと実測確認 → **ds-audit ALLOWLIST を空に**（新規追加禁止を明記）。
+  実参照の書換 = 地図URL入力/プレビュー背景5箇所（--bg-primary→--panel / --bg-secondary→--bg）+
+  OB .sort-modal 影（未定義=影なし→var(--elevation-5)）。
+- SL/WS のローカル --shadow-strong（旧teal影 rgba(0,69,84,.15)・描画あり）は **#12 送り**（承認済み）。
+- 検証: ds-audit NG=0 WARN=8 / OB・SL 実測・コンソール0。スクショ `screenshots/r3f3-*`。
 
 ## 次にやるべきこと
 
-1. **D群（各着手時にユーザー判断）**: #3 既存負債トークン（--focus-ring 全画面 a11y ほか。
-   ds-audit ALLOWLIST と同期して解消）/ #5 直書き WARN 8件+信頼度チップ2色の正式パレット /
-   #10 ダークテーマの廃止 or 正式対応（SL/WS の [data-theme=dark] 残存）/ #11 LA 土日祝文字色の確認。
+1. **D群 残り（各着手時にユーザー判断）**: #5 直書き WARN 8件（ws-ds/la-ds）+
+   信頼度チップ active 2色（#f59e0b/#94a3b8）の正式パレット /
+   #10 ダークテーマの廃止 or 正式対応（SL/WS の [data-theme=dark] + --cat-*-support dark 値も対象）/
+   #11 LA 土日祝文字色の確認。
 2. **E群**: #6 menu-user チップを共有 co-navbar へ（LA ロール切替移設も同時）/ #7 ヘルプ icon-btn 全画面。
-3. **#12 余白・密度・直書き hex 横断棚卸し** → R-4 センター改修へ。
+3. **#12 余白・密度・直書き hex 横断棚卸し**（SL/WS ローカル --shadow-strong の DS 化を含む）→ R-4 へ。
 
 ## 今だけの申し送り（任意）
 
