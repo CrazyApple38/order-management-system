@@ -5,54 +5,17 @@
 // --- モックデータ ---
 const qaCurrentUser = { name: '田中 太郎', email: 'tanaka@example.com', initials: '田', branch: '東央警備' };
 
-let qaClients = [
-    {
-        id: 1, name: '鈴木建設株式会社', categories: ['交通', '高速'],
-        lastOrderDate: '2026-03-28', orderCount: 15,
-        sites: [
-            { id: 101, name: '国道16号 拡幅工事現場', lastOrderDate: '2026-03-28', branch: '東央警備', category: '交通', shift: '昼', presetStart: '08:00', presetEnd: '17:00' },
-            { id: 102, name: '東名高速 補修工事', lastOrderDate: '2026-03-20', branch: '東央警備', category: '高速', shift: '夜', presetStart: '20:00', presetEnd: '05:00' },
-        ]
-    },
-    {
-        id: 2, name: '東京イベントサービス', categories: ['イベント'],
-        lastOrderDate: '2026-03-25', orderCount: 8,
-        sites: [
-            { id: 201, name: '東京ドーム コンサート警備', lastOrderDate: '2026-03-25', branch: 'Nikkeiホールディングス', category: 'イベント', shift: '昼', presetStart: '09:00', presetEnd: '18:00' },
-            { id: 202, name: '幕張メッセ 展示会', lastOrderDate: '2026-03-10', branch: 'Nikkeiホールディングス', category: 'イベント', shift: '昼', presetStart: '08:00', presetEnd: '17:00' },
-        ]
-    },
-    {
-        id: 3, name: 'ABCマンション管理組合', categories: ['施設'],
-        lastOrderDate: '2026-03-22', orderCount: 30,
-        sites: [
-            { id: 301, name: 'ABCマンション 常駐警備', lastOrderDate: '2026-03-22', branch: '全日本エンタープライズ', category: '施設', shift: '昼', presetStart: '08:00', presetEnd: '17:00' },
-        ]
-    },
-    {
-        id: 4, name: '関東道路サービス', categories: ['高速'],
-        lastOrderDate: '2026-03-18', orderCount: 22,
-        sites: [
-            { id: 401, name: '首都高速 中央環状線 車線規制', lastOrderDate: '2026-03-18', branch: '東央警備', category: '高速', shift: '夜', presetStart: '20:00', presetEnd: '05:00' },
-            { id: 402, name: '東北自動車道 路肩規制', lastOrderDate: '2026-03-12', branch: '東央警備', category: '高速', shift: '昼', presetStart: '08:00', presetEnd: '17:00' },
-            { id: 403, name: '常磐自動車道 保安業務', lastOrderDate: '2026-03-05', branch: 'Nikkeiホールディングス', category: '高速', shift: '昼', presetStart: '07:00', presetEnd: '16:00' },
-        ]
-    },
-    {
-        id: 5, name: '市川市役所', categories: ['交通'],
-        lastOrderDate: '2026-03-15', orderCount: 5,
-        sites: [
-            { id: 501, name: '市川駅前 歩行者天国', lastOrderDate: '2026-03-15', branch: '全日本エンタープライズ', category: '交通', shift: '昼', presetStart: '08:00', presetEnd: '17:00' },
-        ]
-    },
-    {
-        id: 6, name: 'グローバル警備応援', categories: ['応援交通'],
-        lastOrderDate: '2026-03-10', orderCount: 3,
-        sites: [
-            { id: 601, name: '横浜市内 交通誘導', lastOrderDate: '2026-03-10', branch: '東央警備', category: '応援交通', shift: '昼', presetStart: '08:00', presetEnd: '17:00' },
-        ]
-    },
-];
+let qaClients = window.OmsMockAccountData ? window.OmsMockAccountData.createQaClients() : [];
+
+function qaApplyCurrentUserAssignments() {
+    if (!window.OmsMockAccountData) return;
+    var assignedIds = window.OmsMockAccountData.assignedCompanyIds(window.OmsMockAccountData.qaUserId);
+    qaClients = window.OmsMockAccountData.createQaClients().filter(function (client) {
+        return assignedIds.indexOf(client.id) !== -1;
+    });
+}
+
+qaApplyCurrentUserAssignments();
 
 const qaCategories = ['すべて', '施設', 'イベント', '高速', '交通', '応援交通'];
 

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="mockup/ds-components.css?v=5">
     <link rel="stylesheet" href="mockup/co-navbar.css?v=8">
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=19">
-    <link rel="stylesheet" href="mockup/ac-ds.css?v=1">
+    <link rel="stylesheet" href="mockup/ac-ds.css?v=2">
 </head>
 <body>
     <main class="app ac-app" id="acApp">
@@ -17,9 +17,20 @@
             <div class="tool-group">
                 <strong class="ac-toolbar-title">アカウント設定</strong>
                 <div class="seg" role="tablist" aria-label="アカウント設定タブ">
-                    <button type="button" class="active" role="tab" aria-selected="true">個人設定</button>
-                    <button type="button" id="acUserAdminTab" role="tab" aria-selected="false" hidden>ユーザー管理</button>
+                    <button type="button" class="active" id="acPersonalTab" data-tab="personal" role="tab" aria-selected="true">個人設定</button>
+                    <button type="button" id="acUserAdminTab" data-tab="users" role="tab" aria-selected="false" hidden>ユーザー管理</button>
                 </div>
+                <label class="ac-role-preview" for="acViewerRole">
+                    <span>閲覧権限</span>
+                    <span class="select-wrap">
+                        <select class="input" id="acViewerRole" aria-label="閲覧権限">
+                            <option value="admin">管理者</option>
+                            <option value="sales">営業担当者</option>
+                            <option value="dispatch">配置担当者</option>
+                            <option value="accounting">経理</option>
+                        </select>
+                    </span>
+                </label>
             </div>
             <div class="tool-group">
                 <span class="ac-save-status" id="acSaveStatus" role="status" aria-live="polite"></span>
@@ -31,7 +42,7 @@
         <div class="workspace ac-workspace">
             <aside class="rail ac-rail" id="acRail" aria-label="変更通知"></aside>
 
-            <section class="main" aria-label="個人設定">
+            <section class="main ac-personal-view" aria-label="個人設定">
                 <div class="main-card ac-main-card">
                     <div class="main-head">
                         <div>
@@ -108,6 +119,88 @@
                     </div>
                 </div>
             </section>
+
+            <section class="main ac-users-view" aria-label="ユーザー管理" hidden>
+                <div class="main-card ac-main-card">
+                    <div class="main-head ac-users-head">
+                        <div>
+                            <span class="main-title">ユーザー管理</span>
+                            <p>アカウントと担当契約先の紐付けを管理します。</p>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="acAddUserBtn">新規ユーザー</button>
+                    </div>
+                    <div class="ac-user-tools">
+                        <label class="field ac-user-search" for="acUserSearch">
+                            <span class="field-label">検索</span>
+                            <input class="input" id="acUserSearch" type="search" placeholder="氏名・メール">
+                        </label>
+                        <div class="seg" id="acUserStatusFilter" role="group" aria-label="ユーザーの状態">
+                            <button type="button" class="active" data-value="active">有効</button>
+                            <button type="button" data-value="inactive">無効</button>
+                            <button type="button" data-value="all">すべて</button>
+                        </div>
+                    </div>
+                    <div class="tbl-frame ac-user-table-frame">
+                        <table class="dtable" aria-label="ユーザー一覧">
+                            <thead><tr><th>表示名</th><th>ロール</th><th>紐付く社員</th><th>所属GC</th><th>担当契約先</th><th>状態</th></tr></thead>
+                            <tbody id="acUserRows"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="acUserEmpty" hidden>
+                        <div class="empty-title">該当するユーザーはいません</div>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="prop ac-user-prop" aria-label="ユーザーの詳細" hidden>
+                <div class="prop-card">
+                    <div class="prop-head">
+                        <strong id="acUserPropTitle">ユーザー詳細</strong>
+                        <span class="prop-mode" id="acUserPropMode">編集</span>
+                    </div>
+                    <div class="prop-body">
+                        <div class="field">
+                            <label class="field-label" for="acUserName">表示名</label>
+                            <input class="input" id="acUserName" maxlength="50">
+                        </div>
+                        <div class="field">
+                            <label class="field-label" for="acUserEmail">メールアドレス</label>
+                            <input class="input" id="acUserEmail" type="email">
+                        </div>
+                        <div class="field">
+                            <label class="field-label" for="acUserRole">ロール</label>
+                            <div class="select-wrap">
+                                <select class="input" id="acUserRole">
+                                    <option value="sales">営業担当者</option>
+                                    <option value="dispatch">配置担当者</option>
+                                    <option value="accounting">経理</option>
+                                    <option value="admin">管理者</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="field-label" for="acUserEmployee">紐付く社員</label>
+                            <div class="select-wrap"><select class="input" id="acUserEmployee"></select></div>
+                        </div>
+                        <div class="field">
+                            <label class="field-label" for="acUserGroupCompany">所属グループ会社</label>
+                            <input class="input" id="acUserGroupCompany" disabled>
+                        </div>
+                        <section class="section ac-assignment-section" aria-labelledby="acAssignmentsTitle">
+                            <div class="section-title" id="acAssignmentsTitle">担当契約先</div>
+                            <div class="ac-assignment-list" id="acUserAssignments"></div>
+                        </section>
+                        <label class="ac-toggle-item" for="acUserActive">
+                            <span>アカウントを有効にする</span>
+                            <span class="switch">
+                                <input type="checkbox" id="acUserActive" checked>
+                                <span class="track"></span><span class="knob"></span>
+                            </span>
+                        </label>
+                        <div class="ac-user-error" id="acUserError" role="alert"></div>
+                    </div>
+                </div>
+            </aside>
         </div>
     </main>
 
@@ -115,10 +208,11 @@
     <script src="mockup/mock-vehicles-data.js?v=1"></script>
     <script src="mockup/mock-assignments-data.js?v=4"></script>
     <script src="mockup/demo-data.js?v=5"></script>
+    <script src="mockup/mock-account-data.js?v=2"></script>
     <script src="mockup/notify-icons-selected.js?v=2"></script>
     <script src="mockup/co-notify-panel.js?v=40"></script>
     <script src="mockup/co-mock-store.js?v=5"></script>
     <script src="mockup/co-navbar.js?v=26"></script>
-    <script src="mockup/account-settings.js?v=1"></script>
+    <script src="mockup/account-settings.js?v=2"></script>
 </body>
 </html>
