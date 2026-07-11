@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "quality": {
+    "checks": [
+      "node-syntax",
+      "json-parse",
+      "custom:node scripts/design-audit/ds-audit.js"
+    ],
+    "timeoutSec": 60
+  }
+}
