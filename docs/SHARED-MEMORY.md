@@ -84,7 +84,7 @@
 
 ## アクティブな計画書
 
-- `docs/plan/mockup-refactor-plan.md` — **リファクタ統合計画（SSOT。R-2〜R-5 完了 / R-6は静的検証完了・runtime検証待ち）**
+- `docs/plan/mockup-refactor-plan.md` — **リファクタ統合計画（SSOT。R-0〜R-6 全完了 2026-07-11。実施項目は完了・Phase 3 進行はユーザー宣言待ち）**
 - `docs/design-system/` — 新DS仕様の正本（README + 01〜04。実施順序は mockup-refactor-plan が正）
 - `docs/plan/mock-data-unification-plan.md` — SL/WS/LA/通知seed ダミーデータ一本化（**Phase 1+2 完了 / 残: WS `wsVehiclesData`/`wsSitesData` 共通ソース統一は将来課題**）
 - `docs/plan/notification-refactor-plan.md` — 変更通知システム リファクタリング（**完了・追加作業なし。新規参照時は §18 完了サマリのみで足りる**）
