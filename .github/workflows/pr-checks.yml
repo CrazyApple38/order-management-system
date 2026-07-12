@@ -7,6 +7,10 @@ name: PR Checks
 # いずれも node 標準モジュールのみで完結するため npm ci は不要（依存インストールなし）。
 # このジョブ名 "quality-gate" を GitHub ruleset の required status check に登録している。
 # 名前を変えると required check が外れて master 保護が緩むので変更しないこと。
+#
+# 別ジョブ "classify"（BP-4）は変更ファイルを視覚/非視覚で判定し PR にラベル
+# （auto-merge-ok / needs-visual-review）を付与する。こちらは非 required（マージを
+# gate しない）。判定ロジックの単一情報源は scripts/ci/classify-changed-files.js。
 
 on:
   pull_request:
@@ -41,7 +45,8 @@ jobs:
         run: |
           base="origin/${{ github.base_ref }}"
           git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
-          git diff --name-only "$base"...HEAD -- '*.js' > "$RUNNER_TEMP/changed_js.txt" || true
+          # core.quotepath=false: 非ASCII名ファイルが "..." 8進エスケープで出て [ -f ] を外し検査漏れするのを防ぐ
+          git -c core.quotepath=false diff --name-only "$base"...HEAD -- '*.js' > "$RUNNER_TEMP/changed_js.txt" || true
           if [ ! -s "$RUNNER_TEMP/changed_js.txt" ]; then
             echo "No changed *.js files."
             exit 0
@@ -58,7 +63,7 @@ jobs:
       - name: JSON parse on changed *.json
         run: |
           base="origin/${{ github.base_ref }}"
-          git diff --name-only "$base"...HEAD -- '*.json' > "$RUNNER_TEMP/changed_json.txt" || true
+          git -c core.quotepath=false diff --name-only "$base"...HEAD -- '*.json' > "$RUNNER_TEMP/changed_json.txt" || true
           if [ ! -s "$RUNNER_TEMP/changed_json.txt" ]; then
             echo "No changed *.json files."
             exit 0
@@ -71,3 +76,57 @@ jobs:
             node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" "$f" || rc=1
           done < "$RUNNER_TEMP/changed_json.txt"
           exit $rc
+
+  # 変更ファイルを視覚/非視覚で判定し PR にマージラベルを付与する（BP-4）。
+  # 非 required（merge を gate しない・視認とマージ挙動分岐のためのラベル）。
+  # 判定ロジックの単一情報源は scripts/ci/classify-changed-files.js。
+  classify:
+    name: classify
+    runs-on: ubuntu-latest
+    permissions:
+      # contents:write は auto-merge の無効化（gh pr merge --disable-auto）に必須。
+      # pull-requests/issues:write だけでは disable-auto が無言で失敗する（GITHUB_TOKEN 制約）。
+      # master への直 push は GitHub ruleset(airtight) が別途ブロックするため実害なし。
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Classify changed files and apply merge label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE_REF"
+          # -z（NUL 区切り）で取得: core.quotepath による非ASCIIパスの8進エスケープを回避し、
+          # 日本語名ドキュメント等が誤って visual に倒れるのを防ぐ（classify.js は NUL/改行両対応）。
+          git diff -z --name-only "origin/$BASE_REF"...HEAD > "$RUNNER_TEMP/changed.txt" || true
+          echo "changed files:"; tr '\0' '\n' < "$RUNNER_TEMP/changed.txt"
+          label="$(node scripts/ci/classify-changed-files.js < "$RUNNER_TEMP/changed.txt")"
+          echo "decision: $label"
+          # ラベルが無ければ作成（idempotent）
+          gh label create auto-merge-ok --color 0e8a16 --description "非視覚のみ: CI green で自動マージ可" 2>/dev/null || true
+          gh label create needs-visual-review --color d93f0b --description "視覚変更あり: マージ前にユーザー目視確認が必要" 2>/dev/null || true
+          if [ "$label" = "auto-merge-ok" ]; then
+            add="auto-merge-ok"; rem="needs-visual-review"
+          else
+            add="needs-visual-review"; rem="auto-merge-ok"
+            # 後追いの視覚コミット対策: 既に auto-merge が有効なら能動的に解除する。
+            # classify は非 required なので、これをしないと quality-gate(required) green で
+            # 視覚変更がユーザー確認なしにマージされ得る（synchronize で毎回走るため確実に武装解除）。
+            gh pr merge "$PR_NUMBER" --disable-auto \
+              && echo "auto-merge disabled." \
+              || echo "disable-auto: no-op or failed (no armed auto-merge?), continuing."
+          fi
+          gh pr edit "$PR_NUMBER" --add-label "$add"
+          gh pr edit "$PR_NUMBER" --remove-label "$rem" 2>/dev/null || true
