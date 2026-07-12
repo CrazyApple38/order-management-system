@@ -61,6 +61,7 @@
 - **（R-3f #9 2026-07-10 更新）cn-card の `--cn-*` 変数は ds-tokens 参照 + 現値フォールバック**（`var(--ink, #172b3a)` 形式。フォールバックは co-tokens のまま cn-card を表示する admin-notify.html 用）。**例外4個 = `--radius-sm/md`・`--elevation-1/5` は co-tokens と同名別値のためリテラル維持**（admin-notify が DS 化されたら参照化）。値変更はユーザー承認必須。
 - **（R-3e 2026-07-10 更新）QA は統合ベル + 共通 `.cn-card` へ移行済み**（旧 `.cn-panel` マークアップと co-notify-panel.js の QA モバイル互換ハンドラは撤去）。QA のベルアンカーは **DOM 1個のみ**で、画面切替時に `qaCnMountAnchor()` がホーム⇄カレンダーのヘッダーへ移設する（共通 `getAnchor()`/`renderBellLatest()` が first-match 前提のため。アンカーを複製しないこと）。旧 `.cn-panel` 系 CSS は R-3f #4（2026-07-10）で撤去済み。プレビュー `notify-compare` の旧 UI は自前 CSS（notify-compare.css）で自己完結。
 - **既知の欠損アセット（R-2無関係・未修正）**: `docs/mockup/icons/shield.svg` が実在せず 404。参照元は `quick-access.html:82`（`<img class="qa-brand-icon">`・commit `bf93d8c` 由来のブランドアイコン）で QA/admin-notify ヘッダで発生。2026-07-05 ユーザー判断「今回は触らず記録のみ」。差し替え or 削除は別途（アイコン選定要確認）。
+- **（2026-07-12）並行テスト時のリソース競合対策**: Playwright MCP のブラウザプロファイルは AI 別に分離済み（Claude=`C:\Users\Owner\.claude\playwright-mcp-profile` / Codex=`C:\Users\Owner\.codex\playwright-mcp-profile`。各 AI のグローバル MCP 設定に `--user-data-dir` を追加。設定変更後の初回セッションから有効）。**ローカル HTTP サーバのポートは Claude=8765 / Codex=8766 に固定**（`python -m http.server` 等）。相手 AI のポート・プロファイルを使わないこと。プロファイル分離により mockup の localStorage（`mock.oms.*`）も AI 別になる点に注意（片方で作った状態はもう片方のブラウザに存在しない）。同一作業ツリーへの同時 git commit は従来どおり避ける（serial handoff 原則）。
 
 ## 構造的変更の警告
 
