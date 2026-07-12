@@ -65,6 +65,7 @@
 - **既知の欠損アセット（R-2無関係・未修正）**: `docs/mockup/icons/shield.svg` が実在せず 404。参照元は `quick-access.html:82`（`<img class="qa-brand-icon">`・commit `bf93d8c` 由来のブランドアイコン）で QA/admin-notify ヘッダで発生。2026-07-05 ユーザー判断「今回は触らず記録のみ」。差し替え or 削除は別途（アイコン選定要確認）。
 - **（2026-07-12）並行テスト時のリソース競合対策**: Playwright MCP のブラウザプロファイルは AI 別に分離済み（Claude=`C:\Users\Owner\.claude\playwright-mcp-profile` / Codex=`C:\Users\Owner\.codex\playwright-mcp-profile`。各 AI のグローバル MCP 設定に `--user-data-dir` を追加。設定変更後の初回セッションから有効）。**ローカル HTTP サーバのポートは Claude=8765 / Codex=8766 に固定**（`python -m http.server` 等）。相手 AI のポート・プロファイルを使わないこと。プロファイル分離により mockup の localStorage（`mock.oms.*`）も AI 別になる点に注意（片方で作った状態はもう片方のブラウザに存在しない）。同一作業ツリーへの同時 git commit は従来どおり避ける（serial handoff 原則）。
 - **ローカルブラウザ検証のフォールバック（2026-07-12 ユーザー指示）**: 内部ブラウザが利用できない場合はGoogle Chromeで検証を続行する。Chrome拡張由来ログは発生元URL・スタックを確認し、アプリ由来ログと区別して記録する。
+- **（2026-07-12）OMS は branch + PR 運用へ移行**: master 直コミットは pre-commit v4 がブロックする（`.agent-env.json` の `workflow.protectMaster: true`）。実装は `claude/<topic>` / `codex/<topic>` ブランチで行い PR を作成すること。緊急回避＝`AGENT_ENV_ALLOW_MASTER=1 git commit ...` または `git commit --no-verify`。**現時点（BP-1）は PR 作成・マージは手動**（`gh pr create` → `gh pr merge --squash --delete-branch`）。CI（GitHub Actions）+ GitHub ruleset での直 push 禁止・自動 PR・条件付き自動マージ（非視覚=CI green で自動 / 視覚=ユーザー確認後）は agent-env `docs/plan/pr-workflow-automation-plan.md` の BP-2 以降で順次追加。
 
 ## 構造的変更の警告
 
