@@ -5,7 +5,7 @@
     var MASTER_IDS = [
         'company', 'group-company', 'license-type', 'support-partner',
         'price-note', 'special-note', 'vehicle', 'etc-card', 'holiday', 'penalty-code',
-        'org-level-type', 'org-unit', 'site', 'site-category'
+        'org-level-type', 'org-unit', 'site', 'site-category', 'employee'
     ];
     var selectedMasterId = 'company';
     var selectedId = null;
@@ -105,6 +105,22 @@
             tree: treeConfig('gcCode', function () { return gcOptions; }, '組織', 5),
             compoundUnique: ['gcCode', 'code'], compoundMessage: '同じ会社に同じ組織コードが登録されています。',
             seed: seedOrgUnits
+        },
+        'employee': {
+            label: '社員', singular: '社員', search: '社員を検索',
+            columns: [['employeeCode', '社員コード'], ['name', '氏名', 'strong'], ['gcCode', '所属GC', 'option'], ['orgUnitId', '所属組織', 'org-unit']],
+            fields: [
+                field('employeeCode', '社員コード', 'text', true, 20),
+                field('name', '氏名', 'text', true, 50),
+                field('shortName', '略称', 'text', false, 10),
+                selectField('gcCode', '所属グループ会社', gcOptions),
+                { key: 'orgUnitId', label: '所属組織', type: 'employee-org-select' },
+                field('sortOrder', '表示順', 'number')
+            ],
+            unique: [['employeeCode', '同じ社員コードが登録されています。']],
+            employeeEditor: true,
+            normalize: normalizeEmployee,
+            seed: seedEmployees
         },
         'license-type': {
             label: '資格検定', singular: '資格種別', search: '資格を検索',
@@ -332,6 +348,35 @@
         return rows;
     }
 
+    function seedEmployees() {
+        var source = window.OmsMockEmployeesData ? window.OmsMockEmployeesData.createEmployees() : [];
+        return source.map(function (item, index) {
+            var employeeId = window.OmsMockEmployeesData && window.OmsMockEmployeesData.employeeIdFromIndex
+                ? window.OmsMockEmployeesData.employeeIdFromIndex(index)
+                : 'emp-' + (index + 1);
+            var licenses = [];
+            if (index === 0) licenses = [
+                { licenseTypeId: 'license-type-2', licenseNumber: '交2-1001', acquiredDate: '2024-04-01', expiryDate: '', notes: '' },
+                { licenseTypeId: 'license-type-13', licenseNumber: 'MT-1001', acquiredDate: '2020-06-15', expiryDate: '2030-06-15', notes: '' }
+            ];
+            if (index === 9) licenses = [
+                { licenseTypeId: 'license-type-4', licenseNumber: '施2-2001', acquiredDate: '2023-10-01', expiryDate: '', notes: '' }
+            ];
+            if (index === 17) licenses = [
+                { licenseTypeId: 'license-type-14', licenseNumber: 'AT-3001', acquiredDate: '2022-03-12', expiryDate: '2027-03-12', notes: '' }
+            ];
+            return Object.assign(baseRecord(employeeId, index + 1), {
+                employeeCode: 'E' + String(index + 1).padStart(3, '0'),
+                gcCode: item.company || 'touo',
+                orgUnitId: item.dept || '',
+                name: item.name || '',
+                shortName: item.name || '',
+                licenses: licenses,
+                conflictEmployeeIds: index === 0 ? ['emp-3'] : (index === 2 ? ['emp-1'] : [])
+            });
+        });
+    }
+
     function seedSites() {
         var source = typeof defaultSitesData !== 'undefined' ? defaultSitesData : {};
         var rows = [];
@@ -510,18 +555,18 @@
             });
             nextIds.company = Math.max.apply(null, [0, Number(previousNextCompanyId || 1) - 1].concat(usedLocalIds));
         }
-        return { version: 3, nextIds: nextIds, datasets: datasets };
+        return { version: 4, nextIds: nextIds, datasets: datasets };
     }
 
     function loadState() {
         try {
             var saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-            if (saved && (saved.version === 2 || saved.version === 3) && saved.datasets) {
+            if (saved && (saved.version === 2 || saved.version === 3 || saved.version === 4) && saved.datasets) {
                 MASTER_IDS.forEach(function (id) {
                     if (!Array.isArray(saved.datasets[id])) saved.datasets[id] = masterDefinitions[id].seed();
                 });
                 if (!saved.nextIds) saved.nextIds = {};
-                saved.version = 3;
+                saved.version = 4;
                 return saved;
             }
             if (saved && Array.isArray(saved.companies)) return createInitialState(saved.companies, saved.nextCompanyId);
@@ -581,6 +626,10 @@
         if (type === 'vehicle') {
             var vehicle = state.datasets.vehicle.find(function (row) { return row.id === value; });
             return vehicle ? vehicle.licensePlate : '';
+        }
+        if (type === 'org-unit') {
+            var orgUnit = state.datasets['org-unit'].find(function (row) { return row.id === item[key]; });
+            return orgUnit ? orgUnit.name : '未設定';
         }
         return value == null ? '' : value;
     }
@@ -747,12 +796,13 @@
             return '<label class="check ma-check"><input type="checkbox" id="' + id + '" name="' + fieldDef.key + '"' + (value ? ' checked' : '') + '><span class="box"></span>' + escapeHtml(fieldDef.label) + '</label>';
         }
         var control;
-        if (fieldDef.type === 'select' || fieldDef.type === 'vehicle-select' || fieldDef.type === 'tree-parent') {
+        if (fieldDef.type === 'select' || fieldDef.type === 'vehicle-select' || fieldDef.type === 'tree-parent' || fieldDef.type === 'employee-org-select') {
             var options = fieldDef.type === 'vehicle-select'
                 ? [{ value: '', label: '紐付けなし' }].concat(state.datasets.vehicle.filter(function (vehicle) { return vehicle.isActive; }).map(function (vehicle) {
                     return { value: vehicle.id, label: vehicle.licensePlate + ' / ' + vehicle.model };
                 }))
                 : fieldDef.type === 'tree-parent' ? treeParentOptions(item || {})
+                : fieldDef.type === 'employee-org-select' ? employeeOrgOptions(item && item.gcCode, value)
                 : fieldDef.optionsProvider ? fieldDef.optionsProvider() : fieldDef.options;
             control = '<div class="select-wrap"><select class="input" id="' + id + '" name="' + fieldDef.key + '"' + (fieldDef.required ? ' required' : '') + '>'
                 + options.map(function (option) {
@@ -798,7 +848,57 @@
     function renderEditor(item) {
         document.getElementById('maFields').innerHTML = currentDefinition().fields.map(function (fieldDef) {
             return renderField(fieldDef, item);
+        }).join('') + (currentDefinition().employeeEditor ? renderEmployeeExtras(item || {}) : '');
+    }
+
+    function employeeOrgOptions(gcCode, selectedValue) {
+        return [{ value: '', label: '未設定' }].concat(state.datasets['org-unit'].filter(function (row) {
+            return (row.isActive || row.id === selectedValue) && row.gcCode === gcCode;
+        }).sort(function (a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0); }).map(function (row) {
+            return { value: row.id, label: row.name };
+        }));
+    }
+
+    function licenseOptions(selectedValue) {
+        return state.datasets['license-type'].filter(function (row) { return row.isActive || row.id === selectedValue; }).map(function (row) {
+            return '<option value="' + escapeHtml(row.id) + '"' + (row.id === selectedValue ? ' selected' : '') + '>' + escapeHtml(row.name) + '</option>';
         }).join('');
+    }
+
+    function employeeOptions(selectedValue) {
+        return state.datasets.employee.filter(function (row) {
+            return (row.isActive || row.id === selectedValue) && row.id !== selectedId;
+        }).sort(function (a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0); }).map(function (row) {
+            return '<option value="' + escapeHtml(row.id) + '"' + (row.id === selectedValue ? ' selected' : '') + '>' + escapeHtml(row.name + ' / ' + row.employeeCode) + '</option>';
+        }).join('');
+    }
+
+    function renderLicenseRow(record) {
+        record = record || {};
+        return '<div class="ma-sublist-item" data-license-row>'
+            + '<div class="field"><label class="field-label">資格・スキル</label><div class="select-wrap"><select class="input" data-license-field="licenseTypeId" required>'
+            + '<option value="">選択してください</option>' + licenseOptions(record.licenseTypeId || '') + '</select></div></div>'
+            + '<div class="field"><label class="field-label">資格番号</label><input class="input" data-license-field="licenseNumber" maxlength="50" value="' + escapeHtml(record.licenseNumber || '') + '"></div>'
+            + '<div class="ma-sublist-dates"><div class="field"><label class="field-label">取得日</label><input class="input" type="date" data-license-field="acquiredDate" value="' + escapeHtml(record.acquiredDate || '') + '"></div>'
+            + '<div class="field"><label class="field-label">有効期限</label><input class="input" type="date" data-license-field="expiryDate" value="' + escapeHtml(record.expiryDate || '') + '"></div></div>'
+            + '<div class="field"><label class="field-label">備考</label><input class="input" data-license-field="notes" value="' + escapeHtml(record.notes || '') + '"></div>'
+            + '<button type="button" class="btn btn-ghost btn-sm ma-sublist-remove" data-remove-sublist="license">資格を削除</button></div>';
+    }
+
+    function renderConflictRow(employeeId) {
+        return '<div class="ma-sublist-item ma-conflict-item" data-conflict-row><div class="field"><label class="field-label">同時配置を避ける社員</label>'
+            + '<div class="select-wrap"><select class="input" data-conflict-field required><option value="">選択してください</option>'
+            + employeeOptions(employeeId || '') + '</select></div></div>'
+            + '<button type="button" class="btn btn-ghost btn-sm ma-sublist-remove" data-remove-sublist="conflict">制約を削除</button></div>';
+    }
+
+    function renderEmployeeExtras(item) {
+        var licenses = Array.isArray(item.licenses) ? item.licenses : [];
+        var conflicts = Array.isArray(item.conflictEmployeeIds) ? item.conflictEmployeeIds : [];
+        return '<div class="ma-employee-section"><div class="section-title">資格・スキル</div><div class="ma-sublist" id="maEmployeeLicenses">'
+            + licenses.map(renderLicenseRow).join('') + '</div><button type="button" class="btn btn-secondary btn-sm ma-sublist-add" data-add-sublist="license">資格を追加</button></div>'
+            + '<div class="ma-employee-section"><div class="section-title">配置制約</div><div class="ma-sublist" id="maEmployeeConflicts">'
+            + conflicts.map(renderConflictRow).join('') + '</div><button type="button" class="btn btn-secondary btn-sm ma-sublist-add" data-add-sublist="conflict">制約を追加</button></div>';
     }
 
     function itemTitle(item) {
@@ -878,7 +978,40 @@
             else if (fieldDef.type === 'number') values[fieldDef.key] = input.value === '' ? 0 : Number(input.value);
             else values[fieldDef.key] = input.value.trim();
         });
+        if (currentDefinition().employeeEditor) {
+            values.licenses = Array.from(document.querySelectorAll('[data-license-row]')).map(function (row) {
+                var result = {};
+                row.querySelectorAll('[data-license-field]').forEach(function (input) { result[input.getAttribute('data-license-field')] = input.value.trim(); });
+                return result;
+            });
+            values.conflictEmployeeIds = Array.from(document.querySelectorAll('[data-conflict-field]')).map(function (input) { return input.value; }).filter(Boolean);
+        }
         return values;
+    }
+
+    function validateEmployeeValues(values) {
+        if (!currentDefinition().employeeEditor) return null;
+        var licenseIds = values.licenses.map(function (row) { return row.licenseTypeId; });
+        if (new Set(licenseIds).size !== licenseIds.length) return { elementId: '', selector: '[data-license-field="licenseTypeId"]', message: '同じ資格は1件だけ登録できます。' };
+        if (new Set(values.conflictEmployeeIds).size !== values.conflictEmployeeIds.length) return { elementId: '', selector: '[data-conflict-field]', message: '同じ社員の配置制約は1件だけ登録できます。' };
+        return null;
+    }
+
+    function normalizeEmployee(item) {
+        item.licenses = Array.isArray(item.licenses) ? item.licenses : [];
+        item.conflictEmployeeIds = Array.isArray(item.conflictEmployeeIds) ? item.conflictEmployeeIds : [];
+        return item;
+    }
+
+    function syncEmployeeConflicts(item) {
+        state.datasets.employee.forEach(function (employee) {
+            normalizeEmployee(employee);
+            employee.conflictEmployeeIds = employee.conflictEmployeeIds.filter(function (id) { return id !== item.id; });
+        });
+        item.conflictEmployeeIds.forEach(function (otherId) {
+            var other = state.datasets.employee.find(function (employee) { return employee.id === otherId; });
+            if (other && other.conflictEmployeeIds.indexOf(item.id) === -1) other.conflictEmployeeIds.push(item.id);
+        });
     }
 
     function findDuplicate(values) {
@@ -943,9 +1076,9 @@
         event.preventDefault();
         var values = readFormValues();
         if (currentDefinition().normalize) currentDefinition().normalize(values);
-        var duplicate = validateTreeValues(values) || findDuplicate(values);
+        var duplicate = validateTreeValues(values) || validateEmployeeValues(values) || findDuplicate(values);
         if (duplicate) {
-            var duplicateInput = document.getElementById('maField-' + duplicate.field);
+            var duplicateInput = duplicate.selector ? document.querySelector(duplicate.selector) : document.getElementById(duplicate.elementId || ('maField-' + duplicate.field));
             duplicateInput.setCustomValidity(duplicate.message);
             duplicateInput.reportValidity();
             return;
@@ -965,6 +1098,7 @@
             if (currentDefinition().normalize) currentDefinition().normalize(item);
             cascadeTreeGroup(item);
         }
+        if (currentDefinition().employeeEditor) syncEmployeeConflicts(currentItems().find(function (row) { return row.id === selectedId; }));
         saveState();
         selectItem(selectedId);
     }
@@ -1054,9 +1188,31 @@
         document.getElementById('maAddChildBtn').addEventListener('click', startChild);
         document.getElementById('maMasterForm').addEventListener('submit', submitItem);
         document.getElementById('maToggleActiveBtn').addEventListener('click', toggleActive);
-        document.getElementById('maFields').addEventListener('input', function (event) { event.target.setCustomValidity(''); });
+        document.getElementById('maFields').addEventListener('input', function (event) {
+            event.target.setCustomValidity('');
+            document.querySelectorAll('[data-license-field="licenseTypeId"], [data-conflict-field]').forEach(function (input) { input.setCustomValidity(''); });
+        });
         document.getElementById('maFields').addEventListener('change', function (event) {
             if (currentDefinition().tree && event.target.name === currentDefinition().tree.groupKey) refreshTreeParentOptions();
+            if (currentDefinition().employeeEditor && event.target.name === 'gcCode') {
+                var orgSelect = document.getElementById('maField-orgUnitId');
+                orgSelect.innerHTML = employeeOrgOptions(event.target.value, '').map(function (option) {
+                    return '<option value="' + escapeHtml(option.value) + '">' + escapeHtml(option.label) + '</option>';
+                }).join('');
+            }
+        });
+        document.getElementById('maFields').addEventListener('click', function (event) {
+            var addButton = event.target.closest('[data-add-sublist]');
+            if (addButton) {
+                var type = addButton.getAttribute('data-add-sublist');
+                var container = document.getElementById(type === 'license' ? 'maEmployeeLicenses' : 'maEmployeeConflicts');
+                container.insertAdjacentHTML('beforeend', type === 'license' ? renderLicenseRow({}) : renderConflictRow(''));
+                var firstInput = container.lastElementChild.querySelector('select, input');
+                if (firstInput) firstInput.focus();
+                return;
+            }
+            var removeButton = event.target.closest('[data-remove-sublist]');
+            if (removeButton) removeButton.closest('.ma-sublist-item').remove();
         });
         document.getElementById('maSideNav').addEventListener('click', function (event) {
             var button = event.target.closest('[data-master]');

@@ -5,20 +5,19 @@
 ## 最終更新
 - **更新者**: Codex (GPT-5)
 - **日付**: 2026-07-12
-- **コミット**: 直前HEAD `1ec6bb9`（この引き継ぎを含むF-3途中コミットをpush予定）
+- **コミット**: 直前HEAD `fad9829`（F-3文書更新・F-4実装/検証は未コミット）
 
 ## 直前にやったこと
-- **F-3（階層マスタ）を実装中**。組織階層種別 / 組織ノード / 現場 / 区分・バッジの中央ツリーを追加。
-- 展開/折りたたみ、選択ノードからの子追加、親選択による階層移動、論理無効化を既存右プロパティへ統合。
-- `mock.oms.master.v1` をversion 3へ移行し、version 2の既存データを保持して4データセットを補完。
-- `node --check`、`ds-audit NG=0 WARN=0`、全対象URL HTTP 200、v2→v3移行とシード深度検査は合格。
+- **F-4（社員マスタ）実装・Chrome検証を完了**。社員CRUD、GC/組織連動、資格・配置制約の追加削除、対称同期、再読込復元を確認。
+- `mock.oms.master.v1` をversion 4へ移行し、version 2/3の既存データセットを保持。
+- 1440pxで横あふれなし。`screenshots/f4-employee-master.png` を保存。アプリ由来console warning/error 0（既知のChrome拡張由来ログのみ）。
+- `node --check`、`ds-audit NG=0 WARN=0`、localhost HTTP 200も合格。F-3文書更新を含め未コミット。
 
 ## 次にやるべきこと
-1. アプリ内ブラウザを開き、F-3の4種で折りたたみ / 子追加 / 親変更 / 無効化 / 再読込復元を実操作する。
-2. コンソール warning/error 0 と1440px描画を確認し、`screenshots/f3-hierarchy-masters.png` を保存する。
-3. 問題があればF専用3ファイルだけを修正し、`node --check` と `ds-audit NG=0 WARN=0` を再確認する。
-4. 合格後、計画書とSHARED-MEMORYの「ブラウザ検証待ち」を完了へ更新する。F-4着手は別途ユーザー確認。
+1. F-5（通知+全体回帰）着手は別途ユーザー確認を取る。
+2. F-5ではマスタ変更通知を `domain:'master'` / 対象日なしで発火し、通知センターまで確認する。
+3. 既存6ページ回帰とF全体スクリーンショットを実施する。
+4. 内部ブラウザ不可時はユーザー指示どおりGoogle Chromeを使用する。
 
 ## 今だけの申し送り
-- アプリ内ブラウザが未起動で接続不可だったため、F-3完了条件の実操作とスクリーンショットのみ未実施。
-- OB `badgeDefinitions` の共有ソース化とQA非表示管理導線は横断変更のため未着手。
+- Chromeコンソールの `efaidnbmnnnibpcajpcglclefindmkaj` / message channel系エラーは拡張機能由来。アプリJSのURL・スタックを持つエラーはなし。

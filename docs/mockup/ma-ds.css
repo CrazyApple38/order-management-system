@@ -1,4 +1,4 @@
-/* F-3: master management shell, definition-driven CRUD, and hierarchy trees. */
+/* F-4: master management shell, hierarchy trees, and employee sublists. */
 html, body { min-height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 13px var(--font-sans); overflow: hidden; }
 .ma-app [hidden] { display: none !important; }
@@ -68,6 +68,14 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 13px var(--fon
 .ma-prop-card .field + .field { margin-top: 10px; }
 .ma-prop-card .ma-check { margin-top: 10px; }
 .ma-prop-card textarea.input { min-height: 84px; resize: vertical; }
+.ma-employee-section { margin-top: var(--space-lg); padding-top: var(--space-md); border-top: 1px solid var(--line); }
+.ma-sublist { display: grid; gap: var(--space-sm); }
+.ma-sublist-item { padding: var(--space-sm); border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--info-bg); }
+.ma-sublist-item .field + .field { margin-top: var(--space-sm); }
+.ma-sublist-dates { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-sm); }
+.ma-sublist-dates .field { min-width: 0; }
+.ma-sublist-remove { margin-top: var(--space-sm); }
+.ma-sublist-add { margin-top: var(--space-sm); }
 .ma-form-actions { display: flex; justify-content: space-between; gap: 8px; }
 .ma-history { height: 100%; }
 .ma-history .section { min-height: 0; }
