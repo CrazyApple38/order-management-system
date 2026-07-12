@@ -41,8 +41,8 @@ jobs:
         run: |
           base="origin/${{ github.base_ref }}"
           git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
-          changed=$(git diff --name-only "$base"...HEAD -- '*.js' || true)
-          if [ -z "$changed" ]; then
+          git diff --name-only "$base"...HEAD -- '*.js' > "$RUNNER_TEMP/changed_js.txt" || true
+          if [ ! -s "$RUNNER_TEMP/changed_js.txt" ]; then
             echo "No changed *.js files."
             exit 0
           fi
@@ -52,16 +52,14 @@ jobs:
             [ -f "$f" ] || continue
             echo "node --check $f"
             node --check "$f" || rc=1
-          done <<EOF
-$changed
-EOF
+          done < "$RUNNER_TEMP/changed_js.txt"
           exit $rc
 
       - name: JSON parse on changed *.json
         run: |
           base="origin/${{ github.base_ref }}"
-          changed=$(git diff --name-only "$base"...HEAD -- '*.json' || true)
-          if [ -z "$changed" ]; then
+          git diff --name-only "$base"...HEAD -- '*.json' > "$RUNNER_TEMP/changed_json.txt" || true
+          if [ ! -s "$RUNNER_TEMP/changed_json.txt" ]; then
             echo "No changed *.json files."
             exit 0
           fi
@@ -71,7 +69,5 @@ EOF
             [ -f "$f" ] || continue
             echo "JSON.parse $f"
             node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" "$f" || rc=1
-          done <<EOF
-$changed
-EOF
+          done < "$RUNNER_TEMP/changed_json.txt"
           exit $rc
