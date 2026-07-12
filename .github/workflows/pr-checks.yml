@@ -84,7 +84,10 @@ jobs:
     name: classify
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      # contents:write は auto-merge の無効化（gh pr merge --disable-auto）に必須。
+      # pull-requests/issues:write だけでは disable-auto が無言で失敗する（GITHUB_TOKEN 制約）。
+      # master への直 push は GitHub ruleset(airtight) が別途ブロックするため実害なし。
+      contents: write
       pull-requests: write
       issues: write
     steps:
@@ -121,7 +124,9 @@ jobs:
             # 後追いの視覚コミット対策: 既に auto-merge が有効なら能動的に解除する。
             # classify は非 required なので、これをしないと quality-gate(required) green で
             # 視覚変更がユーザー確認なしにマージされ得る（synchronize で毎回走るため確実に武装解除）。
-            gh pr merge "$PR_NUMBER" --disable-auto 2>/dev/null || true
+            gh pr merge "$PR_NUMBER" --disable-auto \
+              && echo "auto-merge disabled." \
+              || echo "disable-auto: no-op or failed (no armed auto-merge?), continuing."
           fi
           gh pr edit "$PR_NUMBER" --add-label "$add"
           gh pr edit "$PR_NUMBER" --remove-label "$rem" 2>/dev/null || true
