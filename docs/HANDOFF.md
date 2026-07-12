@@ -5,7 +5,7 @@
 ## 最終更新
 - **更新者**: Codex (GPT-5)
 - **日付**: 2026-07-13
-- **コミット**: 直前HEAD `f0d99ac`（検証PRは `codex/f0-f5-verification`）
+- **コミット**: `1608d22`（検証PR #10 = `codex/f0-f5-verification`）
 
 ## 直前にやったこと
 - F-0〜F-5の独立検証プロンプトを作成し、一時Codexセッションで実行。
@@ -14,8 +14,8 @@
 - 詳細証跡は `docs/verification/f0-f5-verification-report.md`。
 
 ## 次にやるべきこと
-1. 検証PRの `quality-gate` / `classify` を確認する。
-2. docs-onlyのため `auto-merge-ok` 判定後はPR運用ルールに従う。
+1. 検証PR #10は全チェックgreen、`auto-merge-ok`、mergeable=CLEAN。マージはユーザー指示待ち。
+2. マージ後はmasterを更新し、次の作業をユーザーへ確認する。
 3. 次の実装はユーザー指示待ち。Phase 3は「モックアップ完了」宣言なしで進めない。
 
 ## 今だけの申し送り
