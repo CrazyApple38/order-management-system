@@ -1,0 +1,73 @@
+name: PR Checks
+
+# ローカル pre-commit（agent-env Stage 2 品質ゲート）と同一の3チェックを CI に二重化する。
+#   1. ds-audit（デザイントークン静的監査・全体・NG=0 必須）
+#   2. 変更 *.js に node --check（構文チェック）
+#   3. 変更 *.json を JSON.parse
+# いずれも node 標準モジュールのみで完結するため npm ci は不要（依存インストールなし）。
+# このジョブ名 "quality-gate" を GitHub ruleset の required status check に登録している。
+# 名前を変えると required check が外れて master 保護が緩むので変更しないこと。
+
+on:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  quality-gate:
+    name: quality-gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: ds-audit (design token static audit, whole repo, NG=0 required)
+        run: node scripts/design-audit/ds-audit.js
+
+      - name: node --check on changed *.js
+        run: |
+          base="origin/${{ github.base_ref }}"
+          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+          git diff --name-only "$base"...HEAD -- '*.js' > "$RUNNER_TEMP/changed_js.txt" || true
+          if [ ! -s "$RUNNER_TEMP/changed_js.txt" ]; then
+            echo "No changed *.js files."
+            exit 0
+          fi
+          rc=0
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            [ -f "$f" ] || continue
+            echo "node --check $f"
+            node --check "$f" || rc=1
+          done < "$RUNNER_TEMP/changed_js.txt"
+          exit $rc
+
+      - name: JSON parse on changed *.json
+        run: |
+          base="origin/${{ github.base_ref }}"
+          git diff --name-only "$base"...HEAD -- '*.json' > "$RUNNER_TEMP/changed_json.txt" || true
+          if [ ! -s "$RUNNER_TEMP/changed_json.txt" ]; then
+            echo "No changed *.json files."
+            exit 0
+          fi
+          rc=0
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            [ -f "$f" ] || continue
+            echo "JSON.parse $f"
+            node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" "$f" || rc=1
+          done < "$RUNNER_TEMP/changed_json.txt"
+          exit $rc
