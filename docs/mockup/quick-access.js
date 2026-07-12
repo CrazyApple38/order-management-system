@@ -1906,7 +1906,14 @@ document.addEventListener('DOMContentLoaded', () => {
         qaRenderClients();
     });
     // 統合ベルのアイコン適用 (R-3e: 共通 cn-card へ移行)
-    if (window.coNotifyPanel) window.coNotifyPanel.applyBellIcon('all');
+    if (window.coNotifyPanel) {
+        window.coNotifyPanel.applyBellIcon('all');
+        if (window.OmsMockMasterNotifications) {
+            window.coNotifyPanel.setItems('all', window.OmsMockMasterNotifications.load().map(function (item) {
+                return Object.assign({ sourceBell: 'master', _commonSeed: true }, item);
+            }));
+        }
+    }
 });
 
 // ==================== 変更通知システム ====================

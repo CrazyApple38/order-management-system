@@ -625,6 +625,9 @@
                 affects: ['screen-layout', 'weekly-schedule', 'leave-application']
             });
         }
+        if (window.OmsMockMasterNotifications) {
+            items.master = window.OmsMockMasterNotifications.load().concat(items.master);
+        }
         return items;
     }
     // R-2: 旧画面IDバケツを単一配列へフラット化（sourceBell はジャンプ解決用メタデータとして保持）。

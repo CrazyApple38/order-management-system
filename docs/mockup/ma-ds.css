@@ -14,10 +14,12 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 13px var(--fon
     height: calc(100vh - 92px);
     overflow: hidden;
 }
-.ma-rail { min-width: 0; }
+.ma-rail { min-width: 0; overflow: visible; }
 .ma-rail .md-nav-cn-bells { margin: 10px auto; }
 .ma-rail .md-nav-cn-bell { position: static; }
 .ma-rail .cn-card { left: 62px; top: 8px; }
+.ma-rail .cn-card .cn-mark-all,
+.ma-rail .cn-card .cn-filter-chip { width: auto; height: auto; }
 .ma-nav-pane { min-width: 0; overflow: auto; border-right: 1px solid var(--line); background: var(--panel); }
 .ma-nav-head { padding: 14px 18px 6px; color: var(--ink); font-size: 13px; font-weight: 700; }
 .ma-nav-pane .side-nav { width: auto; }

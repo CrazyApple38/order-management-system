@@ -5,19 +5,18 @@
 ## 最終更新
 - **更新者**: Codex (GPT-5)
 - **日付**: 2026-07-12
-- **コミット**: `16dae21`（F-3完了文書・F-4実装/検証をcommit・push済み）
+- **コミット**: `1c5f736`（F-4完了時点。F-5は本コミットで更新予定）
 
 ## 直前にやったこと
-- **F-4（社員マスタ）実装・Chrome検証を完了**。社員CRUD、GC/組織連動、資格・配置制約の追加削除、対称同期、再読込復元を確認。
-- `mock.oms.master.v1` をversion 4へ移行し、version 2/3の既存データセットを保持。
-- 1440pxで横あふれなし。`screenshots/f4-employee-master.png` を保存。アプリ由来console warning/error 0（既知のChrome拡張由来ログのみ）。
-- `node --check`、`ds-audit NG=0 WARN=0`、localhost HTTP 200も合格。
+- **F-5（通知+全体回帰）を完了**。マスタ追加 / 更新 / 無効化 / 有効化を `domain:'master'`・対象日なしで通知。
+- 専用 `mock.oms.master.notifications.v1` に直近50件を保持し、共通ナビ / QA / 変更通知センターへ反映。
+- Chromeで受注簿・QA・通知センター連携と既存6画面回帰を確認。現行コード由来console warning/error 0。
+- `node --check`、`ds-audit NG=0 WARN=0`、対象8 URL HTTP 200。F-5スクリーンショット保存済み。
 
 ## 次にやるべきこと
-1. F-5（通知+全体回帰）着手は別途ユーザー確認を取る。
-2. F-5ではマスタ変更通知を `domain:'master'` / 対象日なしで発火し、通知センターまで確認する。
-3. 既存6ページ回帰とF全体スクリーンショットを実施する。
-4. 内部ブラウザ不可時はユーザー指示どおりGoogle Chromeを使用する。
+1. F系はF-0〜F-5まで完了。次の作業はユーザー指示を確認する。
+2. 計画上の未完了はQA非表示契約先/現場へのG-1導線確認。
+3. Phase 3には「モックアップ完了」の明示宣言なしで進まない。
 
 ## 今だけの申し送り
-- Chromeコンソールの `efaidnbmnnnibpcajpcglclefindmkaj` / message channel系エラーは拡張機能由来。アプリJSのURL・スタックを持つエラーはなし。
+- 内部ブラウザは利用不可だったためChromeで検証。拡張機能由来ログはアプリログから除外済み。

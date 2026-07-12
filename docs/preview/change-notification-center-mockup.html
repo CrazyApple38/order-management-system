@@ -693,6 +693,7 @@
             日別軸は通知の入力日時ではなく業務上の対象日でグループ化する。確認や照合は電話・チャット等の系外で行い、本センターには操作 UI を持たせない。
         </section>
     </main>
+    <script src="../mockup/mock-master-notifications.js?v=1"></script>
     <script>
         // 【モックアップ専用】ダミーデータ。実装時は change_notifications 相当
 
@@ -777,6 +778,32 @@
             }
         ];
 
+        if (window.OmsMockMasterNotifications) {
+            window.OmsMockMasterNotifications.load().slice().reverse().forEach((item) => {
+                const created = item.createdAt ? new Date(item.createdAt) : new Date();
+                notifications.unshift({
+                    id: item.id,
+                    date: `${created.getMonth() + 1}/${created.getDate()}`,
+                    time: created.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
+                    targetDate: '対象日なし',
+                    targetPage: 'master-management',
+                    client: '—',
+                    site: item.main || 'マスタ更新',
+                    kind: 'マスタ',
+                    inputType: '業務判断型',
+                    route: null,
+                    author: '佐藤',
+                    belong: 'belong-1',
+                    people: [],
+                    changes: item.diffs && item.diffs.length ? item.diffs.map((diff) => ({
+                        label: diff.field,
+                        from: diff.oldVal,
+                        to: diff.newVal
+                    })) : [{ label: '操作', from: '—', to: item.type === 'add' ? '追加' : item.type === 'delete' ? '無効化' : '更新' }]
+                });
+            });
+        }
+
         const SUBTAG_LABELS = {
             own: "自社",
             support: "応援",
@@ -788,11 +815,12 @@
             "order-book": "../order-book.html",
             "screen-layout": "../screen-layout.html",
             "weekly-schedule": "../weekly-schedule.html",
-            "leave-application": "../leave-application.html"
+            "leave-application": "../leave-application.html",
+            "master-management": "../master-management.html"
         };
 
         const AXES = {
-            date: { title: "日別（対象日）", group: (n) => `${n.targetDate}（${({ "6/15": "月", "6/12": "金", "6/11": "木", "6/10": "水", "6/9": "火" })[n.targetDate] || ""}）` },
+            date: { title: "日別（対象日）", group: (n) => n.targetDate === '対象日なし' ? n.targetDate : `${n.targetDate}（${({ "6/15": "月", "6/12": "金", "6/11": "木", "6/10": "水", "6/9": "火" })[n.targetDate] || ""}）` },
             client: { title: "契約先別", group: (n) => n.client },
             site: { title: "現場別", group: (n) => n.site },
             kind: { title: "種別", group: (n) => n.kind },
@@ -820,6 +848,7 @@
         }
 
         function targetDateValue(value) {
+            if (value === '対象日なし') return -1;
             const [month, day] = value.split("/").map(Number);
             return month * 100 + day;
         }
@@ -840,6 +869,10 @@
                 <span class="d-to">${escapeHtml(first.to)}</span>
                 ${more}
             `;
+        }
+
+        function targetDateText(n) {
+            return n.targetDate === '対象日なし' ? n.targetDate : `対象日 ${n.targetDate}`;
         }
 
         function renderList() {
@@ -878,7 +911,7 @@
                                 <span class="chip kind">${escapeHtml(n.kind)}</span>
                                 ${subtagChip(n)}
                                 ${n.route ? `<span class="chip route">${escapeHtml(ROUTE_LABELS[n.route])}</span>` : ""}
-                                <span>対象日 ${escapeHtml(n.targetDate)} ・ ${escapeHtml(n.author)} ・ 入力 ${escapeHtml(n.date)} ${escapeHtml(n.time)}</span>
+                                <span>${escapeHtml(targetDateText(n))} ・ ${escapeHtml(n.author)} ・ 入力 ${escapeHtml(n.date)} ${escapeHtml(n.time)}</span>
                             </div>
                         </div>
                     `).join("")}
@@ -928,7 +961,7 @@
                         ${n.route ? `<span class="chip route">${escapeHtml(ROUTE_LABELS[n.route])}</span>` : ""}
                     </div>
                     <strong>${escapeHtml(n.site)}</strong>
-                    <span class="d-client">${escapeHtml(n.client)} ・ 対象日 ${escapeHtml(n.targetDate)} ・ ${escapeHtml(n.author)} ・ ${escapeHtml(n.date)} ${escapeHtml(n.time)}（システム入力日時）</span>
+                    <span class="d-client">${escapeHtml(n.client)} ・ ${escapeHtml(targetDateText(n))} ・ ${escapeHtml(n.author)} ・ ${escapeHtml(n.date)} ${escapeHtml(n.time)}（システム入力日時）</span>
                 </div>
                 <div class="prop-body">
                     <div class="section">

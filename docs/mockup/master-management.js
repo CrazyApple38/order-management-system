@@ -1072,6 +1072,51 @@
         return selectedMasterId + '-local-' + next;
     }
 
+    function notificationValue(value) {
+        if (Array.isArray(value)) return value.length ? value.length + '件' : 'なし';
+        if (value === true) return '有効';
+        if (value === false) return '無効';
+        return value == null || value === '' ? '未設定' : String(value);
+    }
+
+    function notificationDiffs(before, after) {
+        var labels = {};
+        currentDefinition().fields.forEach(function (fieldDef) { labels[fieldDef.key] = fieldDef.label; });
+        if (currentDefinition().employeeEditor) {
+            labels.licenses = '資格';
+            labels.conflictEmployeeIds = '配置制約';
+        }
+        return Object.keys(labels).filter(function (key) {
+            return JSON.stringify(before ? before[key] : undefined) !== JSON.stringify(after[key]);
+        }).map(function (key) {
+            return {
+                field: labels[key],
+                oldVal: before ? notificationValue(before[key]) : '未登録',
+                newVal: notificationValue(after[key])
+            };
+        });
+    }
+
+    function notifyMasterChange(op, item, before) {
+        if (!window.OmsMockMasterNotifications) return;
+        var action = { add: '追加', modify: '更新', delete: '無効化', activate: '有効化' }[op] || '更新';
+        var panelType = op === 'activate' ? 'modify' : op;
+        var payload = window.OmsMockMasterNotifications.add({
+            type: panelType,
+            op: panelType,
+            slot: 'type-master-' + panelType,
+            scope: 'master',
+            main: currentDefinition().label + ': ' + itemTitle(item) + 'を' + action,
+            sub: 'マスタ管理 ・ ' + new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
+            expand: currentDefinition().label + 'の' + action + '内容',
+            diffs: notificationDiffs(before, item),
+            affects: ['master-management']
+        });
+        if (window.coNotifyPanel && typeof window.coNotifyPanel.addItem === 'function') {
+            window.coNotifyPanel.addItem('all', payload);
+        }
+    }
+
     function submitItem(event) {
         event.preventDefault();
         var values = readFormValues();
@@ -1086,6 +1131,8 @@
         document.querySelectorAll('#maFields input, #maFields select, #maFields textarea').forEach(function (input) {
             input.setCustomValidity('');
         });
+        var operation = editorMode === 'new' ? 'add' : 'modify';
+        var before = null;
         if (editorMode === 'new') {
             var newItem = Object.assign(baseRecord(nextLocalId(), values.sortOrder || currentItems().length + 1), values);
             currentItems().push(newItem);
@@ -1094,20 +1141,24 @@
         } else {
             var item = currentItems().find(function (row) { return row.id === selectedId; });
             if (!item) return;
+            before = clone(item);
             Object.assign(item, values);
             if (currentDefinition().normalize) currentDefinition().normalize(item);
             cascadeTreeGroup(item);
         }
         if (currentDefinition().employeeEditor) syncEmployeeConflicts(currentItems().find(function (row) { return row.id === selectedId; }));
         saveState();
+        notifyMasterChange(operation, currentItems().find(function (row) { return row.id === selectedId; }), before);
         selectItem(selectedId);
     }
 
     function toggleActive() {
         var item = currentItems().find(function (row) { return row.id === selectedId; });
         if (!item) return;
+        var before = clone(item);
         item.isActive = !item.isActive;
         saveState();
+        notifyMasterChange(item.isActive ? 'activate' : 'delete', item, before);
         if ((statusFilter === 'active' && !item.isActive) || (statusFilter === 'inactive' && item.isActive)) {
             clearEditor();
             return;
@@ -1130,8 +1181,8 @@
             ? window.coNotifyPanel.getItems('all').filter(function (item) { return item.domain === 'master'; })
             : [];
         list.innerHTML = items.length ? items.map(function (item) {
-            return '<div class="list-plain"><strong>' + escapeHtml(item.title || item.summary || 'マスタ更新') + '</strong>'
-                + '<span class="sub">' + escapeHtml(item.time || item.createdAt || '') + '</span></div>';
+            return '<div class="list-plain"><strong>' + escapeHtml(item.main || item.title || item.summary || 'マスタ更新') + '</strong>'
+                + '<span class="sub">' + escapeHtml(item.sub || item.time || item.createdAt || '') + '</span></div>';
         }).join('') : '<div class="ma-history-empty">変更履歴はありません。</div>';
     }
 
