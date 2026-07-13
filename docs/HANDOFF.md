@@ -5,19 +5,19 @@
 ## 最終更新
 - **更新者**: Claude Code（Fable 5）
 - **日付**: 2026-07-14
-- **コミット**: `codex/docker-migration-d0` ブランチ（直前 HEAD `598b2a0`）
+- **コミット**: `claude/docker-migration-d1` ブランチ（直前 HEAD `9c45af7`）
 
 ## 直前にやったこと
-- ユーザー承認のもと WSL 2.7.10（`--no-distribution`）+ Docker Desktop 4.81.0 を導入代行（UAC承認・OS再起動はユーザー）。
-- 再起動後に `docker --version`（29.6.1）/ `docker compose version`（v5.2.0）/ `hello-world` 成功を確認 — **D-0 受け入れ基準を全達成・D-0 完了**。
-- Docker Desktop のサインインは不要のため Skip 運用（アカウント未作成）。
-- 計画書 §4.1 実績・実績ログ・ステータス行を D-0 完了へ更新。
+- D-0 完了（WSL 2.7.10 + Docker Desktop 4.81.0 導入・hello-world 合格・PR #19 マージ済み）。
+- D-1 完了: `C:\dev\web-stack` 構築（php:8.2-apache + mariadb:10.4 + phpMyAdmin・:8080/:13306 で XAMPP 並走）。§5.1 全合格（legacy 3件+OMS+phpMyAdmin 200・DB 3本 dump 突合一致・主要6テーブル行数一致）。
+- 分岐: DB 突合は dump 基準へ代替 / pma に AllowNoPassword 設定追加 / ftp 拡張は legacy 未使用で見送り。詳細は計画書 §4.2 D-1 実績。
 
 ## 次にやるべきこと
-1. 本ブランチ（Codex の D-0 記録 + 本更新）を pr-flow review→commit→submit→automerge。
-2. D-1（web-stack 構築・:8080 で XAMPP 並走）は **着手前にユーザー確認**（§2.1）。
-3. D-1 では db-init に個別 dump 3 本 + 90-users.sql を使う（破損 `mysql` スキーマは入れない）。
+1. web-stack の GitHub private リポジトリ作成（名称・可視性はユーザー確認 → push）。
+2. D-2（legacy DB 接続修正）は **着手前にユーザー確認**。接続定義の棚卸し→ユーザー確認ゲート→ `db` へ修正（.bak-xampp 必須）。
+3. `basarak28_*` ユーザーの権限は D-2 で PHP 設定から逆引きし 90-users.sql へ追記・再構築。
 
 ## 今だけの申し送り
-- XAMPP MariaDB は破損のため停止中・起動しないこと（読み取りが必要なら `--skip-grant-tables` 限定）。Apache の起動は任意。
-- 正常dump: `keibi_system.sql` 206,868 bytes / `basarak28_zennippon.sql` 113,481 bytes / `zng_recruit_test.sql` 1,482 bytes（不完全な全DB dumpは `.PARTIAL-*` 名）。
+- web-stack は起動中（`docker compose ps` で3サービス running）。止める場合は `cd C:\dev\web-stack && docker compose down`（-v を付けると DB 初期化からやり直し）。
+- XAMPP MariaDB は破損のため起動しないこと（読み取りは `--skip-grant-tables` 限定）。Apache の起動は任意（:80 と :8080 は競合しない）。
+- Docker Desktop はサインイン済み（Personal / crazyapple38）。

@@ -1,6 +1,6 @@
 # XAMPP → Docker 全面移行計画書
 
-**ステータス: D-0 完了（2026-07-14）／D-1 着手待ち（着手前ユーザー確認）**
+**ステータス: D-0・D-1 完了（2026-07-14）／D-2 着手待ち（着手前ユーザー確認）**
 **SSOT: 本計画書。着手前に全読すること（§2 AI 実装ガイドライン厳守）**
 
 - 作成: 2026-07-14 Claude Code (Fable 5)・ユーザー承認済み方針に基づく
@@ -311,6 +311,15 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 
 **ロールバック**: `docker compose down -v` のみ（XAMPP 側は無変更）。
 
+**D-1 実績（2026-07-14 / Claude Code）**:
+
+- `C:\dev\web-stack` を計画どおり作成（compose.yaml / php/Dockerfile / apache/oms.conf / .env(.example) / db-init）・git init 済み（GitHub リポジトリ作成は名称・可視性のユーザー確認待ち）。
+- db-init = 個別 dump 3 本 + `90-users.sql`（生存 global_priv 由来: pma のみ。`basarak28_*` の権限は破損で失われたため **D-2 で PHP 設定から逆引き再構築**とコメント明記）。初回インポートはエラーなし。
+- 検証全合格: 3 サービス running / 現役 legacy 3 件 + OMS docs/index.html + phpMyAdmin すべて 200（:8080）/ テーブル数 12・38・0 が dump と一致（`zng_recruit_test` は元々テーブル 0 の空 DB）/ 主要 6 テーブルの行数が dump のタプル数と完全一致。
+- **乖離1（DB 突合の代替）**: XAMPP MariaDB が起動不可のため「XAMPP 側と行数一致」は実施不能。バックアップ原資である dump を基準に突合（受け入れ基準の趣旨=データ無欠損は担保）。
+- **乖離2（phpMyAdmin 空パスワード）**: 公式 phpmyadmin イメージは既定 `AllowNoPassword=false` で root 空 PW ログイン不可。`pma/config.user.inc.php`（`AllowNoPassword=true`）を追加マウントで XAMPP 互換化し、curl での実ログイン成功を確認。
+- **拡張突合**: 欠落は `ftp` のみ → legacy 全プロジェクトで ftp_* 関数未使用を grep 確認し導入見送り（Dockerfile にコメント記録）。gd/intl/zip/bcmath/bz2/calendar/exif/gettext は導入済み。
+
 ### 4.3 D-2 legacy DB 接続修正・動作検証
 
 **目的**: legacy PHP の DB 接続を Docker 構成（ホスト名 `db`）で動くようにし、現役プロジェクトの動作を確認する。**唯一 legacy のコードに触れるフェーズ**。
@@ -545,3 +554,4 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 
 - 2026-07-14 / Codex / D-0（実施中）/ 個別3DB・権限・設定・htdocs棚卸しを `C:\dev\migration-backup` へ保全。XAMPP `mysql` の複数 Aria システムテーブル破損により全DB dumpを物理バックアップへ代替（ユーザー承認）。残作業は WSL / Docker Desktop 導入後の `hello-world`。
 - 2026-07-14 / Claude Code (Fable 5) / D-0（完了）/ WSL 2.7.10（`--no-distribution`）+ Docker Desktop 4.81.0（winget）をユーザー承認のもと導入代行し、再起動後に engine 起動・`hello-world` 成功を確認。乖離: 計画では導入=ユーザー操作としていたが、ユーザー明示依頼により AI 代行（UAC 承認・再起動はユーザー）へ変更。D-0 受け入れ基準クローズ。
+- 2026-07-14 / Claude Code (Fable 5) / D-1（完了）/ web-stack 構築・:8080 で XAMPP 並走・§5.1 全合格。分岐: DB 突合は XAMPP 起動不可のため dump 基準へ代替 / phpMyAdmin は AllowNoPassword=true の config 追加で空 PW 互換化 / ftp 拡張は legacy 未使用で見送り。web-stack の GitHub リポジトリ作成は未（名称・可視性のユーザー確認待ち）。
