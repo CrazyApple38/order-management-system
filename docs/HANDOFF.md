@@ -5,12 +5,13 @@
 ## 最終更新
 - **更新者**: Claude Code（Fable 5）
 - **日付**: 2026-07-14
-- **コミット**: `claude/docker-migration-plan` ブランチ（直前 = PR #16 `c385b6e`。PR 予定）
+- **コミット**: `claude/docker-plan-worktree-note` ブランチ（直前 = PR #17 `cd224b0`。PR 予定）
 
 ## 直前にやったこと
 - **XAMPP → Docker 全面移行の計画書を新規作成**: `docs/plan/docker-migration-plan.md`（SSOT）。ユーザー確定方針 = ポート80 URL完全互換で XAMPP 廃止 / OMS を `C:\dev` へ移動 / legacy PHP 群 + MariaDB 全DBも移行 / orca worktree 配信も Docker 対応 / Next.js・Supabase は環境のみ（Phase 3 前倒ししない）。
 - フェーズ D-0〜D-7 に受け入れ基準・既知の分岐・ロールバック・ユーザー確認ゲートを明記（他 AI / 下位モデル実装前提）。
 - SHARED-MEMORY: プロジェクト決定 + アクティブな計画書に追記。
+- **追補（PR #17 マージ後）**: Docker 移行は **orca worktree 不使用・main 直列実施**の制約を計画書 §2.4 / D-3・D-5 前提条件へ明記（D-3 のリポジトリ移動が linked worktree の絶対パス参照を全破壊するため）。
 
 ## 次にやるべきこと
 1. **Docker 移行の実装は D-0（棚卸し・バックアップ）から**。着手前に計画書全読 + フェーズごとユーザー確認（§2 厳守）。
