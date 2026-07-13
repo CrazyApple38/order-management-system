@@ -13,6 +13,7 @@
 - agent-env PR #1 マージ: **pre-commit v5**（linked worktree では HANDOFF ゲート免除）+ **session-start.ps1 worktree 検出**（worktree 内は「start 不使用・HANDOFF 非更新・引き継ぎ=PR本文」を注入）。OMS 実機で両モード検証済み・deploy 済み。
 - OMS 本ブランチ: `orca-wt.sh` を main-root 解決に修正（worktree 内実行の誤動作解消）+ ぶら下がり junction 検出 + drop の自己削除ガード／CI に concurrency 追加／CLAUDE.md・AGENTS.md に「orca worktree 並列開発」節／計画書 §3・§5・§6 更新／SHARED-MEMORY に worktree 内 HANDOFF 非更新ルール追記。
 - ~/.claude/settings.json の PreToolUse ガード matcher を `*`→`Bash`（実測 ~180ms/全ツールコールの除去）。
+- classify の非視覚ホワイトリストに `.gitattributes` を追加（未登録による needs-visual-review 偽陽性の解消。agent-env 計画 §2B も同期）。
 - GitHub ruleset 確認: required check は `strict=false`（up-to-date 必須なし）→ 並列 auto-merge は衝突がない限り順次マージされる。
 
 ## 次にやるべきこと
