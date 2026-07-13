@@ -73,6 +73,14 @@ MCP設定: `docs/mcp-servers.md` を参照
 - `docs/plan/*.md` — Phase 計画書（フェーズの単一情報源、計画変更時のみ更新）
 - `AGENTS.md` / `CLAUDE.md` — AI ごとの常時ルール（運用ルール変更時のみ更新）
 
+## orca worktree 並列開発（Claude↔Codex）
+
+Claude と Codex の並列作業は orca の linked git worktree で行う。SSOT = `docs/plan/orca-worktree-workflow-plan.md`。
+
+- **ラッパー**: `sh scripts/orca-wt.sh new <ai> <topic>`（worktree 作成 + `http://localhost/oms-wt-<ai>-<topic>/` 配信）／`drop <ai>-<topic>`／`list`。main リポジトリ側で実行する。
+- **worktree 内での作業ルール**: ブランチは作成済みのため `pr-flow.sh start` は使わない（`review`→`submit`→`automerge` のみ）。**`docs/HANDOFF.md` は更新しない**（直列前提のファイル。引き継ぎは PR 本文で行う。pre-commit v5 が worktree では HANDOFF ゲートを免除する）。`docs/SHARED-MEMORY.md` 全読・独立レビュー基準・視覚変更のユーザー確認は通常どおり。
+- main リポジトリ（`C:\xampp\htdocs\order-management-system`）での直列作業は従来どおり（`pr-flow start`・HANDOFF 更新必須）。
+
 ## Local Browser Verification
 
 - このプロジェクトのローカル画面確認は、可能な限り XAMPP Apache 経由で行う。

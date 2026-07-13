@@ -46,8 +46,15 @@ _ensure_orca() {
 _orca() { _ensure_orca; "$ORCA_BIN" "$@"; }
 
 # ---- リポジトリ / htdocs 解決 ----------------------------------------------
+# main リポジトリのルートを返す。linked worktree 内から実行されても main 側に解決する
+# （junction の位置=htdocs と orca への repo 登録パスは main リポジトリ基準のため。
+#   従来の --show-toplevel は worktree 内だと worktree のルートを返し、htdocs が
+#   orca workspaces 側に化けて list/drop/new が誤動作していた）。
 _repo_root() {
-  git rev-parse --show-toplevel 2>/dev/null || _die "git リポジトリ内で実行してください。"
+  common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) \
+    || _die "git リポジトリ内で実行してください。"
+  [ -n "$common" ] || _die "git リポジトリ内で実行してください。"
+  dirname "$common"
 }
 
 # orca に登録済みリポジトリの中から、現在のリポジトリルートに一致する repo id を返す。
@@ -85,6 +92,10 @@ _junction_remove() {
   link_win=$(_win "$1")
   MSYS_NO_PATHCONV=1 cmd /c rmdir "$link_win" >/dev/null 2>&1
 }
+
+# ディレクトリエントリの存在判定。ターゲット消失の junction（ぶら下がり）は
+# Git Bash で -e が false / -L が true になるため、両方で見る（実測 2026-07-13）。
+_entry_exists() { [ -e "$1" ] || [ -L "$1" ]; }
 
 # ---- 入力バリデーション -----------------------------------------------------
 _validate_ai() {
@@ -132,9 +143,13 @@ cmd_new() {
   link="$htdocs/oms-wt-$name"
   url="http://localhost/oms-wt-$name/"
 
-  # fail-fast: 既に同名 junction/ディレクトリがあれば中止
-  if [ -e "$link" ]; then
-    _die "配信先 '$link' が既に存在します。先に '$SCRIPT drop $name' で片付けるか、別 topic を使ってください。"
+  # fail-fast: 既に同名 junction/ディレクトリ（ぶら下がり junction 含む）があれば中止
+  if _entry_exists "$link"; then
+    if [ -e "$link" ]; then
+      _die "配信先 '$link' が既に存在します。先に '$SCRIPT drop $name' で片付けるか、別 topic を使ってください。"
+    else
+      _die "配信先 '$link' にぶら下がり junction（ターゲット消失）が残っています。'$SCRIPT drop $name' で除去してください。"
+    fi
   fi
 
   _ensure_orca  # orca 不在を「未登録」と誤認する前に、ここで明確に停止する
@@ -179,8 +194,16 @@ cmd_drop() {
   htdocs=$(dirname "$root")
   link="$htdocs/oms-wt-$name"
 
-  # 1) junction を先に除去（worktree 実体より前に。誤って実体を消さないため）
-  if [ -e "$link" ]; then
+  # 削除対象 worktree の中から drop すると、実行中の cwd ごと消えて後続が壊れる
+  cur_top=$(git rev-parse --show-toplevel 2>/dev/null || true)
+  case "$cur_top" in
+    */"$name") _die "削除対象の worktree（$name）の中からは drop できません。main リポジトリ側で実行してください。" ;;
+  esac
+
+  # 1) junction を先に除去（worktree 実体より前に。誤って実体を消さないため）。
+  #    ぶら下がり junction（ターゲット消失・orca UI 側で worktree だけ消した場合等）も
+  #    _entry_exists で拾って rmdir する（rmdir はぶら下がりにも有効・実測済み）。
+  if _entry_exists "$link"; then
     _info "junction 除去中: $link"
     _junction_remove "$link" || _info "警告: junction 除去に失敗（手動で rmdir \"$(_win "$link")\"）。"
   else
@@ -206,9 +229,13 @@ cmd_list() {
   echo "=== 配信中 junction / URL ==="
   found=0
   for d in "$htdocs"/oms-wt-*; do
-    [ -e "$d" ] || continue
+    _entry_exists "$d" || continue  # glob 不一致（リテラル 'oms-wt-*'）はここで弾く
     base=$(basename "$d")
-    echo "  http://localhost/$base/   ->  $d"
+    if [ -e "$d" ]; then
+      echo "  http://localhost/$base/   ->  $d"
+    else
+      echo "  [ぶら下がり] $base — ターゲット消失。除去: $SCRIPT drop ${base#oms-wt-}"
+    fi
     found=1
   done
   if [ "$found" -eq 0 ]; then echo "  (なし)"; fi
