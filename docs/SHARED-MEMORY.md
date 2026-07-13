@@ -48,6 +48,7 @@
 
 - `sm*` = 現場詳細モーダル用の関数・ID / `ob*` = 受注簿由来の CSS 共通クラス / `belong-*` = 所属会社色トークン。
 - `category-*` / `shift-*` CSS クラスは `smCategoryClassMap` / `smShiftClassMap` で管理。
+- **orca worktree のブランチ名は `<gitUsername>/<name>` 固定**（CLI で prefix 変更不可）。並列 AI 識別のため `orca-wt.sh` は worktree 名を `<ai>-<topic>`（`ai`∈{claude,codex}）にする → ブランチ例 `CrazyApple38/claude-<topic>` / `CrazyApple38/codex-<topic>`。CI classify はパス基準なのでこのブランチ名で影響なし。
 
 ## 触らないでほしいもの / 注意事項
 
@@ -110,4 +111,5 @@
 - `docs/plan/design-refresh-plan.md` — デザイン刷新 診断・比較計画（**案B改: Calm Operations 採用 / 次は SL 適用範囲確定**）
 - `docs/plan/ws-support-partner-plan.md` — WS 応援予約・協力業者
 - `docs/plan/ui-components-improvement-plan.md` — UI コンポーネント整備
+- `docs/plan/orca-worktree-workflow-plan.md` — **orca × git worktree 並列開発（Claude↔Codex を別 worktree で並列）。ラッパー `scripts/orca-wt.sh`（new/drop/list）。worktree 内は既存 pr-flow を使用（`start` は orca が代替）。junction で `http://localhost/oms-wt-<ai>-<topic>/` 配信。OMS のみ・目的=並列実行**
 - その他: `docs/plan/*.md` 一覧を確認
