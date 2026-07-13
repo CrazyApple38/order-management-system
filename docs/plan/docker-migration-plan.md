@@ -73,6 +73,11 @@
 ### 2.4 リポジトリ運用
 
 - OMS リポジトリへの変更は **pr-flow**（start → review〈該当時〉→ commit → submit → automerge）で行う。`scripts/orca-wt.sh` の改修（D-4）は非 .md 変更のため独立レビュー基準に該当し得る — `pr-flow.sh review` の判定に従う
+- **本移行は orca worktree（並列開発）を使わず、main リポジトリ + pr-flow ブランチで直列実施する（2026-07-14 ユーザー確認済み）**。理由:
+  - D-0〜D-7 は直列依存で並列化の利得がなく、living document（本計画書）の並行更新はマージ競合を生むだけ
+  - **D-3 の main リポジトリ移動は、linked worktree の絶対パス相互参照（worktree 側 `.git` → 旧 main パス / main 側 `.git\worktrees` → worktree パス）を全 worktree で破壊する**。worktree 内から D-3 を実施すると自分の作業ツリーごと壊れる
+  - D-4 の受け入れ検証（`orca-wt.sh new/drop` の実走）は main リポジトリ側でしか行えない
+  - **D-3 着手直前〜D-5 完了までは worktree の新規作成も禁止**（既存分は D-3 前提条件どおりゼロにしてから着手）。D-0〜D-2 は技術的には worktree でも可能だが、上記のとおり利得がないため main 直列で統一する
 - **`CLAUDE.md` / `AGENTS.md` は手編集禁止**。`docs/rules/*.md` を編集し `node scripts/build-rules.js` で再生成する（pre-commit / CI が drift をブロックする）
 - web-stack（§3）は新規の独立 git リポジトリ。GitHub に private リポジトリを作成して push する（リポジトリ名・可視性はユーザー確認）
 
@@ -333,7 +338,7 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 
 **⚠ このフェーズは Claude Code 自身が実施することを推奨**（Claude のメモリ dir・Obsidian junction・settings は Claude 環境固有で、他 AI からは検証しづらい）。Codex が担当する場合、Claude メモリ関連（手順 4）はスキップして「Claude Code に引き継ぐ」と HANDOFF に明記する。
 
-**前提条件（全て満たすまで着手禁止）**: `git status` clean / `sh scripts/orca-wt.sh list` で worktree・junction ゼロ / 進行中 PR なし / 他 AI セッションが本リポジトリを開いていない（ユーザーに確認）。
+**前提条件（全て満たすまで着手禁止）**: `git status` clean / `sh scripts/orca-wt.sh list` で worktree・junction ゼロ（**リポジトリ移動は linked worktree の絶対パス参照を全破壊するため。移動後〜D-5 完了まで新規作成も禁止 = §2.4**）/ 進行中 PR なし / 他 AI セッションが本リポジトリを開いていない（ユーザーに確認）。
 
 **手順**:
 
@@ -407,7 +412,7 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 
 **目的**: XAMPP を停止し、htdocs を `C:\dev\legacy-htdocs` へ移動、web-stack をポート 80/3306 に切り替えて全面移行を完了する。**破壊的操作を含む唯一のフェーズ — 各ステップでユーザー承認**。
 
-**前提条件**: D-1〜D-4 の受け入れ基準がすべて green / D-0 バックアップの実在を再確認（dump のサイズ・日付）。
+**前提条件**: D-1〜D-4 の受け入れ基準がすべて green / D-0 バックアップの実在を再確認（dump のサイズ・日付）/ worktree・junction ゼロを維持していること（`orca-wt.sh list` で確認。D-4 の smoke 検証分も drop 済み）。
 
 **手順**:
 
