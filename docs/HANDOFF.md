@@ -3,21 +3,22 @@
 永続事実・制約・構造的変更の警告は `docs/SHARED-MEMORY.md` を参照。
 
 ## 最終更新
-- **更新者**: Codex（GPT-5）
+- **更新者**: Claude Code（Opus 4.8）
 - **日付**: 2026-07-13
-- **コミット**: agent-env `c642d4a`（BP-6 Codex実機確定）／OMS `eb758d8`（作業開始時 HEAD）
+- **コミット**: OMS `claude/orca-worktree-workflow` ブランチ（本コミットで更新／作業開始時 HEAD `7b2161d`。PR 予定）
 
 ## 直前にやったこと
-- BP-6 Codex 側レビュー機構を R-9 実機確認し、`spawn_agent(fork_turns="none")` で新規文脈の独立レビューを自動起動できると確定。
-- `pr-flow review` の `status=required` と生成プロンプト、CONFIRMED / SUGGESTION の2区分返却を使い捨てリポジトリで実走確認。
-- agent-env の `pr-flow` SKILL.md・BP-6 計画・HANDOFFを更新し、完了済み手順書を削除。
-- OMS の SHARED-MEMORY に Codex 標準起動手順を永続事実として記録。
-- agent-env 本番差分の独立レビュー4回で確定欠陥6件を修正。上限到達時はユーザー承認を得て追加サイクルを実施し、#4 clean。
+- orca × git worktree 並列開発環境を新設。ラッパー `scripts/orca-wt.sh`（new/drop/list）を実装。
+- orca 実測: worktree は htdocs 外（`C:\Users\Owner\orca\workspaces\…`）／ブランチ `<gitUsername>/<name>` 固定／htdocs 内 junction で `http://localhost/oms-wt-<name>/` HTTP 配信可（curl 200 実証）。
+- 独立レビュー2回（general-purpose・実装文脈非継承）: round1 で確定欠陥3件修正（`.cmd` の -x→-f 検出／`list` 終了コード／orca 不在時メッセージ分岐）→ round2 clean。SUGGESTION「junction 失敗時 URL 非表示」を採用。
+- 計画書 `docs/plan/orca-worktree-workflow-plan.md` 新設・`docs/SHARED-MEMORY.md` 追記。
 
 ## 次にやるべきこと
-1. Phase 2 の次作業はユーザー指示待ち。
-2. F-6 は未定義。着手時は目的・対象範囲・完了条件を確認してから計画へ追加。
-3. Phase 3 は「モックアップ完了」の明示宣言がない限り開始しない。
+1. PR の CI（quality-gate）green → automerge（非視覚のみ＝自動マージ）。
+2. HANDOFF 並列化（plan §5）は暫定ルール「worktree 作業中は HANDOFF を触らず PR で引き継ぐ」。恒久設計は運用後に詰める。
+3. F-6 は未定義。着手時は目的・対象範囲・完了条件を確認してから計画へ追加。
+4. Phase 3 は「モックアップ完了」の明示宣言が無い限り開始しない。
 
 ## 今だけの申し送り
-- PowerShell では `sh` が PATH に無いため、pr-flow は `C:\Program Files\Git\bin\sh.exe` を実体指定して実行する。
+- pr-flow / orca-wt は PowerShell では `sh` が PATH に無いため Git Bash（`C:\Program Files\Git\bin\sh.exe`）で実行。
+- orca-wt の round-2 追加 SUGGESTION（node 事前チェック順・`drop` の name 検証・ORCA_BIN 実在確認 等）は未適用。必要なら follow-up。
