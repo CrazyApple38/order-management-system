@@ -16,6 +16,13 @@ on:
   pull_request:
     branches: [master]
 
+# 同一 PR への連続 push（synchronize）で旧 run をキャンセルする。
+# classify のラベル付け外しが旧 run と競合するのを防ぎ、quality-gate の無駄 run も減らす。
+# 並列 worktree 運用では PR が同時に複数並ぶため、グループは PR 番号単位（PR 間は並行のまま）。
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

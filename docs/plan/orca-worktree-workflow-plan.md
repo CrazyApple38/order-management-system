@@ -57,6 +57,8 @@ POSIX sh（Git Bash）。repo id はハードコードせず **`--repo path:"$(g
 - junction の rmdir は**必ず worktree rm より先**（逆だと worktree 実体を消しかねない誤操作リスク）。
 - `<topic>` は英小数字ハイフンに正規化・バリデート（junction 名・URL に載るため）。
 - `--setup skip` は初期方針（モック段階は npm 依存を新規解決しない）。ビルドが要る段階で `--setup run` に切替。
+- **main-root 解決（2026-07-13 修正）**: リポジトリルートは `git rev-parse --path-format=absolute --git-common-dir` の親で解決する。worktree 内から実行しても htdocs・orca repo 照合が main 側に正しく解決される（従来の `--show-toplevel` は worktree 内で誤動作していた）。
+- **ぶら下がり junction（2026-07-13 追加）**: ターゲット消失の junction は Git Bash で `-e` false／`-L` true（実測）。`list` は「[ぶら下がり]」と表示し、`drop`/`new` の fail-fast も `-e`＋`-L` で拾う。`drop` は削除対象 worktree の中からは実行拒否（cwd ごと消えるのを防ぐ）。
 
 ---
 
@@ -69,20 +71,21 @@ POSIX sh（Git Bash）。repo id はハードコードせず **`--repo path:"$(g
 
 ---
 
-## 5. HANDOFF 並列化（直列前提の見直し）※要継続検討
+## 5. HANDOFF 並列化（直列前提の見直し）
 
 現状 `docs/HANDOFF.md` は**毎セッション上書き（直列前提）**。並列 worktree では両 AI が同時に触ると衝突する。
 
-- **暫定ルール（初期）**: worktree 作業中は `HANDOFF.md` を**触らない**。引き継ぎは各 worktree の**ブランチ／PR 本文**で行う。`HANDOFF.md` は master 統合基準の申し送りに用途限定。
-- 恒久設計はラッパー実運用後に詰める（本項は保留）。`SHARED-MEMORY.md`（永続事実）は従来どおり変更確定時のみ更新。
+- **ルール**: worktree 作業中は `HANDOFF.md` を**触らない**。引き継ぎは各 worktree の**ブランチ／PR 本文**で行う。`HANDOFF.md` は master 統合基準の申し送りに用途限定。
+- **機械層と同期済み（2026-07-13）**: agent-env **pre-commit v5** が linked worktree（`git rev-parse --git-dir` ≠ `--git-common-dir`）では HANDOFF ゲートを免除し、**session-start.ps1** が worktree 内セッションへ「start 不使用・HANDOFF 非更新・引き継ぎ=PR本文」を注入する（agent-env PR #1）。main 側は従来どおり（HANDOFF 更新必須）。
+- スレッド化等の恒久設計は実運用後に詰める（保留継続）。`SHARED-MEMORY.md`（永続事実）は従来どおり変更確定時のみ更新（worktree からも更新可・衝突時は後勝ち PR が解消）。
 
 ---
 
 ## 6. 未確認の前提（実装時に検証）
 
-- [ ] Apache が junction を透過配信するか（FS 上は directory reparse point で透過 → 高確率で可。**wrapper 実装時に実 URL でブラウザ表示 end-to-end 検証**）。
-- [ ] `orca worktree create` の setup hook（`npm install`）を `--setup skip` で確実に回避できるか（実測では作成成功、hook 非実行を前提）。
-- [ ] 並列時の同一ファイル競合（両 AI が同ファイルを編集 → merge conflict）→ **タスク分割で回避**する運用前提。
+- [x] Apache が junction を透過配信するか → **可**（curl HTTP 200 実証・PR #14）。
+- [x] `orca worktree create` の setup hook（`npm install`）を `--setup skip` で確実に回避できるか → **可**（実測で hook 非実行）。
+- [ ] 並列時の同一ファイル競合（両 AI が同ファイルを編集 → merge conflict）→ **タスク分割で回避**する運用前提。HANDOFF は worktree から更新しないため主要な衝突面は解消済み（§5）。GitHub ruleset の required check は `strict=false`（up-to-date 必須なし・2026-07-13 確認）のため、衝突がない限り並列 PR は順次自動マージされる。
 
 ---
 

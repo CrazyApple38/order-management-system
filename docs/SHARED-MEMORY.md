@@ -49,6 +49,7 @@
 - `sm*` = 現場詳細モーダル用の関数・ID / `ob*` = 受注簿由来の CSS 共通クラス / `belong-*` = 所属会社色トークン。
 - `category-*` / `shift-*` CSS クラスは `smCategoryClassMap` / `smShiftClassMap` で管理。
 - **orca worktree のブランチ名は `<gitUsername>/<name>` 固定**（CLI で prefix 変更不可）。並列 AI 識別のため `orca-wt.sh` は worktree 名を `<ai>-<topic>`（`ai`∈{claude,codex}）にする → ブランチ例 `CrazyApple38/claude-<topic>` / `CrazyApple38/codex-<topic>`。CI classify はパス基準なのでこのブランチ名で影響なし。
+- **linked worktree 内では `docs/HANDOFF.md` を更新しない**（直列前提のファイル。引き継ぎは PR 本文）。agent-env pre-commit v5 が worktree では HANDOFF ゲートを免除・session-start が worktree 運用を注入（2026-07-13）。`pr-flow.sh start` も worktree 内では使わない（ブランチは orca 作成済み）。詳細 = `docs/plan/orca-worktree-workflow-plan.md` §4-5。
 
 ## 触らないでほしいもの / 注意事項
 
