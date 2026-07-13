@@ -1,5 +1,7 @@
 # Claude Code Configuration
 
+<!-- AUTO-GENERATED from docs/rules/ -- 手編集禁止。編集は docs/rules/*.md を編集して `node scripts/build-rules.js` を再実行すること -->
+
 ## Project Overview
 
 受注管理システム（Order Management System）- Supabase + Next.js
@@ -14,15 +16,18 @@ Excel VBAで運用していた受注簿・業務管理計画書をWebシステ�
 
 ### Mockup Status
 
-| ID | 画面名 | 状態 | フィードバック |
-|----|--------|------|---------------|
-| A | 業務管理計画書 | 作成中 | — |
-| B | 受注簿 | 作成中 | — |
-| C | Quick Access（受注クイック入力） | 作成中 | — |
-| D | 経理画面（グループ間請求確認） | — | — |
-| E | 休日申請管理 | — | — |
-| F | マスタ管理（統合1画面） | 計画済・未着手 | 計画= docs/plan/mockup-master-account-plan.md |
-| G | アカウント画面（個人設定+ユーザー管理） | 計画済・未着手 | 同上 |
+| ID | 画面名（ファイル） | 状態 |
+|----|-------------------|------|
+| A | 業務管理計画書（weekly-schedule.html） | 作成済・フィードバック反映中 |
+| B | 受注簿（order-book.html） | 作成済・フィードバック反映中 |
+| C | Quick Access（quick-access.html） | 作成済・フィードバック反映中 |
+| D | 経理画面（グループ間請求確認） | 未着手 |
+| E | 休暇申請管理（leave-application.html） | 作成済（構想= docs/plan/leave-application-plan.md） |
+| F | マスタ管理（master-management.html） | F-0〜F-5 完了・F-6 未定義 |
+| G | アカウント画面（account-settings.html） | G-1〜G-3 完了 |
+
+- F/G の計画 = `docs/plan/mockup-master-account-plan.md`（§2 AI実装ガイドライン厳守）
+- `admin-notify.html` は管理者補助画面のため本表対象外（計画= docs/plan/admin-notify-icons-plan.md）
 
 ### Phase Gate Rules（厳守）
 
@@ -77,7 +82,7 @@ MCP設定: `docs/mcp-servers.md` を参照
 - `docs/SHARED-MEMORY.md` — **永続事実・制約・決定・構造履歴の正本（両AI共有・変更確定時のみ更新）**
 - `docs/HANDOFF.md` — セッション境界の揮発状態のみ（10〜30 行、毎セッション上書き）
 - `docs/plan/*.md` — Phase 計画書（フェーズの単一情報源、計画変更時のみ更新）
-- `AGENTS.md` / `CLAUDE.md` — AI ごとの常時ルール（運用ルール変更時のみ更新）
+- `AGENTS.md` / `CLAUDE.md` — AI ごとの常時ルール（**`docs/rules/` から生成。手編集禁止**）
 
 ## orca worktree 並列開発（Claude↔Codex）
 
@@ -86,6 +91,13 @@ Claude と Codex の並列作業は orca の linked git worktree で行う。SSO
 - **ラッパー**: `sh scripts/orca-wt.sh new <ai> <topic>`（worktree 作成 + `http://localhost/oms-wt-<ai>-<topic>/` 配信）／`drop <ai>-<topic>`／`list`。main リポジトリ側で実行する。
 - **worktree 内での作業ルール**: ブランチは作成済みのため `pr-flow.sh start` は使わない（`review`→`submit`→`automerge` のみ）。**`docs/HANDOFF.md` は更新しない**（直列前提のファイル。引き継ぎは PR 本文で行う。pre-commit v5 が worktree では HANDOFF ゲートを免除する）。`docs/SHARED-MEMORY.md` 全読・独立レビュー基準・視覚変更のユーザー確認は通常どおり。
 - main リポジトリ（`C:\xampp\htdocs\order-management-system`）での直列作業は従来どおり（`pr-flow start`・HANDOFF 更新必須）。
+
+## Local Browser Verification
+
+- このプロジェクトのローカル画面確認は、可能な限り XAMPP Apache 経由で行う。
+- URL は `http://localhost/order-management-system/...` を優先する。
+- SL / OB など `localStorage` 連携が必要な画面は、必ず同じ host (`localhost`) で開く。
+- Apache が起動していない場合は、起動前にユーザーへ確認する。
 
 ## Project Rules
 
@@ -105,12 +117,12 @@ Claude と Codex の並列作業は orca の linked git worktree で行う。SSO
 
 コンテキストウィンドウの消費を最小化するため、以下を厳守すること。
 
-1. **TodoWriteは最小限に使用**
+1. **タスク管理ツール（TaskCreate/TaskUpdate 等）は最小限に使用**
    - 3ステップ以上のタスクでのみ使用
    - 初回作成 + 完了マーク更新のみ。`in_progress`への切替だけの呼び出しは禁止
    - タスク説明は簡潔に（1行以内）
 2. **計画の単一情報源（Single Source of Truth）**
-   - 計画はプランファイルのみに記述。TodoWriteとの二重管理禁止
+   - 計画はプランファイルのみに記述。タスクリストとの二重管理禁止
    - 承認後のテキスト要約出力は不要（即座に実装開始）
 3. **完了報告は簡潔に**
    - 変更ファイル名 + 1行要約のみ

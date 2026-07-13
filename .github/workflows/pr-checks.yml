@@ -1,9 +1,10 @@
 name: PR Checks
 
-# ローカル pre-commit（agent-env Stage 2 品質ゲート）と同一の3チェックを CI に二重化する。
+# ローカル pre-commit（agent-env Stage 2 品質ゲート）と同一のチェックを CI に二重化する。
 #   1. ds-audit（デザイントークン静的監査・全体・NG=0 必須）
 #   2. 変更 *.js に node --check（構文チェック）
 #   3. 変更 *.json を JSON.parse
+#   4. build-rules --check（CLAUDE.md / AGENTS.md が docs/rules/ の生成物と一致するか）
 # いずれも node 標準モジュールのみで完結するため npm ci は不要（依存インストールなし）。
 # このジョブ名 "quality-gate" を GitHub ruleset の required status check に登録している。
 # 名前を変えると required check が外れて master 保護が緩むので変更しないこと。
@@ -47,6 +48,9 @@ jobs:
 
       - name: ds-audit (design token static audit, whole repo, NG=0 required)
         run: node scripts/design-audit/ds-audit.js
+
+      - name: build-rules consistency (CLAUDE.md / AGENTS.md are generated from docs/rules)
+        run: node scripts/build-rules.js --check
 
       - name: node --check on changed *.js
         run: |

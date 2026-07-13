@@ -58,6 +58,7 @@ function isNonVisual(p) {
   if (p.startsWith('docs/plan/')) return true;
   if (p.startsWith('scripts/')) return true;
   if (p === '.agent-env.json') return true;
+  if (p === '.gitattributes') return true;     // git 設定ファイル（EOL 等）・視覚影響なし
   if (p.startsWith('.github/')) return true;
   if (/\.json$/i.test(p)) return true;         // 設定系 *.json（視覚dir下は上で visual 済み）
   return false;
@@ -95,6 +96,7 @@ function selftest() {
     [['scripts/ci/classify-changed-files.js'], AUTO],
     [['.github/workflows/pr-checks.yml'], AUTO],
     [['.agent-env.json'], AUTO],
+    [['.gitattributes'], AUTO],
     [['package.json'], AUTO],
     [['docs/plan/x.md', 'scripts/a.js'], AUTO],
     [['docs/mockup/order-book.html'], NEEDS],
