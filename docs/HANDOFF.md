@@ -5,18 +5,19 @@
 ## 最終更新
 - **更新者**: Codex (GPT-5)
 - **日付**: 2026-07-13
-- **コミット**: `1608d22`（検証PR #10 = `codex/f0-f5-verification`）
+- **コミット**: `b0dc2ae`（F-0〜F-5再検証 PR #10 マージ済み）
 
 ## 直前にやったこと
-- F-0〜F-5の独立検証プロンプトを作成し、一時Codexセッションで実行。
-- 静的検査、単純マスタ10種CRUD、階層4種、社員資格/制約、通知50件上限を再検証し全Phase PASS。
-- OB/SL/WS/LA/QA/admin-notify回帰、通知センター→マスター遷移、1100px表示をChromeで確認。アプリconsole error 0。
-- 詳細証跡は `docs/verification/f0-f5-verification-report.md`。
+- F-0〜F-5を静的検査とChrome実操作で再検証し、全Phase PASSを確認した。
+- 検証結果を `docs/verification/f0-f5-verification-report.md` に記録し、PR #10で `master` へ反映した。
+- 現行SSOT `docs/plan/mockup-master-account-plan.md` とリポジトリ全体を検索し、F-6の定義が存在しないことを確認した。
 
 ## 次にやるべきこと
-1. 検証PR #10は全チェックgreen、`auto-merge-ok`、mergeable=CLEAN。マージはユーザー指示待ち。
-2. マージ後はmasterを更新し、次の作業をユーザーへ確認する。
-3. 次の実装はユーザー指示待ち。Phase 3は「モックアップ完了」宣言なしで進めない。
+1. 新セッション開始時に `docs/SHARED-MEMORY.md`、本ファイル、直近git log、`docs/plan/mockup-master-account-plan.md` を読む。
+2. F-6は未定義のため、実装前にユーザーへ目的・対象範囲・完了条件をステップごとに確認する。
+3. 合意したF-6をSSOTの計画表・実装契約・進捗へ追加し、ユーザー承認後に実装へ着手する。
+4. Phase 3は「モックアップ完了」の明示宣言がない限り開始しない。
 
 ## 今だけの申し送り
-- 検証用 `VERIFY-F0F5-*` はCodex側Chrome localStorageに残るが、リポジトリデータへの影響はない。
+- F-0〜F-5の根拠は同計画書 §3.1〜§3.5、再検証証跡は上記レポートを正とする。
+- 検証用 `VERIFY-F0F5-*` はCodex側Chrome localStorageにのみ残り、リポジトリデータへ影響しない。
