@@ -3,21 +3,21 @@
 永続事実・制約・構造的変更の警告は `docs/SHARED-MEMORY.md` を参照。
 
 ## 最終更新
-- **更新者**: Claude Code (Opus 4.8)
+- **更新者**: Codex（GPT-5）
 - **日付**: 2026-07-13
-- **コミット**: agent-env `7333afa`（BP-6 本体）／本 PR = OMS `claude/bp6-shared-memory`（doc 記録のみ）
+- **コミット**: agent-env `c642d4a`（BP-6 Codex実機確定）／OMS `eb758d8`（作業開始時 HEAD）
 
 ## 直前にやったこと
-- **BP-6（独立レビュー自動化）完了**。`pr-flow review` サブコマンド新設（agent-env `7333afa`・両AI junction 配備）。確定差分が独立レビュー発動基準に該当するか判定→該当時に実装文脈非継承レビュー用プロンプトを生成。判定は `_review_detect` に共通化し submit のソフト警告（非ブロック）と共用。反復ループ（最大2回＋エスカレーション）を SKILL.md に明文化。
-- ドッグフード独立レビュー2回で確定欠陥2件（core.quotePath 未無効化で日本語パス分類崩壊／未追跡の単語分割で行数過小計上）を修正、#2 clean。
-- 本 OMS PR は SHARED-MEMORY に BP-6 完了を記録＋HANDOFF 更新（md のみ＝`auto-merge-ok` 見込み）。
+- BP-6 Codex 側レビュー機構を R-9 実機確認し、`spawn_agent(fork_turns="none")` で新規文脈の独立レビューを自動起動できると確定。
+- `pr-flow review` の `status=required` と生成プロンプト、CONFIRMED / SUGGESTION の2区分返却を使い捨てリポジトリで実走確認。
+- agent-env の `pr-flow` SKILL.md・BP-6 計画・HANDOFFを更新し、完了済み手順書を削除。
+- OMS の SHARED-MEMORY に Codex 標準起動手順を永続事実として記録。
+- agent-env 本番差分の独立レビュー4回で確定欠陥6件を修正。上限到達時はユーザー承認を得て追加サイクルを実施し、#4 clean。
 
 ## 次にやるべきこと
-1. 本 PR（`claude/bp6-shared-memory`）は md のみ＝CI green で auto-merge 成立見込み。
-2. 次の実装はユーザー指示待ち。**F-6 は未定義**（Codex 確認済み）— 着手時は目的・対象範囲・完了条件をユーザーへステップ確認し、合意後に SSOT `docs/plan/mockup-master-account-plan.md` へ追加。
+1. Phase 2 の次作業はユーザー指示待ち。
+2. F-6 は未定義。着手時は目的・対象範囲・完了条件を確認してから計画へ追加。
 3. Phase 3 は「モックアップ完了」の明示宣言がない限り開始しない。
-4. Codex 側サブエージェント機構の R-9 実機確認（BP-6 の Codex 自動化可否）は未実施＝別途 Codex セッションで。
 
 ## 今だけの申し送り
-- `pr-flow review` は両AI junction 配備済み（Codex も利用可・SKILL.md 参照）。
-- F-0〜F-5 の再検証証跡は `docs/verification/f0-f5-verification-report.md` を正とする。
+- PowerShell では `sh` が PATH に無いため、pr-flow は `C:\Program Files\Git\bin\sh.exe` を実体指定して実行する。
