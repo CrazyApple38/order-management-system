@@ -4,24 +4,19 @@
 
 ## 最終更新
 - **更新者**: Claude Code（Fable 5）
-- **日付**: 2026-07-13
-- **コミット**: OMS `claude/rules-build` ブランチ（直前 = PR #15 `553b6df`。PR 予定）
+- **日付**: 2026-07-14
+- **コミット**: `claude/docker-migration-plan` ブランチ（直前 = PR #16 `c385b6e`。PR 予定）
 
 ## 直前にやったこと
-- **CLAUDE.md/AGENTS.md 監査 → 生成方式へ移行**: 正本= `docs/rules/`（shared + claude-only/codex-only）、`node scripts/build-rules.js` で両ファイル生成（手編集禁止・pre-commit と CI の両方に `--check` 配線・`.gitattributes` で LF 固定）。独立レビュー2回（CONFIRMED 2件修正: CRLF 偽陽性／replace 特殊シーケンス）。Mockup Status 表を現状に最新化（E=休暇申請管理・F/G 完了状況、ユーザー承認済み）。TodoWrite 表記を現行ツール名に更新。グローバル rules/shared.md も圧縮（agent-env PR #2・−2.2KB/セッション）。
-- 開発環境レビュー（OMS+グローバルハーネス横断）→ 確定問題4系統を修正。
-- agent-env PR #1 マージ: **pre-commit v5**（linked worktree では HANDOFF ゲート免除）+ **session-start.ps1 worktree 検出**（worktree 内は「start 不使用・HANDOFF 非更新・引き継ぎ=PR本文」を注入）。OMS 実機で両モード検証済み・deploy 済み。
-- OMS 本ブランチ: `orca-wt.sh` を main-root 解決に修正（worktree 内実行の誤動作解消）+ ぶら下がり junction 検出 + drop の自己削除ガード／CI に concurrency 追加／CLAUDE.md・AGENTS.md に「orca worktree 並列開発」節／計画書 §3・§5・§6 更新／SHARED-MEMORY に worktree 内 HANDOFF 非更新ルール追記。
-- ~/.claude/settings.json の PreToolUse ガード matcher を `*`→`Bash`（実測 ~180ms/全ツールコールの除去）。
-- classify の非視覚ホワイトリストに `.gitattributes` を追加（未登録による needs-visual-review 偽陽性の解消。agent-env 計画 §2B も同期）。
-- GitHub ruleset 確認: required check は `strict=false`（up-to-date 必須なし）→ 並列 auto-merge は衝突がない限り順次マージされる。
+- **XAMPP → Docker 全面移行の計画書を新規作成**: `docs/plan/docker-migration-plan.md`（SSOT）。ユーザー確定方針 = ポート80 URL完全互換で XAMPP 廃止 / OMS を `C:\dev` へ移動 / legacy PHP 群 + MariaDB 全DBも移行 / orca worktree 配信も Docker 対応 / Next.js・Supabase は環境のみ（Phase 3 前倒ししない）。
+- フェーズ D-0〜D-7 に受け入れ基準・既知の分岐・ロールバック・ユーザー確認ゲートを明記（他 AI / 下位モデル実装前提）。
+- SHARED-MEMORY: プロジェクト決定 + アクティブな計画書に追記。
 
 ## 次にやるべきこと
-1. 本ブランチの PR → CI green → automerge（非視覚のみ想定）。
-2. 実運用で Claude↔Codex 並列を1回回して §5 恒久設計（スレッド化等）の要否を判断。
-3. F-6 は未定義。着手時は目的・対象範囲・完了条件を確認してから計画へ追加。
-4. Phase 3 は「モックアップ完了」の明示宣言が無い限り開始しない。
+1. **Docker 移行の実装は D-0（棚卸し・バックアップ）から**。着手前に計画書全読 + フェーズごとユーザー確認（§2 厳守）。
+2. **D-3（OMS リポジトリ移動 + AI 環境引っ越し）は Claude Code 自身が実施推奨**（Codex 担当時は手順4をスキップし引き継ぎ明記）。
+3. F-6 は未定義。Phase 3 は「モックアップ完了」宣言待ち（従来どおり）。
 
 ## 今だけの申し送り
-- worktree 内セッションは session-start が自動で worktree 運用を注入する（HANDOFF 更新不要・pre-commit も免除済み）。main 側は従来どおり本ファイル更新必須。
-- pr-flow / orca-wt は PowerShell では `sh` が PATH に無いため Git Bash（`C:\Program Files\Git\bin\sh.exe`）で実行。
+- D-4 完了までは XAMPP を一切変更しない設計（並走検証・一時ポート 8080/13306）。XAMPP を止めるのは D-5 のみ。
+- 本計画の実装で乖離が出たら計画書 §2.2 プロトコル（既知の分岐 → 無ければ停止してユーザー確認）に従うこと。
