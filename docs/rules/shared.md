@@ -1,7 +1,3 @@
-# Codex Configuration
-
-<!-- AUTO-GENERATED from docs/rules/ -- 手編集禁止。編集は docs/rules/*.md を編集して `node scripts/build-rules.js` を再実行すること -->
-
 ## Project Overview
 
 受注管理システム（Order Management System）- Supabase + Next.js
@@ -72,6 +68,8 @@ MCP設定: `docs/mcp-servers.md` を参照
    - 直前にやったこと（3〜5 行・最新のみ）／次にやるべきこと（3〜5 行）／今だけの申し送り（任意）
 2. **永続事実・制約・決定・構造変更が生じたら `docs/SHARED-MEMORY.md` を更新**（大規模なデータ構造変更は「構造的変更の警告」テーブルに 1 行追記）。揮発状態は HANDOFF、永続事実は SHARED-MEMORY に振り分ける。
 3. 更新は本体作業と同じコミットに含めて push
+
+<!-- AI_SPECIFIC -->
 
 ### 役割分担
 

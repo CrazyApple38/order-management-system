@@ -1,0 +1,6 @@
+# build-rules.js の生成・一致検査を EOL 非依存にするため、ルール正本と生成物は LF 固定
+# （core.autocrlf=true 環境の fresh clone / git worktree add で CRLF 化して --check が
+#   偽陽性になるのを防ぐ。スクリプト側の LF 正規化と二段構え）
+CLAUDE.md text eol=lf
+AGENTS.md text eol=lf
+docs/rules/*.md text eol=lf

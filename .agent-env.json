@@ -4,7 +4,8 @@
     "checks": [
       "node-syntax",
       "json-parse",
-      "custom:node scripts/design-audit/ds-audit.js"
+      "custom:node scripts/design-audit/ds-audit.js",
+      "custom:node scripts/build-rules.js --check"
     ],
     "timeoutSec": 60
   },
