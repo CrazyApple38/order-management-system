@@ -1,6 +1,6 @@
 # XAMPP → Docker 全面移行計画書
 
-**ステータス: 未着手（D-0 から順に実施）**
+**ステータス: D-0 完了（2026-07-14）／D-1 着手待ち（着手前ユーザー確認）**
 **SSOT: 本計画書。着手前に全読すること（§2 AI 実装ガイドライン厳守）**
 
 - 作成: 2026-07-14 Claude Code (Fable 5)・ユーザー承認済み方針に基づく
@@ -197,6 +197,8 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 
 **受け入れ基準**: dump 4 ファイルが存在しサイズ > 0 / users-grants.txt・設定コピー・php -m・棚卸し・サービス状況が migration-backup に揃う / hello-world 成功。
 
+**実績による代替（2026-07-14 ユーザー承認）**: XAMPP 側 `mysql` システムスキーマの Aria 破損により全 DB 論理 dump は成立しなかった。アプリ DB 個別 dump 3 本 + `mysql` システムスキーマ全体の物理バックアップ + 生存する `mysql.global_priv` の論理 dump をバックアップ原資とし、Docker 側では正常な MariaDB 10.4 システムテーブルを新規生成してユーザー・権限を再構築する。失敗した全 DB dump 2 本は誤使用防止のため `.PARTIAL-*` 名で保管する。
+
 **ユーザー確認ゲート（D-0 完了時）**: htdocs 棚卸し結果を提示し、(a) XAMPP 付属物の分類が正しいか、(b) 各ユーザープロジェクトの現役/休眠、を確認する（D-2・D-5 の入力になる）。
 
 **既知の分岐**:
@@ -204,10 +206,20 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 | 事象 | 対応 |
 |------|------|
 | mysqldump が認証エラー | `-p` でユーザーにパスワード確認。それでも不可なら停止しユーザー確認 |
+| `mysql` システムスキーマの Aria テーブルが破損 | 原本への追加修復を止め、システムスキーマ全体を物理バックアップする。アプリ DB は個別 dump、生存する `global_priv` は個別に論理保全し、Docker 側の正常なシステムテーブルへ権限を再構築する。破損した `mysql` スキーマを db-init へ入れない |
 | Docker Desktop 未導入 / WSL2 無効 | ユーザーにインストール・有効化を依頼（`wsl --install` 等はユーザー操作） |
 | 80/3306 に XAMPP 以外の占有（IIS・Skype 等） | 記録して D-5 の切替前にユーザーへ提示（サービス停止判断はユーザー） |
 
 **ロールバック**: 不要（読み取りのみ）。
+
+**D-0 実績（2026-07-14 / Codex）**:
+
+- `C:\dev\migration-backup` にアプリ DB 3 本を取得: `keibi_system.sql` 206,868 bytes / `basarak28_zennippon.sql` 113,481 bytes / `zng_recruit_test.sql` 1,482 bytes。
+- 全 DB dump は `mysql.db`、再試行は `mysql.proxies_priv` の CRC 破損で失敗。全24 Aria テーブルの読み取り検査で `db` / `proxies_priv` / `tables_priv` が破損、`event` / `global_priv` / `roles_mapping` が「使用可能だが修復推奨」。`mysql` スキーマ全89ファイル（3,130,551 bytes）を `mysql-system-raw-20260714-060232` へ物理保全し、`mysql-global_priv.sql` / `users-grants.txt` も取得した。
+- 設定4ファイル、PHP拡張一覧、サービス・ポート、htdocs容量付き棚卸しと SHA-256 マニフェストを取得。Windowsサービス登録なし、Apacheのみ port 80 で稼働、MariaDBは通常起動不可のため停止中（必要な読み取りは `--skip-grant-tables` で実施）。
+- htdocs分類確定: 現役=`keibi-report-quiz` / `keibi-system` / `ZNG_Recruit`、休眠=`keibi-system-backup` / `Nikkei_HP` / `recruit_backup_2025-09-04`。XAMPP付属7項目は移行対象外、その他はユーザーデータとして D-5 移動対象。
+- WSL / Docker Desktop は未導入。`hello-world` のみ未達で、導入・再起動後に D-0 を完了判定する。
+- **（2026-07-14 / Claude Code 追記・D-0 完了）** ユーザー承認のもと Claude Code が導入を代行（UAC 承認はユーザー）: `wsl --install --no-distribution` で WSL 2.7.10（ディストリビューションなし・Docker Desktop 専用のため）→ OS 再起動 → winget で Docker Desktop 4.81.0。検証合格: `docker --version` = 29.6.1 / `docker compose version` = v5.2.0 / `docker run --rm hello-world` 成功。**D-0 受け入れ基準を全項目達成**。
 
 ### 4.2 D-1 web-stack 構築（XAMPP 並走・一時ポート）
 
@@ -531,4 +543,5 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 
 > 形式: `YYYY-MM-DD / 担当 AI / フェーズ / 実施内容・選んだ分岐・乖離と対応（1〜3 行）`
 
-- （未着手）
+- 2026-07-14 / Codex / D-0（実施中）/ 個別3DB・権限・設定・htdocs棚卸しを `C:\dev\migration-backup` へ保全。XAMPP `mysql` の複数 Aria システムテーブル破損により全DB dumpを物理バックアップへ代替（ユーザー承認）。残作業は WSL / Docker Desktop 導入後の `hello-world`。
+- 2026-07-14 / Claude Code (Fable 5) / D-0（完了）/ WSL 2.7.10（`--no-distribution`）+ Docker Desktop 4.81.0（winget）をユーザー承認のもと導入代行し、再起動後に engine 起動・`hello-world` 成功を確認。乖離: 計画では導入=ユーザー操作としていたが、ユーザー明示依頼により AI 代行（UAC 承認・再起動はユーザー）へ変更。D-0 受け入れ基準クローズ。

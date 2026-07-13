@@ -5,19 +5,19 @@
 ## 最終更新
 - **更新者**: Claude Code（Fable 5）
 - **日付**: 2026-07-14
-- **コミット**: `claude/docker-plan-worktree-note` ブランチ（直前 = PR #17 `cd224b0`。PR 予定）
+- **コミット**: `codex/docker-migration-d0` ブランチ（直前 HEAD `598b2a0`）
 
 ## 直前にやったこと
-- **XAMPP → Docker 全面移行の計画書を新規作成**: `docs/plan/docker-migration-plan.md`（SSOT）。ユーザー確定方針 = ポート80 URL完全互換で XAMPP 廃止 / OMS を `C:\dev` へ移動 / legacy PHP 群 + MariaDB 全DBも移行 / orca worktree 配信も Docker 対応 / Next.js・Supabase は環境のみ（Phase 3 前倒ししない）。
-- フェーズ D-0〜D-7 に受け入れ基準・既知の分岐・ロールバック・ユーザー確認ゲートを明記（他 AI / 下位モデル実装前提）。
-- SHARED-MEMORY: プロジェクト決定 + アクティブな計画書に追記。
-- **追補（PR #17 マージ後）**: Docker 移行は **orca worktree 不使用・main 直列実施**の制約を計画書 §2.4 / D-3・D-5 前提条件へ明記（D-3 のリポジトリ移動が linked worktree の絶対パス参照を全破壊するため）。
+- ユーザー承認のもと WSL 2.7.10（`--no-distribution`）+ Docker Desktop 4.81.0 を導入代行（UAC承認・OS再起動はユーザー）。
+- 再起動後に `docker --version`（29.6.1）/ `docker compose version`（v5.2.0）/ `hello-world` 成功を確認 — **D-0 受け入れ基準を全達成・D-0 完了**。
+- Docker Desktop のサインインは不要のため Skip 運用（アカウント未作成）。
+- 計画書 §4.1 実績・実績ログ・ステータス行を D-0 完了へ更新。
 
 ## 次にやるべきこと
-1. **Docker 移行の実装は D-0（棚卸し・バックアップ）から**。着手前に計画書全読 + フェーズごとユーザー確認（§2 厳守）。
-2. **D-3（OMS リポジトリ移動 + AI 環境引っ越し）は Claude Code 自身が実施推奨**（Codex 担当時は手順4をスキップし引き継ぎ明記）。
-3. F-6 は未定義。Phase 3 は「モックアップ完了」宣言待ち（従来どおり）。
+1. 本ブランチ（Codex の D-0 記録 + 本更新）を pr-flow review→commit→submit→automerge。
+2. D-1（web-stack 構築・:8080 で XAMPP 並走）は **着手前にユーザー確認**（§2.1）。
+3. D-1 では db-init に個別 dump 3 本 + 90-users.sql を使う（破損 `mysql` スキーマは入れない）。
 
 ## 今だけの申し送り
-- D-4 完了までは XAMPP を一切変更しない設計（並走検証・一時ポート 8080/13306）。XAMPP を止めるのは D-5 のみ。
-- 本計画の実装で乖離が出たら計画書 §2.2 プロトコル（既知の分岐 → 無ければ停止してユーザー確認）に従うこと。
+- XAMPP MariaDB は破損のため停止中・起動しないこと（読み取りが必要なら `--skip-grant-tables` 限定）。Apache の起動は任意。
+- 正常dump: `keibi_system.sql` 206,868 bytes / `basarak28_zennippon.sql` 113,481 bytes / `zng_recruit_test.sql` 1,482 bytes（不完全な全DB dumpは `.PARTIAL-*` 名）。
