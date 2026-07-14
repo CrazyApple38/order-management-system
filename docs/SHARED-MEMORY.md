@@ -39,7 +39,7 @@
 - **G-2 ユーザー管理（2026-07-11 ユーザー承認）**: 専用 localStorage キー `mock.oms.account.users.v1` と共有 `mock-account-data.js` を正とし、`user_profiles` 相当と `user_company_assignments` 相当を保存する。QA契約先シードも同モジュールへ集約し、QA利用者（田中）の担当IDでカードを絞り込む。実装契約は `mockup-master-account-plan.md` §4.2。
 - **G-3 個人設定反映（2026-07-11 ユーザー承認）**: 共有 `mock-account-preferences.js` が既知キー4種を正規化し、GC画面別初期値・共通ナビ表示・通知既定スコープ・densityを反映する。手動GC選択は `mock.oms.account.gc-filter-runtime.v1` に画面別保持し、設定保存/リセット時に破棄。通知の関与判定はモック限定で `affects[]` / `primaryPage` を使い、本実装で担当現場・所属GCへ差し替える。実装契約は `mockup-master-account-plan.md` §4.3。
 
-- **XAMPP → Docker 全面移行（2026-07-14 ユーザー確定・D-0/D-1 完了・D-2 以降は着手前ユーザー確認）**: XAMPP 廃止・ポート80 URL完全互換で Docker（web-stack: php:8.2-apache + mariadb:10.4 + phpMyAdmin）へ移行。OMS リポジトリは `C:\dev\order-management-system` へ移動予定（AI 環境引っ越し含む）。**SSOT= `docs/plan/docker-migration-plan.md`**（§2 AI 実装ガイドライン厳守・フェーズ単位でユーザー確認・D-3 は Claude Code 自身が実施推奨）。Next.js/Supabase は環境のみ（アプリ実装は Phase 3 宣言後）。
+- **XAMPP → Docker 全面移行（2026-07-14 ユーザー確定・D-0〜D-2 完了・D-3 以降は着手前ユーザー確認）**: XAMPP 廃止・ポート80 URL完全互換で Docker（web-stack: php:8.2-apache + mariadb:10.4 + phpMyAdmin）へ移行。OMS リポジトリは `C:\dev\order-management-system` へ移動予定（AI 環境引っ越し含む）。**SSOT= `docs/plan/docker-migration-plan.md`**（§2 AI 実装ガイドライン厳守・フェーズ単位でユーザー確認・D-3 は Claude Code 自身が実施推奨）。Next.js/Supabase は環境のみ（アプリ実装は Phase 3 宣言後）。
 - **XAMPP MariaDB のシステムテーブル破損（2026-07-14 D-0 確定）**: アプリ DB 3 本の個別 dump は正常取得済みだが、`mysql` スキーマの Aria 6テーブルに異常（破損=`db` / `proxies_priv` / `tables_priv`、修復推奨=`event` / `global_priv` / `roles_mapping`）。原本の追加修復は行わず、`C:\dev\migration-backup` に `mysql` 全89ファイルの物理コピーと生存 `global_priv` を保全。**破損した `mysql` スキーマを Docker へインポートしない**。Docker MariaDB 10.4 の正常なシステムテーブルへユーザー・権限を再構築する。XAMPP MariaDB は通常起動不可・停止中で、移行時の読み取りが必要なら `--skip-grant-tables` を限定使用する。詳細・実績は `docker-migration-plan.md` §4.1。
 
 ## 会社マッピング（`demo-data.js` 由来・確定）
@@ -116,6 +116,6 @@
 - `docs/plan/design-refresh-plan.md` — デザイン刷新 診断・比較計画（**案B改: Calm Operations 採用 / 次は SL 適用範囲確定**）
 - `docs/plan/ws-support-partner-plan.md` — WS 応援予約・協力業者
 - `docs/plan/ui-components-improvement-plan.md` — UI コンポーネント整備
-- `docs/plan/docker-migration-plan.md` — **XAMPP → Docker 全面移行（D-0/D-1 完了 2026-07-14。母艦環境= WSL 2.7.10 + Docker Desktop 4.81.0〔Engine 29.6.1 / Compose v5.2.0〕・web-stack= `C:\dev\web-stack`〔:8080/:13306 で XAMPP 並走中〕。D-2〜D-7 残・着手前に全読必須・フェーズ単位ユーザー確認）**
+- `docs/plan/docker-migration-plan.md` — **XAMPP → Docker 全面移行（D-0〜D-2 完了 2026-07-14。母艦環境= WSL 2.7.10 + Docker Desktop 4.81.0〔Engine 29.6.1 / Compose v5.2.0〕・web-stack= `C:\dev\web-stack`＝GitHub private `CrazyApple38/web-stack`〔:8080/:13306 で XAMPP 並走中・legacy DB 接続は `db` 前提へ移行済み〕。D-3〜D-7 残・着手前に全読必須・フェーズ単位ユーザー確認）**
 - `docs/plan/orca-worktree-workflow-plan.md` — **orca × git worktree 並列開発（Claude↔Codex を別 worktree で並列）。ラッパー `scripts/orca-wt.sh`（new/drop/list）。worktree 内は既存 pr-flow を使用（`start` は orca が代替）。junction で `http://localhost/oms-wt-<ai>-<topic>/` 配信。OMS のみ・目的=並列実行**
 - その他: `docs/plan/*.md` 一覧を確認

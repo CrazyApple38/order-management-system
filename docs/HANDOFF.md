@@ -5,19 +5,19 @@
 ## 最終更新
 - **更新者**: Claude Code（Fable 5）
 - **日付**: 2026-07-14
-- **コミット**: `claude/docker-migration-d1` ブランチ（直前 HEAD `9c45af7`）
+- **コミット**: `claude/docker-migration-d2` ブランチ（直前 HEAD = PR #20 マージ後 master）
 
 ## 直前にやったこと
-- D-0 完了（WSL 2.7.10 + Docker Desktop 4.81.0 導入・hello-world 合格・PR #19 マージ済み）。
-- D-1 完了: `C:\dev\web-stack` 構築（php:8.2-apache + mariadb:10.4 + phpMyAdmin・:8080/:13306 で XAMPP 並走）。§5.1 全合格（legacy 3件+OMS+phpMyAdmin 200・DB 3本 dump 突合一致・主要6テーブル行数一致）。
-- 分岐: DB 突合は dump 基準へ代替 / pma に AllowNoPassword 設定追加 / ftp 拡張は legacy 未使用で見送り。詳細は計画書 §4.2 D-1 実績。
+- D-1 完了 + web-stack を private `CrazyApple38/web-stack` へ push。
+- D-2 完了: keibi-system/.env と ZNG_Recruit/database_local.php の DB_HOST を `db` へ（.bak-xampp あり）。keibi-report-quiz は DB 不使用で対象外・休眠3件は非修正。
+- `basarak28_zgu1` を実DB + 90-users.sql（+migration-backup コピー）へ再構築。keibi-system の storage/framework 欠損を補修（500→200）。
+- 検証: ZNG companies API が DB データ返却 / Laravel migrate:status 12件認識 / www-data 書込 3 箇所 OK。
 
 ## 次にやるべきこと
-1. web-stack の GitHub private リポジトリ作成（名称・可視性はユーザー確認 → push）。
-2. D-2（legacy DB 接続修正）は **着手前にユーザー確認**。接続定義の棚卸し→ユーザー確認ゲート→ `db` へ修正（.bak-xampp 必須）。
-3. `basarak28_*` ユーザーの権限は D-2 で PHP 設定から逆引きし 90-users.sql へ追記・再構築。
+1. D-3（OMS リポジトリ移動 + AI 環境引っ越し）— **着手前ユーザー確認・Claude Code 自身が実施推奨**（メモリ dir / Obsidian junction / settings が Claude 固有）。
+2. D-3 前提条件の確認: git clean / worktree・junction ゼロ / 進行中 PR なし / 他 AI セッションなし。
+3. 以降 D-4（orca-wt Docker 対応）→ D-5（切替・XAMPP 停止）。
 
 ## 今だけの申し送り
-- web-stack は起動中（`docker compose ps` で3サービス running）。止める場合は `cd C:\dev\web-stack && docker compose down`（-v を付けると DB 初期化からやり直し）。
-- XAMPP MariaDB は破損のため起動しないこと（読み取りは `--skip-grant-tables` 限定）。Apache の起動は任意（:80 と :8080 は競合しない）。
-- Docker Desktop はサインイン済み（Personal / crazyapple38）。
+- web-stack 起動中（:8080/:13306）。legacy の「配信の正」は Docker 側へ移行済み（XAMPP Apache でも静的配信は動くが、DB 接続は db 前提のため PHP アプリは XAMPP では動かない。復元は .bak-xampp）。
+- XAMPP MariaDB は破損・停止のまま起動しないこと。
