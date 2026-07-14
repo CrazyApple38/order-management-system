@@ -5,20 +5,19 @@
 ## 最終更新
 - **更新者**: Codex（GPT-5）
 - **日付**: 2026-07-14
-- **コミット**: `codex/docker-orca-wt` ブランチ（直前 HEAD `0a6c3c6`）
+- **コミット**: `codex/docker-cutover-d5` ブランチ（直前 HEAD `3eae08f`）
 
 ## 直前にやったこと
-- D-4 完了: Windows junctionはDocker越しに解決不能（403）だったため、既知の分岐どおりorca workspacesルートをweb-stackへread-only直接マウント。
-- `scripts/orca-wt.sh` はjunction操作を廃止し、new/drop/listとDocker配信URL対応へ変更。HTTP_PORTはweb-stack `.env` に追従する。
-- 実worktreeでnew/list・`docs/index.html`/`order-book.html` 200・drop後404を確認。独立レビュー2回の確定欠陥は全修正済み。
+- D-5完了: legacy 35,862ファイルを完全コピーし、web-stackを80/3306へ切替。全URL・DB・ブラウザ・worktree回帰green。
+- Docker Desktop AutoStartを有効化し、OS再起動後に3コンテナ自動復帰・主要13 URL 200・ホスト3306接続を再確認。
+- 旧htdocsのMove-Item部分移動574ファイルは元へコピー復元し欠損0を確認。元と部分退避は両方保全（削除禁止）。
 
 ## 次にやるべきこと
-1. **以後の作業はすべて新パス `C:\dev\order-management-system` で行う**（旧パスは触らない）。
-2. D-5（切替・XAMPP停止・legacy-htdocs移動・80/3306切替）— **破壊的操作のため着手前と各ステップでユーザー確認**。
-3. D-5前にD-0バックアップ実在、worktreeゼロ、CI復旧状況を再確認する。
+1. D-6（Next.js / Supabase環境のみ）は別途ユーザー確認を得て着手する（アプリ実装は禁止）。
+2. 旧 `C:\xampp\htdocs` と部分退避 `htdocs_MOVED-20260714` の整理は、全関連セッション終了後にユーザー判断で行う。
+3. D-5のOMS PRとweb-stack PR #2をCI/検証後にマージする。
 
 ## 今だけの申し送り
-- web-stack 起動中（:8080/:13306・OMS は新パスから配信中）。XAMPP MariaDB は破損・停止のまま起動禁止。
-- 旧 `C:\xampp\htdocs\order-management-system` のリネーム退避は未実施。旧パスは残骸として触らない。
-- GitHub Actions障害が継続中なら、計画書§4.4記録のユーザー承認済み緊急時手順を使う。ローカル品質ゲートは必ずgreen確認。
-- web-stack変更はcommit `82905bb`・Draft PR #1（`codex/docker-orca-wt`）。
+- web-stack起動中（HTTP 80 / DB 3306）。XAMPP Apache/MySQLは停止済みで起動禁止。
+- Dockerは `C:\dev\legacy-htdocs` のみ参照。旧htdocs 58,143ファイルと部分退避574ファイルはDocker非依存・削除禁止。
+- web-stack Draft PR #2。OMSは `codex/docker-cutover-d5`。

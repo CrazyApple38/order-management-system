@@ -1,6 +1,6 @@
 # XAMPP → Docker 全面移行計画書
 
-**ステータス: D-0〜D-4 完了（2026-07-14・旧dirリネーム退避のみ残）／D-5 着手待ち（破壊的操作のため各ステップでユーザー確認）**
+**ステータス: D-0〜D-5 完了（2026-07-14）／D-6 着手待ち（Phase Gateを守り環境のみ）**
 **SSOT: 本計画書。着手前に全読すること（§2 AI 実装ガイドライン厳守）**
 
 - 作成: 2026-07-14 Claude Code (Fable 5)・ユーザー承認済み方針に基づく
@@ -468,9 +468,16 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 3. `docker compose down`（web-stack 停止。db volume は保持）
 4. htdocs 移動（**XAMPP 付属物は移動しない** — D-0 ゲートで確定した分類に従う）:
    ```powershell
-   # ユーザープロジェクトのみ C:\dev\legacy-htdocs へ
-   robocopy C:\xampp\htdocs C:\dev\legacy-htdocs /E /COPYALL /R:1 /W:1 `
-     /XD dashboard xampp webalizer img "order-management-system_MOVED-*" /XF index.php bitnami.css favicon.ico
+   # ユーザープロジェクトのみ C:\dev\legacy-htdocs へ。
+   # 除外名だけを渡すと配下の同名 img/index.php 等まで除外されるため、トップ階層の絶対パスで指定する。
+   $src = 'C:\xampp\htdocs'
+   $excludeDirs = @(
+     "$src\dashboard", "$src\xampp", "$src\webalizer", "$src\img", "$src\order-management-system"
+   ) + @(Get-ChildItem -LiteralPath $src -Directory -Filter 'order-management-system_MOVED-*' |
+       ForEach-Object FullName)
+   $excludeFiles = @("$src\index.php", "$src\bitnami.css", "$src\favicon.ico")
+   robocopy $src C:\dev\legacy-htdocs /E /COPY:DAT /DCOPY:DAT /R:1 /W:1 /XJ `
+     /XD $excludeDirs /XF $excludeFiles
    ```
    コピー検証（ファイル数・サイズ突合）→ 合格後、旧 htdocs を `htdocs_MOVED-YYYYMMDD` へリネーム（削除しない）
 5. web-stack `.env` 更新: `HTTP_PORT=80` / `DB_PORT=3306` / `HTDOCS_DIR=C:/dev/legacy-htdocs` → `docker compose up -d`
@@ -488,6 +495,16 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 | 3306 が取れない | 同上（XAMPP MySQL の止め忘れ・他 MySQL の常駐を確認） |
 | 切替後に legacy の一部が動かない | 即 §ロールバックで XAMPP に戻すか、その場で直すかをユーザーへ確認（ダウンタイム判断はユーザー） |
 | robocopy の /COPYALL が権限エラー | `/COPY:DAT` に落として再実行（ACL は開発ファイルには不要） |
+| robocopy の除外名が配下の同名ファイル・ディレクトリにも一致 | `/XD` / `/XF` はトップ階層の絶対パスで指定する。件数・総容量・相対パス・各ファイルサイズをコピー元と突合 |
+| 旧htdocsのリネームがアクティブなハンドルで拒否される | D-5完了を妨げない（Dockerはlegacy-htdocsのみ参照）。`Move-Item` は部分移動し得るため使わず、全関連セッション終了後に同一親で `Rename-Item` を使う。失敗時はその場で停止 |
+
+**D-5 実績（2026-07-14 / Codex・完了）**:
+
+- D-0バックアップ117ファイルの実在、manifest対象18件のSHA-256一致、CI green、worktreeゼロを再確認。XAMPP Apache/MySQLは停止済みでサービス・自動起動登録なし。
+- legacy 35項目を `C:\dev\legacy-htdocs` へコピー。初回はrobocopyの名前指定が配下にも一致して156ファイルを除外したため、トップ階層の絶対パス指定で補完。最終突合は35,862ファイル・3,995,916,711 bytes・5,747ディレクトリで欠損/余分/サイズ不一致すべて0。
+- web-stackを `HTTP_PORT=80` / `DB_PORT=3306` / `HTDOCS_DIR=C:/dev/legacy-htdocs` へ切替。OMS主要8画面・legacy・DB API・phpMyAdminは全てHTTP 200、ホスト3306接続、Apache構文、Laravel DB参照、localhost由来コンソールエラー0、OB⇄SL連携、worktree 200→drop後404まで合格。
+- Docker DesktopのAutoStartを有効化してOS再起動。17:15起動後、Docker Desktopが17:17に自動起動し、`restart: unless-stopped` で3コンテナが自動復帰。主要13 URLは全てHTTP 200、ホスト3306接続・DB一覧・Apache構文も再度合格。
+- 旧 `C:\xampp\htdocs` はアクティブなハンドルでリネーム不可。再起動後の `Move-Item` は574ファイル（572,346,239 bytes）を部分移動して停止したため、即座にコピーのみで元へ復元し、部分側の全ファイル/ディレクトリが元側に同一サイズで存在すること（欠損0）を確認。元は43トップ項目・58,143ファイルを保持し、部分退避 `htdocs_MOVED-20260714` も削除せず保全。後日の整理はユーザー判断とする。
 
 **ロールバック**（完全復旧手順）: `docker compose down` → `htdocs_MOVED-*` を `htdocs` へリネーム → XAMPP Apache/MySQL を Start → D-2 の .bak-xampp を戻す（DB 接続を localhost に戻す）→ XAMPP で従来どおり。
 
