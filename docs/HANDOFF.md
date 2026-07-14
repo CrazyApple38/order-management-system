@@ -5,19 +5,19 @@
 ## 最終更新
 - **更新者**: Codex（GPT-5）
 - **日付**: 2026-07-14
-- **コミット**: `codex/docker-cutover-d5` ブランチ（直前 HEAD `3eae08f`）
+- **コミット**: `codex/docker-d6-env` ブランチ（直前 HEAD `6782a2e`）
 
 ## 直前にやったこと
-- D-5完了: legacy 35,862ファイルを完全コピーし、web-stackを80/3306へ切替。全URL・DB・ブラウザ・worktree回帰green。
-- Docker Desktop AutoStartを有効化し、OS再起動後に3コンテナ自動復帰・主要13 URL 200・ホスト3306接続を再確認。
-- 旧htdocsのMove-Item部分移動574ファイルは元へコピー復元し欠損0を確認。元と部分退避は両方保全（削除禁止）。
+- D-6完了: `docker/compose.yaml` にmock-webとNode 22 app profileを追加し、Node.js v22.23.1を確認。
+- Supabase CLI 2.109.1をnpm開発依存へ固定し、既存migrationsを保って `supabase/config.toml` を生成。
+- WindowsではDocker API 2375を公開せずAnalyticsを無効化。全有効サービス、API/DB/Studio、ポート無競合を確認後に停止。
 
 ## 次にやるべきこと
-1. D-6（Next.js / Supabase環境のみ）は別途ユーザー確認を得て着手する（アプリ実装は禁止）。
+1. D-7（ノートPC再現手順書）は別途ユーザー確認を得て着手する。
 2. 旧 `C:\xampp\htdocs` と部分退避 `htdocs_MOVED-20260714` の整理は、全関連セッション終了後にユーザー判断で行う。
-3. D-5のOMS PRとweb-stack PR #2をCI/検証後にマージする。
+3. Next.js scaffold・Supabaseスキーマは「モックアップ完了」宣言まで禁止。
 
 ## 今だけの申し送り
 - web-stack起動中（HTTP 80 / DB 3306）。XAMPP Apache/MySQLは停止済みで起動禁止。
 - Dockerは `C:\dev\legacy-htdocs` のみ参照。旧htdocs 58,143ファイルと部分退避574ファイルはDocker非依存・削除禁止。
-- web-stack Draft PR #2。OMSは `codex/docker-cutover-d5`。
+- D-6のapp profileとSupabaseは停止中。ローカルデータはDocker volumeに保持。

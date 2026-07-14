@@ -1,6 +1,6 @@
 # XAMPP → Docker 全面移行計画書
 
-**ステータス: D-0〜D-5 完了（2026-07-14）／D-6 着手待ち（Phase Gateを守り環境のみ）**
+**ステータス: D-0〜D-6 完了（2026-07-14）／D-7 着手待ち**
 **SSOT: 本計画書。着手前に全読すること（§2 AI 実装ガイドライン厳守）**
 
 - 作成: 2026-07-14 Claude Code (Fable 5)・ユーザー承認済み方針に基づく
@@ -143,14 +143,14 @@ services:
     profiles: ["app"]
     image: node:22-alpine
     working_dir: /app
-    ports: ["3000:3000"]
+    ports: ["127.0.0.1:3000:3000"]
     volumes:
       - ../src:/app
     command: sh -c "node -v && npm -v && sleep infinity"
 ```
 
 - httpd:2.4-alpine の既定 docroot 直下にはウェルカム `index.html` があるが放置してよい（`/order-management-system/` 配下だけ使う）
-- Supabase は compose に入れず **Supabase CLI（`supabase start`）** で管理する（CLI が専用コンテナ群を自動起動する公式方式）。D-6 参照
+- Supabase は compose に入れず、プロジェクトの npm 開発依存に固定した **Supabase CLI（`npx supabase start`）** で管理する（CLI が専用コンテナ群を自動起動する公式方式）。D-6 参照
 
 ### 3.5 実施順序と依存
 
@@ -516,20 +516,28 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 
 1. OMS リポジトリに `docker/compose.yaml`（§3.4 の内容）と `docker/README.md` を追加（pr-flow）
 2. `app` profile の枠検証: `docker compose -f docker/compose.yaml --profile app up -d app` → `docker compose -f docker/compose.yaml exec app node -v` が v22 系を返す → down。恒常起動はしない
-3. Supabase CLI: 未導入なら導入方法（`scoop install supabase` / winget / 直接バイナリ）をユーザーへ提示し選択してもらう。導入後リポジトリ直下で `supabase init`（`supabase/config.toml` が生成される。既存の空 `supabase/migrations/` はそのまま取り込まれる）
-4. `supabase start` → 表示される API URL / DB URL / Studio URL を `docker/README.md` に記録 → `supabase stop`（常駐させない）
+3. Supabase CLI: 現行の公式手順に合わせ `npm install supabase --save-dev` でプロジェクトの開発依存へ固定する（2026-07-14 ユーザー承認）。リポジトリ直下で `npx supabase init`（`supabase/config.toml` が生成される。既存の空 `supabase/migrations/` はそのまま取り込まれる）
+4. `npx supabase start` → 表示される API URL / DB URL / Studio URL を `docker/README.md` に記録 → `npx supabase stop`（常駐させない）
 5. ポート衝突確認: Supabase 既定ポート（54321-54329）と web-stack / mock-web の衝突なしを確認
 
-**受け入れ基準**: `supabase start` が全サービス起動し Studio（http://localhost:54323）が開く / config.toml がコミットされ、`supabase/.temp` 等は .gitignore 済み / app profile の node -v 確認ログ。
+**受け入れ基準**: `npx supabase start` で全有効サービスが起動し Studio（http://localhost:54323）が開く / config.toml がコミットされ、`supabase/.temp` 等は .gitignore 済み / app profile の node -v 確認ログ。
 
 **既知の分岐**:
 
 | 事象 | 対応 |
 |------|------|
-| supabase start が Docker リソース不足で失敗 | Docker Desktop のメモリ割当をユーザーへ確認依頼（Settings > Resources） |
+| `npx supabase start` が Docker リソース不足で失敗 | Docker Desktop のメモリ割当をユーザーへ確認依頼（Settings > Resources） |
 | ポート 54321 帯が使用中 | config.toml でポート変更（変更値を README へ記録） |
+| Windowsでログ収集用VectorがDocker API 2375へ接続できず再起動 | Docker APIをTLSなしで公開せず、D-6に不要な `[analytics] enabled = false` を採用（2026-07-14 ユーザー承認） |
 
-**ロールバック**: `supabase stop` + 追加ファイルの git revert。
+**ロールバック**: `npx supabase stop` + 追加ファイルの git revert。
+
+**D-6 実績（2026-07-14 / Codex・完了）**:
+
+- `docker/compose.yaml` に母艦では原則未使用の `mock-web` と、profile指定時だけ起動する `app` 枠を追加。`app` で Node.js v22.23.1 / npm 10.9.8 を確認後、コンテナを停止した。
+- 現行のSupabase公式手順に合わせ、ユーザー承認のもとCLI 2.109.1をnpm開発依存へ固定。既存の空 `supabase/migrations/` を維持して `npx supabase init` を実行し、`supabase/config.toml` を生成した。
+- 初回起動ではWindows上のログ収集用VectorがDocker API 2375へ接続できず再起動。TLSなしDocker APIは公開せず、D-6に不要で公式設定上も任意の `[analytics] enabled = false` をユーザー承認で採用した。
+- 再起動後、全有効サービスに unhealthy / restarting なし。API / Studio / MailpitはHTTP 200、PostgreSQL `SELECT 1`、ChromeでStudio表示を確認。web-stackは80/3306で無影響。検証後 `npx supabase stop` を実行し、3000 / 54321〜54329の待受がないことを確認した。
 
 ### 4.8 D-7 ノート PC 再現手順書
 

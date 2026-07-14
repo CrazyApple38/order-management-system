@@ -1,0 +1,20 @@
+name: oms
+
+services:
+  mock-web:
+    image: httpd:2.4-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ..:/usr/local/apache2/htdocs/order-management-system:ro
+
+  app:
+    profiles:
+      - app
+    image: node:22-alpine
+    working_dir: /app
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ../src:/app
+    command: sh -c "node -v && npm -v && sleep infinity"
