@@ -5,20 +5,19 @@
 ## 最終更新
 - **更新者**: Codex（GPT-5）
 - **日付**: 2026-07-14
-- **コミット**: `codex/docker-orca-wt` ブランチ（直前 HEAD `0a6c3c6`）
+- **コミット**: `codex/docker-cutover-d5` ブランチ（直前 HEAD `39b431f`）
 
 ## 直前にやったこと
-- D-4 完了: Windows junctionはDocker越しに解決不能（403）だったため、既知の分岐どおりorca workspacesルートをweb-stackへread-only直接マウント。
-- `scripts/orca-wt.sh` はjunction操作を廃止し、new/drop/listとDocker配信URL対応へ変更。HTTP_PORTはweb-stack `.env` に追従する。
-- 実worktreeでnew/list・`docs/index.html`/`order-book.html` 200・drop後404を確認。独立レビュー2回の確定欠陥は全修正済み。
+- D-5切替実施: legacy 35,862ファイル（3,995,916,711 bytes）を `C:\dev\legacy-htdocs` へ完全コピーし、web-stackを80/3306へ変更。
+- OMS/legacy/phpMyAdmin全URL、DB API・ホスト3306・Laravel、ブラウザconsole、OB⇄SL、worktree配信の回帰はすべてgreen。
+- robocopy除外名が配下にも一致する欠陥を発見し、トップ階層絶対パス指定へ計画を修正。コピー突合で欠損/余分/サイズ不一致0。
 
 ## 次にやるべきこと
-1. **以後の作業はすべて新パス `C:\dev\order-management-system` で行う**（旧パスは触らない）。
-2. D-5（切替・XAMPP停止・legacy-htdocs移動・80/3306切替）— **破壊的操作のため着手前と各ステップでユーザー確認**。
-3. D-5前にD-0バックアップ実在、worktreeゼロ、CI復旧状況を再確認する。
+1. ユーザー承認後にOS再起動し、Docker Desktop + web-stack自動復帰、80/3306と全主要URLを再確認してD-5を完了にする。
+2. 関連セッション終了後、旧 `C:\xampp\htdocs` を `htdocs_MOVED-20260714` へリネーム（現在はハンドル保持で拒否。削除禁止）。
+3. D-5完了後、次フェーズD-6は別途ユーザー確認を得て着手する。
 
 ## 今だけの申し送り
-- web-stack 起動中（:8080/:13306・OMS は新パスから配信中）。XAMPP MariaDB は破損・停止のまま起動禁止。
-- 旧 `C:\xampp\htdocs\order-management-system` のリネーム退避は未実施。旧パスは残骸として触らない。
-- GitHub Actions障害が継続中なら、計画書§4.4記録のユーザー承認済み緊急時手順を使う。ローカル品質ゲートは必ずgreen確認。
-- web-stack変更はcommit `82905bb`・Draft PR #1（`codex/docker-orca-wt`）。
+- web-stack起動中（HTTP 80 / DB 3306）。XAMPP Apache/MySQLは停止済み、サービス・自動起動登録なし。
+- 旧htdocsリネーム失敗時もデータ変更なし。Dockerは `C:\dev\legacy-htdocs` のみ参照し、旧htdocsはロールバック用に残置。
+- OMS/web-stackともD-5ブランチ。再起動前にコミット・pushして状態を保全する。
