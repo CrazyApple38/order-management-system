@@ -1,6 +1,6 @@
 # XAMPP → Docker 全面移行計画書
 
-**ステータス: D-0〜D-3 完了（2026-07-14・旧dirリネーム退避のみ残）／D-4 着手待ち（着手前ユーザー確認・Codex 引き継ぎ予定）**
+**ステータス: D-0〜D-4 完了（2026-07-14・旧dirリネーム退避のみ残）／D-5 着手待ち（破壊的操作のため各ステップでユーザー確認）**
 **SSOT: 本計画書。着手前に全読すること（§2 AI 実装ガイドライン厳守）**
 
 - 作成: 2026-07-14 Claude Code (Fable 5)・ユーザー承認済み方針に基づく
@@ -40,7 +40,7 @@
 - XAMPP 実測: **PHP 8.2.12 / Apache 2.4.58 / MariaDB 10.4.32**・`httpd-vhosts.conf` にカスタム vhost なし
 - MariaDB 実 DB: `keibi_system` / `basarak28_zennippon` / `zng_recruit_test`（+ system schema）
 - PHP を含む htdocs 配下: `dashboard`（**XAMPP 自身のダッシュボード＝ユーザープロジェクトではない**）/ `keibi-report-quiz` / `keibi-system`（+backup）/ `Nikkei_HP` / `recruit_backup_2025-09-04` / `ZNG_Recruit`
-- OMS リポジトリ内で XAMPP パス/前提に依存するのは **`scripts/orca-wt.sh`**（junction 置き場 = repo 親 dir 前提）と **`docs/rules/shared.md`**（Local Browser Verification 節 → CLAUDE.md/AGENTS.md に生成される）のみ
+- 移行前にXAMPPパスへ依存していた **`scripts/orca-wt.sh`** と **`docs/rules/shared.md`** はD-3/D-4でDocker前提へ移行済み
 - `supabase/` は空の `migrations/` のみ（Supabase CLI 未初期化・config.toml なし）
 
 ---
@@ -98,9 +98,10 @@ C:\dev\
 │   └─ README.md                起動・復旧手順
 ├─ legacy-htdocs\              ← 旧 C:\xampp\htdocs のユーザープロジェクト移動先
 ├─ order-management-system\    ← OMS リポジトリ移動先
-├─ oms-wt-serve\               ← orca worktree junction 置き場（D-4）
 └─ migration-backup\           ← D-0 バックアップ（dump・設定コピー。git 管理外）
 ```
+
+orca worktree実体は `C:\Users\Owner\orca\workspaces\order-management-system\` にあり、web-stackが同ルートをread-onlyマウントする（D-4）。
 
 ### 3.2 コンテナ構成（web-stack）
 
@@ -111,7 +112,7 @@ C:\dev\
 | `pma` | `phpmyadmin` | （直接公開なし） | `web` から `/phpmyadmin` に ProxyPass |
 
 - **バージョンは XAMPP 実測にピン**（PHP 8.2 / MariaDB 10.4）— 挙動互換優先。アップグレードは §6
-- `web` のマウント: `C:\dev\legacy-htdocs → /var/www/html`（docroot）/ `C:\dev\order-management-system → /var/www/html/order-management-system`（ネストマウント）/ `C:\dev\oms-wt-serve → /var/www/oms-wt`
+- `web` のマウント: `C:\dev\legacy-htdocs → /var/www/html`（docroot）/ `C:\dev\order-management-system → /var/www/html/order-management-system`（ネストマウント）/ orca workspacesルート → `/var/www/orca-ws:ro`
 - MariaDB root は **XAMPP 互換のパスワード空を許容**（`MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=1`）し、その代わり **3306 は `127.0.0.1` バインドのみ**で公開する。パスワード導入は将来課題（§6。legacy 設定の一斉変更を避けるための決定）
 
 ### 3.3 URL 互換表（受け入れ基準の正本）
@@ -120,7 +121,7 @@ C:\dev\
 |-----|----------------|-----------------|
 | `http://localhost/<legacyプロジェクト>/...` | htdocs 直配信 | **不変**（legacy-htdocs 直配信） |
 | `http://localhost/order-management-system/...` | htdocs 直配信 | **不変**（ネストマウント） |
-| `http://localhost/oms-wt-<ai>-<topic>/` | htdocs 内 junction | **不変**（AliasMatch + junction。D-4） |
+| `http://localhost/oms-wt-<ai>-<topic>/` | htdocs 内 junction | **不変**（AliasMatch + orca workspaces直接マウント。D-4） |
 | `http://localhost/phpmyadmin/` | XAMPP alias | **不変**（ProxyPass。不可なら `:8090` へ分岐 → D-1 既知の分岐） |
 | `localhost:3306`（DB 接続・ホスト側から） | XAMPP MariaDB | **不変**（127.0.0.1 バインド） |
 | PHP コンテナ内からの DB 接続 | `localhost` | **`db`（サービス名）に変更が必要** → D-2 |
@@ -263,7 +264,7 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
    volumes:
      db-data:
    ```
-   ※ worktree 用マウント（`C:/dev/oms-wt-serve:/var/www/oms-wt`）は D-4 で追加する。
+   ※ worktree 配信はD-4でorca workspacesルートのread-only直接マウントとして追加済み。
    `.env.example`（git 管理）と `.env`（管理外）: `HTTP_PORT=8080` / `DB_PORT=13306` / `HTDOCS_DIR=C:/xampp/htdocs` / `OMS_DIR=C:/xampp/htdocs/order-management-system`
 
    `php/Dockerfile`:
@@ -417,42 +418,48 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 
 **目的**: `http://localhost/oms-wt-<ai>-<topic>/` の並列開発配信を Docker で維持する。
 
-**現行仕様**: `scripts/orca-wt.sh` が「junction 置き場 = リポジトリ親 dir（旧 htdocs）」「docroot = htdocs」を前提に junction を張る。移動後は親 dir が `C:\dev` になり成立しない。
+**現行仕様（D-4完了後）**: web-stackがorca workspacesルートをread-onlyで直接マウントし、`scripts/orca-wt.sh` はworktreeの作成・削除とDocker配信URLの対応表示を行う。Windows junctionは使用しない。
 
 **設計**:
 
-1. junction 置き場を **`C:\dev\oms-wt-serve`（環境変数 `OMS_WT_SERVE` で上書き可・既定値をスクリプトに持つ）** に変更。`_repo_root` からの `htdocs=$(dirname "$root")` 導出を廃止
-2. web-stack 側: compose の `web` に `- "C:/dev/oms-wt-serve:/var/www/oms-wt"` を追加し、`apache/oms.conf` に追記:
+1. web-stack側: composeの`web`に `${OMS_WT_WORKSPACE_ROOT:-C:/Users/Owner/orca/workspaces/order-management-system}:/var/www/orca-ws:ro` を追加
+2. `apache/oms.conf`でURLの`oms-wt-`接頭辞を除いたworktree名へ対応:
    ```apache
-   AliasMatch ^/(oms-wt-[^/]+)(/.*)?$ /var/www/oms-wt/$1$2
-   <Directory /var/www/oms-wt>
+   AliasMatch ^/oms-wt-([^/]+)(/.*)?$ /var/www/orca-ws/$1$2
+   <Directory /var/www/orca-ws>
        Options Indexes FollowSymLinks
        Require all granted
    </Directory>
    ```
-3. orca-wt.sh の変更点: `htdocs` 変数 → `serve_dir`（既定 `/c/dev/oms-wt-serve`・無ければ mkdir）/ URL 表示・list・drop の走査先を serve_dir へ / usage・コメントの XAMPP 記述を更新。junction 作成・除去・ぶら下がり検出ロジック（`_junction_create` / `_junction_remove` / `_entry_exists`）は**そのまま流用**する
-4. `docs/plan/orca-worktree-workflow-plan.md` に Docker 対応の追記（配信経路の変更点）
+3. `scripts/orca-wt.sh`: junction作成・除去・走査を廃止。比較pathはWindowsの大小文字非依存・末尾スラッシュ非依存に正規化する。`new`は作成pathが`OMS_WT_WORKSPACE_ROOT`配下か検証し、外れた場合は作成worktreeをロールバックする。`list`は配信ルート内だけURLを表示し、範囲外は`[未配信]`と明示する
+4. 表示URLはweb-stack `.env` の`HTTP_PORT`に追従し、D-5の80番切替後はポートなしURLへ自動更新する
+5. `docs/plan/orca-worktree-workflow-plan.md`を同じ配信経路へ更新
 
-**最重要検証**: **Windows junction が Docker バインドマウント越しに解決されるか**。
-検証手順: `mkdir C:\dev\oms-wt-serve` → 適当なテスト dir を作り `cmd /c mklink /J C:\dev\oms-wt-serve\oms-wt-test <テストdir>` → compose 反映後 `curl http://localhost:8080/oms-wt-test/`（テスト dir に index.html を置く）→ 200 なら junction 方式続行。
+**分岐検証結果**: Windows junctionはコンテナ内で`/mnt/host/c/...`を指すリンクとして見えるが解決不能で、HTTP 403となった。このため既知の分岐どおりorca workspaces直接マウントを採用した。
 
-**受け入れ基準**: `sh scripts/orca-wt.sh new claude smoke` → 出力 URL（ポート込みに注意。切替前は :8080）で worktree の docs/index.html が表示 → `sh scripts/orca-wt.sh drop claude-smoke` で junction・worktree が消える / `list` の表示が正しい。
+**受け入れ基準**: `sh scripts/orca-wt.sh new claude smoke` → 出力URL（切替前は`:8080`）でworktreeの`docs/index.html`が表示 → `list`のURL/実体対応が正しい → `sh scripts/orca-wt.sh drop claude-smoke`でworktreeが消え、URLが404になる。
 
 **既知の分岐**:
 
 | 事象 | 対応 |
 |------|------|
-| **junction がマウント越しに解決されない**（404 / 空 dir） | junction 方式を廃止する。代替: `orca worktree create --json` の応答 path から **orca workspaces ルート**を特定し、compose に `- "<orca-ws-root>:/var/www/orca-ws:ro"` を追加、AliasMatch のターゲットを orca-ws 配下の実パス構造に合わせて変更。orca-wt.sh は junction 作成をやめ「URL とパスの対応表示」だけにする。**この分岐を選んだら本節と orca-worktree-workflow-plan.md を実績で更新** |
-| worktree 内の相対リンクが `/oms-wt-<name>/` プレフィックスで崩れる | 現行 XAMPP 方式と同条件（サブパス配信）のため原則発生しない。発生したら該当ページを記録しユーザー確認 |
-| `OMS_WT_SERVE` の POSIX/Windows パス変換ずれ | orca-wt.sh 内は POSIX（`/c/dev/...`）で持ち、`_win()`（cygpath）で変換する現行パターンを踏襲 |
+| orca worktreeが`OMS_WT_WORKSPACE_ROOT`外へ作成される | `new`が作成済みworktreeを即時ロールバックして停止。web-stackのマウント元と環境変数を一致させる |
+| worktree 内の相対リンクが `/oms-wt-<name>/` プレフィックスで崩れる | 移行前と同じサブパス配信条件のため原則発生しない。発生したら該当ページを記録しユーザー確認 |
+| `OMS_WT_WORKSPACE_ROOT` のPOSIX/Windowsパス変換ずれ | ラッパー内でWindows絶対パスを`cygpath -u`へ変換し、大小文字と末尾スラッシュを正規化。web-stack `.env` と同じ実体を指定する |
 
 **ロールバック**: orca-wt.sh は git revert / compose・conf の追記を戻す。
+
+**D-4 実績（2026-07-14 / Codex）**:
+
+- **既知の分岐を採用**: `C:\dev\oms-wt-serve` のWindows junctionはコンテナ内で `/mnt/host/c/...` を指すリンクとして見えるがリンク先を解決できず、HTTP 403となった。
+- web-stackはorca workspacesルート（既定 `C:\Users\Owner\orca\workspaces\order-management-system`）を `/var/www/orca-ws:ro` へ直接マウントし、AliasMatchでURLの `oms-wt-` 接頭辞を除いたworktree名へ対応する方式へ変更。`scripts/orca-wt.sh` はjunction操作を廃止し、worktree作成・削除・URL対応表示へ限定した。
+- 実動検証合格: `new claude smoke` → `list`で `http://localhost:8080/oms-wt-claude-smoke/` を表示 → `docs/index.html` / `docs/order-book.html` ともHTTP 200 → `drop claude-smoke`後にworktree実体消失・URL 404。web-stack Apache構文とcompose構成もgreen。
 
 ### 4.6 D-5 切替・XAMPP 廃止
 
 **目的**: XAMPP を停止し、htdocs を `C:\dev\legacy-htdocs` へ移動、web-stack をポート 80/3306 に切り替えて全面移行を完了する。**破壊的操作を含む唯一のフェーズ — 各ステップでユーザー承認**。
 
-**前提条件**: D-1〜D-4 の受け入れ基準がすべて green / D-0 バックアップの実在を再確認（dump のサイズ・日付）/ worktree・junction ゼロを維持していること（`orca-wt.sh list` で確認。D-4 の smoke 検証分も drop 済み）。
+**前提条件**: D-1〜D-4 の受け入れ基準がすべて green / D-0 バックアップの実在を再確認（dump のサイズ・日付）/ worktreeゼロを維持していること（`orca-wt.sh list`のDocker配信URLが「なし」。D-4のsmoke検証分もdrop済み）。
 
 **手順**:
 
@@ -576,3 +583,4 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 - 2026-07-14 / Claude Code (Fable 5) / D-1（完了）/ web-stack 構築・:8080 で XAMPP 並走・§5.1 全合格。分岐: DB 突合は XAMPP 起動不可のため dump 基準へ代替 / phpMyAdmin は AllowNoPassword=true の config 追加で空 PW 互換化 / ftp 拡張は legacy 未使用で見送り。web-stack の GitHub リポジトリ作成は未（名称・可視性のユーザー確認待ち）。
 - 2026-07-14 / Claude Code (Fable 5) / D-1 補・D-2（完了）/ web-stack を private リポジトリ `CrazyApple38/web-stack` として GitHub へ push（ユーザー承認）。D-2: 修正 2 ファイル（keibi-system/.env・ZNG database_local.php → `db`）+ `basarak28_zgu1` 再構築 + keibi-system の storage/framework 欠損補修。検証全合格（DB 読取 2 系統 + www-data 書込 3 箇所）。
 - 2026-07-14 / Claude Code (Fable 5) / D-3（完了・旧dirリネームのみユーザー実施待ち）/ OMS を `C:\dev\order-management-system` へ複製・git 検証合格・Claude junction 再作成・settings/Codex config/orca 追従・rules を Docker 前提へ再生成・web-stack OMS_DIR 切替。分岐: robocopy `/COPYALL`→`/COPY:DAT`。CI 障害により PR は ruleset 一時無効化で手動マージ（ユーザー承認・D-4 でも CI 復旧まで同手順）。以後の作業は新パスで行うこと。D-4 以降は Codex 引き継ぎ。
+- 2026-07-14 / Codex / D-4（完了）/ Windows junctionはDocker越しに解決不能（403）だったため既知の分岐を採用。orca workspacesルートをweb-stackへ直接read-onlyマウントし、ラッパーをjunctionなしのURL対応方式へ変更。実worktreeのnew/list・HTTP 200・drop/404まで合格。

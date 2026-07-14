@@ -1,8 +1,8 @@
 # orca × git worktree 開発ワークフロー計画（OMS）
 
-> **状態**: 計画中（合意前）。本会話で骨子合意 → ラッパー実装 → 独立レビュー → PR。
+> **状態**: 運用中。初期実装（PR #14）後、Docker移行 D-4 で配信経路を更新（2026-07-14）。
 > **目的**: Claude と Codex を **別々の git worktree で並列実行**し、成果を比較・マージできる開発環境にする。
-> **スコープ**: **OMS のみ**。`pr-flow` スキル本体（agent-env 共通）は変更しない。OMS 内の薄いラッパーで `orca worktree` + junction + `pr-flow` を束ねる。
+> **スコープ**: **OMS のみ**。`pr-flow` スキル本体（agent-env 共通）は変更しない。OMS 内の薄いラッパーで `orca worktree` + Docker配信URL + `pr-flow` を束ねる。
 
 ---
 
@@ -15,7 +15,7 @@
 | worktree 物理パス | `C:\Users\Owner\orca\workspaces\order-management-system\<name>` — **htdocs の外** |
 | ブランチ命名 | orca 既定 = `<gitUsername>/<name>`（例 `CrazyApple38/wt-probe`）。CLI で prefix 変更・上書き不可。`worktree set` はメタのみ変更（git ブランチ名は不変） |
 | モック展開 | worktree に `docs/*.html` 一式が checkout される |
-| XAMPP 配信 | htdocs 内に junction（`mklink /J`・**管理者不要**）を張れば `http://localhost/oms-wt-<topic>/docs/*.html` で **http 配信**可能＝`file://` の fetch 制約も回避。junction 除去は `rmdir`（中身に無影響） |
+| Docker 配信 | orca workspaces ルートを web-stack へread-onlyマウントし、`http://localhost:8080/oms-wt-<topic>/docs/*.html` で **http 配信**（D-5後はポート80）。Windows junction はDocker越しに解決不能のため不使用 |
 | 後始末 | `orca worktree rm --worktree name:<name> --force` で worktree もブランチも削除（クリーン復帰を確認） |
 
 ---
@@ -27,7 +27,7 @@
 | 目的 | Claude↔Codex 並列実行 | orca 本来の価値。現行の直列 HANDOFF を並列化 |
 | 適用範囲 | OMS のみ（まず検証） | 影響範囲を絞る。pr-flow 本体は不変 |
 | ブランチ命名 | worktree 名に AI 接頭辞：`--name claude-<topic>` / `codex-<topic>` → `CrazyApple38/claude-<topic>` / `CrazyApple38/codex-<topic>` | orca の `<username>/` 既定と衝突せず、AI 識別を名前に埋め込む |
-| モック配信 | junction 自動付与：`C:\xampp\htdocs\oms-wt-<topic>` → worktree、URL `http://localhost/oms-wt-<topic>/` | http 配信を維持し fetch 系機能も動かす |
+| モック配信 | web-stack が `C:\Users\Owner\orca\workspaces\order-management-system` を直接read-onlyマウントし、URL `/oms-wt-<topic>/` とworktree名をAliasMatchで対応 | junctionを介さず http 配信を維持し、fetch 系機能も動かす |
 | 成果物 | 計画書合意 → 薄いラッパースクリプト | agent-env の流儀（計画=単一情報源）に沿う |
 
 ---
@@ -41,24 +41,23 @@ POSIX sh（Git Bash）。repo id はハードコードせず **`--repo path:"$(g
 - **`orca-wt.sh new <ai> <topic> [--agent <orca-agent-id>] [--prompt "<初期指示>"]`**
   1. `orca worktree create --repo id:<動的解決した repo id> --name <ai>-<topic> --base-branch master --setup skip --no-parent [--agent <orca-agent-id>] [--prompt ...] --json`（repo id は `orca repo list` を現リポジトリルートとパス一致で解決＝ハードコードなし）
   2. JSON（`.result.worktree.path`）から worktree パスを取得
-  3. junction 作成：`cmd /c mklink /J <htdocs>\oms-wt-<ai>-<topic> <worktree-path>`（`MSYS_NO_PATHCONV=1`・引数分離）
-  4. worktree パスと配信 URL（`http://localhost/oms-wt-<ai>-<topic>/`）を出力（junction 失敗時は URL を出さず注記）
-  - `<ai>` ∈ `{claude, codex}`（ブランチ/junction 命名用ラベル。orca の TUI エージェント起動 id `--agent` とは別物。`--prompt` は `--agent` 必須）
+  3. 応答pathと `OMS_WT_WORKSPACE_ROOT`（既定 `/c/Users/Owner/orca/workspaces/order-management-system`）をWindowsの大小文字・末尾スラッシュ非依存に正規化して配下か検証。範囲外なら作成済みworktreeをロールバックして停止
+  4. worktree パスと配信 URL（並走中 `http://localhost:8080/oms-wt-<ai>-<topic>/`）を出力。URLのポートはweb-stack `.env` の `HTTP_PORT` に追従
+  - `<ai>` ∈ `{claude, codex}`（ブランチ/worktree命名用ラベル。orca の TUI エージェント起動 id `--agent` とは別物。`--prompt` は `--agent` 必須）
 
 - **`orca-wt.sh drop <ai>-<topic>`**
-  1. junction 除去：`cmd /c rmdir C:\xampp\htdocs\oms-wt-<ai>-<topic>`（中身に無影響）
-  2. `orca worktree rm --worktree name:<ai>-<topic> --force`
+  1. 削除対象worktree内からの実行を拒否
+  2. `orca worktree rm --worktree name:<ai>-<topic> --force`（junction後始末は不要）
 
 - **`orca-wt.sh list`**
-  - `git worktree list`（現リポジトリにスコープ）＋ 配信中 junction/URL 対応表を表示
+  - `git worktree list`（現リポジトリにスコープ）＋ `claude-*` / `codex-*` worktreeのDocker配信URL対応表を表示。配信ルート外のworktreeはURLを付けず`[未配信]`と明示
 
 ### 設計上の注意
 
-- junction の rmdir は**必ず worktree rm より先**（逆だと worktree 実体を消しかねない誤操作リスク）。
-- `<topic>` は英小数字ハイフンに正規化・バリデート（junction 名・URL に載るため）。
+- `<topic>` は英小数字ハイフンに正規化・バリデート（worktree名・URLに載るため）。
 - `--setup skip` は初期方針（モック段階は npm 依存を新規解決しない）。ビルドが要る段階で `--setup run` に切替。
-- **main-root 解決（2026-07-13 修正）**: リポジトリルートは `git rev-parse --path-format=absolute --git-common-dir` の親で解決する。worktree 内から実行しても htdocs・orca repo 照合が main 側に正しく解決される（従来の `--show-toplevel` は worktree 内で誤動作していた）。
-- **ぶら下がり junction（2026-07-13 追加）**: ターゲット消失の junction は Git Bash で `-e` false／`-L` true（実測）。`list` は「[ぶら下がり]」と表示し、`drop`/`new` の fail-fast も `-e`＋`-L` で拾う。`drop` は削除対象 worktree の中からは実行拒否（cwd ごと消えるのを防ぐ）。
+- **main-root 解決（2026-07-13 修正）**: リポジトリルートは `git rev-parse --path-format=absolute --git-common-dir` の親で解決する。worktree 内から実行してもorca repo照合がmain側に正しく解決される（従来の `--show-toplevel` はworktree内で誤動作していた）。
+- **Docker配信（2026-07-14 D-4）**: junction方式はDockerバインドマウント越しにリンク先を解決できず403となったため廃止。orca workspacesルートの直接read-onlyマウントへ切替。`drop` は削除対象worktreeの中からは引き続き実行拒否する。
 
 ---
 
@@ -83,13 +82,14 @@ POSIX sh（Git Bash）。repo id はハードコードせず **`--repo path:"$(g
 
 ## 6. 未確認の前提（実装時に検証）
 
-- [x] Apache が junction を透過配信するか → **可**（curl HTTP 200 実証・PR #14）。
+- [x] XAMPP Apache が junction を透過配信するか → **可**（旧方式・curl HTTP 200 実証・PR #14）。
+- [x] DockerがWindows junctionをバインドマウント越しに解決するか → **不可**（403。コンテナ内リンク先が`/mnt/host/c/...`となり未解決）。既知の分岐どおりorca workspaces直接マウントへ変更しHTTP 200を確認。
 - [x] `orca worktree create` の setup hook（`npm install`）を `--setup skip` で確実に回避できるか → **可**（実測で hook 非実行）。
 - [ ] 並列時の同一ファイル競合（両 AI が同ファイルを編集 → merge conflict）→ **タスク分割で回避**する運用前提。HANDOFF は worktree から更新しないため主要な衝突面は解消済み（§5）。GitHub ruleset の required check は `strict=false`（up-to-date 必須なし・2026-07-13 確認）のため、衝突がない限り並列 PR は順次自動マージされる。
 
 ---
 
-## 7. 実装ステップ（骨子合意後）
+## 7. 初期実装履歴（2026-07-13完了）
 
 1. `claude/orca-worktree-workflow` ブランチ（in-place・ブートストラップ。ラッパー未完のため今回だけ従来フロー）。
 2. `scripts/orca-wt.sh` 実装（`new` / `drop` / `list`）。
@@ -97,3 +97,20 @@ POSIX sh（Git Bash）。repo id はハードコードせず **`--repo path:"$(g
 4. 独立レビュー（新規 `.sh` = トリガ該当。実装文脈非継承の general-purpose）。
 5. `pr-flow submit` → PR → `automerge`（非視覚のみ＝スクリプト/ドキュメント → 自動マージ）。
 6. `docs/SHARED-MEMORY.md`・`CLAUDE.md` に worktree 運用を追記（両 AI 共有）。
+
+---
+
+## 8. Docker配信経路（D-4・2026-07-14）
+
+```
+C:\Users\Owner\orca\workspaces\order-management-system\<ai>-<topic>
+  ↓ bind mount :ro
+/var/www/orca-ws/<ai>-<topic>
+  ↓ AliasMatch（URLの oms-wt- 接頭辞を除去）
+http://localhost:8080/oms-wt-<ai>-<topic>/
+```
+
+- web-stack `compose.yaml`: `OMS_WT_WORKSPACE_ROOT` を `/var/www/orca-ws:ro` へマウント
+- web-stack `apache/oms.conf`: `/oms-wt-<name>/...` → `/var/www/orca-ws/<name>/...`
+- `scripts/orca-wt.sh`: junction作成・走査・除去を廃止し、worktree作成/削除とURL対応表示に限定
+- D-5で `.env` の `HTTP_PORT=80` へ切り替わると、ラッパーの表示URLも自動的に `http://localhost/...` へ追従する

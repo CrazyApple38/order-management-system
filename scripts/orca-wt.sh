@@ -1,18 +1,20 @@
 #!/usr/bin/env sh
-# orca-wt.sh — OMS 用 git worktree ラッパー（orca worktree + XAMPP junction）
+# orca-wt.sh — OMS 用 git worktree ラッパー（orca worktree + Docker 配信 URL）
 #
 # 目的: Claude と Codex を「別々の worktree」で並列実行するための補助。
-#   - new  : orca worktree 作成 + htdocs 内に junction を張り http 配信 URL を出力
-#   - drop : junction 除去 → orca worktree 削除
-#   - list : 現リポジトリの worktree 一覧 + 配信中 junction/URL 一覧
+#   - new  : orca worktree 作成 + Docker 配信 URL を出力
+#   - drop : orca worktree 削除
+#   - list : 現リポジトリの worktree 一覧 + 配信 URL 対応表
 #
 # 設計・背景の単一情報源: docs/plan/orca-worktree-workflow-plan.md
 #
 # 前提:
 #   - Git Bash (POSIX sh) で実行する。
 #   - orca CLI（デスクトップアプリ同梱）が利用可能。既定パスに無ければ ORCA_BIN で指定。
-#   - このリポジトリが XAMPP の docroot（htdocs）直下にあり、localhost の docroot = htdocs。
-#     → junction dir = <htdocs>/oms-wt-<ai>-<topic>、配信 URL = http://localhost/oms-wt-<ai>-<topic>/
+#   - web-stack が orca workspaces ルートを /var/www/orca-ws に read-only マウント済み。
+#     → worktree dir = <workspace-root>/<ai>-<topic>
+#     → 配信 URL = http://localhost:8080/oms-wt-<ai>-<topic>/（D-5 切替前）
+#   - Windows junction は Docker バインドマウント越しに解決不能だったため使用しない。
 #
 # ブランチ命名について:
 #   orca はブランチ名を <gitUsername>/<name> で作る（CLI で prefix 変更不可）。
@@ -45,16 +47,52 @@ _ensure_orca() {
 
 _orca() { _ensure_orca; "$ORCA_BIN" "$@"; }
 
-# ---- リポジトリ / htdocs 解決 ----------------------------------------------
+# ---- リポジトリ / orca workspace 解決 --------------------------------------
 # main リポジトリのルートを返す。linked worktree 内から実行されても main 側に解決する
-# （junction の位置=htdocs と orca への repo 登録パスは main リポジトリ基準のため。
-#   従来の --show-toplevel は worktree 内だと worktree のルートを返し、htdocs が
-#   orca workspaces 側に化けて list/drop/new が誤動作していた）。
+# （orca への repo 登録パスは main リポジトリ基準のため。従来の
+#   --show-toplevel は worktree 内だと worktree のルートを返して誤動作していた）。
 _repo_root() {
   common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) \
     || _die "git リポジトリ内で実行してください。"
   [ -n "$common" ] || _die "git リポジトリ内で実行してください。"
   dirname "$common"
+}
+
+_normalize_path() {
+  raw="$1"
+  case "$raw" in
+    [A-Za-z]:\\*|[A-Za-z]:/*) dir=$(cygpath -u "$raw") ;;
+    /*) dir="$raw" ;;
+    *) _die "OMS_WT_WORKSPACE_ROOT は絶対パスで指定してください（指定値: '$raw'）。" ;;
+  esac
+  if [ "$dir" != "/" ]; then
+    while [ "${dir%/}" != "$dir" ]; do dir=${dir%/}; done
+  fi
+  printf '%s' "$dir" | tr '[:upper:]' '[:lower:]'
+}
+
+_workspace_root() {
+  _normalize_path "${OMS_WT_WORKSPACE_ROOT:-/c/Users/Owner/orca/workspaces/order-management-system}"
+}
+
+_serve_url() {
+  if [ -n "${OMS_WT_BASE_URL:-}" ]; then
+    base="$OMS_WT_BASE_URL"
+  else
+    # web-stack の現在ポートに追従し、D-5 の 8080→80 切替後もURLを正しく表示する。
+    port=""
+    env_file="${OMS_WEB_STACK_ENV:-/c/dev/web-stack/.env}"
+    if [ -f "$env_file" ]; then
+      port=$(sed -n 's/^HTTP_PORT=//p' "$env_file" | tail -n 1)
+    fi
+    port="${port:-8080}"
+    if [ "$port" = "80" ]; then
+      base="http://localhost"
+    else
+      base="http://localhost:$port"
+    fi
+  fi
+  printf '%s/%s/' "${base%/}" "$1"
 }
 
 # orca に登録済みリポジトリの中から、現在のリポジトリルートに一致する repo id を返す。
@@ -74,28 +112,6 @@ _repo_id() {
     fi
   done
 }
-
-# ---- Windows パス変換 / junction 操作 --------------------------------------
-_win() { cygpath -w "$1"; }
-
-_junction_create() {
-  # $1=リンク(POSIXパス) $2=ターゲット(POSIXパス)
-  # 注: cmd への引数は分離して渡す（1文字列に \"..\" を埋めると cmd の引用解釈で壊れる）。
-  #     bash が各パスを quote するのでスペース入りパスにも耐える。
-  link_win=$(_win "$1")
-  target_win=$(_win "$2")
-  MSYS_NO_PATHCONV=1 cmd /c mklink /J "$link_win" "$target_win" >/dev/null 2>&1
-}
-
-_junction_remove() {
-  # $1=リンク(POSIXパス)。rmdir は junction 本体のみ削除（ターゲットの中身は無影響）。
-  link_win=$(_win "$1")
-  MSYS_NO_PATHCONV=1 cmd /c rmdir "$link_win" >/dev/null 2>&1
-}
-
-# ディレクトリエントリの存在判定。ターゲット消失の junction（ぶら下がり）は
-# Git Bash で -e が false / -L が true になるため、両方で見る（実測 2026-07-13）。
-_entry_exists() { [ -e "$1" ] || [ -L "$1" ]; }
 
 # ---- 入力バリデーション -----------------------------------------------------
 _validate_ai() {
@@ -139,18 +155,7 @@ cmd_new() {
 
   name="$ai-$topic"
   root=$(_repo_root)
-  htdocs=$(dirname "$root")
-  link="$htdocs/oms-wt-$name"
-  url="http://localhost/oms-wt-$name/"
-
-  # fail-fast: 既に同名 junction/ディレクトリ（ぶら下がり junction 含む）があれば中止
-  if _entry_exists "$link"; then
-    if [ -e "$link" ]; then
-      _die "配信先 '$link' が既に存在します。先に '$SCRIPT drop $name' で片付けるか、別 topic を使ってください。"
-    else
-      _die "配信先 '$link' にぶら下がり junction（ターゲット消失）が残っています。'$SCRIPT drop $name' で除去してください。"
-    fi
-  fi
+  url=$(_serve_url "oms-wt-$name")
 
   _ensure_orca  # orca 不在を「未登録」と誤認する前に、ここで明確に停止する
   repo_id=$(_repo_id "$root")
@@ -166,22 +171,24 @@ cmd_new() {
   wt_path=$(printf '%s' "$json" | _extract_wt_path) \
     || _die "orca 応答から worktree パスを取得できませんでした。"
 
-  _info "junction 作成中: $link -> $wt_path"
-  junction_ok=0
-  if _junction_create "$link" "$wt_path"; then
-    junction_ok=1
-  else
-    _info "警告: junction 作成に失敗しました。worktree は作成済みです（file:// で参照可）。"
-    _info "  手動修復: cmd /c mklink /J \"$(_win "$link")\" \"$(_win "$wt_path")\""
-  fi
+  wt_posix=$(_normalize_path "$wt_path")
+  workspace_root=$(_workspace_root)
+  case "$wt_posix" in
+    "$workspace_root"/*) : ;;
+    *)
+      _info "worktree が Docker の配信ルート外に作成されました: $wt_path（期待: $workspace_root 配下）。"
+      _info "作成済み worktree をロールバックします: name=$name"
+      if _orca worktree rm --worktree "name:$name" --force --json >/dev/null 2>&1; then
+        _die "ロールバック完了。web-stack と OMS_WT_WORKSPACE_ROOT を確認してください。"
+      else
+        _die "ロールバックにも失敗しました。'orca worktree rm --worktree name:$name --force' で手動削除してください。"
+      fi
+      ;;
+  esac
 
   echo "worktree: $wt_path"
   echo "branch  : (orca 命名 <gitUsername>/$name)"
-  if [ "$junction_ok" -eq 1 ]; then
-    echo "serve   : $url"
-  else
-    echo "serve   : (junction 未作成のため未配信。手動修復後に $url)"
-  fi
+  echo "serve   : $url"
   echo "hint    : cd \"$wt_path\" して実装 → pr-flow.sh review → submit → automerge"
 }
 
@@ -191,8 +198,6 @@ cmd_drop() {
   _ensure_orca
   name="$1"
   root=$(_repo_root)
-  htdocs=$(dirname "$root")
-  link="$htdocs/oms-wt-$name"
 
   # 削除対象 worktree の中から drop すると、実行中の cwd ごと消えて後続が壊れる
   cur_top=$(git rev-parse --show-toplevel 2>/dev/null || true)
@@ -200,17 +205,8 @@ cmd_drop() {
     */"$name") _die "削除対象の worktree（$name）の中からは drop できません。main リポジトリ側で実行してください。" ;;
   esac
 
-  # 1) junction を先に除去（worktree 実体より前に。誤って実体を消さないため）。
-  #    ぶら下がり junction（ターゲット消失・orca UI 側で worktree だけ消した場合等）も
-  #    _entry_exists で拾って rmdir する（rmdir はぶら下がりにも有効・実測済み）。
-  if _entry_exists "$link"; then
-    _info "junction 除去中: $link"
-    _junction_remove "$link" || _info "警告: junction 除去に失敗（手動で rmdir \"$(_win "$link")\"）。"
-  else
-    _info "junction は存在しません（$link）。worktree 削除のみ行います。"
-  fi
-
-  # 2) orca worktree 削除（ブランチも消える）
+  # orca worktree 削除（ブランチも消える）。Docker は workspace ルートを直接参照するため
+  # junction の後始末は不要。
   _info "worktree 削除中: name=$name"
   _orca worktree rm --worktree "name:$name" --force --json >/dev/null 2>&1 \
     || _die "orca worktree rm に失敗しました（name:$name が存在するか確認してください）。"
@@ -220,40 +216,47 @@ cmd_drop() {
 # ---- サブコマンド: list -----------------------------------------------------
 cmd_list() {
   root=$(_repo_root)
-  htdocs=$(dirname "$root")
 
   echo "=== worktrees (git) ==="
   git -C "$root" worktree list
 
   echo
-  echo "=== 配信中 junction / URL ==="
-  found=0
-  for d in "$htdocs"/oms-wt-*; do
-    _entry_exists "$d" || continue  # glob 不一致（リテラル 'oms-wt-*'）はここで弾く
-    base=$(basename "$d")
-    if [ -e "$d" ]; then
-      echo "  http://localhost/$base/   ->  $d"
-    else
-      echo "  [ぶら下がり] $base — ターゲット消失。除去: $SCRIPT drop ${base#oms-wt-}"
-    fi
-    found=1
-  done
-  if [ "$found" -eq 0 ]; then echo "  (なし)"; fi
+  echo "=== Docker 配信 URL ==="
+  workspace_root=$(_workspace_root)
+  mappings=$(git -C "$root" worktree list --porcelain | awk '$1 == "worktree" { print substr($0, 10) }' |
+    while IFS= read -r wt_path; do
+      name=$(basename "$wt_path")
+      case "$name" in
+        claude-*|codex-*)
+          wt_posix=$(_normalize_path "$wt_path")
+          case "$wt_posix" in
+            "$workspace_root"/*) echo "  $(_serve_url "oms-wt-$name")   ->  $wt_path" ;;
+            *) echo "  [未配信] $wt_path（Docker配信ルート外: $workspace_root）" ;;
+          esac
+          ;;
+      esac
+    done)
+  if [ -n "$mappings" ]; then printf '%s\n' "$mappings"; else echo "  (なし)"; fi
 }
 
 # ---- ディスパッチ -----------------------------------------------------------
 usage() {
   cat >&2 <<EOF
-$SCRIPT — OMS 用 git worktree ラッパー（orca worktree + XAMPP junction）
+$SCRIPT — OMS 用 git worktree ラッパー（orca worktree + Docker 配信 URL）
 
 usage:
   $SCRIPT new  <ai> <topic> [--agent <orca-agent-id>] [--prompt <text>]
   $SCRIPT drop <ai>-<topic>
   $SCRIPT list
 
-  <ai>    : claude | codex（ブランチ/junction 命名用ラベル）
+  <ai>    : claude | codex（ブランチ/worktree 命名用ラベル）
   <topic> : 英小文字・数字・ハイフン
   --agent : orca の TUI エージェント起動 id（例: codex）。命名用 <ai> とは別物
+
+環境変数:
+  OMS_WT_WORKSPACE_ROOT: orca workspace ルート（既定 /c/Users/Owner/orca/workspaces/order-management-system）
+  OMS_WT_BASE_URL      : 配信元URL（未指定時は /c/dev/web-stack/.env の HTTP_PORT に追従）
+  OMS_WEB_STACK_ENV    : web-stack .env（既定 /c/dev/web-stack/.env）
 
 詳細: docs/plan/orca-worktree-workflow-plan.md
 EOF
