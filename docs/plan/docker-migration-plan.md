@@ -1,6 +1,6 @@
 # XAMPP → Docker 全面移行計画書
 
-**ステータス: D-0〜D-6 完了（2026-07-14）／D-7 文書整備完了・ノートPC実機確認待ち**
+**ステータス: D-0〜D-7 完了（2026-07-14。ノートPC実機テストは実行可能時へ延期）**
 **SSOT: 本計画書。着手前に全読すること（§2 AI 実装ガイドライン厳守）**
 
 - 作成: 2026-07-14 Claude Code (Fable 5)・ユーザー承認済み方針に基づく
@@ -541,7 +541,7 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 
 ### 4.8 D-7 ノート PC 再現手順書
 
-**目的**: ノート PC（Windows + Docker Desktop）で OMS 開発環境を再現する手順を文書化する。**実機検証はユーザーが実施**（AI はドキュメント整備まで）。
+**目的**: ノート PC（Windows + Docker Desktop）で OMS 開発環境を再現する手順を文書化する。実機検証はユーザーが実行可能な時点で行う（AI はドキュメント整備まで）。
 
 **手順**: `docker/README.md` に以下を明記（D-6 で作成済みのファイルに追記）:
 
@@ -551,14 +551,14 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 4. 制約: legacy PHP 群・MariaDB・worktree 配信は母艦のみ / Supabase は各端末で `supabase start`（データはローカル） / ポート 80 衝突時は compose の `ports` を `8080:80` にし URL を読み替え
 5. web-stack 側 README には母艦の災害復旧手順（新 PC で web-stack clone → .env 作成 → migration-backup の dump を db-init へ → up）を明記
 
-**受け入れ基準**: README 2 本（OMS `docker/README.md` / web-stack `README.md`）に上記が揃い、ユーザーがノート PC で手順どおり再現できたと確認（ユーザー実施・非同期でよい）。
+**受け入れ基準**: README 2 本（OMS `docker/README.md` / web-stack `README.md`）に上記が揃うこと。ノートPC実機テストはD-7完了条件から分離し、実行可能な時点で本手順に従って確認する。
 
 **D-7 文書整備実績（2026-07-14 / Codex）**:
 
 - OMS READMEに、ノートPCでのclone・静的モック起動・同一URL確認・停止・80番競合時の8080読み替えを追加。localStorageとSupabaseデータが端末ごとに独立すること、legacy / MariaDB / worktreeが母艦専用であることを明記した。
 - Supabase CLIはグローバル導入ではなく、Phase 3以降に `npm ci` でプロジェクト固定版を導入する現行手順へ統一した。Next.jsアプリ・Supabaseスキーマは作成していない。
 - web-stack READMEの災害復旧手順を、OMS / web-stackのclone、Git管理外データの復元、正常な個別dump 3本 + `90-users.sql` の初回インポート、起動後確認まで具体化。破損したXAMPP `mysql` スキーマとpartial dumpは使わない。
-- **残る受け入れ項目**: ユーザーによるノートPC実機での再現確認。AIの文書整備だけではD-7全体を完了判定しない。
+- **完了判断（2026-07-14 / ユーザー確認）**: 今回はノートPC実機テストを行わず、文書整備の完了をもってD-7をクローズする。実機テストは実行できる時期の将来課題として残す。
 
 ---
 
@@ -603,6 +603,7 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 | `C:\xampp` / `htdocs_MOVED-*` の削除 | 保持期間（目安 30 日）後にユーザー判断で削除 | D-5 + 30 日 |
 | Next.js scaffold・Supabase スキーマ | Phase 3（「モックアップ完了」宣言後） | Phase 3 |
 | Claude メモリのノート PC 同期 | ClaudeMemory は母艦の Obsidian Vault 統合。ノート側の扱いは未設計 | 必要になったら |
+| ノートPC実機再現テスト | D-7で整備した `docker/README.md` の手順に従い、clone・起動・同一URL・停止を確認する | ノートPCで実行可能になった時 |
 
 ---
 
