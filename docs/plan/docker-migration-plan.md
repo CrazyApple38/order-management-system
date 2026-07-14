@@ -1,6 +1,6 @@
 # XAMPP → Docker 全面移行計画書
 
-**ステータス: D-0・D-1 完了（2026-07-14）／D-2 着手待ち（着手前ユーザー確認）**
+**ステータス: D-0〜D-2 完了（2026-07-14）／D-3 着手待ち（着手前ユーザー確認・Claude Code 実施推奨）**
 **SSOT: 本計画書。着手前に全読すること（§2 AI 実装ガイドライン厳守）**
 
 - 作成: 2026-07-14 Claude Code (Fable 5)・ユーザー承認済み方針に基づく
@@ -353,6 +353,14 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 
 **ロールバック**: .bak-xampp を戻す（`for f in $(find ... -name '*.bak-xampp'); do mv "$f" "${f%.bak-xampp}"; done` 相当）。
 
+**D-2 実績（2026-07-14 / Claude Code）**:
+
+- 棚卸し結果（ユーザー確認ゲート通過済み）: **keibi-system = Laravel**（接続= `.env`）/ **ZNG_Recruit = config 集中定義**（Docker では本番判定が偽になり `backend/config/database_local.php` が読まれる）/ **keibi-report-quiz = DB 不使用**（JSON ファイル保存・修正不要）/ 休眠 3 件は修正せず。ハードコード接続なし（全て DB_HOST 定数経由）。
+- 修正 2 ファイル（各 `.bak-xampp` 作成済み）: `keibi-system/.env` の `DB_HOST=127.0.0.1`→`db` / `ZNG_Recruit/backend/config/database_local.php` の `localhost`→`db`。
+- **ユーザー再構築**: ZNG_Recruit 本番 config から `basarak28_zgu1` のパスワードが判明 → 実 DB + `db-init/90-users.sql` へ CREATE USER/GRANT を反映（ユーザー承認・migration-backup へもコピー）。
+- 検証合格: ZNG `backend/api/companies.php` が DB データを JSON 返却 / keibi-system トップ 200 + `artisan migrate:status` で 12 マイグレーション認識（接続先 `db`）/ www-data 書込テスト 3 箇所（quiz data・ZNG uploads・Laravel storage）全て可。
+- **乖離（keibi-system 500）**: `storage/framework/{sessions,views,cache}` が欠損しており初回 500（XAMPP 期からの欠損・git 管理外の標準生成物）。標準ディレクトリの追加作成のみで解消 → 200。
+
 ### 4.4 D-3 OMS リポジトリ移動 + AI 環境引っ越し
 
 **目的**: OMS を `C:\dev\order-management-system` へ移動し、AI ツーリング（Claude メモリ・orca・生成ルール）を追従させる。
@@ -555,3 +563,4 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 - 2026-07-14 / Codex / D-0（実施中）/ 個別3DB・権限・設定・htdocs棚卸しを `C:\dev\migration-backup` へ保全。XAMPP `mysql` の複数 Aria システムテーブル破損により全DB dumpを物理バックアップへ代替（ユーザー承認）。残作業は WSL / Docker Desktop 導入後の `hello-world`。
 - 2026-07-14 / Claude Code (Fable 5) / D-0（完了）/ WSL 2.7.10（`--no-distribution`）+ Docker Desktop 4.81.0（winget）をユーザー承認のもと導入代行し、再起動後に engine 起動・`hello-world` 成功を確認。乖離: 計画では導入=ユーザー操作としていたが、ユーザー明示依頼により AI 代行（UAC 承認・再起動はユーザー）へ変更。D-0 受け入れ基準クローズ。
 - 2026-07-14 / Claude Code (Fable 5) / D-1（完了）/ web-stack 構築・:8080 で XAMPP 並走・§5.1 全合格。分岐: DB 突合は XAMPP 起動不可のため dump 基準へ代替 / phpMyAdmin は AllowNoPassword=true の config 追加で空 PW 互換化 / ftp 拡張は legacy 未使用で見送り。web-stack の GitHub リポジトリ作成は未（名称・可視性のユーザー確認待ち）。
+- 2026-07-14 / Claude Code (Fable 5) / D-1 補・D-2（完了）/ web-stack を private リポジトリ `CrazyApple38/web-stack` として GitHub へ push（ユーザー承認）。D-2: 修正 2 ファイル（keibi-system/.env・ZNG database_local.php → `db`）+ `basarak28_zgu1` 再構築 + keibi-system の storage/framework 欠損補修。検証全合格（DB 読取 2 系統 + www-data 書込 3 箇所）。
