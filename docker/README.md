@@ -5,12 +5,47 @@
 ## 前提
 
 - Docker Desktop（WSL 2 バックエンド）
-- Node.js 20 以上（母艦では Node.js 22 を確認済み）
-- ルートディレクトリで `npm ci` を実行済み
+- Git
+- GitHub から本リポジトリをcloneできる認証設定
 
-Supabase CLI はプロジェクトの `devDependencies` に固定しています。グローバルインストールは不要です。
+静的モックアップの確認だけなら、Node.jsとSupabaseは不要です。Phase 3以降の開発ではNode.js 20以上（推奨22）を用意し、リポジトリのルートで `npm ci` を実行します。Supabase CLIはプロジェクトの `devDependencies` に固定しているため、グローバルインストールは不要です。
 
-## 静的モックアップ
+## ノートPCでの再現
+
+PowerShellで次を実行します。
+
+```powershell
+New-Item -ItemType Directory -Force C:\dev | Out-Null
+git clone git@github.com:CrazyApple38/order-management-system.git C:\dev\order-management-system
+Set-Location C:\dev\order-management-system
+docker compose -f docker/compose.yaml up -d mock-web
+```
+
+ブラウザで次を開きます。
+
+- OMS: http://localhost/order-management-system/docs/index.html
+
+母艦と同じURL・同じオリジンで配信するため、受注簿などの `mock.oms.*` localStorage連携も同じ条件で動作します。ただし、localStorageの中身は端末ごとに独立しています。母艦で入力したモックデータはノートPCへ自動では移りません。
+
+確認後の停止:
+
+```powershell
+docker compose -f docker/compose.yaml down
+```
+
+### ポート80が使用中の場合
+
+`docker/compose.yaml` の `mock-web` にあるポート指定を `"8080:80"` に変更し、再度起動します。この場合はURLも次のように読み替えます。
+
+- http://localhost:8080/order-management-system/docs/index.html
+
+### ノートPC環境の制約
+
+- legacy PHP群、MariaDB、phpMyAdmin、orca worktree配信は母艦の `C:\dev\web-stack` 専用で、ノートPCには展開しません。
+- Supabaseは端末ごとにローカル起動します。データも端末ごとのDocker volumeに保存され、母艦とは同期されません。
+- 現在は環境準備までです。Next.jsアプリ作成とSupabaseスキーマ作成は「モックアップ完了」宣言後のPhase 3で行います。
+
+## 母艦での静的モックアップ
 
 母艦では `C:\dev\web-stack` が同じURLをポート80で配信しているため、通常はこのサービスを起動しません。web-stack を使わない端末だけで起動します。
 
