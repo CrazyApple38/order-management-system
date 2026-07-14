@@ -39,7 +39,7 @@
 - **G-2 ユーザー管理（2026-07-11 ユーザー承認）**: 専用 localStorage キー `mock.oms.account.users.v1` と共有 `mock-account-data.js` を正とし、`user_profiles` 相当と `user_company_assignments` 相当を保存する。QA契約先シードも同モジュールへ集約し、QA利用者（田中）の担当IDでカードを絞り込む。実装契約は `mockup-master-account-plan.md` §4.2。
 - **G-3 個人設定反映（2026-07-11 ユーザー承認）**: 共有 `mock-account-preferences.js` が既知キー4種を正規化し、GC画面別初期値・共通ナビ表示・通知既定スコープ・densityを反映する。手動GC選択は `mock.oms.account.gc-filter-runtime.v1` に画面別保持し、設定保存/リセット時に破棄。通知の関与判定はモック限定で `affects[]` / `primaryPage` を使い、本実装で担当現場・所属GCへ差し替える。実装契約は `mockup-master-account-plan.md` §4.3。
 
-- **XAMPP → Docker 全面移行（2026-07-14 ユーザー確定・D-0〜D-4完了・D-5切替済み/OS再起動検証待ち）**: web-stack（php:8.2-apache + mariadb:10.4 + phpMyAdmin）が `C:\dev\legacy-htdocs` とOMSをポート80、MariaDBを127.0.0.1:3306で配信する。**OMS リポジトリの正は `C:\dev\order-management-system`**。旧 `C:\xampp\htdocs` は現セッションのハンドルでリネームできずロールバック用に残置しているため、関連セッション終了後に `htdocs_MOVED-20260714` へリネームする。orca worktreeはWindows junctionを使わず、orca workspacesルートをweb-stackへread-only直接マウントして `/oms-wt-<ai>-<topic>/` を配信する。**SSOT= `docs/plan/docker-migration-plan.md`**。Next.js/Supabase は環境のみ（アプリ実装は Phase 3 宣言後）。
+- **XAMPP → Docker 全面移行（2026-07-14 D-0〜D-5完了）**: web-stack（php:8.2-apache + mariadb:10.4 + phpMyAdmin）が `C:\dev\legacy-htdocs` とOMSをポート80、MariaDBを127.0.0.1:3306で配信する。Docker Desktop AutoStart + `restart: unless-stopped` でOS再起動後の自動復帰を実証済み。**OMS リポジトリの正は `C:\dev\order-management-system`**。旧 `C:\xampp\htdocs` はロールバック用に完全復元して残置し、部分退避 `htdocs_MOVED-20260714`（574ファイル）も削除禁止。整理は全関連セッション終了後にユーザー判断。orca worktreeはorca workspacesルートをread-only直接マウントして `/oms-wt-<ai>-<topic>/` を配信する。**SSOT= `docs/plan/docker-migration-plan.md`**。
 - **XAMPP MariaDB のシステムテーブル破損（2026-07-14 D-0 確定）**: アプリ DB 3 本の個別 dump は正常取得済みだが、`mysql` スキーマの Aria 6テーブルに異常（破損=`db` / `proxies_priv` / `tables_priv`、修復推奨=`event` / `global_priv` / `roles_mapping`）。原本の追加修復は行わず、`C:\dev\migration-backup` に `mysql` 全89ファイルの物理コピーと生存 `global_priv` を保全。**破損した `mysql` スキーマを Docker へインポートしない**。Docker MariaDB 10.4 の正常なシステムテーブルへユーザー・権限を再構築する。XAMPP MariaDB は通常起動不可・停止中で、移行時の読み取りが必要なら `--skip-grant-tables` を限定使用する。詳細・実績は `docker-migration-plan.md` §4.1。
 
 ## 会社マッピング（`demo-data.js` 由来・確定）
@@ -79,7 +79,7 @@
 
 | 日付 | 担当 | 変更内容 | 影響範囲 |
 |------|------|---------|---------|
-| 2026-07-14 | Codex | **D-5 Docker全面切替**: legacyを `C:\dev\legacy-htdocs` へ完全コピーし、web-stackを80/3306へ切替。旧htdocsはアクティブなセッションハンドルのためリネーム待ち | web-stack `.env`・既定設定 / legacy配信パス / 全ローカルURL・DB接続 |
+| 2026-07-14 | Codex | **D-5 Docker全面切替**: legacyを `C:\dev\legacy-htdocs` へ完全コピーし、web-stackを80/3306へ切替。OS再起動後の自動復帰まで実証。旧htdocsの部分移動は元へ完全復元し、両方を保全 | web-stack `.env`・既定設定 / legacy配信パス / 全ローカルURL・DB接続 / Docker Desktop AutoStart |
 | 2026-07-14 | Codex | **D-4 orca worktree Docker配信**: junctionがDockerバインドマウント越しに解決不能だったため、orca workspacesルートのread-only直接マウント + AliasMatchへ変更。ラッパーはjunction操作を廃止 | `scripts/orca-wt.sh` / web-stack `compose.yaml`・`apache/oms.conf` / orca-worktree計画 |
 | 〜2026-05-25〜27 | Codex | ダミーデータ・通知seedを `mock.oms.state.v1` 共通ストアへ移行、通知クリック判定を `domain`/`primaryPage`/画面別`target`解決へ、通知ベル7種→4分類統合、ジャンプ演出を2秒フェードオーバーレイ化。**いずれも後の R-2(07-04) で統合ベル1個モデルへ再改修済み・現行仕様はそちらが正**（詳細はコミット履歴参照） | `co-navbar.js` / `co-notify-panel.js` / 各画面 seed |
 | 2026-05-28 | Claude Code | OB行削除→復旧トグル追加（`cn:action` 汎用ボタン機構）／WSクロスジャンプ seed を実サイト軸へ修正 | `co-navbar.js` / `co-notify-panel.js` / `order-book.js` |
@@ -118,6 +118,6 @@
 - `docs/plan/design-refresh-plan.md` — デザイン刷新 診断・比較計画（**案B改: Calm Operations 採用 / 次は SL 適用範囲確定**）
 - `docs/plan/ws-support-partner-plan.md` — WS 応援予約・協力業者
 - `docs/plan/ui-components-improvement-plan.md` — UI コンポーネント整備
-- `docs/plan/docker-migration-plan.md` — **XAMPP → Docker 全面移行（D-0〜D-4完了、D-5は80/3306切替・全面回帰完了、OS再起動検証待ち。web-stack=`C:\dev\web-stack`、legacy=`C:\dev\legacy-htdocs`、OMS=`C:\dev\order-management-system`、orca workspaces直接マウント。旧htdocsリネームは関連セッション終了後。D-6〜D-7未着手・フェーズ単位ユーザー確認）**
+- `docs/plan/docker-migration-plan.md` — **XAMPP → Docker 全面移行（D-0〜D-5完了。web-stack=`C:\dev\web-stack`、legacy=`C:\dev\legacy-htdocs`、OMS=`C:\dev\order-management-system`、HTTP 80 / DB 3306、OS再起動自動復帰・orca配信実証済み。旧htdocsと部分退避は削除禁止。D-6〜D-7未着手・フェーズ単位ユーザー確認）**
 - `docs/plan/orca-worktree-workflow-plan.md` — **orca × git worktree 並列開発（Claude↔Codex を別 worktree で並列）。ラッパー `scripts/orca-wt.sh`（new/drop/list）。worktree 内は既存 pr-flow を使用（`start` は orca が代替）。orca workspacesをDockerへread-only直接マウントし `http://localhost/oms-wt-<ai>-<topic>/` 配信。OMS のみ・目的=並列実行**
 - その他: `docs/plan/*.md` 一覧を確認
