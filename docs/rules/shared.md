@@ -84,14 +84,14 @@ Claude と Codex の並列作業は orca の linked git worktree で行う。SSO
 
 - **ラッパー**: `sh scripts/orca-wt.sh new <ai> <topic>`（worktree 作成 + `http://localhost/oms-wt-<ai>-<topic>/` 配信）／`drop <ai>-<topic>`／`list`。main リポジトリ側で実行する。
 - **worktree 内での作業ルール**: ブランチは作成済みのため `pr-flow.sh start` は使わない（`review`→`submit`→`automerge` のみ）。**`docs/HANDOFF.md` は更新しない**（直列前提のファイル。引き継ぎは PR 本文で行う。pre-commit v5 が worktree では HANDOFF ゲートを免除する）。`docs/SHARED-MEMORY.md` 全読・独立レビュー基準・視覚変更のユーザー確認は通常どおり。
-- main リポジトリ（`C:\xampp\htdocs\order-management-system`）での直列作業は従来どおり（`pr-flow start`・HANDOFF 更新必須）。
+- main リポジトリ（`C:\dev\order-management-system`）での直列作業は従来どおり（`pr-flow start`・HANDOFF 更新必須）。
 
 ## Local Browser Verification
 
-- このプロジェクトのローカル画面確認は、可能な限り XAMPP Apache 経由で行う。
-- URL は `http://localhost/order-management-system/...` を優先する。
+- このプロジェクトのローカル画面確認は、可能な限り Docker（web-stack: `C:\dev\web-stack`）経由で行う。
+- URL は `http://localhost/order-management-system/...` を優先する（**D-5 切替完了までの並走期間は `http://localhost:8080/order-management-system/...`**）。
 - SL / OB など `localStorage` 連携が必要な画面は、必ず同じ host (`localhost`) で開く。
-- Apache が起動していない場合は、起動前にユーザーへ確認する。
+- web-stack コンテナが起動していない場合は `cd C:\dev\web-stack && docker compose up -d` で起動する（初回のみ `--build`）。
 
 ## Project Rules
 

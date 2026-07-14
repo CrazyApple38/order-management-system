@@ -1,6 +1,6 @@
 # XAMPP → Docker 全面移行計画書
 
-**ステータス: D-0〜D-2 完了（2026-07-14）／D-3 着手待ち（着手前ユーザー確認・Claude Code 実施推奨）**
+**ステータス: D-0〜D-3 完了（2026-07-14・旧dirリネーム退避のみ残）／D-4 着手待ち（着手前ユーザー確認・Codex 引き継ぎ予定）**
 **SSOT: 本計画書。着手前に全読すること（§2 AI 実装ガイドライン厳守）**
 
 - 作成: 2026-07-14 Claude Code (Fable 5)・ユーザー承認済み方針に基づく
@@ -402,6 +402,17 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 
 **ロールバック**: 旧ディレクトリのリネームを戻し、web-stack `.env` を旧値へ。メモリ dir は複製方式なので旧側が無傷で残る。
 
+**D-3 実績（2026-07-14 / Claude Code）**:
+
+- 前提条件確認: git clean / worktree・junction ゼロ / open PR なし / 他 AI セッションなし（ユーザー確認）。
+- robocopy コピー成功（1.5 GB・失敗 0）。**分岐: `/COPYALL` が非管理者で使用法エラー → D-5 の既知分岐と同様 `/COPY:DAT` へ**。新パスで git status clean・fsck エラーなし・remote 正常を確認。
+- Claude 環境: メモリは junction 方式（実体= Vault `ClaudeMemory\order-management-system`・フォルダ名はパス非依存）のため複製ではなく **新 projects dir `C--dev-order-management-system` へ同一ターゲットの junction を再作成 + 旧 junction 除去**（Vault 実体無傷を確認）。`~/.claude/settings.json` の旧パス permission 8 箇所を新パスへ更新（JSON 妥当性確認済み）。
+- Codex 環境: `~/.codex/config.toml` へ `[projects.'C:\dev\order-management-system'] trust_level="trusted"` を追加（旧エントリは無害のため残置）。
+- orca: `orca repo add --path C:\dev\order-management-system` 実行（repo は remote 識別で解決。旧パス登録は除去手段がなく残置=既知の分岐どおり D-4 で orca-wt.sh 側の解決を確認）。
+- リポジトリ内記述: `docs/rules/shared.md` の Local Browser Verification を Docker 前提へ（並走期間 :8080 注記付き）・main リポジトリパス更新 → build-rules 再生成・`--check` green。
+- **旧 `C:\xampp\htdocs\order-management-system` のリネーム退避は保留**: 実施セッション（Claude Code プロセス）が旧パスを cwd として保持しハンドルを掴んでいるため。全セッション終了後にユーザーが Explorer 等でリネーム（`order-management-system_MOVED-20260714`）する。
+- **CI 障害（記録）**: PR #21 以降、GitHub Actions が pull_request イベントで check-suite を生成しない事象（githubstatus 正常・workflow active・close/reopen・空 push・workflow disable/enable すべて無効）。緊急時手順（ruleset 18830708 一時無効化→手動 squash マージ→再有効化）で対応（ユーザー承認）。quality-gate 相当（ds-audit NG=0・build-rules --check）はローカル green を確認のこと。
+
 ### 4.5 D-4 orca-wt.sh Docker 対応（worktree 配信）
 
 **目的**: `http://localhost/oms-wt-<ai>-<topic>/` の並列開発配信を Docker で維持する。
@@ -564,3 +575,4 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 - 2026-07-14 / Claude Code (Fable 5) / D-0（完了）/ WSL 2.7.10（`--no-distribution`）+ Docker Desktop 4.81.0（winget）をユーザー承認のもと導入代行し、再起動後に engine 起動・`hello-world` 成功を確認。乖離: 計画では導入=ユーザー操作としていたが、ユーザー明示依頼により AI 代行（UAC 承認・再起動はユーザー）へ変更。D-0 受け入れ基準クローズ。
 - 2026-07-14 / Claude Code (Fable 5) / D-1（完了）/ web-stack 構築・:8080 で XAMPP 並走・§5.1 全合格。分岐: DB 突合は XAMPP 起動不可のため dump 基準へ代替 / phpMyAdmin は AllowNoPassword=true の config 追加で空 PW 互換化 / ftp 拡張は legacy 未使用で見送り。web-stack の GitHub リポジトリ作成は未（名称・可視性のユーザー確認待ち）。
 - 2026-07-14 / Claude Code (Fable 5) / D-1 補・D-2（完了）/ web-stack を private リポジトリ `CrazyApple38/web-stack` として GitHub へ push（ユーザー承認）。D-2: 修正 2 ファイル（keibi-system/.env・ZNG database_local.php → `db`）+ `basarak28_zgu1` 再構築 + keibi-system の storage/framework 欠損補修。検証全合格（DB 読取 2 系統 + www-data 書込 3 箇所）。
+- 2026-07-14 / Claude Code (Fable 5) / D-3（完了・旧dirリネームのみユーザー実施待ち）/ OMS を `C:\dev\order-management-system` へ複製・git 検証合格・Claude junction 再作成・settings/Codex config/orca 追従・rules を Docker 前提へ再生成・web-stack OMS_DIR 切替。分岐: robocopy `/COPYALL`→`/COPY:DAT`。CI 障害により PR は ruleset 一時無効化で手動マージ（ユーザー承認・D-4 でも CI 復旧まで同手順）。以後の作業は新パスで行うこと。D-4 以降は Codex 引き継ぎ。
