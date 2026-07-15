@@ -3,18 +3,18 @@
 永続事実・制約・構造的変更の警告は `docs/SHARED-MEMORY.md` を参照。
 
 ## 最終更新
-- **更新者**: Codex（GPT-5）
-- **日付**: 2026-07-14
-- **コミット**: `codex/docker-d7-close` ブランチ（直前 HEAD `944da0e`）
+- **更新者**: Claude Code (Fable 5)
+- **日付**: 2026-07-15
+- **コミット**: `claude/d7-laptop-verified` ブランチ（直前 HEAD `444dc4a`）
 
 ## 直前にやったこと
-- D-7完了: OMSのノートPC再現手順とweb-stackの母艦災害復旧手順を整備・マージ済み。
-- ユーザー判断により、ノートPC実機テストは今回行わず、実行可能な時点の将来課題へ分離。
-- Docker移行計画のD-0〜D-7を全完了としてクローズ。
+- 旧 `C:\xampp\htdocs\order-management-system` を `order-management-system_MOVED-20260714` へリネーム退避（D-3 残の最終手順完了。orca 旧登録は不活性化）。
+- ノートPCで D-7 実機再現テスト合格（clone → mock-web 起動 → 同一URL表示・ポート80のまま）。
+- docker-migration-plan.md に合格を記録し残課題をクローズ。Docker移行計画は全項目完了。
 
 ## 次にやるべきこと
-1. ノートPCを使用できる時期に `docker/README.md` の再現手順を実機テストする。
-2. 旧 `C:\xampp\htdocs` と部分退避 `htdocs_MOVED-20260714` の整理は、全関連セッション終了後にユーザー判断で行う。
+1. Docker移行は完了。通常のモックアップ開発（Phase 2）へ復帰。
+2. 旧 `C:\xampp\htdocs` と退避フォルダ群（`htdocs_MOVED-*` / `order-management-system_MOVED-20260714`）の削除は保持期間後にユーザー判断。
 3. Next.js scaffold・Supabaseスキーマは「モックアップ完了」宣言まで禁止。
 
 ## 今だけの申し送り

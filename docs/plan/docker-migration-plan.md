@@ -1,6 +1,6 @@
 # XAMPP → Docker 全面移行計画書
 
-**ステータス: D-0〜D-7 完了（2026-07-14。ノートPC実機テストは実行可能時へ延期）**
+**ステータス: D-0〜D-7 完了（2026-07-14）・ノートPC実機再現テスト合格（2026-07-15）— 全項目クローズ**
 **SSOT: 本計画書。着手前に全読すること（§2 AI 実装ガイドライン厳守）**
 
 - 作成: 2026-07-14 Claude Code (Fable 5)・ユーザー承認済み方針に基づく
@@ -559,6 +559,7 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 - Supabase CLIはグローバル導入ではなく、Phase 3以降に `npm ci` でプロジェクト固定版を導入する現行手順へ統一した。Next.jsアプリ・Supabaseスキーマは作成していない。
 - web-stack READMEの災害復旧手順を、OMS / web-stackのclone、Git管理外データの復元、正常な個別dump 3本 + `90-users.sql` の初回インポート、起動後確認まで具体化。破損したXAMPP `mysql` スキーマとpartial dumpは使わない。
 - **完了判断（2026-07-14 / ユーザー確認）**: 今回はノートPC実機テストを行わず、文書整備の完了をもってD-7をクローズする。実機テストは実行できる時期の将来課題として残す。
+- **ノートPC実機再現テスト合格（2026-07-15 / ユーザー実施・ノートPC側 Claude Code 支援）**: `docker/README.md`「ノートPCでの再現」の手順どおり clone → `mock-web` 起動 → `http://localhost/order-management-system/docs/index.html` の表示を確認。ポート80のまま成功（8080読み替え不要）。これをもって残課題「ノートPC実機再現テスト」をクローズ。
 
 ---
 
@@ -603,7 +604,8 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 | `C:\xampp` / `htdocs_MOVED-*` の削除 | 保持期間（目安 30 日）後にユーザー判断で削除 | D-5 + 30 日 |
 | Next.js scaffold・Supabase スキーマ | Phase 3（「モックアップ完了」宣言後） | Phase 3 |
 | Claude メモリのノート PC 同期 | ClaudeMemory は母艦の Obsidian Vault 統合。ノート側の扱いは未設計 | 必要になったら |
-| ノートPC実機再現テスト | D-7で整備した `docker/README.md` の手順に従い、clone・起動・同一URL・停止を確認する | ノートPCで実行可能になった時 |
+
+（「ノートPC実機再現テスト」は 2026-07-15 合格によりクローズ — §4.8 参照）
 
 ---
 
@@ -617,3 +619,4 @@ D-4 と D-5 の間まで、XAMPP は一切変更しない（ロールバック =
 - 2026-07-14 / Claude Code (Fable 5) / D-1 補・D-2（完了）/ web-stack を private リポジトリ `CrazyApple38/web-stack` として GitHub へ push（ユーザー承認）。D-2: 修正 2 ファイル（keibi-system/.env・ZNG database_local.php → `db`）+ `basarak28_zgu1` 再構築 + keibi-system の storage/framework 欠損補修。検証全合格（DB 読取 2 系統 + www-data 書込 3 箇所）。
 - 2026-07-14 / Claude Code (Fable 5) / D-3（完了・旧dirリネームのみユーザー実施待ち）/ OMS を `C:\dev\order-management-system` へ複製・git 検証合格・Claude junction 再作成・settings/Codex config/orca 追従・rules を Docker 前提へ再生成・web-stack OMS_DIR 切替。分岐: robocopy `/COPYALL`→`/COPY:DAT`。CI 障害により PR は ruleset 一時無効化で手動マージ（ユーザー承認・D-4 でも CI 復旧まで同手順）。以後の作業は新パスで行うこと。D-4 以降は Codex 引き継ぎ。
 - 2026-07-14 / Codex / D-4（完了）/ Windows junctionはDocker越しに解決不能（403）だったため既知の分岐を採用。orca workspacesルートをweb-stackへ直接read-onlyマウントし、ラッパーをjunctionなしのURL対応方式へ変更。実worktreeのnew/list・HTTP 200・drop/404まで合格。
+- 2026-07-15 / Claude Code (Fable 5) / D-7 残課題（完了）/ ノートPC実機再現テスト合格を記録。ユーザーがノートPC側 Claude Code で README 手順を実行し、ポート80のまま同一URL表示を確認。残課題テーブルからクローズし、本計画は全項目完了。
