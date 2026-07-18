@@ -1633,7 +1633,8 @@ th.sorted { color: var(--blue); }
 .workspace {
     position: relative;
     display: grid;
-    grid-template-columns: 72px minmax(1128px, 1fr) 288px 58px;
+    /* 右プロパティ列は --prop-w（ds-tokens 既定 288px）。SL 等は画面側で上書き */
+    grid-template-columns: 72px minmax(1128px, 1fr) var(--prop-w, 288px) 58px;
     min-height: 690px;
     background:
         linear-gradient(90deg, #e8f0f6 0, #f6f9fc 72px, transparent 72px),

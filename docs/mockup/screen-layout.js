@@ -505,13 +505,38 @@
             if (!targetRow || !savedRow) return;
             const targetZone = targetRow.querySelector('.assignment-zone');
             const savedZone = savedRow.querySelector('.assignment-zone');
-            if (targetZone && savedZone) targetZone.innerHTML = savedZone.innerHTML;
+            if (targetZone && savedZone) {
+                targetZone.innerHTML = savedZone.innerHTML;
+                slUpgradeAssignedMarkup(targetZone);
+            }
 
             const targetVt = targetRow.querySelector('.col-vt');
             const savedVt = savedRow.querySelector('.col-vt');
             if (targetVt && savedVt) targetVt.innerHTML = savedVt.innerHTML;
 
             slRefreshRowCountDisplay(targetRow);
+        }
+
+        // 保存スナップショット由来の旧 .assigned-employee マークアップを
+        // DS カプセル (.person) 形式へその場で昇格する（2026-07-19 試作）。
+        function slUpgradeAssignedMarkup(zone) {
+            if (!zone) return;
+            zone.querySelectorAll('.assigned-employee:not(.person)').forEach(function(el) {
+                var name = getEmployeeName(el);
+                if (!name) return;
+                var mk = slBuildAssignedEmployeeMarkup(name);
+                var contact = el.querySelector('.contact-badge');
+                var tag = document.createElement('span');
+                tag.className = mk.className;
+                if (mk.company) tag.setAttribute('data-company', mk.company);
+                tag.innerHTML = mk.innerHTML;
+                if (contact) {
+                    var nb = tag.querySelector('.employee-name-block');
+                    if (nb) nb.appendChild(contact);
+                }
+                el.replaceWith(tag);
+                if (typeof makeAssignedEmployeeDraggable === 'function') makeAssignedEmployeeDraggable(tag);
+            });
         }
 
         // 行の配置人数表示 (count-display) と不足/過多バッジを現在の
@@ -1198,6 +1223,26 @@
 
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
+            // ---- SLデザイン+UX向上試作（2026-07-19） ----
+            // 右プロパティ初期状態（未選択 → 現場詳細モードは収納）
+            slUpdatePropCollapsed();
+            // ドックモーダルの節アコーディオン（見出しクリックで開閉）
+            document.querySelectorAll('#siteModal .md-modal-body-field').forEach(function(sec) {
+                sec.addEventListener('click', function() {
+                    sec.classList.toggle('sl-sec-collapsed');
+                });
+            });
+            // ドラッグ中のみドロップ枠を表示（body.sl-dragging）
+            document.addEventListener('dragstart', function() {
+                document.body.classList.add('sl-dragging');
+            });
+            document.addEventListener('dragend', function() {
+                document.body.classList.remove('sl-dragging');
+            });
+            document.addEventListener('drop', function() {
+                document.body.classList.remove('sl-dragging');
+            });
+
             if (document.getElementById('companyCombobox')) {
                 companyCombobox = new Combobox('companyCombobox', {
                     items: companiesData,
@@ -1325,6 +1370,39 @@
                 spState.mainTab = 'vehicle';
                 renderVehiclePanel();
             }
+            slPropManualCollapsed = null;
+            slUpdatePropCollapsed();
+        }
+
+        // ---- 右プロパティ収納（2026-07-19 SLデザイン+UX向上試作） ----
+        // 自動則: 現場詳細モードで何もドックされていない時のみ収納。
+        //         D&D供給源（社員配置/車両・ETC）と変更履歴は常駐（ユーザー決定 2026-07-19）。
+        var slPropManualCollapsed = null; // null=自動 / true・false=手動トグル指定
+
+        function slPropAutoCollapsed() {
+            const activePanel = document.querySelector('.sl-prop-panel.is-active');
+            if (!activePanel || activePanel.getAttribute('data-prop-panel') !== 'site') return false;
+            const dock = document.getElementById('slPropSiteDock');
+            return !(dock && dock.querySelector('.sl-docked-modal:not(.is-docked-hidden)'));
+        }
+
+        function slUpdatePropCollapsed() {
+            const ws = document.querySelector('.app > .workspace');
+            if (!ws) return;
+            const collapsed = slPropManualCollapsed === null ? slPropAutoCollapsed() : slPropManualCollapsed;
+            ws.classList.toggle('sl-prop-collapsed', collapsed);
+            const btn = document.getElementById('slPropCollapseBtn');
+            if (btn) {
+                btn.title = collapsed ? 'プロパティを展開' : 'プロパティを収納';
+                btn.setAttribute('aria-label', btn.title);
+            }
+        }
+
+        function slTogglePropCollapsed() {
+            const ws = document.querySelector('.app > .workspace');
+            const now = ws ? ws.classList.contains('sl-prop-collapsed') : false;
+            slPropManualCollapsed = !now;
+            slUpdatePropCollapsed();
         }
 
         function slRailNotifySetup() {
@@ -1475,6 +1553,8 @@
             overlay.style.display = 'none';
             const siteEmpty = document.getElementById('slPropSiteEmpty');
             if (siteEmpty && dockId === 'slPropSiteDock') siteEmpty.style.display = 'none';
+            slPropManualCollapsed = null;
+            slUpdatePropCollapsed();
             return true;
         }
 
@@ -1488,6 +1568,7 @@
                 overlay.classList.remove('active');
                 overlay.style.display = 'none';
             }
+            slUpdatePropCollapsed();
         }
 
         // 現場詳細モーダルの開閉
@@ -2799,7 +2880,8 @@
                     contentHtml += '<div class="md-sp-gc-section-label">' + gc.shortName + '</div>';
                     companyEmps.forEach(function(emp) {
                         const isAssigned = assignedNames.has(emp.name);
-                        contentHtml += '<span class="employee-tag'
+                        const belongClass = SL_GC_BELONG_CLASS[emp.company] ? ' ' + SL_GC_BELONG_CLASS[emp.company] : '';
+                        contentHtml += '<span class="employee-tag person' + belongClass
                             + (isAssigned ? ' assigned' : '')
                             + (emp.isOnLeave ? ' emp-on-leave' : '')
                             + (emp.workedPrevNight && !emp.isOnLeave ? ' emp-after-night' : '')
@@ -2809,14 +2891,15 @@
                             + ' data-dept="' + emp.dept + '"'
                             + (emp.isOnLeave ? ' title="休み申請あり"'
                                 : emp.workedPrevNight ? ' title="前日夜勤明け"' : '')
-                            + '>' + emp.name + '</span>';
+                            + '>' + slPersonIconHtml() + '<span class="person-name">' + emp.name + '</span></span>';
                     });
                 });
             } else {
                 // 組織ノード別フラット表示
                 filtered.forEach(function(emp) {
                     const isAssigned = assignedNames.has(emp.name);
-                    contentHtml += '<span class="employee-tag'
+                    const belongClass = SL_GC_BELONG_CLASS[emp.company] ? ' ' + SL_GC_BELONG_CLASS[emp.company] : '';
+                    contentHtml += '<span class="employee-tag person' + belongClass
                         + (isAssigned ? ' assigned' : '')
                         + (emp.isOnLeave ? ' emp-on-leave' : '')
                         + (emp.workedPrevNight && !emp.isOnLeave ? ' emp-after-night' : '')
@@ -2826,7 +2909,7 @@
                         + ' data-dept="' + emp.dept + '"'
                         + (emp.isOnLeave ? ' title="休み申請あり"'
                             : emp.workedPrevNight ? ' title="前日夜勤明け"' : '')
-                        + '>' + emp.name + '</span>';
+                        + '>' + slPersonIconHtml() + '<span class="person-name">' + emp.name + '</span></span>';
                 });
             }
             content.innerHTML = contentHtml;
@@ -3800,17 +3883,26 @@
         // 休み申請あり（sl-on-leave + 休サブバッジ）のみ付与する。
         // 連勤マーク（▼）は slRefreshContinuousBadges() が配置状態から
         // 一括で判定・付与するため、ここでは付けない。
+        // GC → DS 所属色クラス（SSOT: SHARED-MEMORY 会社マッピング / ds-tokens --gc-*）
+        var SL_GC_BELONG_CLASS = { touo: 'belong-1', nikkei: 'belong-2', zennihon: 'belong-3' };
+
+        function slPersonIconHtml() {
+            return '<span class="person-icon" aria-hidden="true"><svg><use href="#ic-person"/></svg></span>';
+        }
+
         function slBuildAssignedEmployeeMarkup(name) {
             var emp = (typeof employeesData !== 'undefined')
                 ? employeesData.find(function(e) { return e.name === name; })
                 : null;
             var isLeave = !!(emp && emp.isOnLeave);
             var leaveSub = isLeave ? '<span class="sl-holiday-sub" title="休み申請あり">休</span>' : '';
+            var belongClass = (emp && SL_GC_BELONG_CLASS[emp.company]) ? ' ' + SL_GC_BELONG_CLASS[emp.company] : '';
 
             return {
-                className: 'assigned-employee' + (isLeave ? ' sl-on-leave' : ''),
+                className: 'assigned-employee person' + belongClass + (isLeave ? ' sl-on-leave' : ''),
                 company: emp ? emp.company : null,
-                innerHTML: '<span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">'
+                innerHTML: slPersonIconHtml()
+                    + '<span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">'
                     + '<span>' + name + '</span>'
                     + '</span>'
                     + leaveSub

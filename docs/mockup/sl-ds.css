@@ -24,9 +24,10 @@
     margin: 0;
 }
 
-/* ---- workspace: 1440px でも収まるよう main を minmax(0,1fr) に ---- */
+/* ---- workspace: 1440px でも収まるよう main を minmax(0,1fr) に。
+        右プロパティ列は --prop-w（本ファイル下部の試作ブロックで 360px + 収納制御） ---- */
 .app > .workspace {
-    grid-template-columns: 72px minmax(0, 1fr) 288px 58px;
+    grid-template-columns: 72px minmax(0, 1fr) var(--prop-w, 288px) 58px;
     min-height: 0;
 }
 
@@ -360,6 +361,21 @@
     padding: 0 0 8px;
     border-bottom: 1px solid var(--soft-line);
     background: var(--panel);
+    /* ドック時は白帯上に載るため、旧モーダルの白文字を DS インクへ戻す */
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 13px;
+}
+.app .sl-docked-modal .modal-header .modal-close,
+.app .sl-docked-modal .md-modal-site-header .modal-close {
+    color: var(--muted);
+}
+/* 旧モーダルのタイトル span / h3 は白文字指定が残るため個別に戻す */
+.app .sl-docked-modal .modal-header > span,
+.app .sl-docked-modal .md-modal-site-header h3 {
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 700;
 }
 
 .app .sl-docked-modal .modal-body,
@@ -397,6 +413,286 @@
 .app .sl-prop-source-panel .md-sp-main-panel {
     display: block !important;
 }
+
+/* ============================================================================
+   SL デザイン+UX 向上試作（2026-07-19 / claude/sl-design-uplift）
+   ----------------------------------------------------------------------------
+   1. 右プロパティ 360px + スライド収納（未選択の現場詳細モードは自動収納）
+   2. 中央表バッジの DS カプセル化（.person / .vehicle-tag レシピ適用の画面差分）
+   3. ドロップ枠はドラッグ中のみ表示（body.sl-dragging）
+   4. ドックモーダルの節アコーディオン + チップ群のセグメント化
+   5. マイクロディテール（行ホバー・tabular-nums・スクロールバー）
+   ============================================================================ */
+
+/* ---- 1. 右プロパティ 360px + 収納 ---- */
+.app > .workspace {
+    --prop-w: 360px;
+    transition: grid-template-columns var(--duration-slow) var(--ease-out);
+}
+.app > .workspace.sl-prop-collapsed { --prop-w: 0px; }
+.app .workspace > .prop {
+    transition: opacity var(--duration-base) var(--ease-out),
+                padding var(--duration-slow) var(--ease-out);
+}
+.app > .workspace.sl-prop-collapsed > .prop {
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 収納トグル（panel-rail 最上部）: シェブロンは開閉状態で反転 */
+.app .panel-rail .sl-prop-collapse-btn { margin-bottom: 4px; }
+.app .panel-rail .sl-prop-collapse-btn .chev {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg); /* → 展開中: 「収納する」方向 */
+    transition: transform var(--duration-base) var(--ease-out);
+}
+.app > .workspace.sl-prop-collapsed ~ * .sl-prop-collapse-btn .chev,
+.app .workspace.sl-prop-collapsed .sl-prop-collapse-btn .chev {
+    transform: rotate(135deg); /* ← 収納中: 「開く」方向 */
+}
+
+/* ---- 2. 配置社員バッジ = DS .person カプセル（画面差分のみ。レシピ本体は ds-components） ---- */
+.app .assigned-employee.person {
+    width: auto;
+    min-width: 64px;
+    padding: 4px 10px;
+    font-size: 12px;
+    overflow: visible; /* remove-btn / 休 / 警告サブバッジをカプセル外周に重ねるため */
+}
+.app .assigned-employee.person .employee-name-block {
+    position: relative;
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+}
+.app .assigned-employee.person .remove-btn { z-index: 5; }
+/* 夜間行では配置社員名も慣習の赤文字（アイコンは所属色のまま） */
+.app tr.row-night .assigned-employee.person .employee-name-block { color: var(--night-text); }
+
+/* サイドパネル社員チップも同カプセル */
+.app .employee-tag.person {
+    margin: 3px;
+    min-width: 58px;
+    padding: 4px 10px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.app .employee-tag.person.assigned { opacity: 0.55; }
+
+/* 配置済み 車両/ETC タグ: DS .vehicle-tag カプセルへ再アサート。
+   screen-layout.css の旧ティール/ベージュ定義が ds-components より後に読まれるための
+   画面シム（横展開時にタグ生成マークアップを DS クラス構造へ正式移行して本ブロックを撤去） */
+.app .vehicle-drop-zone .vehicle-tag,
+.app .etc-drop-zone .etc-tag {
+    min-height: 26px;
+    min-width: 62px;
+    padding: 4px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    border-right-color: rgba(192, 208, 220, 0.72);
+    border-bottom-color: rgba(180, 198, 212, 0.66);
+    border-radius: var(--radius-pill);
+    background:
+        linear-gradient(to bottom right, rgba(200, 213, 226, 0.38) 0%, #ffffff 60%, rgba(206, 219, 230, 0.22) 100%);
+    box-shadow:
+        0 4px 8px rgba(24, 55, 78, 0.13),
+        0 2px 3px rgba(24, 55, 78, 0.09),
+        inset 1px 0 0 rgba(255, 255, 255, 0.92),
+        inset -1px 0 0 rgba(53, 83, 104, 0.08);
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: var(--table-data-weight);
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    cursor: grab;
+    transition: box-shadow var(--duration-fast) ease, border-color var(--duration-fast) ease;
+}
+.app .vehicle-drop-zone .vehicle-tag:hover,
+.app .etc-drop-zone .etc-tag:hover {
+    border-color: rgba(160, 182, 200, 0.92);
+    box-shadow:
+        0 6px 12px rgba(24, 55, 78, 0.16),
+        0 2px 4px rgba(24, 55, 78, 0.10),
+        inset 1px 0 0 rgba(255, 255, 255, 0.94),
+        inset -1px 0 0 rgba(53, 83, 104, 0.10);
+}
+
+/* ---- 3. ドロップ枠はドラッグ中のみ ---- */
+/* 通常時: 枠・面を消して静かに（バッジが主役） */
+.app .assignment-zone {
+    min-width: 0;
+    background: transparent;
+    border-color: transparent;
+}
+.app .assignment-zone:hover {
+    background: transparent;
+    border-color: transparent;
+}
+.app .vehicle-drop-zone,
+.app .etc-drop-zone {
+    background: transparent;
+    border-color: transparent;
+}
+.app .vehicle-drop-zone:empty::before,
+.app .etc-drop-zone:empty::before { opacity: 0.5; }
+
+/* ドラッグ中: 受け入れ可能ゾーンを淡い破線 + 白面で提示 */
+body.sl-dragging .app .assignment-zone,
+body.sl-dragging .app .vehicle-drop-zone,
+body.sl-dragging .app .etc-drop-zone {
+    border-color: var(--gc-line-soft);
+    background: rgba(255, 255, 255, 0.65);
+}
+/* ホバー中の受け入れ先: DS ブルー（旧グリーンは DS 原則により廃止） */
+.app .assignment-zone.drag-over,
+.app .vehicle-drop-zone.drag-over,
+.app .etc-drop-zone.drag-over {
+    border-color: var(--blue) !important;
+    background: var(--blue-soft) !important;
+}
+
+/* ---- 4. ドックモーダル: 節アコーディオン + チップ群セグメント化 ---- */
+/* 節見出し（Row Information 等 → 日本語化済み）をトグル化 */
+.app .sl-docked-modal .md-modal-body-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0 6px;
+    padding: 0 2px;
+    cursor: pointer;
+    user-select: none;
+}
+.app .sl-docked-modal .md-modal-body-field .md-modal-body-field-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0; /* 旧 .md-modal-body-field-value の青下線を打ち消し */
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    overflow: visible;
+}
+/* 見出し右側に水平キーライン + シェブロン */
+.app .sl-docked-modal .md-modal-body-field::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background: var(--soft-line);
+}
+.app .sl-docked-modal .md-modal-body-field::before {
+    content: "";
+    order: 2;
+    width: 7px;
+    height: 7px;
+    margin-left: 2px;
+    border-right: 2px solid var(--muted);
+    border-bottom: 2px solid var(--muted);
+    transform: rotate(45deg);
+    transition: transform var(--duration-fast) var(--ease-out);
+    flex: 0 0 auto;
+}
+.app .sl-docked-modal .md-modal-body-field.sl-sec-collapsed::before {
+    transform: rotate(-45deg);
+}
+.app .sl-docked-modal .md-modal-body-field.sl-sec-collapsed + .md-modal-body-card {
+    display: none;
+}
+
+/* 単一選択チップ群（会社 / 区分 / 昼夜 / 信頼度）: バラのピル → 連結セグメント */
+.app .sl-docked-modal .md-ob-row-chips,
+.app .sl-docked-modal .md-ob-confidence-chips {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0;
+    max-width: 100%;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    box-shadow: var(--inset-highlight), var(--inset-edge);
+    overflow: hidden;
+}
+.app .sl-docked-modal .md-ob-row-chip {
+    margin: 0;
+    height: 30px;
+    padding: 0 12px;
+    border: 0;
+    border-right: 1px solid var(--soft-line);
+    border-radius: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out),
+                color var(--duration-fast) var(--ease-out);
+}
+.app .sl-docked-modal .md-ob-row-chip:last-child { border-right: 0; }
+.app .sl-docked-modal .md-ob-row-chip:hover { background: var(--blue-soft); color: var(--blue); }
+.app .sl-docked-modal .md-ob-row-chip.md-ob-chip-active {
+    background: var(--blue);
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+/* ---- 5. マイクロディテール ---- */
+/* 行ホバー: 罫線ではなく面のわずかな変化で示す（選択行・夜間行はそのまま） */
+.app .grid-table tbody tr:not(.selected):not([aria-selected="true"]):hover td {
+    background: rgba(31, 95, 174, 0.035);
+}
+/* 数値・時刻の桁幅を揃える */
+.app .grid-table .time-display,
+.app .grid-table .work-time-start,
+.app .grid-table .work-time-end,
+.app .grid-table .count-display {
+    font-variant-numeric: tabular-nums;
+}
+/* スクロールバーの繊細化（中央表 / プロパティ） */
+.app .grid-frame > .grid-container::-webkit-scrollbar,
+.app .sl-prop-panel::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+.app .grid-frame > .grid-container::-webkit-scrollbar-thumb,
+.app .sl-prop-panel::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: var(--radius-pill);
+    background: var(--line);
+    background-clip: padding-box;
+}
+.app .grid-frame > .grid-container::-webkit-scrollbar-thumb:hover,
+.app .sl-prop-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--gc-line-soft);
+    background-clip: padding-box;
+}
+.app .grid-frame > .grid-container::-webkit-scrollbar-track,
+.app .sl-prop-panel::-webkit-scrollbar-track { background: transparent; }
+
+/* ツールバー: アイコンボタン内の img アイコン寸法 */
+.app > .toolbar .icon-btn img.md-ob-icon {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+.app > .toolbar .icon-btn .ui-icon {
+    width: 15px;
+    height: 15px;
+    fill: currentColor;
+}
+.app > .toolbar .icon-btn[disabled] {
+    opacity: 0.4;
+    pointer-events: none;
+}
+.app > .toolbar .icon-btn.danger-btn { color: var(--night-text); }
 
 /* ---- panel-rail ---- */
 .app .panel-rail button { cursor: pointer; }

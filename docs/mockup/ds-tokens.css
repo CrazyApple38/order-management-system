@@ -163,5 +163,8 @@
     --modal-w-md: 480px;
     --modal-w-lg: 600px;
     --modal-w-xl: 800px;
+    /* 右プロパティ列幅（2026-07-19 SLデザイン+UX向上試作で導入。既定=従来値 288px。
+       画面側で 360px 等へ上書き可。全画面 360px への引き上げは横展開時に判断） */
+    --prop-w: 288px;
     font-family: var(--font-sans);
 }

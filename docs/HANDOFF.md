@@ -3,21 +3,23 @@
 永続事実・制約・構造的変更の警告は `docs/SHARED-MEMORY.md` を参照。
 
 ## 最終更新
-- **更新者**: Codex（GPT-5）
-- **日付**: 2026-07-14
-- **コミット**: `codex/docker-d7-close` ブランチ（直前 HEAD `944da0e`）
+- **更新者**: Claude Code（Fable 5）
+- **日付**: 2026-07-19
+- **コミット**: `claude/sl-design-uplift` ブランチ（分岐元 `444dc4a`）
 
 ## 直前にやったこと
-- D-7完了: OMSのノートPC再現手順とweb-stackの母艦災害復旧手順を整備・マージ済み。
-- ユーザー判断により、ノートPC実機テストは今回行わず、実行可能な時点の将来課題へ分離。
-- Docker移行計画のD-0〜D-7を全完了としてクローズ。
+- デザイン+UX向上テーマ開始（ユーザー承認済み: 代表SL試作→承認→全7画面横展開 / DS正本進化 / UX監査→提案→承認）。
+- 全7画面をChromeで視覚監査。SL試作を実装: 右プロパティ360px+スライド収納（現場詳細のみ自動収納・D&D供給源は常駐）、
+  配置/サイドパネル社員バッジをDS .personカプセル化、車両ETCタグのDSカプセル再アサート、ドロップ枠はドラッグ中のみ表示、
+  ツールバー階層化（icon-btn化）、ドックモーダル節見出し日本語化+アコーディオン、チップ群セグメント化。
+- DS正本進化: ds-tokens に `--prop-w`(288px既定) 追加、ds-components .workspace が var(--prop-w) 参照（他画面見た目不変）。
+- 検証: ds-audit NG=0 / node --check OK / Chrome実描画・収納状態機・カプセル描画確認済み。
 
 ## 次にやるべきこと
-1. ノートPCを使用できる時期に `docker/README.md` の再現手順を実機テストする。
-2. 旧 `C:\xampp\htdocs` と部分退避 `htdocs_MOVED-20260714` の整理は、全関連セッション終了後にユーザー判断で行う。
-3. Next.js scaffold・Supabaseスキーマは「モックアップ完了」宣言まで禁止。
+1. SL試作の残: 保存経路の新旧マークアップ往復確認、印刷CSSへの影響確認、ユーザー視覚承認。
+2. 承認後: 計画書 `docs/plan/` に横展開計画を新規作成し OB/WS/LA/QA/F/G へ展開（会社選択のseg-multi統一・D&D拡充含む）。
+3. このノートPCには pre-commit hook / pr-flow / web-stack Docker が未整備（検証は `python -m http.server 8765` + chrome-devtools MCP で実施）。
 
 ## 今だけの申し送り
-- web-stack起動中（HTTP 80 / DB 3306）。XAMPP Apache/MySQLは停止済みで起動禁止。
-- Dockerは `C:\dev\legacy-htdocs` のみ参照。旧htdocs 58,143ファイルと部分退避574ファイルはDocker非依存・削除禁止。
-- Git管理外のmigration-backup / legacy-htdocsは、ディスク故障対策として別媒体・別端末への保全が必要。
+- 母艦と環境が異なる（`C:\Users\r-kat` / Docker未起動）。品質ゲートは手動実行で代替した。
+- 参照プレビュー3本（design-refresh-*, ds-foundation-test）は改変していない。
