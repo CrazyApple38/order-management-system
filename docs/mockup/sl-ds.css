@@ -346,6 +346,8 @@
     border: 0;
     box-shadow: none;
     background: transparent;
+    /* DS .modal の overflow:hidden を解除し、スクロールは .sl-prop-panel 側で行う */
+    overflow: visible;
 }
 
 .app .sl-docked-modal.is-docked-hidden {
@@ -428,7 +430,12 @@
 .app > .workspace {
     --prop-w: 360px;
     transition: grid-template-columns var(--duration-slow) var(--ease-out);
+    /* アプリフレーム化: ページ全体をスクロールさせず、中央表とプロパティが
+       それぞれ内部スクロールする（navbar 36px + toolbar 帯 ≈ 107px + 下余白 8px） */
+    height: calc(100vh - 115px);
+    min-height: 560px;
 }
+.app .workspace > .prop .sl-prop-card { min-height: 0; }
 .app > .workspace.sl-prop-collapsed { --prop-w: 0px; }
 .app .workspace > .prop {
     transition: opacity var(--duration-base) var(--ease-out),
