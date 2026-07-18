@@ -443,3 +443,84 @@
     left: calc(100% + 12px);
     max-height: min(560px, calc(100vh - 112px));
 }
+
+/* ---- 社員バッジ: DS 正本のカプセルレシピを実画面へ接続 ---- */
+.app .assigned-employee {
+    width: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    overflow: visible;
+}
+
+.app .assigned-employee[data-company] {
+    border-color: transparent;
+    background: transparent;
+    color: var(--ink);
+}
+
+.app .assigned-employee .sl-person-capsule {
+    box-sizing: border-box;
+}
+
+.app .assigned-employee .person-icon::before {
+    content: "";
+    display: block;
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    -webkit-mask: var(--icon-person) center / contain no-repeat;
+    mask: var(--icon-person) center / contain no-repeat;
+}
+
+.app .assigned-employee[data-company="touo"] .person-icon {
+    color: var(--emp-badge-icon-touo, var(--belong-1));
+}
+
+.app .assigned-employee[data-company="nikkei"] .person-icon {
+    color: var(--emp-badge-icon-nikkei, var(--belong-2));
+}
+
+.app .assigned-employee[data-company="zennihon"] .person-icon {
+    color: var(--emp-badge-icon-zennihon, var(--belong-3));
+}
+
+.app .assigned-employee .employee-name-block {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: auto;
+    align-self: center;
+}
+
+.app .assigned-employee .employee-with-continuous {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.app .assigned-employee .continuous-badge {
+    position: absolute;
+    left: 50%;
+    z-index: 5;
+    font-size: 7px;
+    transform: translateX(-50%);
+}
+
+.app .assigned-employee .continuous-badge-above {
+    top: -3px;
+}
+
+.app .assigned-employee .continuous-badge-below {
+    bottom: -3px;
+}
+
+.app .assigned-employee .sl-person-capsule .employee-name-block .person-name {
+    grid-row: auto;
+    max-width: 56px;
+    font-size: 14px;
+    letter-spacing: normal;
+    text-overflow: ellipsis;
+}

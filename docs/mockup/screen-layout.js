@@ -3800,19 +3800,30 @@
         // 休み申請あり（sl-on-leave + 休サブバッジ）のみ付与する。
         // 連勤マーク（▼）は slRefreshContinuousBadges() が配置状態から
         // 一括で判定・付与するため、ここでは付けない。
+        function slEmployeeBelongClass(company) {
+            return {
+                touo: 'belong-1',
+                nikkei: 'belong-2',
+                zennihon: 'belong-3'
+            }[company] || '';
+        }
+
         function slBuildAssignedEmployeeMarkup(name) {
             var emp = (typeof employeesData !== 'undefined')
                 ? employeesData.find(function(e) { return e.name === name; })
                 : null;
             var isLeave = !!(emp && emp.isOnLeave);
             var leaveSub = isLeave ? '<span class="sl-holiday-sub" title="休み申請あり">休</span>' : '';
+            var belongClass = slEmployeeBelongClass(emp ? emp.company : null);
 
             return {
                 className: 'assigned-employee' + (isLeave ? ' sl-on-leave' : ''),
                 company: emp ? emp.company : null,
-                innerHTML: '<span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">'
-                    + '<span>' + name + '</span>'
-                    + '</span>'
+                innerHTML: '<span class="person sl-person-capsule' + (belongClass ? ' ' + belongClass : '') + '">'
+                    + '<span class="person-icon" aria-hidden="true"></span>'
+                    + '<span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">'
+                    + '<span class="person-name">' + name + '</span>'
+                    + '</span></span>'
                     + leaveSub
                     + '<span class="remove-btn" onclick="removeEmployee(this, event)">×</span>'
             };
@@ -3874,11 +3885,11 @@
                 if (needsAbove || needsBelow) {
                     inner = '<span class="employee-with-continuous">';
                     if (needsAbove) inner += '<span class="continuous-badge continuous-badge-above" title="連続勤務">▼</span>';
-                    inner += '<span>' + name + '</span>';
+                    inner += '<span class="person-name">' + name + '</span>';
                     if (needsBelow) inner += '<span class="continuous-badge continuous-badge-below" title="連続勤務">▼</span>';
                     inner += '</span>';
                 } else {
-                    inner = '<span>' + name + '</span>';
+                    inner = '<span class="person-name">' + name + '</span>';
                 }
                 nameBlock.innerHTML = inner + contactHTML;
             });
@@ -4018,7 +4029,31 @@
         // ===== ドラッグ＆ドロップ（サイドパネル→配置 & 配置間移動） =====
         let dragSourceAssignedEmployee = null;
 
+        function slEnsureAssignedEmployeeCapsule(el) {
+            var capsule = el.querySelector(':scope > .sl-person-capsule');
+            var nameBlock = el.querySelector('.employee-name-block');
+            if (!nameBlock) return;
+
+            if (!capsule) {
+                capsule = document.createElement('span');
+                var belongClass = slEmployeeBelongClass(el.getAttribute('data-company'));
+                capsule.className = 'person sl-person-capsule' + (belongClass ? ' ' + belongClass : '');
+
+                var icon = document.createElement('span');
+                icon.className = 'person-icon';
+                icon.setAttribute('aria-hidden', 'true');
+                capsule.appendChild(icon);
+                el.insertBefore(capsule, nameBlock);
+                capsule.appendChild(nameBlock);
+            }
+
+            var nameSpan = nameBlock.querySelector(':scope > span:not(.contact-badge):not(.employee-with-continuous)')
+                || nameBlock.querySelector(':scope > .employee-with-continuous > span:not(.continuous-badge)');
+            if (nameSpan) nameSpan.classList.add('person-name');
+        }
+
         function makeAssignedEmployeeDraggable(el) {
+            slEnsureAssignedEmployeeCapsule(el);
             el.draggable = true;
             el.addEventListener('dragstart', function(ev) {
                 ev.stopPropagation();
@@ -5026,7 +5061,8 @@
                 return {
                     bg: '--emp-badge-bg-' + gc,
                     border: '--emp-badge-border-' + gc,
-                    text: '--emp-badge-text-' + gc
+                    text: '--emp-badge-text-' + gc,
+                    icon: '--emp-badge-icon-' + gc
                 };
             }
             // shift-day, shift-night
@@ -5039,6 +5075,7 @@
             document.documentElement.style.setProperty(vars.bg, bg);
             document.documentElement.style.setProperty(vars.text, text);
             if (vars.border) document.documentElement.style.setProperty(vars.border, border);
+            if (vars.icon) document.documentElement.style.setProperty(vars.icon, baseHex);
         }
 
         // --- ベース色のデフォルト値 ---
