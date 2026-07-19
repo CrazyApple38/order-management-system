@@ -404,6 +404,8 @@
             }
             selectedGridRow = null;
             slApplyNightRowClasses();
+            slUpgradePersonLed(document);  // 旧 person-icon → LED
+            slUpgradeVtMarkup(document); // 旧スナップショット/再描画分の車両ETCへ LED を付与
             document.querySelectorAll('.assigned-employee').forEach(makeAssignedEmployeeDraggable);
             document.querySelectorAll('.vehicle-tag').forEach(makeAssignedVehicleDraggable);
             document.querySelectorAll('.etc-tag').forEach(makeAssignedEtcDraggable);
@@ -512,15 +514,27 @@
 
             const targetVt = targetRow.querySelector('.col-vt');
             const savedVt = savedRow.querySelector('.col-vt');
-            if (targetVt && savedVt) targetVt.innerHTML = savedVt.innerHTML;
+            if (targetVt && savedVt) {
+                targetVt.innerHTML = savedVt.innerHTML;
+                slUpgradeVtMarkup(targetVt);
+            }
 
             slRefreshRowCountDisplay(targetRow);
+        }
+
+        // 旧 person-icon（SVG）を所属LEDドットへ置換（2026-07-19 スナップショット救済）。
+        function slUpgradePersonLed(container) {
+            if (!container) return;
+            container.querySelectorAll('.assigned-employee .person-icon, .employee-tag .person-icon').forEach(function(icon) {
+                icon.outerHTML = slLedHtml();
+            });
         }
 
         // 保存スナップショット由来の旧 .assigned-employee マークアップを
         // DS カプセル (.person) 形式へその場で昇格する（2026-07-19 試作）。
         function slUpgradeAssignedMarkup(zone) {
             if (!zone) return;
+            slUpgradePersonLed(zone);
             zone.querySelectorAll('.assigned-employee:not(.person)').forEach(function(el) {
                 var name = getEmployeeName(el);
                 if (!name) return;
@@ -3110,21 +3124,23 @@
                 html += '<div class="md-sp-gc-section-label">' + gc.shortName + '</div>';
                 companyVehicles.forEach(function(v) {
                     var isAssigned = assignedPlates.has(v.plate);
-                    html += '<span class="vehicle-list-tag' + (isAssigned ? ' assigned' : '') + '"'
+                    var vBelong = SL_GC_BELONG_CLASS[v.owner] ? ' ' + SL_GC_BELONG_CLASS[v.owner] : '';
+                    html += '<span class="vehicle-list-tag' + vBelong + (isAssigned ? ' assigned' : '') + '"'
                         + ' draggable="true" ondragstart="vehicleDrag(event)"'
                         + ' data-plate="' + v.plate + '"'
                         + ' data-model="' + v.model + '">'
-                        + v.plate + '<span class="vlt-model">' + v.model + '</span>'
+                        + slLedHtml() + v.plate + '<span class="vlt-model">' + v.model + '</span>'
                         + '</span>';
                 });
                 if (companyEtc.length > 0) {
                     html += '<div class="md-sp-etc-label">ETC</div>';
                     companyEtc.forEach(function(e) {
                         var isAssigned = assignedEtcs.has(e.label);
-                        html += '<span class="etc-list-tag' + (isAssigned ? ' assigned' : '') + '"'
+                        var eBelong = SL_GC_BELONG_CLASS[e.owner] ? ' ' + SL_GC_BELONG_CLASS[e.owner] : '';
+                        html += '<span class="etc-list-tag' + eBelong + (isAssigned ? ' assigned' : '') + '"'
                             + ' draggable="true" ondragstart="etcDrag(event)"'
                             + ' data-label="' + e.label + '">'
-                            + e.label
+                            + slLedHtml() + e.label
                             + '</span>';
                     });
                 }
@@ -3551,8 +3567,8 @@
                     pushUndo();
                     dragSourceVehicleTag.remove();
                     var newTag = document.createElement('span');
-                    newTag.className = 'vehicle-tag';
-                    newTag.innerHTML = plate + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
+                    newTag.className = ('vehicle-tag ' + slVehicleBelongClass(plate)).trim();
+                    newTag.innerHTML = plate + slLedHtml() + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
                     vZone.appendChild(newTag);
                     makeAssignedVehicleDraggable(newTag);
                     dragSourceVehicleTag = null;
@@ -3590,8 +3606,8 @@
                     pushUndo();
                     if (existingTag) existingTag.remove();
                     var tag = document.createElement('span');
-                    tag.className = 'vehicle-tag';
-                    tag.innerHTML = plate + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
+                    tag.className = ('vehicle-tag ' + slVehicleBelongClass(plate)).trim();
+                    tag.innerHTML = plate + slLedHtml() + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
                     vZone.appendChild(tag);
                     makeAssignedVehicleDraggable(tag);
                     updateVehicleListStatus();
@@ -3631,8 +3647,8 @@
                     pushUndo();
                     dragSourceEtcTag.remove();
                     var newETag = document.createElement('span');
-                    newETag.className = 'etc-tag';
-                    newETag.innerHTML = label + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
+                    newETag.className = ('etc-tag ' + slEtcBelongClass(label)).trim();
+                    newETag.innerHTML = label + slLedHtml() + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
                     eZone.appendChild(newETag);
                     makeAssignedEtcDraggable(newETag);
                     dragSourceEtcTag = null;
@@ -3654,8 +3670,8 @@
                     }
                     pushUndo();
                     var eTag = document.createElement('span');
-                    eTag.className = 'etc-tag';
-                    eTag.innerHTML = label + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
+                    eTag.className = ('etc-tag ' + slEtcBelongClass(label)).trim();
+                    eTag.innerHTML = label + slLedHtml() + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
                     eZone.appendChild(eTag);
                     makeAssignedEtcDraggable(eTag);
                     updateVehicleListStatus();
@@ -3939,8 +3955,44 @@
             consecutive: '<span class="sl-mini-flag flag-consecutive" title="同日昼・夜の連続配置"><svg aria-hidden="true"><use href="#ic-caution-line"/></svg></span>'
         };
 
+        // 社員/車両/ETC 共通の所属LEDドット（2026-07-19 人物アイコンを置換）
+        function slLedHtml() {
+            return '<span class="sl-led" aria-hidden="true"></span>';
+        }
+        // 後方互換エイリアス（既存呼び出し名を維持）
         function slPersonIconHtml() {
-            return '<span class="person-icon" aria-hidden="true"><svg><use href="#ic-person"/></svg></span>';
+            return slLedHtml();
+        }
+
+        function slVehicleBelongClass(plate) {
+            var v = (typeof vehiclesData !== 'undefined')
+                ? vehiclesData.find(function(x) { return x.plate === plate; }) : null;
+            return (v && SL_GC_BELONG_CLASS[v.owner]) ? SL_GC_BELONG_CLASS[v.owner] : '';
+        }
+        function slEtcBelongClass(label) {
+            var e = (typeof etcCardsData !== 'undefined')
+                ? etcCardsData.find(function(x) { return x.label === label; }) : null;
+            return (e && SL_GC_BELONG_CLASS[e.owner]) ? SL_GC_BELONG_CLASS[e.owner] : '';
+        }
+
+        // 配置済み 車両/ETC タグに LED ドット + 所属クラスを付与（旧スナップショット救済も兼ねる）。
+        // childNodes[0]=プレート文字（重複判定が依存）を保つため LED は末尾追加し CSS order:-1 で左寄せ。
+        function slUpgradeVtMarkup(container) {
+            if (!container) return;
+            container.querySelectorAll('.vehicle-tag').forEach(function(tag) {
+                if (tag.querySelector('.sl-led')) return;
+                var plate = tag.childNodes[0] ? tag.childNodes[0].textContent.trim() : '';
+                var bc = slVehicleBelongClass(plate);
+                if (bc && !tag.classList.contains(bc)) tag.classList.add(bc);
+                tag.insertAdjacentHTML('beforeend', slLedHtml());
+            });
+            container.querySelectorAll('.etc-tag').forEach(function(tag) {
+                if (tag.querySelector('.sl-led')) return;
+                var label = tag.childNodes[0] ? tag.childNodes[0].textContent.trim() : '';
+                var bc = slEtcBelongClass(label);
+                if (bc && !tag.classList.contains(bc)) tag.classList.add(bc);
+                tag.insertAdjacentHTML('beforeend', slLedHtml());
+            });
         }
 
         function slBuildAssignedEmployeeMarkup(name) {
