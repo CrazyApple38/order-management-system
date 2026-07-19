@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="mockup/co-notify-panel.css?v=19">
     <link rel="stylesheet" href="mockup/co-company-input.css">
     <link rel="stylesheet" href="mockup/screen-layout.css?v=35">
-    <link rel="stylesheet" href="mockup/sl-ds.css?v=7">
+    <link rel="stylesheet" href="mockup/sl-ds.css?v=9">
     <link rel="stylesheet" href="mockup/print-touo-nikkei.css?v=8">
 </head>
 <body>
@@ -126,7 +126,7 @@
                                 <th class="col-count">人数</th>
                                 <th>配置（右からドラッグ&ドロップ）</th>
                                 <th class="col-vt">車両・ETC</th>
-                                <th class="col-notes"><span class="sl-notes-head"><span class="sl-notes-head-label">備考</span><span class="seg sl-notes-seg" role="group" aria-label="備考・変更履歴切替"><button type="button" class="active" data-view="notes" onclick="slSetNotesView('notes', event)">備考</button><button type="button" data-view="history" onclick="slSetNotesView('history', event)">履歴</button></span></span></th>
+                                <th class="col-notes"><span class="seg sl-notes-seg" role="group" aria-label="備考・変更履歴切替"><button type="button" class="active" data-view="notes" onclick="slSetNotesView('notes', event)">備考</button><button type="button" data-view="history" onclick="slSetNotesView('history', event)">履歴</button></span></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -285,7 +285,7 @@
                 <button type="button" data-panel="site" data-sec="detail" onclick="slSetPropSection('detail')" title="現場メモ・詳細（集合・連絡・地図・備考）" aria-label="現場メモ・詳細"><img src="mockup/icons/pencil.svg" class="sl-rail-img" alt=""><span class="sr-only">現場メモ・詳細</span></button>
                 <button type="button" data-panel="assignment" onclick="slSetPropMode('assignment')" title="社員配置" aria-label="社員配置"><span class="icon i-person" aria-hidden="true"></span><span class="sr-only">社員配置</span></button>
                 <button type="button" data-panel="vehicle" onclick="slSetPropMode('vehicle')" title="車両・ETC" aria-label="車両・ETC"><span class="icon i-car" aria-hidden="true"></span><span class="sr-only">車両・ETC</span></button>
-                <button type="button" data-panel="history" onclick="slSetPropMode('history')" title="変更履歴" aria-label="変更履歴"><span class="icon i-history" aria-hidden="true"></span><span class="sr-only">変更履歴</span></button>
+                <button type="button" data-panel="history" onclick="slShowAllHistory()" title="変更履歴" aria-label="変更履歴"><span class="icon i-history" aria-hidden="true"></span><span class="sr-only">変更履歴</span></button>
             </aside>
         </div><!-- workspace -->
 
@@ -1141,7 +1141,7 @@
     <script src="mockup/co-mock-store.js?v=5"></script>
     <script src="mockup/co-navbar.js?v=30"></script>
     <script src="mockup/co-company-input.js"></script>
-    <script src="mockup/screen-layout.js?v=62"></script>
+    <script src="mockup/screen-layout.js?v=63"></script>
     <script src="mockup/print-touo-nikkei.js?v=1"></script>
 </body>
 </html>

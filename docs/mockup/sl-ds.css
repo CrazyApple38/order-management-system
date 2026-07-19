@@ -196,27 +196,39 @@
 }
 
 /* ---- 備考列 = 業務詳細バッジ + 地図 + 備考 の集約列（2026-07-19）。
-        変更履歴は列ヘッダーの seg で一括切替（.grid-table.sl-notes-history） ---- */
+        バッジ・地図ピルは横並び（行の縦伸びを最小化）、備考テキストのみ改行 ---- */
 .app .grid-table .sl-notes-view {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
+    flex-flow: row wrap;
+    align-items: center;
+    gap: 4px 6px;
 }
 .app .grid-table.sl-notes-history .sl-notes-view { display: none; }
 
+/* 作業内容バッジも横並び（旧: 縦積み） */
+.app .grid-table .sl-notes-view .work-badge-slot .badge-display {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+}
+/* 縦積み時の全幅セパレータは横並びでは非表示 */
+.app .grid-table .sl-notes-view .work-badge-slot .badge-group-sep { display: none; }
+.app .grid-table .sl-notes-view .work-badge-slot:not(:empty) { max-width: none; }
+.app .grid-table .sl-notes-view .work-badge-slot .badge-tag { max-width: none; }
+
+/* 備考テキストは次行へ回す（バッジ行の下） */
+.app .grid-table .sl-notes-items { flex-basis: 100%; }
 .app .grid-table .sl-notes-items:empty { display: none; }
 .app .grid-table .sl-notes-items .notes-transport {
     font-size: 11px;
     line-height: 1.4;
 }
 
-/* 列ヘッダー: ラベル + 備考/履歴 切替 seg */
-.app .grid-table th.col-notes .sl-notes-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
+/* 列ヘッダー: 備考/履歴 切替 seg がそのまま列ラベルを兼ねる（二重表示解消） */
+.app .grid-table th.col-notes {
+    vertical-align: middle;
 }
 .app .grid-table th.col-notes .sl-notes-seg {
     display: inline-flex;
@@ -227,16 +239,17 @@
     box-shadow: var(--inset-highlight);
 }
 .app .grid-table th.col-notes .sl-notes-seg button {
-    height: 20px;
-    padding: 0 8px;
+    height: 22px;
+    padding: 0 11px;
     border: 0;
     background: transparent;
     color: var(--muted);
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
     cursor: pointer;
     transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
 }
+.app .grid-table th.col-notes .sl-notes-seg button:hover:not(.active) { background: var(--blue-soft); color: var(--blue); }
 .app .grid-table th.col-notes .sl-notes-seg button.active {
     background: var(--blue);
     color: #fff;

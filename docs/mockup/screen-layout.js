@@ -734,7 +734,10 @@
                     const notesCell = tr.querySelector('.col-notes');
                     if (notesCell && entry.remarks) {
                         notesCell.dataset.remarks = entry.remarks;
-                        notesCell.textContent = entry.remarks;
+                        // sl-notes-view 構造を壊さず備考テキストのみ .sl-notes-items へ
+                        const notesItemsBox = notesCell.querySelector('.sl-notes-items');
+                        if (notesItemsBox) notesItemsBox.innerHTML = '<div class="notes-transport">' + escapeHtml(entry.remarks) + '</div>';
+                        else notesCell.textContent = entry.remarks;
                     }
 
                     const savedKey = tr.dataset.obRowId + '|' + tr.dataset.obDay + '|' + tr.dataset.obSiteIndex;
@@ -1547,10 +1550,33 @@
             });
         }
 
+        // 履歴プロパティで特定行にフォーカスしている場合の対象行（2026-07-19）
+        var slHistoryFocusRow = null;
+
         function slRefreshNotifyHistory() {
             const items = slNotifyItems();
-            slRenderNotifyHistoryPanel(items);
+            const shown = slHistoryFocusRow
+                ? items.filter(function(it) { return slNotifyMatchesRow(it, slHistoryFocusRow); })
+                : items;
+            slRenderNotifyHistoryPanel(shown);
             slRenderRowNotifySummaries(items);
+            // プロパティ見出しへフォーカス行名を反映
+            const title = document.getElementById('slPropTitle');
+            if (title && document.querySelector('.sl-prop-panel[data-prop-panel="history"].is-active')) {
+                if (slHistoryFocusRow) {
+                    const info = cnGetRowInfo(slHistoryFocusRow);
+                    title.textContent = '変更履歴 — ' + (info.siteName || '選択行');
+                } else {
+                    title.textContent = '変更履歴';
+                }
+            }
+        }
+
+        // 変更履歴レール: 行フォーカスを解除して全体履歴を表示（2026-07-19）
+        function slShowAllHistory() {
+            slHistoryFocusRow = null;
+            slSetPropMode('history');
+            slRefreshNotifyHistory();
         }
 
         function slBindNotifyHistoryPanel() {
@@ -2225,7 +2251,25 @@
         let vtDragIndex = null;
 
         function openNotesModal(cell, event) {
-            event.stopPropagation();
+            if (event) event.stopPropagation();
+            const row0 = cell.closest('tr');
+
+            // 履歴表示モード中に備考セルをクリック → その行の変更履歴をプロパティに一覧（2026-07-19）
+            const table = document.querySelector('.grid-table');
+            if (table && table.classList.contains('sl-notes-history')) {
+                if (row0) {
+                    if (selectedGridRow && selectedGridRow !== row0) selectedGridRow.classList.remove('selected');
+                    row0.classList.add('selected');
+                    selectedGridRow = row0;
+                    slHistoryFocusRow = row0;
+                }
+                slSetPropMode('history');
+                slRefreshNotifyHistory();
+                slPropManualCollapsed = null;
+                slUpdatePropCollapsed();
+                return;
+            }
+
             currentNotesCell = cell;
 
             const row = cell.closest('tr');
