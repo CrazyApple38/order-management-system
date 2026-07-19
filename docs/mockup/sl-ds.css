@@ -651,10 +651,14 @@
     margin-bottom: 10px;
 }
 
-/* ---- 現場詳細ドックの節フィルタ（data-sec-filter） ---- */
-.app .sl-prop-dock[data-sec-filter="row"] .sl-docked-modal [data-sec]:not([data-sec="row"]),
+/* ---- 現場詳細ドックの節フィルタ（data-sec-filter） ----
+   列別プロパティ（2026-07-19）: 現場列=siteinfo / 人数列=count / 集合列=meeting /
+   時間列=time / 備考列=notes。クリックした列の節だけを表示する。 */
+.app .sl-prop-dock[data-sec-filter="siteinfo"] .sl-docked-modal [data-sec]:not([data-sec="siteinfo"]),
 .app .sl-prop-dock[data-sec-filter="count"] .sl-docked-modal [data-sec]:not([data-sec="count"]),
-.app .sl-prop-dock[data-sec-filter="detail"] .sl-docked-modal [data-sec]:not([data-sec="detail"]) {
+.app .sl-prop-dock[data-sec-filter="meeting"] .sl-docked-modal [data-sec]:not([data-sec="meeting"]),
+.app .sl-prop-dock[data-sec-filter="time"] .sl-docked-modal [data-sec]:not([data-sec="time"]),
+.app .sl-prop-dock[data-sec-filter="notes"] .sl-docked-modal [data-sec]:not([data-sec="notes"]) {
     display: none;
 }
 

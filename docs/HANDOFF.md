@@ -3,30 +3,29 @@
 永続事実・制約・構造的変更の警告は `docs/SHARED-MEMORY.md` を参照。
 
 ## 最終更新
-- **更新者**: Claude Code（Fable 5）
-- **日付**: 2026-07-19
-- **コミット**: `claude/sl-design-uplift` ブランチ（分岐元 `444dc4a`）
+- **更新者**: Claude Code（Opus 4.8）
+- **日付**: 2026-07-20
+- **コミット**: `claude/sl-design-uplift` ブランチ（直前 HEAD `34cb4ce`）
 
-## 直前にやったこと（2回目イテレーション 2026-07-19）
-- ユーザーFB反映: 業務詳細バッジ/地図ピル/備考を備考列へ集約し「備考⇄履歴」を列ヘッダーsegで一括切替。
-  社員バッジのサブバッジをカプセル内ミニフラグ（休/☾夜勤明け/連勤⚠）へ置換（旧▼・外周丸バッジ廃止・見切れ解消）。
-  連絡方法（直/会社/LINE等）ポップオーバーをDS化し名前右ミニチップ表示。右プロパティを panel-rail 4分割
-  （全て/行情報[data-sec=row]/配置・人数[count]/現場メモ・詳細[detail]）。全てユーザー選択済みデザイン。
-- ds-audit WARN7 = ミニフラグ等の直書き色（DSトークン候補。横展開時にユーザー承認でトークン化予定）。
-
-## 直前にやったこと
-- デザイン+UX向上テーマ開始（ユーザー承認済み: 代表SL試作→承認→全7画面横展開 / DS正本進化 / UX監査→提案→承認）。
-- 全7画面をChromeで視覚監査。SL試作を実装: 右プロパティ360px+スライド収納（現場詳細のみ自動収納・D&D供給源は常駐）、
-  配置/サイドパネル社員バッジをDS .personカプセル化、車両ETCタグのDSカプセル再アサート、ドロップ枠はドラッグ中のみ表示、
-  ツールバー階層化（icon-btn化）、ドックモーダル節見出し日本語化+アコーディオン、チップ群セグメント化。
-- DS正本進化: ds-tokens に `--prop-w`(288px既定) 追加、ds-components .workspace が var(--prop-w) 参照（他画面見た目不変）。
-- 検証: ds-audit NG=0 / node --check OK / Chrome実描画・収納状態機・カプセル描画確認済み。
+## 直前にやったこと（3回目イテレーション 2026-07-19〜20）
+- LEDドット: 社員/車両/ETC バッジの人物アイコンを廃止し `.sl-led`（白熱コア→所属発光色→減衰グロー3層）へ統一。
+  `--belong-N-led` / `--belong-N-led-deep` を ds-tokens に新設（ユーザー承認済み）。
+- 備考列: seg が列ラベルを置換、区分・作業内容バッジを横並び化、履歴表示中の備考列クリックで
+  プロパティに当該行の変更履歴をフォーカス表示。
+- **列別プロパティ（今回）**: 「全表示」を廃止し、クリックした列の節だけを表示。
+  現場列=siteinfo / 人数列=count（インライン編集廃止→プロパティへ統一）/ 集合列=meetingModal /
+  時間列=workTimeModal / 備考列=notes（作業内容・担当者・地図・業務詳細・備考・集合場所・その他項目の catch-all）。
+  `slOpenColumnProp()` / `slApplyPropSecFilter()` / sl-ds.css の `data-sec-filter` 5種で実装。
+  siteModal の備考テキスト（#smRemarks）が未保存だった不具合を修正（`notesCell.dataset.remarks` + `ntRenderNotesCell` へ集約）。
+  旧スナップショット救済は `slUpgradeColumnPropHandlers()`。
+- 検証: node --check OK / ds-audit NG=0 WARN=7 / build-rules OK / Chrome で各列プロパティ・保存往復・履歴切替を確認。
 
 ## 次にやるべきこと
-1. SL試作の残: 保存経路の新旧マークアップ往復確認、印刷CSSへの影響確認、ユーザー視覚承認。
+1. **ユーザーの視覚承認待ち**（SL試作の3イテレーション分）。
 2. 承認後: 計画書 `docs/plan/` に横展開計画を新規作成し OB/WS/LA/QA/F/G へ展開（会社選択のseg-multi統一・D&D拡充含む）。
-3. このノートPCには pre-commit hook / pr-flow / web-stack Docker が未整備（検証は `python -m http.server 8765` + chrome-devtools MCP で実施）。
+3. ds-audit WARN7（ミニフラグ等の直書き色）をユーザー承認のうえトークン化。
 
 ## 今だけの申し送り
-- 母艦と環境が異なる（`C:\Users\r-kat` / Docker未起動）。品質ゲートは手動実行で代替した。
+- このノートPCには pre-commit hook / pr-flow / web-stack Docker が未整備。検証は `python -m http.server 8765` + chrome-devtools MCP で実施。
 - 参照プレビュー3本（design-refresh-*, ds-foundation-test）は改変していない。
+- `startCountEdit` / `openWorkModal` は列別プロパティ化により未参照（削除は横展開時に判断）。

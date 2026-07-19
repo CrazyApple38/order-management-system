@@ -406,6 +406,7 @@
             slApplyNightRowClasses();
             slUpgradePersonLed(document);  // 旧 person-icon → LED
             slUpgradeVtMarkup(document); // 旧スナップショット/再描画分の車両ETCへ LED を付与
+            slUpgradeColumnPropHandlers(document); // 旧スナップショットの列 onclick → 列別プロパティ
             document.querySelectorAll('.assigned-employee').forEach(makeAssignedEmployeeDraggable);
             document.querySelectorAll('.vehicle-tag').forEach(makeAssignedVehicleDraggable);
             document.querySelectorAll('.etc-tag').forEach(makeAssignedEtcDraggable);
@@ -527,6 +528,22 @@
             if (!container) return;
             container.querySelectorAll('.assigned-employee .person-icon, .employee-tag .person-icon').forEach(function(icon) {
                 icon.outerHTML = slLedHtml();
+            });
+        }
+
+        // 列別プロパティ移行（2026-07-19）: 保存スナップショット由来の旧 onclick を貼り替える。
+        //   現場列 openSiteModal(this) → セクション指定付き / 人数列インライン編集 → 配置人数プロパティ /
+        //   作業内容スロットの個別 onclick → 備考列クリックへ一本化。
+        function slUpgradeColumnPropHandlers(container) {
+            if (!container) return;
+            container.querySelectorAll('td.col-site-info[onclick="openSiteModal(this)"]').forEach(function(td) {
+                td.setAttribute('onclick', "openSiteModal(this, 'siteinfo')");
+            });
+            container.querySelectorAll('td.col-count[onclick^="startCountEdit"]').forEach(function(td) {
+                td.setAttribute('onclick', "slOpenColumnProp(this, 'count')");
+            });
+            container.querySelectorAll('.work-badge-slot[onclick]').forEach(function(slot) {
+                slot.removeAttribute('onclick');
             });
         }
 
@@ -735,9 +752,7 @@
                     if (notesCell && entry.remarks) {
                         notesCell.dataset.remarks = entry.remarks;
                         // sl-notes-view 構造を壊さず備考テキストのみ .sl-notes-items へ
-                        const notesItemsBox = notesCell.querySelector('.sl-notes-items');
-                        if (notesItemsBox) notesItemsBox.innerHTML = '<div class="notes-transport">' + escapeHtml(entry.remarks) + '</div>';
-                        else notesCell.textContent = entry.remarks;
+                        ntRenderNotesCell(notesCell, []);
                     }
 
                     const savedKey = tr.dataset.obRowId + '|' + tr.dataset.obDay + '|' + tr.dataset.obSiteIndex;
@@ -1442,17 +1457,33 @@
         }
 
         // ---- 右プロパティ「現場詳細」の節フィルタ（2026-07-19 4分割） ----
-        // all=全て / row=行情報（会社・区分・昼夜・契約先・業務名） /
-        // count=配置・人数（人数・信頼度・作業内容） / detail=現場メモ・詳細（集合・連絡・担当者・地図・備考）
-        var slPropSecFilter = 'all';
-        var slPropSectionTitles = { all: '現場詳細', row: '行情報', count: '配置・人数', detail: '現場メモ・詳細' };
+        // 列別プロパティ（2026-07-19 ユーザー確定）。各列クリックで該当セクションのみ表示。
+        //   siteinfo=現場・契約情報（区分/契約先/現場名列） / meeting=集合・連絡（集合列＋集合場所・連絡） /
+        //   time=勤務時間（時間列） / count=配置人数（人数列） /
+        //   notes=作業内容・備考（備考列。列に出ない担当者・業務詳細もここへ集約）
+        var slPropSecFilter = 'siteinfo';
+        var slPropSectionTitles = {
+            siteinfo: '現場・契約情報',
+            meeting: '集合・連絡',
+            time: '勤務時間',
+            count: '配置人数',
+            notes: '作業内容・備考'
+        };
 
-        function slSetPropSection(sec) {
-            if (!slPropSectionTitles[sec]) sec = 'all';
+        function slApplyPropSecFilter(sec) {
+            if (!slPropSectionTitles[sec]) sec = 'siteinfo';
             slPropSecFilter = sec;
             const dock = document.getElementById('slPropSiteDock');
             if (dock) dock.setAttribute('data-sec-filter', sec);
-            slSetPropMode('site');
+        }
+
+        // 非現場情報セル（人数・備考・作業内容）から、その行の現場詳細エディタを
+        // 対象セクションで開く（現場詳細エディタは col-site-info を起点に全項目を復元する）。
+        function slOpenColumnProp(fromEl, section) {
+            const row = fromEl && fromEl.closest ? fromEl.closest('tr') : null;
+            if (!row) return;
+            const siteCell = row.querySelector('.col-site-info');
+            if (siteCell) openSiteModal(siteCell, section);
         }
 
         function slRailNotifySetup() {
@@ -1647,8 +1678,10 @@
         // 現場詳細モーダルの開閉
         let currentSiteCell = null;
 
-        function openSiteModal(cell) {
+        function openSiteModal(cell, section) {
             currentSiteCell = cell;
+            // 列別プロパティ: 呼び出し列に応じてセクションを絞り込む（未指定=現場・契約情報）
+            slApplyPropSecFilter(section || 'siteinfo');
             const row = cell.closest('tr');
 
             // === チップ復元 ===
@@ -1751,6 +1784,9 @@
 
             // 現場監督候補
             smRenderSupervisorCandidates();
+
+            // 地図一覧（備考列プロパティ）
+            slRenderPropMapList(cell);
 
             slOpenPropDock('siteModal', 'slPropSiteDock', 'site');
         }
@@ -1966,9 +2002,11 @@
                         badgeCell.innerHTML = smBuildBadgeDisplayHtml(badgeData);
                     }
 
-                    // 備考 (col-notes) — vtItems内の集合場所を同期
+                    // 備考 (col-notes) — 備考テキスト永続化 + vtItems内の集合場所を同期
                     const notesCell = row.querySelector('.col-notes');
                     if (notesCell) {
+                        if (remarks) notesCell.dataset.remarks = remarks;
+                        else delete notesCell.dataset.remarks;
                         let existingVtItems = [];
                         try { if (notesCell.dataset.vtItems) existingVtItems = JSON.parse(notesCell.dataset.vtItems); } catch(e) {}
                         // 集合場所を vtItems 内で更新
@@ -2051,6 +2089,7 @@
             mtSelectedContact = contactBadge ? contactBadge.textContent.trim() : null;
 
             mtRenderContactChips();
+            slApplyPropSecFilter('meeting');
             slOpenPropDock('meetingModal', 'slPropSiteDock', 'site');
         }
 
@@ -2270,6 +2309,39 @@
                 return;
             }
 
+            // 列別プロパティ（2026-07-19）: 備考列 = 作業内容/担当者/地図/業務詳細・備考 の集約プロパティ。
+            // 自由項目（送迎など）の編集はその中の「その他項目」ボタン → slOpenNotesItemsEditor()。
+            slOpenColumnProp(cell, 'notes');
+        }
+
+        // 備考列プロパティ内「地図」→ 行の地図エディタ（mapModal）を開く
+        function slOpenRowMapModal(tabIdx) {
+            if (currentSiteCell) openMapModal(currentSiteCell, null, typeof tabIdx === 'number' ? tabIdx : 0);
+        }
+
+        // 備考列プロパティ内の地図一覧（表示のみ。編集は mapModal）
+        function slRenderPropMapList(cell) {
+            const box = document.getElementById('smMapEntryList');
+            if (!box) return;
+            let maps = [];
+            try { maps = JSON.parse(cell.getAttribute('data-maps') || '[]'); } catch (e) { maps = []; }
+            if (!maps.length) {
+                box.innerHTML = '<div class="md-ob-badge-empty">地図は未登録です</div>';
+                return;
+            }
+            box.innerHTML = maps.map(function(m, i) {
+                return '<button type="button" class="md-ob-row-chip" onclick="slOpenRowMapModal(' + i + ')">' + escapeHtml(m.label || '(無題)') + '</button>';
+            }).join('');
+        }
+
+        // 備考列プロパティ内「その他項目（送迎など）」から自由項目エディタを開く
+        function slOpenNotesItemsEditor() {
+            const row = currentSiteCell ? currentSiteCell.closest('tr') : null;
+            const cell = row ? row.querySelector('.col-notes') : null;
+            if (cell) ntOpenItemsEditor(cell);
+        }
+
+        function ntOpenItemsEditor(cell) {
             currentNotesCell = cell;
 
             const row = cell.closest('tr');
@@ -2330,6 +2402,8 @@
             slClosePropDock('notesModal');
             currentNotesCell = null;
             vtItems = [];
+            // 自由項目エディタは備考列プロパティの下位画面。保存後は備考列プロパティへ戻す。
+            if (siteCell) openSiteModal(siteCell, 'notes');
         }
 
         function ntRenderNotesCell(cell, items) {
@@ -2338,6 +2412,11 @@
                 items.forEach(item => {
                     html += `<div class="notes-transport" style="color:${item.color};"><span class="notes-label" style="background:${item.bg}; color:${item.color};">${escapeHtml(item.label)}</span>${escapeHtml(item.value)}</div>`;
                 });
+            }
+            // 備考テキスト（備考列プロパティ #smRemarks）も同じ items ボックスに集約（2026-07-19）
+            const remarksText = cell.dataset ? (cell.dataset.remarks || '') : '';
+            if (remarksText) {
+                html += `<div class="notes-transport sl-remarks-text">${escapeHtml(remarksText)}</div>`;
             }
             // 備考列は「業務詳細バッジ+地図+備考」の集約列（2026-07-19）。
             // 備考テキストは .sl-notes-items のみ書き換え、バッジ/地図スロットは保持する。
@@ -2350,9 +2429,12 @@
         }
 
         function closeNotesModal() {
+            const backRow = currentNotesCell ? currentNotesCell.closest('tr') : null;
+            const backSiteCell = backRow ? backRow.querySelector('.col-site-info') : null;
             slClosePropDock('notesModal');
             currentNotesCell = null;
             vtItems = [];
+            if (backSiteCell) openSiteModal(backSiteCell, 'notes');
         }
 
         document.getElementById('notesModal').addEventListener('click', function(e) {
@@ -2751,11 +2833,16 @@
         }
 
         function closeMapModal() {
+            const backCell = currentMapCell;
             slClosePropDock('mapModal');
             document.getElementById('smMapPreviewFrame').src = '';
             document.getElementById('smMapPreviewSection').style.display = 'none';
             currentMapCell = null;
             smMapEntries = [];
+            // 備考列プロパティから開いた場合は元のプロパティへ戻す（2026-07-19 列別プロパティ）
+            if (backCell && backCell.classList && backCell.classList.contains('col-site-info') && slPropSecFilter === 'notes') {
+                openSiteModal(backCell, 'notes');
+            }
         }
 
         function smUpdateMapPreview() {
@@ -5486,12 +5573,15 @@
                 else {
                     var workSlot = document.createElement('div');
                     workSlot.className = 'work-badge-slot';
-                    workSlot.setAttribute('onclick', 'openWorkModal(this, event)');
                     view.insertBefore(workSlot, view.firstChild);
                 }
             } else if (oldWork) {
                 oldWork.remove();
             }
+            // 列別プロパティ（2026-07-19）: 作業内容は備考列プロパティで編集する。
+            // 旧 markup の個別 onclick（openWorkModal）を外し、列クリックへ一本化。
+            var slotEl = view.querySelector('.work-badge-slot');
+            if (slotEl) slotEl.removeAttribute('onclick');
             if (!view.querySelector('.sl-map-pills')) {
                 var oldPills = oldMeta ? oldMeta.querySelector('.sl-map-pills') : null;
                 var mapPills = oldPills || document.createElement('span');
@@ -5873,7 +5963,7 @@
             tr.setAttribute('onclick', 'selectRow(this, event)');
             var countClass = d.shortage ? 'count-display count-shortage' : 'count-display count-ok';
             tr.innerHTML =
-                '<td class="col-site-info clickable-cell" data-maps="[]"' + (d.gcCode ? ' data-group-company="' + d.gcCode + '" data-gc-name="' + (d.gcName || '') + '"' : '') + ' onclick="openSiteModal(this)">' +
+                '<td class="col-site-info clickable-cell" data-maps="[]"' + (d.gcCode ? ' data-group-company="' + d.gcCode + '" data-gc-name="' + (d.gcName || '') + '"' : '') + ' onclick="openSiteModal(this, \'siteinfo\')">' +
                   '<div class="site-info"><div class="site-badges">' +
                     '<span class="category-badge ' + d.categoryClass + '">' + d.categoryLabel + '</span>' +
                   '</div><div class="site-details">' +
@@ -5888,14 +5978,14 @@
                   ' data-start-time="' + d.timeStart + '" data-end-time="' + d.timeEnd + '">' +
                   '<span class="work-time-start">' + d.timeStart + '</span>' +
                   '<span class="work-time-end">' + d.timeEnd + '</span></td>' +
-                '<td class="col-count clickable-cell" onclick="startCountEdit(this, event)">' +
+                '<td class="col-count clickable-cell" onclick="slOpenColumnProp(this, \'count\')">' +
                   '<span class="' + countClass + '">' + d.count + '</span>' +
                   (d.shortage ? '<span class="count-shortage-badge">不足</span>' : '') + '</td>' +
                 '<td class="col-assignment"><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
                 '<td class="col-vt"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div><div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div></div></td>' +
                 '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)">' +
                   '<div class="sl-notes-view">' +
-                    '<div class="work-badge-slot" onclick="openWorkModal(this, event)"></div>' +
+                    '<div class="work-badge-slot"></div>' +
                     '<span class="sl-map-pills"><span class="info-pill sl-map-empty" onclick="event.stopPropagation(); openMapModal(this.closest(\'tr\').querySelector(\'[data-maps]\'), 0)">地図 +</span></span>' +
                     '<div class="sl-notes-items"></div>' +
                   '</div></td>';
@@ -6685,6 +6775,7 @@
             const endTime = cell.dataset.endTime || '';
             document.getElementById('wtStartTime').value = startTime;
             document.getElementById('wtEndTime').value = endTime;
+            slApplyPropSecFilter('time');
             slOpenPropDock('workTimeModal', 'slPropSiteDock', 'site');
         }
 
