@@ -1354,12 +1354,20 @@
         function slSetPropMode(mode) {
             if (!slPropModeTitles[mode]) mode = 'site';
             const title = document.getElementById('slPropTitle');
-            if (title) title.textContent = slPropModeTitles[mode];
+            if (title) {
+                title.textContent = (mode === 'site' && typeof slPropSectionTitles !== 'undefined')
+                    ? slPropSectionTitles[slPropSecFilter] || slPropModeTitles[mode]
+                    : slPropModeTitles[mode];
+            }
             document.querySelectorAll('.sl-prop-panel').forEach(function(panel) {
                 panel.classList.toggle('is-active', panel.getAttribute('data-prop-panel') === mode);
             });
             document.querySelectorAll('.panel-rail [data-panel]').forEach(function(btn) {
-                btn.classList.toggle('active', btn.getAttribute('data-panel') === mode);
+                var isActive = btn.getAttribute('data-panel') === mode;
+                if (isActive && mode === 'site' && btn.hasAttribute('data-sec')) {
+                    isActive = btn.getAttribute('data-sec') === slPropSecFilter;
+                }
+                btn.classList.toggle('active', isActive);
             });
             if (mode === 'assignment') {
                 spState.mainTab = 'employee';
@@ -1403,6 +1411,31 @@
             const now = ws ? ws.classList.contains('sl-prop-collapsed') : false;
             slPropManualCollapsed = !now;
             slUpdatePropCollapsed();
+        }
+
+        // ---- 備考列: 備考 ⇄ 変更履歴 の一括表示切替（2026-07-19） ----
+        function slSetNotesView(view, ev) {
+            if (ev) ev.stopPropagation();
+            const table = document.querySelector('.grid-table');
+            if (!table) return;
+            table.classList.toggle('sl-notes-history', view === 'history');
+            document.querySelectorAll('.sl-notes-seg button').forEach(function(b) {
+                b.classList.toggle('active', b.getAttribute('data-view') === view);
+            });
+        }
+
+        // ---- 右プロパティ「現場詳細」の節フィルタ（2026-07-19 4分割） ----
+        // all=全て / row=行情報（会社・区分・昼夜・契約先・業務名） /
+        // count=配置・人数（人数・信頼度・作業内容） / detail=現場メモ・詳細（集合・連絡・担当者・地図・備考）
+        var slPropSecFilter = 'all';
+        var slPropSectionTitles = { all: '現場詳細', row: '行情報', count: '配置・人数', detail: '現場メモ・詳細' };
+
+        function slSetPropSection(sec) {
+            if (!slPropSectionTitles[sec]) sec = 'all';
+            slPropSecFilter = sec;
+            const dock = document.getElementById('slPropSiteDock');
+            if (dock) dock.setAttribute('data-sec-filter', sec);
+            slSetPropMode('site');
         }
 
         function slRailNotifySetup() {
@@ -2248,7 +2281,14 @@
                     html += `<div class="notes-transport" style="color:${item.color};"><span class="notes-label" style="background:${item.bg}; color:${item.color};">${escapeHtml(item.label)}</span>${escapeHtml(item.value)}</div>`;
                 });
             }
-            cell.innerHTML = html;
+            // 備考列は「業務詳細バッジ+地図+備考」の集約列（2026-07-19）。
+            // 備考テキストは .sl-notes-items のみ書き換え、バッジ/地図スロットは保持する。
+            const row = cell.closest ? cell.closest('tr') : null;
+            const siteCell = row ? row.querySelector('.col-site-info') : null;
+            if (siteCell) slEnsureSiteInlineSlots(siteCell);
+            const itemsBox = cell.querySelector('.sl-notes-items');
+            if (itemsBox) itemsBox.innerHTML = html;
+            else cell.innerHTML = html;
         }
 
         function closeNotesModal() {
@@ -2675,13 +2715,15 @@
 
         function smUpdateMapCellDisplay(cell, maps) {
             slEnsureSiteInlineSlots(cell);
-            var target = cell.querySelector ? cell.querySelector('.sl-map-pills') : null;
+            // 地図ピルは備考列（.sl-notes-view 内）へ移設（2026-07-19）。data-maps は col-site-info が保持
+            var row = cell.closest ? cell.closest('tr') : null;
+            var target = row ? row.querySelector('.sl-map-pills') : (cell.querySelector ? cell.querySelector('.sl-map-pills') : null);
             if (!maps || maps.length === 0) {
-                if (target) target.innerHTML = '<span class="info-pill sl-map-empty" onclick="event.stopPropagation(); openMapModal(this.closest(\'[data-maps]\'), 0)">地図 +</span>';
+                if (target) target.innerHTML = '<span class="info-pill sl-map-empty" onclick="event.stopPropagation(); openMapModal(this.closest(\'tr\').querySelector(\'[data-maps]\'), 0)">地図 +</span>';
                 else cell.innerHTML = '<span class="map-empty">＋</span>';
             } else {
                 var html = maps.map(function(m, i) {
-                    return '<span class="' + (target ? 'info-pill sl-map-pill' : 'map-tag') + '" data-map-index="' + i + '" onclick="event.stopPropagation(); openMapModal(this.closest(\'[data-maps]\'), 0, ' + i + ')">' + escapeHtml(m.label || '(無題)') + '</span>';
+                    return '<span class="' + (target ? 'info-pill sl-map-pill' : 'map-tag') + '" data-map-index="' + i + '" onclick="event.stopPropagation(); openMapModal(this.closest(\'tr\').querySelector(\'[data-maps]\'), 0, ' + i + ')">' + escapeHtml(m.label || '(無題)') + '</span>';
                 }).join('');
                 if (target) target.innerHTML = html;
                 else cell.innerHTML = html;
@@ -2891,7 +2933,9 @@
                             + ' data-dept="' + emp.dept + '"'
                             + (emp.isOnLeave ? ' title="休み申請あり"'
                                 : emp.workedPrevNight ? ' title="前日夜勤明け"' : '')
-                            + '>' + slPersonIconHtml() + '<span class="person-name">' + emp.name + '</span></span>';
+                            + '>'
+                            + (emp.isOnLeave ? SL_FLAG_HTML.leave : (emp.workedPrevNight ? SL_FLAG_HTML.afterNight : ''))
+                            + slPersonIconHtml() + '<span class="person-name">' + emp.name + '</span></span>';
                     });
                 });
             } else {
@@ -2909,7 +2953,9 @@
                         + ' data-dept="' + emp.dept + '"'
                         + (emp.isOnLeave ? ' title="休み申請あり"'
                             : emp.workedPrevNight ? ' title="前日夜勤明け"' : '')
-                        + '>' + slPersonIconHtml() + '<span class="person-name">' + emp.name + '</span></span>';
+                        + '>'
+                        + (emp.isOnLeave ? SL_FLAG_HTML.leave : (emp.workedPrevNight ? SL_FLAG_HTML.afterNight : ''))
+                        + slPersonIconHtml() + '<span class="person-name">' + emp.name + '</span></span>';
                 });
             }
             content.innerHTML = contentHtml;
@@ -3886,6 +3932,13 @@
         // GC → DS 所属色クラス（SSOT: SHARED-MEMORY 会社マッピング / ds-tokens --gc-*）
         var SL_GC_BELONG_CLASS = { touo: 'belong-1', nikkei: 'belong-2', zennihon: 'belong-3' };
 
+        // カプセル内ミニ状態フラグ（2026-07-19 ユーザー採用: 見切れる外周バッジ/▼を置換）
+        var SL_FLAG_HTML = {
+            leave: '<span class="sl-mini-flag flag-leave" title="休み申請あり">休</span>',
+            afterNight: '<span class="sl-mini-flag flag-after-night" title="前日夜勤明け">☾</span>',
+            consecutive: '<span class="sl-mini-flag flag-consecutive" title="同日昼・夜の連続配置"><svg aria-hidden="true"><use href="#ic-caution-line"/></svg></span>'
+        };
+
         function slPersonIconHtml() {
             return '<span class="person-icon" aria-hidden="true"><svg><use href="#ic-person"/></svg></span>';
         }
@@ -3895,17 +3948,20 @@
                 ? employeesData.find(function(e) { return e.name === name; })
                 : null;
             var isLeave = !!(emp && emp.isOnLeave);
-            var leaveSub = isLeave ? '<span class="sl-holiday-sub" title="休み申請あり">休</span>' : '';
             var belongClass = (emp && SL_GC_BELONG_CLASS[emp.company]) ? ' ' + SL_GC_BELONG_CLASS[emp.company] : '';
+            var flags = '<span class="sl-flags">'
+                + (isLeave ? SL_FLAG_HTML.leave : '')
+                + ((emp && emp.workedPrevNight && !isLeave) ? SL_FLAG_HTML.afterNight : '')
+                + '</span>';
 
             return {
                 className: 'assigned-employee person' + belongClass + (isLeave ? ' sl-on-leave' : ''),
                 company: emp ? emp.company : null,
-                innerHTML: slPersonIconHtml()
+                innerHTML: flags
+                    + slPersonIconHtml()
                     + '<span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">'
                     + '<span>' + name + '</span>'
                     + '</span>'
-                    + leaveSub
                     + '<span class="remove-btn" onclick="removeEmployee(this, event)">×</span>'
             };
         }
@@ -3933,7 +3989,9 @@
                 if (shiftKey === 'night') empState[name].hasNight = true;
             });
 
-            // Step 2: 各 .assigned-employee の name-block を再構築
+            // Step 2: 各 .assigned-employee のミニ状態フラグ（.sl-flags）を再構築
+            //   前日夜勤明け=☾ / 同日昼・夜の連続配置=注意アイコン / 休み申請=休
+            //   （旧: name-block 内 ▼上下 + カプセル外周の 休 丸バッジ → 2026-07-19 廃止）
             tbody.querySelectorAll('.assignment-zone .assigned-employee').forEach(function(el) {
                 var tr = el.closest('tr');
                 if (!tr || tr.dataset.fixed === 'true') return;
@@ -3950,29 +4008,30 @@
                 var isDay = shiftKey === 'day';
                 var isNight = shiftKey === 'night';
 
-                var needsAbove = false, needsBelow = false;
-                if (isDay) {
-                    needsAbove = workedPrevNight;   // 夜(前日) → 昼
-                    needsBelow = state.hasNight;    // 昼 → 夜(同日)
-                } else if (isNight) {
-                    needsAbove = state.hasDay;      // 昼(同日) → 夜
-                }
+                var moon = isDay && workedPrevNight;                                  // 夜(前日) → 昼
+                var consecutive = (isDay && state.hasNight) || (isNight && state.hasDay); // 同日 昼⇄夜
 
-                // 既存 contact-badge を保持して name-block を再構築
-                var contactBadge = nameBlock.querySelector('.contact-badge');
-                var contactHTML = contactBadge ? contactBadge.outerHTML : '';
-
-                var inner;
-                if (needsAbove || needsBelow) {
-                    inner = '<span class="employee-with-continuous">';
-                    if (needsAbove) inner += '<span class="continuous-badge continuous-badge-above" title="連続勤務">▼</span>';
-                    inner += '<span>' + name + '</span>';
-                    if (needsBelow) inner += '<span class="continuous-badge continuous-badge-below" title="連続勤務">▼</span>';
-                    inner += '</span>';
-                } else {
-                    inner = '<span>' + name + '</span>';
+                // 旧マークアップの残骸を除去（保存スナップショット互換）
+                var cont = nameBlock.querySelector('.employee-with-continuous');
+                if (cont) {
+                    var contactBadge = nameBlock.querySelector('.contact-badge');
+                    nameBlock.innerHTML = '<span>' + name + '</span>' + (contactBadge ? contactBadge.outerHTML : '');
                 }
-                nameBlock.innerHTML = inner + contactHTML;
+                var oldSub = el.querySelector('.sl-holiday-sub');
+                if (oldSub) oldSub.remove();
+
+                var flags = el.querySelector('.sl-flags');
+                if (!flags) {
+                    flags = document.createElement('span');
+                    flags.className = 'sl-flags';
+                    el.insertBefore(flags, el.firstChild);
+                }
+                var isLeave = el.classList.contains('sl-on-leave');
+                var html = '';
+                if (isLeave) html += SL_FLAG_HTML.leave;
+                if (moon && !isLeave) html += SL_FLAG_HTML.afterNight;
+                if (consecutive) html += SL_FLAG_HTML.consecutive;
+                flags.innerHTML = html;
             });
 
             slUpdateNameLengthClasses();
@@ -4000,21 +4059,17 @@
             document.querySelectorAll('.assignment-zone .assigned-employee').forEach(function(el) {
                 var name = getEmployeeName(el);
                 if (slIsEmployeeOnLeave(name)) {
-                    if (!el.classList.contains('sl-on-leave')) {
-                        el.classList.add('sl-on-leave');
-                        if (!el.querySelector('.sl-holiday-sub')) {
-                            var sub = document.createElement('span');
-                            sub.className = 'sl-holiday-sub';
-                            sub.title = '休み申請あり';
-                            sub.textContent = '休';
-                            // employee-name-block の直後に挿入
-                            var nameBlock = el.querySelector('.employee-name-block');
-                            if (nameBlock && nameBlock.nextSibling) {
-                                el.insertBefore(sub, nameBlock.nextSibling);
-                            } else {
-                                el.appendChild(sub);
-                            }
-                        }
+                    el.classList.add('sl-on-leave');
+                    var oldSub = el.querySelector('.sl-holiday-sub');
+                    if (oldSub) oldSub.remove();
+                    var flags = el.querySelector('.sl-flags');
+                    if (!flags) {
+                        flags = document.createElement('span');
+                        flags.className = 'sl-flags';
+                        el.insertBefore(flags, el.firstChild);
+                    }
+                    if (!flags.querySelector('.flag-leave')) {
+                        flags.insertAdjacentHTML('afterbegin', SL_FLAG_HTML.leave);
                     }
                 }
             });
@@ -5299,34 +5354,57 @@
             return row ? (row.querySelector('.col-site-info[data-maps]') || row.querySelector('.col-map[data-maps]')) : null;
         }
 
+        // 業務詳細バッジ・地図ピル・備考は備考列（col-notes 内 .sl-notes-view）へ集約（2026-07-19）。
+        // 旧マークアップ（site セル内スロット）は備考列へ移設して救済する。
         function slEnsureSiteInlineSlots(siteCell) {
             if (!siteCell) return;
-            var siteInfo = siteCell.querySelector('.site-info');
-            if (!siteInfo) return;
-            var badges = siteInfo.querySelector('.site-badges');
-            if (badges && !badges.querySelector('.work-badge-slot')) {
-                var workSlot = document.createElement('div');
-                workSlot.className = 'work-badge-slot';
-                workSlot.setAttribute('onclick', 'openWorkModal(this, event)');
-                badges.appendChild(workSlot);
-            }
-            var details = siteInfo.querySelector('.site-details');
-            if (details) {
-                var meta = details.querySelector('.site-meta-row');
-                if (!meta) {
-                    meta = document.createElement('div');
-                    meta.className = 'site-meta-row';
-                    var siteName = details.querySelector('.site-name');
-                    if (siteName && siteName.nextSibling) details.insertBefore(meta, siteName.nextSibling);
-                    else details.appendChild(meta);
-                }
-                if (!meta.querySelector('.sl-map-pills')) {
-                    var mapPills = document.createElement('span');
-                    mapPills.className = 'sl-map-pills';
-                    meta.insertBefore(mapPills, meta.firstChild);
-                }
-            }
             if (!siteCell.hasAttribute('data-maps')) siteCell.setAttribute('data-maps', '[]');
+            var row = siteCell.closest('tr');
+            if (!row) return;
+            var notesCell = row.querySelector('.col-notes');
+            if (!notesCell) return;
+
+            // 旧構造の残骸を site セルから除去（map ピル行・作業内容スロット）
+            var oldMeta = siteCell.querySelector('.site-meta-row');
+            var oldWork = siteCell.querySelector('.work-badge-slot');
+
+            var view = notesCell.querySelector('.sl-notes-view');
+            if (!view) {
+                view = document.createElement('div');
+                view.className = 'sl-notes-view';
+                // 既存の備考表示（.notes-transport 等）は items コンテナへ退避
+                var items = document.createElement('div');
+                items.className = 'sl-notes-items';
+                while (notesCell.firstChild) items.appendChild(notesCell.firstChild);
+                view.appendChild(items);
+                notesCell.appendChild(view);
+            }
+            var itemsBox = view.querySelector('.sl-notes-items');
+            if (!itemsBox) {
+                itemsBox = document.createElement('div');
+                itemsBox.className = 'sl-notes-items';
+                view.appendChild(itemsBox);
+            }
+            if (!view.querySelector('.work-badge-slot')) {
+                if (oldWork) view.insertBefore(oldWork, view.firstChild);
+                else {
+                    var workSlot = document.createElement('div');
+                    workSlot.className = 'work-badge-slot';
+                    workSlot.setAttribute('onclick', 'openWorkModal(this, event)');
+                    view.insertBefore(workSlot, view.firstChild);
+                }
+            } else if (oldWork) {
+                oldWork.remove();
+            }
+            if (!view.querySelector('.sl-map-pills')) {
+                var oldPills = oldMeta ? oldMeta.querySelector('.sl-map-pills') : null;
+                var mapPills = oldPills || document.createElement('span');
+                mapPills.className = 'sl-map-pills';
+                var slot = view.querySelector('.work-badge-slot');
+                if (slot && slot.nextSibling) view.insertBefore(mapPills, slot.nextSibling);
+                else view.appendChild(mapPills);
+            }
+            if (oldMeta) oldMeta.remove();
         }
 
         // ============================================================
@@ -5702,11 +5780,9 @@
                 '<td class="col-site-info clickable-cell" data-maps="[]"' + (d.gcCode ? ' data-group-company="' + d.gcCode + '" data-gc-name="' + (d.gcName || '') + '"' : '') + ' onclick="openSiteModal(this)">' +
                   '<div class="site-info"><div class="site-badges">' +
                     '<span class="category-badge ' + d.categoryClass + '">' + d.categoryLabel + '</span>' +
-                    '<div class="work-badge-slot" onclick="openWorkModal(this, event)"></div>' +
                   '</div><div class="site-details">' +
                     '<div class="company">' + d.company + '</div>' +
                     '<div class="site-name">' + d.siteName + '</div>' +
-                    '<div class="site-meta-row"><span class="sl-map-pills"><span class="info-pill sl-map-empty" onclick="event.stopPropagation(); openMapModal(this.closest(\'[data-maps]\'), 0)">地図 +</span></span></div>' +
                   '</div></div></td>' +
                 '<td class="col-meeting clickable-cell" onclick="openMeetingModal(this, event)">' +
                   '<span class="time-display">' + d.meetingTime + '</span>' +
@@ -5721,7 +5797,12 @@
                   (d.shortage ? '<span class="count-shortage-badge">不足</span>' : '') + '</td>' +
                 '<td class="col-assignment"><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
                 '<td class="col-vt"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div><div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div></div></td>' +
-                '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"></td>';
+                '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)">' +
+                  '<div class="sl-notes-view">' +
+                    '<div class="work-badge-slot" onclick="openWorkModal(this, event)"></div>' +
+                    '<span class="sl-map-pills"><span class="info-pill sl-map-empty" onclick="event.stopPropagation(); openMapModal(this.closest(\'tr\').querySelector(\'[data-maps]\'), 0)">地図 +</span></span>' +
+                    '<div class="sl-notes-items"></div>' +
+                  '</div></td>';
             return tr;
         }
 

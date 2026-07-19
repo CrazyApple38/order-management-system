@@ -139,13 +139,14 @@
 }
 
 /* ---- R-3a-1b: SL中央表 7列化 ---- */
-.app .grid-table .col-site-info { width: 28%; min-width: 220px; }
+/* 2026-07-19: 業務詳細バッジ・地図・備考を col-notes へ集約したため配分変更 */
+.app .grid-table .col-site-info { width: 22%; min-width: 190px; }
 .app .grid-table .col-meeting { width: 8%; min-width: 76px; }
 .app .grid-table .col-work-time { width: 7%; min-width: 64px; }
 .app .grid-table .col-count { width: 6%; min-width: 58px; }
-.app .grid-table .col-assignment { width: 31%; min-width: 280px; }
+.app .grid-table .col-assignment { width: 29%; min-width: 272px; }
 .app .grid-table .col-vt { width: 12%; min-width: 120px; }
-.app .grid-table .col-notes { width: 8%; min-width: 128px; }
+.app .grid-table .col-notes { width: 16%; min-width: 180px; }
 
 .app .grid-table .site-info {
     align-items: flex-start;
@@ -194,7 +195,55 @@
     cursor: pointer;
 }
 
-.app .grid-table td.col-notes::before {
+/* ---- 備考列 = 業務詳細バッジ + 地図 + 備考 の集約列（2026-07-19）。
+        変更履歴は列ヘッダーの seg で一括切替（.grid-table.sl-notes-history） ---- */
+.app .grid-table .sl-notes-view {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+.app .grid-table.sl-notes-history .sl-notes-view { display: none; }
+
+.app .grid-table .sl-notes-items:empty { display: none; }
+.app .grid-table .sl-notes-items .notes-transport {
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+/* 列ヘッダー: ラベル + 備考/履歴 切替 seg */
+.app .grid-table th.col-notes .sl-notes-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+.app .grid-table th.col-notes .sl-notes-seg {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: #fff;
+    overflow: hidden;
+    box-shadow: var(--inset-highlight);
+}
+.app .grid-table th.col-notes .sl-notes-seg button {
+    height: 20px;
+    padding: 0 8px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+}
+.app .grid-table th.col-notes .sl-notes-seg button.active {
+    background: var(--blue);
+    color: #fff;
+}
+
+/* 履歴表示（履歴モード時のみ。データは td の data-history-* 属性） */
+.app .grid-table.sl-notes-history td.col-notes::before {
     content: "履歴 -";
     display: inline-flex;
     align-items: center;
@@ -208,13 +257,13 @@
     font-weight: 600;
 }
 
-.app .grid-table td.col-notes:not([data-history-count=""])::before {
+.app .grid-table.sl-notes-history td.col-notes:not([data-history-count=""])::before {
     content: "履歴 " attr(data-history-count);
     background: var(--blue-soft);
     color: var(--blue);
 }
 
-.app .grid-table td.col-notes:not([data-history-latest=""])::after {
+.app .grid-table.sl-notes-history td.col-notes:not([data-history-latest=""])::after {
     content: attr(data-history-latest);
     display: block;
     margin-top: 4px;
@@ -432,7 +481,7 @@
     transition: grid-template-columns var(--duration-slow) var(--ease-out);
     /* アプリフレーム化: ページ全体をスクロールさせず、中央表とプロパティが
        それぞれ内部スクロールする（navbar 36px + toolbar 帯 ≈ 107px + 下余白 8px） */
-    height: calc(100vh - 115px);
+    height: calc(100vh - 127px);
     min-height: 560px;
 }
 .app .workspace > .prop .sl-prop-card { min-height: 0; }
@@ -481,6 +530,113 @@
 .app .assigned-employee.person .remove-btn { z-index: 5; }
 /* 夜間行では配置社員名も慣習の赤文字（アイコンは所属色のまま） */
 .app tr.row-night .assigned-employee.person .employee-name-block { color: var(--night-text); }
+
+/* ---- カプセル内ミニ状態フラグ（休 / ☾前日夜勤明け / 連勤注意。2026-07-19） ---- */
+.sl-flags {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    flex: 0 0 auto;
+}
+.sl-flags:empty { display: none; }
+.sl-mini-flag {
+    position: relative;
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: help;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.65);
+}
+.sl-mini-flag.flag-leave {
+    background: var(--alert-bg);
+    color: var(--night-text);
+    box-shadow: inset 0 0 0 1px rgba(209, 77, 65, 0.28);
+}
+.sl-mini-flag.flag-after-night {
+    background: #fdf6e7;
+    color: #b07a10;
+    font-size: 10px;
+    box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.30);
+}
+.sl-mini-flag.flag-consecutive {
+    background: var(--alert-bg);
+    color: var(--alert-text);
+    box-shadow: inset 0 0 0 1px var(--alert-border);
+}
+.sl-mini-flag.flag-consecutive svg {
+    width: 10px;
+    height: 10px;
+    fill: currentColor;
+}
+
+/* ---- 連絡方法ミニチップ（名前右。クリックでポップオーバー） ---- */
+.app .assigned-employee.person .contact-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 4px;
+    padding: 1px 6px;
+    border-radius: var(--radius-pill);
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1.3;
+    box-shadow: inset 0 0 0 1px rgba(23, 43, 58, 0.10);
+    white-space: nowrap;
+}
+
+/* 連絡方法ポップオーバー: DS ポップ（elevation-4 / radius-md） */
+.contact-popup {
+    border: 1px solid var(--line) !important;
+    border-radius: var(--radius-md) !important;
+    background: linear-gradient(to bottom right, #ffffff, #f7fafc) !important;
+    box-shadow: var(--elevation-4), var(--inset-highlight) !important;
+    padding: 12px !important;
+}
+.contact-popup .contact-popup-title {
+    color: var(--muted) !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.02em;
+    margin-bottom: 8px !important;
+}
+.contact-popup .contact-popup-btn {
+    border-radius: var(--radius-pill) !important;
+    border-width: 1px !important;
+    font-weight: 600 !important;
+    transition: box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+}
+.contact-popup .contact-popup-btn:hover {
+    box-shadow: var(--elevation-1);
+    transform: translateY(-1px);
+}
+.contact-popup .contact-popup-btn.selected {
+    box-shadow: 0 0 0 2px var(--blue), var(--elevation-1) !important;
+}
+
+/* ---- panel-rail: img アイコン + 現場詳細4分割ボタン ---- */
+.app .panel-rail .sl-rail-img {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+/* active は DS 準拠（白カード+青リング）のため img アイコンは暗色のまま */
+/* 現場詳細系4個と供給源系の間の区切り */
+.app .panel-rail [data-sec="detail"] {
+    margin-bottom: 10px;
+}
+
+/* ---- 現場詳細ドックの節フィルタ（data-sec-filter） ---- */
+.app .sl-prop-dock[data-sec-filter="row"] .sl-docked-modal [data-sec]:not([data-sec="row"]),
+.app .sl-prop-dock[data-sec-filter="count"] .sl-docked-modal [data-sec]:not([data-sec="count"]),
+.app .sl-prop-dock[data-sec-filter="detail"] .sl-docked-modal [data-sec]:not([data-sec="detail"]) {
+    display: none;
+}
 
 /* サイドパネル社員チップも同カプセル */
 .app .employee-tag.person {
