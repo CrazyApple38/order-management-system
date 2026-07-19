@@ -289,14 +289,26 @@
 }
 
 /* ---- 右プロパティ 4モード（R-3a-2） ---- */
+/* grid item の既定 min-height:auto が中央列の min-content で行を押し広げ、
+   workspace の height を 12px ほど超過させていた。0 にして行を viewport 内に収める（2026-07-20）。 */
+.app .workspace > .main {
+    min-height: 0;
+}
+
+/* .prop は列いっぱいの高さを保ち（余白は背景が見える）、カード側だけが内容高に合わせる。
+   .prop の height が確定していることで .sl-prop-card の max-height:100% が解決する（2026-07-20）。 */
 .app .workspace > .prop {
     min-width: 0;
+    min-height: 0;
+    height: 100%;
     padding: 8px;
     overflow: hidden;
 }
 
+/* 内容が短ければカードも短く、超えたら .sl-prop-panel が内部スクロール（2026-07-20 ユーザー決定） */
 .app .sl-prop-card {
-    height: 100%;
+    height: auto;
+    max-height: 100%;
     min-height: 0;
     display: flex;
     flex-direction: column;
@@ -328,8 +340,11 @@
 .app .sl-prop-panel {
     display: none;
     min-height: 0;
-    flex: 1 1 auto;
-    overflow: auto;
+    /* 伸びない・縮む: 内容が短ければそのまま、max-height 到達で内部スクロール */
+    flex: 0 1 auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .app .sl-prop-panel.is-active {

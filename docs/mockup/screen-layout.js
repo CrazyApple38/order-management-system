@@ -531,27 +531,32 @@
             });
         }
 
-        // 列別プロパティ移行（2026-07-19）: 保存スナップショット由来の旧 onclick を貼り替える。
-        //   現場列 openSiteModal(this) → セクション指定付き / 人数列インライン編集 → 配置人数プロパティ /
-        //   作業内容スロットの個別 onclick → 備考列クリックへ一本化。
+        // 列別プロパティ移行: 保存スナップショット由来の旧 onclick を、
+        // 列クリック=プロパティのトグル（slColumnProp）へ一括で貼り替える（2026-07-20）。
+        var SL_COLUMN_PROP_KIND = {
+            'col-site-info': 'siteinfo',
+            'col-meeting': 'meeting',
+            'col-work-time': 'time',
+            'col-count': 'count',
+            'col-assignment': 'assignment',
+            'col-vt': 'vehicle',
+            'col-notes': 'notes'
+        };
+
         function slUpgradeColumnPropHandlers(container) {
             if (!container) return;
-            container.querySelectorAll('td.col-site-info[onclick="openSiteModal(this)"]').forEach(function(td) {
-                td.setAttribute('onclick', "openSiteModal(this, 'siteinfo')");
-            });
-            container.querySelectorAll('td.col-count[onclick^="startCountEdit"]').forEach(function(td) {
-                td.setAttribute('onclick', "slOpenColumnProp(this, 'count')");
-            });
+            // 作業内容スロットの個別 onclick は備考列クリックへ一本化（個別に開かない）
             container.querySelectorAll('.work-badge-slot[onclick]').forEach(function(slot) {
                 slot.removeAttribute('onclick');
             });
-            container.querySelectorAll('td.col-assignment:not([onclick])').forEach(function(td) {
-                td.classList.add('clickable-cell');
-                td.setAttribute('onclick', "slOpenSupplyProp(event, 'assignment')");
-            });
-            container.querySelectorAll('td.col-vt:not([onclick])').forEach(function(td) {
-                td.classList.add('clickable-cell');
-                td.setAttribute('onclick', "slOpenSupplyProp(event, 'vehicle')");
+            Object.keys(SL_COLUMN_PROP_KIND).forEach(function(cls) {
+                var kind = SL_COLUMN_PROP_KIND[cls];
+                var want = "slColumnProp(event, this, '" + kind + "')";
+                container.querySelectorAll('td.' + cls).forEach(function(td) {
+                    if (td.getAttribute('onclick') === want) return;
+                    td.classList.add('clickable-cell');
+                    td.setAttribute('onclick', want);
+                });
             });
         }
 
@@ -1409,6 +1414,11 @@
                 }
                 btn.classList.toggle('active', isActive);
             });
+            // panel-rail から直接開いた供給源パネルもトグル状態に同期（2026-07-20）
+            if (mode === 'assignment' || mode === 'vehicle') {
+                slPropOpenKind = mode;
+                slPropOpenRow = null;
+            }
             if (mode === 'assignment') {
                 spState.mainTab = 'employee';
                 spApplyAccordionState();
@@ -1493,6 +1503,66 @@
             if (!row) return;
             const siteCell = row.querySelector('.col-site-info');
             if (siteCell) openSiteModal(siteCell, section);
+        }
+
+        // ---- 列クリック = プロパティのトグル（2026-07-20 ユーザー決定: 全列対象） ----
+        // 同じ行・同じ列を再クリックすると閉じる（= プロパティ列ごと収納して中央表を広げる）。
+        // 別の行／別の列をクリックした場合は開いたまま内容を差し替える。
+        var slPropOpenRow = null;   // 開いている行（供給源パネルは null）
+        var slPropOpenKind = null;  // 'siteinfo'|'meeting'|'time'|'count'|'notes'|'assignment'|'vehicle'
+        var slPropSuppressReturn = false; // 下位エディタ(notes/map)の「戻る」を抑止するフラグ
+
+        function slPropCollapsedNow() {
+            const ws = document.querySelector('.app > .workspace');
+            return !!(ws && ws.classList.contains('sl-prop-collapsed'));
+        }
+
+        // 現在ドックされているエディタを閉じ、プロパティ列を収納する
+        function slCloseCurrentProp() {
+            const modalId = slVisibleDockedModalId();
+            if (modalId) {
+                slPropSuppressReturn = true;
+                const fn = window[slPropCloseFns[modalId]];
+                if (typeof fn === 'function') fn();
+                else slClosePropDock(modalId);
+                slPropSuppressReturn = false;
+            }
+            slPropOpenRow = null;
+            slPropOpenKind = null;
+            slPropManualCollapsed = true;
+            slUpdatePropCollapsed();
+            slUpdatePropHeadClose();
+        }
+
+        // 列セルの onclick はすべてここへ集約する
+        function slColumnProp(ev, cellEl, kind) {
+            // 配置済みバッジ自身のクリック（連絡方法ポップオーバー・削除ボタン等）は妨げない
+            if ((kind === 'assignment' || kind === 'vehicle') && ev && ev.target && ev.target.closest
+                && ev.target.closest('.assigned-employee, .assigned-support, .vehicle-tag, .etc-tag')) return;
+
+            const row = cellEl && cellEl.closest ? cellEl.closest('tr') : null;
+            const isSupply = (kind === 'assignment' || kind === 'vehicle');
+            const sameTarget = slPropOpenKind === kind && (isSupply || slPropOpenRow === row);
+            if (sameTarget && !slPropCollapsedNow()) {
+                slCloseCurrentProp();
+                return;
+            }
+
+            slPropManualCollapsed = null;
+            if (isSupply) {
+                slPropOpenRow = null;
+                slPropOpenKind = kind;
+                slSetPropMode(kind);
+                return;
+            }
+            if (!row) return;
+            slPropOpenRow = row;
+            slPropOpenKind = kind;
+            if (kind === 'meeting') openMeetingModal(cellEl, ev);
+            else if (kind === 'time') openWorkTimeModal(cellEl, ev);
+            else if (kind === 'notes') openNotesModal(cellEl, ev);
+            else if (kind === 'siteinfo') openSiteModal(cellEl, 'siteinfo');
+            else slOpenColumnProp(cellEl, kind);
         }
 
         function slRailNotifySetup() {
@@ -1712,11 +1782,8 @@
         }
 
         function slClosePropHead() {
-            const modalId = slVisibleDockedModalId();
-            if (!modalId) return;
-            const fn = window[slPropCloseFns[modalId]];
-            if (typeof fn === 'function') fn();
-            else slClosePropDock(modalId);
+            // ✕ も列の再クリックと同じ「閉じる」に揃える（2026-07-20）
+            slCloseCurrentProp();
         }
 
         // 現場詳細モーダルの開閉
@@ -2450,7 +2517,7 @@
             currentNotesCell = null;
             vtItems = [];
             // 自由項目エディタは備考列プロパティの下位画面。保存後は備考列プロパティへ戻す。
-            if (siteCell) openSiteModal(siteCell, 'notes');
+            if (siteCell && !slPropSuppressReturn) openSiteModal(siteCell, 'notes');
         }
 
         function ntRenderNotesCell(cell, items) {
@@ -2481,7 +2548,7 @@
             slClosePropDock('notesModal');
             currentNotesCell = null;
             vtItems = [];
-            if (backSiteCell) openSiteModal(backSiteCell, 'notes');
+            if (backSiteCell && !slPropSuppressReturn) openSiteModal(backSiteCell, 'notes');
         }
 
         document.getElementById('notesModal').addEventListener('click', function(e) {
@@ -2887,7 +2954,7 @@
             currentMapCell = null;
             smMapEntries = [];
             // 備考列プロパティから開いた場合は元のプロパティへ戻す（2026-07-19 列別プロパティ）
-            if (backCell && backCell.classList && backCell.classList.contains('col-site-info') && slPropSecFilter === 'notes') {
+            if (!slPropSuppressReturn && backCell && backCell.classList && backCell.classList.contains('col-site-info') && slPropSecFilter === 'notes') {
                 openSiteModal(backCell, 'notes');
             }
         }
@@ -6012,27 +6079,27 @@
             tr.setAttribute('onclick', 'selectRow(this, event)');
             var countClass = d.shortage ? 'count-display count-shortage' : 'count-display count-ok';
             tr.innerHTML =
-                '<td class="col-site-info clickable-cell" data-maps="[]"' + (d.gcCode ? ' data-group-company="' + d.gcCode + '" data-gc-name="' + (d.gcName || '') + '"' : '') + ' onclick="openSiteModal(this, \'siteinfo\')">' +
+                '<td class="col-site-info clickable-cell" data-maps="[]"' + (d.gcCode ? ' data-group-company="' + d.gcCode + '" data-gc-name="' + (d.gcName || '') + '"' : '') + ' onclick="slColumnProp(event, this, \'siteinfo\')">' +
                   '<div class="site-info"><div class="site-badges">' +
                     '<span class="category-badge ' + d.categoryClass + '">' + d.categoryLabel + '</span>' +
                   '</div><div class="site-details">' +
                     '<div class="company">' + d.company + '</div>' +
                     '<div class="site-name">' + d.siteName + '</div>' +
                   '</div></div></td>' +
-                '<td class="col-meeting clickable-cell" onclick="openMeetingModal(this, event)">' +
+                '<td class="col-meeting clickable-cell" onclick="slColumnProp(event, this, \'meeting\')">' +
                   '<span class="time-display">' + d.meetingTime + '</span>' +
                   '<span class="contact-badge ' + d.meetingMethodClass + '">' + d.meetingMethod + '</span>' +
                   (d.contactBadgeHtml || '') + '</td>' +
-                '<td class="col-work-time clickable-cell" onclick="openWorkTimeModal(this, event)"' +
+                '<td class="col-work-time clickable-cell" onclick="slColumnProp(event, this, \'time\')"' +
                   ' data-start-time="' + d.timeStart + '" data-end-time="' + d.timeEnd + '">' +
                   '<span class="work-time-start">' + d.timeStart + '</span>' +
                   '<span class="work-time-end">' + d.timeEnd + '</span></td>' +
-                '<td class="col-count clickable-cell" onclick="slOpenColumnProp(this, \'count\')">' +
+                '<td class="col-count clickable-cell" onclick="slColumnProp(event, this, \'count\')">' +
                   '<span class="' + countClass + '">' + d.count + '</span>' +
                   (d.shortage ? '<span class="count-shortage-badge">不足</span>' : '') + '</td>' +
-                '<td class="col-assignment clickable-cell" onclick="slOpenSupplyProp(event, \'assignment\')"><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
-                '<td class="col-vt clickable-cell" onclick="slOpenSupplyProp(event, \'vehicle\')"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div><div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div></div></td>' +
-                '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)">' +
+                '<td class="col-assignment clickable-cell" onclick="slColumnProp(event, this, \'assignment\')"><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
+                '<td class="col-vt clickable-cell" onclick="slColumnProp(event, this, \'vehicle\')"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div><div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div></div></td>' +
+                '<td class="col-notes clickable-cell" onclick="slColumnProp(event, this, \'notes\')">' +
                   '<div class="sl-notes-view">' +
                     '<div class="work-badge-slot"></div>' +
                     '<span class="sl-map-pills"><span class="info-pill sl-map-empty" onclick="event.stopPropagation(); openMapModal(this.closest(\'tr\').querySelector(\'[data-maps]\'), 0)">地図 +</span></span>' +

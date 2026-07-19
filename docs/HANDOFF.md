@@ -25,7 +25,14 @@
   （`slClosePropHead` / `slUpdatePropHeadClose`）②夜勤明けフラグ ☾ → `#ic-moon` SVG（フォント差で C に化けるため）
   ③siteModal の死にUI「連絡チップ」削除（集合列＝meetingModal に一本化。#smMeetingTime は往復用に非表示保持）
   ④配置列・車両ETC列クリック → 供給源パネル（社員配置／車両・ETC）を開く `slOpenSupplyProp`（バッジ自身のクリックは従来どおり）。
-- 検証: node --check OK / ds-audit NG=0 WARN=7 / build-rules OK / Chrome で各列プロパティ・保存往復・履歴切替・月アイコン描画を確認。
+- **列クリック=プロパティのトグル（2026-07-20 ユーザー決定・全列対象）**: onclick を `slColumnProp(event, this, kind)`
+  に一本化。同じ行・同じ列の再クリックで閉じる（列ごと収納 `--prop-w: 0px`、中央表が広がる）。✕ も同じ経路。
+  下位エディタ（notesModal/mapModal）の「戻る」は `slPropSuppressReturn` で抑止。
+- **プロパティ高さ**: `.sl-prop-card` を `height:auto` + `max-height:100%`、`.sl-prop-panel` を `flex:0 1 auto` に変更。
+  内容が短ければカードも短く（余りは背景）、長ければパネルが内部スクロール。あわせて `.workspace > .main` に
+  `min-height:0` を入れ、grid の既定 `min-height:auto` が行を 12px 押し広げ viewport を超えていた問題を解消。
+- 検証: node --check OK / ds-audit NG=0 WARN=7 / build-rules OK / Chrome で各列プロパティ・保存往復・履歴切替・月アイコン描画・
+  トグル開閉・スクロール量（1414→ch339 で 1074px スクロール可）・短い内容時の余白 159.5px を確認。
 
 ## 次にやるべきこと
 1. **ユーザーの視覚承認待ち**（SL試作の3イテレーション分）。
