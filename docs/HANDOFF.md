@@ -18,7 +18,11 @@
   `slOpenColumnProp()` / `slApplyPropSecFilter()` / sl-ds.css の `data-sec-filter` 5種で実装。
   siteModal の備考テキスト（#smRemarks）が未保存だった不具合を修正（`notesCell.dataset.remarks` + `ntRenderNotesCell` へ集約）。
   旧スナップショット救済は `slUpgradeColumnPropHandlers()`。
-- 検証: node --check OK / ds-audit NG=0 WARN=7 / build-rules OK / Chrome で各列プロパティ・保存往復・履歴切替を確認。
+- **整合性4点（ユーザー選択 2026-07-20）**: ①ドック内モーダルヘッダー廃止 → `.sl-prop-head` に ✕ を移設
+  （`slClosePropHead` / `slUpdatePropHeadClose`）②夜勤明けフラグ ☾ → `#ic-moon` SVG（フォント差で C に化けるため）
+  ③siteModal の死にUI「連絡チップ」削除（集合列＝meetingModal に一本化。#smMeetingTime は往復用に非表示保持）
+  ④配置列・車両ETC列クリック → 供給源パネル（社員配置／車両・ETC）を開く `slOpenSupplyProp`（バッジ自身のクリックは従来どおり）。
+- 検証: node --check OK / ds-audit NG=0 WARN=7 / build-rules OK / Chrome で各列プロパティ・保存往復・履歴切替・月アイコン描画を確認。
 
 ## 次にやるべきこと
 1. **ユーザーの視覚承認待ち**（SL試作の3イテレーション分）。

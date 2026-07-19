@@ -545,6 +545,14 @@
             container.querySelectorAll('.work-badge-slot[onclick]').forEach(function(slot) {
                 slot.removeAttribute('onclick');
             });
+            container.querySelectorAll('td.col-assignment:not([onclick])').forEach(function(td) {
+                td.classList.add('clickable-cell');
+                td.setAttribute('onclick', "slOpenSupplyProp(event, 'assignment')");
+            });
+            container.querySelectorAll('td.col-vt:not([onclick])').forEach(function(td) {
+                td.classList.add('clickable-cell');
+                td.setAttribute('onclick', "slOpenSupplyProp(event, 'vehicle')");
+            });
         }
 
         // 保存スナップショット由来の旧 .assigned-employee マークアップを
@@ -1412,6 +1420,7 @@
             }
             slPropManualCollapsed = null;
             slUpdatePropCollapsed();
+            if (typeof slUpdatePropHeadClose === 'function') slUpdatePropHeadClose();
         }
 
         // ---- 右プロパティ収納（2026-07-19 SLデザイン+UX向上試作） ----
@@ -1659,6 +1668,7 @@
             if (siteEmpty && dockId === 'slPropSiteDock') siteEmpty.style.display = 'none';
             slPropManualCollapsed = null;
             slUpdatePropCollapsed();
+            slUpdatePropHeadClose();
             return true;
         }
 
@@ -1673,6 +1683,40 @@
                 overlay.style.display = 'none';
             }
             slUpdatePropCollapsed();
+            slUpdatePropHeadClose();
+        }
+
+        // ---- プロパティ見出しの閉じるボタン（2026-07-20 ドック内ヘッダー廃止に伴う移設） ----
+        // ドック中のモーダル（現場詳細・集合・勤務時間・地図・その他項目）を、その専用 close 関数で閉じる。
+        var slPropCloseFns = {
+            siteModal: 'closeSiteModal',
+            meetingModal: 'closeMeetingModal',
+            workTimeModal: 'closeWorkTimeModal',
+            mapModal: 'closeMapModal',
+            notesModal: 'closeNotesModal',
+            workModal: 'closeWorkModal'
+        };
+
+        function slVisibleDockedModalId() {
+            const keys = Object.keys(slDockedModalContent);
+            for (let i = 0; i < keys.length; i++) {
+                const el = slDockedModalContent[keys[i]];
+                if (el && el.closest('.sl-prop-dock') && !el.classList.contains('is-docked-hidden')) return keys[i];
+            }
+            return null;
+        }
+
+        function slUpdatePropHeadClose() {
+            const btn = document.getElementById('slPropHeadClose');
+            if (btn) btn.classList.toggle('is-visible', !!slVisibleDockedModalId());
+        }
+
+        function slClosePropHead() {
+            const modalId = slVisibleDockedModalId();
+            if (!modalId) return;
+            const fn = window[slPropCloseFns[modalId]];
+            if (typeof fn === 'function') fn();
+            else slClosePropDock(modalId);
         }
 
         // 現場詳細モーダルの開閉
@@ -1753,13 +1797,7 @@
                 }
             }
 
-            // 連絡チップの復元
-            const meetCell = row ? (row.querySelector('.col-meeting') || row.querySelectorAll('td')[1] || row.querySelectorAll('td')[2]) : null;
-            const contactEl = meetCell ? meetCell.querySelector('.contact-badge') : null;
-            const contactName = contactEl ? contactEl.textContent.trim() : null;
-            if (typeof smRenderContactChips === 'function') {
-                smRenderContactChips(contactName);
-            }
+            // 連絡先は saveMeetingModal（集合列プロパティ）の責務。siteModal では扱わない。
 
             // 業務詳細（サブタスク）
             let subTasks = [];
@@ -2312,6 +2350,15 @@
             // 列別プロパティ（2026-07-19）: 備考列 = 作業内容/担当者/地図/業務詳細・備考 の集約プロパティ。
             // 自由項目（送迎など）の編集はその中の「その他項目」ボタン → slOpenNotesItemsEditor()。
             slOpenColumnProp(cell, 'notes');
+        }
+
+        // 配置列・車両ETC列（D&D先）クリック → 対応する供給源パネルを右プロパティに開く。
+        // 全列がクリックで対応プロパティを開く、という整合性のため（2026-07-20 ユーザー決定）。
+        // 配置済みバッジ自身のクリック（連絡方法ポップオーバー等）は妨げない。
+        function slOpenSupplyProp(ev, mode) {
+            const t = ev && ev.target;
+            if (t && t.closest && t.closest('.assigned-employee, .assigned-support, .vehicle-tag, .etc-tag')) return;
+            slSetPropMode(mode);
         }
 
         // 備考列プロパティ内「地図」→ 行の地図エディタ（mapModal）を開く
@@ -4082,7 +4129,7 @@
         // カプセル内ミニ状態フラグ（2026-07-19 ユーザー採用: 見切れる外周バッジ/▼を置換）
         var SL_FLAG_HTML = {
             leave: '<span class="sl-mini-flag flag-leave" title="休み申請あり">休</span>',
-            afterNight: '<span class="sl-mini-flag flag-after-night" title="前日夜勤明け">☾</span>',
+            afterNight: '<span class="sl-mini-flag flag-after-night" title="前日夜勤明け"><svg aria-hidden="true"><use href="#ic-moon"/></svg></span>',
             consecutive: '<span class="sl-mini-flag flag-consecutive" title="同日昼・夜の連続配置"><svg aria-hidden="true"><use href="#ic-caution-line"/></svg></span>'
         };
 
@@ -5981,8 +6028,8 @@
                 '<td class="col-count clickable-cell" onclick="slOpenColumnProp(this, \'count\')">' +
                   '<span class="' + countClass + '">' + d.count + '</span>' +
                   (d.shortage ? '<span class="count-shortage-badge">不足</span>' : '') + '</td>' +
-                '<td class="col-assignment"><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
-                '<td class="col-vt"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div><div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div></div></td>' +
+                '<td class="col-assignment clickable-cell" onclick="slOpenSupplyProp(event, \'assignment\')"><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
+                '<td class="col-vt clickable-cell" onclick="slOpenSupplyProp(event, \'vehicle\')"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div><div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div></div></td>' +
                 '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)">' +
                   '<div class="sl-notes-view">' +
                     '<div class="work-badge-slot"></div>' +

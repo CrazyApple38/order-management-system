@@ -416,30 +416,46 @@
     display: none !important;
 }
 
+/* ドック内の旧モーダルヘッダーは廃止（2026-07-20 ユーザー決定）。
+   タイトルと閉じるボタンは .sl-prop-head（列名＝プロパティ名）に一本化する。 */
 .app .sl-docked-modal .modal-header,
 .app .sl-docked-modal .md-modal-site-header {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    margin: 0 0 8px;
-    padding: 0 0 8px;
-    border-bottom: 1px solid var(--soft-line);
-    background: var(--panel);
-    /* ドック時は白帯上に載るため、旧モーダルの白文字を DS インクへ戻す */
-    color: var(--ink);
-    font-weight: 700;
-    font-size: 13px;
+    display: none;
 }
-.app .sl-docked-modal .modal-header .modal-close,
-.app .sl-docked-modal .md-modal-site-header .modal-close {
+
+/* プロパティ見出しの閉じるボタン（旧モーダルヘッダーの ✕ の移設先） */
+.app .sl-prop-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+.app .sl-prop-head-close {
+    flex: 0 0 auto;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: var(--radius-xs);
+    background: transparent;
     color: var(--muted);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out),
+                border-color var(--duration-fast) var(--ease-out),
+                color var(--duration-fast) var(--ease-out);
 }
-/* 旧モーダルのタイトル span / h3 は白文字指定が残るため個別に戻す */
-.app .sl-docked-modal .modal-header > span,
-.app .sl-docked-modal .md-modal-site-header h3 {
+.app .sl-prop-head-close.is-visible {
+    display: inline-flex;
+}
+.app .sl-prop-head-close:hover {
+    border-color: var(--line);
+    background: var(--bg);
     color: var(--ink);
-    font-size: 13px;
-    font-weight: 700;
 }
 
 .app .sl-docked-modal .modal-body,
@@ -590,7 +606,8 @@
     color: var(--alert-text);
     box-shadow: inset 0 0 0 1px var(--alert-border);
 }
-.sl-mini-flag.flag-consecutive svg {
+.sl-mini-flag.flag-consecutive svg,
+.sl-mini-flag.flag-after-night svg {
     width: 10px;
     height: 10px;
     fill: currentColor;
