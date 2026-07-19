@@ -1541,6 +1541,13 @@
                 && ev.target.closest('.assigned-employee, .assigned-support, .vehicle-tag, .etc-tag')) return;
 
             const row = cellEl && cellEl.closest ? cellEl.closest('tr') : null;
+            // selectRow() は .clickable-cell のクリックを無視するため、列クリック時の
+            // 行選択はここで移す（他行をクリックしても選択が残るバグの対処 2026-07-20）
+            if (row && selectedGridRow !== row) {
+                if (selectedGridRow) selectedGridRow.classList.remove('selected');
+                row.classList.add('selected');
+                selectedGridRow = row;
+            }
             const isSupply = (kind === 'assignment' || kind === 'vehicle');
             const sameTarget = slPropOpenKind === kind && (isSupply || slPropOpenRow === row);
             if (sameTarget && !slPropCollapsedNow()) {
@@ -2401,12 +2408,8 @@
             // 履歴表示モード中に備考セルをクリック → その行の変更履歴をプロパティに一覧（2026-07-19）
             const table = document.querySelector('.grid-table');
             if (table && table.classList.contains('sl-notes-history')) {
-                if (row0) {
-                    if (selectedGridRow && selectedGridRow !== row0) selectedGridRow.classList.remove('selected');
-                    row0.classList.add('selected');
-                    selectedGridRow = row0;
-                    slHistoryFocusRow = row0;
-                }
+                // 行選択は slColumnProp() が一元管理する（重複させない）
+                if (row0) slHistoryFocusRow = row0;
                 slSetPropMode('history');
                 slRefreshNotifyHistory();
                 slPropManualCollapsed = null;

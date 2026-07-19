@@ -31,6 +31,16 @@
 - **プロパティ高さ**: `.sl-prop-card` を `height:auto` + `max-height:100%`、`.sl-prop-panel` を `flex:0 1 auto` に変更。
   内容が短ければカードも短く（余りは背景）、長ければパネルが内部スクロール。あわせて `.workspace > .main` に
   `min-height:0` を入れ、grid の既定 `min-height:auto` が行を 12px 押し広げ viewport を超えていた問題を解消。
+- **バグ修正4件（2026-07-20 ユーザー報告）**:
+  ① フラッシュのスポットライトが右プロパティ列まで広がる → `co-notify-panel.js` に
+     `clipRectToScrollAncestors()` を追加し、外接矩形をスクロール祖先で切り詰め（全画面共通の改善）。
+  ② フラッシュ/履歴クリックした行の選択背景が他行クリックで消えない → `selectRow()` は
+     `.clickable-cell` を無視するため、`slColumnProp()` 側で行選択を一元的に移すよう変更。
+  ③ 社員配置/車両ETCプロパティがスクロールできない → `.sl-prop-source-panel` が
+     `flex:1 1 auto` + `.side-panel` の `overflow:hidden` で内容が切れていた。`flex:0 0 auto` +
+     `overflow:visible` にしてスクロールを `.sl-prop-panel` に委ねる（社員 994px / 車両 1702px スクロール可）。
+  ④ 車両・ETCプロパティ内のバッジが角丸矩形 → 配置済みタグと同じ DS カプセル（pill+グラデ+3層影）に統一。
+     配置済みは緑背景ではなく `opacity: .55`（社員チップと同じ扱い）。
 - 検証: node --check OK / ds-audit NG=0 WARN=7 / build-rules OK / Chrome で各列プロパティ・保存往復・履歴切替・月アイコン描画・
   トグル開閉・スクロール量（1414→ch339 で 1074px スクロール可）・短い内容時の余白 159.5px を確認。
 

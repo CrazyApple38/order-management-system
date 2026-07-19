@@ -84,6 +84,28 @@
         return { left: l, top: t, width: r - l, height: b - t };
     }
 
+    // 外接矩形をスクロール祖先の可視領域で切り詰める（2026-07-20）。
+    // 横スクロールする表では画面外の列の rect まで union されるため、
+    // クリップしないとスポットライトが表の外（SL では右プロパティ列）まで広がる。
+    function clipRectToScrollAncestors(rect, el) {
+        if (!rect || !el) return rect;
+        var l = rect.left, t = rect.top, r = rect.left + rect.width, b = rect.top + rect.height;
+        var node = el.parentElement;
+        while (node && node.nodeType === 1) {
+            var cs = window.getComputedStyle(node);
+            if (cs.overflow !== 'visible' || cs.overflowX !== 'visible' || cs.overflowY !== 'visible') {
+                var rc = node.getBoundingClientRect();
+                if (rc.left > l) l = rc.left;
+                if (rc.top > t) t = rc.top;
+                if (rc.right < r) r = rc.right;
+                if (rc.bottom < b) b = rc.bottom;
+            }
+            node = node.parentElement;
+        }
+        if (r <= l || b <= t) return null;
+        return { left: l, top: t, width: r - l, height: b - t };
+    }
+
     // 通知ジャンプ着地演出: 画面全体を暗転し、対象セル（複数なら外接矩形）だけを
     // くり抜いて明るく残すスポットライト。透明な穴要素に外向き box-shadow を掛けて
     // 周囲を一括で暗くする方式（候補セル単位ではなく画面全体が一様に暗くなる）。
@@ -105,6 +127,7 @@
         focusOverlayState.hole = hole;
         focusOverlayState.reposition = function () {
             var rect = unionTargetRect(focusOverlayState.targets);
+            rect = clipRectToScrollAncestors(rect, focusOverlayState.targets[0]);
             if (!rect) return;
             hole.style.left = rect.left + 'px';
             hole.style.top = rect.top + 'px';
