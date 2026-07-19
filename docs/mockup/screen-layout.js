@@ -404,8 +404,8 @@
             }
             selectedGridRow = null;
             slApplyNightRowClasses();
-            slUpgradePersonLed(document);  // 旧 person-icon → LED
-            slUpgradeVtMarkup(document); // 旧スナップショット/再描画分の車両ETCへ LED を付与
+            slUpgradePersonLed(document);  // 旧 LED ドット → 人物アイコン
+            slUpgradeVtMarkup(document); // 旧スナップショット/再描画分の車両ETCへ所属アイコンを付与
             slUpgradeColumnPropHandlers(document); // 旧スナップショットの列 onclick → 列別プロパティ
             document.querySelectorAll('.assigned-employee').forEach(makeAssignedEmployeeDraggable);
             document.querySelectorAll('.vehicle-tag').forEach(makeAssignedVehicleDraggable);
@@ -523,11 +523,11 @@
             slRefreshRowCountDisplay(targetRow);
         }
 
-        // 旧 person-icon（SVG）を所属LEDドットへ置換（2026-07-19 スナップショット救済）。
+        // 2026-07-19 試作の LED ドットを人物アイコンへ戻す（2026-07-20 スナップショット救済）。
         function slUpgradePersonLed(container) {
             if (!container) return;
-            container.querySelectorAll('.assigned-employee .person-icon, .employee-tag .person-icon').forEach(function(icon) {
-                icon.outerHTML = slLedHtml();
+            container.querySelectorAll('.assigned-employee .sl-led, .employee-tag .sl-led').forEach(function(led) {
+                led.outerHTML = slPersonIconHtml();
             });
         }
 
@@ -3307,7 +3307,7 @@
                         + ' draggable="true" ondragstart="vehicleDrag(event)"'
                         + ' data-plate="' + v.plate + '"'
                         + ' data-model="' + v.model + '">'
-                        + slLedHtml() + v.plate + '<span class="vlt-model">' + v.model + '</span>'
+                        + slVtIconHtml('car') + v.plate + '<span class="vlt-model">' + v.model + '</span>'
                         + '</span>';
                 });
                 if (companyEtc.length > 0) {
@@ -3318,7 +3318,7 @@
                         html += '<span class="etc-list-tag' + eBelong + (isAssigned ? ' assigned' : '') + '"'
                             + ' draggable="true" ondragstart="etcDrag(event)"'
                             + ' data-label="' + e.label + '">'
-                            + slLedHtml() + e.label
+                            + slVtIconHtml('card') + e.label
                             + '</span>';
                     });
                 }
@@ -3746,7 +3746,7 @@
                     dragSourceVehicleTag.remove();
                     var newTag = document.createElement('span');
                     newTag.className = ('vehicle-tag ' + slVehicleBelongClass(plate)).trim();
-                    newTag.innerHTML = plate + slLedHtml() + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
+                    newTag.innerHTML = plate + slVtIconHtml('car') + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
                     vZone.appendChild(newTag);
                     makeAssignedVehicleDraggable(newTag);
                     dragSourceVehicleTag = null;
@@ -3785,7 +3785,7 @@
                     if (existingTag) existingTag.remove();
                     var tag = document.createElement('span');
                     tag.className = ('vehicle-tag ' + slVehicleBelongClass(plate)).trim();
-                    tag.innerHTML = plate + slLedHtml() + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
+                    tag.innerHTML = plate + slVtIconHtml('car') + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
                     vZone.appendChild(tag);
                     makeAssignedVehicleDraggable(tag);
                     updateVehicleListStatus();
@@ -3826,7 +3826,7 @@
                     dragSourceEtcTag.remove();
                     var newETag = document.createElement('span');
                     newETag.className = ('etc-tag ' + slEtcBelongClass(label)).trim();
-                    newETag.innerHTML = label + slLedHtml() + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
+                    newETag.innerHTML = label + slVtIconHtml('card') + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
                     eZone.appendChild(newETag);
                     makeAssignedEtcDraggable(newETag);
                     dragSourceEtcTag = null;
@@ -3849,7 +3849,7 @@
                     pushUndo();
                     var eTag = document.createElement('span');
                     eTag.className = ('etc-tag ' + slEtcBelongClass(label)).trim();
-                    eTag.innerHTML = label + slLedHtml() + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
+                    eTag.innerHTML = label + slVtIconHtml('card') + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
                     eZone.appendChild(eTag);
                     makeAssignedEtcDraggable(eTag);
                     updateVehicleListStatus();
@@ -4133,13 +4133,13 @@
             consecutive: '<span class="sl-mini-flag flag-consecutive" title="同日昼・夜の連続配置"><svg aria-hidden="true"><use href="#ic-caution-line"/></svg></span>'
         };
 
-        // 社員/車両/ETC 共通の所属LEDドット（2026-07-19 人物アイコンを置換）
-        function slLedHtml() {
-            return '<span class="sl-led" aria-hidden="true"></span>';
-        }
-        // 後方互換エイリアス（既存呼び出し名を維持）
+        // 所属アイコン（2026-07-20 ユーザー決定: LEDドット案を差し戻し、社員=人物 / 車両=車 / ETC=カードで統一）。
+        // 色は .belong-N が供給する --belong-color。
         function slPersonIconHtml() {
-            return slLedHtml();
+            return '<span class="person-icon" aria-hidden="true"><svg><use href="#ic-person"/></svg></span>';
+        }
+        function slVtIconHtml(kind) {
+            return '<span class="vt-icon" aria-hidden="true"><svg><use href="#ic-' + (kind === 'card' ? 'card' : 'car') + '"/></svg></span>';
         }
 
         function slVehicleBelongClass(plate) {
@@ -4153,23 +4153,25 @@
             return (e && SL_GC_BELONG_CLASS[e.owner]) ? SL_GC_BELONG_CLASS[e.owner] : '';
         }
 
-        // 配置済み 車両/ETC タグに LED ドット + 所属クラスを付与（旧スナップショット救済も兼ねる）。
-        // childNodes[0]=プレート文字（重複判定が依存）を保つため LED は末尾追加し CSS order:-1 で左寄せ。
+        // 配置済み 車両/ETC タグに所属アイコン + 所属クラスを付与（旧スナップショット救済も兼ねる）。
+        // childNodes[0]=プレート文字（重複判定が依存）を保つためアイコンは末尾追加し CSS order:-1 で左寄せ。
         function slUpgradeVtMarkup(container) {
             if (!container) return;
+            // 旧 LED ドット（2026-07-19 試作）が残っていたら除去してからアイコンを付ける
+            container.querySelectorAll('.vehicle-tag .sl-led, .etc-tag .sl-led').forEach(function(led) { led.remove(); });
             container.querySelectorAll('.vehicle-tag').forEach(function(tag) {
-                if (tag.querySelector('.sl-led')) return;
+                if (tag.querySelector('.vt-icon')) return;
                 var plate = tag.childNodes[0] ? tag.childNodes[0].textContent.trim() : '';
                 var bc = slVehicleBelongClass(plate);
                 if (bc && !tag.classList.contains(bc)) tag.classList.add(bc);
-                tag.insertAdjacentHTML('beforeend', slLedHtml());
+                tag.insertAdjacentHTML('beforeend', slVtIconHtml('car'));
             });
             container.querySelectorAll('.etc-tag').forEach(function(tag) {
-                if (tag.querySelector('.sl-led')) return;
+                if (tag.querySelector('.vt-icon')) return;
                 var label = tag.childNodes[0] ? tag.childNodes[0].textContent.trim() : '';
                 var bc = slEtcBelongClass(label);
                 if (bc && !tag.classList.contains(bc)) tag.classList.add(bc);
-                tag.insertAdjacentHTML('beforeend', slLedHtml());
+                tag.insertAdjacentHTML('beforeend', slVtIconHtml('card'));
             });
         }
 

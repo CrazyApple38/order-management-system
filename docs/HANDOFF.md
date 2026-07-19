@@ -8,8 +8,11 @@
 - **コミット**: `claude/sl-design-uplift` ブランチ（直前 HEAD `34cb4ce`）
 
 ## 直前にやったこと（3回目イテレーション 2026-07-19〜20）
-- LEDドット: 社員/車両/ETC バッジの人物アイコンを廃止し `.sl-led`（白熱コア→所属発光色→減衰グロー3層）へ統一。
-  `--belong-N-led` / `--belong-N-led-deep` を ds-tokens に新設（ユーザー承認済み）。
+- **LEDドットは差し戻し済み（2026-07-20 ユーザー判断: イメージ不一致）**。所属識別は「アイコン統一」に決定 —
+  社員=`#ic-person` / 車両=`#ic-car`(transport/im-00237) / ETC=`#ic-card`(business/im-10551)、色は `--belong-color`。
+  `--belong-N-led` トークンと `.sl-led` レシピは DS 正本から削除。夜勤明けフラグは
+  `#ic-moon`（other/im-15067-yoru.svg の三日月パスのみ・viewBox 15 24 490 488）。
+  **アイコンは必ず `docs/assets/icons/` の素材から選ぶこと（自作パス禁止）。**
 - 備考列: seg が列ラベルを置換、区分・作業内容バッジを横並び化、履歴表示中の備考列クリックで
   プロパティに当該行の変更履歴をフォーカス表示。
 - **列別プロパティ（今回）**: 「全表示」を廃止し、クリックした列の節だけを表示。
@@ -30,6 +33,9 @@
 3. ds-audit WARN7（ミニフラグ等の直書き色）をユーザー承認のうえトークン化。
 
 ## 今だけの申し送り
+- **検証時にDOMへインラインstyleを注入しないこと**。2026-07-20 に拡大確認用の `transform: scale(4)` が
+  localStorage スナップショット（`mock.sl.state.v1` / `mock.oms.state.v1`）へ行HTMLごと焼き付き、
+  バッジサイズ逸脱としてユーザーに露見した（両キーから除去済み）。確認は計測値かCSSクラスで行う。
 - このノートPCには pre-commit hook / pr-flow / web-stack Docker が未整備。検証は `python -m http.server 8765` + chrome-devtools MCP で実施。
 - 参照プレビュー3本（design-refresh-*, ds-foundation-test）は改変していない。
 - `startCountEdit` / `openWorkModal` は列別プロパティ化により未参照（削除は横展開時に判断）。

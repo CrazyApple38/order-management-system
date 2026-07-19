@@ -2172,43 +2172,20 @@ th.sorted { color: var(--blue); }
         inset -1px 0 0 rgba(53, 83, 104, 0.10);
 }
 
-.belong-1 { --belong-color: var(--belong-1); --belong-bg: var(--belong-1-bg); --belong-border: var(--belong-1-border); --led: var(--belong-1-led); --led-deep: var(--belong-1-led-deep); }
-.belong-2 { --belong-color: var(--belong-2); --belong-bg: var(--belong-2-bg); --belong-border: var(--belong-2-border); --led: var(--belong-2-led); --led-deep: var(--belong-2-led-deep); }
-.belong-3 { --belong-color: var(--belong-3); --belong-bg: var(--belong-3-bg); --belong-border: var(--belong-3-border); --led: var(--belong-3-led); --led-deep: var(--belong-3-led-deep); }
-.belong-4 { --belong-color: var(--belong-4); --belong-bg: var(--belong-4-bg); --belong-border: var(--belong-4-border); --led: var(--belong-4-led); --led-deep: var(--belong-4-led-deep); }
-.belong-5 { --belong-color: var(--belong-5); --belong-bg: var(--belong-5-bg); --belong-border: var(--belong-5-border); --led: var(--belong-5-led); --led-deep: var(--belong-5-led-deep); }
-.belong-6 { --belong-color: var(--belong-6); --belong-bg: var(--belong-6-bg); --belong-border: var(--belong-6-border); --led: var(--belong-6-led); --led-deep: var(--belong-6-led-deep); }
-.belong-7 { --belong-color: var(--belong-7); --belong-bg: var(--belong-7-bg); --belong-border: var(--belong-7-border); --led: var(--belong-7-led); --led-deep: var(--belong-7-led-deep); }
-.belong-8 { --belong-color: var(--belong-8); --belong-bg: var(--belong-8-bg); --belong-border: var(--belong-8-border); --led: var(--belong-8-led); --led-deep: var(--belong-8-led-deep); }
-.belong-9 { --belong-color: var(--belong-9); --belong-bg: var(--belong-9-bg); --belong-border: var(--belong-9-border); --led: var(--belong-9-led); --led-deep: var(--belong-9-led-deep); }
-.belong-10 { --belong-color: var(--belong-10); --belong-bg: var(--belong-10-bg); --belong-border: var(--belong-10-border); --led: var(--belong-10-led); --led-deep: var(--belong-10-led-deep); }
-
-/* ドット型 LED ライト（所属会社を発光色で表現。2026-07-19 ユーザー承認）
-   白熱コア(中心) → 発光色 → 減衰する外周グローの3層で、熱源から遠ざかるほど
-   波長が深色へ落ちる現実の光の減衰を模す。--led / --led-deep は .belong-N が供給。 */
-.sl-led {
-    position: relative;
-    z-index: 4;
-    flex: 0 0 auto;
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    background:
-        radial-gradient(circle at 42% 37%,
-            #ffffff 0%,
-            #ffffff 15%,
-            var(--led, #3b82f6) 49%,
-            var(--led-deep, #1e40af) 90%);
-    box-shadow:
-        0 0 3px color-mix(in srgb, var(--led, #3b82f6) 88%, transparent),
-        0 0 7px color-mix(in srgb, var(--led, #3b82f6) 56%, transparent),
-        0 0 13px 1px color-mix(in srgb, var(--led, #3b82f6) 30%, transparent),
-        inset 0 0 2px rgba(255, 255, 255, 0.85),
-        inset 0 -1px 1px color-mix(in srgb, var(--led-deep, #1e40af) 45%, transparent);
-}
+.belong-1 { --belong-color: var(--belong-1); --belong-bg: var(--belong-1-bg); --belong-border: var(--belong-1-border); }
+.belong-2 { --belong-color: var(--belong-2); --belong-bg: var(--belong-2-bg); --belong-border: var(--belong-2-border); }
+.belong-3 { --belong-color: var(--belong-3); --belong-bg: var(--belong-3-bg); --belong-border: var(--belong-3-border); }
+.belong-4 { --belong-color: var(--belong-4); --belong-bg: var(--belong-4-bg); --belong-border: var(--belong-4-border); }
+.belong-5 { --belong-color: var(--belong-5); --belong-bg: var(--belong-5-bg); --belong-border: var(--belong-5-border); }
+.belong-6 { --belong-color: var(--belong-6); --belong-bg: var(--belong-6-bg); --belong-border: var(--belong-6-border); }
+.belong-7 { --belong-color: var(--belong-7); --belong-bg: var(--belong-7-bg); --belong-border: var(--belong-7-border); }
+.belong-8 { --belong-color: var(--belong-8); --belong-bg: var(--belong-8-bg); --belong-border: var(--belong-8-border); }
+.belong-9 { --belong-color: var(--belong-9); --belong-bg: var(--belong-9-bg); --belong-border: var(--belong-9-border); }
+.belong-10 { --belong-color: var(--belong-10); --belong-bg: var(--belong-10-bg); --belong-border: var(--belong-10-border); }
 
 /* 名前左の人物アイコン: 色は所属会社カラー(--belong-color)
-   ※角丸四角バッジ+打ち抜き表現（参考画像案）は 2026-06-12 に試作後ユーザー判断で差し戻し（イメージ不一致） */
+   ※角丸四角バッジ+打ち抜き表現（参考画像案）は 2026-06-12 に試作後ユーザー判断で差し戻し（イメージ不一致）
+   ※ドット型LEDライト案は 2026-07-19 に試作後ユーザー判断で差し戻し（イメージ不一致）。所属識別はアイコン着色に戻す。 */
 .person-icon {
     display: inline-flex;
     align-items: center;
@@ -2222,6 +2199,24 @@ th.sorted { color: var(--blue); }
     display: block;
     width: 20px;
     height: 20px;
+    fill: currentColor;
+}
+
+/* 車両/ETC の所属アイコン: .person-icon と同じ骨格（形だけ車 / カード）。
+   社員バッジとデザインを揃えるためのレシピ（2026-07-20 ユーザー決定）。 */
+.vt-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+    color: var(--belong-color);
+}
+.vt-icon svg {
+    display: block;
+    width: 16px;
+    height: 16px;
     fill: currentColor;
 }
 

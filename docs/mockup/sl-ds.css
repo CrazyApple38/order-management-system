@@ -548,15 +548,12 @@
     min-width: 64px;
     padding: 4px 11px 4px 9px;
     font-size: 12px;
-    /* LED グロー・remove-btn・休/警告サブバッジをカプセル外周へ拡散させる */
+    /* remove-btn・休/警告サブバッジをカプセル外周へ拡散させる */
     overflow: visible;
 }
 
-/* LED ドット: カプセル内で名前の左に発光。グローが縁で切れないよう overflow:visible 前提 */
-.app .assigned-employee.person .sl-led,
-.app .employee-tag.person .sl-led { margin-right: 2px; }
 .app .assigned-employee.person .employee-name-block { margin-left: 2px; }
-/* 夜間行では LED は所属色を保ちつつ、名前は慣習の赤（既存ルール） */
+/* 夜間行ではアイコンは所属色を保ちつつ、名前は慣習の赤（既存ルール） */
 .app .assigned-employee.person .employee-name-block {
     position: relative;
     z-index: 4;
@@ -679,15 +676,17 @@
     display: none;
 }
 
-/* サイドパネルの車両/ETC リストタグにも LED を inline 配置 */
+/* サイドパネルの車両/ETC リストタグにも所属アイコンを inline 配置 */
 .app .vehicle-list-tag,
 .app .etc-list-tag {
     display: inline-flex;
     align-items: center;
     gap: 5px;
 }
-.app .vehicle-list-tag .sl-led,
-.app .etc-list-tag .sl-led { width: 10px; height: 10px; }
+.app .vehicle-list-tag .vt-icon,
+.app .etc-list-tag .vt-icon { width: 14px; height: 14px; }
+.app .vehicle-list-tag .vt-icon svg,
+.app .etc-list-tag .vt-icon svg { width: 14px; height: 14px; }
 
 /* サイドパネル社員チップも同カプセル */
 .app .employee-tag.person {
@@ -701,8 +700,8 @@
 }
 .app .employee-tag.person.assigned { opacity: 0.55; }
 
-/* 配置済み 車両/ETC タグ: DS .vehicle-tag カプセル + 所属LEDドット（社員バッジと同デザイン）。
-   childNodes[0]=プレート文字（重複判定が依存）を保つため LED は末尾DOM + order:-1 で左寄せ。 */
+/* 配置済み 車両/ETC タグ: DS .vehicle-tag カプセル + 所属アイコン（社員バッジと同デザイン）。
+   childNodes[0]=プレート文字（重複判定が依存）を保つためアイコンは末尾DOM + order:-1 で左寄せ。 */
 .app .vehicle-drop-zone .vehicle-tag,
 .app .etc-drop-zone .etc-tag {
     display: inline-flex;
@@ -728,12 +727,12 @@
     letter-spacing: 0.02em;
     font-variant-numeric: tabular-nums;
     cursor: grab;
-    overflow: visible; /* LED グローを縁で切らない */
+    overflow: visible;
     transition: box-shadow var(--duration-fast) ease, border-color var(--duration-fast) ease;
 }
-/* LED は DOM 末尾でも視覚的に左端へ */
-.app .vehicle-drop-zone .vehicle-tag .sl-led,
-.app .etc-drop-zone .etc-tag .sl-led { order: -1; }
+/* 所属アイコンは DOM 末尾でも視覚的に左端へ */
+.app .vehicle-drop-zone .vehicle-tag .vt-icon,
+.app .etc-drop-zone .etc-tag .vt-icon { order: -1; }
 .app .vehicle-drop-zone .vehicle-tag:hover,
 .app .etc-drop-zone .etc-tag:hover {
     border-color: rgba(160, 182, 200, 0.92);
