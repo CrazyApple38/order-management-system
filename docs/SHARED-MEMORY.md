@@ -15,6 +15,10 @@
 - **① 顧客側金額** — 要件 3.1.1 は「単価／請求額／支払条件」を要求するが `daily_site_orders` に該当列なし（`purchase_orders`＝協力業者側・`intergroup_billings`＝GC間のみ）。顧客請求をシステムで保持するか／保持先を要判断。
 - **② 契約先連絡先** — `companies` は 2026-02-04 に住所/phone/email/contact_person を削除済だが、要件 3.1.1 は契約先「連絡先・住所」を要求（`group_companies.phone` は注文書甲情報で別物）。要件を更新するか `companies` に戻すか要判断。
 - ※同レビューの他3件（既定時刻の格納先＝「本実装フェーズで確定」と明記／カスタム連絡タイプ＝マスタを持たない設計意図／`workedPrevNight`＝モック専用・実装時に導出置換と明記）は **対応不要** と確認済。
+- **③ SL 社員バッジ実装の二重化（2026-07-20 発生・統合方針未定）** — `master` の **#29 `c4a229a` feat(sl): 社員バッジをDSカプセルへ変更（Codex・7/18）** と、ブランチ **`claude/sl-design-uplift`（Claude・10コミット）** が同じ「社員バッジのDSカプセル化」を別方式で実装している。
+  - Codex 版 = 内側ラッパー `.sl-person-capsule` / 所属色は `[data-company="touo"]` 属性 / 人物アイコンは CSS `mask: var(--icon-person)` / 連勤は `.continuous-badge` 絶対配置。
+  - Claude 版 = DS `.person` レシピを直接適用 / 所属色は `.belong-N`（`--belong-color`）/ アイコンは SVG symbol `#ic-person` / 連勤はカプセル内ミニフラグ `.sl-flags`（**絶対配置バッジは「見切れる」というユーザー指摘で廃止済み**）。
+  - `HANDOFF.md` / `screen-layout.js` / `screen-layout.html` の3ファイルが衝突する。**Claude 側は視覚承認待ちのため master を取り込まない判断（2026-07-20 ユーザー決定）**。統合方針は SL 承認後の横展開フェーズで決める。**それまで両者を安易にマージしないこと。**
 
 ## プロジェクト決定（SSOT ポインタ）
 
