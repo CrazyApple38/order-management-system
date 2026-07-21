@@ -889,7 +889,8 @@ h1 {
     margin-top: 0;
 }
 
-.employee-tag {
+/* DS カプセル (.person) 適用時は ds-components のレシピが正。旧スタイルは非適用時のみ */
+.employee-tag:not(.person) {
     position: relative; /* 休/明け サブバッジを absolute で重ねるため */
     display: inline-block;
     padding: 6px 12px;
@@ -906,23 +907,23 @@ h1 {
 
 /* 会社（GC）別の社員タグ色（カラー設定の「社員バッジ色」と連動）
    .assigned / .emp-on-leave の状態色は後続セレクタで上書きされる */
-.employee-tag[data-company="touo"] {
+.employee-tag:not(.person)[data-company="touo"] {
     background: var(--emp-badge-bg-touo);
     color: var(--emp-badge-text-touo);
     border-color: var(--emp-badge-border-touo);
 }
-.employee-tag[data-company="nikkei"] {
+.employee-tag:not(.person)[data-company="nikkei"] {
     background: var(--emp-badge-bg-nikkei);
     color: var(--emp-badge-text-nikkei);
     border-color: var(--emp-badge-border-nikkei);
 }
-.employee-tag[data-company="zennihon"] {
+.employee-tag:not(.person)[data-company="zennihon"] {
     background: var(--emp-badge-bg-zennihon);
     color: var(--emp-badge-text-zennihon);
     border-color: var(--emp-badge-border-zennihon);
 }
 
-.employee-tag:hover {
+.employee-tag:not(.person):hover {
     background: var(--accent-primary);
     color: white;
     border-color: var(--accent-primary);
@@ -1288,7 +1289,8 @@ h1 {
     background: rgba(56, 161, 105, 0.08);
 }
 
-.assigned-employee {
+/* DS カプセル (.person) 適用時は ds-components のレシピが正。旧スタイルは非適用時のみ */
+.assigned-employee:not(.person) {
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -1307,17 +1309,17 @@ h1 {
 }
 
 /* 配置済み社員バッジ: サイドメニュー .employee-tag と同じ会社別カラー（カラー設定「社員バッジ色」と連動） */
-.assigned-employee[data-company="touo"] {
+.assigned-employee:not(.person)[data-company="touo"] {
     background: var(--emp-badge-bg-touo);
     color: var(--emp-badge-text-touo);
     border-color: var(--emp-badge-border-touo);
 }
-.assigned-employee[data-company="nikkei"] {
+.assigned-employee:not(.person)[data-company="nikkei"] {
     background: var(--emp-badge-bg-nikkei);
     color: var(--emp-badge-text-nikkei);
     border-color: var(--emp-badge-border-nikkei);
 }
-.assigned-employee[data-company="zennihon"] {
+.assigned-employee:not(.person)[data-company="zennihon"] {
     background: var(--emp-badge-bg-zennihon);
     color: var(--emp-badge-text-zennihon);
     border-color: var(--emp-badge-border-zennihon);

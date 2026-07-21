@@ -1633,7 +1633,8 @@ th.sorted { color: var(--blue); }
 .workspace {
     position: relative;
     display: grid;
-    grid-template-columns: 72px minmax(1128px, 1fr) 288px 58px;
+    /* 右プロパティ列は --prop-w（ds-tokens 既定 288px）。SL 等は画面側で上書き */
+    grid-template-columns: 72px minmax(1128px, 1fr) var(--prop-w, 288px) 58px;
     min-height: 690px;
     background:
         linear-gradient(90deg, #e8f0f6 0, #f6f9fc 72px, transparent 72px),
@@ -2183,7 +2184,8 @@ th.sorted { color: var(--blue); }
 .belong-10 { --belong-color: var(--belong-10); --belong-bg: var(--belong-10-bg); --belong-border: var(--belong-10-border); }
 
 /* 名前左の人物アイコン: 色は所属会社カラー(--belong-color)
-   ※角丸四角バッジ+打ち抜き表現（参考画像案）は 2026-06-12 に試作後ユーザー判断で差し戻し（イメージ不一致） */
+   ※角丸四角バッジ+打ち抜き表現（参考画像案）は 2026-06-12 に試作後ユーザー判断で差し戻し（イメージ不一致）
+   ※ドット型LEDライト案は 2026-07-19 に試作後ユーザー判断で差し戻し（イメージ不一致）。所属識別はアイコン着色に戻す。 */
 .person-icon {
     display: inline-flex;
     align-items: center;
@@ -2197,6 +2199,24 @@ th.sorted { color: var(--blue); }
     display: block;
     width: 20px;
     height: 20px;
+    fill: currentColor;
+}
+
+/* 車両/ETC の所属アイコン: .person-icon と同じ骨格（形だけ車 / カード）。
+   社員バッジとデザインを揃えるためのレシピ（2026-07-20 ユーザー決定）。 */
+.vt-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+    color: var(--belong-color);
+}
+.vt-icon svg {
+    display: block;
+    width: 16px;
+    height: 16px;
     fill: currentColor;
 }
 
