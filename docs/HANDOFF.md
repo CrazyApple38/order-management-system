@@ -3,23 +3,21 @@
 永続事実・制約・構造的変更の警告は `docs/SHARED-MEMORY.md` を参照。
 
 ## 最終更新
-- **更新者**: Codex (GPT-5)
+- **更新者**: Claude Code (Opus 4.8)
 - **日付**: 2026-07-22
-- **コミット**: `master` の `28d789c`（PR #30 マージ済み）
+- **コミット**: ブランチ `claude/sl-support-badge-capsule`（base = `master` の `aa00207`）
 
 ## 直前にやったこと
-- `origin/claude/sl-design-uplift` のSLデザイン・UX改善をPR #29と調整して統合し、PR #30としてsquash mergeした。
-- 備考/履歴切替、列別右プロパティ、DSカプセル、SVGアイコン、旧保存DOM移行、所属色連動を反映した。
-- 独立レビューで確認した確定欠陥6件を修正し、PR検証は受け入れ基準8/8 PASS、独立監査もPASS。
-- CI、Vercel、JavaScript構文検査、DS監査、ルール生成検査はすべて合格済み。
+- SL（screen-layout.html）の応援/応援予約バッジを社員バッジと同じ DS カプセル型へ統一（ユーザー承認済み）。
+- `screen-layout.css` の `.sl-support-tag`（ドック応援予約）と `.assigned-support`（配置列チップ）を緑シェル→カプセル材質（pill・白ベベル縁・青灰グラデ・2層影・`--ink`）へ置換。人物アイコンは付けない・色は社員と同じ中立グラデ（緑廃止）。プリセット「応援」の灰別扱いも廃止。配置列チップは社員と同じ高さ32pxに統一。
+- CSSのみ（JS/挙動非変更）。DS監査 NG=0・コンソールエラー0・Docker+Chromeで実画面検証済み。
 
 ## 次にやるべきこと
-1. 新しいセッションで `docs/screen-layout.html`（SL画面）の残りのデザイン修正をユーザーと継続する。
-2. まずユーザーから未反映・追加修正箇所を順に確認し、指示されていない色・形・サイズ・配置は変更しない。
-3. 修正前にPR #30マージ後の画面をDocker＋Chromeで確認し、以後も視覚変更ごとに実画面で検証する。
+1. PR作成（submit）→ CI（quality-gate）green 確認。視覚変更のため automerge はユーザー確認後に手動マージ（見た目はユーザー承認済み）。
+2. SLデザイン修正の残りをユーザーと継続。指示外の色・形・サイズ・配置は変更しない。
 
 ## 今だけの申し送り
-- 未追跡 `_ai-inbox/` は既存ファイルであり、今回のPRには含めない。
-- XAMPPは起動禁止。ローカル確認はDockerの `http://localhost/order-management-system/` を使用。
-- 検証時にDOMへインラインstyleを注入しない。localStorageへ保存される可能性がある。
-- PR #30の変更は完了済みだが、ユーザー判断ではデザイン修正そのものは未完了。モックアップ完了宣言はまだない。
+- 未追跡 `_ai-inbox/` は既存ファイル・PR対象外。ai-inbox 未処理2件の蒸留は別タスクとして保留中。
+- XAMPP起動禁止。ローカル確認はDockerの `http://localhost/order-management-system/`。
+- 内部ブラウザ（Claude in Chrome）拡張が未接続だったため、検証は Playwright MCP + 実機Chrome で実施（2026-07-12 フォールバック運用）。
+- 検証時にDOMへインラインstyleを注入しない（localStorage保存の恐れ）。
