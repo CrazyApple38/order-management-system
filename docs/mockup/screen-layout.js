@@ -404,6 +404,10 @@
             }
             selectedGridRow = null;
             slApplyNightRowClasses();
+            slUpgradePersonLed(document);  // 旧 LED ドット → 人物アイコン
+            slUpgradeAssignedMarkup(document); // PR #29以前を含む保存済み社員DOM → 現行DSカプセル
+            slUpgradeVtMarkup(document); // 旧スナップショット/再描画分の車両ETCへ所属アイコンを付与
+            slUpgradeColumnPropHandlers(document); // 旧スナップショットの列 onclick → 列別プロパティ
             document.querySelectorAll('.assigned-employee').forEach(makeAssignedEmployeeDraggable);
             document.querySelectorAll('.vehicle-tag').forEach(makeAssignedVehicleDraggable);
             document.querySelectorAll('.etc-tag').forEach(makeAssignedEtcDraggable);
@@ -505,13 +509,78 @@
             if (!targetRow || !savedRow) return;
             const targetZone = targetRow.querySelector('.assignment-zone');
             const savedZone = savedRow.querySelector('.assignment-zone');
-            if (targetZone && savedZone) targetZone.innerHTML = savedZone.innerHTML;
+            if (targetZone && savedZone) {
+                targetZone.innerHTML = savedZone.innerHTML;
+                slUpgradeAssignedMarkup(targetZone);
+            }
 
             const targetVt = targetRow.querySelector('.col-vt');
             const savedVt = savedRow.querySelector('.col-vt');
-            if (targetVt && savedVt) targetVt.innerHTML = savedVt.innerHTML;
+            if (targetVt && savedVt) {
+                targetVt.innerHTML = savedVt.innerHTML;
+                slUpgradeVtMarkup(targetVt);
+            }
 
             slRefreshRowCountDisplay(targetRow);
+        }
+
+        // 2026-07-19 試作の LED ドットを人物アイコンへ戻す（2026-07-20 スナップショット救済）。
+        function slUpgradePersonLed(container) {
+            if (!container) return;
+            container.querySelectorAll('.assigned-employee .sl-led, .employee-tag .sl-led').forEach(function(led) {
+                led.outerHTML = slPersonIconHtml();
+            });
+        }
+
+        // 列別プロパティ移行: 保存スナップショット由来の旧 onclick を、
+        // 列クリック=プロパティのトグル（slColumnProp）へ一括で貼り替える（2026-07-20）。
+        var SL_COLUMN_PROP_KIND = {
+            'col-site-info': 'siteinfo',
+            'col-meeting': 'meeting',
+            'col-work-time': 'time',
+            'col-count': 'count',
+            'col-assignment': 'assignment',
+            'col-vt': 'vehicle',
+            'col-notes': 'notes'
+        };
+
+        function slUpgradeColumnPropHandlers(container) {
+            if (!container) return;
+            // 作業内容スロットの個別 onclick は備考列クリックへ一本化（個別に開かない）
+            container.querySelectorAll('.work-badge-slot[onclick]').forEach(function(slot) {
+                slot.removeAttribute('onclick');
+            });
+            Object.keys(SL_COLUMN_PROP_KIND).forEach(function(cls) {
+                var kind = SL_COLUMN_PROP_KIND[cls];
+                var want = "slColumnProp(event, this, '" + kind + "')";
+                container.querySelectorAll('td.' + cls).forEach(function(td) {
+                    if (td.getAttribute('onclick') === want) return;
+                    td.classList.add('clickable-cell');
+                    td.setAttribute('onclick', want);
+                });
+            });
+        }
+
+        // 保存スナップショット由来の旧 .assigned-employee マークアップを
+        // DS カプセル (.person) 形式へその場で昇格する（2026-07-19 試作）。
+        function slUpgradeAssignedMarkup(zone) {
+            if (!zone) return;
+            slUpgradePersonLed(zone);
+            zone.querySelectorAll('.assigned-employee:not(.person)').forEach(function(el) {
+                var name = getEmployeeName(el);
+                if (!name) return;
+                var mk = slBuildAssignedEmployeeMarkup(name);
+                var contact = el.querySelector('.contact-badge');
+                var tag = document.createElement('span');
+                tag.className = mk.className;
+                if (mk.company) tag.setAttribute('data-company', mk.company);
+                tag.innerHTML = mk.innerHTML;
+                if (contact) {
+                    var nb = tag.querySelector('.employee-name-block');
+                    if (nb) nb.appendChild(contact);
+                }
+                el.replaceWith(tag);
+            });
         }
 
         // 行の配置人数表示 (count-display) と不足/過多バッジを現在の
@@ -695,7 +764,8 @@
                     const notesCell = tr.querySelector('.col-notes');
                     if (notesCell && entry.remarks) {
                         notesCell.dataset.remarks = entry.remarks;
-                        notesCell.textContent = entry.remarks;
+                        // sl-notes-view 構造を壊さず備考テキストのみ .sl-notes-items へ
+                        ntRenderNotesCell(notesCell, []);
                     }
 
                     const savedKey = tr.dataset.obRowId + '|' + tr.dataset.obDay + '|' + tr.dataset.obSiteIndex;
@@ -1198,6 +1268,27 @@
 
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
+            // ---- SLデザイン+UX向上試作（2026-07-19） ----
+            // 右プロパティ初期状態（未選択 → 現場詳細モードは収納）
+            slUpdatePropCollapsed();
+            // ドックモーダルの節アコーディオン（見出しクリックで開閉）
+            document.querySelectorAll('#siteModal .md-modal-body-field').forEach(function(sec) {
+                sec.addEventListener('click', function(event) {
+                    if (event.target && event.target.closest('button')) return;
+                    sec.classList.toggle('sl-sec-collapsed');
+                });
+            });
+            // ドラッグ中のみドロップ枠を表示（body.sl-dragging）
+            document.addEventListener('dragstart', function() {
+                document.body.classList.add('sl-dragging');
+            });
+            document.addEventListener('dragend', function() {
+                document.body.classList.remove('sl-dragging');
+            });
+            document.addEventListener('drop', function() {
+                document.body.classList.remove('sl-dragging');
+            });
+
             if (document.getElementById('companyCombobox')) {
                 companyCombobox = new Combobox('companyCombobox', {
                     items: companiesData,
@@ -1309,13 +1400,26 @@
         function slSetPropMode(mode) {
             if (!slPropModeTitles[mode]) mode = 'site';
             const title = document.getElementById('slPropTitle');
-            if (title) title.textContent = slPropModeTitles[mode];
+            if (title) {
+                title.textContent = (mode === 'site' && typeof slPropSectionTitles !== 'undefined')
+                    ? slPropSectionTitles[slPropSecFilter] || slPropModeTitles[mode]
+                    : slPropModeTitles[mode];
+            }
             document.querySelectorAll('.sl-prop-panel').forEach(function(panel) {
                 panel.classList.toggle('is-active', panel.getAttribute('data-prop-panel') === mode);
             });
             document.querySelectorAll('.panel-rail [data-panel]').forEach(function(btn) {
-                btn.classList.toggle('active', btn.getAttribute('data-panel') === mode);
+                var isActive = btn.getAttribute('data-panel') === mode;
+                if (isActive && mode === 'site' && btn.hasAttribute('data-sec')) {
+                    isActive = btn.getAttribute('data-sec') === slPropSecFilter;
+                }
+                btn.classList.toggle('active', isActive);
             });
+            // panel-rail から直接開いた供給源パネルもトグル状態に同期（2026-07-20）
+            if (mode === 'assignment' || mode === 'vehicle') {
+                slPropOpenKind = mode;
+                slPropOpenRow = null;
+            }
             if (mode === 'assignment') {
                 spState.mainTab = 'employee';
                 spApplyAccordionState();
@@ -1325,6 +1429,155 @@
                 spState.mainTab = 'vehicle';
                 renderVehiclePanel();
             }
+            slPropManualCollapsed = null;
+            slUpdatePropCollapsed();
+            if (typeof slUpdatePropHeadClose === 'function') slUpdatePropHeadClose();
+        }
+
+        // ---- 右プロパティ収納（2026-07-19 SLデザイン+UX向上試作） ----
+        // 自動則: 現場詳細モードで何もドックされていない時のみ収納。
+        //         D&D供給源（社員配置/車両・ETC）と変更履歴は常駐（ユーザー決定 2026-07-19）。
+        var slPropManualCollapsed = null; // null=自動 / true・false=手動トグル指定
+
+        function slPropAutoCollapsed() {
+            const activePanel = document.querySelector('.sl-prop-panel.is-active');
+            if (!activePanel || activePanel.getAttribute('data-prop-panel') !== 'site') return false;
+            const dock = document.getElementById('slPropSiteDock');
+            return !(dock && dock.querySelector('.sl-docked-modal:not(.is-docked-hidden)'));
+        }
+
+        function slUpdatePropCollapsed() {
+            const ws = document.querySelector('.app > .workspace');
+            if (!ws) return;
+            const collapsed = slPropManualCollapsed === null ? slPropAutoCollapsed() : slPropManualCollapsed;
+            ws.classList.toggle('sl-prop-collapsed', collapsed);
+            const btn = document.getElementById('slPropCollapseBtn');
+            if (btn) {
+                btn.title = collapsed ? 'プロパティを展開' : 'プロパティを収納';
+                btn.setAttribute('aria-label', btn.title);
+            }
+        }
+
+        function slTogglePropCollapsed() {
+            const ws = document.querySelector('.app > .workspace');
+            const now = ws ? ws.classList.contains('sl-prop-collapsed') : false;
+            slPropManualCollapsed = !now;
+            slUpdatePropCollapsed();
+        }
+
+        // ---- 備考列: 備考 ⇄ 変更履歴 の一括表示切替（2026-07-19） ----
+        function slSetNotesView(view, ev) {
+            if (ev) ev.stopPropagation();
+            const table = document.querySelector('.grid-table');
+            if (!table) return;
+            table.classList.toggle('sl-notes-history', view === 'history');
+            document.querySelectorAll('.sl-notes-seg button').forEach(function(b) {
+                b.classList.toggle('active', b.getAttribute('data-view') === view);
+            });
+        }
+
+        // ---- 右プロパティ「現場詳細」の節フィルタ（2026-07-19 4分割） ----
+        // 列別プロパティ（2026-07-19 ユーザー確定）。各列クリックで該当セクションのみ表示。
+        //   siteinfo=現場・契約情報（区分/契約先/現場名列） / meeting=集合・連絡（集合列＋集合場所・連絡） /
+        //   time=勤務時間（時間列） / count=配置人数（人数列） /
+        //   notes=作業内容・備考（備考列。列に出ない担当者・業務詳細もここへ集約）
+        var slPropSecFilter = 'siteinfo';
+        var slPropSectionTitles = {
+            siteinfo: '現場・契約情報',
+            meeting: '集合・連絡',
+            time: '勤務時間',
+            count: '配置人数',
+            notes: '作業内容・備考'
+        };
+
+        function slApplyPropSecFilter(sec) {
+            if (!slPropSectionTitles[sec]) sec = 'siteinfo';
+            slPropSecFilter = sec;
+            const dock = document.getElementById('slPropSiteDock');
+            if (dock) dock.setAttribute('data-sec-filter', sec);
+        }
+
+        // 非現場情報セル（人数・備考・作業内容）から、その行の現場詳細エディタを
+        // 対象セクションで開く（現場詳細エディタは col-site-info を起点に全項目を復元する）。
+        function slOpenColumnProp(fromEl, section) {
+            const row = fromEl && fromEl.closest ? fromEl.closest('tr') : null;
+            if (!row) return;
+            const siteCell = row.querySelector('.col-site-info');
+            if (siteCell) openSiteModal(siteCell, section);
+        }
+
+        // ---- 列クリック = プロパティのトグル（2026-07-20 ユーザー決定: 全列対象） ----
+        // 同じ行・同じ列を再クリックすると閉じる（= プロパティ列ごと収納して中央表を広げる）。
+        // 別の行／別の列をクリックした場合は開いたまま内容を差し替える。
+        var slPropOpenRow = null;   // 開いている行（panel-rail から直接開いた供給源パネルは null）
+        var slPropOpenKind = null;  // 'siteinfo'|'meeting'|'time'|'count'|'notes'|'assignment'|'vehicle'
+        var slPropSuppressReturn = false; // 下位エディタ(notes/map)の「戻る」を抑止するフラグ
+
+        function slPropCollapsedNow() {
+            const ws = document.querySelector('.app > .workspace');
+            return !!(ws && ws.classList.contains('sl-prop-collapsed'));
+        }
+
+        // 現在ドックされているエディタを閉じ、プロパティ列を収納する
+        function slCloseCurrentProp() {
+            const modalId = slVisibleDockedModalId();
+            if (modalId) {
+                slPropSuppressReturn = true;
+                const fn = window[slPropCloseFns[modalId]];
+                if (typeof fn === 'function') fn();
+                else slClosePropDock(modalId);
+                slPropSuppressReturn = false;
+            }
+            slPropOpenRow = null;
+            slPropOpenKind = null;
+            slPropManualCollapsed = true;
+            slUpdatePropCollapsed();
+            slUpdatePropHeadClose();
+        }
+
+        // 列セルの onclick はすべてここへ集約する
+        function slColumnProp(ev, cellEl, kind) {
+            // 配置済みバッジ自身のクリック（連絡方法ポップオーバー・削除ボタン等）は妨げない
+            if ((kind === 'assignment' || kind === 'vehicle') && ev && ev.target && ev.target.closest
+                && ev.target.closest('.assigned-employee, .assigned-support, .vehicle-tag, .etc-tag')) return;
+
+            const row = cellEl && cellEl.closest ? cellEl.closest('tr') : null;
+            // selectRow() は .clickable-cell のクリックを無視するため、列クリック時の
+            // 行選択はここで移す（他行をクリックしても選択が残るバグの対処 2026-07-20）
+            if (row && selectedGridRow !== row) {
+                if (selectedGridRow) selectedGridRow.classList.remove('selected');
+                row.classList.add('selected');
+                selectedGridRow = row;
+            }
+            const isSupply = (kind === 'assignment' || kind === 'vehicle');
+            const activePanel = document.querySelector('.sl-prop-panel.is-active');
+            const activeMode = activePanel ? activePanel.getAttribute('data-prop-panel') : null;
+            const expectedMode = (kind === 'notes' && activeMode === 'history')
+                ? 'history'
+                : (isSupply ? kind : 'site');
+            const sameTarget = activeMode === expectedMode
+                && slPropOpenKind === kind
+                && slPropOpenRow === row;
+            if (sameTarget && !slPropCollapsedNow()) {
+                slCloseCurrentProp();
+                return;
+            }
+
+            slPropManualCollapsed = null;
+            if (isSupply) {
+                slPropOpenKind = kind;
+                slSetPropMode(kind);
+                slPropOpenRow = row;
+                return;
+            }
+            if (!row) return;
+            slPropOpenRow = row;
+            slPropOpenKind = kind;
+            if (kind === 'meeting') openMeetingModal(cellEl, ev);
+            else if (kind === 'time') openWorkTimeModal(cellEl, ev);
+            else if (kind === 'notes') openNotesModal(cellEl, ev);
+            else if (kind === 'siteinfo') openSiteModal(cellEl, 'siteinfo');
+            else slOpenColumnProp(cellEl, kind);
         }
 
         function slRailNotifySetup() {
@@ -1422,10 +1675,33 @@
             });
         }
 
+        // 履歴プロパティで特定行にフォーカスしている場合の対象行（2026-07-19）
+        var slHistoryFocusRow = null;
+
         function slRefreshNotifyHistory() {
             const items = slNotifyItems();
-            slRenderNotifyHistoryPanel(items);
+            const shown = slHistoryFocusRow
+                ? items.filter(function(it) { return slNotifyMatchesRow(it, slHistoryFocusRow); })
+                : items;
+            slRenderNotifyHistoryPanel(shown);
             slRenderRowNotifySummaries(items);
+            // プロパティ見出しへフォーカス行名を反映
+            const title = document.getElementById('slPropTitle');
+            if (title && document.querySelector('.sl-prop-panel[data-prop-panel="history"].is-active')) {
+                if (slHistoryFocusRow) {
+                    const info = cnGetRowInfo(slHistoryFocusRow);
+                    title.textContent = '変更履歴 — ' + (info.siteName || '選択行');
+                } else {
+                    title.textContent = '変更履歴';
+                }
+            }
+        }
+
+        // 変更履歴レール: 行フォーカスを解除して全体履歴を表示（2026-07-19）
+        function slShowAllHistory() {
+            slHistoryFocusRow = null;
+            slSetPropMode('history');
+            slRefreshNotifyHistory();
         }
 
         function slBindNotifyHistoryPanel() {
@@ -1475,6 +1751,9 @@
             overlay.style.display = 'none';
             const siteEmpty = document.getElementById('slPropSiteEmpty');
             if (siteEmpty && dockId === 'slPropSiteDock') siteEmpty.style.display = 'none';
+            slPropManualCollapsed = null;
+            slUpdatePropCollapsed();
+            slUpdatePropHeadClose();
             return true;
         }
 
@@ -1488,13 +1767,47 @@
                 overlay.classList.remove('active');
                 overlay.style.display = 'none';
             }
+            slUpdatePropCollapsed();
+            slUpdatePropHeadClose();
+        }
+
+        // ---- プロパティ見出しの閉じるボタン（2026-07-20 ドック内ヘッダー廃止に伴う移設） ----
+        // ドック中のモーダル（現場詳細・集合・勤務時間・地図・その他項目）を、その専用 close 関数で閉じる。
+        var slPropCloseFns = {
+            siteModal: 'closeSiteModal',
+            meetingModal: 'closeMeetingModal',
+            workTimeModal: 'closeWorkTimeModal',
+            mapModal: 'closeMapModal',
+            notesModal: 'closeNotesModal',
+            workModal: 'closeWorkModal'
+        };
+
+        function slVisibleDockedModalId() {
+            const keys = Object.keys(slDockedModalContent);
+            for (let i = 0; i < keys.length; i++) {
+                const el = slDockedModalContent[keys[i]];
+                if (el && el.closest('.sl-prop-dock') && !el.classList.contains('is-docked-hidden')) return keys[i];
+            }
+            return null;
+        }
+
+        function slUpdatePropHeadClose() {
+            const btn = document.getElementById('slPropHeadClose');
+            if (btn) btn.classList.toggle('is-visible', !!slVisibleDockedModalId());
+        }
+
+        function slClosePropHead() {
+            // ✕ も列の再クリックと同じ「閉じる」に揃える（2026-07-20）
+            slCloseCurrentProp();
         }
 
         // 現場詳細モーダルの開閉
         let currentSiteCell = null;
 
-        function openSiteModal(cell) {
+        function openSiteModal(cell, section) {
             currentSiteCell = cell;
+            // 列別プロパティ: 呼び出し列に応じてセクションを絞り込む（未指定=現場・契約情報）
+            slApplyPropSecFilter(section || 'siteinfo');
             const row = cell.closest('tr');
 
             // === チップ復元 ===
@@ -1566,13 +1879,7 @@
                 }
             }
 
-            // 連絡チップの復元
-            const meetCell = row ? (row.querySelector('.col-meeting') || row.querySelectorAll('td')[1] || row.querySelectorAll('td')[2]) : null;
-            const contactEl = meetCell ? meetCell.querySelector('.contact-badge') : null;
-            const contactName = contactEl ? contactEl.textContent.trim() : null;
-            if (typeof smRenderContactChips === 'function') {
-                smRenderContactChips(contactName);
-            }
+            // 連絡先は saveMeetingModal（集合列プロパティ）の責務。siteModal では扱わない。
 
             // 業務詳細（サブタスク）
             let subTasks = [];
@@ -1597,6 +1904,9 @@
 
             // 現場監督候補
             smRenderSupervisorCandidates();
+
+            // 地図一覧（備考列プロパティ）
+            slRenderPropMapList(cell);
 
             slOpenPropDock('siteModal', 'slPropSiteDock', 'site');
         }
@@ -1812,9 +2122,11 @@
                         badgeCell.innerHTML = smBuildBadgeDisplayHtml(badgeData);
                     }
 
-                    // 備考 (col-notes) — vtItems内の集合場所を同期
+                    // 備考 (col-notes) — 備考テキスト永続化 + vtItems内の集合場所を同期
                     const notesCell = row.querySelector('.col-notes');
                     if (notesCell) {
+                        if (remarks) notesCell.dataset.remarks = remarks;
+                        else delete notesCell.dataset.remarks;
                         let existingVtItems = [];
                         try { if (notesCell.dataset.vtItems) existingVtItems = JSON.parse(notesCell.dataset.vtItems); } catch(e) {}
                         // 集合場所を vtItems 内で更新
@@ -1897,6 +2209,7 @@
             mtSelectedContact = contactBadge ? contactBadge.textContent.trim() : null;
 
             mtRenderContactChips();
+            slApplyPropSecFilter('meeting');
             slOpenPropDock('meetingModal', 'slPropSiteDock', 'site');
         }
 
@@ -2097,7 +2410,63 @@
         let vtDragIndex = null;
 
         function openNotesModal(cell, event) {
-            event.stopPropagation();
+            if (event) event.stopPropagation();
+            const row0 = cell.closest('tr');
+
+            // 履歴表示モード中に備考セルをクリック → その行の変更履歴をプロパティに一覧（2026-07-19）
+            const table = document.querySelector('.grid-table');
+            if (table && table.classList.contains('sl-notes-history')) {
+                // 行選択は slColumnProp() が一元管理する（重複させない）
+                if (row0) slHistoryFocusRow = row0;
+                slSetPropMode('history');
+                slRefreshNotifyHistory();
+                slPropManualCollapsed = null;
+                slUpdatePropCollapsed();
+                return;
+            }
+
+            // 列別プロパティ（2026-07-19）: 備考列 = 作業内容/担当者/地図/業務詳細・備考 の集約プロパティ。
+            // 自由項目（送迎など）の編集はその中の「その他項目」ボタン → slOpenNotesItemsEditor()。
+            slOpenColumnProp(cell, 'notes');
+        }
+
+        // 配置列・車両ETC列（D&D先）クリック → 対応する供給源パネルを右プロパティに開く。
+        // 全列がクリックで対応プロパティを開く、という整合性のため（2026-07-20 ユーザー決定）。
+        // 配置済みバッジ自身のクリック（連絡方法ポップオーバー等）は妨げない。
+        function slOpenSupplyProp(ev, mode) {
+            const t = ev && ev.target;
+            if (t && t.closest && t.closest('.assigned-employee, .assigned-support, .vehicle-tag, .etc-tag')) return;
+            slSetPropMode(mode);
+        }
+
+        // 備考列プロパティ内「地図」→ 行の地図エディタ（mapModal）を開く
+        function slOpenRowMapModal(tabIdx) {
+            if (currentSiteCell) openMapModal(currentSiteCell, null, typeof tabIdx === 'number' ? tabIdx : 0);
+        }
+
+        // 備考列プロパティ内の地図一覧（表示のみ。編集は mapModal）
+        function slRenderPropMapList(cell) {
+            const box = document.getElementById('smMapEntryList');
+            if (!box) return;
+            let maps = [];
+            try { maps = JSON.parse(cell.getAttribute('data-maps') || '[]'); } catch (e) { maps = []; }
+            if (!maps.length) {
+                box.innerHTML = '<div class="md-ob-badge-empty">地図は未登録です</div>';
+                return;
+            }
+            box.innerHTML = maps.map(function(m, i) {
+                return '<button type="button" class="md-ob-row-chip" onclick="slOpenRowMapModal(' + i + ')">' + escapeHtml(m.label || '(無題)') + '</button>';
+            }).join('');
+        }
+
+        // 備考列プロパティ内「その他項目（送迎など）」から自由項目エディタを開く
+        function slOpenNotesItemsEditor() {
+            const row = currentSiteCell ? currentSiteCell.closest('tr') : null;
+            const cell = row ? row.querySelector('.col-notes') : null;
+            if (cell) ntOpenItemsEditor(cell);
+        }
+
+        function ntOpenItemsEditor(cell) {
             currentNotesCell = cell;
 
             const row = cell.closest('tr');
@@ -2158,6 +2527,8 @@
             slClosePropDock('notesModal');
             currentNotesCell = null;
             vtItems = [];
+            // 自由項目エディタは備考列プロパティの下位画面。保存後は備考列プロパティへ戻す。
+            if (siteCell && !slPropSuppressReturn) openSiteModal(siteCell, 'notes');
         }
 
         function ntRenderNotesCell(cell, items) {
@@ -2167,13 +2538,28 @@
                     html += `<div class="notes-transport" style="color:${item.color};"><span class="notes-label" style="background:${item.bg}; color:${item.color};">${escapeHtml(item.label)}</span>${escapeHtml(item.value)}</div>`;
                 });
             }
-            cell.innerHTML = html;
+            // 備考テキスト（備考列プロパティ #smRemarks）も同じ items ボックスに集約（2026-07-19）
+            const remarksText = cell.dataset ? (cell.dataset.remarks || '') : '';
+            if (remarksText) {
+                html += `<div class="notes-transport sl-remarks-text">${escapeHtml(remarksText)}</div>`;
+            }
+            // 備考列は「業務詳細バッジ+地図+備考」の集約列（2026-07-19）。
+            // 備考テキストは .sl-notes-items のみ書き換え、バッジ/地図スロットは保持する。
+            const row = cell.closest ? cell.closest('tr') : null;
+            const siteCell = row ? row.querySelector('.col-site-info') : null;
+            if (siteCell) slEnsureSiteInlineSlots(siteCell);
+            const itemsBox = cell.querySelector('.sl-notes-items');
+            if (itemsBox) itemsBox.innerHTML = html;
+            else cell.innerHTML = html;
         }
 
         function closeNotesModal() {
+            const backRow = currentNotesCell ? currentNotesCell.closest('tr') : null;
+            const backSiteCell = backRow ? backRow.querySelector('.col-site-info') : null;
             slClosePropDock('notesModal');
             currentNotesCell = null;
             vtItems = [];
+            if (backSiteCell && !slPropSuppressReturn) openSiteModal(backSiteCell, 'notes');
         }
 
         document.getElementById('notesModal').addEventListener('click', function(e) {
@@ -2572,11 +2958,16 @@
         }
 
         function closeMapModal() {
+            const backCell = currentMapCell;
             slClosePropDock('mapModal');
             document.getElementById('smMapPreviewFrame').src = '';
             document.getElementById('smMapPreviewSection').style.display = 'none';
             currentMapCell = null;
             smMapEntries = [];
+            // 備考列プロパティから開いた場合は元のプロパティへ戻す（2026-07-19 列別プロパティ）
+            if (!slPropSuppressReturn && backCell && backCell.classList && backCell.classList.contains('col-site-info') && slPropSecFilter === 'notes') {
+                openSiteModal(backCell, 'notes');
+            }
         }
 
         function smUpdateMapPreview() {
@@ -2594,13 +2985,15 @@
 
         function smUpdateMapCellDisplay(cell, maps) {
             slEnsureSiteInlineSlots(cell);
-            var target = cell.querySelector ? cell.querySelector('.sl-map-pills') : null;
+            // 地図ピルは備考列（.sl-notes-view 内）へ移設（2026-07-19）。data-maps は col-site-info が保持
+            var row = cell.closest ? cell.closest('tr') : null;
+            var target = row ? row.querySelector('.sl-map-pills') : (cell.querySelector ? cell.querySelector('.sl-map-pills') : null);
             if (!maps || maps.length === 0) {
-                if (target) target.innerHTML = '<span class="info-pill sl-map-empty" onclick="event.stopPropagation(); openMapModal(this.closest(\'[data-maps]\'), 0)">地図 +</span>';
+                if (target) target.innerHTML = '<span class="info-pill sl-map-empty" onclick="event.stopPropagation(); openMapModal(this.closest(\'tr\').querySelector(\'[data-maps]\'), 0)">地図 +</span>';
                 else cell.innerHTML = '<span class="map-empty">＋</span>';
             } else {
                 var html = maps.map(function(m, i) {
-                    return '<span class="' + (target ? 'info-pill sl-map-pill' : 'map-tag') + '" data-map-index="' + i + '" onclick="event.stopPropagation(); openMapModal(this.closest(\'[data-maps]\'), 0, ' + i + ')">' + escapeHtml(m.label || '(無題)') + '</span>';
+                    return '<span class="' + (target ? 'info-pill sl-map-pill' : 'map-tag') + '" data-map-index="' + i + '" onclick="event.stopPropagation(); openMapModal(this.closest(\'tr\').querySelector(\'[data-maps]\'), 0, ' + i + ')">' + escapeHtml(m.label || '(無題)') + '</span>';
                 }).join('');
                 if (target) target.innerHTML = html;
                 else cell.innerHTML = html;
@@ -2799,7 +3192,8 @@
                     contentHtml += '<div class="md-sp-gc-section-label">' + gc.shortName + '</div>';
                     companyEmps.forEach(function(emp) {
                         const isAssigned = assignedNames.has(emp.name);
-                        contentHtml += '<span class="employee-tag'
+                        const belongClass = SL_GC_BELONG_CLASS[emp.company] ? ' ' + SL_GC_BELONG_CLASS[emp.company] : '';
+                        contentHtml += '<span class="employee-tag person' + belongClass
                             + (isAssigned ? ' assigned' : '')
                             + (emp.isOnLeave ? ' emp-on-leave' : '')
                             + (emp.workedPrevNight && !emp.isOnLeave ? ' emp-after-night' : '')
@@ -2809,14 +3203,17 @@
                             + ' data-dept="' + emp.dept + '"'
                             + (emp.isOnLeave ? ' title="休み申請あり"'
                                 : emp.workedPrevNight ? ' title="前日夜勤明け"' : '')
-                            + '>' + emp.name + '</span>';
+                            + '>'
+                            + (emp.isOnLeave ? SL_FLAG_HTML.leave : (emp.workedPrevNight ? SL_FLAG_HTML.afterNight : ''))
+                            + slPersonIconHtml() + '<span class="person-name">' + emp.name + '</span></span>';
                     });
                 });
             } else {
                 // 組織ノード別フラット表示
                 filtered.forEach(function(emp) {
                     const isAssigned = assignedNames.has(emp.name);
-                    contentHtml += '<span class="employee-tag'
+                    const belongClass = SL_GC_BELONG_CLASS[emp.company] ? ' ' + SL_GC_BELONG_CLASS[emp.company] : '';
+                    contentHtml += '<span class="employee-tag person' + belongClass
                         + (isAssigned ? ' assigned' : '')
                         + (emp.isOnLeave ? ' emp-on-leave' : '')
                         + (emp.workedPrevNight && !emp.isOnLeave ? ' emp-after-night' : '')
@@ -2826,7 +3223,9 @@
                         + ' data-dept="' + emp.dept + '"'
                         + (emp.isOnLeave ? ' title="休み申請あり"'
                             : emp.workedPrevNight ? ' title="前日夜勤明け"' : '')
-                        + '>' + emp.name + '</span>';
+                        + '>'
+                        + (emp.isOnLeave ? SL_FLAG_HTML.leave : (emp.workedPrevNight ? SL_FLAG_HTML.afterNight : ''))
+                        + slPersonIconHtml() + '<span class="person-name">' + emp.name + '</span></span>';
                 });
             }
             content.innerHTML = contentHtml;
@@ -2981,21 +3380,23 @@
                 html += '<div class="md-sp-gc-section-label">' + gc.shortName + '</div>';
                 companyVehicles.forEach(function(v) {
                     var isAssigned = assignedPlates.has(v.plate);
-                    html += '<span class="vehicle-list-tag' + (isAssigned ? ' assigned' : '') + '"'
+                    var vBelong = SL_GC_BELONG_CLASS[v.owner] ? ' ' + SL_GC_BELONG_CLASS[v.owner] : '';
+                    html += '<span class="vehicle-list-tag' + vBelong + (isAssigned ? ' assigned' : '') + '"'
                         + ' draggable="true" ondragstart="vehicleDrag(event)"'
                         + ' data-plate="' + v.plate + '"'
                         + ' data-model="' + v.model + '">'
-                        + v.plate + '<span class="vlt-model">' + v.model + '</span>'
+                        + slVtIconHtml('car') + v.plate + '<span class="vlt-model">' + v.model + '</span>'
                         + '</span>';
                 });
                 if (companyEtc.length > 0) {
                     html += '<div class="md-sp-etc-label">ETC</div>';
                     companyEtc.forEach(function(e) {
                         var isAssigned = assignedEtcs.has(e.label);
-                        html += '<span class="etc-list-tag' + (isAssigned ? ' assigned' : '') + '"'
+                        var eBelong = SL_GC_BELONG_CLASS[e.owner] ? ' ' + SL_GC_BELONG_CLASS[e.owner] : '';
+                        html += '<span class="etc-list-tag' + eBelong + (isAssigned ? ' assigned' : '') + '"'
                             + ' draggable="true" ondragstart="etcDrag(event)"'
                             + ' data-label="' + e.label + '">'
-                            + e.label
+                            + slVtIconHtml('card') + e.label
                             + '</span>';
                     });
                 }
@@ -3422,8 +3823,8 @@
                     pushUndo();
                     dragSourceVehicleTag.remove();
                     var newTag = document.createElement('span');
-                    newTag.className = 'vehicle-tag';
-                    newTag.innerHTML = plate + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
+                    newTag.className = ('vehicle-tag ' + slVehicleBelongClass(plate)).trim();
+                    newTag.innerHTML = plate + slVtIconHtml('car') + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
                     vZone.appendChild(newTag);
                     makeAssignedVehicleDraggable(newTag);
                     dragSourceVehicleTag = null;
@@ -3461,8 +3862,8 @@
                     pushUndo();
                     if (existingTag) existingTag.remove();
                     var tag = document.createElement('span');
-                    tag.className = 'vehicle-tag';
-                    tag.innerHTML = plate + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
+                    tag.className = ('vehicle-tag ' + slVehicleBelongClass(plate)).trim();
+                    tag.innerHTML = plate + slVtIconHtml('car') + '<button class="vehicle-remove-btn" onclick="removeVehicle(this)">×</button>';
                     vZone.appendChild(tag);
                     makeAssignedVehicleDraggable(tag);
                     updateVehicleListStatus();
@@ -3502,8 +3903,8 @@
                     pushUndo();
                     dragSourceEtcTag.remove();
                     var newETag = document.createElement('span');
-                    newETag.className = 'etc-tag';
-                    newETag.innerHTML = label + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
+                    newETag.className = ('etc-tag ' + slEtcBelongClass(label)).trim();
+                    newETag.innerHTML = label + slVtIconHtml('card') + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
                     eZone.appendChild(newETag);
                     makeAssignedEtcDraggable(newETag);
                     dragSourceEtcTag = null;
@@ -3525,8 +3926,8 @@
                     }
                     pushUndo();
                     var eTag = document.createElement('span');
-                    eTag.className = 'etc-tag';
-                    eTag.innerHTML = label + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
+                    eTag.className = ('etc-tag ' + slEtcBelongClass(label)).trim();
+                    eTag.innerHTML = label + slVtIconHtml('card') + '<button class="etc-remove-btn" onclick="removeEtc(this)">×</button>';
                     eZone.appendChild(eTag);
                     makeAssignedEtcDraggable(eTag);
                     updateVehicleListStatus();
@@ -3800,12 +4201,56 @@
         // 休み申請あり（sl-on-leave + 休サブバッジ）のみ付与する。
         // 連勤マーク（▼）は slRefreshContinuousBadges() が配置状態から
         // 一括で判定・付与するため、ここでは付けない。
-        function slEmployeeBelongClass(company) {
-            return {
-                touo: 'belong-1',
-                nikkei: 'belong-2',
-                zennihon: 'belong-3'
-            }[company] || '';
+        // GC → DS 所属色クラス（SSOT: SHARED-MEMORY 会社マッピング / ds-tokens --gc-*）
+        var SL_GC_BELONG_CLASS = { touo: 'belong-1', nikkei: 'belong-2', zennihon: 'belong-3' };
+
+        // カプセル内ミニ状態フラグ（2026-07-19 ユーザー採用: 見切れる外周バッジ/▼を置換）
+        var SL_FLAG_HTML = {
+            leave: '<span class="sl-mini-flag flag-leave" title="休み申請あり">休</span>',
+            afterNight: '<span class="sl-mini-flag flag-after-night" title="前日夜勤明け"><svg aria-hidden="true"><use href="#ic-moon"/></svg></span>',
+            consecutive: '<span class="sl-mini-flag flag-consecutive" title="同日昼・夜の連続配置"><svg aria-hidden="true"><use href="#ic-caution-line"/></svg></span>'
+        };
+
+        // 所属アイコン（2026-07-20 ユーザー決定: LEDドット案を差し戻し、社員=人物 / 車両=車 / ETC=カードで統一）。
+        // 色は .belong-N が供給する --belong-color。
+        function slPersonIconHtml() {
+            return '<span class="person-icon" aria-hidden="true"><svg><use href="#ic-person"/></svg></span>';
+        }
+        function slVtIconHtml(kind) {
+            return '<span class="vt-icon" aria-hidden="true"><svg><use href="#ic-' + (kind === 'card' ? 'card' : 'car') + '"/></svg></span>';
+        }
+
+        function slVehicleBelongClass(plate) {
+            var v = (typeof vehiclesData !== 'undefined')
+                ? vehiclesData.find(function(x) { return x.plate === plate; }) : null;
+            return (v && SL_GC_BELONG_CLASS[v.owner]) ? SL_GC_BELONG_CLASS[v.owner] : '';
+        }
+        function slEtcBelongClass(label) {
+            var e = (typeof etcCardsData !== 'undefined')
+                ? etcCardsData.find(function(x) { return x.label === label; }) : null;
+            return (e && SL_GC_BELONG_CLASS[e.owner]) ? SL_GC_BELONG_CLASS[e.owner] : '';
+        }
+
+        // 配置済み 車両/ETC タグに所属アイコン + 所属クラスを付与（旧スナップショット救済も兼ねる）。
+        // childNodes[0]=プレート文字（重複判定が依存）を保つためアイコンは末尾追加し CSS order:-1 で左寄せ。
+        function slUpgradeVtMarkup(container) {
+            if (!container) return;
+            // 旧 LED ドット（2026-07-19 試作）が残っていたら除去してからアイコンを付ける
+            container.querySelectorAll('.vehicle-tag .sl-led, .etc-tag .sl-led').forEach(function(led) { led.remove(); });
+            container.querySelectorAll('.vehicle-tag').forEach(function(tag) {
+                if (tag.querySelector('.vt-icon')) return;
+                var plate = tag.childNodes[0] ? tag.childNodes[0].textContent.trim() : '';
+                var bc = slVehicleBelongClass(plate);
+                if (bc && !tag.classList.contains(bc)) tag.classList.add(bc);
+                tag.insertAdjacentHTML('beforeend', slVtIconHtml('car'));
+            });
+            container.querySelectorAll('.etc-tag').forEach(function(tag) {
+                if (tag.querySelector('.vt-icon')) return;
+                var label = tag.childNodes[0] ? tag.childNodes[0].textContent.trim() : '';
+                var bc = slEtcBelongClass(label);
+                if (bc && !tag.classList.contains(bc)) tag.classList.add(bc);
+                tag.insertAdjacentHTML('beforeend', slVtIconHtml('card'));
+            });
         }
 
         function slBuildAssignedEmployeeMarkup(name) {
@@ -3813,18 +4258,20 @@
                 ? employeesData.find(function(e) { return e.name === name; })
                 : null;
             var isLeave = !!(emp && emp.isOnLeave);
-            var leaveSub = isLeave ? '<span class="sl-holiday-sub" title="休み申請あり">休</span>' : '';
-            var belongClass = slEmployeeBelongClass(emp ? emp.company : null);
+            var belongClass = (emp && SL_GC_BELONG_CLASS[emp.company]) ? ' ' + SL_GC_BELONG_CLASS[emp.company] : '';
+            var flags = '<span class="sl-flags">'
+                + (isLeave ? SL_FLAG_HTML.leave : '')
+                + ((emp && emp.workedPrevNight && !isLeave) ? SL_FLAG_HTML.afterNight : '')
+                + '</span>';
 
             return {
-                className: 'assigned-employee' + (isLeave ? ' sl-on-leave' : ''),
+                className: 'assigned-employee person' + belongClass + (isLeave ? ' sl-on-leave' : ''),
                 company: emp ? emp.company : null,
-                innerHTML: '<span class="person sl-person-capsule' + (belongClass ? ' ' + belongClass : '') + '">'
-                    + '<span class="person-icon" aria-hidden="true"></span>'
+                innerHTML: flags
+                    + slPersonIconHtml()
                     + '<span class="employee-name-block" onclick="openEmployeeContactPopup(this, event)">'
-                    + '<span class="person-name">' + name + '</span>'
-                    + '</span></span>'
-                    + leaveSub
+                    + '<span>' + name + '</span>'
+                    + '</span>'
                     + '<span class="remove-btn" onclick="removeEmployee(this, event)">×</span>'
             };
         }
@@ -3852,7 +4299,9 @@
                 if (shiftKey === 'night') empState[name].hasNight = true;
             });
 
-            // Step 2: 各 .assigned-employee の name-block を再構築
+            // Step 2: 各 .assigned-employee のミニ状態フラグ（.sl-flags）を再構築
+            //   前日夜勤明け=☾ / 同日昼・夜の連続配置=注意アイコン / 休み申請=休
+            //   （旧: name-block 内 ▼上下 + カプセル外周の 休 丸バッジ → 2026-07-19 廃止）
             tbody.querySelectorAll('.assignment-zone .assigned-employee').forEach(function(el) {
                 var tr = el.closest('tr');
                 if (!tr || tr.dataset.fixed === 'true') return;
@@ -3869,29 +4318,30 @@
                 var isDay = shiftKey === 'day';
                 var isNight = shiftKey === 'night';
 
-                var needsAbove = false, needsBelow = false;
-                if (isDay) {
-                    needsAbove = workedPrevNight;   // 夜(前日) → 昼
-                    needsBelow = state.hasNight;    // 昼 → 夜(同日)
-                } else if (isNight) {
-                    needsAbove = state.hasDay;      // 昼(同日) → 夜
-                }
+                var moon = isDay && workedPrevNight;                                  // 夜(前日) → 昼
+                var consecutive = (isDay && state.hasNight) || (isNight && state.hasDay); // 同日 昼⇄夜
 
-                // 既存 contact-badge を保持して name-block を再構築
-                var contactBadge = nameBlock.querySelector('.contact-badge');
-                var contactHTML = contactBadge ? contactBadge.outerHTML : '';
-
-                var inner;
-                if (needsAbove || needsBelow) {
-                    inner = '<span class="employee-with-continuous">';
-                    if (needsAbove) inner += '<span class="continuous-badge continuous-badge-above" title="連続勤務">▼</span>';
-                    inner += '<span class="person-name">' + name + '</span>';
-                    if (needsBelow) inner += '<span class="continuous-badge continuous-badge-below" title="連続勤務">▼</span>';
-                    inner += '</span>';
-                } else {
-                    inner = '<span class="person-name">' + name + '</span>';
+                // 旧マークアップの残骸を除去（保存スナップショット互換）
+                var cont = nameBlock.querySelector('.employee-with-continuous');
+                if (cont) {
+                    var contactBadge = nameBlock.querySelector('.contact-badge');
+                    nameBlock.innerHTML = '<span>' + name + '</span>' + (contactBadge ? contactBadge.outerHTML : '');
                 }
-                nameBlock.innerHTML = inner + contactHTML;
+                var oldSub = el.querySelector('.sl-holiday-sub');
+                if (oldSub) oldSub.remove();
+
+                var flags = el.querySelector('.sl-flags');
+                if (!flags) {
+                    flags = document.createElement('span');
+                    flags.className = 'sl-flags';
+                    el.insertBefore(flags, el.firstChild);
+                }
+                var isLeave = el.classList.contains('sl-on-leave');
+                var html = '';
+                if (isLeave) html += SL_FLAG_HTML.leave;
+                if (moon && !isLeave) html += SL_FLAG_HTML.afterNight;
+                if (consecutive) html += SL_FLAG_HTML.consecutive;
+                flags.innerHTML = html;
             });
 
             slUpdateNameLengthClasses();
@@ -3919,21 +4369,17 @@
             document.querySelectorAll('.assignment-zone .assigned-employee').forEach(function(el) {
                 var name = getEmployeeName(el);
                 if (slIsEmployeeOnLeave(name)) {
-                    if (!el.classList.contains('sl-on-leave')) {
-                        el.classList.add('sl-on-leave');
-                        if (!el.querySelector('.sl-holiday-sub')) {
-                            var sub = document.createElement('span');
-                            sub.className = 'sl-holiday-sub';
-                            sub.title = '休み申請あり';
-                            sub.textContent = '休';
-                            // employee-name-block の直後に挿入
-                            var nameBlock = el.querySelector('.employee-name-block');
-                            if (nameBlock && nameBlock.nextSibling) {
-                                el.insertBefore(sub, nameBlock.nextSibling);
-                            } else {
-                                el.appendChild(sub);
-                            }
-                        }
+                    el.classList.add('sl-on-leave');
+                    var oldSub = el.querySelector('.sl-holiday-sub');
+                    if (oldSub) oldSub.remove();
+                    var flags = el.querySelector('.sl-flags');
+                    if (!flags) {
+                        flags = document.createElement('span');
+                        flags.className = 'sl-flags';
+                        el.insertBefore(flags, el.firstChild);
+                    }
+                    if (!flags.querySelector('.flag-leave')) {
+                        flags.insertAdjacentHTML('afterbegin', SL_FLAG_HTML.leave);
                     }
                 }
             });
@@ -4029,31 +4475,7 @@
         // ===== ドラッグ＆ドロップ（サイドパネル→配置 & 配置間移動） =====
         let dragSourceAssignedEmployee = null;
 
-        function slEnsureAssignedEmployeeCapsule(el) {
-            var capsule = el.querySelector(':scope > .sl-person-capsule');
-            var nameBlock = el.querySelector('.employee-name-block');
-            if (!nameBlock) return;
-
-            if (!capsule) {
-                capsule = document.createElement('span');
-                var belongClass = slEmployeeBelongClass(el.getAttribute('data-company'));
-                capsule.className = 'person sl-person-capsule' + (belongClass ? ' ' + belongClass : '');
-
-                var icon = document.createElement('span');
-                icon.className = 'person-icon';
-                icon.setAttribute('aria-hidden', 'true');
-                capsule.appendChild(icon);
-                el.insertBefore(capsule, nameBlock);
-                capsule.appendChild(nameBlock);
-            }
-
-            var nameSpan = nameBlock.querySelector(':scope > span:not(.contact-badge):not(.employee-with-continuous)')
-                || nameBlock.querySelector(':scope > .employee-with-continuous > span:not(.continuous-badge)');
-            if (nameSpan) nameSpan.classList.add('person-name');
-        }
-
         function makeAssignedEmployeeDraggable(el) {
-            slEnsureAssignedEmployeeCapsule(el);
             el.draggable = true;
             el.addEventListener('dragstart', function(ev) {
                 ev.stopPropagation();
@@ -4074,8 +4496,11 @@
         document.querySelectorAll('.assigned-support').forEach(makeAssignedSupportDraggable);
 
         function drag(ev) {
-            ev.dataTransfer.setData("text", ev.target.textContent);
-            ev.target.classList.add('dragging');
+            const source = ev.currentTarget || ev.target;
+            const nameEl = source && source.querySelector ? source.querySelector('.person-name') : null;
+            const name = nameEl ? nameEl.textContent.trim() : (source ? source.textContent.trim() : '');
+            ev.dataTransfer.setData('text', name);
+            if (source) source.classList.add('dragging');
         }
 
         function allowDrop(ev) {
@@ -5058,11 +5483,12 @@
             if (baseKey.startsWith('emp-badge-')) {
                 // emp-badge-touo / emp-badge-nikkei / emp-badge-zennihon
                 const gc = baseKey.slice('emp-badge-'.length);
+                const belongIndex = { touo: 1, nikkei: 2, zennihon: 3 }[gc];
                 return {
                     bg: '--emp-badge-bg-' + gc,
                     border: '--emp-badge-border-' + gc,
                     text: '--emp-badge-text-' + gc,
-                    icon: '--emp-badge-icon-' + gc
+                    icon: belongIndex ? '--belong-' + belongIndex : null
                 };
             }
             // shift-day, shift-night
@@ -5244,34 +5670,60 @@
             return row ? (row.querySelector('.col-site-info[data-maps]') || row.querySelector('.col-map[data-maps]')) : null;
         }
 
+        // 業務詳細バッジ・地図ピル・備考は備考列（col-notes 内 .sl-notes-view）へ集約（2026-07-19）。
+        // 旧マークアップ（site セル内スロット）は備考列へ移設して救済する。
         function slEnsureSiteInlineSlots(siteCell) {
             if (!siteCell) return;
-            var siteInfo = siteCell.querySelector('.site-info');
-            if (!siteInfo) return;
-            var badges = siteInfo.querySelector('.site-badges');
-            if (badges && !badges.querySelector('.work-badge-slot')) {
-                var workSlot = document.createElement('div');
-                workSlot.className = 'work-badge-slot';
-                workSlot.setAttribute('onclick', 'openWorkModal(this, event)');
-                badges.appendChild(workSlot);
-            }
-            var details = siteInfo.querySelector('.site-details');
-            if (details) {
-                var meta = details.querySelector('.site-meta-row');
-                if (!meta) {
-                    meta = document.createElement('div');
-                    meta.className = 'site-meta-row';
-                    var siteName = details.querySelector('.site-name');
-                    if (siteName && siteName.nextSibling) details.insertBefore(meta, siteName.nextSibling);
-                    else details.appendChild(meta);
-                }
-                if (!meta.querySelector('.sl-map-pills')) {
-                    var mapPills = document.createElement('span');
-                    mapPills.className = 'sl-map-pills';
-                    meta.insertBefore(mapPills, meta.firstChild);
-                }
-            }
             if (!siteCell.hasAttribute('data-maps')) siteCell.setAttribute('data-maps', '[]');
+            var row = siteCell.closest('tr');
+            if (!row) return;
+            var notesCell = row.querySelector('.col-notes');
+            if (!notesCell) return;
+
+            // 旧構造の残骸を site セルから除去（map ピル行・作業内容スロット）
+            var oldMeta = siteCell.querySelector('.site-meta-row');
+            var oldWork = siteCell.querySelector('.work-badge-slot');
+
+            var view = notesCell.querySelector('.sl-notes-view');
+            if (!view) {
+                view = document.createElement('div');
+                view.className = 'sl-notes-view';
+                // 既存の備考表示（.notes-transport 等）は items コンテナへ退避
+                var items = document.createElement('div');
+                items.className = 'sl-notes-items';
+                while (notesCell.firstChild) items.appendChild(notesCell.firstChild);
+                view.appendChild(items);
+                notesCell.appendChild(view);
+            }
+            var itemsBox = view.querySelector('.sl-notes-items');
+            if (!itemsBox) {
+                itemsBox = document.createElement('div');
+                itemsBox.className = 'sl-notes-items';
+                view.appendChild(itemsBox);
+            }
+            if (!view.querySelector('.work-badge-slot')) {
+                if (oldWork) view.insertBefore(oldWork, view.firstChild);
+                else {
+                    var workSlot = document.createElement('div');
+                    workSlot.className = 'work-badge-slot';
+                    view.insertBefore(workSlot, view.firstChild);
+                }
+            } else if (oldWork) {
+                oldWork.remove();
+            }
+            // 列別プロパティ（2026-07-19）: 作業内容は備考列プロパティで編集する。
+            // 旧 markup の個別 onclick（openWorkModal）を外し、列クリックへ一本化。
+            var slotEl = view.querySelector('.work-badge-slot');
+            if (slotEl) slotEl.removeAttribute('onclick');
+            if (!view.querySelector('.sl-map-pills')) {
+                var oldPills = oldMeta ? oldMeta.querySelector('.sl-map-pills') : null;
+                var mapPills = oldPills || document.createElement('span');
+                mapPills.className = 'sl-map-pills';
+                var slot = view.querySelector('.work-badge-slot');
+                if (slot && slot.nextSibling) view.insertBefore(mapPills, slot.nextSibling);
+                else view.appendChild(mapPills);
+            }
+            if (oldMeta) oldMeta.remove();
         }
 
         // ============================================================
@@ -5644,29 +6096,32 @@
             tr.setAttribute('onclick', 'selectRow(this, event)');
             var countClass = d.shortage ? 'count-display count-shortage' : 'count-display count-ok';
             tr.innerHTML =
-                '<td class="col-site-info clickable-cell" data-maps="[]"' + (d.gcCode ? ' data-group-company="' + d.gcCode + '" data-gc-name="' + (d.gcName || '') + '"' : '') + ' onclick="openSiteModal(this)">' +
+                '<td class="col-site-info clickable-cell" data-maps="[]"' + (d.gcCode ? ' data-group-company="' + d.gcCode + '" data-gc-name="' + (d.gcName || '') + '"' : '') + ' onclick="slColumnProp(event, this, \'siteinfo\')">' +
                   '<div class="site-info"><div class="site-badges">' +
                     '<span class="category-badge ' + d.categoryClass + '">' + d.categoryLabel + '</span>' +
-                    '<div class="work-badge-slot" onclick="openWorkModal(this, event)"></div>' +
                   '</div><div class="site-details">' +
                     '<div class="company">' + d.company + '</div>' +
                     '<div class="site-name">' + d.siteName + '</div>' +
-                    '<div class="site-meta-row"><span class="sl-map-pills"><span class="info-pill sl-map-empty" onclick="event.stopPropagation(); openMapModal(this.closest(\'[data-maps]\'), 0)">地図 +</span></span></div>' +
                   '</div></div></td>' +
-                '<td class="col-meeting clickable-cell" onclick="openMeetingModal(this, event)">' +
+                '<td class="col-meeting clickable-cell" onclick="slColumnProp(event, this, \'meeting\')">' +
                   '<span class="time-display">' + d.meetingTime + '</span>' +
                   '<span class="contact-badge ' + d.meetingMethodClass + '">' + d.meetingMethod + '</span>' +
                   (d.contactBadgeHtml || '') + '</td>' +
-                '<td class="col-work-time clickable-cell" onclick="openWorkTimeModal(this, event)"' +
+                '<td class="col-work-time clickable-cell" onclick="slColumnProp(event, this, \'time\')"' +
                   ' data-start-time="' + d.timeStart + '" data-end-time="' + d.timeEnd + '">' +
                   '<span class="work-time-start">' + d.timeStart + '</span>' +
                   '<span class="work-time-end">' + d.timeEnd + '</span></td>' +
-                '<td class="col-count clickable-cell" onclick="startCountEdit(this, event)">' +
+                '<td class="col-count clickable-cell" onclick="slColumnProp(event, this, \'count\')">' +
                   '<span class="' + countClass + '">' + d.count + '</span>' +
                   (d.shortage ? '<span class="count-shortage-badge">不足</span>' : '') + '</td>' +
-                '<td class="col-assignment"><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
-                '<td class="col-vt"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div><div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div></div></td>' +
-                '<td class="col-notes clickable-cell" onclick="openNotesModal(this, event)"></td>';
+                '<td class="col-assignment clickable-cell" onclick="slColumnProp(event, this, \'assignment\')"><div class="assignment-zone" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div></td>' +
+                '<td class="col-vt clickable-cell" onclick="slColumnProp(event, this, \'vehicle\')"><div class="vt-split-zone"><div class="vehicle-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div><div class="etc-drop-zone" ondrop="vtDrop(event)" ondragover="vtAllowDrop(event)" ondragleave="vtDragLeave(event)"></div></div></td>' +
+                '<td class="col-notes clickable-cell" onclick="slColumnProp(event, this, \'notes\')">' +
+                  '<div class="sl-notes-view">' +
+                    '<div class="work-badge-slot"></div>' +
+                    '<span class="sl-map-pills"><span class="info-pill sl-map-empty" onclick="event.stopPropagation(); openMapModal(this.closest(\'tr\').querySelector(\'[data-maps]\'), 0)">地図 +</span></span>' +
+                    '<div class="sl-notes-items"></div>' +
+                  '</div></td>';
             return tr;
         }
 
@@ -6453,6 +6908,7 @@
             const endTime = cell.dataset.endTime || '';
             document.getElementById('wtStartTime').value = startTime;
             document.getElementById('wtEndTime').value = endTime;
+            slApplyPropSecFilter('time');
             slOpenPropDock('workTimeModal', 'slPropSiteDock', 'site');
         }
 

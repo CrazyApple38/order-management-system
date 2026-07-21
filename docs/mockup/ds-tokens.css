@@ -93,6 +93,9 @@
     --belong-10: #6f7784;
     --belong-10-bg: #f5f7f8;
     --belong-10-border: #d4dae0;
+    /* 2026-07-19 に導入した LED 発光色トークン (--belong-N-led / -led-deep) は
+       2026-07-20 にユーザー判断で廃止（発光表現がイメージ不一致）。所属の識別は
+       所属アイコン (.person-icon / .vt-icon) の --belong-color 着色で行う。 */
     --elevation-0: none;
     --elevation-1: 0 2px 6px rgba(38, 73, 99, 0.045), 0 1px 2px rgba(38, 73, 99, 0.030);
     --elevation-2: 0 4px 10px rgba(38, 73, 99, 0.060), 0 2px 4px rgba(38, 73, 99, 0.035);
@@ -163,5 +166,8 @@
     --modal-w-md: 480px;
     --modal-w-lg: 600px;
     --modal-w-xl: 800px;
+    /* 右プロパティ列幅（2026-07-19 SLデザイン+UX向上試作で導入。既定=従来値 288px。
+       画面側で 360px 等へ上書き可。全画面 360px への引き上げは横展開時に判断） */
+    --prop-w: 288px;
     font-family: var(--font-sans);
 }
