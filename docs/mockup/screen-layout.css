@@ -452,15 +452,27 @@ h1 {
         inset -1px 0 0 rgba(53, 83, 104, 0.10);
 }
 
+/* 応援チップの×は社員バッジ(.assigned-employee .remove-btn)と同一:
+   右上角に浮く赤丸+白×、hoverで表示（2026-07-22） */
 .sl-support-remove-btn {
-    opacity: 0;
-    color: var(--semantic-error);
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 14px;
+    height: 14px;
+    line-height: 12px;
+    text-align: center;
+    border-radius: 50%;
+    background: var(--semantic-error);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
     cursor: pointer;
-    font-weight: 700;
+    display: none;
 }
 
 .assigned-support:hover .sl-support-remove-btn {
-    opacity: 0.75;
+    display: block;
 }
 
 .sl-support-modal {
