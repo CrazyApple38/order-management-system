@@ -663,12 +663,17 @@
     text-overflow: ellipsis;
 }
 
-/* 画面側 (.assigned-employee.sl-on-leave .sl-holiday-sub) の「休」サブバッジは
-   screen-layout.css 側で絶対配置に定義している（バッジ左上・枠線重なり）。 */
+/* 「休」サブバッジ (.sl-holiday-sub) は印刷書式専用。生成は print-touo-nikkei.js の
+   pr-assign-cell 側のみで、描画は上の .pr-assign-cell .sl-holiday-sub が担う。
+   画面側の配置済み社員バッジでは screen-layout.js が .sl-holiday-sub を除去し、
+   カプセル内の .sl-flags へ一本化している。 */
 
 /* ========== サイドパネル社員リスト: 休み社員インジケータ ==========
-   バッジ全体を赤系に着色し、左端に「休」インラインバッジを配置する。
-   ベース: sl-holiday-chip と同じカラーパレット。 */
+   バッジ全体を赤系に着色する。
+   ベース: sl-holiday-chip と同じカラーパレット。
+   2026-07-24: 旧「休」/「明け」ラベル（::before・top/left -6px の絶対配置）は削除。
+   DS カプセル (.person) の overflow:hidden に切られて左上に角だけが見切れていたため。
+   休み / 前日夜勤明けの表示は、いずれもカプセル内の .sl-mini-flag（休 / 月アイコン）へ一本化。 */
 .employee-tag.emp-on-leave {
     background: rgba(219, 87, 123, 0.12);
     border-color: rgba(219, 87, 123, 0.3);
@@ -679,21 +684,6 @@
     border-color: var(--semantic-error);
     color: var(--semantic-error);
 }
-.employee-tag.emp-on-leave::before {
-    content: '休';
-    position: absolute;
-    top: -6px;
-    left: -6px;
-    font-size: 10px;
-    font-weight: 700;
-    line-height: 1;
-    padding: 2px 4px;
-    border-radius: 3px;
-    background: var(--semantic-error);
-    color: #fff;
-    z-index: 2;
-    pointer-events: none;
-}
 /* 配置済み（.assigned）と休み（.emp-on-leave）の併用時も休み色を優先。
    さらに opacity を下げて「もう割り当て済み」のニュアンスを伝える。 */
 .employee-tag.emp-on-leave.assigned {
@@ -701,29 +691,4 @@
     border-color: rgba(219, 87, 123, 0.4);
     color: var(--semantic-error);
     opacity: 0.55;
-}
-
-/* ========== サイドパネル社員リスト: 前日夜勤明けインジケータ ==========
-   バッジ本体は通常色のまま、左端に「明け」インラインバッジのみ配置。
-   色は Applied Color Palette の Shell Beige ペア（背景 #DECCBE / 文字 Shell Beige Dark #5C4A33）。
-   変更通知系と同じ色相を用い、Warning（ゴールド）と視覚的に分離する。 */
-.employee-tag.emp-after-night::before {
-    content: '明け';
-    position: absolute;
-    top: -6px;
-    left: -6px;
-    font-size: 10px;
-    font-weight: 700;
-    line-height: 1;
-    padding: 2px 4px;
-    border-radius: 3px;
-    background: #DECCBE;
-    color: #5C4A33;
-    z-index: 2;
-    pointer-events: none;
-}
-/* 休み申請ありと明けが同時に成立した場合は休みバッジを優先 */
-.employee-tag.emp-on-leave.emp-after-night::before {
-    content: '休';
-    background: var(--semantic-error);
 }
