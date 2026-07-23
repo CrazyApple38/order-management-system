@@ -126,11 +126,11 @@
     border-bottom: 1px solid var(--line);
     box-shadow: inset 0 -1px 0 var(--line);
 }
-/* 行選択: teal → DS ブルー */
+/* 行選択: teal → DS ブルー。
+   2026-07-24: 選択の表現は面（--blue-soft）のみ。枠線は screen-layout.css 側の発生源ごと撤去済みで、
+   ここで打ち消す必要はない（ユーザー指示）。 */
 .app .grid-table tbody tr.selected,
 .app .grid-table tbody tr[aria-selected="true"] {
-    outline: 2px solid var(--blue);
-    outline-offset: -2px;
     background: var(--blue-soft) !important;
 }
 .app .grid-table tbody tr.selected td,

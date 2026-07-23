@@ -1866,14 +1866,13 @@ h1 {
 .grid-table tbody tr,
 .tbl tbody tr {
     cursor: pointer;
-    transition: outline 0.1s;
 }
 
+/* 2026-07-24: 選択の表現は面のみ（枠線は出さない・ユーザー指示）。
+   旧 outline: 2px solid var(--accent-primary) と transition: outline は撤去。 */
 .grid-table tbody tr.selected,
 .grid-table tbody tr[aria-selected="true"],
 .tbl tbody tr[aria-selected="true"] {
-    outline: 2px solid var(--accent-primary);
-    outline-offset: -2px;
     background: var(--accent-primary-dim) !important;
 }
 
